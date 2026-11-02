@@ -5,6 +5,7 @@ Generates and writes an APNX page mapping file.
 """
 
 import struct
+from typing import TYPE_CHECKING
 
 from calibre import fsync, prints
 from calibre.constants import DEBUG
@@ -12,13 +13,15 @@ from calibre.devices.kindle.apnx_page_generator.generators.accurate_page_generat
 from calibre.devices.kindle.apnx_page_generator.generators.exact_page_generator import ExactPageGenerator
 from calibre.devices.kindle.apnx_page_generator.generators.fast_page_generator import FastPageGenerator
 from calibre.devices.kindle.apnx_page_generator.generators.pagebreak_page_generator import PagebreakPageGenerator
-from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGenerator
-from calibre.devices.kindle.apnx_page_generator.pages import Pages
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_bytes, as_unicode
+
+if TYPE_CHECKING:
+    from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGenerator
+    from calibre.devices.kindle.apnx_page_generator.pages import Pages
 
 
 class APNXBuilder:

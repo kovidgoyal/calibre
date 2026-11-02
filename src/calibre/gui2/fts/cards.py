@@ -5,7 +5,7 @@ import weakref
 from functools import lru_cache
 from queue import Queue, ShutDown
 from threading import Thread
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QCursor,
@@ -34,13 +34,15 @@ from qt.core import (
 )
 
 from calibre import prepare_string_for_xml
-from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, qapplication_or_fail
 from calibre.gui2.fts.utils import get_db, help_panel, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
 
 
 class Layout(NamedTuple):

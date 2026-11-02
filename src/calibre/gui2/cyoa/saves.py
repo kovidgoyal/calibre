@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING
 
 from qt.core import QDialogButtonBox, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout, QWidget
 
-from calibre.ai.cyoa import GameState
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, info_dialog, question_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.widgets2 import Dialog
@@ -24,6 +23,8 @@ from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from calibre.ai.cyoa import GameState
 
 SAVE_NAME_ROLE = Qt.ItemDataRole.UserRole
 

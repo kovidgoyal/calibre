@@ -64,7 +64,6 @@ from qt.core import (
 from xxhash import xxh3_64_intdigest
 
 from calibre import fit_image
-from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, qapplication_or_fail, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import (
@@ -79,7 +78,6 @@ from calibre.gui2.library.alternate_views import (
     setup_dnd_interface,
 )
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
-from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
 from calibre.utils.formatter import TEMPLATE_ERROR
@@ -93,6 +91,9 @@ from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
+
+    from calibre.db.cache import Cache
+    from calibre.gui2.library.models import BooksModel
 
 # }}}
 

@@ -19,7 +19,6 @@ from urllib.request import OpenerDirector, ProxyHandler, Request, build_opener
 from calibre import get_proxies
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, ImageData, ImageGenerationOptions, ImageGenerationResult, WebLink
 from calibre.constants import __version__
-from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.date import local_tz
 from calibre.utils.localization import _, pgettext
@@ -29,6 +28,8 @@ if TYPE_CHECKING:
     from unittest.suite import TestSuite
 
     from qt.core import QComboBox, QWidget
+
+    from calibre.customize import AIProviderPlugin
 else:
     TestSuite = QWidget = QComboBox = object
 

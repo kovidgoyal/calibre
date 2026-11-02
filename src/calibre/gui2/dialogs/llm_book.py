@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget
 
 from calibre.ai import ChatMessage, ChatMessageType
-from calibre.db.cache import Cache
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults
@@ -20,6 +19,8 @@ from polyglot.binary import from_hex_unicode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from calibre.db.cache import Cache
 
 
 def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str:

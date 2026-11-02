@@ -18,7 +18,6 @@ from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.comic.input import find_pages
 from calibre.srv.content import create_file_copy
 from calibre.srv.errors import BookNotFound, HTTPNotFound
-from calibre.srv.handler import Context
 from calibre.srv.http_response import ETaggedDynamicOutput, RequestData, StaticOutput, parse_if_none_match
 from calibre.srv.opds import DIVINA_MIME, RequestContext, opds2_metadata
 from calibre.srv.routes import endpoint
@@ -30,6 +29,8 @@ from calibre.utils.zipfile import BadZipfile, ZipFile, ZipInfo
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+    from calibre.srv.handler import Context
 
 DIVINA_PROFILE = 'https://readium.org/webpub-manifest/profiles/divina'
 IMAGE_TYPES = {

@@ -3,6 +3,7 @@
 
 import os
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -30,7 +31,6 @@ from qt.core import (
 
 from calibre import sanitize_file_name
 from calibre.db.backend import FTSQueryError
-from calibre.db.cache import Cache
 from calibre.gui2 import Application, choose_dir, error_dialog, gprefs
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.dialogs.show_category_note import Display
@@ -38,6 +38,9 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
 
 
 def current_db() -> Cache:

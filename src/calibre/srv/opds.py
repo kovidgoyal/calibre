@@ -18,18 +18,12 @@ from calibre import force_unicode, guess_type
 from calibre import prepare_string_for_xml as xml
 from calibre.constants import __appname__
 from calibre.db import FTSQueryError
-from calibre.db.cache import Cache
-from calibre.db.categories import Tag
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
-from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import comments_to_html
 from calibre.srv.errors import HTTPBadRequest, HTTPInternalServerError, HTTPNotFound, HTTPPreconditionRequired, HTTPUnprocessableEntity
 from calibre.srv.fts import book_ids_from_user_restriction
-from calibre.srv.handler import Context, UrlForCallable
 from calibre.srv.http_request import parse_uri
-from calibre.srv.http_response import RequestData
-from calibre.srv.opts import Options
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import MultiDict, Offsets, get_library_data, header_as_str, http_date
 from calibre.utils.config import prefs
@@ -45,6 +39,12 @@ from polyglot.urllib import unquote_plus
 if TYPE_CHECKING:
     import datetime
 
+    from calibre.db.cache import Cache
+    from calibre.db.categories import Tag
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.srv.handler import Context, UrlForCallable
+    from calibre.srv.http_response import RequestData
+    from calibre.srv.opts import Options
     from calibre.srv.routes import RouteFunction
 
 

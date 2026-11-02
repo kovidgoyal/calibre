@@ -19,8 +19,6 @@ from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect, HTTPTempRedirect
-from calibre.srv.handler import Context
-from calibre.srv.http_response import RequestData
 from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, get_gpref, icon_map, web_search_link
 from calibre.srv.routes import endpoint, json
@@ -38,7 +36,8 @@ if TYPE_CHECKING:
 
     from calibre.db.cache import Cache
     from calibre.ebooks.metadata.book.base import FieldMetadataDict
-    from calibre.srv.http_response import ETaggedDynamicOutput
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import ETaggedDynamicOutput, RequestData
     from calibre.srv.last_read import RecentlyReadEntry
 
     class CustomListTemplate(TypedDict):

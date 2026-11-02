@@ -21,12 +21,13 @@ from qt.core import (
 
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import Application, error_dialog
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from calibre.customize import AIProviderPlugin
 
 
 class AIConfigWidget(Protocol):

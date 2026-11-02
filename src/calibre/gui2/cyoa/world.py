@@ -59,7 +59,6 @@ from calibre.ai.cyoa import (
     generate_world,
     npc_character_ids,
 )
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.saves import LoadGameDialog
@@ -71,6 +70,8 @@ from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Mapping, Sequence
+
+    from calibre.customize import AIProviderPlugin
 
 
 class PremadeWorld(NamedTuple):

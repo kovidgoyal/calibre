@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
 
-from calibre.ai import AICapabilities
 from calibre.ai.anthropic import AnthropicAI
 
 if TYPE_CHECKING:
+    from calibre.ai import AICapabilities
     from calibre.ai.anthropic.backend import Model as AIModel
 else:
     AIModel = object

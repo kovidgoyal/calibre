@@ -43,7 +43,6 @@ from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.prefs import prefs as aiprefs
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, qapplication_or_fail, safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -56,6 +55,8 @@ from polyglot.binary import as_hex_unicode
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from calibre.customize import AIProviderPlugin
 
 prompt_sep = '\n\n------\n\n'
 reasoning_icon = 'reports.png'

@@ -6,17 +6,20 @@
 # dialog shown the first time the player enables scene images.
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QFormLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QSpinBox, QTabWidget, QToolButton, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
 from calibre.ai.config import AIConfigWidget, ConfigureAI
-from calibre.customize import AIProviderPlugin
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.text_display import apply_text_display_settings
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.widgets2 import ColorButton, Dialog
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.customize import AIProviderPlugin
 
 
 class LookAndFeelTab(QWidget):

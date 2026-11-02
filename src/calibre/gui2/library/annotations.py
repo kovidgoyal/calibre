@@ -6,7 +6,7 @@ import json
 import os
 import re
 from functools import lru_cache, partial
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from urllib.parse import quote
 
 from qt.core import (
@@ -46,7 +46,6 @@ from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.annotations import ChapterGroup as ChapterGroupBase
 from calibre.db.backend import FTSQueryError
-from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, qapplication_or_fail, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -58,6 +57,9 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, ngettext, pgettext
+
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
 
 
 def render_timestamp(ts):

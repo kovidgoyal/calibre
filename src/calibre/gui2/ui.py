@@ -12,7 +12,7 @@ import textwrap
 from collections import OrderedDict, deque
 from io import BytesIO
 from queue import Empty, Queue
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -57,7 +57,6 @@ from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBox2, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import AlterTagBrowser, TagBrowserMixin
-from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.widgets import BusyCursor, ProgressIndicator
 from calibre.library import current_library_name
@@ -67,6 +66,9 @@ from calibre.utils.ipc.pool import Pool
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from calibre.gui2.tag_browser.view import TagsView
 
 
 @overload

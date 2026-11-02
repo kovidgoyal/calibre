@@ -27,10 +27,11 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from calibre import prepare_string_for_xml
 from calibre.utils.grammar.backend import HAS_WORD, Edit, overlaps
-from calibre.utils.grammar.rules import Issue
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
+
+    from calibre.utils.grammar.rules import Issue
 
 # Elements that start a new paragraph
 BLOCK_TAGS = frozenset(

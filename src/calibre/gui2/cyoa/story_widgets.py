@@ -36,7 +36,6 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre.ai.cyoa import GameState
 from calibre.ai.utils import ContentType, response_to_html
 from calibre.gui2.cyoa.text_display import TextDisplayMixin
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
@@ -45,6 +44,8 @@ from calibre.utils.resources import get_image_path
 
 if TYPE_CHECKING:
     from collections.abc import Container, Mapping
+
+    from calibre.ai.cyoa import GameState
 
 # The ornamental divider drawn between the turns of a chapter, rendered from
 # imgsrc/scene-divider.svg at twice its display width so it stays crisp on

@@ -74,7 +74,6 @@ from calibre.ai.cyoa import (
     serialize_game,
 )
 from calibre.ai.utils import ContentType, response_to_html
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import config, error_dialog, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.read import ReadStoryDialog
@@ -101,6 +100,8 @@ from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from calibre.customize import AIProviderPlugin
 
 QUICK_ACTION_SCHEME = 'quick-action'
 # Quick action number i is activated by pressing Ctrl+(i+1)

@@ -34,13 +34,14 @@ from calibre.ai.cyoa import PROTAGONIST_ID, GameState, GeneratedWorld, StoryStyl
 from calibre.ai.prefs import override_prefs_for_providers, plugins_for_purpose, update_prefs_for_provider
 from calibre.ai.structured import instantiate, spec_for_class
 from calibre.constants import __version__, config_dir
-from calibre.customize import AIProviderPlugin
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import commit_data
 from calibre.utils.short_uuid import uuid4
 
 if TYPE_CHECKING:
     from unittest.suite import TestSuite
+
+    from calibre.customize import AIProviderPlugin
 else:
     TestSuite = object
 

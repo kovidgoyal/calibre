@@ -3,7 +3,7 @@
 
 from itertools import count
 from threading import Thread
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from qt.core import (
     QCheckBox,
@@ -37,7 +37,6 @@ from calibre import prepare_string_for_xml
 from calibre.ai import AICapabilities, ImageData, ImageGenerationOptions, ImageGenerationResult
 from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
-from calibre.customize import AIProviderPlugin
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.llm import LLMSettingsDialogBase
@@ -45,6 +44,9 @@ from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from calibre.customize import AIProviderPlugin
 
 # The purpose used both to configure AI providers and to look up the
 # configured provider. These must be the same value as the configured provider

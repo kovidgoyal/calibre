@@ -2,11 +2,14 @@
 
 import struct
 from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING
 
-from calibre.devices.kindle.apnx_page_generator.pages import Pages
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from calibre.devices.kindle.apnx_page_generator.pages import Pages
 
 
 class IPageGenerator(metaclass=ABCMeta):

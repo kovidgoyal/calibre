@@ -10,18 +10,20 @@
 # are saved into the common AI preferences, all other provider settings are
 # saved into the dedicated CYOA preferences, see data.py.
 
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QFrame, QHBoxLayout, QIcon, QLabel, QPushButton, QScrollArea, QSize, QStackedLayout, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ai import AICapabilities
 from calibre.ai.config import AIConfigWidget, ConfigureAI
-from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.text_display import TextDisplay
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.customize import AIProviderPlugin
 
 # The scheme used for the links that configure a provider and model. The
 # rest of the link is the position of the model in the recommendation lists
