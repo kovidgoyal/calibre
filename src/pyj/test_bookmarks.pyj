@@ -5,14 +5,21 @@ from __python__ import hash_literals
 from elementmaker import E
 
 from modals import close_all_modals, create_modal_container
-from read_book.annotations import AnnotationsManager
+from read_book.annotations import AnnotationsManager, merge_annotation_maps
 from read_book.bookmarks import create_bookmarks_list
 from testing import assert_equal, assert_false, assert_true, test
 
 
+OLD_TIMESTAMP = '2020-01-01T00:00:00.000Z'
+
+
+def initial_bookmarks():
+    return [{'title': title, 'pos': '/' + title, 'type': 'bookmark', 'timestamp': OLD_TIMESTAMP} for title in ['First', 'Middle', 'Last']]
+
+
 def with_bookmarks(proceed):
     manager = AnnotationsManager(None)
-    manager.set_bookmarks([{'title': title, 'pos': '/' + title, 'type': 'bookmark'} for title in ['First', 'Middle', 'Last']])
+    manager.set_bookmarks(initial_bookmarks())
     create_modal_container()
     fallback = E.button('New bookmark')
     document.body.appendChild(fallback)
@@ -73,12 +80,13 @@ def bookmark_rename_to_an_existing_title_is_rejected():
         assert_equal(live_titles(manager), ['First', 'Last', 'Middle'])
         assert_equal(first.querySelector('.item-title').textContent, 'First')
         close_all_modals()
-        # A removed bookmark with the title neither blocks the rename nor is renamed itself
+        # A removed bookmark with the title does not block the rename and is
+        # replaced, while the old title is kept as a removed bookmark
         manager.remove_bookmark('Last')
         row_buttons(first)[1].click()
         assert_false(modal_is_shown())
         assert_equal(live_titles(manager), ['Last', 'Middle'])
-        assert_equal([b.title for b in manager.all_bookmarks() if b.removed], ['Last'])
+        assert_equal([b.title for b in manager.all_bookmarks() if b.removed], ['First'])
 
     with_bookmarks(run)
 
@@ -118,5 +126,24 @@ def bookmark_delete_hides_the_row_even_if_the_bookmark_has_gone():
         answer_question(True)
         assert_equal(row.style.display, 'none')
         assert_false(manager.all_bookmarks().length)
+
+    with_bookmarks(run)
+
+
+@test
+def bookmark_rename_removes_the_old_title_when_merged_with_another_copy():
+    def run(manager, container, fallback):
+        window.prompt = def (): return 'Renamed'
+        middle = container.querySelectorAll('li')[2]
+        assert_equal(middle.querySelector('.item-title').textContent, 'Middle')
+        row_buttons(middle)[1].click()
+        assert_equal(live_titles(manager), ['First', 'Last', 'Renamed'])
+        renamed = [b for b in manager.all_bookmarks() if b.title is 'Renamed'][0]
+        assert_equal(renamed.pos, '/Middle')
+        # The server still has the bookmarks from before the rename
+        updated, merged = merge_annotation_maps({'bookmark': initial_bookmarks()}, {'bookmark': manager.all_bookmarks().as_array()})
+        assert_true(updated)
+        assert_equal(sorted([b.title for b in merged.bookmark if not b.removed]), ['First', 'Last', 'Renamed'])
+        assert_equal([b.title for b in merged.bookmark if b.removed], ['Middle'])
 
     with_bookmarks(run)

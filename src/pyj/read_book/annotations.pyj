@@ -150,15 +150,23 @@ class AnnotationsManager:  # {{{
         return changed
 
     def edit_bookmark(self, title, new_title):
-        changed = False
-        for b in self.bookmarks:
-            if b.title is title and not b.removed:
-                b.title = new_title
-                b.timestamp = Date().toISOString()
-                changed = True
-        if changed:
-            self.sync_annots_to_server('bookmarks')
-        return changed
+        # Bookmarks are merged by title when syncing, so a rename is a removal
+        # of the old title plus a bookmark with the new title. Changing the
+        # title in place would leave the old title alive in other copies.
+        renamed = [b for b in self.bookmarks if b.title is title and not b.removed]
+        if not renamed.length or new_title is title:
+            return False
+        now = Date().toISOString()
+        # As in add_bookmark(), drop removed bookmarks that have the new title
+        self.bookmarks = [b for b in self.bookmarks if b.title is not new_title]
+        for b in renamed:
+            nb = Object.assign({}, b)
+            nb.title, nb.timestamp = new_title, now
+            b.removed, b.timestamp = True, now
+            self.bookmarks.push(nb)
+        sort_annot_list(self.bookmarks, bookmark_get_cfi)
+        self.sync_annots_to_server('bookmarks')
+        return True
 
     def default_bookmark_title(self, base_default_title):
         all_titles = {bm.title: True for bm in self.bookmarks if not bm.removed}

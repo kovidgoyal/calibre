@@ -1428,7 +1428,7 @@ def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
                     data = [relpath]
                     ajax_send(f'data-files/remove/{book_id}/{current_library_id()}',
                         data, data_file_deleted.bind(None, container_id, book_id, relpath))
-                    rebuild_data_files_list(container_id, book_id, relpath_being_deleted)
+                    rebuild_data_files_list(container_id, book_id, relpath)
         )
 
     def ddf(relpath, fname, ev):
