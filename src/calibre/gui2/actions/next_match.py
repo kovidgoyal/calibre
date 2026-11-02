@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
-from qt.core import QAction
+
+from typing import TYPE_CHECKING
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QAction
 
 
 class NextMatchAction(InterfaceAction):

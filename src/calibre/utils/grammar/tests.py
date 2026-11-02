@@ -15,8 +15,6 @@ from threading import Event, Thread
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-import apsw
-
 from calibre.utils.grammar.backend import (
     DEFAULT_ERROR_THRESHOLD,
     Backend,
@@ -47,6 +45,8 @@ from calibre.utils.grammar.worker import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
+
+    import apsw
 
 # Token ids produced by the Hugging Face tokenizers library for the tokenizer
 # of the gec-t5-small model
