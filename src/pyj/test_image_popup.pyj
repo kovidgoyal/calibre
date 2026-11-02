@@ -1,0 +1,179 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from image_popup import ImagePopup
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def with_popup(proceed):
+    origin, other = E.button('Open image'), E.button('Other control')
+    document.body.append(origin, other)
+    popup = ImagePopup()
+    try:
+        origin.focus()
+        popup.show_container()
+        proceed(popup, origin, other)
+    finally:
+        popup.hide_container()
+        popup.container.remove()
+        origin.remove()
+        other.remove()
+
+
+def keydown(target, key, **kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    target.dispatchEvent(ev)
+    return ev
+
+
+@test
+def image_popup_is_an_accessible_dialog():
+    def run(popup, origin):
+        c = popup.container
+        fit, close = c.querySelectorAll('button')
+        assert_equal(c.getAttribute('role'), 'dialog')
+        assert_equal(c.getAttribute('aria-modal'), 'true')
+        assert_equal(document.activeElement, c)
+        assert_equal(fit.type, 'button')
+        assert_equal(close.type, 'button')
+        assert_true(bool(fit.getAttribute('aria-label')))
+        assert_true(bool(close.getAttribute('aria-label')))
+        label = fit.getAttribute('aria-label')
+        popup.fit_to_window = True
+        assert_equal(fit.getAttribute('aria-pressed'), 'true')
+        fit.click()
+        assert_false(popup.fit_to_window)
+        assert_equal(fit.getAttribute('aria-pressed'), 'false')
+        assert_equal(fit.getAttribute('aria-label'), label)
+        assert_equal(fit.title, label)
+        close.click()
+        assert_equal(c.style.display, 'none')
+        assert_equal(document.activeElement, origin)
+    with_popup(run)
+
+
+@test
+def image_popup_traps_tab_focus():
+    def run(popup):
+        c = popup.container
+        fit, close = c.querySelectorAll('button')
+        # From the container itself
+        assert_true(keydown(c, 'Tab').defaultPrevented)
+        assert_equal(document.activeElement, fit)
+        keydown(fit, 'Tab')
+        assert_equal(document.activeElement, close)
+        keydown(close, 'Tab')
+        assert_equal(document.activeElement, fit)
+        keydown(fit, 'Tab', shiftKey=True)
+        assert_equal(document.activeElement, close)
+        c.focus()
+        keydown(c, 'Tab', shiftKey=True)
+        assert_equal(document.activeElement, close)
+        # Focus on a non button element inside the popup
+        popup.canvas.setAttribute('tabindex', '-1')
+        popup.canvas.focus()
+        keydown(popup.canvas, 'Tab')
+        assert_equal(document.activeElement, fit)
+    with_popup(run)
+
+
+@test
+def image_popup_key_handling():
+    def run(popup):
+        c = popup.container
+        fit, close = c.querySelectorAll('button')
+        popup.fit_to_window = True
+        # Native activation of buttons
+        assert_false(keydown(close, ' ').defaultPrevented)
+        assert_false(keydown(fit, 'Enter').defaultPrevented)
+        assert_true(popup.fit_to_window)
+        assert_equal(c.style.display, 'block')
+        # Browser shortcuts pass through
+        assert_false(keydown(c, 'f', ctrlKey=True).defaultPrevented)
+        assert_false(keydown(c, 'r', metaKey=True).defaultPrevented)
+        assert_false(keydown(c, 'F5').defaultPrevented)
+        # Keys that could scroll or interact with the page behind are blocked
+        for key in ('a', '/', 'Home', 'End', 'Enter'):
+            assert_true(keydown(c, key).defaultPrevented, key)
+        for key in ('Home', 'End', 'ArrowLeft', 'PageDown'):
+            assert_true(keydown(c, key, ctrlKey=True).defaultPrevented, key)
+            assert_true(keydown(c, key, altKey=True).defaultPrevented, key)
+        # Malformed events do not throw
+        keydown(c, undefined, ctrlKey=True)
+        # Keys never propagate past the popup
+        seen = []
+
+        def listener(ev):
+            seen.push(ev.key)
+        document.body.addEventListener('keydown', listener)
+        try:
+            keydown(c, 'x')
+            keydown(fit, 'Enter')
+            keydown(c, 'c', ctrlKey=True)
+        finally:
+            document.body.removeEventListener('keydown', listener)
+        assert_equal(seen.length, 0)
+        assert_true(keydown(c, ' ').defaultPrevented)
+        assert_false(popup.fit_to_window)
+    with_popup(run)
+
+
+@test
+def image_popup_panning_and_escape():
+    def run(popup, origin):
+        c = popup.container
+        popup.img = E.canvas(width='4000', height='3000')
+        popup.img_ok = True
+        popup.x = popup.y = 0
+        popup.fit_to_window = False
+        popup.resize_canvas()
+        assert_true(keydown(c, 'ArrowDown').defaultPrevented)
+        assert_equal(popup.y, -10)
+        keydown(c, 'ArrowRight')
+        assert_equal(popup.x, -10)
+        keydown(c, 'ArrowDown', ctrlKey=True)
+        assert_equal(popup.y, -window.innerHeight)
+        keydown(c, 'PageUp')
+        assert_equal(popup.y, -10)
+        assert_true(keydown(c, 'Escape').defaultPrevented)
+        assert_equal(c.style.display, 'none')
+        assert_equal(document.activeElement, origin)
+    with_popup(run)
+
+
+@test
+def image_popup_focus_restoration():
+    def run(popup, origin, other):
+        # Re-showing while open keeps the original return target
+        popup.show_container()
+        popup.hide_container()
+        assert_equal(document.activeElement, origin)
+        # Hiding twice is harmless
+        popup.hide_container()
+        assert_equal(document.activeElement, origin)
+        # Focus lost to body is still restored
+        popup.show_container()
+        document.activeElement.blur()
+        popup.hide_container()
+        assert_equal(document.activeElement, origin)
+        # Focus deliberately moved elsewhere is not stolen back
+        popup.show_container()
+        other.focus()
+        popup.hide_container()
+        assert_equal(document.activeElement, other)
+        # Hidden or removed return targets are skipped
+        origin.focus()
+        popup.show_container()
+        origin.style.display = 'none'
+        popup.hide_container()
+        assert_false(document.activeElement is origin)
+        origin.style.display = ''
+        other.focus()
+        popup.show_container()
+        other.remove()
+        popup.hide_container()
+        assert_false(document.activeElement is other)
+    with_popup(run)

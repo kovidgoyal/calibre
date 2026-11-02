@@ -15,7 +15,7 @@ from utils import debounce
 add_extra_css(def ():
     # Modern, minimal "glass" image viewer styling
     css = ''
-    css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); }\n'
+    css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); outline: none; }\n'
     css += '.calibre-image-popup canvas { outline: none; }\n'
     css += '.calibre-image-popup .cs-image-toolbar {'
     css += ' position: fixed; top: 0; left: 0; width: 100%;'
@@ -25,7 +25,7 @@ add_extra_css(def ():
     css += ' border-bottom: var(--calibre-border-style-subtle);'
     css += ' backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);'
     css += ' }\n'
-    css += '.calibre-image-popup a {'
+    css += '.calibre-image-popup button {'
     css += ' display: inline-flex; align-items: center; justify-content: center;'
     css += ' gap: 0.4rem;'
     css += ' padding: 0.55rem 0.75rem;'
@@ -33,22 +33,25 @@ add_extra_css(def ():
     css += ' cursor: pointer; user-select: none;'
     css += ' background: rgba(255,255,255,0.10);'
     css += ' border: var(--calibre-border-style-subtle);'
-    css += ' color: inherit;'
+    css += ' color: inherit; font: inherit; line-height: inherit; margin: 0;'
     css += ' }\n'
-    css += '.calibre-image-popup a:hover { background: rgba(255,255,255,0.16); }\n'
-    css += '.calibre-image-popup a:active { transform: scale(0.98); }\n'
-    css += '.calibre-image-popup a:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
+    css += '.calibre-image-popup button:hover { background: rgba(255,255,255,0.16); }\n'
+    css += '.calibre-image-popup button:active { transform: scale(0.98); }\n'
+    css += '.calibre-image-popup button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\n'
     css += '.calibre-image-popup svg { width: 2.1ex; height: 2.1ex; }\n'
-    css += '.calibre-image-popup.fit-to-window a.fit-to-window {'
+    css += '.calibre-image-popup.fit-to-window button.fit-to-window {'
     css += ' background: rgba(108,180,238,0.28);'
     css += ' border-color: rgba(108,180,238,0.38);'
     css += ' }\n'
     css += '@media (max-width: 720px) {'
     css += ' .calibre-image-popup .cs-image-toolbar { padding-left: 10px; padding-right: 10px; }'
-    css += ' .calibre-image-popup a { padding: 0.65rem 0.9rem; }'
+    css += ' .calibre-image-popup button { padding: 0.65rem 0.9rem; }'
     css += ' }\n'
     return css
 )
+
+
+NAVIGATION_KEYS = (' ', 'Escape', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'PageDown', 'PageUp', 'Home', 'End')
 
 
 def fit_image(width, height, pwidth, pheight):
@@ -86,34 +89,42 @@ class ImagePopup(TouchHandler):
         self.img = None
         self.img_loading = False
         self.img_ok = False
+        self.previous_focus = None
+        self.debounced_resize = debounce(self.resize_canvas, 250)
+
+    @property
+    def is_visible(self):
+        return self._container is not None and self._container.style.display is not 'none'
 
     @property
     def container(self):
         if self._container is None:
             self._container = E.div(
                 style=(
-                    f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX};'
+                    f'display:none; position:fixed; left:0; top: 0; z-index: {MODAL_Z_INDEX};'
                     + ' width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box'
                 ),
                 id=self.container_id,
-                tabindex='0',
+                tabindex='-1', role='dialog', aria_modal='true', aria_label=_('Image viewer'),
                 class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,
                 E.div(
                     class_='cs-image-toolbar',
-                    E.a(svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window', onclick=self.toggle_fit_to_window,),
-                    E.a(svgicon('close'), title=_('Close'), onclick=self.hide_container),
+                    E.button(
+                        svgicon('fit-to-screen'), type='button', class_='fit-to-window', aria_pressed='false',
+                        title=_('Fit image to window'), aria_label=_('Fit image to window'), onclick=self.toggle_fit_to_window,
+                    ),
+                    E.button(svgicon('close'), type='button', title=_('Close'), aria_label=_('Close'), onclick=self.hide_container),
                 ),
                 E.canvas(
                     width=window.innerWidth + '', height=window.innerHeight + '',
                     style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block',
-                    aria_label='Popup view of image',
+                    role='img', aria_label=_('Popup view of image'),
                 )
             )
             document.body.appendChild(self._container)
             install_handlers(self.canvas, self)
-            window.addEventListener('resize', debounce(self.resize_canvas, 250))
         return self._container
 
     def onwheel(self, ev):
@@ -126,23 +137,60 @@ class ImagePopup(TouchHandler):
         self.scroll_y(dy)
         self.scroll_x(dx)
 
+    def focusable_controls(self):
+        return [b for b in self.container.querySelectorAll('button') if not b.disabled and b.getClientRects().length]
+
+    def cycle_focus(self, backwards):
+        controls = self.focusable_controls()
+        if not controls.length:
+            self.container.focus({'preventScroll': True})
+            return
+        idx = controls.indexOf(document.activeElement)
+        if idx < 0:
+            idx = controls.length - 1 if backwards else 0
+        else:
+            idx = (idx + (controls.length - 1 if backwards else 1)) % controls.length
+        controls[idx].focus({'preventScroll': True})
+
     def onkeydown(self, ev):
-        ev.preventDefault(), ev.stopPropagation()
-        if ev.key is ' ':
+        # Never let key presses reach the reader or other handlers behind the popup
+        ev.stopPropagation()
+        key = ev.key or ''
+        has_modifier = ev.ctrlKey or ev.altKey or ev.metaKey
+        if key is 'Tab':
+            if not has_modifier:
+                # Keep focus inside the modal popup regardless of where it currently is
+                ev.preventDefault()
+                self.cycle_focus(ev.shiftKey)
+            return
+        if (key is 'Enter' or key is ' ') and not has_modifier and ev.target.closest and ev.target.closest('button'):
+            # Let native buttons activate themselves
+            return
+        if key not in NAVIGATION_KEYS:
+            if has_modifier or /^F[0-9]+$/.test(key):
+                # Browser shortcuts such as zoom, reload or copy
+                return
+            # Block everything else, for example typeahead/quick find
+            ev.preventDefault()
+            return
+        ev.preventDefault()
+        if key is ' ':
             return self.toggle_fit_to_window()
-        if ev.key is 'Escape':
+        if key is 'Escape':
             return self.hide_container()
-        if ev.key is 'ArrowDown':
+        if key is 'Home' or key is 'End':
+            return
+        if key is 'ArrowDown':
             return self.scroll_down((window.innerHeight - 10) if ev.getModifierState('Control') else 10)
-        if ev.key is 'PageDown':
+        if key is 'PageDown':
             return self.scroll_down(window.innerHeight - 10)
-        if ev.key is 'ArrowUp':
+        if key is 'ArrowUp':
             return self.scroll_up((window.innerHeight - 10) if ev.getModifierState('Control') else 10)
-        if ev.key is 'PageUp':
+        if key is 'PageUp':
             return self.scroll_up(window.innerHeight - 10)
-        if ev.key is 'ArrowLeft':
+        if key is 'ArrowLeft':
             return self.scroll_left((window.innerWidth - 10) if ev.getModifierState('Control') else 10)
-        if ev.key is 'ArrowRight':
+        if key is 'ArrowRight':
             return self.scroll_right((window.innerWidth - 10) if ev.getModifierState('Control') else 10)
 
     def handle_gesture(self, gesture):
@@ -241,10 +289,9 @@ class ImagePopup(TouchHandler):
         c = self.container
         if val:
             c.classList.add('fit-to-window')
-            c.querySelector('a.fit-to-window').title = _('Do not fit image to window')
         else:
             c.classList.remove('fit-to-window')
-            c.querySelector('a.fit-to-window').title = _('Fit image to window')
+        c.querySelector('button.fit-to-window').setAttribute('aria-pressed', 'true' if val else 'false')
 
     def resize_canvas(self):
         c = self.canvas
@@ -262,11 +309,28 @@ class ImagePopup(TouchHandler):
 
     def show_container(self):
         self.flick_animator.stop()
-        self.container.style.display = 'block'
+        if self.is_visible:
+            return
+        c = self.container
+        # Remember where focus was so it can be returned when the popup closes
+        self.previous_focus = document.activeElement
+        c.style.display = 'block'
+        window.addEventListener('resize', self.debounced_resize)
+        c.focus({'preventScroll': True})
 
     def hide_container(self):
         self.flick_animator.stop()
-        self.container.style.display = 'none'
+        if not self.is_visible:
+            return
+        c = self.container
+        active = document.activeElement
+        # Only restore focus if it is still in the popup or was lost, not if something else took it
+        restore = not active or active is document.body or c.contains(active)
+        previous, self.previous_focus = self.previous_focus, None
+        window.removeEventListener('resize', self.debounced_resize)
+        c.style.display = 'none'
+        if restore and previous and previous is not document.body and previous.isConnected and previous.getClientRects().length:
+            previous.focus({'preventScroll': True})
 
     def show_url(self, url):
         self.img = Image()
