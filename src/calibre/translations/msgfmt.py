@@ -31,24 +31,26 @@ import getopt
 import os
 import struct
 import sys
+from collections.abc import Iterable, Iterator, Sequence
 from email.parser import HeaderParser
+from typing import IO, NoReturn
 
 __version__ = '1.2'
 
-MESSAGES = {}
-STATS = {'translated': 0, 'untranslated': 0, 'uniqified': 0}
+MESSAGES: dict[bytes, bytes] = {}
+STATS: dict[str, int] = {'translated': 0, 'untranslated': 0, 'uniqified': 0}
 MAKE_UNIQUE = False
-NON_UNIQUE = set()
+NON_UNIQUE: set[bytes] = set()
 
 
-def usage(code, msg=''):
+def usage(code: int, msg: object = '') -> NoReturn:
     print(__doc__, file=sys.stderr)
     if msg:
         print(msg, file=sys.stderr)
     sys.exit(code)
 
 
-def add(ctxt, msgid, msgstr, fuzzy):
+def add(ctxt: bytes | None, msgid: bytes, msgstr: bytes, fuzzy: int) -> None:
     "Add a non-fuzzy translation to the dictionary."
     if (not fuzzy or not msgid) and msgstr:
         if msgid:
@@ -67,7 +69,7 @@ def add(ctxt, msgid, msgstr, fuzzy):
         STATS['untranslated'] += 1
 
 
-def generate():
+def generate() -> bytes:
     "Return the generated output."
     # the keys are sorted in the .mo file
     keys = sorted(MESSAGES.keys())
@@ -113,7 +115,7 @@ def generate():
     return output
 
 
-def make(filename, outfile):
+def make(filename: str, outfile: str | IO[bytes] | None) -> None:
     ID = 1
     STR = 2
     CTXT = 3
@@ -142,7 +144,7 @@ def make(filename, outfile):
     # until we know the exact encoding
     encoding = 'latin-1'
 
-    def check_encoding():
+    def check_encoding() -> None:
         nonlocal encoding
         if not msgid and msgstr:
             # See whether there is an encoding declaration
@@ -229,7 +231,7 @@ def make(filename, outfile):
     # Compute output
     output = generate()
     try:
-        if hasattr(outfile, 'write'):
+        if not isinstance(outfile, str) and hasattr(outfile, 'write'):
             outfile.write(output)
         else:
             with open(outfile, 'wb') as f:
@@ -238,7 +240,7 @@ def make(filename, outfile):
         print(msg, file=sys.stderr)
 
 
-def make_with_stats(filename, outfile):
+def make_with_stats(filename: str, outfile: str | IO[bytes] | None) -> dict[str, int]:
     MESSAGES.clear()
     NON_UNIQUE.clear()
     STATS['translated'] = STATS['untranslated'] = STATS['uniqified'] = 0
@@ -246,12 +248,12 @@ def make_with_stats(filename, outfile):
     return STATS.copy()
 
 
-def run_batch(pairs):
+def run_batch(pairs: Iterable[Sequence[str]]) -> Iterator[dict[str, int]]:
     for filename, outfile in pairs:
         yield make_with_stats(filename, outfile)
 
 
-def main():
+def main() -> None:
     global MAKE_UNIQUE
     args = sys.argv[1:]
     if args[0] == 'STDIN':

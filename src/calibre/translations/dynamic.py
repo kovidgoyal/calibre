@@ -13,10 +13,10 @@ from calibre.utils.resources import get_path
 
 __all__ = ['translate']
 
-_CACHE = {}
+_CACHE: dict[str, GNUTranslations] = {}
 
 
-def translate(lang, text):
+def translate(lang: str, text: str) -> str:
     trans = None
     if lang in _CACHE:
         trans = _CACHE[lang]
