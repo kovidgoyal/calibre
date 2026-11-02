@@ -233,7 +233,7 @@ class Main(
     def add_istore(self, st):
         stmap = self.istores
         if st.name in stmap:
-            if st.priority >= stmap[st.name].priority:
+            if st.base_plugin.priority >= stmap[st.name].base_plugin.priority:
                 stmap[st.name] = st
         else:
             stmap[st.name] = st
