@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Container
 from struct import calcsize, pack, unpack_from
 from struct import error as struct_error
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt import FixedProperty, UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+
+if TYPE_CHECKING:
+    from collections.abc import Container
 
 
 class KernTable(UnknownTable):

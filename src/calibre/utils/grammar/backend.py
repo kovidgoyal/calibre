@@ -16,7 +16,6 @@
 import math
 import re
 import sys
-from collections.abc import Callable, Iterable, Sequence
 from difflib import SequenceMatcher
 from threading import Lock
 from time import monotonic
@@ -39,6 +38,8 @@ from calibre.utils.grammar.models import (
 from calibre.utils.grammar.tokenizer import NormalizedText, UnigramTokenizer, load_tokenizer
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
     from calibre_extensions.seq2seq import Seq2SeqModel
 
 # Increment when changes to this module change the results of checks, so that

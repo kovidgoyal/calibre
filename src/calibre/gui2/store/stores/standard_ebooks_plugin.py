@@ -3,7 +3,7 @@
 
 store_version = 1  # Needed for dynamic plugin loading
 
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from lxml import etree
@@ -13,6 +13,9 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 BASE_URL = 'https://standardebooks.org'
 # The maximum number of results per page the site allows

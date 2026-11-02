@@ -8,14 +8,13 @@ import math
 import random
 import struct
 import weakref
-from collections.abc import Callable, Iterable, Iterator
 from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
 from queue import LifoQueue, ShutDown
 from threading import Event, RLock, Thread, current_thread
 from time import monotonic
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QAbstractItemView,
@@ -91,6 +90,9 @@ from calibre.utils.localization import _, lang_map
 from calibre.utils.resources import get_image_path as I
 from calibre_extensions.imageops import dominant_color
 from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
 
 # }}}
 

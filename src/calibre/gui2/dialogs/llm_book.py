@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterator
 from functools import lru_cache
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget
 
@@ -18,6 +17,9 @@ from calibre.library.comments import comments_as_markdown
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, ngettext
 from polyglot.binary import from_hex_unicode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str:

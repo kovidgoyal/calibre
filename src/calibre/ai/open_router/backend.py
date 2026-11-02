@@ -5,12 +5,13 @@ import datetime
 import json
 import os
 import re
-from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
+
     from calibre.ai.open_router.config import ConfigWidget
 else:
     ConfigWidget = object

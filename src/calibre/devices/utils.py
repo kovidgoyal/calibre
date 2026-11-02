@@ -4,15 +4,16 @@
 import os
 import re
 import time
-from collections.abc import Callable, Iterable, Sequence
 from functools import partial
-from types import ModuleType
 from typing import TYPE_CHECKING, cast
 
 from calibre.devices.errors import DeviceError, FreeSpaceError, WrongDestinationError
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from types import ModuleType
+
     from calibre.ebooks.metadata.book.base import Metadata
 
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Buffer, Callable
 from typing import TYPE_CHECKING, Any, cast
 
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
 
 if TYPE_CHECKING:
+    from collections.abc import Buffer, Callable
     from datetime import datetime
 
     import msgpack

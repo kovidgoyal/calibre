@@ -1,4 +1,3 @@
-from datetime import datetime
 from html import escape
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
@@ -9,6 +8,8 @@ from calibre.srv.content import book_filename
 from calibre.utils.date import dt_as_local, is_date_undefined, strftime
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData

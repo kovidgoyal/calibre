@@ -7,7 +7,6 @@ import shutil
 import time
 import traceback
 from collections import defaultdict
-from io import BytesIO
 from queue import Empty
 from typing import TYPE_CHECKING, NamedTuple, cast
 
@@ -29,6 +28,8 @@ from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from io import BytesIO
+
     from calibre.library.save_to_disk import Plugboards
 
 

@@ -6,7 +6,6 @@ import shutil
 import sys
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator
 from itertools import chain, repeat
 from typing import IO, TYPE_CHECKING, cast
 
@@ -42,6 +41,8 @@ from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+
     from calibre.customize import FileTypePluginDB
     from calibre.devices.usbms.driver import USBMS
     from calibre.ebooks.metadata.book.base import Metadata

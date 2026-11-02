@@ -3,7 +3,6 @@
 
 import glob
 import os
-from collections.abc import Callable
 from contextlib import suppress
 from datetime import timedelta
 from io import BytesIO
@@ -18,6 +17,8 @@ from calibre.utils.img import image_from_path
 from calibre.utils.resources import get_image_path
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from apsw import Cursor
 
     from calibre.db.cache import Cache

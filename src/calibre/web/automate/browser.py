@@ -3,13 +3,15 @@
 
 import asyncio
 import random
-from collections.abc import Iterable
 from contextlib import suppress
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 from calibre.web.automate.camoufox import Browser as CamoufoxBrowser
 from calibre.web.automate.camoufox import Error, Page, debug, remove_profile_dir
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 wikipedia_topics = (
     'Lists_of_deaths_by_year',

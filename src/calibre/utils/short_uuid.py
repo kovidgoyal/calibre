@@ -8,7 +8,10 @@ Generate UUID encoded using a user specified alphabet.
 import math
 import string
 import uuid as _uuid
-from collections.abc import Mapping, Sequence
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping, Sequence
 
 
 def num_to_string(number: int, alphabet: Sequence[str], alphabet_len: int, pad_to_length: int | None = None) -> str:

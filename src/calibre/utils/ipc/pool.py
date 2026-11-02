@@ -3,7 +3,6 @@
 
 import os
 import sys
-from collections.abc import Callable, Sequence
 from multiprocessing.connection import Pipe
 from queue import Queue
 from threading import Thread
@@ -17,6 +16,7 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
     from multiprocessing.connection import Connection, PipeConnection
     from subprocess import Popen
 

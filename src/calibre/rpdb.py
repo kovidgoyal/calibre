@@ -9,11 +9,13 @@ import select
 import socket
 import sys
 import time
-from collections.abc import Iterable
 from contextlib import suppress
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from calibre.constants import cache_dir
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 PROMPT = '(debug) '
 QUESTION = '\x00\x01\x02'

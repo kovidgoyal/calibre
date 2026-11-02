@@ -2,12 +2,11 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
-from collections.abc import Callable
 from copy import copy, deepcopy
 from functools import partial
 from itertools import product
 from operator import attrgetter, methodcaller
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from qt.core import (
     QAbstractItemView,
@@ -53,6 +52,9 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _, get_lang, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class BasicSettings(QWidget):  # {{{

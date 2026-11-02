@@ -3,10 +3,13 @@
 
 import errno
 import os
-from collections.abc import Callable
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from calibre.constants import filesystem_encoding, get_windows_username, islinux, iswindows
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 VADDRESS = None
 

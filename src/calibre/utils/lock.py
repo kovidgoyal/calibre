@@ -6,16 +6,18 @@ import errno
 import os
 import stat
 import time
-from collections.abc import Callable
 from functools import partial
-from io import BufferedRandom
-from types import TracebackType
-from typing import IO
+from typing import IO, TYPE_CHECKING
 
 from calibre.constants import __appname__, filesystem_encoding, islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir, get_default_tempdir
 from calibre.utils.monotonic import monotonic
 from calibre_extensions import speedup
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from io import BufferedRandom
+    from types import TracebackType
 
 if iswindows:
     import msvcrt

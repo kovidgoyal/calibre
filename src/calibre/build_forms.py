@@ -3,8 +3,11 @@
 
 import importlib
 import os
-import re
-from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import re
+    from collections.abc import Callable
 
 
 def form_to_compiled_form(form: str) -> str:

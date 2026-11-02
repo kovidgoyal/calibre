@@ -2,11 +2,12 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Callable, Sequence
 from functools import partial
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
     from calibre.utils.fonts.sfnt.container import Sfnt
 
 

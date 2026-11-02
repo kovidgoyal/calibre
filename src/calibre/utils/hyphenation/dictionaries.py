@@ -5,14 +5,17 @@ import errno
 import json
 import os
 import tarfile
-from collections.abc import Callable
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 _locale_map_cache: dict | None = None
 

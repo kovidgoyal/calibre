@@ -5,13 +5,14 @@ import json
 import os
 import re
 import subprocess
-from collections.abc import Iterator
 from contextlib import suppress
 from typing import TYPE_CHECKING, Self
 
 from calibre.constants import isfreebsd
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from jeepney import DBusAddress, Message
     from jeepney.io.blocking import DBusConnection
 

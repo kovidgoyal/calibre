@@ -4,7 +4,6 @@
 import os
 import sys
 import weakref
-from collections.abc import Callable, Iterator
 from contextlib import suppress
 from queue import Queue, ShutDown
 from threading import Event, Thread, current_thread
@@ -22,6 +21,8 @@ from calibre.utils.date import utcnow
 from calibre.utils.filenames import make_long_path_useable
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
     from calibre.db.cache import Cache
 CacheRef = weakref.ref['Cache']
 NO_COUNTABLE_FORMATS, COUNT_FAILED, DRMED_FORMATS = -1, -2, -3

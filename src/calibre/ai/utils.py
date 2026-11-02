@@ -8,7 +8,6 @@ import json
 import os
 import re
 import tempfile
-from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
@@ -26,6 +25,7 @@ from calibre.utils.date import local_tz
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from unittest.suite import TestSuite
 
     from qt.core import QComboBox, QWidget

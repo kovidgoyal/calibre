@@ -13,8 +13,8 @@
 
 import os
 import sys
-from collections.abc import Sequence
 from contextlib import closing
+from typing import TYPE_CHECKING
 
 from qt.core import QFont, QIcon, QSize, QStackedWidget, Qt
 
@@ -32,6 +32,9 @@ from calibre.utils.config import OptionParser
 from calibre.utils.ipc import cyoa_socket_address
 from calibre.utils.localization import _
 from calibre.utils.lock import SingleInstance
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Only one process can play at a time, as two of them would overwrite each
 # other's auto-saved game, see main().

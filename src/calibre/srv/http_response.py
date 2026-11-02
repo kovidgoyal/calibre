@@ -9,7 +9,6 @@ import reprlib
 import struct
 import time
 import uuid
-from collections.abc import Callable, Iterable, Iterator
 from compression import zlib
 from functools import wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
@@ -28,6 +27,7 @@ from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.builtins import error_message, reraise
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
     from types import TracebackType
 
     from calibre.srv.http_request import InHeaders, OutputBuffer

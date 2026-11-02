@@ -3,7 +3,6 @@
 
 import json
 import textwrap
-from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 from qt.core import (
@@ -35,6 +34,8 @@ from calibre.prints import debug_print
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from calibre.devices.kobo.driver import KOBOTOUCH
     from calibre.utils.config_base import ConfigProxy, OptionValues
 

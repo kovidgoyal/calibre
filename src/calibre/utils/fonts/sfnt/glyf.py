@@ -2,11 +2,13 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Callable, Mapping
 from struct import unpack_from
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 from calibre.utils.fonts.sfnt import UnknownTable
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 ARG_1_AND_2_ARE_WORDS = 0x0001  # if set args are words otherwise they are bytes
 ARGS_ARE_XY_VALUES = 0x0002  # if set args are xy values, otherwise they are points

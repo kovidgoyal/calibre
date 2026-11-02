@@ -5,13 +5,14 @@ import io
 import locale
 import os
 import re
-from collections.abc import Callable, Iterable, Iterator
 from typing import TYPE_CHECKING, Any, NotRequired, TypedDict, overload
 
 from calibre.utils.resources import get_path as P
 from calibre_extensions.translator import Translator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+
     from calibre.ebooks.unihandecode import Unihandecoder
 
     class TranslatorsForLang(TypedDict):

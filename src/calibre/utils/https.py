@@ -3,13 +3,15 @@
 
 import http.client
 import ssl
-from collections.abc import Mapping
 from contextlib import closing
-from typing import Any, Literal, overload
+from typing import TYPE_CHECKING, Any, Literal, overload
 from urllib.parse import urlsplit
 
 from calibre import get_proxies
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class HTTPError(ValueError):

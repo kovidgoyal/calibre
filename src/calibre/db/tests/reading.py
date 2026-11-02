@@ -4,7 +4,6 @@
 import datetime
 import os
 import unittest
-from collections.abc import Callable, Iterable
 from io import BytesIO
 from time import time
 from typing import TYPE_CHECKING
@@ -15,6 +14,8 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.search_query_parser import ParseException
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
     from apsw import Cursor
 
     from calibre.db.categories import Tag

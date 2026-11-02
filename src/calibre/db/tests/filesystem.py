@@ -4,7 +4,6 @@
 import os
 import time
 import unittest
-from collections.abc import Callable, Iterable
 from contextlib import closing
 from io import BytesIO
 from threading import Event
@@ -16,6 +15,8 @@ from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
     from calibre.db.cache import Cache
 
 

@@ -4,11 +4,14 @@
 import os
 import sys
 import traceback
-from collections.abc import Generator
 from contextlib import contextmanager
 from threading import Condition, Lock, Thread, current_thread
 from time import monotonic
-from types import TracebackType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+    from types import TracebackType
 
 
 @contextmanager

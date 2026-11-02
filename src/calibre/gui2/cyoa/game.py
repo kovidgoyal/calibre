@@ -12,13 +12,12 @@
 # scene images on/off.
 
 from bisect import bisect_right
-from collections.abc import Callable
 from functools import partial
 from html import escape
 from itertools import count
 from threading import Thread
 from time import monotonic
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QAction,
@@ -99,6 +98,9 @@ from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 QUICK_ACTION_SCHEME = 'quick-action'
 # Quick action number i is activated by pressing Ctrl+(i+1)

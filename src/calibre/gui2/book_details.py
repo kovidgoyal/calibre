@@ -3,7 +3,6 @@
 
 import os
 import re
-from collections.abc import Callable
 from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
@@ -79,6 +78,8 @@ class InternetSearch(NamedTuple):
 
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from calibre.gui2.dialogs.book_info import BookInfo as DialogBookInfo
 
 

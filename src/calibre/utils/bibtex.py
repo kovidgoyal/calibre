@@ -64,9 +64,12 @@ __author__ = 'sengian <sengian1 at gmail.com>'
 
 import re
 import string
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from calibre.utils.mreplace import MReplace
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 utf8enc2latex_mapping = {  # {{{
     # This is a mapping of Unicode characters to LaTeX equivalents.

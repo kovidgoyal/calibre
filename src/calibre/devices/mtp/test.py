@@ -4,7 +4,6 @@
 import gc
 import io
 import unittest
-from collections.abc import Callable
 from typing import TYPE_CHECKING, cast
 
 from calibre.constants import islinux, iswindows
@@ -14,6 +13,8 @@ from calibre.utils.icu import lower
 from calibre.utils.stop_gc import stop_gc
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from calibre.devices.mtp.filesystem_cache import FileOrFolder, MTPEntry, ObjectId
 
 

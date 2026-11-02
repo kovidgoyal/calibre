@@ -4,9 +4,9 @@
 import importlib
 import os
 import sys
-from collections.abc import Callable, Sequence
 from queue import Queue
 from threading import Thread
+from typing import TYPE_CHECKING
 from zipimport import ZipImportError
 
 from calibre import prints
@@ -14,6 +14,9 @@ from calibre.constants import ismacos, iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps
 from polyglot.binary import from_hex_unicode
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 if iswindows:
     from multiprocessing.connection import PipeConnection as Connection

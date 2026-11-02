@@ -18,8 +18,7 @@ import tempfile
 import threading
 import time
 import unittest
-from collections.abc import Awaitable, Callable, Iterator, Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 from calibre.constants import cache_dir, iswindows
@@ -33,6 +32,9 @@ from calibre.web.automate.download_deps import (
     camoufox_resource_dir,
     system_camoufox,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Iterator, Mapping
 
 TEST_PAGE = '''<!DOCTYPE html><html><head><title>Test Page</title></head><body>
 <h1 id="title">Hello</h1>

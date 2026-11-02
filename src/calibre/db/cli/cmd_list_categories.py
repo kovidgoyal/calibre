@@ -3,7 +3,6 @@
 
 import csv
 import sys
-from collections.abc import Callable
 from textwrap import TextWrapper
 from typing import IO, TYPE_CHECKING, cast
 
@@ -12,7 +11,7 @@ from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Callable, Mapping, Sequence
     from optparse import Values
 
     from calibre.db.cache import Cache

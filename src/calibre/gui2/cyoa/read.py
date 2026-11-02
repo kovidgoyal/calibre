@@ -14,7 +14,7 @@
 import os
 import shutil
 import tempfile
-from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QCheckBox,
@@ -60,6 +60,9 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
 from calibre.ptempfile import get_default_tempdir
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 # How long to wait after the width available for the story changes before
 # rendering the chapter again with the illustrations scaled to the new width,

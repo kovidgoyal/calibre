@@ -2,10 +2,12 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import socket
-from collections.abc import Callable, Sequence
-from typing import IO
+from typing import IO, TYPE_CHECKING
 
 from calibre_extensions import certgen
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 
 def create_key_pair(size: int = 2048) -> object:

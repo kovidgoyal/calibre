@@ -20,15 +20,17 @@
 # elements whose text is completely deleted are removed.
 
 import re
-from collections.abc import Iterable, Sequence
 from difflib import SequenceMatcher
 from html import unescape
 from html.parser import HTMLParser
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre import prepare_string_for_xml
 from calibre.utils.grammar.backend import HAS_WORD, Edit, overlaps
 from calibre.utils.grammar.rules import Issue
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
 
 # Elements that start a new paragraph
 BLOCK_TAGS = frozenset(

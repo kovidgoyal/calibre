@@ -15,7 +15,6 @@ If this module is run, it will perform a series of unit tests.
 
 import re
 import weakref
-from collections.abc import Callable, Container, Iterator
 from typing import TYPE_CHECKING, Any, Protocol
 
 from calibre import prints
@@ -26,6 +25,7 @@ from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Container, Iterator
 
     class PrefsAPI(Protocol):
         def pref(self, name: str, default: Any = None) -> Any: ...  # ruff: ignore[any-type]

@@ -7,11 +7,9 @@ import os
 import re
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Sequence
 from contextlib import suppress
 from copy import deepcopy
 from functools import lru_cache, partial
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, Protocol, overload
 
 from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows, preferred_encoding
@@ -20,7 +18,9 @@ from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Callable, Sequence
     from optparse import OptionContainer
+    from types import TracebackType
 
     from calibre.utils.config import OptionParser
 

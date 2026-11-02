@@ -7,8 +7,7 @@ import sys
 from contextlib import suppress
 from threading import Thread
 from time import monotonic
-from types import TracebackType
-from typing import Any, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from qt.core import (
     QApplication,
@@ -27,6 +26,9 @@ from qt.core import (
 )
 
 from calibre.utils.random_ua import random_common_chrome_user_agent
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 default_timeout: float = 60.0  # seconds
 

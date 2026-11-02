@@ -13,7 +13,6 @@ import os
 import re
 import shutil
 import time
-from collections.abc import Callable, Sequence
 from contextlib import suppress
 from datetime import datetime
 from typing import IO, TYPE_CHECKING, ClassVar, Literal, cast, overload
@@ -35,6 +34,8 @@ from calibre.utils.date import parse_date
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
     import apsw
     import bs4
     from css_parser.css import CSSPageRule, CSSStyleRule, CSSStyleSheet

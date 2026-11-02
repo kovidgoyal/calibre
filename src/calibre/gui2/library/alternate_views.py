@@ -5,11 +5,10 @@ import itertools
 import math
 import os
 import weakref
-from collections.abc import Iterable
 from functools import wraps
 from textwrap import wrap
 from threading import Event
-from typing import NamedTuple, Protocol
+from typing import TYPE_CHECKING, NamedTuple, Protocol
 
 from qt.core import (
     QAbstractItemModel,
@@ -68,6 +67,9 @@ from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'

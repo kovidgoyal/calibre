@@ -3,7 +3,6 @@
 
 import textwrap
 from collections import OrderedDict
-from collections.abc import Iterable, Iterator, Sequence
 from typing import TYPE_CHECKING, Any
 
 from qt.core import (
@@ -43,6 +42,9 @@ from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _, localize_user_manual_link, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
 
 tag_maps = JSONConfig('tag-map-rules')
 

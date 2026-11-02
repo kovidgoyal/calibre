@@ -4,7 +4,6 @@
 import copy
 import os
 import re
-from collections.abc import Iterator, Sequence
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
@@ -18,7 +17,7 @@ from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Mapping
+    from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
 
     from lxml.etree import _Element, _ElementTree
 

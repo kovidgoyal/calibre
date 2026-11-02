@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Sequence
 from io import BytesIO
 from typing import IO, TYPE_CHECKING, NamedTuple, TypedDict, cast
 
 from calibre.utils.fonts.utils import get_font_characteristics, get_font_names_from_ttlib_names_table
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from fontTools.ttLib import TTFont
 
     # The dictionary returned by FontMetadata.to_dict(), plus the path key added by

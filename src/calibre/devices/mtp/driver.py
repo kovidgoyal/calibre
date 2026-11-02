@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-import builtins
-import datetime
 import json
 import os
 import posixpath
 import sys
 import traceback
-from collections.abc import Callable, Sequence
 from io import BytesIO
 from typing import IO, TYPE_CHECKING, Literal, NamedTuple, cast, overload
 
@@ -26,6 +23,10 @@ from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    import builtins
+    import datetime
+    from collections.abc import Callable, Sequence
+
     from qt.core import QWidget
 
     from calibre.devices.interface import BookList as _BookList

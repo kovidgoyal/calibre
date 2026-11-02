@@ -14,7 +14,6 @@ import tempfile
 import time
 import uuid
 from collections import Counter
-from collections.abc import Callable, Iterator, Mapping
 from typing import IO, TYPE_CHECKING, NamedTuple, Self, Unpack
 
 from calibre import prints
@@ -27,6 +26,7 @@ from polyglot.binary import as_hex_unicode
 from polyglot.builtins import error_message
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator, Mapping
     from threading import Event
 
     from calibre.db.cache import Cache

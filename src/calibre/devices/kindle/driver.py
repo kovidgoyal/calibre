@@ -12,7 +12,6 @@ import hashlib
 import json
 import os
 import re
-from collections.abc import Iterator
 from typing import IO, TYPE_CHECKING, NamedTuple, cast
 
 from calibre import fsync, prints, strftime
@@ -24,6 +23,8 @@ from calibre.utils.date import utcfromtimestamp
 from polyglot.builtins import as_bytes, as_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from bs4 import BeautifulSoup as Soup
 
     from calibre.db.legacy import LibraryDatabase

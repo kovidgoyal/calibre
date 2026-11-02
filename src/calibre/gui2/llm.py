@@ -2,11 +2,10 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
-from collections.abc import Iterator
 from html import escape
 from itertools import count
 from threading import Thread
-from typing import Any, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, NamedTuple, Self
 
 from qt.core import (
     QAbstractItemView,
@@ -54,6 +53,9 @@ from calibre.utils.localization import _, ui_language_as_english
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 prompt_sep = '\n\n------\n\n'
 reasoning_icon = 'reports.png'

@@ -4,13 +4,15 @@
 import os
 import re
 import shutil
-from collections.abc import Callable, Iterator
 from io import BytesIO
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.filenames import make_long_path_useable
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
 
 def as_unicode(x: str | bytes) -> str:

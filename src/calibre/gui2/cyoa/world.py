@@ -9,10 +9,9 @@
 # characters fit the world as the player settled on it.
 
 from base64 import standard_b64decode, standard_b64encode
-from collections.abc import Iterator, Mapping, Sequence
 from itertools import count
 from threading import Thread
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QComboBox,
@@ -69,6 +68,9 @@ from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.img import image_from_data, image_to_data, resize_to_fit
 from calibre.utils.localization import _, pgettext
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping, Sequence
 
 
 class PremadeWorld(NamedTuple):

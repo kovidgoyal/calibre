@@ -5,7 +5,7 @@ store_version = 1  # Needed for dynamic plugin loading
 
 import json
 import re
-from collections.abc import Iterator
+from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
 from calibre import browser
@@ -13,6 +13,9 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 BASE_URL = 'https://doaj.org'
 # The maximum page size the API allows

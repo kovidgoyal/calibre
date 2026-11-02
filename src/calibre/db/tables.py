@@ -3,7 +3,6 @@
 
 import numbers
 from collections import defaultdict
-from collections.abc import Callable, Iterable
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, cast
 
@@ -13,7 +12,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre_extensions.speedup import parse_date as _c_speedup
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Mapping
+    from collections.abc import Callable, Collection, Iterable, Mapping
     from collections.abc import Set as AbstractSet
 
     from apsw import SQLiteValue

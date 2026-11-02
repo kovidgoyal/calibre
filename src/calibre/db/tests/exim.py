@@ -6,14 +6,17 @@ import os
 import shutil
 import struct
 import unittest
-from collections.abc import Callable
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from calibre.utils.exim import Exporter, Importer, run_verifier
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class VerifyExportTest(unittest.TestCase):

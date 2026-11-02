@@ -6,11 +6,10 @@ import re
 import sys
 import weakref
 from collections import defaultdict
-from collections.abc import Callable, Iterable
 from contextlib import contextmanager
 from functools import partial
 from threading import Thread
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from html5_parser import parse
 from lxml import html
@@ -87,6 +86,9 @@ from calibre.utils.config import tweaks
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 # Cleanup Qt markup {{{
 

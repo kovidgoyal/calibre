@@ -4,7 +4,6 @@
 import os
 import time
 from collections import deque
-from collections.abc import Callable
 from functools import partial
 from itertools import count
 from queue import Empty, Queue
@@ -16,6 +15,8 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.monotonic import monotonic
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from calibre.srv.opts import Options
     from calibre.utils.logging import Log
 

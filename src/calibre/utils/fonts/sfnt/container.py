@@ -2,10 +2,9 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Callable, Iterator
 from io import BytesIO
 from struct import calcsize, pack
-from typing import Literal, overload
+from typing import TYPE_CHECKING, Literal, overload
 
 from calibre.utils.fonts.sfnt import UnknownTable, align_block, max_power_of_two
 from calibre.utils.fonts.sfnt.cff.table import CFFTable
@@ -19,6 +18,9 @@ from calibre.utils.fonts.sfnt.loca import LocaTable
 from calibre.utils.fonts.sfnt.maxp import MaxpTable
 from calibre.utils.fonts.utils import checksum_of_block, get_tables, verify_checksums
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 

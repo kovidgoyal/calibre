@@ -6,12 +6,14 @@ import errno
 import os
 import tempfile
 import time
-from collections.abc import Iterator
-from typing import IO
+from typing import IO, TYPE_CHECKING
 
 from calibre.constants import cache_dir, iswindows
 from calibre.ptempfile import remove_dir
 from calibre.utils.monotonic import monotonic
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 TDIR_LOCK = 'tdir-lock'
 

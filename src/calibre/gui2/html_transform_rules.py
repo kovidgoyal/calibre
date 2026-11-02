@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qt.core import QComboBox, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QPushButton, QScrollArea, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
@@ -17,6 +16,9 @@ from calibre.gui2.tag_mapper import RuleItem as RuleItemBase
 from calibre.gui2.tag_mapper import Rules as RulesBase
 from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 # Classes for rule edit widget {{{
 

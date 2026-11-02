@@ -2,13 +2,14 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
-from collections.abc import Iterable
 from struct import pack
 from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from calibre.utils.fonts.sfnt.cff.dict_data import Dict as CFFDict
     from calibre.utils.fonts.sfnt.cff.table import CFF
 

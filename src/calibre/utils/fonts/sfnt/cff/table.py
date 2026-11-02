@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterable
 from functools import partial
 from struct import calcsize, unpack, unpack_from
+from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt import UnknownTable
 from calibre.utils.fonts.sfnt.cff.constants import STANDARD_CHARSETS, cff_standard_strings
 from calibre.utils.fonts.sfnt.cff.dict_data import PrivateDict, TopDict
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 # Useful links
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5176.CFF.pdf

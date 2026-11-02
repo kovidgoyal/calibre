@@ -3,13 +3,13 @@
 
 import json
 import posixpath
-from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
     from unittest import TestSuite
 
     from calibre.ai.openai_compatible.config import ConfigWidget

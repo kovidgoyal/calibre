@@ -9,11 +9,13 @@ import hashlib
 import json
 import os
 import shutil
-from collections.abc import Callable, Iterator
 from contextlib import suppress
 from functools import lru_cache
-from threading import Event
-from typing import Literal, NamedTuple, Protocol, TypedDict
+from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, TypedDict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+    from threading import Event
 
 Variant = Literal['cpu', 'gpu']
 Task = Literal['check', 'suggest']

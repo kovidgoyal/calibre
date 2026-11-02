@@ -5,8 +5,6 @@ import json
 import os
 import sys
 from collections import defaultdict
-from collections.abc import Callable, Iterator, MutableMapping
-from collections.abc import Set as AbstractSet
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
@@ -41,6 +39,8 @@ from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
     import socket
+    from collections.abc import Callable, Iterator, MutableMapping
+    from collections.abc import Set as AbstractSet
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.logging import Log

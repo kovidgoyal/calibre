@@ -18,7 +18,6 @@
 
 import json
 import textwrap
-from collections.abc import Container, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, NamedTuple, Protocol
@@ -28,6 +27,7 @@ from calibre.ai.structured import Doc, Kind, OnText, StreamingStringField, TypeS
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
+    from collections.abc import Container, Iterable, Mapping, Sequence
     from unittest.suite import TestSuite
 else:
     TestSuite = object

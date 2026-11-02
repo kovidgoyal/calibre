@@ -7,10 +7,9 @@ import hashlib
 import json
 import posixpath
 import zlib
-from collections.abc import Generator
 from contextlib import contextmanager
 from functools import lru_cache, partial
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 from urllib.parse import urlencode
 
 from lxml import etree
@@ -28,6 +27,9 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import BadZipfile, ZipFile, ZipInfo
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 DIVINA_PROFILE = 'https://readium.org/webpub-manifest/profiles/divina'
 IMAGE_TYPES = {

@@ -29,10 +29,12 @@ class rather than of anything the recipe controls.
 """
 
 import time
-from collections.abc import Callable
 from functools import wraps
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.error import URLError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 # The statuses an interstitial is served with: 403 is what the bot check itself
 # answers with and 429 is what a service that thinks we are asking too often

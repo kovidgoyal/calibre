@@ -6,12 +6,15 @@ import shutil
 import stat
 import time
 from collections import defaultdict
-from collections.abc import Callable
 from contextlib import suppress
-from types import TracebackType
+from typing import TYPE_CHECKING
 
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import make_long_path_useable, samefile, windows_hardlink
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from types import TracebackType
 
 if iswindows:
     from calibre_extensions import winutil

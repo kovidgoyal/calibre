@@ -9,7 +9,6 @@ import copy
 import re
 import time
 import traceback
-from collections.abc import Callable, Iterable, Iterator
 from typing import TYPE_CHECKING, TypedDict
 
 from calibre import force_unicode, replace_entities, strftime
@@ -19,6 +18,8 @@ from calibre.utils.localization import _
 from calibre.utils.logging import Log, default_log
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+
     from feedparser import FeedParserDict
 
 

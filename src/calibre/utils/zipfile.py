@@ -12,7 +12,6 @@ import struct
 import sys
 import tempfile
 import time
-from collections.abc import Callable, Iterable, Mapping
 from compression import zlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing, suppress
@@ -28,6 +27,7 @@ from calibre_extensions.speedup import pread_all
 
 if TYPE_CHECKING:
     import unittest
+    from collections.abc import Callable, Iterable, Mapping
     from types import TracebackType
 
     class ZipStream(Protocol):

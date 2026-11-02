@@ -8,7 +8,6 @@ import os
 import stat
 import sys
 import textwrap
-from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from functools import partial
 from subprocess import check_call, check_output
 from typing import IO, TYPE_CHECKING, Any, NotRequired, TypedDict, cast
@@ -23,6 +22,7 @@ from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
     import optparse
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
     from lxml.etree import _Element
 

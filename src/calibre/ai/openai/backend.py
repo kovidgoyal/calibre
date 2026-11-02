@@ -5,13 +5,14 @@ import base64
 import datetime
 import json
 import os
-from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
 from operator import attrgetter
 from typing import TYPE_CHECKING, Any, NamedTuple
 from urllib.request import Request
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from calibre.ai.openai.config import ConfigWidget
 else:
     ConfigWidget = object

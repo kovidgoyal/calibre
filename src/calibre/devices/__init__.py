@@ -7,11 +7,11 @@ Device drivers.
 import pprint
 import sys
 import time
-from collections.abc import Callable, Collection, Iterable
 from functools import partial
 from typing import IO, TYPE_CHECKING, TypedDict, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable
     from io import StringIO
 
     from calibre.devices.interface import DevicePlugin

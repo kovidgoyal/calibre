@@ -2,9 +2,8 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net> and Amir Tehrani
 
 import string
-from collections.abc import Iterator
 from functools import lru_cache
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from qt.core import QDialog, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
@@ -17,6 +16,9 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.utils.localization import _, ui_language_as_english
 from polyglot.binary import from_hex_unicode
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def selected_text_for_prompt(selected_text: str) -> str:

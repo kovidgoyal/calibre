@@ -3,7 +3,6 @@
 
 import sys
 import unittest
-from collections.abc import Callable, Generator, Iterable
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
@@ -11,6 +10,8 @@ from calibre.utils import icu
 from polyglot.builtins import cmp
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable
+
     from calibre_extensions.icu import Collator
 
 

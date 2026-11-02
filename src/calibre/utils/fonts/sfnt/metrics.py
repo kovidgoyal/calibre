@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 from calibre.utils.fonts.utils import get_all_font_names
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from calibre.utils.fonts.sfnt.container import Sfnt
 
 

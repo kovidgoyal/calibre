@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import time
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from calibre.constants import isfrozen, ismacos, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
@@ -13,6 +13,9 @@ from calibre.utils.config import prefs
 from calibre.utils.serialize import msgpack_dumps
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import environ_item
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 if iswindows:
     try:

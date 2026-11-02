@@ -2,8 +2,7 @@
 
 import os
 import time
-from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.usbms.books import Book as Book_
@@ -13,6 +12,9 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.prints import debug_print
 from calibre.utils.config_base import prefs
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class Book(Book_):

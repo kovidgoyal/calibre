@@ -5,7 +5,6 @@ Created on 15 May 2010
 """
 
 import os
-from collections.abc import Collection
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
@@ -14,6 +13,8 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Collection
+
     from qt.core import QWidget
 
     from calibre.devices.interface import DetectedDevice, ProgressReporter

@@ -8,7 +8,6 @@ import builtins
 import locale
 import os
 import sys
-from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, cast
 
 # Default translation is NOOP
@@ -25,6 +24,7 @@ from calibre.constants import DEBUG, get_portable_base, isfreebsd, islinux, isma
 
 if TYPE_CHECKING:
     import threading
+    from collections.abc import Callable, Sequence
     from types import FunctionType
 
     from qt.core import Qt, pyqtBoundSignal

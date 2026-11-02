@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-import re
-from collections.abc import Callable, Collection, Sequence
 from functools import wraps
-from threading import RLock
 from typing import TYPE_CHECKING, Any, Concatenate, Protocol, Unpack
 
 from calibre import prints
@@ -13,6 +10,10 @@ from calibre.devices.interface import DevicePlugin
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    import re
+    from collections.abc import Callable, Collection, Sequence
+    from threading import RLock
+
     from calibre.devices.interface import DetectedDevice, ProgressReporter
     from calibre.prints import PrintKwargs
 

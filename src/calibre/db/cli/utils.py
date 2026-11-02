@@ -2,9 +2,12 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import unicodedata
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 eaw = unicodedata.east_asian_width
 # Control characters, other than tab and newline, that could be used to inject

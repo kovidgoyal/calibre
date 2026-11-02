@@ -3,11 +3,11 @@
 
 import gc
 from threading import Lock
-from types import TracebackType
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import unittest
+    from types import TracebackType
 
 
 class StopGC:

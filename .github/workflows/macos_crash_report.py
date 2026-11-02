@@ -4,11 +4,13 @@
 import json
 import posixpath
 import sys
-from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum
 from functools import cached_property
-from typing import IO, NamedTuple
+from typing import IO, TYPE_CHECKING, NamedTuple
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 class Frame(NamedTuple):

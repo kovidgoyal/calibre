@@ -11,7 +11,6 @@ import sys
 import unicodedata
 import uuid
 from collections import defaultdict
-from collections.abc import Callable
 from io import BytesIO
 from itertools import count
 from math import floor
@@ -62,8 +61,8 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
     from collections.abc import Container as AbstractContainer
-    from collections.abc import Iterable, Iterator
     from typing import Literal
 
     from css_parser.css import CSSStyleDeclaration, CSSStyleSheet

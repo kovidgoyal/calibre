@@ -10,8 +10,10 @@ import json
 import re
 import struct
 from base64 import b64decode
-from collections.abc import Callable, Sequence
-from typing import NamedTuple, NotRequired, TypedDict
+from typing import TYPE_CHECKING, NamedTuple, NotRequired, TypedDict
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 METASPACE = '▁'
 UNK_PENALTY = 10.0

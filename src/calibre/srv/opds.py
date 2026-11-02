@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import datetime
 import hashlib
 import json
 from collections import OrderedDict
@@ -44,6 +43,8 @@ from polyglot.builtins import as_bytes
 from polyglot.urllib import unquote_plus
 
 if TYPE_CHECKING:
+    import datetime
+
     from calibre.srv.routes import RouteFunction
 
 

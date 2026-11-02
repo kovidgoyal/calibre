@@ -6,7 +6,6 @@ import inspect
 import numbers
 import reprlib
 import time
-from collections.abc import Callable, Iterable, Sequence
 from functools import partial
 from io import BytesIO
 from operator import itemgetter
@@ -18,6 +17,8 @@ from calibre.library.field_metadata import fm_as_dict
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+
     from calibre.db.legacy import LibraryDatabase
     from calibre.library.database2 import LibraryDatabase2
 

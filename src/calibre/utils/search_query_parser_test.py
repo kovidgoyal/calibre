@@ -3,9 +3,12 @@
 
 import operator
 import unittest
-from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING
 
 from calibre.utils.search_query_parser import Parser, SearchQueryParser
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 
 class Tester(SearchQueryParser):

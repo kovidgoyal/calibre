@@ -5,7 +5,6 @@ import operator
 import unicodedata
 import weakref
 from collections import OrderedDict, deque
-from collections.abc import Callable
 from datetime import datetime, timedelta
 from functools import partial
 from typing import TYPE_CHECKING, cast
@@ -22,7 +21,7 @@ from calibre.utils.localization import _, canonicalize_lang, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
 if TYPE_CHECKING:
-    from collections.abc import Collection, Iterable, Iterator
+    from collections.abc import Callable, Collection, Iterable, Iterator
     from typing import Protocol
 
     from calibre.db.cache import Cache

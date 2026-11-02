@@ -5,12 +5,15 @@ import atexit
 import os
 import sys
 from itertools import product
-from types import ModuleType
+from typing import TYPE_CHECKING
 
 from calibre import prints
 from calibre.constants import filesystem_encoding
 from calibre.utils.fonts.utils import get_font_characteristics, get_font_names, is_truetype_font
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 
 class WinFonts:

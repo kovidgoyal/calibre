@@ -2,9 +2,9 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 from base64 import standard_b64decode
-from collections.abc import Sequence
 from itertools import count
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QFormLayout,
@@ -42,6 +42,9 @@ from calibre.gui2.cyoa import data
 from calibre.gui2.cyoa.world import CharacterEditor, MarkdownEdit, PortraitResult, generate_portrait, style_combo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class LineListEdit(QPlainTextEdit):

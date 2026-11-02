@@ -7,7 +7,6 @@ import shutil
 import time
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Generator
 from contextlib import contextmanager, suppress
 from functools import partial
 from itertools import count, repeat
@@ -32,7 +31,7 @@ if iswindows:
 
 if TYPE_CHECKING:
     import zipfile
-    from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+    from collections.abc import Callable, Collection, Generator, Iterable, Iterator, Mapping, Sequence
     from typing import IO, TypedDict
 
     from calibre.db.backend import DB, Connection
