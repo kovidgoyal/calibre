@@ -1,0 +1,93 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, softwaregames1
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.bookmarks import create_bookmarks_list, focus_bookmark_action
+from testing import assert_equal, assert_false, test
+
+
+def with_bookmarks(proceed):
+    bookmarks = [{'title': title, 'pos': '/' + title} for title in ['First', 'Middle', 'Last']]
+    edits = []
+
+    def all_bookmarks():
+        return bookmarks
+
+    def edit_bookmark(title, new_title):
+        edits.push([title, new_title])
+        return True
+
+    manager = {'all_bookmarks': all_bookmarks, 'edit_bookmark': edit_bookmark}
+    fallback, other = E.button('New bookmark'), E.button('Other control')
+    document.body.append(fallback, other)
+    container = create_bookmarks_list(manager, def (): pass;, fallback)
+    document.body.appendChild(container)
+    proceed(container, fallback, other, edits)
+
+
+@test
+def bookmark_edits_use_the_updated_title_for_repeated_actions():
+    def run(container, fallback, other, edits):
+        button = container.querySelectorAll('button.item-side-action')[1]
+        previous = window.prompt
+        window.prompt = def (): return 'Renamed'
+        try:
+            button.focus()
+            button.click()
+            button.click()
+            assert_equal(edits, [['First', 'Renamed'], ['Renamed', 'Renamed']])
+            assert_equal(container.querySelector('.item-title').textContent, 'Renamed')
+            assert_equal(document.activeElement, button)
+        finally:
+            window.prompt = previous
+
+    with_bookmarks(run)
+
+
+@test
+def bookmark_focus_moves_to_surviving_rows_then_the_new_bookmark_control():
+    def run(container, fallback):
+        first, middle, last = container.querySelectorAll('li')
+        first_button = first.querySelector('button')
+        middle_button = middle.querySelector('button')
+        last_button = last.querySelector('button')
+        middle.style.display = 'none'
+        focus_bookmark_action(middle, middle_button, fallback)
+        assert_equal(document.activeElement, last_button)
+        last.style.display = 'none'
+        focus_bookmark_action(last, last_button, fallback)
+        assert_equal(document.activeElement, first_button)
+        first.style.display = 'none'
+        focus_bookmark_action(first, first_button, fallback)
+        assert_equal(document.activeElement, fallback)
+
+    with_bookmarks(run)
+
+
+@test
+def bookmark_focus_restoration_respects_dialogs_navigation_and_other_controls():
+    def run(container, fallback, other):
+        row = container.querySelector('li')
+        button = row.querySelector('button')
+        button.focus()
+        focus_bookmark_action(row, button, fallback)
+        assert_equal(document.activeElement, button)
+        other.focus()
+        focus_bookmark_action(row, button, fallback)
+        assert_equal(document.activeElement, other)
+        other.blur()
+        modal = E.div(id='modal-container', style='display: flex')
+        document.body.appendChild(modal)
+        focus_bookmark_action(row, button, fallback)
+        assert_false(document.activeElement is button)
+        modal.remove()
+        container.style.display = 'none'
+        focus_bookmark_action(row, button, fallback)
+        assert_false(document.activeElement is button)
+        container.remove()
+        focus_bookmark_action(row, button, fallback)
+        assert_false(document.activeElement is button)
+
+    with_bookmarks(run)

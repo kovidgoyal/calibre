@@ -42,6 +42,11 @@ add_extra_css(def ():
         font_size=get_font_size('item-list-title'), font_weight='700')
     style += build_rule(sel + ' .item-subtitle',
         font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
+    style += build_rule(sel + 'button.item-side-action',
+        display='block', margin='0', padding='0.5rem', border='0', background='none',
+        color='inherit', font='inherit', text_align='inherit')
+    style += build_rule(sel + 'button.item-side-action:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='-2px')
     sel += ' li > div:nth-child(1)'
     style += build_rule(sel,
         padding='0.85rem 0.95rem',
@@ -75,7 +80,7 @@ def side_action(action, ev):
     ev.stopPropagation(), ev.preventDefault()
     if action:
         li = ev.currentTarget.closest('li')
-        action(li)
+        action(li, ev.currentTarget)
 
 
 def add_classes(elem, class_names):
@@ -139,10 +144,9 @@ def build_list(container, items, subtitle):
                 style='display: flex; align-items: center; margin-left: 0.5rem'
             ))
             for x in item.side_actions:
-                li.lastChild.appendChild(E.div(
-                    class_='simple-link',
-                    style='padding: 0.5rem',
-                    title=x.tooltip or '',
+                li.lastChild.appendChild(E.button(
+                    type='button', class_='simple-link item-side-action', disabled=not x.action,
+                    title=x.tooltip or '', aria_label=x.tooltip or '',
                     onclick=side_action.bind(None, x.action),
                     svgicon(x.icon)
                 ))

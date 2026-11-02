@@ -4,8 +4,8 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from book_list.item_list import create_item, create_item_list
-from testing import assert_true, test
+from book_list.item_list import create_item, create_item_list, create_side_action
+from testing import assert_equal, assert_false, assert_true, test
 
 
 @test
@@ -19,3 +19,38 @@ def item_list_class_contract():
     assert_true(li.classList.contains('item-test-extra'))
     assert_true(li.firstChild.classList.contains('row-test-class'))
     assert_true(li.firstChild.classList.contains('row-test-extra'))
+
+
+@test
+def item_list_side_actions_are_named_buttons_and_do_not_activate_the_row():
+    calls = {'row': 0, 'action': 0}
+
+    def row_action():
+        calls.row += 1
+
+    def action(row, button):
+        calls.action += 1
+        assert_equal(row, button.closest('li'))
+
+    container = E.div()
+    document.body.appendChild(container)
+    create_item_list(container, [create_item('Title', action=row_action, side_actions=[
+        create_side_action('edit', action, 'Edit title'), create_side_action('trash', tooltip='Unavailable')
+    ])])
+    buttons = container.querySelectorAll('button.item-side-action')
+    assert_equal(buttons.length, 2)
+    assert_equal(buttons[0].type, 'button')
+    assert_equal(buttons[0].getAttribute('aria-label'), 'Edit title')
+    assert_equal(buttons[0].title, 'Edit title')
+    assert_false(buttons[0].disabled)
+    assert_true(buttons[1].disabled)
+    buttons[0].focus()
+    assert_equal(document.activeElement, buttons[0])
+    buttons[0].click()
+    assert_equal(calls, {'row': 0, 'action': 1})
+    buttons[0].querySelector('svg').dispatchEvent(new MouseEvent('click', {'bubbles': True}))
+    assert_equal(calls, {'row': 0, 'action': 2})
+    buttons[1].click()
+    assert_equal(calls, {'row': 0, 'action': 2})
+    container.querySelector('.item-title').click()
+    assert_equal(calls, {'row': 1, 'action': 2})
