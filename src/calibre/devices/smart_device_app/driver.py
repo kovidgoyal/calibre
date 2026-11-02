@@ -1794,7 +1794,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for idx, path in enumerate(paths):
             ign, ext = os.path.splitext(path)
             with PersistentTemporaryFile(suffix=ext) as tf:
-                self.get_file(path, tf, this_book=this_book, total_books=total_books)
+                self.get_file(path, cast('IO[bytes]', tf), this_book=this_book, total_books=total_books)
                 paths[idx] = tf.name
                 tf.name = path
         return paths

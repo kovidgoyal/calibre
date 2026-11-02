@@ -84,7 +84,7 @@ class Resource:  # {{{
         self.fragment = ''
         self.mime_type: str
         try:
-            self.mime_type = guess_type(href_or_path)[0]
+            self.mime_type = cast('str', guess_type(href_or_path)[0])
         except Exception:
             self.mime_type = None  # ty: ignore[invalid-assignment] replaced by a default immediately below
         if self.mime_type is None:

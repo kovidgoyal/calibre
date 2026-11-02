@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -56,5 +56,5 @@ class DataURL:
         from calibre import guess_type
 
         item_id, item_href = oeb.manifest.generate('data-url-image', 'data-url-image.' + fmt)
-        oeb.manifest.add(item_id, item_href, guess_type(item_href)[0], data=data)
+        oeb.manifest.add(item_id, item_href, cast('str', guess_type(item_href)[0]), data=data)
         return item_href

@@ -11,7 +11,7 @@ from collections import OrderedDict
 from contextlib import suppress
 from locale import localeconv
 from threading import RLock
-from typing import TYPE_CHECKING, NamedTuple, overload
+from typing import TYPE_CHECKING, NamedTuple, Unpack, overload
 
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from _typeshed import SupportsAllComparisons
 
     from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.prints import PrintKwargs
 
 #: Data used by :func:`find_identical_books`: (map of lowercased author name to
 #: author ids, map of author id to book ids, map of book id to title, map of
@@ -158,7 +159,7 @@ class ThumbnailCache:
         self.min_disk_cache = min_disk_cache
         self.log = self.fail_on_error if test_mode else self._log
 
-    def _log(self, *args: str, **kwargs: object) -> None:
+    def _log(self, *args: str, **kwargs: Unpack[PrintKwargs]) -> None:
         kwargs['file'] = sys.stderr
         prints(*args, **kwargs)
 

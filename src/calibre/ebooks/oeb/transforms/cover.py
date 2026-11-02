@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import textwrap
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre import guess_type, prepare_string_for_xml
 from calibre.utils.imghdr import identify
@@ -133,7 +133,7 @@ class CoverManager:
                     pass
             img_data = create_cover(title, authors, series, series_index)
             id, href = self.oeb.manifest.generate('cover', 'cover_image.jpg')
-            item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0], data=img_data)
+            item = self.oeb.manifest.add(id, href, cast('str', guess_type('t.jpg')[0]), data=img_data)
             m.clear('cover')
             m.add('cover', item.id)
 
@@ -183,7 +183,7 @@ class CoverManager:
                 title = str(self.oeb.metadata.title[0]) if self.oeb.metadata.title else ''
                 tp = self.fill_metadata(templ, title, self.book_language(self.oeb)) % unquote(href)
                 id, href = m.generate('titlepage', 'titlepage.xhtml')
-                item = m.add(id, href, guess_type('t.xhtml')[0], data=safe_xml_fromstring(tp))
+                item = m.add(id, href, cast('str', guess_type('t.xhtml')[0]), data=safe_xml_fromstring(tp))
         else:
             item = self.oeb.manifest.hrefs[urldefrag(self.oeb.guide['titlepage'].href)[0]]
         if item is not None:

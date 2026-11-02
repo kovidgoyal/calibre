@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import cast
+
 from qt.core import QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, Qt, QVBoxLayout
 
 from calibre import prepare_string_for_xml
@@ -222,7 +224,7 @@ class SavedSearchEditor(Dialog):
             t = self.searches[n]
         else:
             t = ''
-        self.desc.setText('<p><b>{}</b>: '.format(_('Search expression')) + prepare_string_for_xml(t))
+        self.desc.setText('<p><b>{}</b>: '.format(_('Search expression')) + prepare_string_for_xml(cast('str', t)))
 
     def accept(self):
         commit_searches(self.searches)

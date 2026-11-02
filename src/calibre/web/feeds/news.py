@@ -626,7 +626,7 @@ class BasicNewsRecipe(Recipe):
             return {'qt': Browser, 'webengine': WebEngineBrowser}[self.browser_type](
                 user_agent=kwargs['user_agent'], verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False)
             )
-        br = browser(*args, **kwargs)  # ty: ignore[parameter-already-assigned]
+        br = browser(*args, **kwargs)  # ty: ignore[parameter-already-assigned, invalid-argument-type]
         br.addheaders += [('Accept', '*/*')]
         if self.handle_gzip:
             br.set_handle_gzip(True)

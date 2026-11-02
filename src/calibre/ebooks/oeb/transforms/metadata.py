@@ -3,7 +3,7 @@
 
 import os
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre import guess_type
 from calibre.utils.date import isoformat, now
@@ -174,7 +174,7 @@ class MergeMetadata:
         new_cover_item = None
         if cdata:
             id, href = self.oeb.manifest.generate('cover', 'cover.' + ext)
-            new_cover_item = self.oeb.manifest.add(id, href, guess_type('cover.' + ext)[0], data=cdata)
+            new_cover_item = self.oeb.manifest.add(id, href, cast('str', guess_type('cover.' + ext)[0]), data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
         if do_remove_old_cover:
             assert new_cover_item is not None

@@ -9,7 +9,9 @@ import select
 import socket
 import sys
 import time
+from collections.abc import Iterable
 from contextlib import suppress
+from typing import Any
 
 from calibre.constants import cache_dir
 
@@ -18,7 +20,7 @@ QUESTION = '\x00\x01\x02'
 
 
 class RemotePdb(pdb.Pdb):
-    def __init__(self, addr='127.0.0.1', port=4444, skip=None):
+    def __init__(self, addr: str = '127.0.0.1', port: int = 4444, skip: Iterable[str] | None = None) -> None:
         # Open a reusable socket to allow for reloads
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
@@ -33,19 +35,19 @@ class RemotePdb(pdb.Pdb):
         pdb.Pdb.__init__(self, completekey='tab', stdin=self.handle, stdout=self.handle, skip=skip)
         self.prompt = PROMPT
 
-    def prints(self, *args, **kwargs):
+    def prints(self, *args: object, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         kwargs['file'] = self.handle
         kwargs['flush'] = True
         print(*args, **kwargs)
 
-    def ask_question(self, query):
+    def ask_question(self, query: str) -> str:
         self.handle.write(QUESTION)
         self.prints(query, end='')
         self.handle.write(PROMPT)
         self.handle.flush()
         return self.handle.readline()
 
-    def end_session(self, arg=None):
+    def end_session(self, arg: str | None = None) -> bool | None:
         self.clear_all_breaks()
         self.reset()
         self.handle.close()
@@ -58,7 +60,7 @@ class RemotePdb(pdb.Pdb):
             pass
         return pdb.Pdb.do_continue(self, arg or '')
 
-    def do_clear(self, arg):
+    def do_clear(self, arg: str) -> bool | None:
         if not arg:
             ans = self.ask_question('Clear all breaks? [y/n]: ')
             if ans.strip().lower() in {'y', 'yes'}:
@@ -69,7 +71,7 @@ class RemotePdb(pdb.Pdb):
 
     do_cl = do_clear
 
-    def do_continue(self, arg):
+    def do_continue(self, arg: str) -> bool | None:
         if not self.breaks:
             ans = self.ask_question('There are no breakpoints set. Continuing will terminate this debug session. Are you sure? [y/n]: ')
             if ans.strip().lower() in {'y', 'yes'}:
@@ -82,7 +84,7 @@ class RemotePdb(pdb.Pdb):
     do_EOF = do_quit = do_exit = do_q = end_session
 
 
-def set_trace(port=4444, skip=None):
+def set_trace(port: int = 4444, skip: Iterable[str] | None = None) -> None:
     frame_obj = inspect.currentframe()
     assert frame_obj is not None
     frame = frame_obj.f_back
@@ -99,7 +101,7 @@ def set_trace(port=4444, skip=None):
         traceback.print_exc()
 
 
-def cli(port=4444):
+def cli(port: int = 4444) -> None:
     print(f'Connecting to remote debugger on port {port}...')
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     for i in range(20):

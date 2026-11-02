@@ -7,6 +7,7 @@ import sys
 import weakref
 from contextlib import suppress
 from functools import lru_cache, partial
+from typing import cast
 
 from qt.core import (
     QAction,
@@ -56,7 +57,7 @@ def db_class():
 
 
 def library_icon_path(lib_name=''):
-    return os.path.join(config_dir, 'library_icons', sanitize_file_name(lib_name or current_library_name()) + '.png')
+    return os.path.join(config_dir, 'library_icons', sanitize_file_name(cast('str', lib_name or current_library_name())) + '.png')
 
 
 class LibraryIcon:

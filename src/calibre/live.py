@@ -6,14 +6,16 @@ import os
 import re
 import sys
 import types
+from collections.abc import Callable
 from compression import gzip
 from contextlib import suppress
-from datetime import timedelta
+from datetime import datetime, timedelta
 from enum import Enum, auto
 from http import HTTPStatus
 from importlib import import_module
 from queue import Queue
 from threading import Lock, Thread
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 import apsw
 
@@ -22,13 +24,16 @@ from calibre.utils.date import utcnow
 from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.iso8601 import parse_iso8601
 
-download_queue = Queue()
+if TYPE_CHECKING:
+    import unittest
+
+download_queue: Queue[str | None] = Queue()
 default_timeout = object()
 DEFAULT_TIMEOUT = 5
-worker = None
+worker: Thread | None = None
 worker_lock = Lock()
-fetcher = None
-db_path = None
+fetcher: Callable[..., tuple[str, bytes] | tuple[None, None]] | None = None
+db_path: str | None = None
 old_interval = timedelta(days=1)
 module_version = 1
 minimum_calibre_version = 5, 7, 0
@@ -40,7 +45,7 @@ class Strategy(Enum):
     fast = auto()
 
 
-def start_worker():
+def start_worker() -> None:
     global worker
     with worker_lock:
         if worker is None:
@@ -48,7 +53,7 @@ def start_worker():
             worker.start()
 
 
-def stop_worker(timeout=2 * DEFAULT_TIMEOUT):
+def stop_worker(timeout: float | None = 2 * DEFAULT_TIMEOUT) -> None:
     global worker
     with worker_lock:
         if worker is not None:
@@ -58,20 +63,20 @@ def stop_worker(timeout=2 * DEFAULT_TIMEOUT):
             w.join(timeout)
 
 
-def async_stop_worker():
+def async_stop_worker() -> Callable[[], None]:
     t = Thread(name='StopLiveDownloadWorker', target=stop_worker, daemon=True)
     t.start()
     return t.join
 
 
-def report_failure(full_name):
+def report_failure(full_name: str) -> None:
     print(f'Failed to download live module {full_name}', file=sys.stderr)
     import traceback
 
     traceback.print_exc()
 
 
-def download_worker():
+def download_worker() -> None:
     while True:
         x = download_queue.get()
         if x is None:
@@ -82,11 +87,11 @@ def download_worker():
             report_failure(x)
 
 
-def queue_for_download(full_name):
+def queue_for_download(full_name: str) -> None:
     download_queue.put(full_name)
 
 
-def parse_metadata(full_name, raw_bytes):
+def parse_metadata(full_name: str, raw_bytes: bytes) -> tuple[int, tuple[int, int, int]]:
     q = raw_bytes[:2048]
     m = re.search(rb'^module_version\s*=\s*(\d+)', q, flags=re.MULTILINE)
     if m is None:
@@ -109,7 +114,7 @@ def parse_metadata(full_name, raw_bytes):
     return module_version, minimum_calibre_version
 
 
-def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
+def fetch_module(full_name: str, etag: str | None = None, timeout: object = default_timeout, url: str | None = None) -> tuple[str, bytes] | tuple[None, None]:
     if timeout is default_timeout:
         timeout = DEFAULT_TIMEOUT
     if url is None:
@@ -119,7 +124,7 @@ def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
     if etag:
         headers['if-none-match'] = f'"{etag}"'
     try:
-        res = get_https_resource_securely(url, headers=headers, get_response=True, timeout=timeout)  # ty: ignore[no-matching-overload]
+        res = get_https_resource_securely(url, headers=headers, get_response=True, timeout=cast('float', timeout))
     except HTTPError as e:
         if e.code == HTTPStatus.NOT_MODIFIED:
             return None, None
@@ -134,17 +139,17 @@ def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
     return etag, data
 
 
-def cache_path():
+def cache_path() -> str:
     return db_path or os.path.join(cache_dir(), 'live.sqlite')
 
 
-def db():
+def db() -> apsw.Connection:
     ans = apsw.Connection(cache_path())
     ans.cursor().execute('pragma busy_timeout=2000')
     return ans
 
 
-def table_definition():
+def table_definition() -> str:
     return '''
     CREATE TABLE IF NOT EXISTS modules (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -159,7 +164,7 @@ def table_definition():
     '''
 
 
-def write_to_cache(full_name, etag, data):
+def write_to_cache(full_name: str, etag: str, data: bytes) -> None:
     module_version, minimum_calibre_version = parse_metadata(full_name, data)
     mcv = ','.join(map(str, minimum_calibre_version))
     db().cursor().execute(
@@ -169,7 +174,7 @@ def write_to_cache(full_name, etag, data):
     )
 
 
-def read_from_cache(full_name):
+def read_from_cache(full_name: str) -> tuple[str | None, bytes | None, datetime | None]:
     rowid = etag = data = date = None
     c = db().cursor()
     with suppress(StopIteration):
@@ -182,11 +187,11 @@ def read_from_cache(full_name):
     return etag, data, date
 
 
-def clear_cache():
+def clear_cache() -> None:
     db().cursor().execute(table_definition() + 'DELETE FROM modules')
 
 
-def load_module_from_data(full_name, data):
+def load_module_from_data(full_name: str, data: bytes) -> types.ModuleType:
     m = import_module(full_name)
     ans = types.ModuleType(m.__name__)
     ans.__package__ = m.__package__
@@ -196,44 +201,44 @@ def load_module_from_data(full_name, data):
     return ans
 
 
-def latest_data_for_module(full_name, timeout=default_timeout):
+def latest_data_for_module(full_name: str, timeout: object = default_timeout) -> bytes | None:
     cached_etag, cached_data = read_from_cache(full_name)[:2]
     downloaded_etag, downloaded_data = (fetcher or fetch_module)(full_name, etag=cached_etag, timeout=timeout)
     if downloaded_data is not None:
-        write_to_cache(full_name, downloaded_etag, downloaded_data)
+        write_to_cache(full_name, cast('str', downloaded_etag), downloaded_data)
         cached_etag, cached_data = downloaded_etag, downloaded_data
     return cached_data
 
 
-def download_module(full_name, timeout=default_timeout, strategy=Strategy.download_now):
+def download_module(full_name: str, timeout: object = default_timeout, strategy: Strategy = Strategy.download_now) -> types.ModuleType | None:
     if strategy is Strategy.download_now:
-        return load_module_from_data(full_name, latest_data_for_module(full_name, timeout=timeout))
+        return load_module_from_data(full_name, cast('bytes', latest_data_for_module(full_name, timeout=timeout)))
     cached_etag, cached_data, date = read_from_cache(full_name)
     if date is None or (utcnow() - date) > old_interval:
-        return load_module_from_data(full_name, latest_data_for_module(full_name, timeout=timeout))
+        return load_module_from_data(full_name, cast('bytes', latest_data_for_module(full_name, timeout=timeout)))
     if cached_data is not None:
         return load_module_from_data(full_name, cached_data)
 
 
-def get_cached_module(full_name):
+def get_cached_module(full_name: str) -> types.ModuleType | None:
     cached_etag, cached_data = read_from_cache(full_name)[:2]
     if cached_data:
         return load_module_from_data(full_name, cached_data)
 
 
-def cached_is_suitable(cached, installed):
+def cached_is_suitable(cached: types.ModuleType | None, installed: types.ModuleType) -> TypeGuard[types.ModuleType]:
     try:
-        v = cached.module_version
+        v = cast('types.ModuleType', cached).module_version
     except Exception:
         v = -1
     try:
-        cv = cached.minimum_calibre_version
+        cv = cast('types.ModuleType', cached).minimum_calibre_version
     except Exception:
         cv = numeric_version
     return cv <= numeric_version and v > installed.module_version
 
 
-def load_module(full_name, strategy=Strategy.download_now, timeout=default_timeout):
+def load_module(full_name: str, strategy: Strategy = Strategy.download_now, timeout: object = default_timeout) -> types.ModuleType:
     """
     Load the specified module from the calibre servers. strategy controls
     whether to check for the latest version immediately or eventually
@@ -255,7 +260,7 @@ def load_module(full_name, strategy=Strategy.download_now, timeout=default_timeo
     return installed
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import hashlib
     import tempfile
     import unittest
@@ -263,7 +268,7 @@ def find_tests():
     class LiveTest(unittest.TestCase):
         ae = unittest.TestCase.assertEqual
 
-        def setUp(self):
+        def setUp(self) -> None:
             global db_path, fetcher
             fd, db_path = tempfile.mkstemp()
             os.close(fd)
@@ -274,11 +279,11 @@ def find_tests():
             self.orig_old_interval = old_interval
 
         @property
-        def live_data(self):
+        def live_data(self) -> bytes:
             data = f'module_version = {self.fetched_module_version}\nminimum_calibre_version = (1, 2, 3)\nsentinel = {self.sentinel_value}'
             return data.encode('ascii')
 
-        def fetch_module(self, full_name, etag=None, timeout=default_timeout):
+        def fetch_module(self, full_name: str, etag: str | None = None, timeout: object = default_timeout) -> tuple[str, bytes] | tuple[None, None]:
             self.fetch_counter += 1
             data = self.live_data
             q = hashlib.md5(data).hexdigest()
@@ -286,23 +291,23 @@ def find_tests():
                 return None, None
             return q, data
 
-        def tearDown(self):
+        def tearDown(self) -> None:
             global db_path, fetcher, old_interval
             if db_path:
                 os.remove(db_path)
             db_path = fetcher = None
             old_interval = self.orig_old_interval
 
-        def assert_cache_empty(self):
+        def assert_cache_empty(self) -> None:
             self.ae(read_from_cache('live.test'), (None, None, None))
 
-        def test_live_cache(self):
+        def test_live_cache(self) -> None:
             self.assert_cache_empty()
             data = self.live_data
             write_to_cache('live.test', 'etag', data)
             self.ae(read_from_cache('live.test')[:2], ('etag', data))
 
-        def test_module_loading(self):
+        def test_module_loading(self) -> None:
             global old_interval
             self.assert_cache_empty()
             m = load_module('calibre.live', strategy=Strategy.fast)

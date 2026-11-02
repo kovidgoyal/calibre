@@ -9,7 +9,7 @@ from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from email.utils import formatdate
 from http.cookies import SimpleCookie
 from operator import itemgetter
-from typing import IO, TYPE_CHECKING, Literal, cast, overload
+from typing import IO, TYPE_CHECKING, Literal, Unpack, cast, overload
 from urllib.parse import parse_qs
 from urllib.parse import quote as urlquote
 
@@ -26,6 +26,7 @@ from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
     from calibre.db.cache import Cache
+    from calibre.prints import PrintKwargs
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
     from calibre_extensions.translator import Translator
@@ -342,7 +343,7 @@ class RotatingStream:
     def flush(self) -> None:
         self.stream.flush()
 
-    def prints(self, level: int, *args: object, **kwargs: object) -> None:
+    def prints(self, level: int, *args: object, **kwargs: Unpack[PrintKwargs]) -> None:
         kwargs['file'] = self.stream
         prints(*args, **kwargs)
         self.rollover()

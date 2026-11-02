@@ -9,7 +9,7 @@ import numbers
 import operator
 import re
 from collections import defaultdict
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, cast
 from xml.dom import SyntaxErr
 
 import css_parser
@@ -134,7 +134,7 @@ class EmbedFontsCSSRules:
             rules = [css_text(x) for x in self.rules]
             rules = '\n\n'.join(rules)
             sheet = css_parser.parseString(rules, validate=False)
-            self.href = oeb.manifest.add(iid, href, guess_type(href)[0], data=sheet).href
+            self.href = oeb.manifest.add(iid, href, cast('str', guess_type(href)[0]), data=sheet).href
         return self.href
 
 
@@ -273,7 +273,7 @@ class CSSFlattener:
                         break
             else:
                 fid, href = self.oeb.manifest.generate(id='font', href='fonts/{}.{}'.format(ascii_filename(font['full_name'] or 'font').replace(' ', '-'), ext))
-                item = self.oeb.manifest.add(fid, href, guess_type('dummy.' + ext)[0], data=font_data)
+                item = self.oeb.manifest.add(fid, href, cast('str', guess_type('dummy.' + ext)[0]), data=font_data)
                 item.unload_data_from_memory()
 
             cfont = {

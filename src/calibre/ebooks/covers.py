@@ -816,7 +816,7 @@ def calibre_cover2(
             pwidth, pheight = rect.width(), bottom - top
             scaled, width, height = fit_image(logo.width(), logo.height(), pwidth, pheight)
             x, y = (pwidth - width) // 2, (pheight - height) // 2
-            rect = QRect(x, top + y, width, height)
+            rect = QRect(x, int(top + y), width, height)
             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
             painter.drawImage(rect, logo)
             return self.ccolor1, self.ccolor1, self.ccolor1

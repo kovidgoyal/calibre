@@ -154,7 +154,7 @@ class Jacket(Base):
         )
         id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
 
-        jacket = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
+        jacket = self.oeb.manifest.add(id, href, cast('str', guess_type(href)[0]), data=root)
         self.oeb.spine.insert(0, jacket, True)
         self.oeb.inserted_metadata_jacket = jacket
         for img, path in referenced_images(root):
@@ -162,7 +162,7 @@ class Jacket(Base):
             ext = path.rpartition('.')[-1].lower()
             item_id, href = self.oeb.manifest.generate('jacket_image', 'jacket_img.' + ext)
             with open(path, 'rb') as f:
-                item = self.oeb.manifest.add(item_id, href, guess_type(href)[0], data=f.read())
+                item = self.oeb.manifest.add(item_id, href, cast('str', guess_type(href)[0]), data=f.read())
             item.unload_data_from_memory()
             img.set('src', jacket.relhref(item.href))
 

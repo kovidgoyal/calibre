@@ -4,18 +4,27 @@
 import io
 import sys
 import time
+from typing import IO, TYPE_CHECKING, TypedDict, Unpack
 
 from polyglot.builtins import as_bytes, as_unicode
 
+if TYPE_CHECKING:
 
-def is_binary(stream):
+    class PrintKwargs(TypedDict, total=False):
+        sep: str | bytes | None
+        end: str | bytes | None
+        file: IO[str] | IO[bytes] | None
+        flush: bool
+
+
+def is_binary(stream: object) -> bool:
     mode = getattr(stream, 'mode', None)
     if mode:
         return 'b' in mode
     return not isinstance(stream, io.TextIOBase)
 
 
-def prints(*a, **kw):
+def prints(*a: object, **kw: Unpack[PrintKwargs]) -> None:
     "Print either unicode or bytes to either binary or text mode streams"
     stream = kw.get('file', sys.stdout)
     if stream is None:
@@ -27,11 +36,11 @@ def prints(*a, **kw):
         end = '\n'
     if is_binary(stream):
         encoding = getattr(stream, 'encoding', None) or 'utf-8'
-        a = (as_bytes(x, encoding=encoding) for x in a)
+        a = (as_bytes(x, encoding=encoding) for x in a)  # ty: ignore[invalid-assignment]
         sep = as_bytes(sep)
         end = as_bytes(end)
     else:
-        a = (as_unicode(x, errors='replace') for x in a)
+        a = (as_unicode(x, errors='replace') for x in a)  # ty: ignore[invalid-assignment]
         sep = as_unicode(sep)
         end = as_unicode(end)
     for i, x in enumerate(a):
@@ -47,7 +56,7 @@ def prints(*a, **kw):
             pass
 
 
-def debug_print(*args, **kw):
+def debug_print(*args: object, **kw: Unpack[PrintKwargs]) -> None:
     """
     Prints debug information to the console if debugging is enabled.
 

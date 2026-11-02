@@ -8,8 +8,10 @@ import os
 import stat
 import sys
 import textwrap
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from functools import partial
 from subprocess import check_call, check_output
+from typing import IO, TYPE_CHECKING, Any, NotRequired, TypedDict, cast
 
 from calibre import CurrentDir, __appname__, guess_type, prints
 from calibre.constants import isbsd, islinux
@@ -18,6 +20,26 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    import optparse
+
+    from lxml.etree import _Element
+
+    from calibre.utils.config import OptionParser
+    from calibre_extensions.translator import Translator
+
+    AppData = TypedDict(
+        'AppData',
+        {
+            'name': str,
+            'summary': str,
+            'description': tuple[str, ...],
+            'screenshots': tuple[tuple[int, int, str], ...],
+            'desktop-id': str,
+            'include-releases': NotRequired[bool],
+        },
+    )
 
 entry_points = {
     'console_scripts': [
@@ -47,10 +69,10 @@ entry_points = {
 }
 
 
-def polyglot_write(stream):
+def polyglot_write(stream: IO[bytes]) -> Callable[[str | bytes], int]:
     stream_write = stream.write
 
-    def write(x):
+    def write(x: str | bytes) -> int:
         if not isinstance(x, bytes):
             x = x.encode('utf-8')
         return stream_write(x)
@@ -59,10 +81,10 @@ def polyglot_write(stream):
 
 
 class PreserveMIMEDefaults:  # {{{
-    def __init__(self):
-        self.initial_values = {}
+    def __init__(self) -> None:
+        self.initial_values: dict[str, bytes | None] = {}
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         def_data_dirs = '/usr/local/share:/usr/share'
         paths = os.environ.get('XDG_DATA_DIRS', def_data_dirs)
         paths = paths.split(':')
@@ -81,7 +103,7 @@ class PreserveMIMEDefaults:  # {{{
             except Exception:
                 self.initial_values[x] = None
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         for path, val in self.initial_values.items():
             if val is None:
                 try:
@@ -295,30 +317,36 @@ CALIBRE_LINUX_INSTALLER_HEREDOC
 
 
 class ZshCompleter:  # {{{
-    def __init__(self, opts):
+    def __init__(self, opts: optparse.Values) -> None:
         self.opts = opts
-        self.dest = None
+        self.dest: str | None = None
         base = os.path.dirname(self.opts.staging_sharedir)
         self.detect_zsh(base)
         if not self.dest and base == '/usr/share':  # ty: ignore[redundant-condition]
             # Ubuntu puts site-functions in /usr/local/share
             self.detect_zsh('/usr/local/share')
 
-        self.commands = {}
+        self.commands: dict[str, str] = {}
 
-    def detect_zsh(self, base):
+    def detect_zsh(self, base: str) -> None:
         for x in ('vendor-completions', 'vendor-functions', 'site-functions'):
             c = os.path.join(base, 'zsh', x)
             if os.path.isdir(c) and os.access(c, os.W_OK):
                 self.dest = os.path.join(c, '_calibre')
                 break
 
-    def get_options(self, parser, cover_opts=('--cover',), opf_opts=('--opf',), file_map=None):
+    def get_options(
+        self,
+        parser: optparse.OptionParser | list[optparse.Option],
+        cover_opts: Sequence[str] = ('--cover',),
+        opf_opts: Sequence[str] = ('--opf',),
+        file_map: Mapping[str, list[str] | tuple[()]] | None = None,
+    ) -> Iterator[str]:
         if file_map is None:
             file_map = {}
         if hasattr(parser, 'option_list'):
-            options = parser.option_list
-            for group in parser.option_groups:
+            options = cast('optparse.OptionParser', parser).option_list
+            for group in cast('optparse.OptionParser', parser).option_groups:
                 options += group.option_list
         else:
             options = parser
@@ -361,7 +389,15 @@ class ZshCompleter:  # {{{
             help_txt = f'"[{h}]"'
             yield f'{exclude}{ostrings}{help_txt}{arg} '
 
-    def opts_and_exts(self, name, op, exts, cover_opts=('--cover',), opf_opts=('--opf',), file_map=None):
+    def opts_and_exts(
+        self,
+        name: str,
+        op: Callable[[], optparse.OptionParser],
+        exts: Iterable[str],
+        cover_opts: Sequence[str] = ('--cover',),
+        opf_opts: Sequence[str] = ('--opf',),
+        file_map: Mapping[str, list[str] | tuple[()]] | None = None,
+    ) -> None:
         if file_map is None:
             file_map = {}
         if not self.dest:
@@ -372,7 +408,7 @@ class ZshCompleter:  # {{{
         txt = '_arguments -s \\\n  ' + opts
         self.commands[name] = txt
 
-    def opts_and_words(self, name, op, words, takes_files=False):
+    def opts_and_words(self, name: str, op: Callable[[], optparse.OptionParser], words: Iterable[str], takes_files: bool = False) -> None:
         if not self.dest:
             return
         extra = ("'*:filename:_files' ",) if takes_files else ()
@@ -380,7 +416,7 @@ class ZshCompleter:  # {{{
         txt = '_arguments -s \\\n  ' + opts
         self.commands[name] = txt
 
-    def do_ebook_convert(self, f):
+    def do_ebook_convert(self, f: IO[bytes]) -> None:
         from calibre.customize.ui import available_output_formats
         from calibre.ebooks.conversion.cli import create_option_parser, group_titles
         from calibre.ebooks.conversion.plumber import supported_input_formats
@@ -417,7 +453,7 @@ class ZshCompleter:  # {{{
 
         log = DevNull()
 
-        def get_parser(input_fmt='epub', output_fmt=None):
+        def get_parser(input_fmt: str = 'epub', output_fmt: str | None = None) -> OptionParser:
             of = ('dummy2.' + output_fmt) if output_fmt else 'dummy'
             return create_option_parser(('ec', 'dummy1.' + input_fmt, of, '-h'), log)[0]
 
@@ -428,8 +464,8 @@ class ZshCompleter:  # {{{
         for group in p.option_groups:
             if group.title not in {input_group, output_group}:
                 opts += group.option_list
-        opts.append(p.get_option('--pretty-print'))
-        opts.append(p.get_option('--input-encoding'))
+        opts.append(cast('optparse.Option', p.get_option('--pretty-print')))
+        opts.append(cast('optparse.Option', p.get_option('--input-encoding')))
         opts = '\\\n  '.join(tuple(self.get_options(opts, file_map={'--search-replace': ()})))
         w('\n_ebc_common_opts() {')
         w('\n  _arguments -s \\\n  ' + opts)
@@ -472,7 +508,7 @@ class ZshCompleter:  # {{{
         w('\n  ;;\n  esac\n  return ret')
         w('\n}\n')
 
-    def do_ebook_edit(self, f):
+    def do_ebook_edit(self, f: IO[bytes]) -> None:
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.gui2.tweak_book.main import option_parser
@@ -526,7 +562,7 @@ _ebook_edit() {{
             + '\n\n'
         )
 
-    def do_calibredb(self, f):
+    def do_calibredb(self, f: IO[bytes]) -> None:
         from calibre.customize.ui import available_catalog_formats
         from calibre.db.cli.main import COMMANDS, option_parser_for
 
@@ -591,7 +627,7 @@ _ebook_edit() {{
         )
         w('\n}\n\n')
 
-    def write(self):
+    def write(self) -> None:
 
         if self.dest:
             for c in ('calibredb', 'ebook-convert', 'ebook-edit'):
@@ -611,7 +647,7 @@ _ebook_edit() {{
 # }}}
 
 
-def get_bash_completion_path(root, share, info):
+def get_bash_completion_path(root: str, share: str, info: Callable[..., object]) -> str | None:
     if root == '/usr':
         # Try to get the system bash completion dir since we are installing to
         # /usr
@@ -627,7 +663,7 @@ def get_bash_completion_path(root, share, info):
         return os.path.join(share, 'bash-completion', 'completions')
 
 
-def write_completion(self, bash_comp_dest, zsh):
+def write_completion(self: PostInstall, bash_comp_dest: str, zsh: ZshCompleter) -> None:
     from calibre.customize.ui import available_input_formats
     from calibre.debug import option_parser as debug_op
     from calibre.ebooks import BOOK_EXTENSIONS
@@ -655,14 +691,14 @@ def write_completion(self, bash_comp_dest, zsh):
     if getattr(sys, 'frozen_path', None):
         complete = os.path.join(getattr(sys, 'frozen_path'), complete)
 
-    def o_and_e(name, *args, **kwargs):
+    def o_and_e(name: str, *args: Any, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         bash_compfile = os.path.join(bash_comp_dest, name)
         with open(bash_compfile, 'wb') as f:
             f.write(opts_and_exts(name, *args, **kwargs))
         self.manifest.append(bash_compfile)
         zsh.opts_and_exts(name, *args, **kwargs)
 
-    def o_and_w(name, *args, **kwargs):
+    def o_and_w(name: str, *args: Any, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         bash_compfile = os.path.join(bash_comp_dest, name)
         with open(bash_compfile, 'wb') as f:
             f.write(opts_and_words(name, *args, **kwargs))
@@ -783,7 +819,7 @@ def write_completion(self, bash_comp_dest, zsh):
 
 
 class PostInstall:
-    def task_failed(self, msg):
+    def task_failed(self, msg: str) -> None:
         if self.warn:
             self.warn(msg, 'with error:')
         import traceback
@@ -792,7 +828,7 @@ class PostInstall:
         self.info('\t' + tb)
         print()
 
-    def warning(self, *args, **kwargs):
+    def warning(self, *args: object, **kwargs: Any) -> None:  # ruff: ignore[any-type]
         print('\n' + '_' * 20, 'WARNING', '_' * 20)
         prints(*args, **kwargs)
         print('_' * 50)
@@ -800,11 +836,17 @@ class PostInstall:
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
 
-    def __init__(self, opts, info=prints, warn=None, manifest=None):
+    def __init__(
+        self,
+        opts: optparse.Values,
+        info: Callable[..., object] = prints,
+        warn: Callable[..., object] | None = None,
+        manifest: list[str] | None = None,
+    ) -> None:
         self.opts = opts
         self.info = info
         self.warn = warn
-        self.warnings = []
+        self.warnings: list[tuple[tuple[object, ...], dict[str, Any]]] = []
         if self.warn is None:
             self.warn = self.warning
 
@@ -845,10 +887,10 @@ class PostInstall:
                     )
                 )
 
-        self.icon_resources = []
-        self.menu_resources = []
-        self.mime_resources = []
-        self.appdata_resources = []
+        self.icon_resources: list[tuple[str, str, str]] = []
+        self.menu_resources: list[str] = []
+        self.mime_resources: list[str] = []
+        self.appdata_resources: list[str] = []
         if islinux or isbsd:
             self.setup_completion()
         if islinux or isbsd:
@@ -875,7 +917,7 @@ class PostInstall:
                 self.info('*', *args, **kwargs)
                 print()
 
-    def create_uninstaller(self):
+    def create_uninstaller(self) -> None:
         base = self.opts.staging_bindir
         if not os.access(base, os.W_OK) and getattr(sys, 'frozen_path', ''):
             base = getattr(sys, 'frozen_path')
@@ -902,7 +944,7 @@ class PostInstall:
                 raise
             self.task_failed('Creating uninstaller failed')
 
-    def setup_completion(self):  # {{{
+    def setup_completion(self) -> None:  # {{{
         try:
             self.info('Setting up command-line completion...')
             zsh = ZshCompleter(self.opts)
@@ -912,7 +954,7 @@ class PostInstall:
             bash_comp_dest = get_bash_completion_path(self.opts.staging_root, os.path.dirname(self.opts.staging_sharedir), self.info)
             if bash_comp_dest is not None:
                 self.info('Installing bash completion to:', bash_comp_dest + os.sep)
-            write_completion(self, bash_comp_dest, zsh)
+            write_completion(self, cast('str', bash_comp_dest), zsh)
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print('You need python-lxml >= 2.0.5 for calibre')
@@ -931,7 +973,7 @@ class PostInstall:
 
     # }}}
 
-    def setup_desktop_integration(self):  # {{{
+    def setup_desktop_integration(self) -> None:  # {{{
         try:
             self.info('Setting up desktop integration...')
             self.do_setup_desktop_integration()
@@ -940,7 +982,7 @@ class PostInstall:
                 raise
             self.task_failed('Setting up desktop integration failed')
 
-    def do_setup_desktop_integration(self):
+    def do_setup_desktop_integration(self) -> None:
         env = os.environ.copy()
         cc = check_call
         if getattr(sys, 'frozen_path', '') and 'LD_LIBRARY_PATH' in env:
@@ -958,9 +1000,9 @@ class PostInstall:
             with PreserveMIMEDefaults():
                 self.install_xdg_junk(cc, env)
 
-    def install_xdg_junk(self, cc, env):
+    def install_xdg_junk(self, cc: Callable[..., int], env: dict[str, str]) -> None:
 
-        def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
+        def install_single_icon(iconsrc: str, basename: str, size: int, context: str, is_last_icon: bool = False) -> None:
             filename = f'{basename}-{size}.png'
             render_img(iconsrc, filename, width=int(size), height=int(size))
             cmd = [
@@ -979,7 +1021,7 @@ class PostInstall:
             cc(cmd)
             self.icon_resources.append((context, basename, str(size)))
 
-        def install_icons(iconsrc, basename, context, is_last_icon=False):
+        def install_icons(iconsrc: str, basename: str, context: str, is_last_icon: bool = False) -> None:
             sizes = (16, 32, 48, 64, 128, 256)
             for size in sizes:
                 install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
@@ -1011,7 +1053,7 @@ class PostInstall:
         mimetypes.discard('application/octet-stream')
         mimetypes = sorted(mimetypes)
 
-        def write_mimetypes(f, extra=''):
+        def write_mimetypes(f: IO[bytes], extra: str = '') -> None:
             line = 'MimeType={};'.format(';'.join(mimetypes))
             if extra:
                 line += extra + ';'
@@ -1031,7 +1073,7 @@ class PostInstall:
                 None,
                 'application/octet-stream',
             }
-            mt = sorted(mt)
+            mt = sorted(cast('set[str]', mt))
             f.write(('MimeType={};\n'.format(';'.join(mt))).encode('utf-8'))
         with open('calibre-gui.desktop', 'wb') as f:
             f.write(GUI.encode('utf-8'))
@@ -1079,7 +1121,7 @@ class PostInstall:
     # }}}
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.utils.config import OptionParser
 
     parser = OptionParser()
@@ -1101,7 +1143,7 @@ def option_parser():
     return parser
 
 
-def options(option_parser):
+def options(option_parser: Callable[[], optparse.OptionParser]) -> list[str]:
     parser = option_parser()
     options = parser.option_list
     for group in parser.option_groups:
@@ -1113,7 +1155,7 @@ def options(option_parser):
     return opts
 
 
-def opts_and_words(name, op, words, takes_files=False):
+def opts_and_words(name: str, op: Callable[[], optparse.OptionParser], words: Iterable[str], takes_files: bool = False) -> bytes:
     opts = '|'.join(options(op))
     words = '|'.join([w.replace("'", "\\'") for w in words])
     fname = name.replace('-', '_')
@@ -1155,12 +1197,19 @@ complete -F _'''
 pics = ['bmp', 'gif', 'jpeg', 'jpg', 'png']  # keep sorted alphabetically
 
 
-def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(), file_map=None):
+def opts_and_exts(
+    name: str,
+    op: Callable[[], optparse.OptionParser],
+    exts: list[str],
+    cover_opts: Sequence[str] = ('--cover',),
+    opf_opts: Sequence[str] = (),
+    file_map: Mapping[str, Sequence[str]] | None = None,
+) -> bytes:
     if file_map is None:
         file_map = {}
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
-    exts = '|'.join(sorted(exts))
+    exts = '|'.join(sorted(exts))  # ty: ignore[invalid-assignment]
     fname = name.replace('-', '_')
     spics = pics + [i.upper() for i in pics]
     spics = '|'.join(sorted(spics))
@@ -1273,8 +1322,8 @@ Keywords=epub;ebook;manager;
 '''
 
 
-def get_appdata():
-    def _(x):
+def get_appdata() -> dict[str, AppData]:
+    def _(x: str) -> str:
         return x  # Make sure the text below is not translated, but is marked for translation
 
     return {
@@ -1359,7 +1408,7 @@ def get_appdata():
     }
 
 
-def changelog_bullet_to_text(bullet):
+def changelog_bullet_to_text(bullet: dict[str, Any]) -> str:
     # It would be great if we could use any fancier formatting here, but the
     # only allowed inline formatting within the AppData description bullet
     # points are emphasis (italics) and code (monospaced font)
@@ -1380,7 +1429,7 @@ def changelog_bullet_to_text(bullet):
     return ''.join(text)
 
 
-def make_appdata_releases():
+def make_appdata_releases() -> _Element:
     import json
 
     from lxml.builder import E
@@ -1409,7 +1458,7 @@ def make_appdata_releases():
     return releases
 
 
-def write_appdata(key, entry, base, translators):
+def write_appdata(key: str, entry: AppData, base: str, translators: dict[str, Translator]) -> str:
     from lxml.builder import E
     from lxml.etree import tostring
 
@@ -1464,21 +1513,21 @@ def write_appdata(key, entry, base, translators):
     return fpath
 
 
-def render_img(image, dest, width=128, height=128):
+def render_img(image: str, dest: str, width: int = 128, height: int = 128) -> None:
     from qt.core import QImage, Qt
 
     img = QImage(I(image)).scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     img.save(dest)
 
 
-def main():
+def main() -> int:
     p = option_parser()
     opts, args = p.parse_args()
     PostInstall(opts)
     return 0
 
 
-def cli_index_strings():
+def cli_index_strings() -> tuple[str, ...]:
     return (
         _('Command Line Interface'),
         _(

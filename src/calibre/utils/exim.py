@@ -15,7 +15,7 @@ import time
 import uuid
 from collections import Counter
 from collections.abc import Callable, Iterator, Mapping
-from typing import IO, TYPE_CHECKING, NamedTuple, Self
+from typing import IO, TYPE_CHECKING, NamedTuple, Self, Unpack
 
 from calibre import prints
 from calibre.constants import config_dir, filesystem_encoding, iswindows
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from threading import Event
 
     from calibre.db.cache import Cache
+    from calibre.prints import PrintKwargs
 
     type ProgressCallback = Callable[[str, int, int], object]
 
@@ -694,7 +695,7 @@ def test_import(export_dir: str = '/t/ex', import_dir: str = '/t/imp') -> None:
     )
 
 
-def cli_report(*args: object, **kw: object) -> None:
+def cli_report(*args: object, **kw: Unpack[PrintKwargs]) -> None:
     try:
         prints(*args, **kw)
     except OSError:

@@ -194,7 +194,7 @@ class Saver(QObject):
                     pd,
                     _('Critical failure'),
                     _('Could not save books to disk, click "Show details" for more information'),
-                    det_msg=force_unicode(err.failure_message) + '\n' + force_unicode(err.details),
+                    det_msg=force_unicode(err.failure_message) + '\n' + cast('str', force_unicode(err.details)),
                     show=True,
                 )
                 pd.canceled = True

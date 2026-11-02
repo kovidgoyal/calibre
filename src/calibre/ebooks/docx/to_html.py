@@ -428,7 +428,7 @@ class Convert:
         assert opf.manifest is not None
         for item in opf.manifest:
             if item.media_type == 'text/html':
-                item.media_type = guess_type('a.xhtml')[0]
+                item.media_type = cast('str', guess_type('a.xhtml')[0])
         opf.create_spine(['index.html'])
         if self.cover_image is not None:
             assert opf.guide is not None  # created by OPFCreator.__init__()

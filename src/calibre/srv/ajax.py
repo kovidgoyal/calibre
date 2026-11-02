@@ -338,7 +338,7 @@ def categories(ctx: Context, rd: RequestData, library_id: str | None) -> list[di
             c['url'] = ctx.url_for(globals()['category'], encoded_name=encode_name(c['url']), library_id=library_id)
             c['icon'] = ctx.url_for(get_icon, which=c['icon'])
 
-        return ans
+        return cast('list[dict[str, object]]', ans)
 
 
 @endpoint('/ajax/category/{encoded_name}/{library_id=None}', postprocess=json)

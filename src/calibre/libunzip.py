@@ -2,12 +2,24 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
 import re
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from calibre.utils import zipfile
 from calibre.utils.icu import numeric_sort_key
 
+if TYPE_CHECKING:
+    from calibre.utils.zipfile import ZipStream
 
-def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLATED, verbose=True):
+
+def update(
+    pathtozip: str | ZipStream,
+    patterns: Sequence[re.Pattern[str]],
+    filepaths: Sequence[str],
+    names: Sequence[str | None],
+    compression: int = zipfile.ZIP_DEFLATED,
+    verbose: bool = True,
+) -> None:
     """
     Update files in the zip file at `pathtozip` matching the given
     `patterns` with the given `filepaths`. If more than
@@ -38,7 +50,7 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
     z.close()
 
 
-def extract(filename, dir):
+def extract(filename: str | ZipStream, dir: str) -> None:
     """
     Extract archive C{filename} into directory C{dir}
     """
@@ -46,14 +58,16 @@ def extract(filename, dir):
     zf.extractall(dir)
 
 
-def sort_key(filename):
+def sort_key(filename: str) -> tuple[bytes, bytes]:
     bn, ext = filename.rpartition('.')[::2]
     if not bn and ext:
         bn, ext = ext, bn
     return (numeric_sort_key(bn), numeric_sort_key(ext))
 
 
-def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), sort_alphabetically=False):
+def extract_member(
+    filename: str | ZipStream, match: re.Pattern[str] = re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), sort_alphabetically: bool = False
+) -> tuple[str, bytes] | None:
     zf = zipfile.ZipFile(filename)
     names = list(zf.namelist())
     if sort_alphabetically:
@@ -66,11 +80,11 @@ def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)
 comic_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'jxl'}
 
 
-def name_ok(name):
+def name_ok(name: str) -> bool:
     return bool(name and not name.startswith('__MACOSX/') and name.rpartition('.')[-1].lower() in comic_exts)
 
 
-def extract_cover_image(filename):
+def extract_cover_image(filename: str | ZipStream) -> tuple[str, bytes] | None:
     with zipfile.ZipFile(filename) as zf:
         for name in sorted(zf.namelist(), key=sort_key):
             if name_ok(name):

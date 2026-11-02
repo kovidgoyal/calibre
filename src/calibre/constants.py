@@ -4,12 +4,18 @@ import codecs
 import locale
 import os
 import sys
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Generator, Iterator, Mapping, MutableMapping, Sequence
 from contextlib import contextmanager
 from functools import lru_cache
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Self
 
 from polyglot.builtins import environ_item, hasenv
+
+if TYPE_CHECKING:
+    import sqlite3
+    from types import ModuleType
+
+    import apsw
 
 __appname__ = 'calibre'
 numeric_version = (9, 17, 100)
@@ -81,7 +87,7 @@ builtin_decorations = {
 _osx_ver = None
 
 
-def get_osx_version():
+def get_osx_version() -> tuple[int, int, int]:
     global _osx_ver
     if _osx_ver is None:
         import platform
@@ -118,12 +124,12 @@ else:
 DEBUG = hasenv('CALIBRE_DEBUG')
 
 
-def debug(val=True):
+def debug(val: object = True) -> None:
     global DEBUG
     DEBUG = bool(val)
 
 
-def is_debugging():
+def is_debugging() -> bool:
     return DEBUG
 
 
@@ -203,25 +209,25 @@ from importlib.util import find_spec
 
 
 class DeVendorLoader(Loader):
-    def __init__(self, aliased_name):
+    def __init__(self, aliased_name: str) -> None:
         self.aliased_module = import_module(aliased_name)
         try:
             self.path = self.aliased_module.__loader__.path  # type: ignore
         except Exception:
             self.path = aliased_name
 
-    def create_module(self, spec):
+    def create_module(self, spec: ModuleSpec) -> ModuleType:
         return self.aliased_module
 
-    def exec_module(self, module):
+    def exec_module(self, module: ModuleType) -> ModuleType:  # ty: ignore[invalid-method-override]
         return module
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.path)
 
 
 class DeVendor:
-    def find_spec(self, fullname, path=None, target=None):
+    def find_spec(self, fullname: str, path: Sequence[str] | None = None, target: ModuleType | None = None) -> ModuleSpec | None:
         if fullname == 'calibre.web.feeds.feedparser':
             return find_spec('feedparser')
         if fullname.startswith('calibre.ebooks.markdown'):
@@ -238,30 +244,30 @@ class DeVendor:
 
 
 class ExtensionsPackageLoader(Loader):
-    def __init__(self, calibre_extensions):
+    def __init__(self, calibre_extensions: frozenset[str]) -> None:
         self.calibre_extensions = calibre_extensions
 
-    def is_package(self, fullname=None):
+    def is_package(self, fullname: str | None = None) -> bool:
         return True
 
-    def get_resource_reader(self, fullname=None):
+    def get_resource_reader(self, fullname: str | None = None) -> Self:
         return self
 
-    def get_source(self, fullname=None):
+    def get_source(self, fullname: str | None = None) -> str:
         return ''
 
-    def contents(self):
+    def contents(self) -> Iterator[str]:
         return iter(self.calibre_extensions)
 
-    def create_module(self, spec):
+    def create_module(self, spec: ModuleSpec) -> None:
         pass
 
-    def exec_module(self, module):
+    def exec_module(self, module: ModuleType) -> None:
         pass
 
 
 class ExtensionsImporter:
-    def __init__(self):
+    def __init__(self) -> None:
         extensions = (
             'pictureflow',
             'lzx',
@@ -305,7 +311,7 @@ class ExtensionsImporter:
             extra = ()
         self.calibre_extensions = frozenset(extensions + extra)
 
-    def find_spec(self, fullname, path=None, target=None):
+    def find_spec(self, fullname: str, path: Sequence[str] | None = None, target: ModuleType | None = None) -> ModuleSpec | None:
         if not fullname.startswith('calibre_extensions'):
             return
         parts = fullname.split('.')
@@ -336,12 +342,12 @@ if iswindows:
 
 
 class Plugins(Mapping):
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         from importlib.resources import files
 
         return (x.name for x in files('calibre_extensions').iterdir())
 
-    def __len__(self):
+    def __len__(self) -> int:
         from importlib.resources import files
 
         ans = 0
@@ -349,12 +355,12 @@ class Plugins(Mapping):
             ans += 1
         return ans
 
-    def __contains__(self, name):
+    def __contains__(self, name: object) -> bool:
         from importlib.resources import files
 
         return any(x.name == name for x in files('calibre_extensions').iterdir())
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> tuple[ModuleType | None, str]:
         from importlib import import_module
 
         try:
@@ -364,7 +370,7 @@ class Plugins(Mapping):
         except Exception as err:
             return None, str(err)
 
-    def load_apsw_extension(self, conn, name):
+    def load_apsw_extension(self, conn: apsw.Connection, name: str) -> None:
         conn.enableloadextension(True)
         try:
             ext = 'pyd' if iswindows else 'so'
@@ -373,7 +379,7 @@ class Plugins(Mapping):
         finally:
             conn.enableloadextension(False)
 
-    def load_sqlite3_extension(self, conn, name):
+    def load_sqlite3_extension(self, conn: sqlite3.Connection, name: str) -> None:
         conn.enable_load_extension(True)
         try:
             ext = 'pyd' if iswindows else 'so'
@@ -419,7 +425,7 @@ else:
 
         config_dir = tempfile.mkdtemp(prefix='calibre-config-')
 
-        def cleanup_cdir():
+        def cleanup_cdir() -> None:
             try:
                 import shutil
 
@@ -446,7 +452,7 @@ if iswindows:
     os.environ['CALIBRE_QT_CACHE_LOCATION'] = cache_dir()
 
 
-def get_version():
+def get_version() -> str:
     """Return version string for display to user"""
     if git_version is not None:
         v = git_version
@@ -460,7 +466,7 @@ def get_version():
     return v
 
 
-def get_appname_for_display():
+def get_appname_for_display() -> str:
     from calibre.utils.localization import _
 
     ans = __appname__
@@ -469,13 +475,13 @@ def get_appname_for_display():
     return ans
 
 
-def get_portable_base():
+def get_portable_base() -> str | None:
     "Return path to the directory that contains calibre-portable.exe or None"
     if isportable and (cpb := os.getenv('CALIBRE_PORTABLE_BUILD')):
         return os.path.dirname(os.path.dirname(cpb))
 
 
-def get_windows_username():
+def get_windows_username() -> str:
     """
     Return the user name of the currently logged in user as a unicode string.
     Note that usernames on windows are case insensitive, the case of the value
@@ -484,15 +490,15 @@ def get_windows_username():
     return winutil.username()
 
 
-def get_windows_temp_path():
+def get_windows_temp_path() -> str:
     return winutil.temp_path()
 
 
-def get_windows_user_locale_name():
+def get_windows_user_locale_name() -> str:
     return winutil.locale_name()
 
 
-def get_windows_number_formats():
+def get_windows_number_formats() -> tuple[str, str]:
     ans = getattr(get_windows_number_formats, 'ans', None)
     if ans is None:
         d = winutil.localeconv()
@@ -502,14 +508,14 @@ def get_windows_number_formats():
     return ans
 
 
-def trash_name():
+def trash_name() -> str:
     from calibre.utils.localization import _
 
     return _('Trash') if ismacos else _('Recycle Bin')
 
 
 @lru_cache(maxsize=2)
-def get_umask():
+def get_umask() -> int:
     mask = os.umask(0o22)
     os.umask(mask)
     return mask
@@ -588,7 +594,7 @@ def sanitize_env_vars_in(env: MutableMapping[str, str]) -> dict[str, str]:
 
 
 @contextmanager
-def sanitize_env_vars():
+def sanitize_env_vars() -> Generator[None]:
     """Unset various environment variables that calibre uses. This
     is needed to prevent library conflicts when launching external utilities."""
 

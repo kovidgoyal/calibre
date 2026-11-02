@@ -3708,7 +3708,7 @@ class CatalogBuilder:
             title=prepare_string_for_xml(self.opts.catalog_title),
             creator=prepare_string_for_xml(self.opts.creator),
             date=strftime('%Y-%m-%d'),
-            lang=prepare_string_for_xml(lang),
+            lang=prepare_string_for_xml(cast('str', lang)),
             pt='periodical:default' if self.generate_for_kindle_mobi else '',
         )
         root = safe_xml_fromstring(header)

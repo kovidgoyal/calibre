@@ -5,7 +5,7 @@ import re
 from collections.abc import Callable, Collection, Sequence
 from functools import wraps
 from threading import RLock
-from typing import TYPE_CHECKING, Any, Concatenate, Protocol
+from typing import TYPE_CHECKING, Any, Concatenate, Protocol, Unpack
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -14,9 +14,10 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from calibre.devices.interface import DetectedDevice, ProgressReporter
+    from calibre.prints import PrintKwargs
 
 
-def debug(*args: object, **kwargs: object) -> None:
+def debug(*args: object, **kwargs: Unpack[PrintKwargs]) -> None:
     if DEBUG:
         prints('MTP:', *args, **kwargs)
 

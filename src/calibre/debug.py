@@ -8,6 +8,7 @@ Embedded console for debugging.
 import functools
 import os
 import sys
+from typing import IO, TYPE_CHECKING, TypedDict, Unpack, cast
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -16,8 +17,21 @@ from calibre.utils.config import OptionParser
 from calibre.utils.localization import _
 from polyglot.builtins import exec_path
 
+if TYPE_CHECKING:
+    import subprocess
+    from types import ModuleType
 
-def run_calibre_debug(*args, **kw):
+    class PopenKwargs(TypedDict, total=False):
+        stdin: int | IO[bytes] | None
+        stdout: int | IO[bytes] | None
+        stderr: int | IO[bytes] | None
+        creationflags: int
+
+    class DebugPopenKwargs(PopenKwargs, total=False):
+        headless: bool
+
+
+def run_calibre_debug(*args: str, **kw: Unpack[DebugPopenKwargs]) -> subprocess.Popen[bytes]:
     import subprocess
 
     creationflags = 0
@@ -26,10 +40,10 @@ def run_calibre_debug(*args, **kw):
         creationflags = subprocess.CREATE_NO_WINDOW
     cmd = get_debug_executable(headless=headless) + list(args)
     kw['creationflags'] = creationflags
-    return subprocess.Popen(cmd, **kw)
+    return subprocess.Popen(cmd, **cast('PopenKwargs', kw))
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(
         usage=_('''\
 {0}
@@ -288,7 +302,7 @@ def clear_caches() -> int:
     return 0
 
 
-def debug_device_driver():
+def debug_device_driver() -> None:
     from calibre.devices import debug
 
     debug(ioreg_to_tmp=True, buf=sys.stdout)
@@ -296,7 +310,7 @@ def debug_device_driver():
         input('Press Enter to continue...')  # no2to3
 
 
-def add_simple_plugin(path_to_plugin):
+def add_simple_plugin(path_to_plugin: str) -> None:
     import shutil
     import tempfile
     import zipfile
@@ -317,41 +331,41 @@ def add_simple_plugin(path_to_plugin):
     shutil.rmtree(tdir)
 
 
-def print_basic_debug_info(out=None):
+def print_basic_debug_info(out: IO[str] | None = None) -> None:
     if out is None:
         out = sys.stdout
-    out = functools.partial(prints, file=out)
+    pr = functools.partial(prints, file=out)
     import platform
 
     from calibre.constants import __appname__, get_version, isfrozen, ismacos, isportable
     from calibre.utils.localization import set_translators
 
-    out(__appname__, get_version(), 'Portable' if isportable else '', 'embedded-python:', isfrozen)
-    out(platform.platform(), platform.system(), platform.architecture())
-    out(platform.system_alias(platform.system(), platform.release(), platform.version()))
-    out('Python', platform.python_version())
+    pr(__appname__, get_version(), 'Portable' if isportable else '', 'embedded-python:', isfrozen)
+    pr(platform.platform(), platform.system(), platform.architecture())
+    pr(platform.system_alias(platform.system(), platform.release(), platform.version()))
+    pr('Python', platform.python_version())
     try:
         if iswindows:
-            out('Windows:', platform.win32_ver())
+            pr('Windows:', platform.win32_ver())
         elif ismacos:
-            out('OSX:', platform.mac_ver())
+            pr('OSX:', platform.mac_ver())
         else:
             r = platform.freedesktop_os_release()
-            out('Linux:', r.get('PRETTY_NAME', r.get('ID', _('Unknown'))))
+            pr('Linux:', r.get('PRETTY_NAME', r.get('ID', _('Unknown'))))
     except Exception:
         pass
-    out('Interface language:', str(set_translators.lang))
-    out('EXE path:', sys.executable)
+    pr('Interface language:', str(set_translators.lang))
+    pr('EXE path:', sys.executable)
     from calibre.customize.ui import has_external_plugins, initialized_plugins
 
     if has_external_plugins():
         from calibre.customize import PluginInstallationType
 
         names = (f'{p.name} {p.version}' for p in initialized_plugins() if getattr(p, 'installation_type', None) is not PluginInstallationType.BUILTIN)
-        out('Successfully initialized third party plugins:', ' && '.join(names))
+        pr('Successfully initialized third party plugins:', ' && '.join(names))
 
 
-def run_debug_gui(logpath):
+def run_debug_gui(logpath: str) -> None:
     import time
 
     time.sleep(3)  # Give previous GUI time to shutdown fully and release locks
@@ -364,7 +378,7 @@ def run_debug_gui(logpath):
     calibre(['__CALIBRE_GUI_DEBUG__', logpath])
 
 
-def load_user_plugins():
+def load_user_plugins() -> ModuleType:
     # Load all user defined plugins so the script can import from the
     # calibre_plugins namespace
     import calibre.customize.ui as dummy
@@ -372,7 +386,7 @@ def load_user_plugins():
     return dummy
 
 
-def run_script(path, args):
+def run_script(path: str, args: list[str]) -> None:
     load_user_plugins()
     sys.argv = [path] + args
     ef = os.path.abspath(path)
@@ -385,7 +399,7 @@ def run_script(path, args):
     exec_path(ef, g)
 
 
-def inspect_mobi(path):
+def inspect_mobi(path: str) -> None:
     from calibre.ebooks.mobi.debug.main import inspect_mobi
 
     prints('Inspecting:', path)
@@ -393,7 +407,7 @@ def inspect_mobi(path):
     print()
 
 
-def main(args=sys.argv):
+def main(args: list[str] = sys.argv) -> int:
     from calibre.constants import debug
 
     opts, args = option_parser().parse_args(args)

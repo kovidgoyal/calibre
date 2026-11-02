@@ -8,8 +8,8 @@ import builtins
 import locale
 import os
 import sys
-from collections.abc import Sequence
-from typing import Any
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, cast
 
 # Default translation is NOOP
 builtins.__dict__['_'] = lambda s: s
@@ -23,15 +23,21 @@ builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
 from calibre.constants import DEBUG, get_portable_base, isfreebsd, islinux, ismacos, iswindows
 
+if TYPE_CHECKING:
+    import threading
+    from types import FunctionType
 
-def get_debug_executable(headless=False, exe_name='calibre-debug'):
+    from qt.core import Qt, pyqtBoundSignal
+
+
+def get_debug_executable(headless: bool = False, exe_name: str = 'calibre-debug') -> list[str]:
     exe_name = exe_name + ('.exe' if iswindows else '')
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
         if headless:
             from calibre.utils.ipc.launch import headless_exe_path
 
-            return [headless_exe_path(exe_name)]
+            return [cast('str', headless_exe_path(exe_name))]
         return [os.path.join(base, 'MacOS', exe_name)]
     if getattr(sys, 'run_local', None):
         return [sys.run_local, exe_name]  # type: ignore
@@ -97,7 +103,7 @@ def launch_calibre_gui(args: Sequence[str] = ()) -> None:
     subprocess.Popen(cmd, env=env, close_fds=True, creationflags=creationflags)
 
 
-def connect_lambda(bound_signal, self, func, **kw):
+def connect_lambda(bound_signal: pyqtBoundSignal, self: object, func: FunctionType, **kw: Qt.ConnectionType) -> None:
     import weakref
 
     r = weakref.ref(self)
@@ -106,7 +112,7 @@ def connect_lambda(bound_signal, self, func, **kw):
     if num_args < 0:
         raise TypeError('lambda must take at least one argument')
 
-    def slot(*args):
+    def slot(*args: object) -> None:
         ctx = r()
         if ctx is not None:
             if len(args) != num_args:
@@ -119,7 +125,7 @@ def connect_lambda(bound_signal, self, func, **kw):
 _calibre_initialized = False
 
 
-def initialize_calibre():
+def initialize_calibre() -> None:
     global _calibre_initialized
     if _calibre_initialized:
         return
@@ -155,7 +161,7 @@ def initialize_calibre():
     def get_executable() -> list[str]:
         return get_debug_executable(headless=True, exe_name='calibre-parallel')
 
-    def get_command_line(**kwds: Any) -> list[str]:
+    def get_command_line(**kwds: object) -> list[str]:
         prog = ', '.join('{}={!r}'.format(*item) for item in kwds.items())
         prog = f'from multiprocessing.spawn import spawn_main; spawn_main({prog})'
         return get_executable() + ['__multiprocessing__', prog]
@@ -169,22 +175,22 @@ def initialize_calibre():
     orig_spawn_passfds = util.spawnv_passfds
     orig_remove_temp_dir = util._remove_temp_dir  # type: ignore
 
-    def safe_rmtree(rmtree):
-        def r(tdir, *a, **kw):
+    def safe_rmtree(rmtree: Callable[..., object]) -> Callable[..., None]:
+        def r(tdir: str, *a: object, **kw: object) -> None:
             if tdir and os.path.exists(tdir):
                 rmtree(tdir, *a, **kw)
 
         return r
 
-    def safe_remove_temp_dir(rmtree, tdir):
+    def safe_remove_temp_dir(rmtree: Callable[..., object], tdir: str) -> None:
         orig_remove_temp_dir(safe_rmtree(rmtree), tdir)
 
-    def wrapped_orig_spawn_fds(args, passfds):
+    def wrapped_orig_spawn_fds(args: Sequence[str | bytes], passfds: Sequence[int]) -> int:
         # as of python 3.11 util.spawnv_passfds expects bytes args
         args = [x.encode('utf-8') if isinstance(x, str) else x for x in args]
         return orig_spawn_passfds(args[0], args, passfds)
 
-    def spawnv_passfds(path, args, passfds):
+    def spawnv_passfds(path: str | bytes, args: list[str], passfds: Sequence[int]) -> int:
         try:
             idx = args.index('-c')
         except ValueError:
@@ -243,7 +249,7 @@ def initialize_calibre():
 
         orig_start = threading.Thread.start
 
-        def new_start(self):
+        def new_start(self: threading.Thread) -> None:
             orig_start(self)
             try:
                 name = self.name

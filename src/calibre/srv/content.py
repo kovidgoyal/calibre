@@ -215,7 +215,7 @@ def cover(
 def fname_for_content_disposition(fname: str, as_encoded_unicode: bool = False) -> str:
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
-        fname = sanitize_file_name(fname).encode('utf-8')
+        fname = sanitize_file_name(fname).encode('utf-8')  # ty: ignore[invalid-assignment]
         fname = str(quote(fname))
     else:
         fname = ascii_filename(fname).replace('"', '_')

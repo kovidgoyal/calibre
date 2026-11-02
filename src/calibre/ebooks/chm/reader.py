@@ -191,7 +191,7 @@ class CHMReader(CHMFile):
             with open(make_long_path_useable(lpath), 'wb') as f:
                 f.write(data)
             try:
-                if 'html' in guess_mimetype(os.path.basename(lpath))[0]:
+                if 'html' in guess_mimetype(os.path.basename(lpath))[0]:  # ty: ignore[unsupported-operator] None is handled by the except below
                     html_files.add(lpath)
             except Exception:
                 pass

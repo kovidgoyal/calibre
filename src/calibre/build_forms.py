@@ -3,13 +3,15 @@
 
 import importlib
 import os
+import re
+from collections.abc import Callable
 
 
-def form_to_compiled_form(form):
+def form_to_compiled_form(form: str) -> str:
     return form.rpartition('.')[0] + '_ui.py'
 
 
-def find_forms(srcdir):
+def find_forms(srcdir: str) -> list[str]:
     base = os.path.join(srcdir, 'calibre', 'gui2')
     forms = []
     for root, _, files in os.walk(base):
@@ -20,7 +22,7 @@ def find_forms(srcdir):
     return forms
 
 
-def ensure_icons_built(resource_dir, force_compile, info):
+def ensure_icons_built(resource_dir: str, force_compile: bool, info: Callable[..., object]) -> None:
     icons = os.path.join(resource_dir, 'icons.rcc')
     images_dir = os.path.join(resource_dir, 'images')
     if os.path.exists(icons) and not force_compile:
@@ -38,7 +40,9 @@ def ensure_icons_built(resource_dir, force_compile, info):
     compile_icon_dir_as_themes(images_dir, icons)
 
 
-def build_forms(srcdir, info=None, summary=False, check_for_migration=False, check_icons=True):
+def build_forms(
+    srcdir: str, info: Callable[..., object] | None = None, summary: bool = False, check_for_migration: bool = False, check_icons: bool = True
+) -> None:
     import re
 
     from qt.core import QT_VERSION_STR
@@ -67,7 +71,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
     icon_constructor_pat = re.compile(r'\s*\S+\s+=\s+QtGui.QIcon\(\)')
     icon_pixmap_adder_pat = re.compile(r'''(\S+?)\.addPixmap\(.+?(['"]):/images/([^'"]+)\2.+''')
 
-    def icon_pixmap_sub(match):
+    def icon_pixmap_sub(match: re.Match[str]) -> str:
         ans = match.group(1) + ' = QtGui.QIcon.ic(' + match.group(2) + match.group(3) + match.group(2) + ')'
         return ans
 

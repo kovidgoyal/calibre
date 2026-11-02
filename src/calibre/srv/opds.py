@@ -318,14 +318,14 @@ def acquisition_extra(mi: Metadata, request_context: RequestContext) -> list[str
             if datatype == 'text' and fm['is_multiple']:
                 extra.append(
                     '{}: {}<br />'.format(
-                        xml(name),
+                        xml(cast('str', name)),
                         xml(format_tag_string(val, fm['is_multiple']['ui_to_list'], joinval=fm['is_multiple']['list_to_ui'])),
                     )
                 )
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
-                extra.append(f'{xml(name)}: {comments_to_html(str(val))}<br />')
+                extra.append(f'{xml(cast("str", name))}: {comments_to_html(str(val))}<br />')
             else:
-                extra.append(f'{xml(name)}: {xml(str(val))}<br />')
+                extra.append(f'{xml(cast("str", name))}: {xml(str(val))}<br />')
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)

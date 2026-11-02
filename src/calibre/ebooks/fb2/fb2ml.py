@@ -206,7 +206,7 @@ class FB2MLizer:
         metadata['year'], metadata['isbn'], metadata['publisher'] = year, isbn, publisher
         for key, value in metadata.items():
             if key not in ('author', 'cover', 'sequence', 'keywords', 'year', 'publisher', 'isbn'):
-                metadata[key] = prepare_string_for_xml(value)
+                metadata[key] = prepare_string_for_xml(cast('str', value))
 
         try:
             comments = self.oeb_book.metadata['description'][0]

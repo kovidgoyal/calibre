@@ -48,7 +48,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         br = browser()
-        br.addheaders.append(['Accept-Encoding', 'gzip'])
+        br.addheaders.append(['Accept-Encoding', 'gzip'])  # ty: ignore[invalid-argument-type]
 
         with closing(br.open(search_url, timeout=timeout)) as r:
             ungzipResponse(r, br)

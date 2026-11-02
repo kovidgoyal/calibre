@@ -9,7 +9,7 @@ import os
 import tempfile
 from collections.abc import Buffer, Generator, Iterable, Iterator
 from contextlib import contextmanager
-from typing import IO
+from typing import IO, Any, Self
 
 from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
@@ -19,7 +19,7 @@ _prevent_recursion = False
 cleanup = unlink  # some plugins import this function
 
 
-def osx_cache_dir():
+def osx_cache_dir() -> str | None:
     global _osx_cache_dir
     if _osx_cache_dir:
         return _osx_cache_dir
@@ -43,7 +43,7 @@ def osx_cache_dir():
 get_default_tempdir = tempfile.gettempdir
 
 
-def base_dir():
+def base_dir() -> str:
     global _base_dir, _prevent_recursion
     if _base_dir is not None and not os.path.exists(_base_dir):
         # Some people seem to think that running temp file cleaners that
@@ -96,7 +96,7 @@ def base_dir():
     return _base_dir
 
 
-def fix_tempfile_module():
+def fix_tempfile_module() -> None:
     # We want the tempfile module to use base_dir() as its tempdir, but we dont
     # want to call base_dir() now as it will possibly create a tempdir, do that
     # only on demand.
@@ -106,7 +106,7 @@ def fix_tempfile_module():
         tempfile._gettempdir = base_dir  # type: ignore
 
 
-def reset_base_dir():
+def reset_base_dir() -> None:
     global _base_dir
     _base_dir = None
 
@@ -121,7 +121,7 @@ def override_base_dir(newval: str) -> Generator[None]:
         _base_dir = before
 
 
-def force_unicode(x):
+def force_unicode(x: str | bytes) -> str:
     # Cannot use the implementation in calibre.__init__ as it causes a circular
     # dependency
     if isinstance(x, bytes):
@@ -129,12 +129,12 @@ def force_unicode(x):
     return x
 
 
-def _make_file(suffix, prefix, base):
+def _make_file(suffix: str | bytes, prefix: str | bytes, base: str) -> tuple[int, str]:
     suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkstemp(suffix, prefix, dir=base)
 
 
-def _make_dir(suffix, prefix, base):
+def _make_dir(suffix: str | bytes, prefix: str | bytes, base: str) -> str:
     suffix, prefix = map(force_unicode, (suffix, prefix))  # no2to3
     return tempfile.mkdtemp(suffix, prefix, base)
 
@@ -147,7 +147,7 @@ class PersistentTemporaryFile:
 
     _file: IO[bytes]
 
-    def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
+    def __init__(self, suffix: str = '', prefix: str | None = '', dir: str | None = None, mode: str = 'w+b') -> None:
         if prefix is None:
             prefix = ''
         if dir is None:
@@ -222,20 +222,20 @@ class PersistentTemporaryFile:
     def __next__(self) -> bytes:
         return next(self._file)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.close()
 
-    def __del__(self):
+    def __del__(self) -> None:
         try:
             self.close()
         except Exception:
             pass
 
 
-def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
+def PersistentTemporaryDirectory(suffix: str = '', prefix: str = '', dir: str | None = None) -> str:
     """
     Return the path to a newly created temporary directory that will
     be automatically deleted on application exit.
@@ -252,7 +252,7 @@ class TemporaryDirectory:
     A temporary directory to be used in a with statement.
     """
 
-    def __init__(self, suffix='', prefix='', dir=None, keep=False):
+    def __init__(self, suffix: str = '', prefix: str = '', dir: str | None = None, keep: bool = False) -> None:
         self.suffix = suffix
         self.prefix = prefix
         if dir is None:
@@ -260,18 +260,18 @@ class TemporaryDirectory:
         self.dir = dir
         self.keep = keep
 
-    def __enter__(self):
+    def __enter__(self) -> str:
         if not hasattr(self, 'tdir'):
             self.tdir = _make_dir(self.suffix, self.prefix, self.dir)
         return self.tdir
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         if not self.keep and os.path.exists(self.tdir):
             remove_dir(self.tdir)
 
 
 class TemporaryFile:
-    def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
+    def __init__(self, suffix: str = '', prefix: str | None = '', dir: str | None = None, mode: str = 'w+b') -> None:
         if prefix is None:
             prefix = ''
         if suffix is None:
@@ -281,19 +281,21 @@ class TemporaryFile:
         self.prefix, self.suffix, self.dir, self.mode = prefix, suffix, dir, mode
         self._file = None
 
-    def __enter__(self):
+    def __enter__(self) -> str:
         fd, name = _make_file(self.suffix, self.prefix, self.dir)
         self._file = os.fdopen(fd, self.mode)
         self._name = name
         self._file.close()
         return name
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         unlink(self._name)
 
 
 class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
-    def __init__(self, max_size=0, suffix='', prefix='', dir=None, mode='w+b', bufsize=-1):
+    def __init__(
+        self, max_size: int = 0, suffix: str | None = '', prefix: str | None = '', dir: str | None = None, mode: str = 'w+b', bufsize: int = -1
+    ) -> None:
         if prefix is None:
             prefix = ''
         if suffix is None:
@@ -304,25 +306,25 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
         tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size, suffix=suffix, prefix=prefix, dir=dir, mode=mode)
 
     @property
-    def name(self):
+    def name(self) -> str | None:
         return self._name
 
     @name.setter
-    def name(self, val):
+    def name(self, val: str | None) -> None:
         self._name = val
 
     # See https://bugs.python.org/issue26175
-    def readable(self):
+    def readable(self) -> bool:
         return self._file.readable()
 
-    def seekable(self):
+    def seekable(self) -> bool:
         return self._file.seekable()
 
-    def writable(self):
+    def writable(self) -> bool:
         return self._file.writable()
 
 
-def better_mktemp(*args, **kwargs):
+def better_mktemp(*args: Any, **kwargs: Any) -> str:  # ruff: ignore[any-type]
     fd, path = tempfile.mkstemp(*args, **kwargs)
     os.close(fd)
     return path

@@ -1,7 +1,7 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import os
-from typing import IO, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, cast
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
@@ -133,7 +133,7 @@ class HTMLZInput(InputFormatPlugin):
             if cover_data is not None:
                 cover_name, cdata = cover_data
                 id, href = oeb.manifest.generate('cover', cover_name)
-                oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
+                oeb.manifest.add(id, href, cast('str', guess_type(cover_name)[0]), data=cdata)
                 oeb.guide.add('cover', 'Cover', href)
 
         return oeb

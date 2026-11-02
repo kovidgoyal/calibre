@@ -5,7 +5,7 @@ import os
 from collections.abc import Iterable
 from contextlib import suppress
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
@@ -109,7 +109,7 @@ def cc_search_action_with_data(
 
                 traceback.print_exc()
     name = (fm.get('name') if fm is not None else None) or search_term
-    t = _('Click to see books with {0}: {1}').format(name, prepare_string_for_xml(value))
+    t = _('Click to see books with {0}: {1}').format(name, prepare_string_for_xml(cast('str', value)))
     return search_action_with_data(search_term, value, book_id, **k), t
 
 
@@ -293,7 +293,7 @@ def mi_to_html(
                     ans.append((field, row % (name, val)))
         elif field == 'path':
             if mi.path:
-                path = force_unicode(mi.path, filesystem_encoding)
+                path = force_unicode(cast('str | bytes', mi.path), filesystem_encoding)
                 scheme = 'devpath' if isdevice else 'path'
                 loc = path if isdevice else book_id
                 extra = ''
@@ -513,12 +513,12 @@ def mi_to_html(
                     else:
                         if metadata['is_custom']:
                             u, v = cc_search_action_with_data(st, unescaped_val, book_id, metadata, mi, field)
-                            v = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>'
+                            v = f'<a href="{u}" title="{v}">{p(cast("str", unescaped_val))}</a>'
                         else:
                             v = '<a href="{}" title="{}">{}</a>'.format(
                                 search_action_with_data(st, unescaped_val, book_id, field),
-                                _('Click to see books with {0}: {1}').format(metadata['name'] or field, a(unescaped_val)),
-                                p(unescaped_val),
+                                _('Click to see books with {0}: {1}').format(metadata['name'] or field, a(cast('str', unescaped_val))),
+                                p(cast('str', unescaped_val)),
                             )
                         val = v + add_other_links(field, val)
                 elif metadata['datatype'] == 'enumeration':
@@ -527,7 +527,7 @@ def mi_to_html(
                     except Exception:
                         st = field
                     u, v = cc_search_action_with_data(st, unescaped_val, book_id, metadata, mi, field)
-                    val = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>' + add_other_links(field, val)
+                    val = f'<a href="{u}" title="{v}">{p(cast("str", unescaped_val))}</a>' + add_other_links(field, val)
                 elif metadata['datatype'] == 'bool':
                     val = '<a href="{}" title="{}">{}</a>'.format(
                         search_action_with_data(field, val, book_id, None),

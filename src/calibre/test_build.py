@@ -21,13 +21,13 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 
 
-def print(*a):
+def print(*a: object) -> None:
     builtins.print(*a, flush=True, file=sys.__stdout__)
 
 
 class BuildTest(unittest.TestCase):
     @unittest.skipUnless(iswindows and not is_ci, 'DLL loading needs testing only on windows (non-continuous integration)')
-    def test_dlls(self):
+    def test_dlls(self) -> None:
         from calibre_extensions import winutil
 
         base = winutil.get_dll_directory()
@@ -38,13 +38,13 @@ class BuildTest(unittest.TestCase):
                 except Exception as err:
                     self.assertTrue(False, f'Failed to load DLL {x} with error: {err}')
 
-    def test_pycryptodome(self):
+    def test_pycryptodome(self) -> None:
         from Crypto.Cipher import AES
 
         del AES
 
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
-    def test_dbus(self):
+    def test_dbus(self) -> None:
         from jeepney.io.blocking import open_dbus_connection
 
         if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
@@ -54,7 +54,7 @@ class BuildTest(unittest.TestCase):
             bus.close()
             del bus
 
-    def test_loaders(self):
+    def test_loaders(self) -> None:
         import importlib
 
         ldr = importlib.import_module('calibre').__spec__.loader.get_resource_reader()
@@ -67,13 +67,13 @@ class BuildTest(unittest.TestCase):
                 raw = f.read()
         self.assertGreater(len(raw), 1024)
 
-    def test_regex(self):
+    def test_regex(self) -> None:
         import regex
 
         self.assertEqual(regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b'), [('a', 'b'), ('A', 'B')])
         self.assertEqual(regex.escape('a b', literal_spaces=True), 'a b')
 
-    def test_langtool(self):
+    def test_langtool(self) -> None:
         import langtool
         from langtool._base import speedups
         from langtool.patterns.static import tables_for
@@ -93,23 +93,23 @@ class BuildTest(unittest.TestCase):
         tool = langtool.LanguageTool('en-US', download=False)
         self.assertGreater(len(tool.rules()), 1000)
 
-    def test_hunspell(self):
+    def test_hunspell(self) -> None:
         from calibre.spell.dictionary import build_test
 
         build_test()
 
-    def test_pychm(self):
+    def test_pychm(self) -> None:
         from chm.chm import CHMFile, chmlib
 
         del CHMFile, chmlib
 
-    def test_tzdata(self):
+    def test_tzdata(self) -> None:
         import tzdata
         import tzlocal
 
         del tzlocal, tzdata
 
-    def test_chardet(self):
+    def test_chardet(self) -> None:
         from calibre_extensions.uchardet import detect
 
         raw = 'mūsi Füße'.encode()
@@ -124,7 +124,7 @@ class BuildTest(unittest.TestCase):
         detector.close()
         self.assertEqual(detector.result['encoding'], 'utf-8')
 
-    def test_compression(self):
+    def test_compression(self) -> None:
         from compression.zstd import compress, decompress
 
         data = os.urandom(4096)
@@ -136,16 +136,16 @@ class BuildTest(unittest.TestCase):
         cdata = compress(data)
         self.assertEqual(data, decompress(cdata))
 
-    def test_html5lib(self):
+    def test_html5lib(self) -> None:
         import html5lib.html5parser  # ruff: ignore[unused-import]
         from html5lib import parse  # ruff: ignore[unused-import]
 
-    def test_html5_parser(self):
+    def test_html5_parser(self) -> None:
         from html5_parser import parse
 
         parse('<p>xxx')
 
-    def test_poppler(self):
+    def test_poppler(self) -> None:
         import subprocess
 
         from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, popen
@@ -154,24 +154,24 @@ class BuildTest(unittest.TestCase):
         if p.wait() != 0:
             raise RuntimeError(f'pdftohtml --help failed with return code: {p.returncode}')
 
-    def test_bs4(self):
+    def test_bs4(self) -> None:
         import bs4
         import soupsieve
 
         del soupsieve, bs4
 
     @unittest.skipUnless(islinux, 'Speech dispatcher only used on Linux')
-    def test_speech_dispatcher(self):
+    def test_speech_dispatcher(self) -> None:
         from speechd.client import SSIPClient
 
         del SSIPClient
 
-    def test_piper(self):
+    def test_piper(self) -> None:
         from calibre.utils.tts.piper import simple_test
 
         simple_test()
 
-    def test_seq2seq(self):
+    def test_seq2seq(self) -> None:
         from calibre_extensions.seq2seq import Seq2SeqModel, gpu_providers, onnxruntime_version
 
         self.assertTrue(onnxruntime_version())
@@ -179,14 +179,14 @@ class BuildTest(unittest.TestCase):
         with self.assertRaises(OSError):
             Seq2SeqModel('/nonexistent/encoder.onnx', '/nonexistent/decoder.onnx')
 
-    def test_zeroconf(self):
+    def test_zeroconf(self) -> None:
         import ifaddr
         import zeroconf as z
 
         del z
         del ifaddr
 
-    def test_plugins(self):
+    def test_plugins(self) -> None:
         exclusions = set()
         if islinux and not os.path.exists('/dev/bus/usb'):
             # libusb fails to initialize in containers without USB subsystems
@@ -202,7 +202,7 @@ class BuildTest(unittest.TestCase):
                 continue
             import_module('calibre_extensions.' + name)
 
-    def test_lxml(self):
+    def test_lxml(self) -> None:
         from calibre.utils.cleantext import test_clean_xml_chars
 
         test_clean_xml_chars()
@@ -221,15 +221,15 @@ class BuildTest(unittest.TestCase):
         safe_xml_fromstring(bad)
         safe_html_fromstring(bad)
 
-    def test_certgen(self):
+    def test_certgen(self) -> None:
         from calibre.utils.certgen import create_key_pair
 
         create_key_pair()
 
-    def test_fonttools(self):
+    def test_fonttools(self) -> None:
         from fontTools.subset import main  # ruff: ignore[unused-import]
 
-    def test_msgpack(self):
+    def test_msgpack(self) -> None:
         from calibre.utils.date import utcnow
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
@@ -242,13 +242,13 @@ class BuildTest(unittest.TestCase):
         msgpack_loads(msgpack_dumps(large))
 
     @unittest.skipUnless(ismacos, 'FSEvents only present on OS X')
-    def test_fsevents(self):
+    def test_fsevents(self) -> None:
         from fsevents import Observer, Stream  # type: ignore
 
         del Observer, Stream
 
     @unittest.skipUnless(iswindows, 'winutil is windows only')
-    def test_winutil(self):
+    def test_winutil(self) -> None:
         import tempfile
 
         from calibre import strftime
@@ -265,7 +265,7 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(winutil.special_folder_path(winutil.CSIDL_FONTS), winutil.known_folder_path(winutil.FOLDERID_Fonts))
         self.assertEqual(winutil.special_folder_path(winutil.CSIDL_PROFILE), winutil.known_folder_path(winutil.FOLDERID_Profile))
 
-        def au(x, name):
+        def au(x: object, name: str) -> None:
             self.assertTrue(isinstance(x, str), f'{name}() did not return a unicode string, instead returning: {x!r}')
 
         for x in 'username temp_path locale_name'.split():
@@ -354,7 +354,7 @@ class BuildTest(unittest.TestCase):
         started = Event()
         events = []
 
-        def read_changes():
+        def read_changes() -> None:
             buffer = b'0' * 8192
             started.set()
             events.extend(
@@ -391,13 +391,13 @@ class BuildTest(unittest.TestCase):
         m.close()
         self.assertEqual(winutil.parse_cmdline('"c:\\test exe.exe" "some arg" 2'), ('c:\\test exe.exe', 'some arg', '2'))
 
-    def test_ffmpeg(self):
+    def test_ffmpeg(self) -> None:
         from calibre_extensions.ffmpeg import resample_raw_audio_16bit
 
         data = os.urandom(22050 * 2)
         resample_raw_audio_16bit(data, 22050, 44100)
 
-    def test_sqlite(self):
+    def test_sqlite(self) -> None:
         import sqlite3
 
         conn = sqlite3.connect(':memory:')
@@ -405,13 +405,13 @@ class BuildTest(unittest.TestCase):
 
         self.assertTrue(load_c_extensions(conn, True), 'Failed to load sqlite extension')
 
-    def test_apsw(self):
+    def test_apsw(self) -> None:
         import apsw
 
         conn = apsw.Connection(':memory:')
         conn.close()
 
-    def test_qt(self):
+    def test_qt(self) -> None:
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         import subprocess
@@ -432,12 +432,12 @@ class BuildTest(unittest.TestCase):
             if webengine_process is not None:
                 webengine_process.wait()
 
-    def test_pykakasi(self):
+    def test_pykakasi(self) -> None:
         from calibre.ebooks.unihandecode.jadecoder import Jadecoder
 
         self.assertEqual(Jadecoder().decode('自転車生活の愉しみ'), 'Jitensha Seikatsu no Tanoshi mi')
 
-    def test_imaging(self):
+    def test_imaging(self) -> None:
         from PIL import Image
 
         try:
@@ -468,23 +468,23 @@ class BuildTest(unittest.TestCase):
             self.assertGreaterEqual(i.size, (20, 20))
 
     @unittest.skipUnless(iswindows and not is_ci, 'File dialog helper only used on windows (non-continuous-integration)')
-    def test_file_dialog_helper(self):
+    def test_file_dialog_helper(self) -> None:
         from calibre.gui2.win_file_dialogs import test
 
         test()
 
-    def test_unrar(self):
+    def test_unrar(self) -> None:
         from calibre.utils.unrar import test_basic
 
         test_basic()
 
-    def test_7z(self):
+    def test_7z(self) -> None:
         from calibre.utils.seven_zip import test_basic
 
         test_basic()
 
     @unittest.skipUnless(iswindows, 'WPD is windows only')
-    def test_wpd(self):
+    def test_wpd(self) -> None:
         from calibre_extensions import wpd
 
         try:
@@ -494,13 +494,13 @@ class BuildTest(unittest.TestCase):
         else:
             wpd.uninit()
 
-    def test_tinycss_tokenizer(self):
+    def test_tinycss_tokenizer(self) -> None:
         from tinycss.tokenizer import c_tokenize_flat
 
         self.assertIsNotNone(c_tokenize_flat, 'tinycss C tokenizer not loaded')
 
     @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
-    def test_executables(self):
+    def test_executables(self) -> None:
         from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, PDFTOTEXT
         from calibre.utils.ipc.launch import Worker
 
@@ -514,33 +514,33 @@ class BuildTest(unittest.TestCase):
 
             self.assertTrue(os.path.exists(eject_exe()), f'calibre-eject.exe ({eject_exe()}) does not exist')
 
-    def test_netifaces(self):
+    def test_netifaces(self) -> None:
         import netifaces  # type: ignore
 
         self.assertGreaterEqual(len(netifaces.interfaces()), 1, 'netifaces could find no network interfaces')
 
-    def test_psutil(self):
+    def test_psutil(self) -> None:
         import psutil
 
         psutil.Process(os.getpid())
 
-    def test_podofo(self):
+    def test_podofo(self) -> None:
         from calibre.utils.podofo import test_podofo as dotest
 
         dotest()
 
     @unittest.skipIf(iswindows, 'readline not available on windows')
-    def test_terminal(self):
+    def test_terminal(self) -> None:
         import readline
 
         del readline
 
-    def test_html2text(self):
+    def test_html2text(self) -> None:
         import html2text
 
         del html2text
 
-    def test_markdown(self):
+    def test_markdown(self) -> None:
         from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
         from calibre.ebooks.txt.processor import create_markdown_object
 
@@ -549,13 +549,13 @@ class BuildTest(unittest.TestCase):
 
         sanitize_comments_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
 
-    def test_feedparser(self):
+    def test_feedparser(self) -> None:
         # sgmllib is needed for feedparser parsing malformed feeds
         import feedparser_sgmllib as sgmllib  # ruff: ignore[unused-import]
 
         from calibre.web.feeds.feedparser import parse  # type: ignore  # ruff: ignore[unused-import]
 
-    def test_openssl(self):
+    def test_openssl(self) -> None:
         import ssl
 
         ssl.PROTOCOL_TLS_CLIENT  # ruff: ignore[useless-expression]
@@ -573,7 +573,7 @@ class BuildTest(unittest.TestCase):
 
         certs_loaded = False
 
-        def check_ssl_loading_certs():
+        def check_ssl_loading_certs() -> None:
             nonlocal certs_loaded
             ssl.create_default_context()
             certs_loaded = True
@@ -585,7 +585,7 @@ class BuildTest(unittest.TestCase):
             raise AssertionError('Failed to load SSL certificates')
 
 
-def test_multiprocessing():
+def test_multiprocessing() -> None:
     from multiprocessing import get_all_start_methods, get_context
 
     for stype in get_all_start_methods():
@@ -605,7 +605,7 @@ def test_multiprocessing():
         p.join()
 
 
-def find_tests(only_build=False):
+def find_tests(only_build: bool = False) -> unittest.TestSuite:
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
     if only_build:
         return ans
@@ -624,13 +624,13 @@ def find_tests(only_build=False):
     return ans
 
 
-def test():
+def test() -> None:
     from calibre.utils.run_tests import run_cli
 
     run_cli(find_tests(), buffer=False)
 
 
-def test_qt_main():
+def test_qt_main() -> None:
     from unittest import TestCase
 
     from qt.core import QFontDatabase, QImageReader, QImageWriter, QNetworkAccessManager, QSslSocket
@@ -708,7 +708,7 @@ def test_qt_main():
             os.environ['DISPLAY'] = display_env_var
 
 
-def test_webengine_worker_main():
+def test_webengine_worker_main() -> None:
     from qt.core import QLoggingCategory, QTimer
     from qt.webengine import QWebEnginePage
 
@@ -725,22 +725,22 @@ def test_webengine_worker_main():
     p = QWebEnginePage()
     setup_profile(p.profile())
 
-    def callback(result):
+    def callback(result: object) -> None:
         callback.result = result
         if hasattr(print_callback, 'result'):
             app.quit()
 
-    def print_callback(result):
+    def print_callback(result: object) -> None:
         print_callback.result = result
         if hasattr(callback, 'result'):
             app.quit()
 
-    def do_webengine_test(title):
+    def do_webengine_test(title: str) -> None:
         nonlocal p
         p.runJavaScript('1 + 1', callback)
         p.printToPdf(print_callback)
 
-    def render_process_crashed(status, exit_code):
+    def render_process_crashed(status: object, exit_code: int) -> None:
         print('Qt WebEngine Render process crashed with status:', status, 'and exit code:', exit_code)
         app.quit()
 

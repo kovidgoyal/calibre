@@ -237,7 +237,7 @@ class KF8Writer:
 
         for i, sheet in enumerate(tuple(self.flows)):
             if hasattr(sheet, 'cssText'):
-                self.flows[i] = force_unicode(sheet.cssText, 'utf-8')
+                self.flows[i] = force_unicode(cast('str | bytes', sheet.cssText), 'utf-8')
 
     def extract_svg_into_flows(self) -> None:
         images = {}

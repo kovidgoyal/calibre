@@ -3,7 +3,7 @@
 
 import os
 import textwrap
-from typing import IO, TYPE_CHECKING
+from typing import IO, TYPE_CHECKING, cast
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -196,7 +196,7 @@ class DOCX:
             types.append(E.Override(PartName=partname, ContentType=mt))
         added = {'png', 'gif', 'jpeg', 'jpg', 'svg', 'xml'}
         for ext in added:
-            types.append(E.Default(Extension=ext, ContentType=guess_type('a.' + ext)[0]))
+            types.append(E.Default(Extension=ext, ContentType=cast('str', guess_type('a.' + ext)[0])))
         for ext, mt in {
             'rels': 'application/vnd.openxmlformats-package.relationships+xml',
             'odttf': 'application/vnd.openxmlformats-officedocument.obfuscatedFont',

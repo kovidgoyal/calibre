@@ -2038,7 +2038,7 @@ class DetailsPanel(QWidget):
         <h3 style="text-align: left; {highlight_css}">{atype}</h3>
         {text}
         '''.format(
-            title=a(title),
+            title=a(cast('str', title)),
             authors=a(authors),
             series=a(series_text),
             book_format=a(book_format),

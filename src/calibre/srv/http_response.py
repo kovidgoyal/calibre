@@ -560,7 +560,7 @@ class HTTPConnection(HTTPRequest):
 
     def prepare_response(self, inheaders: InHeaders, request_body_file: IO[bytes]) -> None:
         if self.method == 'TRACE':
-            msg = force_unicode(self.request_line, 'utf-8') + '\n' + inheaders.pretty()
+            msg = cast('str', force_unicode(self.request_line, 'utf-8')) + '\n' + inheaders.pretty()
             return self.simple_response(http.client.OK, msg, close_after_response=False)
         request_body_file.seek(0)
         outheaders: MultiDict[str] = MultiDict()

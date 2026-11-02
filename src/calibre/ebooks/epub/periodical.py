@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from uuid import uuid4
 
 from calibre import prepare_string_for_xml as xml
@@ -183,7 +183,7 @@ def sony_metadata(oeb: OEBBook) -> tuple[str, bytes]:
 
             entries.append(
                 SONY_ATOM_ENTRY.format(
-                    title=xml(atitle),
+                    title=xml(cast('str', atitle)),
                     author=xml(auth),
                     updated=updated,
                     desc=desc,
