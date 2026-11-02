@@ -141,6 +141,7 @@ class ModalContainer:
             )
         )
         div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
+        self.container = div
         document.body.appendChild(div)
 
         # Container style
@@ -181,13 +182,18 @@ class ModalContainer:
 
         self.modals = []
         self.current_modal = None
+        self.previously_focused = None
         self.hide = self.close_current_modal.bind(self)
 
     @property
     def modal_container(self):
-        return document.getElementById('modal-container')
+        return self.container
 
     def show_modal(self, create_func, on_close=None, show_close=True, onkeydown=None):
+        if self.current_modal is None and not self.modals.length:
+            # Remember where focus was so it can be restored when the last modal closes
+            active = document.activeElement
+            self.previously_focused = None if active is document.body else active
         self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
@@ -225,8 +231,17 @@ class ModalContainer:
         clear(c.firstChild.firstChild)
         if self.modals.length is 0:
             set_css(c, display='none')
+            self.restore_focus()
         else:
             self.update()
+
+    def restore_focus(self):
+        prev, self.previously_focused = self.previously_focused, None
+        active = document.activeElement
+        # Only restore if focus was left in the modal or lost, never steal it
+        # from somewhere the modal's actions may have deliberately moved it
+        if prev and prev.isConnected and (not active or active is document.body or self.modal_container.contains(active)):
+            prev.focus()
 
     def close_current_modal(self, event):
         if self.current_modal is not None:
@@ -445,6 +460,16 @@ def create_modal_container():
     nonlocal modal_container
     if modal_container is None:
         modal_container = ModalContainer()
+    elif not modal_container.container.isConnected:
+        # The document body was replaced, for example between tests, so
+        # discard any modals that were shown in the old document
+        modal_container.modals = []
+        modal_container.current_modal = None
+        modal_container.previously_focused = None
+        c = modal_container.container
+        clear(c.firstChild.firstChild)
+        c.style.display = 'none'
+        document.body.appendChild(c)
     # window.setTimeout(def():
     #     document.getElementById('books-view-1').addEventListener('click', test_progress)
     # , 10)

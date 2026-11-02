@@ -1442,7 +1442,7 @@ def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
     if not container or not mi:
         return
     container = container.querySelector('[data-component=data-files-list-container]')
-    clear(container)
+    # No clear() here, create_item_list() does that after noting which side action has focus
     items = [create_item(_('Upload new data file'), icon='plus', action=upload_data_file)]
     if mi.data_files:
         fname_map = {relpath: relpath.partition('/')[2] for relpath in mi.data_files}

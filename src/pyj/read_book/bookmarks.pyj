@@ -5,9 +5,9 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.item_list import build_list, create_item, create_side_action
+from book_list.item_list import build_list, create_item, create_side_action, focus_side_action_near
 from dom import ensure_id, set_css
-from modals import question_dialog
+from modals import error_dialog, question_dialog
 from read_book.toc import get_book_mark_title
 from widgets import create_button
 
@@ -16,50 +16,30 @@ def goto_cfi(cfi, view):
     view.goto_cfi(cfi, True)
 
 
-def focus_bookmark_action(list_dom_node, button, fallback):
-    if not list_dom_node.isConnected:
-        return
-    modal = document.getElementById('modal-container')
-    if modal and modal.style.display is not 'none':
-        return
-    active = document.activeElement
-    if active is not document.body and active is not button and not (modal and modal.contains(active)):
-        return
-    target = button
-    if not list_dom_node.getClientRects().length:
-        target = None
-        # Prefer the next bookmark, then the previous one, skipping hidden rows
-        for direction in ('nextElementSibling', 'previousElementSibling'):
-            row = list_dom_node[direction]
-            while row:
-                if row.getClientRects().length:
-                    target = row.querySelector('button.item-side-action')
-                    if target:
-                        break
-                row = row[direction]
-            if target:
-                break
-        target = target or fallback
-    if target and target.isConnected and target.getClientRects().length:
-        target.focus()
-
-
-def remove_bookmark(annotations_manager, bookmark, fallback, list_dom_node, button):
+def remove_bookmark(annotations_manager, state, fallback, list_dom_node, button):
     question_dialog(_('Are you sure?'), _('Do you want to permanently delete this bookmark?'), def (yes):
-        if yes and annotations_manager.remove_bookmark(bookmark.title):
+        if yes:
+            annotations_manager.remove_bookmark(state.title)
+            # Hide the row even if no bookmark matched, as it no longer exists either way
             list_dom_node.style.display = 'none'
-        # The confirmation callback can run before the dialog has been hidden
-        window.setTimeout(focus_bookmark_action.bind(None, list_dom_node, button, fallback), 0)
+            focus_side_action_near(
+                list_dom_node.parentNode, Array.prototype.indexOf.call(list_dom_node.parentNode.children, list_dom_node),
+                Array.prototype.indexOf.call(button.parentNode.children, button), fallback)
     )
 
 
-def edit_bookmark(annotations_manager, bookmark, list_dom_node, button):
-    new_title = window.prompt(_('Enter new title for bookmark:'), bookmark.title)
-    if new_title:
-        if annotations_manager.edit_bookmark(bookmark.title, new_title):
-            bookmark.title = new_title
+def edit_bookmark(annotations_manager, state, list_dom_node, button):
+    new_title = window.prompt(_('Enter new title for bookmark:'), state.title)
+    if new_title and new_title is not state.title:
+        for b in annotations_manager.all_bookmarks():
+            if b.title is new_title and not b.removed:
+                error_dialog(_('Duplicate bookmark'), _('A bookmark with the title {} already exists').format(new_title))
+                return
+        if annotations_manager.edit_bookmark(state.title, new_title):
+            state.title = new_title
             list_dom_node.querySelector('.item-title').textContent = new_title
-    window.setTimeout(focus_bookmark_action.bind(None, list_dom_node, button, None), 0)
+    if button.isConnected:
+        button.focus()
 
 
 def create_bookmarks_list(annotations_manager, onclick, fallback=None):
@@ -67,8 +47,10 @@ def create_bookmarks_list(annotations_manager, onclick, fallback=None):
     items = []
     for bookmark in bookmarks:
         if not bookmark.removed:
-            sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, bookmark, fallback), _('Remove this bookmark'))
-            ea = create_side_action('edit', edit_bookmark.bind(None, annotations_manager, bookmark), _('Edit this bookmark'))
+            # Shared by both actions so that they see the title after a rename
+            state = {'title': bookmark.title}
+            sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, state, fallback), _('Remove this bookmark'))
+            ea = create_side_action('edit', edit_bookmark.bind(None, annotations_manager, state), _('Edit this bookmark'))
             items.push(create_item(
                 bookmark.title, data=bookmark.pos,
                 action=onclick.bind(None, goto_cfi.bind(None, bookmark.pos)),

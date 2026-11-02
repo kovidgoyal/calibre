@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from book_list.item_list import create_item, create_item_list, create_side_action
+from book_list.item_list import create_item, create_item_list, create_side_action, focus_side_action_near
 from testing import assert_equal, assert_false, assert_true, test
 
 
@@ -42,15 +42,72 @@ def item_list_side_actions_are_named_buttons_and_do_not_activate_the_row():
     assert_equal(buttons[0].type, 'button')
     assert_equal(buttons[0].getAttribute('aria-label'), 'Edit title')
     assert_equal(buttons[0].title, 'Edit title')
-    assert_false(buttons[0].disabled)
-    assert_true(buttons[1].disabled)
+    assert_equal(buttons[0].getAttribute('aria-disabled'), 'false')
+    assert_equal(buttons[1].getAttribute('aria-disabled'), 'true')
     buttons[0].focus()
     assert_equal(document.activeElement, buttons[0])
     buttons[0].click()
     assert_equal(calls, {'row': 0, 'action': 1})
     buttons[0].querySelector('svg').dispatchEvent(new MouseEvent('click', {'bubbles': True}))
     assert_equal(calls, {'row': 0, 'action': 2})
+    # Unavailable actions stay focusable and swallow clicks, including clicks on their icon
+    buttons[1].focus()
+    assert_equal(document.activeElement, buttons[1])
     buttons[1].click()
+    buttons[1].querySelector('svg').dispatchEvent(new MouseEvent('click', {'bubbles': True}))
     assert_equal(calls, {'row': 0, 'action': 2})
     container.querySelector('.item-title').click()
     assert_equal(calls, {'row': 1, 'action': 2})
+
+
+def build_test_list(container, titles, without_actions=None):
+    without_actions = without_actions or {}
+
+    def noop():
+        pass
+
+    create_item_list(container, [create_item(t, side_actions=[] if without_actions[t] else [
+        create_side_action('trash', noop, 'Delete ' + t), create_side_action('edit', noop, 'Edit ' + t)]) for t in titles])
+
+
+def focused_label():
+    return document.activeElement.getAttribute('aria-label')
+
+
+@test
+def item_list_focus_moves_to_the_nearest_side_action():
+    container, fallback = E.div(), E.button('Fallback')
+    document.body.append(container, fallback)
+    build_test_list(container, ['A', 'B', 'C'])
+    rows = container.querySelectorAll('li')
+    # Focus on a visible element is never stolen
+    fallback.focus()
+    assert_false(focus_side_action_near(container, 1, 1))
+    assert_equal(document.activeElement, fallback)
+    fallback.blur()
+    rows[1].style.display = 'none'
+    assert_true(focus_side_action_near(container, 1, 1, fallback))
+    assert_equal(focused_label(), 'Edit C')
+    # Focus on an element that has been hidden counts as lost
+    rows[2].style.display = 'none'
+    assert_true(focus_side_action_near(container, 2, 0, fallback))
+    assert_equal(focused_label(), 'Delete A')
+    rows[0].style.display = 'none'
+    assert_true(focus_side_action_near(container, 0, 0, fallback))
+    assert_equal(document.activeElement, fallback)
+
+
+@test
+def item_list_rebuild_keeps_focus_on_the_same_row():
+    container = E.div()
+    document.body.appendChild(container)
+    build_test_list(container, ['A', 'B', 'C'])
+    container.querySelectorAll('li')[1].querySelectorAll('button')[1].focus()
+    build_test_list(container, ['B', 'C'])
+    assert_equal(focused_label(), 'Edit B')
+    # The row lost its side actions, so focus moves to the next row
+    build_test_list(container, ['B', 'C'], {'B': True})
+    assert_equal(focused_label(), 'Edit C')
+    # The row has gone, so focus moves to the row now in its position
+    build_test_list(container, ['A', 'B'])
+    assert_equal(focused_label(), 'Edit B')

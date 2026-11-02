@@ -4,90 +4,119 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from read_book.bookmarks import create_bookmarks_list, focus_bookmark_action
-from testing import assert_equal, assert_false, test
+from modals import close_all_modals, create_modal_container
+from read_book.annotations import AnnotationsManager
+from read_book.bookmarks import create_bookmarks_list
+from testing import assert_equal, assert_false, assert_true, test
 
 
 def with_bookmarks(proceed):
-    bookmarks = [{'title': title, 'pos': '/' + title} for title in ['First', 'Middle', 'Last']]
-    edits = []
-
-    def all_bookmarks():
-        return bookmarks
-
-    def edit_bookmark(title, new_title):
-        edits.push([title, new_title])
-        return True
-
-    manager = {'all_bookmarks': all_bookmarks, 'edit_bookmark': edit_bookmark}
-    fallback, other = E.button('New bookmark'), E.button('Other control')
-    document.body.append(fallback, other)
+    manager = AnnotationsManager(None)
+    manager.set_bookmarks([{'title': title, 'pos': '/' + title, 'type': 'bookmark'} for title in ['First', 'Middle', 'Last']])
+    create_modal_container()
+    fallback = E.button('New bookmark')
+    document.body.appendChild(fallback)
     container = create_bookmarks_list(manager, def (): pass;, fallback)
     document.body.appendChild(container)
-    proceed(container, fallback, other, edits)
+    previous = window.prompt
+    try:
+        proceed(manager, container, fallback)
+    finally:
+        window.prompt = previous
+        close_all_modals()
+
+
+def live_titles(manager):
+    return sorted([b.title for b in manager.all_bookmarks() if not b.removed])
+
+
+def modal_is_shown():
+    return document.getElementById('modal-container').style.display is 'flex'
+
+
+def answer_question(yes):
+    assert_true(modal_is_shown())
+    buttons = document.querySelectorAll('#modal-container .button-box a')
+    buttons[1 if yes else 0].click()
+
+
+def row_buttons(row):
+    return row.querySelectorAll('button.item-side-action')
 
 
 @test
-def bookmark_edits_use_the_updated_title_for_repeated_actions():
-    def run(container, fallback, other, edits):
-        button = container.querySelectorAll('button.item-side-action')[1]
-        previous = window.prompt
+def bookmark_actions_use_the_title_after_a_rename():
+    def run(manager, container, fallback):
+        edit = row_buttons(container.querySelector('li'))[1]
         window.prompt = def (): return 'Renamed'
-        try:
-            button.focus()
-            button.click()
-            button.click()
-            assert_equal(edits, [['First', 'Renamed'], ['Renamed', 'Renamed']])
-            assert_equal(container.querySelector('.item-title').textContent, 'Renamed')
-            assert_equal(document.activeElement, button)
-        finally:
-            window.prompt = previous
+        edit.focus()
+        edit.click()
+        window.prompt = def (): return 'Renamed again'
+        edit.click()
+        assert_equal(live_titles(manager), ['Last', 'Middle', 'Renamed again'])
+        assert_equal(container.querySelector('.item-title').textContent, 'Renamed again')
+        assert_equal(document.activeElement, edit)
+        row_buttons(container.querySelector('li'))[0].click()
+        answer_question(True)
+        assert_equal(live_titles(manager), ['Last', 'Middle'])
 
     with_bookmarks(run)
 
 
 @test
-def bookmark_focus_moves_to_surviving_rows_then_the_new_bookmark_control():
-    def run(container, fallback):
+def bookmark_rename_to_an_existing_title_is_rejected():
+    def run(manager, container, fallback):
+        first = container.querySelector('li')
+        window.prompt = def (): return 'Last'
+        row_buttons(first)[1].click()
+        assert_true(modal_is_shown())
+        assert_equal(live_titles(manager), ['First', 'Last', 'Middle'])
+        assert_equal(first.querySelector('.item-title').textContent, 'First')
+        close_all_modals()
+        # A removed bookmark with the title neither blocks the rename nor is renamed itself
+        manager.remove_bookmark('Last')
+        row_buttons(first)[1].click()
+        assert_false(modal_is_shown())
+        assert_equal(live_titles(manager), ['Last', 'Middle'])
+        assert_equal([b.title for b in manager.all_bookmarks() if b.removed], ['Last'])
+
+    with_bookmarks(run)
+
+
+@test
+def bookmark_delete_moves_focus_to_surviving_rows_then_the_new_bookmark_control():
+    def run(manager, container, fallback):
         first, middle, last = container.querySelectorAll('li')
-        first_button = first.querySelector('button')
-        middle_button = middle.querySelector('button')
-        last_button = last.querySelector('button')
-        middle.style.display = 'none'
-        focus_bookmark_action(middle, middle_button, fallback)
-        assert_equal(document.activeElement, last_button)
-        last.style.display = 'none'
-        focus_bookmark_action(last, last_button, fallback)
-        assert_equal(document.activeElement, first_button)
-        first.style.display = 'none'
-        focus_bookmark_action(first, first_button, fallback)
+
+        def delete_row(row, yes):
+            trash = row_buttons(row)[0]
+            trash.focus()
+            trash.click()
+            answer_question(yes)
+
+        delete_row(middle, False)
+        assert_true(middle.getClientRects().length > 0)
+        assert_equal(document.activeElement, row_buttons(middle)[0])
+        delete_row(middle, True)
+        assert_equal(middle.style.display, 'none')
+        assert_equal(document.activeElement, row_buttons(last)[0])
+        delete_row(last, True)
+        assert_equal(document.activeElement, row_buttons(first)[0])
+        delete_row(first, True)
         assert_equal(document.activeElement, fallback)
+        assert_equal(live_titles(manager), [])
 
     with_bookmarks(run)
 
 
 @test
-def bookmark_focus_restoration_respects_dialogs_navigation_and_other_controls():
-    def run(container, fallback, other):
+def bookmark_delete_hides_the_row_even_if_the_bookmark_has_gone():
+    def run(manager, container, fallback):
+        manager.set_bookmarks([])
         row = container.querySelector('li')
-        button = row.querySelector('button')
-        button.focus()
-        focus_bookmark_action(row, button, fallback)
-        assert_equal(document.activeElement, button)
-        other.focus()
-        focus_bookmark_action(row, button, fallback)
-        assert_equal(document.activeElement, other)
-        other.blur()
-        modal = E.div(id='modal-container', style='display: flex')
-        document.body.appendChild(modal)
-        focus_bookmark_action(row, button, fallback)
-        assert_false(document.activeElement is button)
-        modal.remove()
-        container.style.display = 'none'
-        focus_bookmark_action(row, button, fallback)
-        assert_false(document.activeElement is button)
-        container.remove()
-        focus_bookmark_action(row, button, fallback)
-        assert_false(document.activeElement is button)
+        row_buttons(row)[0].click()
+        answer_question(True)
+        assert_equal(row.style.display, 'none')
+        assert_false(manager.all_bookmarks().length)
 
     with_bookmarks(run)

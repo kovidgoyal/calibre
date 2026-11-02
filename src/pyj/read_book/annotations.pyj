@@ -152,7 +152,7 @@ class AnnotationsManager:  # {{{
     def edit_bookmark(self, title, new_title):
         changed = False
         for b in self.bookmarks:
-            if b.title is title:
+            if b.title is title and not b.removed:
                 b.title = new_title
                 b.timestamp = Date().toISOString()
                 changed = True
