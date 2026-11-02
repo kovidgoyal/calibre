@@ -388,6 +388,14 @@ class TestRecipeFillField(unittest.TestCase):
             async def value(self) -> str:
                 return self.page.value
 
+            async def fill(self, value: str) -> None:
+                page = self.page
+                page.attempts += 1
+                if page.attempts <= page.failures:
+                    page.value = value[:1]
+                    raise page.failure('a keydown was not acknowledged')
+                page.value = value
+
             async def dispose(self) -> None:
                 pass
 
@@ -395,12 +403,8 @@ class TestRecipeFillField(unittest.TestCase):
             def __init__(self, failure: type[Exception], failures: int) -> None:
                 self.value, self.failure, self.failures, self.attempts = '', failure, failures, 0
 
-            async def fill(self, selector: str, value: str, timeout: float) -> None:  # ruff: ignore[async-function-with-timeout]
-                self.attempts += 1
-                if self.attempts <= self.failures:
-                    self.value = value[:1]
-                    raise self.failure('a keydown was not acknowledged')
-                self.value = value
+            async def wait_for_selector(self, selector: str, timeout: float, visible: bool) -> FakeElement:  # ruff: ignore[async-function-with-timeout]
+                return FakeElement(self)
 
             async def find(self, selector: str) -> FakeElement:
                 return FakeElement(self)

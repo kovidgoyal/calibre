@@ -417,11 +417,17 @@ async def fill_field(page: Page, selector: str, value: str, remaining: Callable[
     into it. Either way typing it again, into what is there now, is what works,
     and looking at what the field holds afterwards is the only way to know.
     """
+    found = False
     for attempt in range(FILL_ATTEMPTS):
         if attempt:
             await asyncio.sleep(min(FILL_RETRY_DELAY, remaining()))
         try:
-            await page.fill(selector, value, timeout=remaining())
+            element = await page.wait_for_selector(selector, timeout=remaining(), visible=True)
+            found = True
+            try:
+                await element.fill(value)
+            finally:
+                await element.dispose()
             await asyncio.sleep(min(FILL_RETRY_DELAY, remaining()))
             element = await page.find(selector)
             if element is None:
@@ -431,7 +437,16 @@ async def fill_field(page: Page, selector: str, value: str, remaining: Callable[
                     return True
             finally:
                 await element.dispose()
-        except TimeoutExceeded, InputWedged:
+        except TimeoutExceeded:
+            # Typing is slow, so on a slow machine the time can run out while
+            # trying again. The field was found by an earlier attempt, so what
+            # went wrong is that it would not take what was typed, not that it
+            # never appeared.
+            if found:
+                debug(f'Ran out of time typing into {selector} again, after attempt {attempt + 1} of {FILL_ATTEMPTS}')
+                return False
+            raise
+        except InputWedged:
             raise
         except Error as err:
             # Not the message itself, which quotes what was being typed
