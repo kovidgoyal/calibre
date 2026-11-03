@@ -238,6 +238,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-15310',  # DoS in unzip
     'CVE-2026-87910',  # tarfile extract on systems without links irrelevant
     'CVE-2026-12345',  # tempfile.TemporaryDirectory cleanup symlink attack
+    'CVE-2026-103995',  # http response header parsing in stdlib, inapplicable
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
