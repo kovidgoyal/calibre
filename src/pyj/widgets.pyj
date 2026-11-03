@@ -324,24 +324,28 @@ class Breadcrumbs:
 # Simple Tree {{{
 
 
+def set_tree_node_expanded(item, expanded):
+    item.dataset.treeState = 'open' if expanded else 'closed'
+    item.lastChild.style.display = 'block' if expanded else 'none'
+    button = item.firstChild.firstChild
+    button.setAttribute('aria-expanded', 'true' if expanded else 'false')
+    change_icon_image(button.firstChild, 'caret-down' if expanded else 'caret-right')
+
+
 def create_tree(root, populate_data, onclick):
     container = E.div(class_='simple-tree')
     set_css(container, overflow='auto')
 
-    def toggle_node(li):
-        if li.dataset.treeState is 'closed':
-            li.dataset.treeState = 'open'
-            li.lastChild.style.display = 'block'
-            change_icon_image(li.firstChild.firstChild, 'caret-down')
-        else:
-            li.dataset.treeState = 'closed'
-            li.lastChild.style.display = 'none'
-            change_icon_image(li.firstChild.firstChild, 'caret-right')
+    def toggle_node(event):
+        event.stopPropagation()
+        item = event.currentTarget.parentNode.parentNode
+        set_tree_node_expanded(item, item.dataset.treeState is 'closed')
 
     def bullet(icon):
         ans = svgicon(icon, '2ex', '2ex')
         ans.style.minWidth = '2ex'
         ans.style.minHeight = '2ex'
+        ans.setAttribute('aria-hidden', 'true')
         return ans
 
     def process_node(node, parent_container, level):
@@ -370,10 +374,15 @@ def create_tree(root, populate_data, onclick):
                 ul.appendChild(li)
                 populate_data(child, li, li.firstChild.lastChild)
                 if icon:
-                    set_css(li.firstChild.firstChild, cursor='pointer')
-                    li.firstChild.firstChild.addEventListener('click', def (event):
-                        toggle_node(event.currentTarget.parentNode.parentNode)
-                    )
+                    title = li.firstChild.lastChild
+                    button = E.button(
+                        li.firstChild.firstChild, type='button', class_='calibre-plain-button tree-item-toggle',
+                        aria_expanded='false', aria_controls=ensure_id(li.lastChild, 'tree-subtree'), onclick=toggle_node)
+                    if title.textContent.trim():
+                        button.setAttribute('aria-labelledby', ensure_id(title, 'tree-title'))
+                    else:
+                        button.setAttribute('aria-label', _('Expand/collapse'))
+                    li.firstChild.insertBefore(button, li.firstChild.firstChild)
                     process_node(child, li.lastChild, level + 1)
 
     if root:
@@ -424,7 +433,7 @@ def find_text_in_tree(container, q):
 def scroll_tree_item_into_view(item):
     p = item.parentNode?.parentNode
     while p and p.getAttribute('data-tree-subtree-container'):
-        p.style.display = 'block'
+        set_tree_node_expanded(p.parentNode, True)
         p = p.parentNode?.parentNode?.parentNode
     item.scrollIntoView()
 
@@ -437,6 +446,10 @@ add_extra_css(def ():
         ' .simple-link:active { transform: scale(1.5) }\n'
     ).replace('HC', get_color('window-hover-foreground'))
     ans += '''
+        .simple-tree button.tree-item-toggle {
+            display: flex;
+            flex-shrink: 0;
+        }
         a.tree-item-title {
             color: currentColor;
             cursor: pointer;
