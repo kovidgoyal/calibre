@@ -256,7 +256,7 @@ class TXTInput(InputFormatPlugin):
                 det_encoding = 'gbk'
             ienc = det_encoding
             log.debug(f'Detected input encoding as {ienc} with a confidence of {confidence * 100}%')
-        if not ienc:
+        if not ienc or ienc == 'ascii':
             ienc = 'utf-8'
             log.debug(f'No input encoding specified and could not auto detect using {ienc}')
         # Remove BOM from start of txt as its presence can confuse markdown
