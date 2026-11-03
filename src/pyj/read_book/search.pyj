@@ -269,6 +269,9 @@ Regex: Interpret the entered text as a regular expression'''),
         button = ev.currentTarget
         collapsed = button.closest('[data-toc-node-id]').classList.toggle('collapsed')
         button.setAttribute('aria-expanded', 'false' if collapsed else 'true')
+        if ev.detail:
+            # Mouse clicks leave focus on the results pane, so Enter keeps meaning find next
+            self.bottom_container.focus()
 
     def result_received(self, result):
         self.show_results()
@@ -377,9 +380,12 @@ Regex: Interpret the entered text as a regular expression'''),
         else:
             rnum = 1
         self.make_result_current(rnum)
-        self.results_container.focus()
         cr = self.current_result_container
         if cr:
+            ae = document.activeElement
+            if ae and self.results_container.contains(ae) and ae.closest('li[data-result-num]'):
+                # Focus must follow the current match, otherwise Enter would open a different one
+                cr.querySelector('.book-search-button').focus()
             self.select_search_result_in_book(cr.dataset.resultNum)
 
     def onkeyup(self, event):
@@ -389,7 +395,7 @@ Regex: Interpret the entered text as a regular expression'''),
 
     def onkeydown(self, event):
         if (event.key is 'Enter' or event.key is ' ') and event.target.closest('.book-search-button') and not (
-                event.ctrlKey or event.altKey or event.metaKey):
+                event.ctrlKey or event.altKey or event.metaKey or event.shiftKey):
             # Native activation takes precedence over the next/previous match shortcuts
             event.stopPropagation()
             return
