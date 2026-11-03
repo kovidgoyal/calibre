@@ -7,6 +7,7 @@ from gettext import gettext as _, ngettext
 
 from ajax import encode_query
 from book_list.globals import get_current_query, get_session_data
+from book_list.item_list import is_visible
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, svgicon, unique_id
@@ -717,6 +718,8 @@ def find(backwards):
     for h in all_highlights:
         if h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1:
             set_current_highlight_entry(h)
+            # The match must be visible, so open its chapter if it was collapsed
+            set_highlight_group_expanded(h.closest('.toc-group'), True)
             h.scrollIntoView()
             if h is current:
                 warning_dialog(_('Not found'), _('No other matches found for: {}').format(text), on_close=focus_search)
@@ -739,7 +742,8 @@ add_extra_css(def ():
     ans += build_rule(sel + ' .ac-button', margin_left='1rem', margin_top='1ex')
     ans += build_rule(sel + ' .sel-button', display='none')
     sel += ' .toc-group'
-    ans += build_rule(sel + ' h3', display='flex', align_items='center', cursor='pointer', margin_top='1ex')
+    ans += build_rule(sel + ' h3', margin_top='1ex')
+    ans += build_rule(sel + ' h3 > button', display='flex', align_items='center', width='100%')
     ans += build_rule(sel + '.expanded .caret-right', display='none')
     ans += build_rule(sel + '.collapsed .caret-down', display='none')
     ans += build_rule(sel + '.collapsed > div', display='none')
@@ -748,6 +752,11 @@ add_extra_css(def ():
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
     ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between', flex_wrap='wrap', gap='0.65rem')
     ans += build_rule(qsel + ' .title', display='flex', align_items='center')
+    ans += build_rule(qsel + ' .title > button', display='flex', flex_shrink='0')
+    # The disclosure button only wraps the swatch, so that the highlighted
+    # text stays selectable, show its focus ring around the whole title instead
+    ans += build_rule(qsel + ' .title > button:focus-visible', box_shadow='none')
+    ans += build_rule(qsel + ' .title:has(> button:focus-visible)', box_shadow='var(--calibre-focus-ring)', border_radius='4px')
     ans += build_rule(qsel + ' .title-row', display='flex', align_items='center', justify_content='space-between')
     current = qsel + '.current'
     ans += build_rule(current + ' .title', font_weight='bold', font_size='larger')
@@ -818,11 +827,54 @@ def highlight_entry_clicked(ev):
     set_current_highlight_entry(ev.currentTarget)
 
 
+def set_highlight_entry_expanded(entry, expanded):
+    entry.classList.toggle('current', expanded)
+    entry.querySelector('.title > button').setAttribute('aria-expanded', 'true' if expanded else 'false')
+
+
 def set_current_highlight_entry(entry):
+    for h in get_container().querySelectorAll('.highlight.current'):
+        if h is not entry:
+            set_highlight_entry_expanded(h, False)
+    set_highlight_entry_expanded(entry, True)
+
+
+def toggle_highlight_entry(ev):
+    ev.stopPropagation()
+    entry = ev.currentTarget.closest('.highlight')
+    if entry.classList.contains('current'):
+        set_highlight_entry_expanded(entry, False)
+    else:
+        set_current_highlight_entry(entry)
+
+
+def remove_highlight_entries(entries, view):
     c = get_container()
-    for h in c.querySelectorAll('.highlight'):
-        h.classList.remove('current')
-    entry.classList.add('current')
+    all_entries = list(c.querySelectorAll('.highlight')).as_array()
+    first = all_entries.indexOf(entries[0])
+    following = [e for e in all_entries[first + 1:] if entries.indexOf(e) < 0]
+    preceding = [e for e in all_entries[:first] if entries.indexOf(e) < 0]
+    neighbor = following[0] if following.length else (preceding[-1] if preceding.length else None)
+    for entry in entries:
+        view.highlight_action(entry.dataset.uuid, 'delete')
+        group = entry.closest('.toc-group')
+        entry.remove()
+        if group and not group.querySelector('.highlight'):
+            group.remove()
+    item_select_toggled()
+    # Focus is lost if it was on a removed entry, or on the Remove selection
+    # button, which is hidden now that nothing is selected. Move it to the
+    # nearest surviving highlight without opening it.
+    active = document.activeElement
+    if active and active is not document.body and is_visible(active):
+        return
+    candidates = [c.querySelector('input[type=search]')]
+    if neighbor:
+        candidates = [neighbor.querySelector('.title > button'), neighbor.closest('.toc-group').querySelector('h3 > button')].concat(candidates)
+    for w in candidates:
+        if is_visible(w):
+            w.focus()
+            break
 
 
 def show_in_text(annot_id, view):
@@ -834,8 +886,7 @@ def remove_highlight(annot_id, view, ev):
     question_dialog(_('Are you sure?'), _(
         'Do you want to permanently delete this highlight?'), def (yes):
             if yes:
-                entry.style.display = 'none'
-                view.highlight_action(annot_id, 'delete')
+                remove_highlight_entries([entry], view)
     )
 
 
@@ -884,9 +935,7 @@ def delete_selection(annotations_manager, view):
     ).format(selected_highlight_items.length)
     question_dialog(_('Are you sure?'), text, def (yes):
         if yes:
-            for entry in selected_highlight_items:
-                entry.style.display = 'none'
-                view.highlight_action(entry.dataset.uuid, 'delete')
+            remove_highlight_entries(selected_highlight_items, view)
     )
 
 
@@ -896,17 +945,23 @@ def highlight_entry(h, onclick, view, hide_panel):
         onclick(func)
 
     hs = HighlightStyle(h.style)
-    swatch = E.div()
+    swatch = E.span(style='display: block')
     hs.make_swatch(swatch, is_dark_theme())
+    title_id, actions_id, notes_id = unique_id('highlight-title'), unique_id('highlight-actions'), unique_id('highlight-notes')
     ans = E.div(
         class_='highlight',
         data_uuid=h.uuid,
         onclick=highlight_entry_clicked,
         E.div(
             class_='title-row',
-            E.div(class_='title', swatch, E.div(style='margin-left: 1rem', h.highlighted_text)),
+            E.div(
+                class_='title',
+                E.button(
+                    type='button', class_='calibre-plain-button', aria_expanded='false', aria_controls=actions_id + ' ' + notes_id,
+                    aria_labelledby=title_id, onclick=toggle_highlight_entry, swatch),
+                E.div(id=title_id, style='margin-left: 1rem', h.highlighted_text)),
             E.div(style='margin-left: 1rem', onclick=def (ev): ev.stopPropagation();,
-                  E.input(type='checkbox', onchange=item_select_toggled, onkeydown=def (ev):
+                  E.input(type='checkbox', aria_labelledby=title_id, onchange=item_select_toggled, onkeydown=def (ev):
                         if ev.key is 'Escape':
                             ev.stopPropagation()
                             ev.preventDefault()
@@ -914,14 +969,14 @@ def highlight_entry(h, onclick, view, hide_panel):
             )),
         ),
         E.div(
-            class_='actions',
+            class_='actions', id=actions_id,
             create_button(_('Show in book'), 'book', action.bind(None, show_in_text.bind(None, h.uuid))),
             E.span('\xa0'),
             create_button(_('Edit notes'), 'edit', edit_notes.bind(None, h.uuid, h.notes, view)),
             E.span('\xa0'),
             create_button(_('Remove highlight'), 'trash', remove_highlight.bind(None, h.uuid, view)),
         ),
-        E.div(class_='notes')
+        E.div(class_='notes', id=notes_id)
     )
     if h.notes:
         render_notes(h.notes, ans.querySelector('.notes'), True)
@@ -930,15 +985,30 @@ def highlight_entry(h, onclick, view, hide_panel):
     return ans
 
 
-def create_icon_button(icon, title, action):
-    return E.a(svgicon(icon), class_='calibre-icon-button ac-button', title=title, onclick=def (ev):
-                ev.preventDefault()
-                action()
-            , onmousedown = def (e): e.preventDefault();)
+def create_icon_button(icon, title, action=None):
+    # Keep focus in the search box when the button is clicked with the mouse
+    ans = E.a(
+        svgicon(icon), class_='calibre-icon-button ac-button', title=title, aria_label=title, role='button',
+        href='javascript:void(0)', onmousedown=def (e): e.preventDefault();)
+    if action is not None:
+        ans.addEventListener('click', def (ev): ev.preventDefault(), action();)
+    return ans
+
+
+def set_highlight_group_expanded(group, expanded):
+    group.classList.toggle('expanded', expanded)
+    group.classList.toggle('collapsed', not expanded)
+    group.querySelector('h3 > button').setAttribute('aria-expanded', 'true' if expanded else 'false')
+
+
+def toggle_highlight_group(ev):
+    group = ev.currentTarget.closest('.toc-group')
+    set_highlight_group_expanded(group, not group.classList.contains('expanded'))
 
 
 def create_highlights_panel(annotations_manager, hide_panel, book, container, onclick):
-    next_button = create_icon_button('chevron-down', _('Next match'), find_next)
+    # create_search_bar() runs the search when next_button is clicked
+    next_button = create_icon_button('chevron-down', _('Next match'))
     prev_button = create_icon_button('chevron-up', _('Previous match'), find_previous)
     sb = create_search_bar(find_next, 'search-in-highlights', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button])
     sb.style.flexGrow = '10'
@@ -987,21 +1057,17 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
 
     for group in Object.keys(toc_groups):
         highlights = toc_groups[group]
+        group_id = unique_id('highlight-group')
         g = E.div(
             class_='toc-group expanded',
             E.h3(
                 title=toc_tt[group] or '',
-                tree_icon('caret-right'), tree_icon('caret-down'), E.div('\xa0' + group),
-                onclick=def (ev):
-                    tg = ev.currentTarget.closest('.toc-group')
-                    if tg.classList.contains('expanded'):
-                        tg.classList.remove('expanded')
-                        tg.classList.add('collapsed')
-                    else:
-                        tg.classList.remove('collapsed')
-                        tg.classList.add('expanded')
+                E.button(
+                    type='button', class_='calibre-plain-button', aria_expanded='true', aria_controls=group_id,
+                    onclick=toggle_highlight_group,
+                    tree_icon('caret-right'), tree_icon('caret-down'), E.span('\xa0' + group)),
             ),
-            E.div(style='margin-left: 1rem')
+            E.div(id=group_id, style='margin-left: 1rem')
         )
         c.appendChild(g)
         ic = g.lastChild

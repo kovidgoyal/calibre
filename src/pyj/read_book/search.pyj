@@ -290,7 +290,7 @@ Regex: Interpret the entered text as a regular expression'''),
                 E.button(
                     E.span('+\xa0', style='display: none', aria_hidden='true'),
                     E.span(toc_node?.title or _('Unknown')),
-                    type='button', class_='book-search-button', aria_expanded='true', aria_controls=results_id,
+                    type='button', class_='calibre-plain-button book-search-button', aria_expanded='true', aria_controls=results_id,
                     title=_('Click to show/hide the results in this chapter'),
                     onclick=self.toggle_chapter,
                 ),
@@ -314,7 +314,7 @@ Regex: Interpret the entered text as a regular expression'''),
             tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)
             tt += '\n' + lines.join('\n')
         rnum = result.result_num
-        entry = E.button(type='button', class_='book-search-button', onclick=self.result_clicked.bind(None, rnum))
+        entry = E.button(type='button', class_='calibre-plain-button book-search-button', onclick=self.result_clicked.bind(None, rnum))
 
         if result.before:
             entry.appendChild(E.span('…' + result.before))
@@ -445,10 +445,7 @@ Regex: Interpret the entered text as a regular expression'''),
 add_extra_css(def ():
     css = ''
     sel = f'#{SearchOverlay.CONTAINER_ID} '
-    css += build_rule(sel + '.book-search-button',
-        display='block', width='100%', margin='0', padding='0', border='0', background='none',
-        color='inherit', font='inherit', line_height='inherit', text_align='inherit',
-        white_space='normal', cursor='pointer')
+    css += build_rule(sel + '.book-search-button', display='block', width='100%', white_space='normal')
     css += build_rule(sel + '.book-search-button:focus-visible',
         outline='2px solid ' + get_color('link-foreground'), outline_offset='2px')
     sel += ' div[data-toc-node-id]'

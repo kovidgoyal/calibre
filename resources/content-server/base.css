@@ -104,6 +104,14 @@ a.calibre-icon-button {
     }
 }
 
+/* A button that looks like the content it wraps, for disclosures and list entries */
+button.calibre-plain-button {
+    margin: 0; padding: 0; border: 0;
+    background: none; color: inherit;
+    font: inherit; line-height: inherit; text-align: inherit;
+    cursor: pointer;
+}
+
 a.calibre-push-button {
     display: inline-flex;
     align-items: center;

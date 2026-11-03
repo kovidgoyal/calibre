@@ -586,7 +586,7 @@ def run_rapydscript_tests() -> NoReturn:
             profile = QWebEngineProfile(QApplication.instance())
             profile.setHttpUserAgent('calibre-tester')
             setup_profile(profile)
-            insert_scripts(profile, create_script('test-rapydscript.js', result['code'], on_subframes=False))
+            insert_scripts(profile, create_script('test-rapydscript.js', substitute_placeholders(result['code']), on_subframes=False))
             url_handler = UrlSchemeHandler(profile)
             profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
             QWebEnginePage.__init__(self, profile, None)
@@ -628,7 +628,7 @@ def run_rapydscript_tests() -> NoReturn:
     raise SystemExit(int(res))
 
 
-def set_data(src: str, output: str, source_map: str = '', source_url: str = '', **kw: str) -> str:
+def substitute_placeholders(src: str, **kw: str) -> str:
     from calibre.db.constants import NO_SEARCH_LINK
     from calibre.ebooks.oeb.polish.main import SUPPORTED
     from calibre.library.page_count import CHARS_PER_PAGE
@@ -649,7 +649,11 @@ def set_data(src: str, output: str, source_map: str = '', source_url: str = '', 
         src = src.replace(k, v, 1)
     for k, v in kw.items():
         src = src.replace(k, v, 1)
-    src = src.rstrip()
+    return src
+
+
+def set_data(src: str, output: str, source_map: str = '', source_url: str = '', **kw: str) -> str:
+    src = substitute_placeholders(src, **kw).rstrip()
     src = src.removesuffix('//# sourceMappingURL=smap')
     if source_map:
         from base64 import standard_b64encode

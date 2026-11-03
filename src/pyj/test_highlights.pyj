@@ -1,0 +1,197 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from book_list.item_list import is_visible
+from dom import get_widget_css
+from modals import close_all_modals, create_modal_container
+from read_book.highlights import all_selected_entries, create_highlights_panel, get_container
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def with_highlights(proceed):
+    def run():
+        document.head.appendChild(E.style(get_widget_css()))
+        parent = E.div()
+        document.body.appendChild(parent)
+        calls = {'actions': []}
+
+        def highlight_action(uuid, action):
+            calls.actions.push([uuid, action])
+
+        highlights = [
+            {'uuid': 'first', 'highlighted_text': 'Match first', 'notes': 'First note', 'toc_family_titles': ['Chapter one']},
+            {'uuid': 'second', 'highlighted_text': 'Match second', 'notes': '', 'toc_family_titles': ['Chapter one']},
+            {'uuid': 'third', 'highlighted_text': 'Match third', 'notes': '', 'toc_family_titles': ['Chapter two']},
+        ]
+        view = {'highlight_action': highlight_action}
+        manager = {'view': view, 'all_highlights': def (): return highlights;}
+        create_modal_container()
+        try:
+            create_highlights_panel(manager, def (): pass;, {'metadata': {}}, parent, def (action): action(view);)
+            proceed(get_container(), calls)
+        finally:
+            close_all_modals()
+
+    with_empty_session(run)
+
+
+def entry(container, uuid):
+    return container.querySelector(f'.highlight[data-uuid="{uuid}"]')
+
+
+def toggle(row):
+    return row.querySelector('.title > button')
+
+
+def answer_question(yes):
+    buttons = document.querySelectorAll('#modal-container .button-box a')
+    buttons[1 if yes else 0].click()
+
+
+def click_remove_action(row):
+    toggle(row).click()
+    button = row.querySelectorAll('.actions a')[2]
+    button.focus()
+    button.click()
+    return button
+
+
+@test
+def highlight_entries_are_named_disclosures_with_selectable_text():
+    def run(container):
+        first, second = entry(container, 'first'), entry(container, 'second')
+        button, checkbox = toggle(first), first.querySelector('input[type=checkbox]')
+        assert_equal(button.type, 'button')
+        assert_equal(button.getAttribute('aria-expanded'), 'false')
+        label = document.getElementById(button.getAttribute('aria-labelledby'))
+        assert_equal(label.textContent, 'Match first')
+        assert_equal(checkbox.getAttribute('aria-labelledby'), label.id)
+        # The text is not inside the button so that it can still be selected
+        assert_false(button.contains(label))
+        for id in button.getAttribute('aria-controls').split(' '):
+            assert_true(first.contains(document.getElementById(id)))
+        assert_false(is_visible(first.querySelector('.actions')))
+
+        button.click()
+        assert_equal(button.getAttribute('aria-expanded'), 'true')
+        assert_true(is_visible(first.querySelector('.actions')))
+        assert_true(is_visible(first.querySelector('.notes')))
+        toggle(second).click()
+        assert_equal(button.getAttribute('aria-expanded'), 'false')
+        assert_false(first.classList.contains('current'))
+        toggle(second).click()
+        assert_false(second.classList.contains('current'))
+        assert_equal(toggle(second).getAttribute('aria-expanded'), 'false')
+        # Clicking the text still opens the entry, as before
+        label.click()
+        assert_equal(button.getAttribute('aria-expanded'), 'true')
+
+    with_highlights(run)
+
+
+@test
+def highlight_chapters_are_disclosures_and_search_opens_the_matching_chapter():
+    def run(container):
+        group = container.querySelector('.toc-group')
+        heading = group.querySelector('h3 > button')
+        assert_equal(heading.type, 'button')
+        assert_true(document.getElementById(heading.getAttribute('aria-controls')) is group.lastChild)
+        heading.click()
+        assert_equal(heading.getAttribute('aria-expanded'), 'false')
+        assert_false(is_visible(entry(container, 'first')))
+
+        next_button, prev_button = container.querySelectorAll('a.calibre-icon-button')
+        for b in (next_button, prev_button):
+            assert_equal(b.getAttribute('role'), 'button')
+            assert_true(b.getAttribute('aria-label'))
+            assert_true(b.hasAttribute('href'))
+        container.querySelector('input[type=search]').value = 'Match'
+        # A single click must advance by exactly one match
+        next_button.click()
+        assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'first')
+        assert_equal(heading.getAttribute('aria-expanded'), 'true')
+        assert_true(is_visible(entry(container, 'first')))
+        next_button.click()
+        assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'second')
+        assert_equal(container.querySelectorAll('.highlight.current').length, 1)
+        assert_equal(toggle(entry(container, 'first')).getAttribute('aria-expanded'), 'false')
+        prev_button.click()
+        assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'first')
+
+    with_highlights(run)
+
+
+@test
+def highlight_deletion_moves_focus_to_a_neighbor_without_opening_it():
+    def run(container, calls):
+        button = click_remove_action(entry(container, 'first'))
+        answer_question(False)
+        assert_true(document.activeElement is button)
+        assert_equal(calls.actions, [])
+
+        click_remove_action(entry(container, 'first'))
+        answer_question(True)
+        assert_equal(calls.actions, [['first', 'delete']])
+        assert_false(entry(container, 'first'))
+        second = entry(container, 'second')
+        assert_true(document.activeElement is toggle(second))
+        assert_false(second.classList.contains('current'))
+
+        # Removing the last highlight of a chapter removes the chapter and
+        # focuses the preceding highlight
+        click_remove_action(entry(container, 'third'))
+        answer_question(True)
+        assert_equal(container.querySelectorAll('.toc-group').length, 1)
+        assert_true(document.activeElement is toggle(second))
+
+        click_remove_action(second)
+        answer_question(True)
+        assert_equal(container.querySelectorAll('.highlight').length, 0)
+        assert_true(document.activeElement is container.querySelector('input[type=search]'))
+
+    with_highlights(run)
+
+
+@test
+def highlight_bulk_deletion_clears_the_selection_and_keeps_focus_in_the_panel():
+    def run(container, calls):
+        entry(container, 'first').querySelector('input').click()
+        entry(container, 'third').querySelector('input').click()
+        all_button, remove_button = list(container.querySelectorAll('.sel-button'))[1:]
+        assert_true(is_visible(remove_button))
+        remove_button.focus()
+        remove_button.click()
+        answer_question(True)
+        assert_equal(calls.actions, [['first', 'delete'], ['third', 'delete']])
+        assert_equal(all_selected_entries().length, 0)
+        assert_false(is_visible(remove_button))
+        second = entry(container, 'second')
+        assert_true(document.activeElement is toggle(second))
+        assert_false(second.classList.contains('current'))
+        second.querySelector('input').click()
+        all_button.click()
+        selected = all_selected_entries()
+        assert_equal(selected.length, 1)
+        assert_true(selected[0] is second)
+
+    with_highlights(run)
+
+
+@test
+def highlight_deletion_does_not_steal_focus_moved_elsewhere():
+    def run(container):
+        click_remove_action(entry(container, 'first'))
+        other = E.button('Other control')
+        document.body.appendChild(other)
+        other.focus()
+        answer_question(True)
+        assert_true(document.activeElement is other)
+        container.querySelector('input[type=search]').value = 'Match'
+        container.querySelector('a.calibre-icon-button').click()
+        assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'second')
+
+    with_highlights(run)
