@@ -15,7 +15,7 @@ def step_dialog(parent, title, msg, det_msg=''):
 
 
 class UserDefinedDevice(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QDialog.__init__(self, parent)
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
@@ -38,7 +38,7 @@ class UserDefinedDevice(QDialog):
         self.bbox.setEnabled(False)
         QTimer.singleShot(1000, self.device_info)
 
-    def device_info(self):
+    def device_info(self) -> None:
         try:
             from calibre.devices import device_info
 
@@ -81,7 +81,7 @@ class UserDefinedDevice(QDialog):
         finally:
             self.bbox.setEnabled(True)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         cb = QApplication.clipboard()
         assert cb is not None
         cb.setText(self.log.toPlainText())

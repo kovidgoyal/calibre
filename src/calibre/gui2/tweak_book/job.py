@@ -14,7 +14,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 class LongJob(Thread):
     daemon = True
 
-    def __init__(self, name, user_text, callback, function, *args, **kwargs):
+    def __init__(self, name, user_text, callback, function, *args, **kwargs) -> None:
         Thread.__init__(self, name=name)
         self.user_text = user_text
         self.function = function
@@ -23,7 +23,7 @@ class LongJob(Thread):
         self.time_taken = None
         self.callback = callback
 
-    def run(self):
+    def run(self) -> None:
         st = time.time()
         try:
             self.result = self.function(*self.args, **self.kwargs)
@@ -39,7 +39,7 @@ class LongJob(Thread):
 
 
 class BlockingJob(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -54,7 +54,7 @@ class BlockingJob(QWidget):
         self.text = ''
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
-    def start(self):
+    def start(self) -> None:
         p = self.parent()
         assert isinstance(p, QWidget)
         self.setGeometry(0, 0, p.width(), p.height())
@@ -66,7 +66,7 @@ class BlockingJob(QWidget):
         self.pi.startAnimation()
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
-    def stop(self):
+    def stop(self) -> None:
         QApplication.restoreOverrideCursor()
         self.pi.stopAnimation()
         self.setVisible(False)
@@ -78,12 +78,12 @@ class BlockingJob(QWidget):
         # keyboard events to no longer work
         p.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def job_done(self, callback, job):
+    def job_done(self, callback, job) -> None:
         del job.callback
         self.stop()
         callback(job)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         br = a0.region().boundingRect()
         p = QPainter(self)
         p.setOpacity(0.2)
@@ -101,7 +101,7 @@ class BlockingJob(QWidget):
         p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine, self.text)
         p.end()
 
-    def set_msg(self, text):
+    def set_msg(self, text) -> None:
         self.text = text
 
     def __call__(self, name, user_text, callback, function, *args, **kwargs):

@@ -60,10 +60,10 @@ class SelectionState:
 
     __slots__ = ('current_mode', 'drag_corner', 'dragging', 'in_selection', 'last_drag_pos', 'last_press_point', 'rect')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
 
-    def reset(self, full=True):
+    def reset(self, full=True) -> None:
         self.last_press_point = None
         if full:
             self.current_mode = None
@@ -80,7 +80,7 @@ class Command(QUndoCommand):
     def __call__(self, canvas):
         raise NotImplementedError()
 
-    def __init__(self, canvas):
+    def __init__(self, canvas) -> None:
         QUndoCommand.__init__(self, self.TEXT)
         self.canvas_ref = weakref.ref(canvas)
         self.before_image = i = canvas.current_image
@@ -90,12 +90,12 @@ class Command(QUndoCommand):
             raise ValueError('Cannot perform operations on invalid images')
         self.after_image = self(canvas)
 
-    def undo(self):
+    def undo(self) -> None:
         canvas = self.canvas_ref()
         assert canvas is not None
         canvas.set_image(self.before_image)
 
-    def redo(self):
+    def redo(self) -> None:
         canvas = self.canvas_ref()
         assert canvas is not None
         canvas.set_image(self.after_image)
@@ -141,7 +141,7 @@ class Rotate(Command):
 class Scale(Command):
     TEXT = _('Resize image')
 
-    def __init__(self, width, height, canvas):
+    def __init__(self, width, height, canvas) -> None:
         self.width, self.height = width, height
         Command.__init__(self, canvas)
 
@@ -154,7 +154,7 @@ class Sharpen(Command):
     TEXT = _('Sharpen image')
     FUNC = 'sharpen'
 
-    def __init__(self, sigma, canvas):
+    def __init__(self, sigma, canvas) -> None:
         self.sigma = sigma
         Command.__init__(self, canvas)
 
@@ -173,7 +173,7 @@ class Blur(Sharpen):
 class Oilify(Command):
     TEXT = _('Make image look like an oil painting')
 
-    def __init__(self, radius, canvas):
+    def __init__(self, radius, canvas) -> None:
         self.radius = radius
         Command.__init__(self, canvas)
 
@@ -199,7 +199,7 @@ class Replace(Command):
     """Replace the current image with another image. If there is a selection,
     only the region of the selection is replaced."""
 
-    def __init__(self, img, text, canvas):
+    def __init__(self, img, text, canvas) -> None:
         self.after_image = img
         self.TEXT = text
         Command.__init__(self, canvas)
@@ -252,12 +252,12 @@ class Canvas(QWidget):
 
     # Drag 'n drop {{{
 
-    def dragEnterEvent(self, a0):
+    def dragEnterEvent(self, a0) -> None:
         md = a0.mimeData()
         if dnd_has_extension(md, image_extensions()) or dnd_has_image(md):
             a0.acceptProposedAction()
 
-    def dropEvent(self, a0):
+    def dropEvent(self, a0) -> None:
         a0.setDropAction(Qt.DropAction.CopyAction)
         md = a0.mimeData()
 
@@ -280,12 +280,12 @@ class Canvas(QWidget):
 
         a0.accept()
 
-    def dragMoveEvent(self, a0):
+    def dragMoveEvent(self, a0) -> None:
         a0.acceptProposedAction()
 
     # }}}
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
@@ -311,7 +311,7 @@ class Canvas(QWidget):
         assert a is not None
         a.setIcon(QIcon.ic('edit-redo.png'))
 
-    def load_image(self, data, only_if_different=False):
+    def load_image(self, data, only_if_different=False) -> None:
         if only_if_different and self.original_image_data and not self.is_modified and self.original_image_data == data:
             return
         self.is_valid = False
@@ -329,7 +329,7 @@ class Canvas(QWidget):
         self.update()
         self.image_changed.emit(self.current_image)
 
-    def set_image(self, qimage):
+    def set_image(self, qimage) -> None:
         self.selection_state.reset()
         self.current_scaled_pixmap = None
         self.current_image = qimage
@@ -354,7 +354,7 @@ class Canvas(QWidget):
                 raise ValueError(f'Cannot save {fmt} format images')
         return pixmap_to_data(self.current_image, format=fmt, quality=90)
 
-    def copy(self):
+    def copy(self) -> None:
         if not self.is_valid:
             return
         clipboard = QApplication.clipboard()
@@ -367,7 +367,7 @@ class Canvas(QWidget):
             clipboard.setImage(trim.after_image)
             trim.before_image = trim.after_image = None
 
-    def paste(self):
+    def paste(self) -> None:
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         md = clipboard.mimeData()
@@ -379,11 +379,11 @@ class Canvas(QWidget):
         else:
             error_dialog(self, _('No image'), _('No image available in the clipboard'), show=True)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.undo_stack.clear()
         self.original_image_data = self.current_image = self.current_scaled_pixmap = None
 
-    def emit_undo_redo_state(self):
+    def emit_undo_redo_state(self) -> None:
         undo_action = self.undo_action
         assert undo_action is not None
         redo_action = self.redo_action
@@ -391,7 +391,7 @@ class Canvas(QWidget):
         self.undo_redo_state_changed.emit(undo_action.isEnabled(), redo_action.isEnabled())
 
     @imageop
-    def trim_image(self):
+    def trim_image(self) -> bool:
         if self.selection_state.rect is None:
             error_dialog(
                 self,
@@ -404,42 +404,42 @@ class Canvas(QWidget):
         return True
 
     @imageop
-    def autotrim_image(self):
+    def autotrim_image(self) -> bool:
         self.undo_stack.push(AutoTrim(self))
         return True
 
     @imageop
-    def rotate_image(self):
+    def rotate_image(self) -> bool:
         self.undo_stack.push(Rotate(self))
         return True
 
     @imageop
-    def resize_image(self, width, height):
+    def resize_image(self, width, height) -> bool:
         self.undo_stack.push(Scale(width, height, self))
         return True
 
     @imageop
-    def sharpen_image(self, sigma=3.0):
+    def sharpen_image(self, sigma=3.0) -> bool:
         self.undo_stack.push(Sharpen(sigma, self))
         return True
 
     @imageop
-    def blur_image(self, sigma=3.0):
+    def blur_image(self, sigma=3.0) -> bool:
         self.undo_stack.push(Blur(sigma, self))
         return True
 
     @imageop
-    def despeckle_image(self):
+    def despeckle_image(self) -> bool:
         self.undo_stack.push(Despeckle(self))
         return True
 
     @imageop
-    def normalize_image(self):
+    def normalize_image(self) -> bool:
         self.undo_stack.push(Normalize(self))
         return True
 
     @imageop
-    def oilify_image(self, radius=4.0):
+    def oilify_image(self, radius=4.0) -> bool:
         self.undo_stack.push(Oilify(radius, self))
         return True
 
@@ -492,11 +492,11 @@ class Canvas(QWidget):
             ans = Qt.CursorShape.SizeBDiagCursor if dc in {('left', 'bottom'), ('right', 'top')} else Qt.CursorShape.SizeFDiagCursor
         return ans
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         super().update()
         self.selection_area_changed.emit(self.selection_state.rect)
 
-    def move_edge(self, edge, dp):
+    def move_edge(self, edge, dp) -> None:
         sr = self.selection_state.rect
         assert sr is not None
         horiz = edge in {'left', 'right'}
@@ -511,7 +511,7 @@ class Canvas(QWidget):
             maxv = sr.bottom() - buf if edge == 'top' else self.target.bottom()
         func(max(minv, min(maxv, delta + getattr(sr, edge)())))
 
-    def move_selection_rect(self, x, y):
+    def move_selection_rect(self, x, y) -> None:
         sr = self.selection_state.rect
         assert sr is not None
         half_width = sr.width() / 2.0
@@ -526,7 +526,7 @@ class Canvas(QWidget):
         ny = max(miny, min(maxy, ny))
         sr.moveCenter(QPointF(nx, ny))
 
-    def preserve_aspect_ratio_after_move(self, orig_rect, hedge, vedge):
+    def preserve_aspect_ratio_after_move(self, orig_rect, hedge, vedge) -> None:
         r = self.selection_state.rect
         assert r is not None
 
@@ -556,13 +556,13 @@ class Canvas(QWidget):
         else:
             buf = 50
 
-            def set_width(new_width):
+            def set_width(new_width) -> None:
                 if hedge == 'left':
                     r.setLeft(max(self.target.left(), min(r.right() - new_width, r.right() - buf)))
                 else:
                     r.setRight(max(r.left() + buf, min(r.left() + new_width, self.target.right())))
 
-            def set_height(new_height):
+            def set_height(new_height) -> None:
                 if vedge == 'top':
                     r.setTop(max(self.target.top(), min(r.bottom() - new_height, r.bottom() - buf)))
                 else:
@@ -576,7 +576,7 @@ class Canvas(QWidget):
             if r.height() / orig_rect.height() != frac:
                 set_width(orig_rect.width() * frac)
 
-    def move_selection(self, dp, preserve_aspect_ratio=False):
+    def move_selection(self, dp, preserve_aspect_ratio=False) -> None:
         dm = self.selection_state.dragging
         if dm is None:
             self.move_selection_rect(dp.x(), dp.y())
@@ -596,7 +596,7 @@ class Canvas(QWidget):
         sr = self.selection_state.rect
         return get_selection_rect(img, sr, target)
 
-    def mousePressEvent(self, a0):
+    def mousePressEvent(self, a0) -> None:
         if a0.button() == Qt.MouseButton.LeftButton and self.target.contains(a0.position()):
             pos = a0.position()
             self.selection_state.last_press_point = pos
@@ -622,7 +622,7 @@ class Canvas(QWidget):
         assert current_image is not None
         return current_image.rect()
 
-    def set_selection_size_in_image_coords(self, width, height):
+    def set_selection_size_in_image_coords(self, width, height) -> None:
         self.selection_state.reset()
         i = self.current_image
         assert i is not None
@@ -636,7 +636,7 @@ class Canvas(QWidget):
         self.update()
         self.selection_state_changed.emit(self.has_selection)
 
-    def mouseMoveEvent(self, a0):
+    def mouseMoveEvent(self, a0) -> None:
         changed = False
         if self.selection_state.in_selection:
             changed = True
@@ -677,7 +677,7 @@ class Canvas(QWidget):
                 self.update()
             self.setCursor(cursor)
 
-    def mouseReleaseEvent(self, a0):
+    def mouseReleaseEvent(self, a0) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.selection_state.dragging = self.selection_state.last_drag_pos = None
             if self.selection_state.current_mode == 'select':
@@ -712,11 +712,11 @@ class Canvas(QWidget):
 
     # Painting {{{
     @painter
-    def draw_background(self, painter):
+    def draw_background(self, painter) -> None:
         painter.fillRect(self.rect(), self.BACKGROUND)
 
     @painter
-    def draw_image_error(self, painter):
+    def draw_image_error(self, painter) -> None:
         font = painter.font()
         font.setPointSize(3 * font.pointSize())
         font.setBold(True)
@@ -724,7 +724,7 @@ class Canvas(QWidget):
         painter.setPen(QColor(Qt.GlobalColor.black))
         painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, _('Not a valid image'))
 
-    def load_pixmap(self):
+    def load_pixmap(self) -> None:
         canvas_size = self.rect().width(), self.rect().height()
         if self.last_canvas_size != canvas_size:
             if self.last_canvas_size is not None and self.selection_state.rect is not None:
@@ -749,7 +749,7 @@ class Canvas(QWidget):
             self.current_scaled_pixmap.setDevicePixelRatio(dpr)
 
     @painter
-    def draw_pixmap(self, painter):
+    def draw_pixmap(self, painter) -> None:
         p = self.current_scaled_pixmap
         assert p is not None
         try:
@@ -765,7 +765,7 @@ class Canvas(QWidget):
         painter.drawPixmap(self.target, p, QRectF(p.rect()))
 
     @painter
-    def draw_selection_rect(self, painter):
+    def draw_selection_rect(self, painter) -> None:
         cr, sr = self.target, self.selection_state.rect
         assert sr is not None
         painter.setPen(self.SELECT_PEN)

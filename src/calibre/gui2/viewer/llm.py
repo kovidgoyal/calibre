@@ -102,7 +102,7 @@ def current_actions(include_disabled=False) -> Iterator[Action]:
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
 
     def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
@@ -112,7 +112,7 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
 class LLMPanel(ConverseWidget):
     add_note_requested = pyqtSignal(str, str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.save_note_hostname = f'{self.hid}.save.calibre'
 
@@ -121,11 +121,11 @@ class LLMPanel(ConverseWidget):
         self.book_title = ''
         self.book_authors = ''
 
-    def add_buttons(self):
+    def add_buttons(self) -> None:
         self.add_button('save.png', _('&Save as note'), _('Save this conversation as a note on the current highlight')).clicked.connect(self.save_as_note)
         super().add_buttons()
 
-    def update_book_metadata(self, metadata):
+    def update_book_metadata(self, metadata) -> None:
         self.book_title = metadata.get('title', '')
         authors = metadata.get('authors', [])
         self.book_authors = authors_to_string(authors)
@@ -267,7 +267,7 @@ class LLMSettingsWidget(LLMActionsSettingsWidget):
 # }}}
 
 
-def develop(show_initial_messages: bool = False):
+def develop(show_initial_messages: bool = False) -> None:
     app = Application([])
     # return LLMSettingsDialog().exec()
     d = QDialog()

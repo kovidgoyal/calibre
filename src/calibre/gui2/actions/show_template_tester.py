@@ -13,7 +13,7 @@ class ShowTemplateTesterAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.previous_text = _('Enter a template to test using data from the selected book')
         self.first_time = True
         self.qaction.triggered.connect(self.show_template_editor)
@@ -67,7 +67,7 @@ class ShowTemplateTesterAction(InterfaceAction):
             t.tester_closed.connect(self.save_template_text)
             t.show()
 
-    def save_template_text(self, txt, dialog_number):
+    def save_template_text(self, txt, dialog_number) -> None:
         if txt is not None:
             self.previous_text = txt
             self.first_time = False

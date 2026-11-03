@@ -10,7 +10,7 @@ from calibre.utils.localization import _
 
 
 class ChooseFormatDialog(QDialog):
-    def __init__(self, window, msg, formats, show_open_with=False):
+    def __init__(self, window, msg, formats, show_open_with=False) -> None:
         QDialog.__init__(self, window)
         self.resize(507, 377)
         self.setWindowIcon(QIcon.ic('mimetypes/unknown.png'))
@@ -47,14 +47,14 @@ class ChooseFormatDialog(QDialog):
             self.populate_open_with()
             self.update_open_with_button()
 
-    def populate_open_with(self):
+    def populate_open_with(self) -> None:
         from calibre.gui2.open_with import edit_programs, populate_menu
 
         menu = self.own
         menu.clear()
         fmt = self._formats[self.formats.currentRow()]
 
-        def connect_action(ac, entry):
+        def connect_action(ac, entry) -> None:
             connect_lambda(ac.triggered, self, lambda self: self.open_with(entry))
 
         populate_menu(menu, connect_action, fmt)
@@ -65,15 +65,15 @@ class ChooseFormatDialog(QDialog):
             menu.addAction(_('Add other application for %s files...') % fmt.upper(), self.choose_open_with)
             menu.addAction(_('Edit "Open with" applications...'), partial(edit_programs, fmt, self))
 
-    def update_open_with_button(self):
+    def update_open_with_button(self) -> None:
         fmt = self._formats[self.formats.currentRow()]
         self.owb.setText(_('Open %s with...') % fmt)
 
-    def open_with(self, entry):
+    def open_with(self, entry) -> None:
         self.open_with_format = (self._formats[self.formats.currentRow()], entry)
         self.accept()
 
-    def choose_open_with(self):
+    def choose_open_with(self) -> None:
         from calibre.gui2.open_with import choose_program
 
         fmt = self._formats[self.formats.currentRow()]
@@ -81,13 +81,13 @@ class ChooseFormatDialog(QDialog):
         if entry is not None:
             self.open_with(entry)
 
-    def book_converted(self, book_id, fmt):
+    def book_converted(self, book_id, fmt) -> None:
         fmt = fmt.upper()
         if fmt not in self._formats:
             self._formats.append(fmt)
             self.formats.addItem(QListWidgetItem(file_icon_provider().icon_from_ext(fmt.lower()), fmt.upper()))
 
-    def activated_slot(self, *args):
+    def activated_slot(self, *args) -> None:
         self.accept()
 
     def format(self):

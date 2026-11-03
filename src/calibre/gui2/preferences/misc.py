@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class WorkersSetting(Setting):
-    def set_gui_val(self, val):
+    def set_gui_val(self, val) -> None:
         val = val // 2
         Setting.set_gui_val(self, val)
 
@@ -21,7 +21,7 @@ class WorkersSetting(Setting):
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         r = self.register
         r('worker_limit', config, restart_required=True, setting=WorkersSetting)
@@ -48,24 +48,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             txt = _('<b>Using proxies:</b>') + ''.join(lines)
         self.proxies.setText(txt)
 
-    def create_icon_theme(self):
+    def create_icon_theme(self) -> None:
         from calibre.gui2.icon_theme import create_theme
 
         create_theme(parent=self)
 
-    def debug_device_detection(self, *args):
+    def debug_device_detection(self, *args) -> None:
         from calibre.gui2.preferences.device_debug import DebugDevice
 
         d = DebugDevice(self.gui, self)
         d.exec()
 
-    def user_defined_device(self, *args):
+    def user_defined_device(self, *args) -> None:
         from calibre.gui2.preferences.device_user_defined import UserDefinedDevice
 
         d = UserDefinedDevice(self)
         d.exec()
 
-    def open_config_dir(self, *args):
+    def open_config_dir(self, *args) -> None:
         from calibre.utils.config import config_dir
 
         open_local_file(config_dir)

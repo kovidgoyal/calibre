@@ -7,7 +7,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 
 
 class LoadingOverlay(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.pi = ProgressIndicator(self, 96)
@@ -58,12 +58,12 @@ class LoadingOverlay(QWidget):
         self.pi.stop()
         return QWidget.hide(self)
 
-    def showEvent(self, a0):
+    def showEvent(self, a0) -> None:
         # import time
         # self.st = time.monotonic()
         self.pi.start()
 
-    def hideEvent(self, a0):
+    def hideEvent(self, a0) -> None:
         # import time
         # print(1111111, time.monotonic() - self.st)
         self.pi.stop()

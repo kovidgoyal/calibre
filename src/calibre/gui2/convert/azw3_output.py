@@ -15,7 +15,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'azw3_output'
     ICON = 'mimetypes/azw3.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['azw3'])
         self.db, self.book_id = db, book_id
 

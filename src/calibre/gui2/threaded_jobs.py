@@ -14,7 +14,7 @@ from calibre.utils.logging import GUILog
 
 
 class ThreadedJob(BaseJob):
-    def __init__(self, type_, description, func, args, kwargs, callback, max_concurrent_count=1, killable=True, log=None):
+    def __init__(self, type_, description, func, args, kwargs, callback, max_concurrent_count=1, killable=True, log=None) -> None:
         """
         A job that is run in its own thread in the calibre main process
 
@@ -64,7 +64,7 @@ class ThreadedJob(BaseJob):
         self.func, self.args, self.kwargs = func, args, kwargs
         self.consolidated_log = None
 
-    def start_work(self):
+    def start_work(self) -> None:
         self.start_time = time.time()
         assert self.log is not None
         self.log('Starting job:', self.description)
@@ -88,7 +88,7 @@ class ThreadedJob(BaseJob):
             traceback.print_exc()
         self._cleanup()
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
 
         try:
             self.consolidate_log()
@@ -101,7 +101,7 @@ class ThreadedJob(BaseJob):
         # We can't delete self.callback as it might be a Dispatch object and if
         # it is garbage collected it won't work
 
-    def kill(self):
+    def kill(self) -> None:
         if self.start_time is None:
             self.start_time = time.time()
             self.duration = 0.0001
@@ -115,7 +115,7 @@ class ThreadedJob(BaseJob):
         self.failed = True
         self._cleanup()
 
-    def consolidate_log(self):
+    def consolidate_log(self) -> None:
         log = self.log
         assert log is not None
         logs = [log.html, log.plain_text]
@@ -155,12 +155,12 @@ class ThreadedJob(BaseJob):
 
 
 class ThreadedJobWorker(Thread):
-    def __init__(self, job):
+    def __init__(self, job) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.job = job
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.job.start_work()
         except Exception:
@@ -173,7 +173,7 @@ class ThreadedJobWorker(Thread):
 
 
 class ThreadedJobServer(Thread):
-    def __init__(self):
+    def __init__(self) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.lock = RLock()
@@ -183,17 +183,17 @@ class ThreadedJobServer(Thread):
         self.changed_jobs = Queue()
         self.keep_going = True
 
-    def close(self):
+    def close(self) -> None:
         self.keep_going = False
 
-    def add_job(self, job):
+    def add_job(self, job) -> None:
         with self.lock:
             self.queued_jobs.append(job)
 
         if not self.is_alive():
             self.start()
 
-    def run(self):
+    def run(self) -> None:
         while self.keep_going:
             try:
                 self.run_once()
@@ -203,7 +203,7 @@ class ThreadedJobServer(Thread):
                 traceback.print_exc()
             time.sleep(0.1)
 
-    def run_once(self):
+    def run_once(self) -> None:
         with self.lock:
             remove = set()
             for worker in self.running_jobs:
@@ -226,7 +226,7 @@ class ThreadedJobServer(Thread):
                 self.changed_jobs.put(job)
                 self.queued_jobs.remove(job)
 
-    def kill_job(self, job):
+    def kill_job(self, job) -> None:
         with self.lock:
             if job in self.queued_jobs:
                 self.queued_jobs.remove(job)

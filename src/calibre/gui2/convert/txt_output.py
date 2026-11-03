@@ -12,7 +12,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'txt_output'
     ICON = 'mimetypes/txt.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['txt'])
         self.db, self.book_id = db, book_id
         for x in get_option('newline').option.choices:
@@ -28,5 +28,5 @@ class PluginWidget(Widget, Ui_Form):
                 )
             )
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         Widget.break_cycles(self)

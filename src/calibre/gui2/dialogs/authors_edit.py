@@ -30,19 +30,19 @@ from calibre.utils.localization import _
 class ItemDelegate(QStyledItemDelegate):
     edited = pyqtSignal(object)
 
-    def __init__(self, all_authors, parent):
+    def __init__(self, all_authors, parent) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.all_authors = all_authors
 
     def sizeHint(self, option, index):
         return QStyledItemDelegate.sizeHint(self, option, index) + QSize(0, 15)
 
-    def setEditorData(self, editor, index):
+    def setEditorData(self, editor, index) -> None:
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         n = editor.metaObject().userProperty().name()
         editor.setProperty(n, name)
 
-    def setModelData(self, editor, model, index):
+    def setModelData(self, editor, model, index) -> None:
         authors = string_to_authors(str(editor.text()))
         model.setData(index, authors[0])
         self.edited.emit(index.row())
@@ -55,7 +55,7 @@ class ItemDelegate(QStyledItemDelegate):
 
 
 class List(QListWidget):
-    def __init__(self, all_authors, parent):
+    def __init__(self, all_authors, parent) -> None:
         QListWidget.__init__(self, parent)
         self.setDragEnabled(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -66,7 +66,7 @@ class List(QListWidget):
         self.d.edited.connect(self.edited, type=Qt.ConnectionType.QueuedConnection)
         self.setItemDelegate(self.d)
 
-    def delete_selected(self):
+    def delete_selected(self) -> None:
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
@@ -90,13 +90,13 @@ class List(QListWidget):
         finally:
             self.mark_as_editable()
 
-    def mark_as_editable(self):
+    def mark_as_editable(self) -> None:
         for i in range(self.count()):
             item = self.item(i)
             assert item is not None
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
-    def edited(self, i):
+    def edited(self, i) -> None:
         item = self.item(i)
         assert item is not None
         q = str(item.text())
@@ -121,7 +121,7 @@ class Edit(EditWithComplete):
         return EditWithComplete.keyPressEvent(self, e)
 
 
-def init_line_edit(a, all_authors):
+def init_line_edit(a, all_authors) -> None:
     a.set_separator('&')
     a.set_space_before_sep(True)
     a.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -129,7 +129,7 @@ def init_line_edit(a, all_authors):
 
 
 class AuthorsEdit(QDialog):
-    def __init__(self, all_authors, current_authors, parent=None):
+    def __init__(self, all_authors, current_authors, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -188,7 +188,7 @@ class AuthorsEdit(QDialog):
             ans.append(str(al_item.text()))
         return ans or [_('Unknown')]
 
-    def add_author(self):
+    def add_author(self) -> None:
         text = self.author.text().strip()
         authors = OrderedDict((icu_lower(x), (i, x)) for i, x in enumerate(self.authors))
         if text:

@@ -19,13 +19,13 @@ class TBHierarchicalFields(DisplayedFields):
 
     cant_make_hierarical = {'authors', 'publisher', 'formats', 'news', 'identifiers', 'languages', 'rating'}
 
-    def __init__(self, db, parent=None, category_icons=None):
+    def __init__(self, db, parent=None, category_icons=None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui(fail_if_absent=True)
 
-    def initialize(self, use_defaults=False, pref_data_override=None):
+    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
         from calibre.gui2.tag_browser.model import TagsModel
 
         tv = self.gui.tags_view
@@ -48,20 +48,20 @@ class TBHierarchicalFields(DisplayedFields):
         self.fields = ans
         self.endResetModel()
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.prefs.set('categories_using_hierarchy', [k for k, v in self.fields if v])
 
 
 class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.tb_search_order_up_button.clicked.connect(self.move_tb_search_up)
         self.tb_search_order_down_button.clicked.connect(self.move_tb_search_down)
         self.tb_search_order.set_movement_functions(self.move_tb_search_up, self.move_tb_search_down)
         self.tb_search_order_reset_button.clicked.connect(self.reset_tb_search_order)
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.fill_tb_search_order_box()
 
         self.tb_hierarchical_cats_model = TBHierarchicalFields(
@@ -76,7 +76,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_hierarchy_import_layout_button.clicked.connect(partial(self.import_layout, model=self.tb_hierarchical_cats_model))
         self.tb_hierarchical_cats_model.initialize()
 
-    def fill_tb_search_order_box(self):
+    def fill_tb_search_order_box(self) -> None:
         # The tb_search_order is a directed graph of nodes with an arc to the next
         # node in the sequence. Node 0 (zero) is the start node with the last node
         # arcing back to node 0. This code linearizes the graph
@@ -101,7 +101,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
             self.tb_search_order.addItem(item)
             node = v
 
-    def move_tb_search_up(self, *args, **kwargs):
+    def move_tb_search_up(self, *args, **kwargs) -> None:
         idx = self.tb_search_order.currentRow()
         if idx <= 0:
             return
@@ -110,7 +110,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_search_order.setCurrentRow(idx - 1)
         self.changed_signal.emit()
 
-    def move_tb_search_down(self, *args, **kwargs):
+    def move_tb_search_down(self, *args, **kwargs) -> None:
         idx = self.tb_search_order.currentRow()
         if idx < 0 or idx == 3:
             return
@@ -119,7 +119,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_search_order.setCurrentRow(idx + 1)
         self.changed_signal.emit()
 
-    def tb_search_order_commit(self):
+    def tb_search_order_commit(self) -> None:
         t = {}
         # Walk the items in the list box building the (node -> node) graph of
         # the option order
@@ -135,17 +135,17 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         t[str(node)] = 0
         gprefs.set('tb_search_order', t)
 
-    def reset_tb_search_order(self):
+    def reset_tb_search_order(self) -> None:
         gprefs.set('tb_search_order', gprefs.defaults['tb_search_order'])
         self.fill_tb_search_order_box()
         self.changed_signal.emit()
 
-    def reset_layout(self, model=None):
+    def reset_layout(self, model=None) -> None:
         assert model is not None
         model.initialize(use_defaults=True)
         self.changed_signal.emit()
 
-    def export_layout(self, model=None):
+    def export_layout(self, model=None) -> None:
         assert model is not None
         filename = choose_save_file(self, 'em_import_export_field_list', _('Save column list to file'), filters=[(_('Column list'), ['json'])])
         if filename:
@@ -155,7 +155,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
             except Exception as err:
                 error_dialog(self, _('Export field layout'), _('<p>Could not write field list. Error:<br>%s') % err, show=True)
 
-    def import_layout(self, model=None):
+    def import_layout(self, model=None) -> None:
         assert model is not None
         filename = choose_files(self, 'em_import_export_field_list', _('Load column list from file'), filters=[(_('Column list'), ['json'])])
         if filename:
@@ -167,7 +167,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
             except Exception as err:
                 error_dialog(self, _('Import layout'), _('<p>Could not read field list. Error:<br>%s') % err, show=True)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_hierarchical_cats_model.restore_defaults()
         self.reset_tb_search_order()

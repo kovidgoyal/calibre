@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class DownloadInfo(MessageBox):
-    def __init__(self, filename, parent=None):
+    def __init__(self, filename, parent=None) -> None:
         MessageBox.__init__(
             self,
             MessageBox.INFO,
@@ -39,11 +39,11 @@ class DownloadInfo(MessageBox):
         self.toggle_checkbox.toggled.connect(self.show_again_changed)
         self.resize_needed.emit()
 
-    def show_again_changed(self):
+    def show_again_changed(self) -> None:
         gprefs.set('show_get_books_download_info', self.toggle_checkbox.isChecked())
 
 
-def show_download_info(filename, parent=None):
+def show_download_info(filename, parent=None) -> None:
     if not gprefs.get('show_get_books_download_info', True):
         return
     DownloadInfo(filename, parent).exec()
@@ -117,7 +117,7 @@ class EbookDownload:
             return ''
         return download_file(url, cookie_file, filename, create_browser=create_browser)
 
-    def _add(self, filename, gui, add_to_lib, tags):
+    def _add(self, filename, gui, add_to_lib, tags) -> None:
         if not add_to_lib or not filename:
             return
 
@@ -151,7 +151,7 @@ class EbookDownload:
             db.new_api.add_format(book_id, ext.upper(), path)
         gui.library_view.model().books_added(1)
 
-    def _save_as(self, dfilename, save_loc):
+    def _save_as(self, dfilename, save_loc) -> None:
         if not save_loc or not dfilename:
             return
         shutil.copy(dfilename, save_loc)
@@ -171,7 +171,7 @@ def start_ebook_download(
     add_to_lib=True,
     tags=None,
     create_browser=None,
-):
+) -> None:
     if tags is None:
         tags = []
     description = _('Downloading %s') % as_unicode(filename or url, errors='replace')
@@ -189,7 +189,7 @@ def start_ebook_download(
 
 
 class EbookDownloadMixin:
-    def download_ebook(self: Main, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=None, create_browser=None):
+    def download_ebook(self: Main, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=None, create_browser=None) -> None:
         if tags is None:
             tags = []
         if tags:
@@ -209,7 +209,7 @@ class EbookDownloadMixin:
         )
         self.status_bar.show_message(_('Downloading') + ' ' + as_unicode(filename or url, errors='replace'), 3000)
 
-    def downloaded_ebook(self: Main, job):
+    def downloaded_ebook(self: Main, job) -> None:
         if job.failed:
             self.job_exception(job, dialog_title=_('Failed to download e-book'))
             return

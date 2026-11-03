@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class AddEmptyBookDialog(QDialog):
-    def __init__(self, parent, db, author, series=None, title=None, dup_title=None):
+    def __init__(self, parent, db, author, series=None, title=None, dup_title=None) -> None:
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -108,7 +108,7 @@ class AddEmptyBookDialog(QDialog):
         self.resize(self.sizeHint())
         self.duplicate_current_book = False
 
-    def do_duplicate_book(self):
+    def do_duplicate_book(self) -> None:
         self.duplicate_current_book = True
         self.accept()
 
@@ -116,7 +116,7 @@ class AddEmptyBookDialog(QDialog):
         self.save_settings()
         return QDialog.accept(self)
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         gprefs['create_empty_format_file'] = self.format_value.currentText().lower()
         gprefs['create_empty_copy_dup_formats'] = self.copy_formats.isChecked()
 
@@ -124,13 +124,13 @@ class AddEmptyBookDialog(QDialog):
         self.save_settings()
         return QDialog.reject(self)
 
-    def reset_author(self, *args):
+    def reset_author(self, *args) -> None:
         self.authors_combo.setEditText(_('Unknown'))
 
-    def reset_series(self):
+    def reset_series(self) -> None:
         self.series_combo.setEditText('')
 
-    def initialize_authors(self, db, author):
+    def initialize_authors(self, db, author) -> None:
         au = author
         if not au:
             au = _('Unknown')
@@ -141,7 +141,7 @@ class AddEmptyBookDialog(QDialog):
         self.authors_combo.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors_combo.update_items_cache(db.all_author_names())
 
-    def initialize_series(self, db, series):
+    def initialize_series(self, db, series) -> None:
         self.series_combo.show_initial_value(series or '')
         self.series_combo.update_items_cache(db.all_series_names())
         self.series_combo.set_separator(None)

@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class tableItem(QTableWidgetItem):
-    def __init__(self, text):
+    def __init__(self, text) -> None:
         QTableWidgetItem.__init__(self, text)
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
         self.sort = text.lower()
@@ -24,19 +24,19 @@ class tableItem(QTableWidgetItem):
 
 
 class centeredTableItem(tableItem):
-    def __init__(self, text):
+    def __init__(self, text) -> None:
         tableItem.__init__(self, text)
         self.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 class titleTableItem(tableItem):
-    def __init__(self, text):
+    def __init__(self, text) -> None:
         tableItem.__init__(self, text)
         self.sort = title_sort(text.lower())
 
 
 class authorTableItem(tableItem):
-    def __init__(self, book):
+    def __init__(self, book) -> None:
         tableItem.__init__(self, authors_to_string(book.authors))
         if book.author_sort is not None:
             self.sort = book.author_sort.lower()
@@ -45,7 +45,7 @@ class authorTableItem(tableItem):
 
 
 class dateTableItem(tableItem):
-    def __init__(self, date):
+    def __init__(self, date) -> None:
         if date is not None:
             tableItem.__init__(self, strftime('%x', date))
             self.sort = date
@@ -55,7 +55,7 @@ class dateTableItem(tableItem):
 
 
 class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog):
-    def __init__(self, parent, items):
+    def __init__(self, parent, items) -> None:
         QDialog.__init__(self, parent)
         Ui_DeleteMatchingFromDeviceDialog.__init__(self)
         self.setupUi(self)
@@ -101,11 +101,11 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.table.sortByColumn(2, Qt.SortOrder.AscendingOrder)
         self.table.setCurrentCell(0, 1)
 
-    def cell_clicked(self, row, col):
+    def cell_clicked(self, row, col) -> None:
         if col == 0:
             self.table.setCurrentCell(row, 1)
 
-    def handle_accepted(self):
+    def handle_accepted(self) -> None:
         self.result_val = []
         for row in range(self.table.rowCount()):
             item_0 = self.table.item(row, 0)

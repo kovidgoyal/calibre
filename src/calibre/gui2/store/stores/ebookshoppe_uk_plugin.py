@@ -22,7 +22,7 @@ except ImportError:
 
 
 class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url_details = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p={0}'
         url = 'http://www.awin1.com/awclick.php?mid=2666&id=120917'
 
@@ -72,7 +72,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def get_author_and_formats(self, search_result, timeout):
+    def get_author_and_formats(self, search_result, timeout) -> bool:
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())

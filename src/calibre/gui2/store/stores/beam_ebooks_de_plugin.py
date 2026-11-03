@@ -22,7 +22,7 @@ except ImportError:
 
 
 class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = 'https://www.beam-shop.de/'
 
         if external or self.config.get('open_external', False):

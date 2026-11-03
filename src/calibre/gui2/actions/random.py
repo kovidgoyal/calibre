@@ -12,7 +12,7 @@ class PickRandomAction(InterfaceAction):
     action_spec = (_('Pick a random book'), 'random.png', _('Select a random book from your calibre library'), ())
     dont_add_to = frozenset(['context-menu-device'])
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.pick_random)
         self.recently_picked = {}
         try:
@@ -20,15 +20,15 @@ class PickRandomAction(InterfaceAction):
         except Exception:
             self.randint = random.randint
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         self.recently_picked = {}
 
-    def pick_random(self):
+    def pick_random(self) -> None:
         lv = self.gui.library_view
         count = lv.model().rowCount(None)
         rp = self.recently_picked

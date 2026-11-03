@@ -78,7 +78,7 @@ library_qicon = LibraryIcon()
 
 
 class LibraryUsageStats:  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         self.stats = {}
         self.read_stats()
         base = get_portable_base()
@@ -93,18 +93,18 @@ class LibraryUsageStats:  # {{{
                     if bn.lower() == q.lower():
                         self.rename(loc, lp)
 
-    def read_stats(self):
+    def read_stats(self) -> None:
         stats = gprefs.get('library_usage_stats', {})
         self.stats = stats
 
-    def write_stats(self):
+    def write_stats(self) -> None:
         locs = list(self.stats.keys())
         locs.sort(key=lambda x: self.stats[x], reverse=True)
         for key in locs[500:]:
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
 
-    def remove(self, location):
+    def remove(self, location) -> None:
         self.stats.pop(location, None)
         self.write_stats()
 
@@ -137,7 +137,7 @@ class LibraryUsageStats:  # {{{
         loc = loc.removesuffix('/')
         return loc.split('/')[-1]
 
-    def rename(self, location, newloc):
+    def rename(self, location, newloc) -> None:
         newloc = self.canonicalize_path(newloc)
         stats = self.stats.pop(location, None)
         if stats is not None:
@@ -149,7 +149,7 @@ class LibraryUsageStats:  # {{{
 
 
 class MovedDialog(QDialog):  # {{{
-    def __init__(self, stats, location, parent=None):
+    def __init__(self, stats, location, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('No library found'))
         self._l = l = QGridLayout(self)
@@ -189,15 +189,15 @@ class MovedDialog(QDialog):  # {{{
         l.addWidget(self.bb, 3, 0, 1, ncols)
         self.resize(self.sizeHint() + QSize(120, 0))
 
-    def choose_dir(self):
+    def choose_dir(self) -> None:
         d = choose_dir(self, 'library moved choose new loc', _('New library location'), default_dir=self.oldloc)
         if d is not None:
             self.loc.setText(d)
 
-    def forget_library(self):
+    def forget_library(self) -> None:
         self.stats.remove(self.location)
 
-    def accept(self):
+    def accept(self) -> None:
         newloc = str(self.loc.text())
         if not db_class().exists_at(newloc):
             error_dialog(self, _('No library found'), _('No existing calibre library found at %s') % newloc, show=True)
@@ -211,7 +211,7 @@ class MovedDialog(QDialog):  # {{{
 
 
 class BackupStatus(QDialog):  # {{{
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         QDialog.__init__(self, gui)
         self.l = l = QVBoxLayout(self)
         self.msg = QLabel('')
@@ -231,7 +231,7 @@ class BackupStatus(QDialog):  # {{{
         self.update()
         self.resize(self.sizeHint() + QSize(50, 15))
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         db = self.db()
         if db is None:
             return
@@ -245,7 +245,7 @@ class BackupStatus(QDialog):  # {{{
         self.msg.setText('<p>' + _('Book metadata files remaining to be written: %s') % dirty_text)
         QTimer.singleShot(1000, self.update)
 
-    def mark_all_dirty(self):
+    def mark_all_dirty(self) -> None:
         db = self.db()
         if db is None:
             return
@@ -257,7 +257,7 @@ class BackupStatus(QDialog):  # {{{
 current_change_library_action_pi = None
 
 
-def set_change_library_action_plugin(pi):
+def set_change_library_action_plugin(pi) -> None:
     global current_change_library_action_pi
     current_change_library_action_pi = pi
 
@@ -275,7 +275,7 @@ class ChooseLibraryAction(InterfaceAction):
     restore_view_state = pyqtSignal(object)
     rebuild_change_library_menus = pyqtSignal()
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.prev_lname = self.last_lname = ''
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
@@ -374,10 +374,10 @@ class ChooseLibraryAction(InterfaceAction):
             self._preserve_state_on_switch = ans = self.gui.library_view.preserve_state(require_selected_ids=False)
         return ans
 
-    def pick_random(self, *args):
+    def pick_random(self, *args) -> None:
         self.gui.iactions['Pick Random Book'].pick_random()
 
-    def get_library_icon(self):
+    def get_library_icon(self) -> None:
         try:
             paths = choose_images(self.gui, 'choose_library_icon', _('Select icon for library "%s"') % current_library_name())
             if paths:
@@ -394,7 +394,7 @@ class ChooseLibraryAction(InterfaceAction):
 
             traceback.print_exc()
 
-    def rename_library_icon(self, old_name, new_name):
+    def rename_library_icon(self, old_name, new_name) -> None:
         old_path = library_icon_path(old_name)
         new_path = library_icon_path(new_name)
         try:
@@ -406,7 +406,7 @@ class ChooseLibraryAction(InterfaceAction):
 
             traceback.print_exc()
 
-    def remove_library_icon(self, name=''):
+    def remove_library_icon(self, name='') -> None:
         try:
             with suppress(FileNotFoundError):
                 os.remove(library_icon_path(name or current_library_name()))
@@ -417,7 +417,7 @@ class ChooseLibraryAction(InterfaceAction):
 
             traceback.print_exc()
 
-    def set_library_icon(self):
+    def set_library_icon(self) -> None:
         icon = QIcon.ic(library_icon_path())
         has_icon = not icon.isNull() and len(icon.availableSizes()) > 0
         if not has_icon:
@@ -456,14 +456,14 @@ class ChooseLibraryAction(InterfaceAction):
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)
 
-    def update_tooltip(self, count):
+    def update_tooltip(self, count) -> None:
         tooltip = self.action_spec[2] + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(getattr(self, 'last_lname', ''), count)
         a = self.qaction
         a.setToolTip(tooltip)
         a.setStatusTip(tooltip)
         a.setWhatsThis(tooltip)
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         lname = self.stats.library_used(db)
         if lname != self.last_lname:
             self.prev_lname = self.last_lname
@@ -479,14 +479,14 @@ class ChooseLibraryAction(InterfaceAction):
         if state is not None:
             self.restore_view_state.emit(state)
 
-    def _restore_view_state(self, state):
+    def _restore_view_state(self, state) -> None:
         self.preserve_state_on_switch.state = state
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.library_changed(self.gui.library_view.model().db)
         set_change_library_action_plugin(self)
 
-    def switch_to_previous_library(self):
+    def switch_to_previous_library(self) -> None:
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
         for name, loc in locations:
@@ -495,7 +495,7 @@ class ChooseLibraryAction(InterfaceAction):
                 self.switch_requested(loc)
                 break
 
-    def build_menus(self):
+    def build_menus(self) -> None:
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             return
         db = self.gui.library_view.model().db
@@ -573,11 +573,11 @@ class ChooseLibraryAction(InterfaceAction):
         for a in (self.qaction, self.menuless_qaction):
             a.changed.emit()
 
-    def change_vl_at_startup_requested(self, vl):
+    def change_vl_at_startup_requested(self, vl) -> None:
         self.gui.library_view.model().db.prefs['virtual_lib_on_startup'] = vl
         self.build_menus()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -639,7 +639,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
 
-    def delete_requested(self, name, location):
+    def delete_requested(self, name, location) -> None:
         loc = location.replace('/', os.sep)
         if not question_dialog(
             self.gui,
@@ -661,11 +661,11 @@ class ChooseLibraryAction(InterfaceAction):
         if os.path.exists(loc):
             open_local_file(loc)
 
-    def backup_status(self, location):
+    def backup_status(self, location) -> None:
         self.__backup_status_dialog = d = BackupStatus(self.gui)
         d.show()
 
-    def mark_dirty(self):
+    def mark_dirty(self) -> None:
         db = self.gui.library_view.model().db
         db.dirtied(list(db.data.iterallids()))
         info_dialog(
@@ -789,7 +789,7 @@ class ChooseLibraryAction(InterfaceAction):
             return True, newloc
         return False, None
 
-    def switch_requested(self, location):
+    def switch_requested(self, location) -> None:
         if not self.change_library_allowed():
             return
         db = self.gui.library_view.model().db
@@ -821,7 +821,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.library_moved(loc, allow_rebuild=True)
         # QTimer.singleShot(5000, self.debug_leak)
 
-    def debug_leak(self):
+    def debug_leak(self) -> None:
         import gc
 
         from calibre.utils.mem import memory
@@ -840,10 +840,10 @@ class ChooseLibraryAction(InterfaceAction):
         print()
         self.dbref = self.before_mem = None
 
-    def count_changed(self, new_count):
+    def count_changed(self, new_count) -> None:
         self.update_tooltip(new_count)
 
-    def choose_library(self, *args):
+    def choose_library(self, *args) -> None:
         if not self.change_library_allowed():
             return
         from calibre.gui2.dialogs.choose_library import ChooseLibrary
@@ -855,14 +855,14 @@ class ChooseLibraryAction(InterfaceAction):
         c = ChooseLibrary(db, self.choose_library_callback, self.gui)
         c.exec()
 
-    def choose_library_callback(self, newloc, copy_structure=False, library_renamed=False):
+    def choose_library_callback(self, newloc, copy_structure=False, library_renamed=False) -> None:
         self.gui.library_moved(newloc, copy_structure=copy_structure, allow_rebuild=True)
         if library_renamed:
             self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
 
-    def change_library_allowed(self):
+    def change_library_allowed(self) -> bool:
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             warning_dialog(
                 self.gui,

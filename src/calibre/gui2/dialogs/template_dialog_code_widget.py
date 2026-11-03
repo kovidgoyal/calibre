@@ -14,7 +14,7 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 
 
 class LineNumberArea(LineNumbers):
-    def mouseDoubleClickEvent(self, a0):
+    def mouseDoubleClickEvent(self, a0) -> None:
         super().mousePressEvent(a0)
         p = self.parent()
         assert isinstance(p, CodeEditor)
@@ -22,7 +22,7 @@ class LineNumberArea(LineNumbers):
 
 
 class CodeEditor(QPlainTextEdit):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QPlainTextEdit.__init__(self, parent)
 
         # Use the default theme from the book editor
@@ -42,7 +42,7 @@ class CodeEditor(QPlainTextEdit):
         self.highlight_cursor_line()
         self.clicked_line_numbers = set()
 
-    def highlight_cursor_line(self):
+    def highlight_cursor_line(self) -> None:
         sel = QTextEdit.ExtraSelection()
         # Don't highlight if no text so that the placeholder text shows
         if not (self.blockCount() == 1 and len(self.toPlainText().strip()) == 0):
@@ -54,7 +54,7 @@ class CodeEditor(QPlainTextEdit):
             sel,
         ])
 
-    def update_line_number_area_width(self, block_count=0):
+    def update_line_number_area_width(self, block_count=0) -> None:
         self.gutter_width = self.line_number_area_width()
         self.setViewportMargins(self.gutter_width, 0, 0, 0)
 
@@ -69,7 +69,7 @@ class CodeEditor(QPlainTextEdit):
             digits += 1
         return self.number_width * (digits + 1)
 
-    def update_line_number_area(self, rect, dy):
+    def update_line_number_area(self, rect, dy) -> None:
         if dy:
             self.line_number_area.scroll(0, dy)
         else:
@@ -79,12 +79,12 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, e):
+    def resizeEvent(self, e) -> None:
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
 
-    def line_area_doubleclick_event(self, event):
+    def line_area_doubleclick_event(self, event) -> None:
         # remember that the result of the divide will be zero-based
         line = event.y() // self.fontMetrics().height() + 1 + self.firstVisibleBlock().blockNumber()
         if line in self.clicked_line_numbers:
@@ -96,11 +96,11 @@ class CodeEditor(QPlainTextEdit):
     def number_of_lines(self):
         return self.blockCount()
 
-    def set_clicked_line_numbers(self, new_set):
+    def set_clicked_line_numbers(self, new_set) -> None:
         self.clicked_line_numbers = new_set
         self.update(self.line_number_area.geometry())
 
-    def paint_line_numbers(self, ev):
+    def paint_line_numbers(self, ev) -> None:
         painter = QPainter(self.line_number_area)
         painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
 
@@ -143,7 +143,7 @@ class CodeEditor(QPlainTextEdit):
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e) -> None:
         if e.key() == Qt.Key.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
             e.accept()

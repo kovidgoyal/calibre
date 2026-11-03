@@ -19,25 +19,25 @@ class ProgressDialog(PD):
     on_progress_update = pyqtSignal(object, object, object)
     finished_moving = pyqtSignal()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         PD.__init__(self, *args, **kwargs)
         self.on_progress_update.connect(self.progressed, type=Qt.ConnectionType.QueuedConnection)
         self.finished_moving.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
 
-    def reject(self):
+    def reject(self) -> None:
         return
 
-    def progressed(self, item_name, count, total):
+    def progressed(self, item_name, count, total) -> None:
         self.max = total
         self.value = count
         self.set_msg(item_name)
 
-    def show_new_progress(self, *args):
+    def show_new_progress(self, *args) -> None:
         self.on_progress_update.emit(*args)
 
 
 class ChooseLibrary(QDialog, Ui_Dialog):
-    def __init__(self, db, callback, parent):
+    def __init__(self, db, callback, parent) -> None:
         super().__init__(parent)
         self.setupUi(self)
         self.nas_warning.setText(
@@ -60,10 +60,10 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.empty_library.toggled.connect(self.empty_library_toggled)
         self.copy_structure.setEnabled(False)
 
-    def empty_library_toggled(self, to_what):
+    def empty_library_toggled(self, to_what) -> None:
         self.copy_structure.setEnabled(to_what)
 
-    def choose_loc(self, *args):
+    def choose_loc(self, *args) -> None:
         base = get_portable_base()
         if base is None:
             loc = choose_dir(self, 'choose library location', _('Choose location for calibre library'))
@@ -73,7 +73,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         if loc is not None:
             self.location.setText(loc)
 
-    def check_action(self, ac, loc):
+    def check_action(self, ac, loc) -> bool:
         exists = self.db.exists_at(loc)
         base = get_portable_base()
         if patheq(loc, self.db.library_path):
@@ -127,7 +127,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
 
         return True
 
-    def perform_action(self, ac, loc):
+    def perform_action(self, ac, loc) -> None:
         if ac in ('new', 'existing'):
             self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
@@ -141,7 +141,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             get_gui(fail_if_absent=True).library_view._model.stop_metadata_backup()
             move_error = []
 
-            def do_move():
+            def do_move() -> None:
                 try:
                     self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.show_new_progress)
                 except Exception:

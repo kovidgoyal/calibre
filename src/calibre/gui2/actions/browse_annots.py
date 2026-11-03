@@ -19,7 +19,7 @@ class BrowseAnnotationsAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_browser)
         self._browser = None
 
@@ -34,14 +34,14 @@ class BrowseAnnotationsAction(InterfaceAction):
             self._browser.open_annotation.connect(self.open_annotation, type=Qt.ConnectionType.QueuedConnection)
         return self._browser
 
-    def show_browser(self):
+    def show_browser(self) -> None:
         self.browser.show_dialog(self.gui.library_view.get_selected_ids(as_set=True))
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         if self._browser is not None:
             self._browser.reinitialize()
 
-    def selection_changed(self):
+    def selection_changed(self) -> None:
         if self._browser is not None:
             self._browser.selection_changed()
 
@@ -58,5 +58,5 @@ class BrowseAnnotationsAction(InterfaceAction):
                 show=True,
             )
 
-    def open_annotation(self, book_id, fmt, cfi):
+    def open_annotation(self, book_id, fmt, cfi) -> None:
         self.gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=cfi)

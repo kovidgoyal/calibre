@@ -112,7 +112,7 @@ def save_annotations_in_gui(library_broker, msg) -> tuple[str, int]:
     return lid, book_id
 
 
-def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None, last_read_data=None):
+def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None, last_read_data=None) -> None:
     calibre_data = calibre_data or {}
     if (
         (lid := calibre_data.get('library_id'))

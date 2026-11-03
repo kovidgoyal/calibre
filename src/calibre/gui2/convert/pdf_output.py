@@ -17,7 +17,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'pdf_output'
     ICON = 'mimetypes/pdf.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['pdf'])
         self.db, self.book_id = db, book_id
         try:
@@ -40,13 +40,13 @@ class PluginWidget(Widget, Ui_Form):
         tbl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.profile_size_toggled()
 
-    def profile_size_toggled(self):
+    def profile_size_toggled(self) -> None:
         enabled = not self.opt_use_profile_size.isChecked()
         self.opt_paper_size.setEnabled(enabled)
         self.opt_custom_size.setEnabled(enabled)
         self.opt_unit.setEnabled(enabled)
 
-    def setupUi(self, Form):
+    def setupUi(self, Form) -> None:
         Ui_Form.setupUi(self, Form)
         v = QVBoxLayout(self.page_margins_box)
         self.opt_pdf_use_document_margins = c = QCheckBox(_('Use page margins from the &document being converted'))

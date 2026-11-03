@@ -56,7 +56,7 @@ def partial(*args, **kwargs):
 class LibraryViewMixin:  # {{{
     library_view: BooksView
 
-    def init_library_view_mixin(self: Main, db):
+    def init_library_view_mixin(self: Main, db) -> None:
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.add_column_signal.connect(
@@ -92,13 +92,13 @@ class LibraryViewMixin:  # {{{
 
         self.library_view._model.set_highlight_only(config['highlight_search_matches'])
 
-    def context_menu_action_hovered(self, ac):
+    def context_menu_action_hovered(self, ac) -> None:
         ac.showStatusText(self)
 
-    def build_context_menus(self: Main):
+    def build_context_menus(self: Main) -> None:
         from calibre.gui2.bars import populate_menu
 
-        def connect_hovered(menu):
+        def connect_hovered(menu) -> None:
             menu.hovered.connect(self.context_menu_action_hovered)
             for action in menu.actions():
                 if m := action.menu():
@@ -125,7 +125,7 @@ class LibraryViewMixin:  # {{{
             connect_hovered(cm)
             self.cover_flow.set_context_menu(cm)
 
-    def search_done(self: Main, view, ok):
+    def search_done(self: Main, view, ok) -> None:
         if view is self.current_view():
             self.search.search_done(ok)
             self.set_number_of_books_shown()
@@ -141,11 +141,11 @@ class LibraryViewMixin:  # {{{
 
 
 class UpdateLabel(QLabel):  # {{{
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         QLabel.__init__(self, *args, **kwargs)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, ev) -> None:
         pass
 
 
@@ -153,7 +153,7 @@ class UpdateLabel(QLabel):  # {{{
 
 
 class VersionLabel(QLabel):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QLabel.__init__(self, parent)
         self.mouse_over = False
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -192,7 +192,7 @@ class VersionLabel(QLabel):  # {{{
 
 
 class StatusBar(QStatusBar):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QStatusBar.__init__(self, parent)
         self.version = get_version()
         self.base_msg = f'{get_appname_for_display()} {self.version}'
@@ -205,20 +205,20 @@ class StatusBar(QStatusBar):  # {{{
         self.addWidget(self.defmsg)
         self.set_label()
 
-    def initialize(self, systray=None):
+    def initialize(self, systray=None) -> None:
         self.systray = systray
         self.notifier = get_notifier(systray)
 
-    def device_connected(self, devname):
+    def device_connected(self, devname) -> None:
         self.device_string = _('Connected ') + devname
         self.set_label()
 
-    def update_state(self, library_total, total, current, selected):
+    def update_state(self, library_total, total, current, selected) -> None:
         self.library_total = library_total
         self.total, self.current, self.selected = total, current, selected
         self.set_label()
 
-    def set_label(self):
+    def set_label(self) -> None:
         try:
             self._set_label()
         except Exception:
@@ -226,7 +226,7 @@ class StatusBar(QStatusBar):  # {{{
 
             traceback.print_exc()
 
-    def _set_label(self):
+    def _set_label(self) -> None:
         msg = self.base_msg
         if self.device_string:
             msg += ' ..::.. ' + self.device_string
@@ -245,16 +245,16 @@ class StatusBar(QStatusBar):  # {{{
         self.defmsg.setText(f'\xa0{msg}\xa0\xa0\xa0\xa0[{base}] ')
         self.clearMessage()
 
-    def device_disconnected(self):
+    def device_disconnected(self) -> None:
         self.device_string = ''
         self.set_label()
 
-    def show_message(self, msg, timeout=0, show_notification=True):
+    def show_message(self, msg, timeout=0, show_notification=True) -> None:
         self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification'] and show_notification:
             self.notifier(msg)
 
-    def clear_message(self):
+    def clear_message(self) -> None:
         self.clearMessage()
 
 
@@ -266,7 +266,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
     ignore_toggles = False
     needs_group_by = False
 
-    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: Main, shortcut=None, config_key=None):
+    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: Main, shortcut=None, config_key=None) -> None:
         super().__init__(name, icon, label, gui.layout_container, shortcut=shortcut)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
@@ -292,21 +292,21 @@ class AlternateViewsButtons(LayoutButton):  # {{{
     def is_visible(self):
         return self.isChecked()
 
-    def update_state(self, *args):
+    def update_state(self, *args) -> None:
         checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
         else:
             self.set_state_to_show()
 
-    def save_state(self):
+    def save_state(self) -> None:
         gprefs[f'{self.ck} visible'] = bool(self.isChecked())
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         if gprefs.get(f'{self.ck} visible', False):
             self.toggle()
 
-    def toggle_view(self, show):
+    def toggle_view(self, show) -> None:
         if AlternateViewsButtons.ignore_toggles:
             return
         AlternateViewsButtons.ignore_toggles = True
@@ -325,7 +325,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
 
 
 class GridViewButton(AlternateViewsButtons):  # {{{
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         super().__init__(
             'cover_grid',
             'grid.png',
@@ -343,7 +343,7 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
     needs_group_by = True
 
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         super().__init__(
             'bookshelf_view',
             'bookshelf.png',
@@ -359,7 +359,7 @@ class BookshelfViewButton(AlternateViewsButtons):  # {{{
 
 
 class SearchBarButton(LayoutButton):  # {{{
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         sc = 'Alt+Shift+F'
         LayoutButton.__init__(self, 'search', 'search.png', _('Search bar'), gui, shortcut=sc)
         self.set_state_to_hide()
@@ -381,17 +381,17 @@ class SearchBarButton(LayoutButton):  # {{{
     def is_visible(self):
         return self.isChecked()
 
-    def update_state(self, *args):
+    def update_state(self, *args) -> None:
         checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
         else:
             self.set_state_to_show()
 
-    def save_state(self):
+    def save_state(self) -> None:
         gprefs['search bar visible'] = bool(self.isChecked())
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         self.setChecked(bool(gprefs.get('search bar visible', True)))
 
 
@@ -399,7 +399,7 @@ class SearchBarButton(LayoutButton):  # {{{
 
 
 class VLTabs(QTabBar):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QTabBar.__init__(self, parent)
         self.setDocumentMode(True)
         self.setDrawBase(False)
@@ -432,26 +432,26 @@ class VLTabs(QTabBar):  # {{{
             description=_('Switch to the previous Virtual library in the Virtual library tab bar'),
         )
 
-    def next_tab(self, delta=1):
+    def next_tab(self, delta=1) -> None:
         if self.count() > 1 and self.isVisible():
             idx = (self.currentIndex() + delta) % self.count()
             self.setCurrentIndex(idx)
 
-    def update_visibility(self):
+    def update_visibility(self) -> None:
         cv = self.gui.current_view()
         self.setVisible(gprefs['show_vl_tabs'] and self.count() > 1 and (cv is self.gui.library_view or cv is None))
 
-    def enable_bar(self):
+    def enable_bar(self) -> None:
         gprefs['show_vl_tabs'] = True
         self.update_visibility()
         self.gui.set_number_of_books_shown()
 
-    def disable_bar(self):
+    def disable_bar(self) -> None:
         gprefs['show_vl_tabs'] = False
         self.update_visibility()
         self.gui.set_number_of_books_shown()
 
-    def lock_tab(self):
+    def lock_tab(self) -> None:
         gprefs['vl_tabs_closable'] = False
         self.setTabsClosable(False)
         self.setMovable(False)
@@ -460,7 +460,7 @@ class VLTabs(QTabBar):  # {{{
             self.setTabButton(idx, QTabBar.ButtonPosition.RightSide, None)
             self.setTabButton(idx, QTabBar.ButtonPosition.LeftSide, None)
 
-    def unlock_tab(self):
+    def unlock_tab(self) -> None:
         gprefs['vl_tabs_closable'] = True
         self.setTabsClosable(True)
         self.setMovable(True)
@@ -476,16 +476,16 @@ class VLTabs(QTabBar):  # {{{
                         btn.setVisible(False)
                 break
 
-    def tab_changed(self, idx):
+    def tab_changed(self, idx) -> None:
         if self.ignore_tab_changed:
             return
         vl = str(self.tabData(idx) or '').strip() or None
         self.gui.apply_virtual_library(vl, update_tabs=False)
 
-    def tab_moved(self, from_, to):
+    def tab_moved(self, from_, to) -> None:
         self.current_db.new_api.set_pref('virt_libs_order', [str(self.tabData(i) or '') for i in range(self.count())])
 
-    def tab_close(self, index):
+    def tab_close(self, index) -> None:
         vl = str(self.tabData(index) or '')
         if vl:  # Don't allow closing the All Books tab
             self.current_db.new_api.set_pref('virt_libs_hidden', list(self.current_db.new_api.pref('virt_libs_hidden', ())) + [vl])
@@ -495,14 +495,14 @@ class VLTabs(QTabBar):  # {{{
     def current_db(self):
         return self.gui.current_db
 
-    def rebuild(self):
+    def rebuild(self) -> None:
         self.ignore_tab_changed = True
         try:
             self._rebuild()
         finally:
             self.ignore_tab_changed = False
 
-    def _rebuild(self):
+    def _rebuild(self) -> None:
         db = self.current_db
         vl_map = db.new_api.pref('virtual_libraries', {})
         virt_libs = frozenset(vl_map)
@@ -543,10 +543,10 @@ class VLTabs(QTabBar):  # {{{
                 btn.setVisible(False)
         self.update_visibility()
 
-    def update_current(self):
+    def update_current(self) -> None:
         self.rebuild()
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         m = QMenu(self)
         m.addAction(QIcon.ic('sort.png'), _('Sort tabs alphabetically'), self.sort_alphabetically)
         hidden = self.current_db.new_api.pref('virt_libs_hidden')
@@ -570,11 +570,11 @@ class VLTabs(QTabBar):  # {{{
                 m.addAction(QIcon.ic('trash.png'), _('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
         m.exec(a0.globalPos())
 
-    def sort_alphabetically(self):
+    def sort_alphabetically(self) -> None:
         self.current_db.new_api.set_pref('virt_libs_order', ())
         self.rebuild()
 
-    def restore(self, x):
+    def restore(self, x) -> None:
         h = self.current_db.new_api.pref('virt_libs_hidden', ())
         self.current_db.new_api.set_pref('virt_libs_hidden', list(set(h) - {x}))
         self.rebuild()
@@ -584,7 +584,7 @@ class VLTabs(QTabBar):  # {{{
 
 
 class StatusBarButton(QToolButton):
-    def __init__(self, parent, action_name, pref_name, on_click):
+    def __init__(self, parent, action_name, pref_name, on_click) -> None:
         super().__init__(parent=parent)
         act = parent.iactions[action_name]
         self.action_name = action_name
@@ -606,7 +606,7 @@ class StatusBarButton(QToolButton):
 
 
 class LayoutMixin:  # {{{
-    def place_layout_buttons(self: Main):
+    def place_layout_buttons(self: Main) -> None:
         if getattr(self, 'layout_buttons', None):
             for x in self.layout_buttons:
                 self.status_bar.removeWidget(x)
@@ -645,7 +645,7 @@ class LayoutMixin:  # {{{
             self.status_bar.insertPermanentWidget(2, button)
         self.layout_button.setVisible(not gprefs['show_layout_buttons'])
 
-    def init_layout_mixin(self: Main):
+    def init_layout_mixin(self: Main) -> None:
         self.vl_tabs = VLTabs(self)
         cl = self.centralwidget.layout()
         assert cl is not None
@@ -711,7 +711,7 @@ class LayoutMixin:  # {{{
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
 
-    def finalize_layout(self: Main):
+    def finalize_layout(self: Main) -> None:
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
@@ -744,19 +744,19 @@ class LayoutMixin:  # {{{
             m.current_changed(self.library_view.currentIndex(), self.library_view.currentIndex())
         self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def show_panel(self, name):
+    def show_panel(self, name) -> None:
         if name == 'search_bar':
             self.search_bar_button.setChecked(True)
             return
         self.layout_container.show_panel(name)
 
-    def hide_panel(self, name):
+    def hide_panel(self, name) -> None:
         if name == 'search_bar':
             self.search_bar_button.setChecked(False)
             return
         self.layout_container.hide_panel(name)
 
-    def set_search_string_with_append(self: Main, expression, append=''):
+    def set_search_string_with_append(self: Main, expression, append='') -> None:
         current = self.search.text().strip()
         if append:
             expr = f'{current} {append} {expression}' if current else expression
@@ -764,7 +764,7 @@ class LayoutMixin:  # {{{
             expr = expression
         self.search.set_search_string(expr)
 
-    def edit_identifiers_triggerred(self: Main):
+    def edit_identifiers_triggerred(self: Main) -> None:
         book_id = self.library_view.current_book
         db = self.current_db.new_api
         identifiers = db.field_for('identifiers', book_id, default_value={})
@@ -776,14 +776,14 @@ class LayoutMixin:  # {{{
             db.set_field('identifiers', {book_id: identifiers})
             self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})
 
-    def manage_category_triggerred(self: Main, field, value):
+    def manage_category_triggerred(self: Main, field, value) -> None:
         if field and value:
             if field == 'authors':
                 self.do_author_sort_edit(self, value, select_sort=False, select_link=False, lookup_author=True)
             elif field:
                 self.do_tags_list_edit(value, field)
 
-    def find_in_tag_browser_triggered(self: Main, field, value):
+    def find_in_tag_browser_triggered(self: Main, field, value) -> None:
         if field and value:
             tb = self.tb_widget
             tb.set_focus_to_find_box()
@@ -792,16 +792,16 @@ class LayoutMixin:  # {{{
             le.setText(field + ':=' + value)
             tb.do_find()
 
-    def toggle_search_bar(self: Main, show):
+    def toggle_search_bar(self: Main, show) -> None:
         self.search_bar.setVisible(show)
         if show:
             self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def bd_cover_changed(self: Main, id_, cdata):
+    def bd_cover_changed(self: Main, id_, cdata) -> None:
         self.current_db.set_cover(id_, cdata)
         self.refresh_cover_browser()
 
-    def bd_open_cover_with(self: Main, book_id, entry):
+    def bd_open_cover_with(self: Main, book_id, entry) -> None:
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
         if cpath:
             if entry is None:
@@ -825,7 +825,7 @@ class LayoutMixin:  # {{{
 
             run_program(entry, cpath, self)
 
-    def bd_open_fmt_with(self: Main, book_id, fmt, entry):
+    def bd_open_fmt_with(self: Main, book_id, fmt, entry) -> None:
         path = self.current_db.new_api.format_abspath(book_id, fmt)
         if path:
             from calibre.gui2.open_with import run_program
@@ -840,13 +840,13 @@ class LayoutMixin:  # {{{
                 show=True,
             )
 
-    def bd_edit_book(self: Main, book_id, fmt):
+    def bd_edit_book(self: Main, book_id, fmt) -> None:
         from calibre.gui2.widgets import BusyCursor
 
         with BusyCursor():
             self.iactions['Tweak ePub'].ebook_edit_format(book_id, fmt)
 
-    def open_with_action_triggerred(self: Main, fmt, entry, *args):
+    def open_with_action_triggerred(self: Main, fmt, entry, *args) -> None:
         book_id = self.library_view.current_book
         if book_id is not None:
             if fmt == 'cover_image':
@@ -854,17 +854,17 @@ class LayoutMixin:  # {{{
             else:
                 self.bd_open_fmt_with(book_id, fmt, entry)
 
-    def bd_cover_removed(self: Main, id_):
+    def bd_cover_removed(self: Main, id_) -> None:
         self.current_db.remove_cover(id_, commit=True, notify=False)
         self.refresh_cover_browser()
 
-    def bd_copy_link(self, url):
+    def bd_copy_link(self, url) -> None:
         if url:
             clipboard = QApplication.clipboard()
             assert clipboard is not None
             clipboard.setText(url)
 
-    def compare_format(self: Main, book_id, fmt):
+    def compare_format(self: Main, book_id, fmt) -> None:
         db = self.current_db.new_api
         ofmt = fmt
         if fmt.startswith('ORIGINAL_'):
@@ -883,7 +883,7 @@ class LayoutMixin:  # {{{
             names=(ofmt, fmt),
         )
 
-    def save_layout_state(self: Main):
+    def save_layout_state(self: Main) -> None:
         self.library_view.save_state()
         self.memory_view.save_state()
         self.card_a_view.save_state()
@@ -893,7 +893,7 @@ class LayoutMixin:  # {{{
         self.bookshelf_view_button.save_state()
         self.search_bar_button.save_state()
 
-    def read_layout_settings(self: Main):
+    def read_layout_settings(self: Main) -> None:
         # View states are restored automatically when set_database is called
         self.layout_container.read_settings()
         self.book_details.change_layout(self.layout_container.is_wide)
@@ -902,7 +902,7 @@ class LayoutMixin:  # {{{
         self.bookshelf_view_button.restore_state()
         self.search_bar_button.restore_state()
 
-    def update_status_bar(self: Main, *args):
+    def update_status_bar(self: Main, *args) -> None:
         v = self.current_view()
         selected = len(v.selectionModel().selectedRows())
         try:

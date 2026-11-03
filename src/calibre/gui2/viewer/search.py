@@ -41,7 +41,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class BusySpinner(QWidget):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -52,12 +52,12 @@ class BusySpinner(QWidget):  # {{{
         l.addStretch(10)
         self.is_running = False
 
-    def start(self):
+    def start(self) -> None:
         self.setVisible(True)
         self.pi.start()
         self.is_running = True
 
-    def stop(self):
+    def stop(self) -> None:
         self.setVisible(False)
         self.pi.stop()
         self.is_running = False
@@ -117,7 +117,7 @@ class ChapterScope:
     items that can contain results attributed to the chapter, in spine order.
     """
 
-    def __init__(self, node_id: int, title: str, spine_indices: tuple[int, ...]):
+    def __init__(self, node_id: int, title: str, spine_indices: tuple[int, ...]) -> None:
         self.node_id, self.title, self.spine_indices = node_id, title, spine_indices
 
     def __eq__(self, other):
@@ -128,7 +128,7 @@ class ChapterScope:
 
 
 class Search:
-    def __init__(self, text, mode, case_sensitive, backwards, scope='book'):
+    def __init__(self, text, mode, case_sensitive, backwards, scope='book') -> None:
         self.text, self.mode = text, mode
         self.case_sensitive = case_sensitive
         self.backwards = backwards
@@ -213,14 +213,14 @@ class Search:
         return True
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         if not self.text:
             return True
         if self.mode in ('normal', 'word') and not regex.sub(r'[\s\p{P}]+', '', self.text):
             return True
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         from collections import namedtuple
 
         s = ('text', 'mode', 'case_sensitive', 'backwards', 'scope')
@@ -228,7 +228,7 @@ class Search:
 
 
 class SearchFinished:
-    def __init__(self, search_query):
+    def __init__(self, search_query) -> None:
         self.search_query = search_query
 
 
@@ -248,7 +248,7 @@ class SearchResult:
         'toc_nodes',
     )
 
-    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):
+    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num) -> None:
         self.search_query = search_query
         self.q = q
         self.result_num = result_num
@@ -282,7 +282,7 @@ class SearchResult:
     def is_result(self, result_from_js):
         return result_from_js['spine_idx'] == self.spine_idx and self.index == result_from_js['index'] and result_from_js['q'] == self.q
 
-    def __str__(self):
+    def __str__(self) -> str:
         from collections import namedtuple
 
         s = self.__slots__[:-1]
@@ -360,7 +360,7 @@ def toc_data_from_manifest(manifest):
     parent_map = {}
     id_map = {}
 
-    def process_node(node):
+    def process_node(node) -> None:
         items = spine_toc_map.get(node.get('dest'))
         if items is not None:
             items.append(node)
@@ -386,7 +386,7 @@ def toc_data_from_manifest(manifest):
 
 
 class ToCOffsetMap:
-    def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None, parent_map=None):
+    def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None, parent_map=None) -> None:
         self.toc_nodes = toc_nodes
         self.offset_map = offset_map or {}
         self.previous_toc_node = previous_toc_node
@@ -555,7 +555,7 @@ class SearchInput(QWidget):  # {{{
     cleared = pyqtSignal()
     go_back = pyqtSignal()
 
-    def __init__(self, parent=None, panel_name='search', show_return_button=True, show_scope=False):
+    def __init__(self, parent=None, panel_name='search', show_return_button=True, show_scope=False) -> None:
         QWidget.__init__(self, parent)
         self.ignore_search_type_changes = False
         self.show_scope = show_scope
@@ -652,7 +652,7 @@ class SearchInput(QWidget):  # {{{
         l.addWidget(ss)
         ss.setVisible(show_scope)
 
-    def history_saved(self, new_text, history):
+    def history_saved(self, new_text, history) -> None:
         if new_text:
             sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
             sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
@@ -660,22 +660,22 @@ class SearchInput(QWidget):  # {{{
             sss = {k: v for k, v in sss.items() if k in history}
             vprefs[f'saved-{self.panel_name}-settings'] = sss
 
-    def history_pruned(self, history):
+    def history_pruned(self, history) -> None:
         sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
         history = frozenset(history)
         vprefs[f'saved-{self.panel_name}-settings'] = {k: v for k, v in sss.items() if k in history}
 
-    def history_cleared(self):
+    def history_cleared(self) -> None:
         vprefs[f'saved-{self.panel_name}-settings'] = {}
 
-    def save_search_type(self):
+    def save_search_type(self) -> None:
         text = self.search_box.currentText()
         if text and not self.ignore_search_type_changes:
             sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
             sss[text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
             vprefs[f'saved-{self.panel_name}-settings'] = sss
 
-    def saved_search_selected(self):
+    def saved_search_selected(self) -> None:
         text = self.search_box.currentText()
         if text:
             s = (vprefs.get(f'saved-{self.panel_name}-settings') or {}).get(text)
@@ -696,7 +696,7 @@ class SearchInput(QWidget):  # {{{
             scope = (self.search_scope.currentData() or 'book') if self.show_scope else 'book'
             return Search(text, self.query_type.currentData() or 'normal', self.case_sensitive.isChecked(), backwards, scope)
 
-    def emit_search(self, backwards=False):
+    def emit_search(self, backwards=False) -> None:
         boss = get_boss()
         if boss.check_for_read_aloud(_('the location of this search result')):
             return
@@ -708,13 +708,13 @@ class SearchInput(QWidget):  # {{{
         if sq is not None:
             self.do_search.emit(sq)
 
-    def find_next(self):
+    def find_next(self) -> None:
         self.emit_search()
 
-    def find_previous(self):
+    def find_previous(self) -> None:
         self.emit_search(backwards=True)
 
-    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False):
+    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False) -> None:
         if text and hasattr(text, 'rstrip'):
             self.search_box.setText(text)
             if no_history:
@@ -754,7 +754,7 @@ class Results(QTreeWidget):  # {{{
     current_result_changed = pyqtSignal(object)
     count_changed = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QTreeWidget.__init__(self, parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -774,7 +774,7 @@ class Results(QTreeWidget):  # {{{
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> bool:
         self.context_menu = m = QMenu(self)
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
@@ -788,7 +788,7 @@ class Results(QTreeWidget):  # {{{
                 return ret
         return super().viewportEvent(event)
 
-    def current_item_changed(self, current, previous):
+    def current_item_changed(self, current, previous) -> None:
         if current is not None:
             r = current.data(0, SEARCH_RESULT_ROLE)
             if isinstance(r, SearchResult):
@@ -796,7 +796,7 @@ class Results(QTreeWidget):  # {{{
         else:
             self.current_result_changed.emit(None)
 
-    def add_result(self, result):
+    def add_result(self, result) -> None:
         section_title = _('Unknown')
         section_id = -1
         toc_nodes = getattr(result, 'toc_nodes', ()) or ()
@@ -844,7 +844,7 @@ class Results(QTreeWidget):  # {{{
         n = self.number_of_results
         self.count_changed.emit(n)
 
-    def item_activated(self):
+    def item_activated(self) -> None:
         boss = get_boss()
         if boss.check_for_read_aloud(_('the location of this search result')):
             return
@@ -855,7 +855,7 @@ class Results(QTreeWidget):  # {{{
                 if not sr.is_hidden:
                     self.show_search_result.emit(sr)
 
-    def find_next(self, previous):
+    def find_next(self, previous) -> None:
         if self.number_of_results < 1:
             return
         item = self.currentItem()
@@ -867,7 +867,7 @@ class Results(QTreeWidget):  # {{{
         self.setCurrentItem(self.item_map[i])
         self.item_activated()
 
-    def search_result_not_found(self, sr):
+    def search_result_not_found(self, sr) -> None:
         for i in range(self.number_of_results):
             item = self.item_map[i]
             r = item.data(0, SEARCH_RESULT_ROLE)
@@ -876,7 +876,7 @@ class Results(QTreeWidget):  # {{{
                 item.setIcon(0, self.not_found_icon)
                 break
 
-    def search_result_discovered(self, sr):
+    def search_result_discovered(self, sr) -> None:
         q = sr['result_num']
         for i in range(self.number_of_results):
             item = self.item_map[i]
@@ -885,7 +885,7 @@ class Results(QTreeWidget):  # {{{
                 self.setCurrentItem(item)
 
     @property
-    def current_result_is_hidden(self):
+    def current_result_is_hidden(self) -> bool:
         item = self.currentItem()
         if item is not None:
             sr = item.data(0, SEARCH_RESULT_ROLE)
@@ -897,19 +897,19 @@ class Results(QTreeWidget):  # {{{
     def number_of_results(self):
         return len(self.search_results)
 
-    def clear_all_results(self):
+    def clear_all_results(self) -> None:
         self.section_map = {}
         self.item_map = {}
         self.search_results = []
         self.clear()
         self.count_changed.emit(-1)
 
-    def select_first_result(self):
+    def select_first_result(self) -> None:
         if self.number_of_results:
             item = self.item_map[0]
             self.setCurrentItem(item)
 
-    def ensure_current_result_visible(self):
+    def ensure_current_result_visible(self) -> None:
         item = self.currentItem()
         if item is not None:
             self.scrollToItem(item)
@@ -926,7 +926,7 @@ class SearchPanel(QWidget):  # {{{
     hide_search_panel = pyqtSignal()
     goto_cfi = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.discovery_counter = 0
         self.last_hidden_text_warning = None
@@ -962,22 +962,22 @@ class SearchPanel(QWidget):  # {{{
         la.setVisible(False)
         l.addWidget(la)
 
-    def go_back(self):
+    def go_back(self) -> None:
         if self.anchor_cfi:
             self.goto_cfi.emit(self.anchor_cfi)
 
-    def update_hidden_message(self):
+    def update_hidden_message(self) -> None:
         self.hidden_message.setVisible(self.results.current_result_is_hidden)
 
-    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False):
+    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False) -> None:
         self.search_input.focus_input(text, search_type, case_sensitive, no_history=no_history)
 
-    def search_cleared(self):
+    def search_cleared(self) -> None:
         self.results.clear_all_results()
         self.current_search = None
         self.scope_label.setVisible(False)
 
-    def update_current_toc_nodes(self, current_toc_leaves):
+    def update_current_toc_nodes(self, current_toc_leaves) -> None:
         self.current_toc_leaves = tuple(current_toc_leaves or ())
 
     def chapter_for_search(self, current_name) -> ChapterScope | None:
@@ -998,7 +998,7 @@ class SearchPanel(QWidget):  # {{{
                 return ans
         return None
 
-    def update_scope_label(self, search_query):
+    def update_scope_label(self, search_query) -> None:
         if search_query.scope != 'chapter':
             self.scope_label.setVisible(False)
             return
@@ -1008,7 +1008,7 @@ class SearchPanel(QWidget):  # {{{
             self.scope_label.setText(_('Searching in: {}').format(search_query.chapter.title))
         self.scope_label.setVisible(True)
 
-    def start_search(self, search_query, current_name):
+    def start_search(self, search_query, current_name) -> None:
         if search_query.scope == 'chapter':
             try:
                 search_query.chapter = self.chapter_for_search(current_name)
@@ -1035,10 +1035,10 @@ class SearchPanel(QWidget):  # {{{
         self.search_tasks.put((search_query, current_name))
         self.discovery_counter += 1
 
-    def set_anchor_cfi(self, pos_data):
+    def set_anchor_cfi(self, pos_data) -> None:
         self.anchor_cfi = pos_data['cfi']
 
-    def run_searches(self):
+    def run_searches(self) -> None:
         while True:
             x = self.search_tasks.get()
             if x is None:
@@ -1086,7 +1086,7 @@ class SearchPanel(QWidget):  # {{{
                     traceback.print_exc()
             self.results_found.emit(SearchFinished(search_query))
 
-    def on_result_found(self, result):
+    def on_result_found(self, result) -> None:
         if self.current_search is None or result.search_query != self.current_search:
             return
         if isinstance(result, SearchFinished):
@@ -1103,11 +1103,11 @@ class SearchPanel(QWidget):  # {{{
         self.show_search_result.emit(obj)
         self.update_hidden_message()
 
-    def visibility_changed(self, visible):
+    def visibility_changed(self, visible) -> None:
         if visible:
             self.focus_input()
 
-    def clear_searches(self):
+    def clear_searches(self) -> None:
         self.current_search = None
         self.current_toc_leaves = ()
         self.scope_label.setVisible(False)
@@ -1118,30 +1118,30 @@ class SearchPanel(QWidget):  # {{{
         self.spinner.stop()
         self.results.clear_all_results()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.search_tasks.put(None)
         self.spinner.stop()
         self.current_search = None
         self.last_hidden_text_warning = None
         self.searcher = None
 
-    def find_next_requested(self, previous):
+    def find_next_requested(self, previous) -> None:
         self.results.find_next(previous)
 
-    def trigger(self):
+    def trigger(self) -> None:
         self.search_input.find_next()
 
-    def do_show_search_result(self, sr):
+    def do_show_search_result(self, sr) -> None:
         self.show_search_result.emit(sr.for_js)
 
-    def search_result_not_found(self, sr):
+    def search_result_not_found(self, sr) -> None:
         self.results.search_result_not_found(sr)
         self.update_hidden_message()
 
-    def search_result_discovered(self, sr):
+    def search_result_discovered(self, sr) -> None:
         self.results.search_result_discovered(sr)
 
-    def show_no_results_found(self):
+    def show_no_results_found(self) -> None:
         current_search = self.current_search
         assert current_search is not None
         if current_search.chapter is None:
@@ -1171,7 +1171,7 @@ def find_tests():
         return {'id': node_id, 'title': f'node {node_id}', 'dest': dest, 'frag': frag, 'children': list(children)}
 
     class SearchScopeTest(unittest.TestCase):
-        def test_chapter_node(self):
+        def test_chapter_node(self) -> None:
             toc = toc_node(0, None, toc_node(1, 'a', toc_node(2, 'a', toc_node(3, 'b'))), toc_node(4, 'c'))
             data = toc_data_from_manifest({'spine': ['a', 'b', 'c'], 'toc': toc})
             cn = lambda node_id: (chapter_node_for_toc_node(data, node_id) or {}).get('id')  # ruff: ignore[lambda-assignment]
@@ -1188,7 +1188,7 @@ def find_tests():
             self.assertEqual(cn(4), 4)
             self.assertEqual(cn(1), 1)
 
-        def test_spine_indices_for_chapter(self):
+        def test_spine_indices_for_chapter(self) -> None:
             # Chapter 1 spans a and b, c has no ToC entries and so belongs to
             # chapter 1 as well, chapter 4 starts in the middle of d. f is
             # included for chapter 4 as any text before the anchor of chapter 5
@@ -1207,7 +1207,7 @@ def find_tests():
             self.assertFalse(scope.contains((data['id_map'][3],)))
             self.assertFalse(scope.contains(()))
 
-        def test_search_equality(self):
+        def test_search_equality(self) -> None:
             a, b = Search('x', 'normal', False, False, 'chapter'), Search('x', 'normal', False, True, 'chapter')
             self.assertEqual(a, b)
             a.chapter = ChapterScope(1, 'one', (0,))

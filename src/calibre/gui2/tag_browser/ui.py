@@ -42,10 +42,10 @@ if TYPE_CHECKING:
 
 
 class TagBrowserMixin:  # {{{
-    def populate_tb_manage_menu(self: Main, db):
+    def populate_tb_manage_menu(self: Main, db) -> None:
         self.populate_manage_categories_menu(db, self.alter_tb.manage_menu, add_column_items=False)
 
-    def populate_manage_categories_menu(self: Main, db, menu, add_column_items=False):
+    def populate_manage_categories_menu(self: Main, db, menu, add_column_items=False) -> None:
         from calibre.db.categories import find_categories
 
         fm = db.new_api.field_metadata
@@ -132,7 +132,7 @@ class TagBrowserMixin:  # {{{
                     continue
                 m.addAction(get_icon(cat), cat_display_name(cat).replace('&', '&&'), menu_func(cat, None))
 
-    def init_tag_browser_mixin(self: Main, db):
+    def init_tag_browser_mixin(self: Main, db) -> None:
         m = self.library_view._model
         m.count_changed_signal.connect(self.tags_view.recount_with_position_based_index)
         self.tags_view.set_database(db, self.alter_tb)
@@ -159,18 +159,18 @@ class TagBrowserMixin:  # {{{
         self.tags_view.edit_enum_values.connect(self.edit_enum_values)
         self.tags_view._model.research_required.connect(self.do_gui_research, type=Qt.ConnectionType.QueuedConnection)
 
-    def do_gui_research(self: Main):
+    def do_gui_research(self: Main) -> None:
         self.library_view._model.research()
         # The count can change if the current search uses in_tag_browser, perhaps in a VL
         self.library_view._model.count_changed()
 
-    def user_categories_edited(self: Main):
+    def user_categories_edited(self: Main) -> None:
         current_row_id = self.library_view.current_id
         self.library_view._model.refresh(reset=True)
         self.library_view._model.research(reset=False)
         self.library_view.current_id = current_row_id  # the setter checks for None
 
-    def do_restriction_error(self: Main, e):
+    def do_restriction_error(self: Main, e) -> None:
         error_dialog(
             self.tags_view,
             _('Invalid search restriction'),
@@ -179,7 +179,7 @@ class TagBrowserMixin:  # {{{
             show=True,
         )
 
-    def do_add_subcategory(self: Main, on_category_key, new_category_name=None):
+    def do_add_subcategory(self: Main, on_category_key, new_category_name=None) -> None:
         """
         Add a subcategory to the category 'on_category'. If new_category_name is
         None, then a default name is shown and the user is offered the
@@ -233,7 +233,7 @@ class TagBrowserMixin:  # {{{
             item.ignore_vl = True
             self.tags_view.edit(idx)
 
-    def do_edit_user_categories(self: Main, on_category=None):
+    def do_edit_user_categories(self: Main, on_category=None) -> None:
         """
         Open the User categories editor.
         """
@@ -286,7 +286,7 @@ class TagBrowserMixin:  # {{{
         db.new_api.clear_search_caches()
         self.user_categories_edited()
 
-    def do_del_item_from_user_cat(self: Main, user_cat, item_name, item_category):
+    def do_del_item_from_user_cat(self: Main, user_cat, item_name, item_category) -> None:
         """
         Delete the item (item_name, item_category) from the User category with
         key user_cat. Any leading '@' characters are removed
@@ -356,7 +356,7 @@ class TagBrowserMixin:  # {{{
             result = None
         return result
 
-    def do_tags_list_edit(self: Main, tag, category, is_first_letter=False):
+    def do_tags_list_edit(self: Main, tag, category, is_first_letter=False) -> None:
         """
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
@@ -405,7 +405,7 @@ class TagBrowserMixin:  # {{{
                 self.do_field_item_value_changed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self: Main, category, item_id, orig_name, restrict_to_book_ids=None, children=None):
+    def do_tag_item_delete(self: Main, category, item_id, orig_name, restrict_to_book_ids=None, children=None) -> None:
         """
         Delete an item from some category.
         """
@@ -500,7 +500,7 @@ class TagBrowserMixin:  # {{{
             self.library_view._model.refresh_ids(set(changes), current_row=self.library_view.currentIndex().row())
             self.tags_view.recount_with_position_based_index()
 
-    def delete_identifier(self: Main, name, in_vl):
+    def delete_identifier(self: Main, name, in_vl) -> None:
         d = self.current_db.new_api
         changed = False
         books_to_use = self.tags_view._model.get_book_ids_to_use() if in_vl else d.all_book_ids()
@@ -528,13 +528,13 @@ class TagBrowserMixin:  # {{{
             d.set_field('identifiers', new_ids)
             self.tags_view.recount_with_position_based_index()
 
-    def edit_enum_values(self: Main, parent, db, key):
+    def edit_enum_values(self: Main, parent, db, key) -> None:
         from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
 
         d = EnumValuesEdit(parent, db, key)
         d.exec()
 
-    def do_field_item_value_changed(self: Main):
+    def do_field_item_value_changed(self: Main) -> None:
         # Clean up library view and search, which also cleans up book details
 
         # get information to redo the selection
@@ -552,7 +552,7 @@ class TagBrowserMixin:  # {{{
 
     do_tag_item_renamed = do_field_item_value_changed  # alias for backcompat
 
-    def do_author_sort_edit(self: Main, parent, id_, select_sort=True, select_link=False, is_first_letter=False, lookup_author=False):
+    def do_author_sort_edit(self: Main, parent, id_, select_sort=True, select_link=False, is_first_letter=False, lookup_author=False) -> None:
         """
         Open the manage authors dialog
         """
@@ -583,7 +583,7 @@ class TagBrowserMixin:  # {{{
             self.do_field_item_value_changed()
             self.tags_view.recount()
 
-    def drag_drop_finished(self: Main, ids):
+    def drag_drop_finished(self: Main, ids) -> None:
         self.library_view._model.refresh_ids(ids)
 
     def tb_category_visibility(self: Main, category, operation):
@@ -661,7 +661,7 @@ class AlterTagBrowser(QToolButton):
 class TagBrowserBar(QWidget):  # {{{
     clear_find = pyqtSignal()
 
-    def __init__(self, parent: TagBrowserWidget):
+    def __init__(self, parent: TagBrowserWidget) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         gp = parent._parent
@@ -736,20 +736,20 @@ class TagBrowserBar(QWidget):  # {{{
         b.toggled.connect(self.update_searchbar_state)
         self.update_searchbar_state()
 
-    def close_find_box(self):
+    def close_find_box(self) -> None:
         self.item_search.setCurrentIndex(0)
         self.item_search.setCurrentText('')
         self.toggle_search_button.click()
         self.clear_find.emit()
 
-    def set_focus_to_find_box(self):
+    def set_focus_to_find_box(self) -> None:
         self.toggle_search_button.setChecked(True)
         self.item_search.setFocus()
         le_focus = self.item_search.lineEdit()
         assert le_focus is not None
         le_focus.selectAll()
 
-    def update_searchbar_state(self):
+    def update_searchbar_state(self) -> None:
         find_shown = self.toggle_search_button.isChecked()
         self.toggle_search_button.setVisible(not find_shown)
         l = self.l
@@ -779,7 +779,7 @@ class TagBrowserBar(QWidget):  # {{{
 
 
 class TagBrowserWidget(QFrame):  # {{{
-    def __init__(self, parent: Main):
+    def __init__(self, parent: Main) -> None:
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self._parent = parent
@@ -958,12 +958,12 @@ class TagBrowserWidget(QFrame):  # {{{
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
 
-    def show_tag_browser_preferences(self):
+    def show_tag_browser_preferences(self) -> None:
         from calibre.gui2.ui import get_gui
 
         get_gui(fail_if_absent=True).iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', 'tag_browser_tab'), close_after_initial=True)
 
-    def about_to_show_configure_menu(self):
+    def about_to_show_configure_menu(self) -> None:
         m = self.alter_tb.m
         ac = m.named_action('show_counts_action')
         p = gprefs['tag_browser_show_counts']
@@ -995,40 +995,40 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.setText(_('Sort items with only sub-items normally') if p else _('Show items with only sub-items first'))
         ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
 
-    def filter_book_list(self):
+    def filter_book_list(self) -> None:
         self.tags_view._model.set_in_tag_browser()
         self._parent.search.set_search_string('in_tag_browser:true')
 
-    def toggle_counts(self):
+    def toggle_counts(self) -> None:
         gprefs['tag_browser_show_counts'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_avg_rating(self):
+    def toggle_avg_rating(self) -> None:
         config['show_avg_rating'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_notes(self):
+    def toggle_notes(self) -> None:
         gprefs['show_notes_in_tag_browser'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_links(self):
+    def toggle_links(self) -> None:
         gprefs['show_links_in_tag_browser'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_show_empty_categories(self):
+    def toggle_show_empty_categories(self) -> None:
         self.tags_view._model.prefs['tag_browser_hide_empty_categories'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def toggle_folders_first(self):
+    def toggle_folders_first(self) -> None:
         self.tags_view._model.prefs['tag_browser_folders_first'] ^= True
         self.tags_view.recount_with_position_based_index()
 
-    def save_state(self, gprefs_local=None):
+    def save_state(self, gprefs_local=None) -> None:
         if gprefs_local is None:
             gprefs_local = gprefs
         gprefs_local.set('tag browser search box visible', self.toggle_search_button.isChecked())
 
-    def restore_expansion_state(self, state):
+    def restore_expansion_state(self, state) -> None:
         """
         Expands the tag browser tree so that the node specified in state is
         visible. Use get_expansion_state() to get the state. The intent is that
@@ -1044,10 +1044,10 @@ class TagBrowserWidget(QFrame):  # {{{
         """
         return self.tags_view.current_expansion
 
-    def toggle_item(self):
+    def toggle_item(self) -> None:
         self.tags_view.toggle_current_index()
 
-    def give_tb_focus(self, *args):
+    def give_tb_focus(self, *args) -> None:
         if gprefs['tag_browser_allow_keyboard_focus']:
             tb = self.tags_view
             if tb.hasFocus():
@@ -1061,18 +1061,18 @@ class TagBrowserWidget(QFrame):  # {{{
                     idx = tb_model.createIndex(0, 0)
                     tb.setCurrentIndex(idx)
 
-    def set_pane_is_visible(self, to_what):
+    def set_pane_is_visible(self, to_what) -> None:
         self.tags_view.set_pane_is_visible(to_what)
         if not to_what:
             self._parent.shift_esc()
 
-    def find_text_changed(self, str_):
+    def find_text_changed(self, str_) -> None:
         self.current_find_position = None
 
-    def set_focus_to_find_box(self):
+    def set_focus_to_find_box(self) -> None:
         self.tb_bar.set_focus_to_find_box()
 
-    def do_find(self, str_=None):
+    def do_find(self, str_=None) -> None:
         self.current_find_position = None
         self.find()
 
@@ -1080,7 +1080,7 @@ class TagBrowserWidget(QFrame):  # {{{
     def find_text(self):
         return str(self.item_search.currentText()).strip()
 
-    def reset_find(self):
+    def reset_find(self) -> None:
         model = self.tags_view._model
         model.clear_boxed()
         if model.get_categories_filter():
@@ -1088,7 +1088,7 @@ class TagBrowserWidget(QFrame):  # {{{
             self.tags_view.recount()
             self.current_find_position = None
 
-    def find(self, a0=None):
+    def find(self, a0=None) -> None:
         model = self.tags_view._model
         model.clear_boxed()
 
@@ -1158,7 +1158,7 @@ class TagBrowserWidget(QFrame):  # {{{
             self.not_found_label.move(4, 10)
             self.not_found_label_timer.start(2000)
 
-    def not_found_label_timer_event(self):
+    def not_found_label_timer_event(self) -> None:
         self.not_found_label.setVisible(False)
 
     def keyPressEvent(self, a0):

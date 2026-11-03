@@ -42,7 +42,7 @@ class FileDialog(QObject):
         default_dir='~',
         no_save_dir=False,
         combine_file_and_saved_dir=False,
-    ):
+    ) -> None:
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
 

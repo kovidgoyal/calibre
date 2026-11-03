@@ -25,7 +25,7 @@ ROOT = QModelIndex()
 MAX_SAVEPOINTS = 100
 
 
-def cleanup(containers):
+def cleanup(containers) -> None:
     for container in containers:
         try:
             shutil.rmtree(container.root, ignore_errors=True)
@@ -34,14 +34,14 @@ def cleanup(containers):
 
 
 class State:
-    def __init__(self, container):
+    def __init__(self, container) -> None:
         self.container = container
         self.message = None
         self.rewind_message = None
 
 
 class GlobalUndoHistory(QAbstractListModel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QAbstractListModel.__init__(self, parent)
         self.states = []
         self.pos = 0
@@ -81,13 +81,13 @@ class GlobalUndoHistory(QAbstractListModel):
     def previous_container(self):
         return self.states[self.pos - 1].container
 
-    def open_book(self, container):
+    def open_book(self, container) -> None:
         self.beginResetModel()
         self.states = [State(container)]
         self.pos = 0
         self.endResetModel()
 
-    def truncate(self):
+    def truncate(self) -> None:
         extra = self.states[self.pos + 1 :]
         if extra:
             self.beginRemoveRows(ROOT, self.pos + 1, len(self.states) - 1)
@@ -96,7 +96,7 @@ class GlobalUndoHistory(QAbstractListModel):
         if extra:
             self.endRemoveRows()
 
-    def add_savepoint(self, new_container, message):
+    def add_savepoint(self, new_container, message) -> None:
         try:
             self.states[self.pos].rewind_message = self.states[self.pos].message
             self.states[self.pos].message = message
@@ -175,7 +175,7 @@ class GlobalUndoHistory(QAbstractListModel):
             return ''
         return self.states[self.pos + 1].message or _('[Unnamed state]')
 
-    def update_path_to_ebook(self, path):
+    def update_path_to_ebook(self, path) -> None:
         for state in self.states:
             state.container.path_to_ebook = path
 
@@ -192,7 +192,7 @@ class CheckpointView(QWidget):
     revert_requested = pyqtSignal(object)
     compare_requested = pyqtSignal(object)
 
-    def __init__(self, model, parent=None):
+    def __init__(self, model, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
@@ -216,7 +216,7 @@ class CheckpointView(QWidget):
         b.clicked.connect(self.compare_clicked)
         l.addWidget(b, 1, 0)
 
-    def data_changed(self, *args):
+    def data_changed(self, *args) -> None:
         self.view.clearSelection()
         m = self.view.model()
         assert isinstance(m, GlobalUndoHistory)
@@ -225,7 +225,7 @@ class CheckpointView(QWidget):
         sm.select(m.index(m.pos, 0), QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(m.index(m.pos, 0))
 
-    def double_clicked(self, index):
+    def double_clicked(self, index) -> None:
         pass  # Too much danger of accidental double click
 
     def revert_clicked(self):

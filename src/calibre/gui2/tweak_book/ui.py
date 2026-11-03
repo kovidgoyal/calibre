@@ -58,7 +58,7 @@ from calibre.utils.localization import _, localize_user_manual_link, localize_we
 from calibre.utils.unicode_names import character_name_from_code
 
 
-def open_donate():
+def open_donate() -> None:
     open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
 
@@ -68,7 +68,7 @@ class Central(QStackedWidget):  # {{{
     current_editor_changed = pyqtSignal()
     close_requested = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QStackedWidget.__init__(self, parent)
         self.welcome = w = QLabel('<p>' + _('Double click a file in the left panel to start editing it.'))
         self.addWidget(w)
@@ -95,11 +95,11 @@ class Central(QStackedWidget):  # {{{
         assert tab_bar is not None
         tab_bar.installEventFilter(self)
 
-    def _close_requested(self, index):
+    def _close_requested(self, index) -> None:
         editor = self.editor_tabs.widget(index)
         self.close_requested.emit(editor)
 
-    def add_editor(self, name, editor):
+    def add_editor(self, name, editor) -> None:
         fname = name.rpartition('/')[2]
         index = self.editor_tabs.addTab(editor, fname)
         self.editor_tabs.setTabToolTip(index, _('Full path:') + ' ' + name)
@@ -115,18 +115,18 @@ class Central(QStackedWidget):  # {{{
                 ans.append(name)
         return ans
 
-    def rename_editor(self, editor, name):
+    def rename_editor(self, editor, name) -> None:
         for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 fname = name.rpartition('/')[2]
                 self.editor_tabs.setTabText(i, fname)
                 self.editor_tabs.setTabToolTip(i, _('Full path:') + ' ' + name)
 
-    def show_editor(self, editor):
+    def show_editor(self, editor) -> None:
         self.setCurrentIndex(1)
         self.editor_tabs.setCurrentWidget(editor)
 
-    def close_editor(self, editor):
+    def close_editor(self, editor) -> bool:
         for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 self.editor_tabs.removeTab(i)
@@ -135,7 +135,7 @@ class Central(QStackedWidget):  # {{{
                 return True
         return False
 
-    def editor_modified(self, *args):
+    def editor_modified(self, *args) -> None:
         tb = self.editor_tabs.tabBar()
         assert tb is not None
         for i in range(self.editor_tabs.count()):
@@ -143,18 +143,18 @@ class Central(QStackedWidget):  # {{{
             modified = getattr(editor, 'is_modified', False)
             tb.setTabIcon(i, self.modified_icon if modified else QIcon())
 
-    def close_current_editor(self):
+    def close_current_editor(self) -> None:
         ed = self.current_editor
         if ed is not None:
             self.close_requested.emit(ed)
 
-    def close_all_but_current_editor(self):
+    def close_all_but_current_editor(self) -> None:
         self.close_all_but(self.current_editor)
 
-    def close_to_right_of_current_editor(self):
+    def close_to_right_of_current_editor(self) -> None:
         self.close_to_right(self.current_editor)
 
-    def close_all_but(self, ed):
+    def close_all_but(self, ed) -> None:
         close = []
         if ed is not None:
             for i in range(self.editor_tabs.count()):
@@ -164,7 +164,7 @@ class Central(QStackedWidget):  # {{{
         for q in close:
             self.close_requested.emit(q)
 
-    def close_to_right(self, ed):
+    def close_to_right(self, ed) -> None:
         close = []
         if ed is not None:
             found = False
@@ -181,7 +181,7 @@ class Central(QStackedWidget):  # {{{
     def current_editor(self):
         return self.editor_tabs.currentWidget()
 
-    def save_state(self):
+    def save_state(self) -> None:
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
         for ed in editors.values():
@@ -189,14 +189,14 @@ class Central(QStackedWidget):  # {{{
         if self.current_editor is not None:
             self.current_editor.save_state()  # Ensure the current editor saves it state last
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         self.search_panel.setVisible(tprefs.get('search-panel-visible', False))
         self.search_panel.restore_state()
 
-    def show_find(self):
+    def show_find(self) -> None:
         self.search_panel.show_panel()
 
-    def pre_fill_search(self, text):
+    def pre_fill_search(self, text) -> None:
         self.search_panel.pre_fill(text)
 
     def eventFilter(self, a0, a1):
@@ -234,7 +234,7 @@ class Central(QStackedWidget):  # {{{
 
 
 class CursorPositionWidget(QWidget):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout(self)
         self.setLayout(self.l)
@@ -245,7 +245,7 @@ class CursorPositionWidget(QWidget):  # {{{
         f.setBold(False)
         self.la.setFont(f)
 
-    def update_position(self, line=None, col=None, character=None):
+    def update_position(self, line=None, col=None, character=None) -> None:
         if line is None:
             self.la.setText('')
         else:
@@ -264,7 +264,7 @@ class CursorPositionWidget(QWidget):  # {{{
 # }}}
 
 
-def install_new_plugins():
+def install_new_plugins() -> None:
     from calibre.utils.config import JSONConfig
 
     prefs = JSONConfig('newly-installed-editor-plugins')
@@ -282,7 +282,7 @@ class Main(MainWindow):
     STATE_VERSION = 0
     undo_requested = pyqtSignal(object)
 
-    def __init__(self, opts, notify=None):
+    def __init__(self, opts, notify=None) -> None:
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
         self.message_popup = MessagePopup(self)
         self.message_popup.undo_requested.connect(self.undo_requested)
@@ -342,7 +342,7 @@ class Main(MainWindow):
         self.apply_settings()
         QTimer.singleShot(0, self.restore_state)
 
-    def apply_settings(self):
+    def apply_settings(self) -> None:
         self.keyboard.finalize()
         self.setDockNestingEnabled(tprefs['nestable_dock_widgets'])
         for v, h in product(('top', 'bottom'), ('left', 'right')):
@@ -355,12 +355,12 @@ class Main(MainWindow):
         for bar in (self.global_bar, self.tools_bar, self.plugins_bar):
             bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
-    def show_status_message(self, msg, timeout=5):
+    def show_status_message(self, msg, timeout=5) -> None:
         status_bar = self.status_bar
         assert status_bar is not None
         status_bar.showMessage(msg, int(timeout * 1000))
 
-    def update_status_bar_default_message(self, path=''):
+    def update_status_bar_default_message(self, path='') -> None:
         m = self.status_bar_default_msg
         if path:
             m.setText(getattr(m, 'editing_template').format(path=path))
@@ -374,7 +374,7 @@ class Main(MainWindow):
     def editor_tabs(self):
         return self.central.editor_tabs
 
-    def create_actions(self):
+    def create_actions(self) -> None:
         group = _('Global actions')
 
         def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
@@ -970,7 +970,7 @@ class Main(MainWindow):
 
         create_plugin_actions(actions, toolbar_actions, self.plugin_menu_actions)
 
-    def create_menubar(self):
+    def create_menubar(self) -> None:
         if ismacos:
             p, q = self.create_application_menubar()
             q.triggered.connect(self.action_quit.trigger)
@@ -1107,11 +1107,11 @@ class Main(MainWindow):
         a(QIcon.ic('donate.png'), _('&Donate to support calibre development'), open_donate)
         a(self.action_preferences)
 
-    def search_menu_about_to_show(self):
+    def search_menu_about_to_show(self) -> None:
         ed = self.central.current_editor
         update_mark_text_action(ed)
 
-    def update_recent_books(self):
+    def update_recent_books(self) -> None:
         m = self.recent_books_menu
         assert m is not None
         m.clear()
@@ -1119,7 +1119,7 @@ class Main(MainWindow):
         for path in books:
             m.addAction(self.elided_text(path, width=500), partial(self.boss.open_book, path=path))
 
-    def create_toolbars(self):
+    def create_toolbars(self) -> None:
         def create(text, name):
             name += '-bar'
             b = self.addToolBar(text)
@@ -1133,10 +1133,10 @@ class Main(MainWindow):
         self.plugins_bar = create(_('Plugins tool bar'), 'plugins')
         self.populate_toolbars(animate=True)
 
-    def populate_toolbars(self, animate=False):
+    def populate_toolbars(self, animate=False) -> None:
         self.global_bar.clear(), self.tools_bar.clear(), self.plugins_bar.clear()
 
-        def add(bar, ac):
+        def add(bar, ac) -> None:
             if ac is None:
                 bar.addSeparator()
             elif ac == 'donate':
@@ -1164,7 +1164,7 @@ class Main(MainWindow):
             add(self.plugins_bar, x)
         self.plugins_bar.setVisible(bool(tprefs['global_plugins_toolbar']))
 
-    def create_docks(self):
+    def create_docks(self) -> None:
 
         def create(name, oname):
             oname += '-dock'
@@ -1274,7 +1274,7 @@ class Main(MainWindow):
         self.blocking_job.resize(a0.size())
         return super().resizeEvent(a0)
 
-    def update_window_title(self):
+    def update_window_title(self) -> None:
         cc = current_container()
         if cc is not None:
             fname = os.path.basename(cc.path_to_ebook)
@@ -1284,13 +1284,13 @@ class Main(MainWindow):
         else:
             self.setWindowTitle(self.APP_NAME)
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0) -> None:
         if self.boss.quit():
             a0.accept()
         else:
             a0.ignore()
 
-    def save_state(self):
+    def save_state(self) -> None:
         self.save_geometry(tprefs, 'main_window_geometry')
         tprefs.set('main_window_state', bytearray(self.saveState(self.STATE_VERSION)))
         self.central.save_state()
@@ -1298,7 +1298,7 @@ class Main(MainWindow):
         self.check_book.save_state()
         self.text_search.save_state()
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         self.restore_geometry(tprefs, 'main_window_geometry')
         state = tprefs.get('main_window_state', None)
         if state is not None:
@@ -1306,5 +1306,5 @@ class Main(MainWindow):
         self.central.restore_state()
         self.saved_searches.restore_state()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event) -> None:
         event.ignore()

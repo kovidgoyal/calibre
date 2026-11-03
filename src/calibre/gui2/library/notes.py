@@ -80,7 +80,7 @@ class ResultsList(QTreeWidget):
     export_requested = pyqtSignal()
     delete_requested = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -96,7 +96,7 @@ class ResultsList(QTreeWidget):
         self.item_map = []
         self.fi_map = {}
 
-    def update_item(self, field, item_id):
+    def update_item(self, field, item_id) -> bool:
         nd = current_db().notes_data_for(field, item_id)
         if nd:
             for category in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
@@ -110,7 +110,7 @@ class ResultsList(QTreeWidget):
                         return True
         return False
 
-    def current_item_changed(self, current, previous):
+    def current_item_changed(self, current, previous) -> None:
         if current is not None:
             r = current.data(0, Qt.ItemDataRole.UserRole)
             if isinstance(r, dict):
@@ -118,7 +118,7 @@ class ResultsList(QTreeWidget):
         else:
             self.current_result_changed.emit(None)
 
-    def item_activated(self, item):
+    def item_activated(self, item) -> None:
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
             self.edit_note(item)
@@ -129,7 +129,7 @@ class ResultsList(QTreeWidget):
             if isinstance(r, dict):
                 yield r
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         m = QMenu(self)
         item = self.itemAt(pos)
         result = None
@@ -149,10 +149,10 @@ class ResultsList(QTreeWidget):
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
 
-    def export(self):
+    def export(self) -> None:
         self.export_requested.emit()
 
-    def show_next(self, backwards=False):
+    def show_next(self, backwards=False) -> None:
         item = self.currentItem()
         if item is None:
             return
@@ -161,12 +161,12 @@ class ResultsList(QTreeWidget):
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
 
-    def edit_note_for(self, field, item_id):
+    def edit_note_for(self, field, item_id) -> None:
         item = self.fi_map.get((field, item_id))
         if item is not None:
             self.edit_note(item)
 
-    def edit_note(self, item):
+    def edit_note(self, item) -> None:
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
             d = EditNoteDialog(r['field'], r['item_id'], current_db())
@@ -199,7 +199,7 @@ class ResultsList(QTreeWidget):
         return ans
 
     @tree_state.setter
-    def tree_state(self, state):
+    def tree_state(self, state) -> None:
         closed = state['closed']
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
             assert item is not None
@@ -213,7 +213,7 @@ class ResultsList(QTreeWidget):
                     self.setCurrentItem(item)
                     break
 
-    def set_results(self, results, emphasize_text):
+    def set_results(self, results, emphasize_text) -> None:
         self.clear()
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
@@ -255,7 +255,7 @@ class ResultsList(QTreeWidget):
 class RestrictFields(QWidget):
     restriction_changed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.l = l = FlowLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -298,7 +298,7 @@ class RestrictFields(QWidget):
 
         self.relayout()
 
-    def relayout(self):
+    def relayout(self) -> None:
         for i in range(self.l.count()):
             self.l.removeItem(self.l.itemAt(i))
         for la in self.field_labels.values():
@@ -313,26 +313,26 @@ class RestrictFields(QWidget):
         self.l.addWidget(self.remove_button)
         self.l.update()
 
-    def build_add_menu(self):
+    def build_add_menu(self) -> None:
         m = self.fields_menu
         m.clear()
         for field in self.field_labels:
             if field not in self.restricted_fields:
                 m.addAction(self.field_names[field], partial(self.add_field, field))
 
-    def build_remove_menu(self):
+    def build_remove_menu(self) -> None:
         m = self.remove_fields_menu
         m.clear()
 
         for field in self.restricted_fields:
             m.addAction(self.field_names[field], partial(self.remove_field, field))
 
-    def add_field(self, field):
+    def add_field(self, field) -> None:
         self.restricted_fields.append(field)
         self.relayout()
         self.restriction_changed.emit()
 
-    def remove_field(self, field):
+    def remove_field(self, field) -> None:
         self.restricted_fields.remove(field)
         self.relayout()
         self.restriction_changed.emit()
@@ -343,7 +343,7 @@ class SearchInput(QWidget):
     show_previous_signal = pyqtSignal()
     search_changed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -388,13 +388,13 @@ class SearchInput(QWidget):
             'use_stemming': bool(_cq_p.use_stemmer.isChecked()),
         }
 
-    def cleared(self):
+    def cleared(self) -> None:
         self.search_changed.emit()
 
-    def show_next(self):
+    def show_next(self) -> None:
         self.show_next_signal.emit()
 
-    def show_previous(self):
+    def show_previous(self) -> None:
         self.show_previous_signal.emit()
 
 
@@ -402,7 +402,7 @@ class NoteDisplay(QWidget):
     field = item_id = None
     edit_requested = pyqtSignal(str, int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -420,7 +420,7 @@ class NoteDisplay(QWidget):
         eb.clicked.connect(self.edit)
         eb.setVisible(False)
 
-    def edit(self):
+    def edit(self) -> None:
         if self.field and self.item_id:
             self.edit_requested.emit(self.field, self.item_id)
 
@@ -431,7 +431,7 @@ class NoteDisplay(QWidget):
     def db(self):
         return current_db()
 
-    def show_note(self, field='', item_id=0):
+    def show_note(self, field='', item_id=0) -> None:
         self.field, self.item_id = field, item_id
         if field:
             self.title.setText('<h2>{}</h2>'.format(self.db.get_item_name(field, item_id) or ''))
@@ -442,13 +442,13 @@ class NoteDisplay(QWidget):
             self.html_display.setHtml('')
             self.edit_button.setVisible(False)
 
-    def current_result_changed(self, r):
+    def current_result_changed(self, r) -> None:
         if r is None:
             self.show_note()
         else:
             self.show_note(r['field'], r['item_id'])
 
-    def refresh(self):
+    def refresh(self) -> None:
         if self.field:
             self.show_note(self.field, self.item_id)
 
@@ -456,14 +456,14 @@ class NoteDisplay(QWidget):
 class NotesBrowser(Dialog):
     current_query = None
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(_('Browse notes'), 'browse-notes-dialog', default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setWindowIcon(QIcon.ic('notes.png'))
 
     def sizeHint(self):
         return QSize(900, 600)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
 
         self.search_input = si = SearchInput(self)
@@ -516,7 +516,7 @@ class NotesBrowser(Dialog):
             b.setIcon(QIcon.ic('search.png'))
         QTimer.singleShot(0, self.do_find)
 
-    def search_books(self):
+    def search_books(self) -> None:
         vals = []
         for item in self.results_list.selectedItems():
             r = item.data(0, Qt.ItemDataRole.UserRole)
@@ -550,7 +550,7 @@ class NotesBrowser(Dialog):
                     with open(os.path.join(path, fname), 'wb') as f:
                         f.write(html.encode('utf-8'))
 
-    def note_edited(self, field, item_id):
+    def note_edited(self, field, item_id) -> None:
         from calibre.gui2.ui import get_gui
 
         self.notes_display.refresh()
@@ -559,7 +559,7 @@ class NotesBrowser(Dialog):
         if gui is not None:
             gui.do_field_item_value_changed()
 
-    def search_changed(self):
+    def search_changed(self) -> None:
         if self.search_input.current_query != self.current_query:
             self.do_find()
 

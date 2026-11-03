@@ -19,7 +19,7 @@ to see it in action.
 
 
 class MainWindow(MainWindow):
-    def __init__(self, text):
+    def __init__(self, text) -> None:
         super().__init__()
         self.display = d = QPlainTextEdit(self)
         self.page_count = 1
@@ -55,7 +55,7 @@ class MainWindow(MainWindow):
 
         self.resize(self.sizeHint())
 
-    def stop(self):
+    def stop(self) -> None:
         self.update_play_action('Play')
         self.stop_action.setEnabled(False)
         self.tts.stop()
@@ -63,7 +63,7 @@ class MainWindow(MainWindow):
         c.setPosition(0)
         self.display.setTextCursor(c)
 
-    def create_marked_text(self):
+    def create_marked_text(self) -> None:
         c = self.display.textCursor()
         c.setPosition(0)
         marked_text = []
@@ -77,15 +77,15 @@ class MainWindow(MainWindow):
         self.marked_text = marked_text
         self.display.setTextCursor(c)
 
-    def next_page(self):
+    def next_page(self) -> None:
         self.page_count += 1
         self.display.setPlainText(f'This is page number {self.page_count}. Pages are turned automatically when the end of a page is reached.')
         self.create_marked_text()
 
-    def update_play_action(self, text):
+    def update_play_action(self, text) -> None:
         self.play_action.setText(text)
 
-    def state_event(self, ev: Literal['begin', 'end', 'cancel', 'pause', 'resume']):
+    def state_event(self, ev: Literal['begin', 'end', 'cancel', 'pause', 'resume']) -> None:
         sb = self.statusBar()
         assert sb is not None
         events = sb.currentMessage().split()
@@ -106,7 +106,7 @@ class MainWindow(MainWindow):
                 self.update_play_action('Play')
                 self.play_triggerred()
 
-    def play_triggerred(self):
+    def play_triggerred(self) -> None:
         if self.play_action.text() == 'Resume':
             self.tts.resume()
         elif self.play_action.text() == 'Pause':
@@ -114,7 +114,7 @@ class MainWindow(MainWindow):
         else:
             self.tts.speak_marked_text(self.marked_text)
 
-    def saying(self, first, last):
+    def saying(self, first, last) -> None:
         c = self.display.textCursor()
         c.setPosition(first)
         if last != first:
@@ -126,7 +126,7 @@ class MainWindow(MainWindow):
         return QSize(500, 400)
 
 
-def main():
+def main() -> None:
     app = Application([])
     mw = MainWindow(TEXT)
     mw.set_exception_handler()

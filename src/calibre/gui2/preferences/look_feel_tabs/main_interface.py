@@ -22,7 +22,7 @@ class LanguageSetting(Setting):
 
 
 class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.ui_style_available = True
         if not ismacos and not iswindows:
@@ -106,7 +106,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.button_adjust_colors.clicked.connect(self.adjust_colors)
         self.reset_layout_button.clicked.connect(self.reset_layout)
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         font = gprefs['font']
         if font is not None:
             font = list(font)
@@ -116,7 +116,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.update_color_palette_state()
         self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
 
-    def adjust_colors(self):
+    def adjust_colors(self) -> None:
         from calibre.gui2.dialogs.palette import PaletteConfig
 
         d = PaletteConfig(self)
@@ -124,7 +124,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             d.apply_settings()
             self.changed_signal.emit()
 
-    def reset_layout(self):
+    def reset_layout(self) -> None:
         if not question_dialog(
             self,
             _('Reset layout?'),
@@ -138,12 +138,12 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.gui.iactions['Layout Actions'].reset_layout()
         self.opt_gui_layout.setCurrentIndex(0 if self.gui.layout_container.is_wide else 1)
 
-    def update_color_palette_state(self):
+    def update_color_palette_state(self) -> None:
         if self.ui_style_available:
             enabled = self.opt_ui_style.currentData() == 'calibre'
             self.button_adjust_colors.setEnabled(enabled)
 
-    def choose_icon_theme(self):
+    def choose_icon_theme(self) -> None:
         from calibre.gui2.icon_theme import ChooseTheme
 
         d = ChooseTheme(self)
@@ -159,7 +159,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         font.setStretch(int(font_info[4]))
         return font
 
-    def change_font(self, *args):
+    def change_font(self, *args) -> None:
         fd = QFontDialog(self.build_font_obj(), self)
         if fd.exec() == QDialog.DialogCode.Accepted:
             font = fd.selectedFont()
@@ -168,7 +168,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.update_font_display()
             self.changed_signal.emit()
 
-    def update_font_display(self):
+    def update_font_display(self) -> None:
         font = self.build_font_obj()
         fi = QFontInfo(font)
         name = str(fi.family())
@@ -189,7 +189,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.gui.layout_container.change_layout(self.gui, self.opt_gui_layout.currentIndex() == 0)
         return rr
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         ofont = self.current_font
         self.current_font = None
@@ -199,7 +199,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.setCurrentIndex(0)
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.place_layout_buttons()
         self.update_font_display()
         gui.library_view.set_row_header_visibility()

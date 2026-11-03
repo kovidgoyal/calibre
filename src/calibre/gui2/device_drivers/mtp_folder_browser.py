@@ -26,7 +26,7 @@ def browser_item(f, parent):
 
 
 class Storage(QTreeWidget):
-    def __init__(self, storage, show_files=False, item_func=browser_item):
+    def __init__(self, storage, show_files=False, item_func=browser_item) -> None:
         QTreeWidget.__init__(self)
         self.item_func = item_func
         self.show_files = show_files
@@ -37,7 +37,7 @@ class Storage(QTreeWidget):
         self.setHeaderHidden(True)
         self.storage = storage
 
-    def create_children(self, f, parent):
+    def create_children(self, f, parent) -> None:
         for child in sorted(f.folders, key=attrgetter('name')):
             i = self.item_func(child, parent)
             self.create_children(child, i)
@@ -56,7 +56,7 @@ class Storage(QTreeWidget):
 class Folders(QTabWidget):
     selected = pyqtSignal()
 
-    def __init__(self, filesystem_cache, show_files=True):
+    def __init__(self, filesystem_cache, show_files=True) -> None:
         QTabWidget.__init__(self)
         self.fs = filesystem_cache
         for storage in self.fs.entries:
@@ -75,7 +75,7 @@ class Folders(QTabWidget):
 
 
 class Browser(QDialog):
-    def __init__(self, filesystem_cache, show_files=True, parent=None):
+    def __init__(self, filesystem_cache, show_files=True, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -96,7 +96,7 @@ class Browser(QDialog):
 
 
 class IgnoredFolders(QDialog):
-    def __init__(self, dev, ignored_folders=None, parent=None):
+    def __init__(self, dev, ignored_folders=None, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -136,7 +136,7 @@ class IgnoredFolders(QDialog):
 
         self.resize(600, 500)
 
-    def item_changed(self, item, column):
+    def item_changed(self, item, column) -> None:
         w = item.treeWidget()
         root = w.invisibleRootItem()
         w.itemChanged.disconnect(self.item_changed)
@@ -172,7 +172,7 @@ class IgnoredFolders(QDialog):
         ans.setData(0, Qt.ItemDataRole.DecorationRole, file_icon_provider().icon_from_ext('dir'))
         return ans
 
-    def select_all(self):
+    def select_all(self) -> None:
         tw = self.tabs.currentWidget()
         assert isinstance(tw, QTreeWidget)
         root = tw.invisibleRootItem()
@@ -182,7 +182,7 @@ class IgnoredFolders(QDialog):
             assert c is not None
             c.setCheckState(0, Qt.CheckState.Checked)
 
-    def select_none(self):
+    def select_none(self) -> None:
         tw = self.tabs.currentWidget()
         assert isinstance(tw, QTreeWidget)
         root = tw.invisibleRootItem()

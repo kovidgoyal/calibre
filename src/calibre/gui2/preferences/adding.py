@@ -15,7 +15,7 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
 
         r = self.register
@@ -59,7 +59,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         at_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.ignore_another_button.clicked.connect(self.add_another_ignored_format)
 
-    def change_tag_map_rules(self):
+    def change_tag_map_rules(self) -> None:
         from calibre.gui2.tag_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -69,7 +69,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.tag_map_rules = d.rules
             self.changed_signal.emit()
 
-    def change_author_map_rules(self):
+    def change_author_map_rules(self) -> None:
         from calibre.gui2.author_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -79,7 +79,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.author_map_rules = d.rules
             self.changed_signal.emit()
 
-    def change_add_filter_rules(self):
+    def change_add_filter_rules(self) -> None:
         from calibre.gui2.add_filters import RulesDialog
 
         d = RulesDialog(self)
@@ -89,13 +89,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.add_filter_rules = d.rules
             self.changed_signal.emit()
 
-    def choose_aa_path(self):
+    def choose_aa_path(self) -> None:
         path = choose_dir(self, 'auto add path choose', _('Choose a folder'))
         if path:
             self.opt_auto_add_path.setText(path)
             self.opt_auto_add_path.save_history()
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         self.filename_pattern.blockSignals(True)
         self.filename_pattern.initialize()
@@ -105,20 +105,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
 
     # Blocked auto formats {{{
-    def blocked_auto_formats_changed(self, *args):
+    def blocked_auto_formats_changed(self, *args) -> None:
         fmts = self.current_blocked_auto_formats
         old = gprefs['blocked_auto_formats']
         if set(fmts) != set(old):
             self.changed_signal.emit()
 
-    def init_blocked_auto_formats(self, defaults=False):
+    def init_blocked_auto_formats(self, defaults=False) -> None:
         if defaults:
             fmts = gprefs.defaults['blocked_auto_formats']
         else:
             fmts = gprefs['blocked_auto_formats']
         self.set_blocked_auto_formats(set(fmts))
 
-    def set_blocked_auto_formats(self, fmts):
+    def set_blocked_auto_formats(self, fmts) -> None:
         exts = set(AUTO_ADDED) | set(fmts)
         viewer = self.opt_blocked_auto_formats
         viewer.blockSignals(True)
@@ -131,7 +131,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             item.setCheckState(Qt.CheckState.Checked if ext in fmts else Qt.CheckState.Unchecked)
         viewer.blockSignals(False)
 
-    def add_another_ignored_format(self):
+    def add_another_ignored_format(self) -> None:
         fmt, ok = QInputDialog.getText(self, _('Add a file extension to ignore'), _('The file extension to ignore:'))
         if ok:
             fmt = fmt.lower()
@@ -160,7 +160,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # }}}
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
@@ -230,7 +230,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ret = ConfigWidgetBase.commit(self)
         return changed or ret
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         # Ensure worker process reads updated settings
         gui.spare_pool().shutdown()
         # Update rules used int he auto adder

@@ -13,10 +13,10 @@ class AuthorMapAction(InterfaceAction):
     action_spec = (_('Author mapper'), 'user_profile.png', _('Transform the authors for books in the library'), None)
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.start_map)
 
-    def start_map(self):
+    def start_map(self) -> None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         selected = True
         if not rows or len(rows) < 2:
@@ -25,7 +25,7 @@ class AuthorMapAction(InterfaceAction):
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 
-    def do_map(self, book_ids, selected):
+    def do_map(self, book_ids, selected) -> None:
         from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         from calibre.gui2.author_mapper import RulesDialog
         from calibre.gui2.widgets import BusyCursor

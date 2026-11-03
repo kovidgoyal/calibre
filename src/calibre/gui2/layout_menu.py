@@ -28,7 +28,7 @@ class LayoutItem(QWidget):
     mouse_over = False
     VMARGIN = 4
 
-    def __init__(self, button, parent=None):
+    def __init__(self, button, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.button = button
@@ -36,7 +36,7 @@ class LayoutItem(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.fm = QFontMetrics(self.font())
 
-    def update_tips(self):
+    def update_tips(self) -> None:
         self.setToolTip(self.button.toolTip())
         self.setStatusTip(self.button.statusTip())
 
@@ -46,13 +46,13 @@ class LayoutItem(QWidget):
     def dull_icon(self, height):
         return self.button.icon().pixmap(height, height, mode=QIcon.Mode.Disabled)
 
-    def enterEvent(self, event):
+    def enterEvent(self, event) -> None:
         super().enterEvent(event)
         if not self.mouse_over:
             self.mouse_over = True
             self.update()
 
-    def leaveEvent(self, a0):
+    def leaveEvent(self, a0) -> None:
         super().leaveEvent(a0)
         if self.mouse_over:
             self.mouse_over = False
@@ -65,7 +65,7 @@ class LayoutItem(QWidget):
         h = 2 * self.fm.lineSpacing() + ICON_SZ + 2 * self.VMARGIN
         return QSize(w, h)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         shown = self.button.isChecked()
         ls = self.fm.lineSpacing()
         painter = QStylePainter(self)
@@ -92,7 +92,7 @@ class LayoutItem(QWidget):
 
 
 class LayoutMenuInner(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.l = l = QHBoxLayout(self)
         l.setSpacing(20)
@@ -105,7 +105,7 @@ class LayoutMenuInner(QWidget):
         assert _parent is not None
         return _parent.parent()
 
-    def delayed_init(self):
+    def delayed_init(self) -> None:
         if not self.initialized:
             self.initialized = True
             gui = self.gui
@@ -126,7 +126,7 @@ class LayoutMenuInner(QWidget):
             x.update_tips()
         self.resize(self.sizeHint())
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         painter = QPainter(self)
         col = self.palette().window().color()
         col.setAlphaF(0.9)
@@ -138,7 +138,7 @@ class LayoutMenuInner(QWidget):
             if item.geometry().contains(ev.pos()):
                 return item
 
-    def mousePressEvent(self, a0):
+    def mousePressEvent(self, a0) -> None:
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return
@@ -148,7 +148,7 @@ class LayoutMenuInner(QWidget):
         else:
             a0.ignore()
 
-    def mouseReleaseEvent(self, a0):
+    def mouseReleaseEvent(self, a0) -> None:
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return
@@ -161,7 +161,7 @@ class LayoutMenuInner(QWidget):
             menu_parent.hide()
             item.button.click()
 
-    def handle_key_press(self, ev):
+    def handle_key_press(self, ev) -> None:
         q = QKeySequence(ev.keyCombination())
         for item in self.items:
             sc = item.button.shortcut
@@ -180,19 +180,19 @@ class LayoutMenuInner(QWidget):
 
 
 class LayoutMenu(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setVisible(False)
         self.inner = LayoutMenuInner(self)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-    def toggle_visibility(self):
+    def toggle_visibility(self) -> None:
         if self.isVisible():
             self.hide()
         else:
             self.show()
 
-    def show(self):
+    def show(self) -> None:
         self.inner.delayed_init()
         parent = self.parent()
         assert parent is not None
@@ -214,13 +214,13 @@ class LayoutMenu(QWidget):
             a0.accept()
         return super().event(a0)
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0) -> None:
         if a0.matches(QKeySequence.StandardKey.Cancel):
             self.hide()
         else:
             self.inner.handle_key_press(a0)
 
-    def mousePressEvent(self, a0):
+    def mousePressEvent(self, a0) -> None:
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return

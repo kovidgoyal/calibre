@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 class DBRestore(QDialog):
     update_signal = pyqtSignal(object, object)
 
-    def __init__(self, parent, library_path, wait_time=2):
+    def __init__(self, parent, library_path, wait_time=2) -> None:
         QDialog.__init__(self, parent)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -43,18 +43,18 @@ class DBRestore(QDialog):
         # Give the metadata backup thread time to stop
         QTimer.singleShot(wait_time * 1000, self.start)
 
-    def start(self):
+    def start(self) -> None:
         assert self.restorer is not None
         self.restorer.start()
         QTimer.singleShot(10, self.update)
 
-    def reject(self):
+    def reject(self) -> None:
         assert self.restorer is not None
         self.was_rejected = True
         self.restorer.progress_callback = lambda x, y: x
         QDialog.reject(self)
 
-    def confirm_cancel(self):
+    def confirm_cancel(self) -> None:
         if question_dialog(
             self,
             _('Are you sure?'),
@@ -64,7 +64,7 @@ class DBRestore(QDialog):
         ):
             self.reject()
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         assert self.restorer is not None
         if self.restorer.is_alive():
             QTimer.singleShot(10, self.update)
@@ -75,7 +75,7 @@ class DBRestore(QDialog):
     def __call__(self, msg, step):
         self.update_signal.emit(msg, step)
 
-    def do_update(self, msg, step):
+    def do_update(self, msg, step) -> None:
         if msg is None:
             self.pb.setMaximum(step)
         else:
@@ -83,7 +83,7 @@ class DBRestore(QDialog):
             self.pb.setValue(step)
 
 
-def _show_success_msg(restorer, parent=None):
+def _show_success_msg(restorer, parent=None) -> None:
     r = restorer
     olddb = _('The old database was saved as: %s') % force_unicode(r.olddb, filesystem_encoding)
     if r.errors_occurred:
@@ -98,7 +98,7 @@ def _show_success_msg(restorer, parent=None):
         info_dialog(parent, _('Success'), _('Restoring database was successful. %s') % olddb, show=True, show_copy_button=False)
 
 
-def restore_database(db, parent=None):
+def restore_database(db, parent=None) -> bool:
     if not question_dialog(
         parent,
         _('Are you sure?'),
@@ -139,7 +139,7 @@ def restore_database(db, parent=None):
     return True
 
 
-def repair_library_at(library_path, parent=None, wait_time=2):
+def repair_library_at(library_path, parent=None, wait_time=2) -> bool:
     d = DBRestore(parent, library_path, wait_time=wait_time)
     d.exec()
     if d.was_rejected:

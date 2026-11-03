@@ -51,7 +51,7 @@ def get_session_pref(name, default=None, group='standalone_misc_settings'):
     return g.get(name, default)
 
 
-def set_session_pref(name, val=None, group='standalone_misc_settings'):
+def set_session_pref(name, val=None, group='standalone_misc_settings') -> None:
     sd = vprefs['session_data']
     g = sd.get(group, {}) if group else sd
     if val is None:
@@ -86,7 +86,7 @@ def get_existing_reading_rates():
     return existing
 
 
-def save_reading_rates(key, rates):
+def save_reading_rates(key, rates) -> None:
     existing = get_existing_reading_rates()
     existing.pop(key, None)
     existing[key] = rates
@@ -110,7 +110,7 @@ def load_reading_rates(key):
     return existing.get(key)
 
 
-def delete_all_reading_rates():
+def delete_all_reading_rates() -> None:
     path = reading_rates_path()
     try:
         os.remove(path)
@@ -151,7 +151,7 @@ def load_viewer_profiles(*user_names: str):
     return ans
 
 
-def save_viewer_profile(profile_name, profile, *user_names: str):
+def save_viewer_profile(profile_name, profile, *user_names: str) -> None:
     user_names = expand_profile_user_names(user_names)
     if isinstance(profile, (str, bytes)):
         profile = json.loads(profile)

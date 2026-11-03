@@ -149,7 +149,7 @@ def is_foreground_color(key: str) -> bool:
 
 def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalette:
 
-    def s(key, group=QPalette.ColorGroup.All):
+    def s(key, group=QPalette.ColorGroup.All) -> None:
         role = getattr(QPalette.ColorRole, key)
         grp = ''
         if group == QPalette.ColorGroup.Disabled:
@@ -226,7 +226,7 @@ class PaletteManager(QObject):
     using_calibre_style: bool
     is_dark_theme: bool
 
-    def __init__(self, force_calibre_style, headless):
+    def __init__(self, force_calibre_style, headless) -> None:
         from calibre.gui2 import gprefs
 
         super().__init__()
@@ -249,7 +249,7 @@ class PaletteManager(QObject):
 
             set_appearance(self.color_palette)
 
-    def initialize(self):
+    def initialize(self) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         app = qapplication_or_fail()
@@ -270,7 +270,7 @@ class PaletteManager(QObject):
         system_is_dark = hints.colorScheme() == Qt.ColorScheme.Dark
         return self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
 
-    def setup_styles(self):
+    def setup_styles(self) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         if self.using_calibre_style:
@@ -300,7 +300,7 @@ class PaletteManager(QObject):
             return QIcon()
         return QIcon.ic(val)
 
-    def load_calibre_style(self):
+    def load_calibre_style(self) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         ts = 0
@@ -315,7 +315,7 @@ class PaletteManager(QObject):
         self.calibre_style = style = CalibreStyle(ts)
         app.setStyle(style)
 
-    def on_palette_change(self):
+    def on_palette_change(self) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         app = qapplication_or_fail()
@@ -364,13 +364,13 @@ QTabBar::tab:only-one {
             app.setStyleSheet(ss)
         app.palette_changed.emit()
 
-    def set_dark_mode_palette(self):
+    def set_dark_mode_palette(self) -> None:
         self.set_palette(dark_palette())
 
-    def set_light_mode_palette(self):
+    def set_light_mode_palette(self) -> None:
         self.set_palette(light_palette())
 
-    def color_scheme_changed(self, new_color_scheme):
+    def color_scheme_changed(self, new_color_scheme) -> None:
         if DEBUG:
             print('System Color Scheme changed to:', new_color_scheme, file=sys.stderr)
         if self.color_palette != 'system' or not self.using_calibre_style:
@@ -392,7 +392,7 @@ QTabBar::tab:only-one {
         finally:
             self.ignore_palette_changes = orig
 
-    def set_palette(self, pal):
+    def set_palette(self, pal) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         with self.changing_palette():
@@ -402,7 +402,7 @@ QTabBar::tab:only-one {
             # changed to reflect the new palette
             QToolTip.setPalette(pal)
 
-    def on_qt_palette_change(self):
+    def on_qt_palette_change(self) -> None:
         if self.ignore_palette_changes:
             if DEBUG:
                 print('ApplicationPaletteChange event ignored', file=sys.stderr)
@@ -419,7 +419,7 @@ QTabBar::tab:only-one {
                     self.set_palette(pal)
             self.on_palette_change()
 
-    def refresh_palette(self):
+    def refresh_palette(self) -> None:
         from calibre.gui2 import gprefs, qapplication_or_fail
 
         self.color_palette = gprefs['color_palette']
@@ -436,7 +436,7 @@ QTabBar::tab:only-one {
         self.set_palette(pal)
         self.on_palette_change()
 
-    def tree_view_hover_style(self):
+    def tree_view_hover_style(self) -> str:
         g1, g2 = '#e7effd', '#cbdaf1'
         border_size = '1px'
         if self.is_dark_theme:

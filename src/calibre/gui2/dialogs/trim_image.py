@@ -35,7 +35,7 @@ def reduce_to_ratio(w, h, r):
 class Region(QDialog):
     ignore_value_changes = False
 
-    def __init__(self, parent, width, height, max_width, max_height):
+    def __init__(self, parent, width, height, max_width, max_height) -> None:
         super().__init__(parent)
         self.setWindowTitle(_('Set size of selected area'))
         self.l = l = QFormLayout(self)
@@ -74,7 +74,7 @@ class Region(QDialog):
         self.current_aspect = width / height
         self.ratio_input.setEnabled(not self.const_aspect.isChecked())
 
-    def aspect_changed(self):
+    def aspect_changed(self) -> None:
         inp = float(self.ratio_input.value())
         if inp > 0 and inp != round(self.m_width / self.m_height, 2):
             rw, rh = reduce_to_ratio(self.m_width, self.m_height, inp)
@@ -84,12 +84,12 @@ class Region(QDialog):
             self.width_input.setValue(self.m_width)
             self.height_input.setValue(self.m_height)
 
-    def const_aspect_toggled(self):
+    def const_aspect_toggled(self) -> None:
         self.ratio_input.setEnabled(not self.const_aspect.isChecked())
         if self.const_aspect.isChecked():
             self.current_aspect = self.width_input.value() / self.height_input.value()
 
-    def value_changed(self):
+    def value_changed(self) -> None:
         if self.ignore_value_changes or not self.const_aspect.isChecked():
             return
         src = self.sender()
@@ -106,7 +106,7 @@ class Region(QDialog):
 
 
 class TrimImage(QDialog):
-    def __init__(self, img_data, parent=None):
+    def __init__(self, img_data, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setWindowTitle(_('Trim Image'))
@@ -173,7 +173,7 @@ class TrimImage(QDialog):
     def sizeHint(self):
         return QSize(900, 600)
 
-    def do_region(self):
+    def do_region(self) -> None:
         rect = self.canvas.selection_rect_in_image_coords
         current_image = self.canvas.current_image
         assert current_image is not None
@@ -182,17 +182,17 @@ class TrimImage(QDialog):
             width, height = d.selection_size
             self.canvas.set_selection_size_in_image_coords(width, height)
 
-    def do_trim(self):
+    def do_trim(self) -> None:
         self.canvas.trim_image()
         self.selection_changed(False)
 
-    def selection_changed(self, has_selection):
+    def selection_changed(self, has_selection) -> None:
         trim_action = self.trim_action
         assert trim_action is not None
         trim_action.setEnabled(has_selection)
         self.msg.setText(_('Adjust selection by dragging corners') if has_selection else self.msg_txt)
 
-    def selection_area_changed(self, rect):
+    def selection_area_changed(self, rect) -> None:
         if rect:
             x, y, w, h = map(int, self.canvas.rect_for_trim())
             text = f'{int(w)}x{int(h)}'
@@ -201,14 +201,14 @@ class TrimImage(QDialog):
             text = ''
         self.tr_sz.setText(text)
 
-    def image_changed(self, qimage):
+    def image_changed(self, qimage) -> None:
         self.sz.setText('\xa0' + _('Size: {0}x{1}px').format(qimage.width(), qimage.height()))
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         self.canvas.break_cycles()
         self.save_geometry(gprefs, 'image-trim-dialog-geometry')
 
-    def accept(self):
+    def accept(self) -> None:
         trim_action = self.trim_action
         assert trim_action is not None
         if trim_action.isEnabled():
@@ -218,7 +218,7 @@ class TrimImage(QDialog):
         self.cleanup()
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.cleanup()
         QDialog.reject(self)
 

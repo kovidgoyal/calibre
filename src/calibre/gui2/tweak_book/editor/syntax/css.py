@@ -155,7 +155,7 @@ class ColorFormats:
 
     max_cache_size = 4096
 
-    def __init__(self, editor_bg: QColor, mode: str | None):
+    def __init__(self, editor_bg: QColor, mode: str | None) -> None:
         self.editor_bg = editor_bg
         self.mode = mode
         self.cache: dict[tuple[str | None, tuple[float, ...]], QTextCharFormat] = {}
@@ -218,7 +218,7 @@ IN_COMMENT_CONTENT = 5
 class CSSState:
     __slots__ = ('blocks', 'parse')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parse = NORMAL
         self.blocks = 0
 
@@ -233,19 +233,19 @@ class CSSState:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'CSSState(parse={self.parse}, blocks={self.blocks})'
 
     __str__ = __repr__
 
 
 class CSSUserData(QTextBlockUserData):
-    def __init__(self):
+    def __init__(self) -> None:
         QTextBlockUserData.__init__(self)
         self.state = CSSState()
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None):
+    def clear(self, state=None, doc_name=None) -> None:
         self.state = CSSState() if state is None else state
         self.doc_name = doc_name
 

@@ -12,13 +12,13 @@ class RestartingWebEngineView(QWebEngineView):
     render_process_restarted = pyqtSignal()
     render_process_failed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWebEngineView.__init__(self, parent)
         self._last_reload_at = None
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.render_process_restarted.connect(self.reload, type=Qt.ConnectionType.QueuedConnection)
 
-    def render_process_terminated(self, termination_type, exit_code):
+    def render_process_terminated(self, termination_type, exit_code) -> None:
         if termination_type == QWebEnginePage.RenderProcessTerminationStatus.NormalTerminationStatus:
             return
         self.webengine_crash_message = f'The Qt WebEngine Render process crashed with termination type: {termination_type} and exit code: {exit_code}'
@@ -53,7 +53,7 @@ class SelectPopupFixer(QObject):
     # item rather than a click on the combobox. Same value as QComboBox uses.
     DRAG_THRESHOLD = 9  # pixels
 
-    def __init__(self, view):
+    def __init__(self, view) -> None:
         super().__init__(view)
         self.view = view
         self.press_pos = QPoint()
@@ -68,7 +68,7 @@ class SelectPopupFixer(QObject):
             # watch events application wide.
             qapp.installEventFilter(self)
 
-    def view_destroyed(self):
+    def view_destroyed(self) -> None:
         self.view = self.popup = None
         self.ignore_release_until = 0.0
         qapp = QApplication.instance()
@@ -90,7 +90,7 @@ class SelectPopupFixer(QObject):
                 self.ignore_release_until = 0.0
         return False
 
-    def mouse_pressed(self, obj, ev):
+    def mouse_pressed(self, obj, ev) -> None:
         # A press while a popup of ours is open is the user actually choosing
         # an item, so its release must be allowed through.
         self.ignore_release_until = 0.0
@@ -100,7 +100,7 @@ class SelectPopupFixer(QObject):
             self.press_pos = ev.globalPosition().toPoint()
             self.press_at = monotonic()
 
-    def widget_shown(self, obj):
+    def widget_shown(self, obj) -> None:
         if not self.press_at or monotonic() - self.press_at > self.MAX_POPUP_DELAY or not obj.isWidgetType():
             return
         if (obj.windowFlags() & Qt.WindowType.WindowType_Mask) == Qt.WindowType.Popup:

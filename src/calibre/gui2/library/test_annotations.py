@@ -41,7 +41,7 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
 
 
 class GroupKeyTest(unittest.TestCase):
-    def test_pubdate_year_buckets_without_day_in_format(self):
+    def test_pubdate_year_buckets_without_day_in_format(self) -> None:
         from datetime import datetime
 
         from qt.core import QDateTime
@@ -64,7 +64,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertEqual(label, str(expected_year), 'Expected label to be the year string')
         self.assertEqual(sort_key, (current_year - expected_year, label), 'Expected sort key to be (years_past, label)')
 
-    def test_pubdate_unknown_year_when_no_pubdate(self):
+    def test_pubdate_unknown_year_when_no_pubdate(self) -> None:
         from calibre.utils.iso8601 import UNDEFINED_DATE
 
         db = _make_mock_db(
@@ -82,7 +82,7 @@ class GroupKeyTest(unittest.TestCase):
         # year equals UNDEFINED_DATE.year; the label should be that year as a string.
         self.assertEqual(label, str(UNDEFINED_DATE.year), 'Expected label to be the undefined-date year string')
 
-    def test_arbitrary_text_field_sorts_case_insensitively(self):
+    def test_arbitrary_text_field_sorts_case_insensitively(self) -> None:
         db = _make_mock_db(
             field_for_map={'publisher': 'Tor Books'},
             field_metadata={'publisher': {'datatype': 'text'}},
@@ -92,7 +92,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertEqual(label, 'Tor Books')
         self.assertEqual(sort_key, (primary_sort_key('Tor Books'), 'Tor Books'))
 
-    def test_arbitrary_float_field_uses_raw_value_as_sort_key(self):
+    def test_arbitrary_float_field_uses_raw_value_as_sort_key(self) -> None:
         db = _make_mock_db(
             field_for_map={'series_index': 4.5},
             field_metadata={'series_index': {'datatype': 'float'}},
@@ -102,7 +102,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertEqual(label, '4.5')
         self.assertEqual(sort_key, (4.5, '4.5'))
 
-    def test_missing_value_returns_unknown_sentinel(self):
+    def test_missing_value_returns_unknown_sentinel(self) -> None:
         db = _make_mock_db(
             field_for_map={'publisher': None},
             field_metadata={'publisher': {'datatype': 'text'}},
@@ -111,7 +111,7 @@ class GroupKeyTest(unittest.TestCase):
 
         self.assertEqual(sort_key, (primary_sort_key(''),), 'Expected sort key to be the unknown sentinel')
 
-    def test_annotation_level_field_read_from_result_dict(self):
+    def test_annotation_level_field_read_from_result_dict(self) -> None:
         db = _make_mock_db(field_metadata={'format': {'datatype': 'text'}})
         result = _make_result(format='PDF')
         (_, label) = get_group_key(result, 'format', db)
@@ -119,7 +119,7 @@ class GroupKeyTest(unittest.TestCase):
         db.field_for.assert_not_called()
         self.assertEqual(label, 'PDF')
 
-    def test_group_by_book_id_title(self):
+    def test_group_by_book_id_title(self) -> None:
         db = _make_mock_db(
             field_for_map={'title': 'The Great Gatsby'},
             field_metadata={},
@@ -130,7 +130,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertEqual(label, 'The Great Gatsby')
         self.assertEqual(sort_key, (primary_sort_key('The Great Gatsby'), 42))
 
-    def test_group_by_authors(self):
+    def test_group_by_authors(self) -> None:
         db = _make_mock_db(
             field_for_map={'authors': ('F. Scott Fitzgerald',)},
             field_metadata={},
@@ -140,7 +140,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertEqual(label, 'F. Scott Fitzgerald')
         self.assertIsInstance(sort_key[0], bytes)  # Don't test the implementation of authors_to_sort_string
 
-    def test_group_by_authors_unknown_when_empty(self):
+    def test_group_by_authors_unknown_when_empty(self) -> None:
         db = _make_mock_db(
             field_for_map={'authors': ()},
             field_metadata={},
@@ -149,7 +149,7 @@ class GroupKeyTest(unittest.TestCase):
 
         self.assertEqual(label, 'Unknown author')
 
-    def test_group_by_user(self):
+    def test_group_by_user(self) -> None:
         db = _make_mock_db(field_metadata={})
         result = _make_result(user_type='local', user='reader')
         (sort_key, label) = get_group_key(result, 'user', db)
@@ -157,7 +157,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertIsInstance(label, str)
         self.assertEqual(sort_key[0], primary_sort_key(label))
 
-    def test_group_by_annot_timestamp_day_bucketing(self):
+    def test_group_by_annot_timestamp_day_bucketing(self) -> None:
         from qt.core import QDateTime, Qt
 
         # Use an ISO timestamp from the annotation
@@ -179,7 +179,7 @@ class GroupKeyTest(unittest.TestCase):
         # Not asserting a particular label due to locale variations
         self.assertIsInstance(label, str)
 
-    def test_group_by_annot_timestamp_with_invalid_date(self):
+    def test_group_by_annot_timestamp_with_invalid_date(self) -> None:
         db = _make_mock_db(field_metadata={})
         result = _make_result(annotation={'timestamp': 'invalid-timestamp'})
         (sort_key, _) = get_group_key(result, 'annot_timestamp', db)
@@ -188,7 +188,7 @@ class GroupKeyTest(unittest.TestCase):
         self.assertIsInstance(sort_key[0], int)
         self.assertIsInstance(sort_key[1], str)
 
-    def test_group_by_book_timestamp_uses_db_field(self):
+    def test_group_by_book_timestamp_uses_db_field(self) -> None:
         from datetime import datetime
 
         from qt.core import QDateTime, Qt
@@ -219,7 +219,7 @@ class GroupKeyTest(unittest.TestCase):
 
 
 class GroupKeysListTest(unittest.TestCase):
-    def test_single_valued_field_returns_one_entry(self):
+    def test_single_valued_field_returns_one_entry(self) -> None:
         db = _make_mock_db(
             field_for_map={'publisher': 'Tor Books'},
             field_metadata={'publisher': {'datatype': 'text', 'is_multiple': {}}},
@@ -228,7 +228,7 @@ class GroupKeysListTest(unittest.TestCase):
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0][1], 'Tor Books')
 
-    def test_multi_valued_field_returns_one_entry_per_value(self):
+    def test_multi_valued_field_returns_one_entry_per_value(self) -> None:
         db = _make_mock_db(
             field_for_map={'tags': ('sci-fi', 'fantasy')},
             field_metadata={'tags': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},
@@ -237,7 +237,7 @@ class GroupKeysListTest(unittest.TestCase):
         labels = [label for _, label in entries]
         self.assertEqual(sorted(labels), ['fantasy', 'sci-fi'])
 
-    def test_multi_valued_field_empty_returns_ungrouped(self):
+    def test_multi_valued_field_empty_returns_ungrouped(self) -> None:
         from calibre.gui2.library.bookshelf_view import all_groupings
 
         db = _make_mock_db(
@@ -249,7 +249,7 @@ class GroupKeysListTest(unittest.TestCase):
         expected_label = all_groupings()['tags']
         self.assertEqual(entries[0][1], expected_label)
 
-    def test_title_returns_one_entry(self):
+    def test_title_returns_one_entry(self) -> None:
         db = _make_mock_db(
             field_for_map={'title': 'Dune'},
             field_metadata={},
@@ -258,13 +258,13 @@ class GroupKeysListTest(unittest.TestCase):
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0][1], 'Dune')
 
-    def test_annot_timestamp_returns_one_entry(self):
+    def test_annot_timestamp_returns_one_entry(self) -> None:
         db = _make_mock_db(field_metadata={})
         result = _make_result(annotation={'timestamp': '2024-01-01T00:00:00.000Z'})
         entries = get_group_keys_list(result, 'annot_timestamp', db)
         self.assertEqual(len(entries), 1)
 
-    def test_authors_multi_valued_returns_one_per_author(self):
+    def test_authors_multi_valued_returns_one_per_author(self) -> None:
         db = _make_mock_db(
             field_for_map={'authors': ('Alice', 'Bob')},
             field_metadata={'authors': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},

@@ -15,7 +15,7 @@ from calibre.utils.localization import _
 
 
 class FTSDialog(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(
             _('Search the text of all books in the library'),
             'library-fts-dialog',
@@ -30,11 +30,11 @@ class FTSDialog(Dialog):
             ac.setShortcuts(gui.iactions['View'].menuless_qaction.shortcuts())
         self.addAction(ac)
 
-    def view_current_book(self):
+    def view_current_book(self) -> None:
         if not self.results_panel.view_current_result():
             error_dialog(self, _('No result selected'), _('Cannot view book as no result is selected'), show=True)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         l = QVBoxLayout(self)
         self.fat_warning = fw = QLabel(
             f'<span style="color:{qapplication_or_fail().error_text_color}; font-weight: bold">{_("WARNING")}:</span> '
@@ -73,7 +73,7 @@ class FTSDialog(Dialog):
         self.addAction(self.results_panel.mark_select_all_books_action)
         self.addAction(self.results_panel.focus_search_action)
 
-    def show_fat_details(self):
+    def show_fat_details(self) -> None:
         warning_dialog(
             self,
             _('Library on a FAT drive'),
@@ -85,18 +85,18 @@ class FTSDialog(Dialog):
             show=True,
         )
 
-    def update_fat_warning(self):
+    def update_fat_warning(self) -> None:
         db = get_db()
         self.fat_warning.setVisible(db.is_fat_filesystem)
 
-    def show_appropriate_panel(self):
+    def show_appropriate_panel(self) -> None:
         ss = self.scan_status
         if ss.indexing_enabled and ss.indexing_progress.almost_complete:
             self.show_results_panel()
         else:
             self.show_scan_status()
 
-    def update_indexing_label(self):
+    def update_indexing_label(self) -> None:
         ip = self.scan_status.indexing_progress
         if self.stack.currentWidget() is self.scan_status or ip.complete:
             self.indexing_label.setVisible(False)
@@ -118,18 +118,18 @@ class FTSDialog(Dialog):
                 else:
                     self.indexing_label.setVisible(False)
 
-    def show_scan_status(self):
+    def show_scan_status(self) -> None:
         self.stack.setCurrentWidget(self.scan_status)
         self.scan_status.specialize_button_box(self.bb)
         self.update_indexing_label()
 
-    def show_results_panel(self):
+    def show_results_panel(self) -> None:
         self.stack.setCurrentWidget(self.results_panel)
         self.results_panel.specialize_button_box(self.bb)
         self.update_indexing_label()
         self.results_panel.on_show()
 
-    def library_changed(self):
+    def library_changed(self) -> None:
         self.results_panel.clear_results()
         self.scan_status.reset_indexing_state_for_current_db()
         self.show_appropriate_panel()
@@ -138,16 +138,16 @@ class FTSDialog(Dialog):
     def sizeHint(self):
         return QSize(1000, 680)
 
-    def show(self):
+    def show(self) -> None:
         super().show()
         self.scan_status.startup()
         self.results_panel.on_show()
         self.update_fat_warning()
 
-    def clear_search_history(self):
+    def clear_search_history(self) -> None:
         self.results_panel.clear_history()
 
-    def set_search_text(self, text):
+    def set_search_text(self, text) -> None:
         self.results_panel.set_search_text(text)
 
 

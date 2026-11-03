@@ -23,11 +23,11 @@ class PluginWidget(QWidget, Ui_Form):
     sync_enabled = False
     formats = {'bib'}
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def initialize(self, name, db):  # not working properly to update
+    def initialize(self, name, db) -> None:  # not working properly to update
         from calibre.library.catalogs import FIELDS
 
         self.all_fields = [x for x in FIELDS if x != 'all']

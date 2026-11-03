@@ -41,7 +41,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         n: str
         k: str
 
-    def __init__(self, window, db, on_category=None, book_ids=None):
+    def __init__(self, window, db, on_category=None, book_ids=None) -> None:
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
@@ -124,7 +124,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.select_category(0)
         self.restore_geometry(gprefs, 'user_category_editor_dialog_geometry')
 
-    def copy_category_name_to_clipboard_clicked(self):
+    def copy_category_name_to_clipboard_clicked(self) -> None:
         t = self.category_box.itemText(self.category_box.currentIndex())
         cb = QApplication.clipboard()
         assert cb is not None
@@ -141,7 +141,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         # The tab ensures that the values sort together regardless of key
         return primary_sort_key(v.v + '\t ' + (v.k.removeprefix('#')))
 
-    def initialize_category_lists(self):
+    def initialize_category_lists(self) -> None:
         cfb = self.category_filter_box
         current_cat_filter = self.category_labels[cfb.currentIndex()] if self.category_labels and cfb.currentIndex() > 0 else ''
 
@@ -178,7 +178,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 cfb.setCurrentIndex(i + 1)
         cfb.blockSignals(False)
 
-    def populate_category_list(self):
+    def populate_category_list(self) -> None:
         self.category_box.blockSignals(True)
         self.category_box.clear()
         self.category_box.addItems(sorted(self.user_categories.keys(), key=primary_sort_key))
@@ -204,22 +204,22 @@ class TagCategories(QDialog, Ui_TagCategories):
         w.setToolTip(_('Lookup name: {}').format(tup.k))
         return w
 
-    def hide_hidden_categories_clicked(self, checked):
+    def hide_hidden_categories_clicked(self, checked) -> None:
         self.hide_hidden_categories = checked
         self.initialize_category_lists()
         self.display_filtered_categories()
         self.fill_applied_items()
 
-    def apply_vl_clicked(self, checked):
+    def apply_vl_clicked(self, checked) -> None:
         self.filter_by_vl = checked
         self.initialize_category_lists()
         self.fill_applied_items()
 
-    def apply_filter(self, _):
+    def apply_filter(self, _) -> None:
         self.initialize_category_lists()
         self.display_filtered_categories()
 
-    def display_filtered_categories(self):
+    def display_filtered_categories(self) -> None:
         idx = self.category_filter_box.currentIndex()
         filter_key = self.category_filter_box.itemData(idx)
         self.available_items_box.clear()
@@ -233,7 +233,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 continue
             self.available_items_box.addItem(self.make_available_list_item(it.k, it.v))
 
-    def fill_applied_items(self):
+    def fill_applied_items(self) -> None:
         ccn = self.current_cat_name
         if ccn:
             self.applied_items = list(self.user_categories[ccn])
@@ -245,10 +245,10 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.applied_items_box.addItem(self.make_applied_list_item(tup))
         self.display_filtered_categories()
 
-    def apply_button_clicked(self):
+    def apply_button_clicked(self) -> None:
         self.apply_tags(node=None)
 
-    def apply_tags(self, node=None):
+    def apply_tags(self, node=None) -> None:
         if self.current_cat_name is None:
             return
         nodes = self.available_items_box.selectedItems() if node is None else [node]
@@ -260,10 +260,10 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.user_categories[self.current_cat_name].add(tup)
         self.fill_applied_items()
 
-    def unapply_button_clicked(self):
+    def unapply_button_clicked(self) -> None:
         self.unapply_tags(node=None)
 
-    def unapply_tags(self, node=None):
+    def unapply_tags(self, node=None) -> None:
         if self.current_cat_name is None:
             return
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
@@ -275,7 +275,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.user_categories[self.current_cat_name].discard(tup)
         self.fill_applied_items()
 
-    def add_category(self):
+    def add_category(self) -> bool | None:
         cat_name = str(self.input_box.text()).strip()
         if cat_name == '':
             return
@@ -315,7 +315,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.input_box.clear()
         self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
 
-    def rename_category(self):
+    def rename_category(self) -> None:
         cat_name = str(self.input_box.text()).strip()
         if cat_name == '':
             return
@@ -349,7 +349,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.category_box.setCurrentIndex(self.category_box.findText(cat_name))
         return
 
-    def delete_category(self):
+    def delete_category(self) -> None:
         if self.current_cat_name is not None:
             if not confirm(
                 '<p>' + _('The current User category will be <b>permanently deleted</b>. Are you sure?') + '</p>',
@@ -366,7 +366,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.current_cat_name = None
             self.fill_applied_items()
 
-    def select_category(self, idx):
+    def select_category(self, idx) -> None:
         s = self.category_box.itemText(idx)
         if s:
             self.current_cat_name = str(s)
@@ -374,7 +374,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.current_cat_name = None
         self.fill_applied_items()
 
-    def accept(self):
+    def accept(self) -> None:
         # Reconstruct the pref value
         self.categories = {}
         for cat in self.user_categories:
@@ -385,6 +385,6 @@ class TagCategories(QDialog, Ui_TagCategories):
         super().save_geometry(gprefs, 'user_category_editor_dialog_geometry')
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         super().save_geometry(gprefs, 'user_category_editor_dialog_geometry')
         QDialog.reject(self)

@@ -176,7 +176,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=None):
 
 
 class QueueBulk(QProgressDialog):
-    def __init__(self, parent, book_ids, output_format, queue, db, user_recs, args, use_saved_single_settings=True):
+    def __init__(self, parent, book_ids, output_format, queue, db, user_recs, args, use_saved_single_settings=True) -> None:
         QProgressDialog.__init__(self, '', None, 0, len(book_ids), parent)
         self.setWindowTitle(_('Queueing books for bulk conversion'))
         self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = (
@@ -269,7 +269,7 @@ class QueueBulk(QProgressDialog):
             self.bad.append(book_id)
         QTimer.singleShot(0, self.do_book)
 
-    def do_queue(self):
+    def do_queue(self) -> None:
         self.hide()
         if self.bad != []:
             res = []

@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 class DefaultAuthorLink(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
         l.addWidget(self)
@@ -107,14 +107,14 @@ class DefaultAuthorLink(QWidget):
         return k if k != DEFAULT_AUTHOR_LINK else None
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         i = self.choices.findData(val)
         if i < 0:
             i = self.choices.findData('url')
             self.custom_url.setText(val)
         self.choices.setCurrentIndex(i)
 
-    def open_template_tester(self):
+    def open_template_tester(self) -> None:
         gui = get_gui(fail_if_absent=True)
         db = gui.current_db.new_api
         lv = gui.library_view
@@ -140,17 +140,17 @@ class DefaultAuthorLink(QWidget):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.custom_url.setText(d.rule[1])
 
-    def current_changed(self):
+    def current_changed(self) -> None:
         k = self.choices.currentData()
         self.custom_url.setVisible(k == 'url')
         self.custom_url_button.setVisible(k == 'url')
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.value = DEFAULT_AUTHOR_LINK
 
 
 class DisplayedFields(QAbstractListModel):
-    def __init__(self, db, parent=None, pref_name=None, category_icons=None):
+    def __init__(self, db, parent=None, pref_name=None, category_icons=None) -> None:
         self.pref_name = pref_name or 'book_display_fields'
         QAbstractListModel.__init__(self, parent)
 
@@ -162,7 +162,7 @@ class DisplayedFields(QAbstractListModel):
     def get_field_list(self, use_defaults=False):
         return get_field_list(self.db.field_metadata, use_defaults=use_defaults, pref_name=self.pref_name)
 
-    def initialize(self, use_defaults=False):
+    def initialize(self, use_defaults=False) -> None:
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in self.get_field_list(use_defaults=use_defaults)]
         self.endResetModel()
@@ -199,7 +199,7 @@ class DisplayedFields(QAbstractListModel):
                 return QIcon.ic('column.png')
         return None
 
-    def toggle_all(self, show=True):
+    def toggle_all(self, show=True) -> None:
         for i in range(self.rowCount()):
             idx = self.index(i)
             if idx.isValid():
@@ -218,10 +218,10 @@ class DisplayedFields(QAbstractListModel):
             self.dataChanged.emit(index, index)
         return ret
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.initialize(use_defaults=True)
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.new_api.set_pref(self.pref_name, self.fields)
 
@@ -244,7 +244,7 @@ class DisplayedFields(QAbstractListModel):
 
 
 class RulesSetting(Setting):
-    def __init__(self, name, config_obj, widget, gui_name=None, **kw):
+    def __init__(self, name, config_obj, widget, gui_name=None, **kw) -> None:
         self.name = name
         self.gui_name = gui_name or 'opt_' + name
         self.widget = widget
@@ -252,13 +252,13 @@ class RulesSetting(Setting):
         self.edit_rules.changed_signal.connect(self.widget.changed_signal)
         self.edit_rules.rule_set_name = name
 
-    def initialize(self):
+    def initialize(self) -> None:
         pass  # we initialize on showEvent, lazily
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.edit_rules.restore_defaults()
 
-    def commit(self):
+    def commit(self) -> None:
         self.edit_rules.commit()
 
 
@@ -266,7 +266,7 @@ class EditRulesWidget(QWidget):
     rule_set_name = ''
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.rules_editor = EditRules(self)
         self.rules_editor.changed.connect(self.changed_signal)
@@ -275,7 +275,7 @@ class EditRulesWidget(QWidget):
         l.addWidget(self.rules_editor)
         self.initialized = False
 
-    def initialize(self):
+    def initialize(self) -> None:
         if self.initialized:
             return
         self.initialized = True
@@ -285,18 +285,18 @@ class EditRulesWidget(QWidget):
         mi = selected_rows_metadatas()
         self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.initialize()
         self.rules_editor.restore_defaults()
 
-    def commit(self):
+    def commit(self) -> None:
         self.initialize()
         from calibre.gui2.ui import get_gui
 
         db = get_gui(fail_if_absent=True).current_db
         self.rules_editor.commit(db.prefs)
 
-    def showEvent(self, a0):
+    def showEvent(self, a0) -> None:
         self.initialize()
         super().showEvent(a0)
 
@@ -304,13 +304,13 @@ class EditRulesWidget(QWidget):
 class EditRulesConfigWidgetBase(LazyConfigWidgetBase):
     rule_set_name = ''
 
-    def setupUi(self, self_):
+    def setupUi(self, self_) -> None:
         self.rules_editor = r = EditRulesWidget(self)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(r)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.register(self.rule_set_name, {}, gui_name='rules_editor', setting=RulesSetting)
 
@@ -328,7 +328,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
     restart_now = pyqtSignal()
 
     class Container(LazyConfigWidgetBase):
-        def __init__(self, parent=None):
+        def __init__(self, parent=None) -> None:
             super().__init__(parent)
             self.config_name = None
             self.bcol_dark = None
@@ -353,13 +353,13 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
             self.changed_signal.connect(self.update_content)
 
-        def genesis(self, gui):
+        def genesis(self, gui) -> None:
             self.gui = gui
 
-        def lazy_initialize(self):
+        def lazy_initialize(self) -> None:
             self.load_from_gprefs()
 
-        def load_from_gprefs(self, use_defaults=False):
+        def load_from_gprefs(self, use_defaults=False) -> None:
             assert self.config_name is not None
             rs = resolve_custom_background
             self.bcol_dark = QColor(*rs(self.config_name, for_dark=True, use_defaults=use_defaults))
@@ -368,20 +368,20 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             self.btex_light = rs(self.config_name, 'texture', for_dark=False, use_defaults=use_defaults)
             self.update_content()
 
-        def light_link_activated(self, url):
+        def light_link_activated(self, url) -> None:
             if 'texture' in url:
                 self.change_texture(light=True)
             else:
                 self.change_color(light=True)
             self.update_content()
 
-        def dark_link_activated(self, url):
+        def dark_link_activated(self, url) -> None:
             if 'texture' in url:
                 self.change_texture(light=False)
             else:
                 self.change_color(light=False)
 
-        def change_texture(self, light=False):
+        def change_texture(self, light=False) -> None:
             from calibre.gui2.preferences.texture_chooser import TextureChooser
 
             btex = self.btex_light if light else self.btex_dark
@@ -393,7 +393,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
                     self.btex_dark = d.texture
                 self.changed_signal.emit()
 
-        def change_color(self, light=False):
+        def change_color(self, light=False) -> None:
             which = _('light') if light else _('dark')
             bcol = self.bcol_light if light else self.bcol_dark
             assert bcol is not None
@@ -417,12 +417,12 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
                             self.btex_dark = None
                 self.changed_signal.emit()
 
-        def update_content(self):
+        def update_content(self) -> None:
             self.update_text()
             self.update_brush()
             self.update()
 
-        def update_text(self):
+        def update_text(self) -> None:
             text = (
                 '<p style="text-align: center; color: {}"><b>{}</b><br>'
                 '<a style="text-decoration: none" href="la://color.me">{}</a><br>'
@@ -431,11 +431,11 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             self.light_label.setText(text.format('black', _('Light'), _('Change color'), _('Change texture')))
             self.dark_label.setText(text.format('white', _('Dark'), _('Change color'), _('Change texture')))
 
-        def update_brush(self):
+        def update_brush(self) -> None:
             self.light_brush = QBrush(self.bcol_light)
             self.dark_brush = QBrush(self.bcol_dark)
 
-            def dotex(path, brush):
+            def dotex(path, brush) -> None:
                 if path:
                     from calibre.gui2.preferences.texture_chooser import texture_path
 
@@ -452,11 +452,11 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             dotex(self.btex_light, self.light_brush)
             dotex(self.btex_dark, self.dark_brush)
 
-        def restore_defaults(self, *args):
+        def restore_defaults(self, *args) -> None:
             self.load_from_gprefs(use_defaults=True)
             self.changed_signal.emit()
 
-        def commit(self, *args):
+        def commit(self, *args) -> bool:
             assert self.config_name is not None
             s = gprefs[self.config_name].copy()
             bcol_light = self.bcol_light
@@ -468,8 +468,9 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             s['light_texture'] = self.btex_light
             s['dark_texture'] = self.btex_dark
             gprefs[self.config_name] = s
+            return False
 
-        def paintEvent(self, a0):
+        def paintEvent(self, a0) -> None:
             painter = QPainter(self)
             r = self.rect()
             light = r.adjusted(0, 0, -r.width() // 2, 0)
@@ -479,10 +480,10 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             painter.end()
             super().paintEvent(a0)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-    def setupUi(self, form):
+    def setupUi(self, form) -> None:
         # Simulate a ui file, else LazyConfigWidgetBase don't found the child
         grid = QGridLayout(self)
         self.setLayout(grid)
@@ -495,17 +496,17 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
         grid.addWidget(self.container, 0, 0, 2, 1)
         grid.addWidget(self.reset_appearance_button, 0, 1)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
 
-    def link_config(self, name):
+    def link_config(self, name) -> None:
         self.container.config_name = name
 
 
 class CoverCacheConfig(LazyConfigWidgetBase):
     size_calculated = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.name_disk_cache_size = None
         self.name_cache_size_multiple = None
@@ -574,10 +575,10 @@ class CoverCacheConfig(LazyConfigWidgetBase):
         btn_open_cache.clicked.connect(self.open_cache)
         self.size_calculated.connect(self.update_cache_size, type=Qt.ConnectionType.QueuedConnection)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
 
-    def link(self, cover_cache, name_disk_cache_size, name_cache_size_multiple=None):
+    def link(self, cover_cache, name_disk_cache_size, name_cache_size_multiple=None) -> None:
 
         self.cover_cache: ThumbnailRenderer = cover_cache.renderer
         self.name_disk_cache_size = name_disk_cache_size
@@ -592,29 +593,29 @@ class CoverCacheConfig(LazyConfigWidgetBase):
             self.lbl_cache_size_multiple.setHidden(True)
             self.opt_cache_size_multiple.setHidden(True)
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.show_current_cache_usage()
 
-    def update_cache_size(self, size):
+    def update_cache_size(self, size) -> None:
         self.lbl_current_disk_cache.setText(_('Current space used: %s') % human_readable(size))
 
-    def empty_cache(self):
+    def empty_cache(self) -> None:
         self.cover_cache.disk_cache.empty()
         self.calc_cache_size()
 
-    def open_cache(self):
+    def open_cache(self) -> None:
         open_local_file(self.cover_cache.disk_cache.location)
 
-    def show_current_cache_usage(self):
+    def show_current_cache_usage(self) -> None:
         t = Thread(target=self.calc_cache_size)
         t.daemon = True
         t.start()
 
-    def calc_cache_size(self):
+    def calc_cache_size(self) -> None:
         self.size_calculated.emit(self.cover_cache.disk_cache.current_size)
 
 
-def export_layout(in_widget, model=None):
+def export_layout(in_widget, model=None) -> None:
     filename = choose_save_file(
         in_widget,
         'look_feel_prefs_import_export_field_list',
@@ -630,7 +631,7 @@ def export_layout(in_widget, model=None):
             error_dialog(in_widget, _('Export field layout'), _('<p>Could not write field list. Error:<br>%s') % err, show=True)
 
 
-def import_layout(in_widget, model=None):
+def import_layout(in_widget, model=None) -> None:
     filename = choose_files(
         in_widget,
         'look_feel_prefs_import_export_field_list',
@@ -648,14 +649,14 @@ def import_layout(in_widget, model=None):
             error_dialog(in_widget, _('Import layout'), _('<p>Could not read field list. Error:<br>%s') % err, show=True)
 
 
-def reset_layout(in_widget, model=None):
+def reset_layout(in_widget, model=None) -> None:
     assert model is not None
     model.initialize(use_defaults=True)
     if hasattr(in_widget, 'changed_signal'):
         in_widget.changed_signal.emit()
 
 
-def move_field_up(widget, model, *args, use_kbd_modifiers=True):
+def move_field_up(widget, model, *args, use_kbd_modifiers=True) -> None:
     count = get_move_count(model.rowCount()) if use_kbd_modifiers else 1
     idx = widget.currentIndex()
     if idx.isValid():
@@ -666,7 +667,7 @@ def move_field_up(widget, model, *args, use_kbd_modifiers=True):
             widget.setCurrentIndex(idx)
 
 
-def move_field_down(widget, model, *args, use_kbd_modifiers=True):
+def move_field_down(widget, model, *args, use_kbd_modifiers=True) -> None:
     count = get_move_count(model.rowCount()) if use_kbd_modifiers else 1
     idx = widget.currentIndex()
     if idx.isValid():

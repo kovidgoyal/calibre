@@ -13,7 +13,7 @@ class TemplateLineEditor(QLineEdit):
     Extend the context menu of a QLineEdit to include more actions.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QLineEdit.__init__(self, parent)
         try:
             from calibre.gui2.ui import get_gui
@@ -30,10 +30,10 @@ class TemplateLineEditor(QLineEdit):
             self.mi = None
         self.setClearButtonEnabled(True)
 
-    def set_mi(self, mi):
+    def set_mi(self, mi) -> None:
         self.mi = mi
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.addSeparator()
@@ -46,10 +46,10 @@ class TemplateLineEditor(QLineEdit):
         action_open_editor.triggered.connect(self.open_editor)
         menu.exec(a0.globalPos())
 
-    def clear_field(self):
+    def clear_field(self) -> None:
         self.setText('')
 
-    def open_editor(self):
+    def open_editor(self) -> None:
         t = TemplateDialog(self, self.text(), mi=self.mi)
         t.setWindowTitle(_('Edit template'))
         if t.exec():

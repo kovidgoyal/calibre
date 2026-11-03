@@ -14,7 +14,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 
 class Delegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         icon = index.data(Qt.ItemDataRole.DecorationRole)
         if icon and not icon.isNull():
             QStyledItemDelegate.paint(self, painter, option, QModelIndex())
@@ -37,7 +37,7 @@ class Matches(QAbstractItemModel):
     HTML_COLS = (1,)
     CENTERED_COLUMNS = (0, 2, 3, 4)
 
-    def __init__(self, plugins):
+    def __init__(self, plugins) -> None:
         QAbstractItemModel.__init__(self)
 
         self.NO_DRM_ICON = QIcon.ic('ok.png')
@@ -58,7 +58,7 @@ class Matches(QAbstractItemModel):
         else:
             return None
 
-    def search(self, filter):
+    def search(self, filter) -> None:
         self.filter = filter.strip()
         if not self.filter:
             self.matches = self.all_matches
@@ -70,21 +70,21 @@ class Matches(QAbstractItemModel):
         self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)
 
-    def enable_all(self):
+    def enable_all(self) -> None:
         for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             self.setData(index, Qt.CheckState.Checked, Qt.ItemDataRole.CheckStateRole)
 
-    def enable_none(self):
+    def enable_none(self) -> None:
         for i in range(len(self.matches)):
             index = self.createIndex(i, 0)
             self.setData(index, Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
 
-    def enable_invert(self):
+    def enable_invert(self) -> None:
         for i in range(len(self.matches)):
             self.toggle_plugin(self.createIndex(i, 0))
 
-    def toggle_plugin(self, index):
+    def toggle_plugin(self, index) -> None:
         new_index = self.createIndex(index.row(), 0)
         data = Qt.CheckState.Unchecked if is_disabled(self.get_plugin(index)) else Qt.CheckState.Checked
         self.setData(new_index, data, Qt.ItemDataRole.CheckStateRole)
@@ -177,7 +177,7 @@ class Matches(QAbstractItemModel):
                 return '<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>'
         return None
 
-    def setData(self, index, value, role=...):
+    def setData(self, index, value, role=...) -> bool:
         if not index.isValid():
             return False
         col = index.column()
@@ -208,7 +208,7 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
-    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True) -> None:
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -232,7 +232,7 @@ class SearchFilter(SearchQueryParser):
         'name',
     ]
 
-    def __init__(self, all_plugins=None):
+    def __init__(self, all_plugins=None) -> None:
         if all_plugins is None:
             all_plugins = []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)

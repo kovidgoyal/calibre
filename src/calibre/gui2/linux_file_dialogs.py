@@ -87,7 +87,7 @@ def get_initial_dir(name, title, default_dir, no_save_dir):
     return ensure_dir(process_path(default_dir))
 
 
-def save_initial_dir(name, title, ans, no_save_dir, is_file=False):
+def save_initial_dir(name, title, ans, no_save_dir, is_file=False) -> None:
     if ans and not no_save_dir:
         if is_file:
             ans = os.path.dirname(os.path.abspath(ans))
@@ -357,7 +357,7 @@ def linux_native_dialog(name):
             ret = [None, None]
             loop = QEventLoop(window)
 
-            def r():
+            def r() -> None:
                 try:
                     ret[0] = func(window, *args, **kwargs)
                 except Exception:

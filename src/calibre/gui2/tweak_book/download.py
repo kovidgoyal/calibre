@@ -29,7 +29,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class ChooseResources(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Choose the external resources to download'))
@@ -42,11 +42,11 @@ class ChooseResources(QWidget):
         for i in range(self.items.count()):
             yield self.items.item(i)
 
-    def select_none(self):
+    def select_none(self) -> None:
         for item in self:
             item.setCheckState(Qt.CheckState.Unchecked)
 
-    def select_all(self):
+    def select_all(self) -> None:
         for item in self:
             item.setCheckState(Qt.CheckState.Checked)
 
@@ -57,7 +57,7 @@ class ChooseResources(QWidget):
         }
 
     @resources.setter
-    def resources(self, resources):
+    def resources(self, resources) -> None:
         self.items.clear()
         self.original_resources = resources
         dc = 0
@@ -75,7 +75,7 @@ class ChooseResources(QWidget):
 
 
 class DownloadStatus(QScrollArea):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
         self.w = QWidget(self)
@@ -95,7 +95,7 @@ class DownloadStatus(QScrollArea):
         self.l.addWidget(QLabel(''))
         self.l.setRowStretch(self.l.rowCount() - 1, 10)
 
-    def progress(self, url, done, total):
+    def progress(self, url, done, total) -> None:
         p = self.url_map.get(url)
         if p is not None:
             if total > 0:
@@ -111,7 +111,7 @@ class DownloadResources(Dialog):
     download_done = pyqtSignal(object, object)
     replace_done = pyqtSignal(object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self.resources_replaced = False
         self.show_diff = False
         Dialog.__init__(self, _('Download external resources'), 'download-external-resources', parent)
@@ -121,7 +121,7 @@ class DownloadResources(Dialog):
         self.replace_done.connect(self._replace_done)
         self.progress.connect(self.download_status.progress, type=Qt.ConnectionType.QueuedConnection)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setWindowIcon(QIcon.ic('download-metadata.png'))
         self.choose_resources = cr = ChooseResources(self)
         self.download_status = ds = DownloadStatus(self)
@@ -141,7 +141,7 @@ class DownloadResources(Dialog):
         t.daemon = True
         t.start()
 
-    def get_resources(self):
+    def get_resources(self) -> None:
         tb = None
         try:
             ret = get_external_resources(current_container())
@@ -179,7 +179,7 @@ class DownloadResources(Dialog):
             self.choose_resources.resources = resources
             self.bb.setVisible(True)
 
-    def download_resources(self, resources):
+    def download_resources(self, resources) -> None:
         tb = None
         try:
             ret = download_external_resources(current_container(), resources, progress_report=self.progress.emit)
@@ -239,7 +239,7 @@ class DownloadResources(Dialog):
             t.daemon = True
             t.start()
 
-    def replace_resources(self, resources, replacements):
+    def replace_resources(self, resources, replacements) -> None:
         tb = None
         try:
             ret = replace_resources(current_container(), resources, replacements)
@@ -249,7 +249,7 @@ class DownloadResources(Dialog):
             ret, tb = err, traceback.format_exc()
         self.replace_done.emit(ret, tb)
 
-    def _replace_done(self, ret, tb):
+    def _replace_done(self, ret, tb) -> None:
         if tb is not None:
             error_dialog(
                 self,

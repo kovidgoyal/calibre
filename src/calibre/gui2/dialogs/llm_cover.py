@@ -301,7 +301,7 @@ class PromptEdit(QPlainTextEdit):
 
 
 class AddCustomStyleDialog(Dialog):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(title=_('Add custom style'), name='llm-cover-add-custom-style', parent=parent)
 
     def setup_ui(self) -> None:
@@ -347,7 +347,7 @@ class AddCustomStyleDialog(Dialog):
 
 
 class CustomStylesWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -395,7 +395,7 @@ class CustomStylesWidget(QWidget):
 
 
 class TemplateFieldRow(QWidget):
-    def __init__(self, label: str, value: str, parent: QWidget | None = None):
+    def __init__(self, label: str, value: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         h = QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
@@ -421,7 +421,7 @@ class TemplateFieldRow(QWidget):
 
 
 class TemplatesSettingsWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         p = cover_prefs()
@@ -475,7 +475,7 @@ class TemplatesSettingsWidget(QWidget):
 
 
 class CoverGenSettingsWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         fl = QFormLayout()
@@ -521,7 +521,7 @@ class CoverGenSettingsWidget(QWidget):
 class CoverSettingsDialog(LLMSettingsDialogBase):
     ai_purpose = COVER_PURPOSE
 
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(name='llm-cover-settings-dialog', prefs=gprefs, title=_('Cover generation settings'), parent=parent)
 
     def custom_tabs(self):
@@ -552,7 +552,7 @@ class CoverDialogBase(Dialog):
     style_box: QComboBox
     prompt_edit: PromptEdit
 
-    def __init__(self, title: str, name: str, parent: QWidget | None = None):
+    def __init__(self, title: str, name: str, parent: QWidget | None = None) -> None:
         # These are used by setup_ui() which is called by Dialog.__init__()
         self.current_style_key: str = cover_prefs()['last_style']
         self.update_provider_plugin()
@@ -692,7 +692,7 @@ class CoverDialogBase(Dialog):
 class CoverCreateDialog(CoverDialogBase):
     result_received = pyqtSignal(int, object)
 
-    def __init__(self, mi: Metadata, parent: QWidget | None = None):
+    def __init__(self, mi: Metadata, parent: QWidget | None = None) -> None:
         # These are used by setup_ui() which is called by Dialog.__init__()
         self.mi = mi
         self.counter = count(start=1)
@@ -1010,7 +1010,7 @@ class CoverBulkCreateDialog(CoverDialogBase):
     that generate covers for multiple books. The chosen settings are available
     in the settings attribute after exec() returns."""
 
-    def __init__(self, num_of_books: int, parent: QWidget | None = None):
+    def __init__(self, num_of_books: int, parent: QWidget | None = None) -> None:
         self.num_of_books = num_of_books
         self.settings: BulkCoverGenerationSettings | None = None  # the result, read by callers after exec()
         super().__init__(title=_('Generate covers with AI'), name='llm-cover-bulk-dialog', parent=parent)

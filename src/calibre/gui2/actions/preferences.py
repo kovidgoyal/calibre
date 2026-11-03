@@ -19,7 +19,7 @@ class PreferencesAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = _('Change calibre behavior')
 
-    def genesis(self):
+    def genesis(self) -> None:
         pm = self.qaction.menu()
         assert pm is not None
         cm = partial(self.create_menu_action, pm)
@@ -54,7 +54,7 @@ class PreferencesAction(InterfaceAction):
             x.triggered.connect(self.do_config)
         self.action_map = {}
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         # Add the individual preferences to the menu.
         # First, sort them into the same order as shown in the preferences dialog
         plugins = sorted(preferences_plugins(), key=lambda p: p.category_order * 100 + p.name_order)
@@ -82,7 +82,7 @@ class PreferencesAction(InterfaceAction):
                 triggered=partial(self.do_config, initial_plugin=(p.category, p.name), close_after_initial=True),
             )
 
-    def get_plugins(self):
+    def get_plugins(self) -> None:
         from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, PluginUpdaterDialog
 
         d = PluginUpdaterDialog(self.gui, initial_filter=FILTER_NOT_INSTALLED)
@@ -90,7 +90,7 @@ class PreferencesAction(InterfaceAction):
         if d.do_restart:
             self.gui.quit(restart=True)
 
-    def do_config(self, checked=False, initial_plugin=None, close_after_initial=False):
+    def do_config(self, checked=False, initial_plugin=None, close_after_initial=False) -> None:
         if self.gui.job_manager.has_jobs():
             d = error_dialog(self.gui, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec()
@@ -106,8 +106,8 @@ class PreferencesAction(InterfaceAction):
         if d.do_restart:
             self.gui.quit(restart=True)
 
-    def debug_restart(self, *args):
+    def debug_restart(self, *args) -> None:
         self.gui.quit(restart=True, debug_on_restart=True)
 
-    def no_plugins_restart(self, *args):
+    def no_plugins_restart(self, *args) -> None:
         self.gui.quit(restart=True, no_plugins_on_restart=True)

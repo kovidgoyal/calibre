@@ -28,7 +28,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class SourcesModel(QAbstractTableModel):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.gui_parent = parent
 
@@ -36,13 +36,13 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.enabled_overrides = {}
         self.cover_overrides = {}
 
-    def reload_plugins(self):
+    def reload_plugins(self) -> None:
         self.beginResetModel()
         self.plugins = list(all_metadata_plugins())
         self.plugins.sort(key=lambda p: primary_sort_key(p.name))
         self.endResetModel()
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.beginResetModel()
         self.plugins = list(all_metadata_plugins())
         self.plugins.sort(key=lambda p: primary_sort_key(p.name))
@@ -53,7 +53,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
     def rowCount(self, parent=None):
         return len(self.plugins)
 
-    def columnCount(self, parent=None):
+    def columnCount(self, parent=None) -> int:
         return 2
 
     def headerData(self, section, orientation, role=...):
@@ -133,7 +133,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return ans | Qt.ItemFlag.ItemIsUserCheckable
         return Qt.ItemFlag.ItemIsEditable | ans
 
-    def commit(self):
+    def commit(self) -> None:
         for plugin, val in self.enabled_overrides.items():
             if val == Qt.CheckState.Checked:
                 enable_plugin(plugin)
@@ -152,7 +152,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.enabled_overrides = {}
         self.cover_overrides = {}
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.beginResetModel()
         self.enabled_overrides = {p: (Qt.CheckState.Unchecked if p.name in default_disabled_plugins else Qt.CheckState.Checked) for p in self.plugins}
         self.cover_overrides = {p: msprefs.defaults['cover_priorities'].get(p.name, 1) for p in self.plugins}
@@ -163,7 +163,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
 
 class FieldsModel(QAbstractListModel):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QAbstractListModel.__init__(self, parent)
 
         self.fields = []
@@ -187,7 +187,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def rowCount(self, parent=None):
         return len(self.fields)
 
-    def initialize(self):
+    def initialize(self) -> None:
         fields = set()
         for p in all_metadata_plugins():
             fields |= p.touched_fields
@@ -218,17 +218,17 @@ class FieldsModel(QAbstractListModel):  # {{{
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemFlag.ItemIsUserCheckable
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.beginResetModel()
         self.overrides = {f: self.state(f, True) for f in self.fields}
         self.endResetModel()
 
-    def select_all(self):
+    def select_all(self) -> None:
         self.beginResetModel()
         self.overrides = {f: Qt.CheckState.Checked for f in self.fields}
         self.endResetModel()
 
-    def clear_all(self):
+    def clear_all(self) -> None:
         self.beginResetModel()
         self.overrides = {f: Qt.CheckState.Unchecked for f in self.fields}
         self.endResetModel()
@@ -246,7 +246,7 @@ class FieldsModel(QAbstractListModel):  # {{{
             self.dataChanged.emit(index, index)
         return ret
 
-    def commit(self):
+    def commit(self) -> None:
         ignored_fields = {x for x in msprefs['ignore_fields'] if x not in self.overrides}
         changed = {k for k, v in self.overrides.items() if v == Qt.CheckState.Unchecked}
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
@@ -254,12 +254,12 @@ class FieldsModel(QAbstractListModel):  # {{{
     def user_default_state(self, field):
         return Qt.CheckState.Unchecked if field in msprefs.get('user_default_ignore_fields', []) else Qt.CheckState.Checked
 
-    def select_user_defaults(self):
+    def select_user_defaults(self) -> None:
         self.beginResetModel()
         self.overrides = {f: self.user_default_state(f) for f in self.fields}
         self.endResetModel()
 
-    def commit_user_defaults(self):
+    def commit_user_defaults(self) -> None:
         default_ignored_fields = {x for x in msprefs['user_default_ignore_fields'] if x not in self.overrides}
         changed = {k for k, v in self.overrides.items() if v == Qt.CheckState.Unchecked}
         msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
@@ -271,7 +271,7 @@ class FieldsModel(QAbstractListModel):  # {{{
 class PluginConfig(QWidget):  # {{{
     finished = pyqtSignal()
 
-    def __init__(self, plugin, parent):
+    def __init__(self, plugin, parent) -> None:
         QWidget.__init__(self, parent)
 
         self.plugin = plugin
@@ -298,7 +298,7 @@ class PluginConfig(QWidget):  # {{{
         self.f.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(self.f)
 
-    def commit(self):
+    def commit(self) -> None:
         self.plugin.save_settings(self.config_widget)
 
 
@@ -306,7 +306,7 @@ class PluginConfig(QWidget):  # {{{
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         r = self.register
         r('txt_comments', msprefs)
         r('max_tags', msprefs)
@@ -356,7 +356,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         l.setStretch(1, 1)
         self.add_new_source_button.clicked.connect(self.add_new_source)
 
-    def add_new_source(self):
+    def add_new_source(self) -> None:
         from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, Category, PluginUpdaterDialog
 
         d = PluginUpdaterDialog(self, initial_filter=FILTER_NOT_INSTALLED, initial_category=Category.MetadataSource)
@@ -366,7 +366,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.sources_model.reload_plugins()
             self.fields_model.initialize()
 
-    def context_menu(self, pos):
+    def context_menu(self, pos) -> None:
         m = QMenu(self)
         m.addAction(_('Select all'), self.fields_model.select_all)
         m.addAction(_('Select none'), self.fields_model.clear_all)
@@ -383,13 +383,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 return self.do_config(plugin)
         error_dialog(self, _('No source selected'), _('No source selected, cannot configure.'), show=True)
 
-    def do_config(self, plugin):
+    def do_config(self, plugin) -> None:
         self.pc = PluginConfig(plugin, self)
         self.stack.insertWidget(1, self.pc)
         self.stack.setCurrentIndex(1)
         self.pc.finished.connect(self.pc_finished)
 
-    def pc_finished(self):
+    def pc_finished(self) -> None:
         try:
             pc = self.pc
             assert pc is not None
@@ -400,7 +400,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.stack.removeWidget(self.pc)
         self.pc = None
 
-    def change_tag_map_rules(self):
+    def change_tag_map_rules(self) -> None:
         from calibre.gui2.tag_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -410,7 +410,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.tag_map_rules = d.rules
             self.changed_signal.emit()
 
-    def change_publisher_map_rules(self):
+    def change_publisher_map_rules(self) -> None:
         from calibre.gui2.publisher_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -420,7 +420,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.publisher_map_rules = d.rules
             self.changed_signal.emit()
 
-    def change_series_map_rules(self):
+    def change_series_map_rules(self) -> None:
         from calibre.gui2.series_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -430,7 +430,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.series_map_rules = d.rules
             self.changed_signal.emit()
 
-    def change_author_map_rules(self):
+    def change_author_map_rules(self) -> None:
         from calibre.gui2.author_mapper import RulesDialog
 
         d = RulesDialog(self)
@@ -440,14 +440,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.author_map_rules = d.rules
             self.changed_signal.emit()
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         self.sources_model.initialize()
         self.sources_view.resizeColumnsToContents()
         self.fields_model.initialize()
         self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.sources_model.restore_defaults()
         self.fields_model.restore_defaults()

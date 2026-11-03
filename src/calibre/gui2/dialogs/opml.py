@@ -51,7 +51,7 @@ def import_opml(raw, preserve_groups=True):
 
 
 class ImportOPML(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QDialog.__init__(self, parent=parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -121,7 +121,7 @@ class ImportOPML(QDialog):
     def replace_existing(self):
         return self._replace_existing.isChecked()
 
-    def choose_file(self):
+    def choose_file(self) -> None:
         opml_files = choose_files(
             self,
             'opml-select-dialog',

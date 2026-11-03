@@ -17,7 +17,7 @@ from calibre.utils.localization import _
 class ScanProgress(QWidget):
     switch_to_search_panel = pyqtSignal()
 
-    def __init__(self, parent: ScanStatus):
+    def __init__(self, parent: ScanStatus) -> None:
         super().__init__(parent)
         self._parent = parent
         self.l = l = QVBoxLayout(self)
@@ -72,11 +72,11 @@ class ScanProgress(QWidget):
     def indexing_progress(self):
         return self._parent.indexing_progress
 
-    def change_speed(self):
+    def change_speed(self) -> None:
         db = get_db()
         db.set_fts_speed(slow=not self.fast_button.isChecked())
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         if len(args) < 3:
             return
         complete, left, total = args[0], args[1], args[2]
@@ -102,7 +102,7 @@ class ScanStatus(QWidget):
     indexing_progress_changed = pyqtSignal(bool, int, int)
     switch_to_search_panel = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
@@ -138,7 +138,7 @@ class ScanStatus(QWidget):
         else:
             gui.add_db_listener(self.gui_update_event)
 
-    def gui_update_event(self, db, event_type, event_data):
+    def gui_update_event(self, db, event_type, event_data) -> None:
         if event_type is EventType.indexing_progress_changed:
             self.update_stats(event_data)
 
@@ -146,13 +146,13 @@ class ScanStatus(QWidget):
         if event_type is EventType.indexing_progress_changed:
             self.update_stats(event_data)
 
-    def update_stats(self, event_data=None):
+    def update_stats(self, event_data=None) -> None:
         event_data = event_data or self.db.fts_indexing_progress()
         changed = self.indexing_progress.update(*event_data)
         if changed:
             self.indexing_progress_changed.emit(self.indexing_progress.complete, self.indexing_progress.left, self.indexing_progress.total)
 
-    def change_fts_state(self):
+    def change_fts_state(self) -> None:
         if not self.enable_fts.isChecked() and not confirm(
             _('Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'),
             'disable-fts-indexing',
@@ -165,7 +165,7 @@ class ScanStatus(QWidget):
         self.db.enable_fts(enabled=self.enable_fts.isChecked())
         self.apply_fts_state()
 
-    def apply_fts_state(self):
+    def apply_fts_state(self) -> None:
         b = self.enable_fts
         f = b.font()
         indexing_enabled = b.isChecked()
@@ -178,7 +178,7 @@ class ScanStatus(QWidget):
     def db(self):
         return get_db()
 
-    def specialize_button_box(self, bb: QDialogButtonBox):
+    def specialize_button_box(self, bb: QDialogButtonBox) -> None:
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = bb.addButton(_('Re-index'), QDialogButtonBox.ButtonRole.ActionRole)
@@ -187,7 +187,7 @@ class ScanStatus(QWidget):
         b.setToolTip(_('Re-index all books in this library'))
         b.clicked.connect(self.reindex)
 
-    def reindex(self):
+    def reindex(self) -> None:
         if not confirm(
             _('This will force calibre to re-index all the books in this library, which can take a long time. Are you sure?'),
             'fts-reindex-confirm',
@@ -203,19 +203,19 @@ class ScanStatus(QWidget):
     def indexing_enabled(self):
         return self.enable_fts.isChecked()
 
-    def reset_indexing_state_for_current_db(self):
+    def reset_indexing_state_for_current_db(self) -> None:
         self.enable_fts.blockSignals(True)
         self.enable_fts.setChecked(self.db.is_fts_enabled())
         self.enable_fts.blockSignals(False)
         self.update_stats()
         self.apply_fts_state()
 
-    def startup(self):
+    def startup(self) -> None:
         db = self.db
         if db:
             db.fts_start_measuring_rate(measure=True)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.scan_progress.slow_button.setChecked(True)
         self.reset_indexing_state_for_current_db()
         db = self.db

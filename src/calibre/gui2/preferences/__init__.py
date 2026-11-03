@@ -85,13 +85,13 @@ class ConfigWidgetInterface:
         '''
         raise NotImplementedError()
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         """
         Should set all config values to their defaults.
         """
         pass
 
-    def commit(self):
+    def commit(self) -> bool:
         """
         Save any changed settings. Return True if the changes require a
         restart, False otherwise. Raise an :class:`AbortCommit` exception
@@ -100,7 +100,7 @@ class ConfigWidgetInterface:
         """
         return False
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         """
         Called once after this widget is committed. Responsible for causing the
         gui to reread any changed settings. Note that by default the GUI
@@ -109,7 +109,7 @@ class ConfigWidgetInterface:
         """
         pass
 
-    def initial_tab_changed(self):
+    def initial_tab_changed(self) -> None:
         """
         Called if the initially displayed tab is changed before the widget is shown, but after it is initialized.
         """
@@ -130,7 +130,7 @@ class ConfigWidgetInterface:
         return r
 
 
-def set_help_tips(gui_obj, tt):
+def set_help_tips(gui_obj, tt) -> None:
     if tt:
         if not str(gui_obj.whatsThis()):
             gui_obj.setWhatsThis(tt)
@@ -143,7 +143,7 @@ def set_help_tips(gui_obj, tt):
 class Setting:
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
 
-    def __init__(self, name, config_obj, widget, gui_name=None, empty_string_is_None=True, choices=None, restart_required=False):
+    def __init__(self, name, config_obj, widget, gui_name=None, empty_string_is_None=True, choices=None, restart_required=False) -> None:
         self.name, self.gui_name = name, ('opt_' + name) if gui_name is None else gui_name
         self.empty_string_is_None = empty_string_is_None
         self.restart_required = restart_required
@@ -183,10 +183,10 @@ class Setting:
         tt = str(self.gui_obj.toolTip())
         set_help_tips(self.gui_obj, tt)
 
-    def changed(self, *args):
+    def changed(self, *args) -> None:
         self.widget.changed_signal.emit()
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.gui_obj.blockSignals(True)
         if self.datatype == 'choice':
             choices = self.choices or []
@@ -210,7 +210,7 @@ class Setting:
             self.set_config_val(self.get_gui_val())
         return changed and self.restart_required
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.set_gui_val(self.get_config_val(default=True))
 
     def get_config_val(self, default=False):
@@ -220,10 +220,10 @@ class Setting:
             val = self.config_obj[self.name]
         return val
 
-    def set_config_val(self, val):
+    def set_config_val(self, val) -> None:
         self.config_obj[self.name] = val
 
-    def set_gui_val(self, val):
+    def set_gui_val(self, val) -> None:
         if self.datatype == 'bool':
             self.gui_obj.setChecked(bool(val))
         elif self.datatype == 'number':
@@ -259,7 +259,7 @@ class Setting:
 
 
 class CommaSeparatedList(Setting):
-    def set_gui_val(self, val):
+    def set_gui_val(self, val) -> None:
         x = ''
         if val:
             x = ', '.join(val)
@@ -294,7 +294,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
     supports_restoring_to_defaults = True
     restart_critical = False
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         if hasattr(self, 'setupUi'):
             self.setupUi(self)  # type: ignore
@@ -344,7 +344,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         self.settings[setting.name] = setting
         return setting
 
-    def initialize(self):
+    def initialize(self) -> None:
         for setting in self.settings.values():
             setting.initialize()
 
@@ -356,11 +356,11 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
                 restart_required = True
         return restart_required
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         for setting in self.settings.values():
             setting.restore_defaults()
 
-    def register_child_tab(self, tab):
+    def register_child_tab(self, tab) -> None:
         self.child_tabs.append(tab)
 
 
@@ -377,24 +377,24 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
     top. It directly replaces ConfigWidgetBase, supporting the lazy operations.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.lazy_init_called = False
 
-    def ensure_lazy_initialized(self):
+    def ensure_lazy_initialized(self) -> None:
         if not self.lazy_init_called:
             if hasattr(self, 'lazy_initialize'):
                 self.lazy_initialize()  # type: ignore
             self.lazy_init_called = True
 
-    def set_changed_signal(self, changed_signal):
+    def set_changed_signal(self, changed_signal) -> None:
         self.changed_signal.connect(changed_signal)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         self.ensure_lazy_initialized()
         super().restore_defaults()
 
-    def showEvent(self, a0):
+    def showEvent(self, a0) -> None:
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
@@ -404,10 +404,10 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
 
 
 class ConfigDialog(QDialog):
-    def set_widget(self, w):
+    def set_widget(self, w) -> None:
         self.w = w
 
-    def accept(self):
+    def accept(self) -> None:
         try:
             self.restart_required = self.w.commit()
         except AbortCommit:
@@ -466,7 +466,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=
     button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
     button(QDialogButtonBox.StandardButton.Apply).clicked.connect(d.accept)
 
-    def onchange():
+    def onchange() -> None:
         b = button(QDialogButtonBox.StandardButton.Apply)
         b.setEnabled(True)
         b.setDefault(True)
@@ -502,7 +502,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=
 
 
 class ListViewWithMoveByKeyPress(QListView):
-    def set_movement_functions(self, up_function, down_function):
+    def set_movement_functions(self, up_function, down_function) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
@@ -519,7 +519,7 @@ class ListViewWithMoveByKeyPress(QListView):
 class ListWidgetWithMoveByKeyPress(QListWidget):
     handle_drop_event: Callable[[QDropEvent | None], None] | None = None
 
-    def set_movement_functions(self, up_function, down_function):
+    def set_movement_functions(self, up_function, down_function) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
@@ -532,7 +532,7 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
             return True
         return QListWidget.event(self, e)
 
-    def dropEvent(self, event: QDropEvent | None):
+    def dropEvent(self, event: QDropEvent | None) -> None:
         if self.handle_drop_event is not None:
             self.handle_drop_event(event)
         else:
@@ -540,7 +540,7 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
 
 
 class TableWidgetWithMoveByKeyPress(QTableWidget):
-    def set_movement_functions(self, up_function, down_function):
+    def set_movement_functions(self, up_function, down_function) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
@@ -568,11 +568,11 @@ def get_move_count(row_count):
 # Testing {{{
 
 
-def test_widget(category, name, gui=None, callback=None):
+def test_widget(category, name, gui=None, callback=None) -> None:
     show_config_widget(category, name, gui=gui, show_restart_msg=True, callback=callback)
 
 
-def test_all():
+def test_all() -> None:
     from qt.core import QApplication
 
     _app = QApplication([])

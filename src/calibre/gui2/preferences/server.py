@@ -70,7 +70,7 @@ if iswindows and not isportable:
         startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
         return os.path.join(startup_path, 'calibre.lnk')
 
-    def create_shortcut(shortcut_path, target, description, *args):
+    def create_shortcut(shortcut_path, target, description, *args) -> None:
         quoted_args = None
         if args:
             quoted_args = []
@@ -87,7 +87,7 @@ if iswindows and not isportable:
             return False
         return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(target))
 
-    def set_run_at_startup(run_at_startup=True):
+    def set_run_at_startup(run_at_startup=True) -> None:
         if run_at_startup:
             create_shortcut(startup_shortcut_path(), get_exe(), 'calibre - E-book management', '--start-in-tray')
         else:
@@ -109,7 +109,7 @@ else:
 # Advanced {{{
 
 
-def init_opt(widget, opt, layout):
+def init_opt(widget, opt, layout) -> None:
     widget.name, widget.default_val = opt.name, opt.default
     if opt.longdoc:
         widget.setWhatsThis(opt.longdoc)
@@ -123,7 +123,7 @@ class Bool(QCheckBox):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         opt = options[name]
         QCheckBox.__init__(self)
         self.stateChanged.connect(self.changed_signal.emit)
@@ -132,7 +132,7 @@ class Bool(QCheckBox):
     def get(self):
         return self.isChecked()
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.setChecked(bool(val))
 
 
@@ -141,7 +141,7 @@ class Int(QSpinBox):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         QSpinBox.__init__(self)
         self.setRange(0, 99999)
         opt = options[name]
@@ -151,7 +151,7 @@ class Int(QSpinBox):
     def get(self):
         return self.value()
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.setValue(int(val))
 
 
@@ -160,7 +160,7 @@ class Float(QDoubleSpinBox):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         QDoubleSpinBox.__init__(self)
         self.setRange(0, 20000)
         self.setDecimals(1)
@@ -171,7 +171,7 @@ class Float(QDoubleSpinBox):
     def get(self):
         return self.value()
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.setValue(float(val))
 
 
@@ -180,7 +180,7 @@ class Text(QLineEdit):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         QLineEdit.__init__(self)
         self.setClearButtonEnabled(True)
         opt = options[name]
@@ -190,7 +190,7 @@ class Text(QLineEdit):
     def get(self):
         return self.text().strip() or None
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.setText(str(val or ''))
 
 
@@ -199,7 +199,7 @@ class Path(QWidget):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         QWidget.__init__(self)
         self.dname = name
         opt = options[name]
@@ -221,10 +221,10 @@ class Path(QWidget):
     def get(self):
         return self.text.text().strip() or None
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.text.setText(str(val or ''))
 
-    def choose(self):
+    def choose(self) -> None:
         ans = choose_files(self, 'choose_path_srv_opts_' + self.dname, _('Choose a file'), select_only_single_file=True)
         if ans:
             self.set(ans[0])
@@ -236,7 +236,7 @@ class Choices(QComboBox):
     default_val: object
     changed_signal = pyqtSignal()
 
-    def __init__(self, name, layout):
+    def __init__(self, name, layout) -> None:
         QComboBox.__init__(self)
         self.setEditable(False)
         opt = options[name]
@@ -248,7 +248,7 @@ class Choices(QComboBox):
     def get(self):
         return self.currentText()
 
-    def set(self, val):
+    def set(self, val) -> None:
         if val in self.choices:
             self.setCurrentText(val)
         else:
@@ -258,7 +258,7 @@ class Choices(QComboBox):
 class AdvancedTab(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -286,13 +286,13 @@ class AdvancedTab(QWidget):
             self.widgets.append(w)
             self.widget_map[name] = w
 
-    def genesis(self):
+    def genesis(self) -> None:
         opts = server_config()
         for w in self.widgets:
             w.set(getattr(opts, w.name))
             w.changed_signal.connect(self.changed_signal.emit)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         for w in self.widgets:
             w.set(w.default_val)
 
@@ -321,7 +321,7 @@ class MainTab(QWidget):  # {{{
     stop_server_button: QPushButton
     test_server_button: QPushButton
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(
@@ -386,7 +386,7 @@ class MainTab(QWidget):  # {{{
 
         l.addStretch(10)
 
-    def set_run_at_start_text(self):
+    def set_run_at_start_text(self) -> None:
         assert is_set_to_run_at_startup is not None
         is_autostarted = is_set_to_run_at_startup()
         self.run_at_start_button.setText(
@@ -402,13 +402,13 @@ class MainTab(QWidget):  # {{{
             )
         )
 
-    def toggle_run_at_startup(self):
+    def toggle_run_at_startup(self) -> None:
         assert set_run_at_startup is not None
         assert is_set_to_run_at_startup is not None
         set_run_at_startup(not is_set_to_run_at_startup())
         self.set_run_at_start_text()
 
-    def update_ip_info(self):
+    def update_ip_info(self) -> None:
         from calibre.gui2.ui import get_gui
 
         gui = get_gui()
@@ -417,7 +417,7 @@ class MainTab(QWidget):  # {{{
             t = t.strip().strip('[]')
             self.ip_info.setText(_('Content server listening at: %s') % t)
 
-    def genesis(self):
+    def genesis(self) -> None:
         opts = server_config()
         self.opt_auth.setChecked(opts.auth)
         self.opt_auth.stateChanged.connect(self.auth_changed)
@@ -425,7 +425,7 @@ class MainTab(QWidget):  # {{{
         self.change_auth_desc()
         self.update_button_state()
 
-    def change_auth_desc(self):
+    def change_auth_desc(self) -> None:
         self.auth_desc.setText(
             _('Remember to create at least one user account in the "User accounts" tab')
             if self.opt_auth.isChecked()
@@ -437,15 +437,15 @@ class MainTab(QWidget):  # {{{
             )
         )
 
-    def auth_changed(self):
+    def auth_changed(self) -> None:
         self.changed_signal.emit()
         self.change_auth_desc()
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.opt_auth.setChecked(options['auth'].default)  # ty: ignore[invalid-argument-type]
         self.opt_port.setValue(options['port'].default)  # ty: ignore[invalid-argument-type]
 
-    def update_button_state(self):
+    def update_button_state(self) -> None:
         from calibre.gui2.ui import get_gui
 
         gui = get_gui()
@@ -468,7 +468,7 @@ class MainTab(QWidget):  # {{{
 
 
 class NewUser(QDialog):
-    def __init__(self, user_data, parent=None, username=None):
+    def __init__(self, user_data, parent=None, username=None) -> None:
         QDialog.__init__(self, parent)
         self.user_data = user_data
         self.setWindowTitle(_('Change password for {}').format(username) if username else _('Add new user'))
@@ -495,7 +495,7 @@ class NewUser(QDialog):
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         (self.uw if not username else self.p1).setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def show_password(self):
+    def show_password(self) -> None:
         for p in self.p1, self.p2:
             p.setEchoMode(QLineEdit.EchoMode.Normal if self.showp.isChecked() else QLineEdit.EchoMode.PasswordEchoOnEdit)
 
@@ -536,7 +536,7 @@ class NewUser(QDialog):
 class Library(QWidget):
     restriction_changed = pyqtSignal(object, object)
 
-    def __init__(self, name, is_checked=False, path='', restriction='', parent=None, is_first=False, enable_on_checked=True):
+    def __init__(self, name, is_checked=False, path='', restriction='', parent=None, is_first=False, enable_on_checked=True) -> None:
         QWidget.__init__(self, parent)
         self.name = name
         self.enable_on_checked = enable_on_checked
@@ -572,13 +572,13 @@ class Library(QWidget):
         l.addWidget(rw)
         self.state_changed()
 
-    def state_changed(self):
+    def state_changed(self) -> None:
         c = self.cw.isChecked()
         w = (self.enable_on_checked and c) or (not self.enable_on_checked and not c)
         for x in (self.la, self.rw):
             x.setEnabled(bool(w))
 
-    def on_rchange(self):
+    def on_rchange(self) -> None:
         self.restriction_changed.emit(self.name, self.restriction)
 
     @property
@@ -591,7 +591,7 @@ class Library(QWidget):
 
 
 class ChangeRestriction(QDialog):
-    def __init__(self, username, restriction, parent=None):
+    def __init__(self, username, restriction, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Change library access permissions for {}').format(username))
         self.username = username
@@ -641,7 +641,7 @@ class ChangeRestriction(QDialog):
     def items(self):
         return frozenset(item.name for item in self if item.is_checked)
 
-    def clear(self):
+    def clear(self) -> None:
         for c in self:
             self.libraries_layout.removeWidget(c)
             c.setParent(None)
@@ -650,7 +650,7 @@ class ChangeRestriction(QDialog):
         self._items = []
 
     @items.setter
-    def items(self, val):
+    def items(self, val) -> None:
         self.clear()
         checked_libraries = frozenset(val)
         library_paths = load_gui_libraries(gprefs)
@@ -679,7 +679,7 @@ class ChangeRestriction(QDialog):
             self.libraries_layout.addWidget(l)
             self._items.append(l)
 
-    def restriction_changed(self, name, val):
+    def restriction_changed(self, name, val) -> None:
         name = name.lower()
         self.library_restrictions[name] = val
 
@@ -697,7 +697,7 @@ class ChangeRestriction(QDialog):
             return error_dialog(self, _('No libraries specified'), _('You have not specified any libraries'), show=True)
         return QDialog.accept(self)
 
-    def atype_changed(self):
+    def atype_changed(self) -> None:
         ci = self.atype.currentIndex()
         sheet = ''
         if ci == 0:
@@ -718,7 +718,7 @@ class ChangeRestriction(QDialog):
 class User(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.l = l = QFormLayout(self)
@@ -746,24 +746,24 @@ class User(QWidget):
 
         self.show_user()
 
-    def change_password(self):
+    def change_password(self) -> None:
         assert self.user_data is not None
         d = NewUser(self.user_data, self, self.username)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['pw'] = d.password
             self.changed_signal.emit()
 
-    def readonly_changed(self):
+    def readonly_changed(self) -> None:
         assert self.user_data is not None
         self.user_data[self.username]['readonly'] = not self.rw.isChecked()
         self.changed_signal.emit()
 
-    def cpw_changed(self):
+    def cpw_changed(self) -> None:
         assert self.user_data is not None
         self.user_data[self.username]['allow_change_password_via_http'] = bool(self.cpw.isChecked())
         self.changed_signal.emit()
 
-    def update_restriction(self):
+    def update_restriction(self) -> None:
         username, user_data = self.username, self.user_data
         assert user_data is not None
         r = user_data[username]['restriction']
@@ -789,7 +789,7 @@ class User(QWidget):
         self.restrict_button.setText(b)
         self.access_label.setText(m.format(username))
 
-    def show_user(self, username=None, user_data=None):
+    def show_user(self, username=None, user_data=None) -> None:
         self.username, self.user_data = username, user_data
         self.cpb.setVisible(username is not None)
         self.username_label.setText(('<h2>' + username) if username else '')
@@ -818,7 +818,7 @@ class User(QWidget):
             self.access_label.setVisible(False)
             self.restrict_button.setVisible(False)
 
-    def change_restriction(self):
+    def change_restriction(self) -> None:
         assert self.user_data is not None
         d = ChangeRestriction(self.username, self.user_data[self.username]['restriction'].copy(), parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -835,7 +835,7 @@ class User(QWidget):
 class Users(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.lp = lp = QVBoxLayout()
@@ -860,17 +860,17 @@ class Users(QWidget):
         u.changed_signal.connect(self.changed_signal.emit)
         l.addWidget(u)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.user_data = UserManager().user_data
         self.user_list.addItems(sorted(self.user_data, key=primary_sort_key))
         self.user_list.setCurrentRow(0)
         self.user_list.currentItemChanged.connect(self.current_item_changed)
         self.current_item_changed()
 
-    def current_user_activated(self):
+    def current_user_activated(self) -> None:
         self.user_display.change_password()
 
-    def current_item_changed(self):
+    def current_item_changed(self) -> None:
         item = self.user_list.currentItem()
         if item is None:
             username = None
@@ -880,7 +880,7 @@ class Users(QWidget):
             username = None
         self.display_user_data(username)
 
-    def add_user(self):
+    def add_user(self) -> None:
         d = NewUser(self.user_data, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             un, pw = d.username, d.password
@@ -890,7 +890,7 @@ class Users(QWidget):
             self.display_user_data(un)
             self.changed_signal.emit()
 
-    def remove_user(self):
+    def remove_user(self) -> None:
         u = self.user_list.currentItem()
         if u is not None:
             self.user_list.takeItem(self.user_list.row(u))
@@ -899,7 +899,7 @@ class Users(QWidget):
             self.changed_signal.emit()
             self.current_item_changed()
 
-    def display_user_data(self, username=None):
+    def display_user_data(self, username=None) -> None:
         self.user_display.show_user(username, self.user_data)
 
 
@@ -909,7 +909,7 @@ class Users(QWidget):
 class CustomList(QWidget):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.default_template = default_custom_list_template()
         self.l = l = QFormLayout(self)
@@ -975,7 +975,7 @@ class CustomList(QWidget):  # {{{
         b.clicked.connect(self.export_template)
         l.addRow(bb)
 
-    def import_template(self):
+    def import_template(self) -> None:
         paths = choose_files(
             self,
             'custom-list-template',
@@ -989,7 +989,7 @@ class CustomList(QWidget):  # {{{
                 raw = f.read()
             self.current_template = self.deserialize(raw)
 
-    def export_template(self):
+    def export_template(self) -> None:
         path = choose_save_file(
             self,
             'custom-list-template',
@@ -1002,7 +1002,7 @@ class CustomList(QWidget):  # {{{
             with open(path, 'wb') as f:
                 f.write(as_bytes(raw))
 
-    def thumbnail_state_changed(self):
+    def thumbnail_state_changed(self) -> None:
         is_enabled = bool(self.thumbnail.isChecked())
         layout_ = self.layout()
         assert isinstance(layout_, QFormLayout)
@@ -1012,7 +1012,7 @@ class CustomList(QWidget):  # {{{
             if lbl is not None:
                 lbl.setVisible(is_enabled is x)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.current_template = custom_list_template() or self.default_template
 
     @property
@@ -1026,7 +1026,7 @@ class CustomList(QWidget):  # {{{
         }
 
     @current_template.setter
-    def current_template(self, template):
+    def current_template(self, template) -> None:
         self.thumbnail.setChecked(bool(template.get('thumbnail')))
         try:
             th = int(template['thumbnail_height'])
@@ -1043,10 +1043,10 @@ class CustomList(QWidget):  # {{{
     def deserialize(self, raw):
         return json.loads(raw)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.current_template = self.default_template
 
-    def commit(self):
+    def commit(self) -> bool:
         template = self.current_template
         if template == self.default_template:
             try:
@@ -1069,7 +1069,7 @@ class CustomList(QWidget):  # {{{
 class URLItem(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, as_dict, parent=None):
+    def __init__(self, as_dict, parent=None) -> None:
         QWidget.__init__(self, parent)
         assert parent is not None
         self.changed_signal.connect(parent.changed_signal)
@@ -1093,15 +1093,15 @@ class URLItem(QWidget):
         self.url_widget.textChanged.connect(self.changed_signal)
 
     @property
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return not self.name or not self.url
 
     @property
-    def url_type(self):
+    def url_type(self) -> str:
         return 'book' if self.type_widget.currentIndex() == 0 else 'author'
 
     @url_type.setter
-    def url_type(self, val):
+    def url_type(self, val) -> None:
         self.type_widget.setCurrentIndex(1 if val == 'author' else 0)
 
     @property
@@ -1109,7 +1109,7 @@ class URLItem(QWidget):
         return self.name_widget.text().strip()
 
     @name.setter
-    def name(self, val):
+    def name(self, val) -> None:
         self.name_widget.setText((val or '').strip())
 
     @property
@@ -1117,14 +1117,14 @@ class URLItem(QWidget):
         return self.url_widget.text().strip()
 
     @url.setter
-    def url(self, val):
+    def url(self, val) -> None:
         self.url_widget.setText((val or '').strip())
 
     @property
     def as_dict(self):
         return {'name': self.name, 'url': self.url, 'type': self.url_type}
 
-    def validate(self):
+    def validate(self) -> bool:
         if self.is_empty:
             return True
         if '{author}' not in self.url:
@@ -1149,7 +1149,7 @@ class URLItem(QWidget):
 class SearchTheInternet(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.sa = QScrollArea(self)
         self.lw = QWidget(self)
@@ -1186,34 +1186,34 @@ class SearchTheInternet(QWidget):
         gl.addWidget(self.sa, stretch=10)
         self.items = []
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.current_urls = search_the_net_urls() or []
 
     @property
     def current_urls(self):
         return [item.as_dict for item in self.items if not item.is_empty]
 
-    def append_item(self, item_as_dict):
+    def append_item(self, item_as_dict) -> None:
         self.items.append(URLItem(item_as_dict, self))
         self.l.addWidget(self.items[-1])
 
-    def clear(self):
+    def clear(self) -> None:
         [(self.l.removeWidget(w), w.setParent(None), w.deleteLater()) for w in self.items]
         self.items = []
         self.changed_signal.emit()
 
     @current_urls.setter
-    def current_urls(self, val):
+    def current_urls(self, val) -> None:
         self.clear()
         for entry in val:
             self.append_item(entry)
 
-    def add_url(self):
+    def add_url(self) -> None:
         self.items.append(URLItem(None, self))
         self.l.addWidget(self.items[-1])
         QTimer.singleShot(100, self.scroll_to_bottom)
 
-    def scroll_to_bottom(self):
+    def scroll_to_bottom(self) -> None:
         sb = self.sa.verticalScrollBar()
         if sb:
             sb.setValue(sb.maximum())
@@ -1223,7 +1223,7 @@ class SearchTheInternet(QWidget):
     def serialized_urls(self):
         return json.dumps(self.current_urls, indent=2)
 
-    def commit(self):
+    def commit(self) -> bool:
         for item in self.items:
             if not item.validate():
                 return False
@@ -1239,7 +1239,7 @@ class SearchTheInternet(QWidget):
                     raise
         return True
 
-    def export_urls(self):
+    def export_urls(self) -> None:
         path = choose_save_file(
             self,
             'search-net-urls',
@@ -1251,7 +1251,7 @@ class SearchTheInternet(QWidget):
             with open(path, 'wb') as f:
                 f.write(self.serialized_urls.encode('utf-8'))
 
-    def import_urls(self):
+    def import_urls(self) -> None:
         paths = choose_files(
             self,
             'search-net-urls',
@@ -1271,7 +1271,7 @@ class SearchTheInternet(QWidget):
 
 
 class ConfigWidget(ConfigWidgetBase):
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         ConfigWidgetBase.__init__(self, *args, **kw)
         self.l = l = QVBoxLayout(self)
         self.restart_server_after_stop = False
@@ -1316,13 +1316,13 @@ class ConfigWidget(ConfigWidgetBase):
     def server(self):
         return self.gui.content_server
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         for tab in self.tabs:
             if hasattr(tab, 'restore_defaults'):
                 tab.restore_defaults()
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         for tab in self.tabs:
             tab.genesis()
@@ -1330,7 +1330,7 @@ class ConfigWidget(ConfigWidgetBase):
         r = self.register
         r('autolaunch_server', config)
 
-    def start_server(self):
+    def start_server(self) -> None:
         if not self.save_changes():
             return
         if self.server and self.server.is_running:
@@ -1350,7 +1350,7 @@ class ConfigWidget(ConfigWidgetBase):
         finally:
             self.unsetCursor()
 
-    def stop_server(self):
+    def stop_server(self) -> None:
         self.server.stop()
         self.stopping_msg = info_dialog(
             self,
@@ -1361,7 +1361,7 @@ class ConfigWidget(ConfigWidgetBase):
         QTimer.singleShot(500, self.check_exited)
         self.stopping_msg.exec()
 
-    def check_exited(self):
+    def check_exited(self) -> None:
         if getattr(self.server, 'is_running', False):
             QTimer.singleShot(20, self.check_exited)
             return
@@ -1373,7 +1373,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.restart_server_after_stop = False
             self.start_server()
 
-    def test_server(self):
+    def test_server(self) -> None:
         from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
 
         prefix = self.advanced_tab.get('url_prefix') or ''
@@ -1383,7 +1383,7 @@ class ConfigWidget(ConfigWidgetBase):
         url = f'{protocol}://{format_addr_for_url(addr)}:{self.main_tab.opt_port.value()}{prefix}'
         open_url(QUrl(url))
 
-    def view_server_logs(self):
+    def view_server_logs(self) -> None:
         from calibre.srv.embedded import log_paths
 
         log_error_file, log_access_file = log_paths()
@@ -1437,7 +1437,7 @@ class ConfigWidget(ConfigWidgetBase):
         b.clicked.connect(clear_logs)
         d.show()
 
-    def save_changes(self):
+    def save_changes(self) -> bool:
         settings = {}
         for tab in self.tabs:
             settings.update(getattr(tab, 'settings', {}))
@@ -1472,13 +1472,13 @@ class ConfigWidget(ConfigWidgetBase):
         UserManager().user_data = users
         return True
 
-    def commit(self, *args):
+    def commit(self, *args) -> bool:
         if not self.save_changes():
             raise AbortCommit()
         warning_dialog(self, _('Restart needed'), _('You need to restart the server for changes to take effect'), show=True)
         return False
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         if self.server:
             self.server.user_manager.refresh()
             self.server.ctx.custom_list_template = custom_list_template()

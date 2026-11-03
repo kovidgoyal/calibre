@@ -18,7 +18,7 @@ class SaveToDiskAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = True
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.save_to_disk)
         self.save_menu = self.qaction.menu()
         assert self.save_menu is not None
@@ -36,21 +36,21 @@ class SaveToDiskAction(InterfaceAction):
         )
         cm('specific format', _('Save single format to disk...'), triggered=self.save_specific_format_disk)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         assert self.save_menu is not None
         for action in list(self.save_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def reread_prefs(self):
+    def reread_prefs(self) -> None:
         assert self.save_menu is not None
         self.save_menu.actions()[2].setText(_('Save only %s format to disk') % prefs['output_format'].upper())
         self.save_menu.actions()[3].setText(_('Save only %s format to disk in a single folder') % prefs['output_format'].upper())
 
-    def save_single_format_to_disk(self, checked):
+    def save_single_format_to_disk(self, checked) -> None:
         self.save_to_disk(checked, False, prefs['output_format'])
 
-    def save_specific_format_disk(self):
+    def save_specific_format_disk(self) -> None:
         rb = self.gui.iactions['Remove Books']
         ids = rb._get_selected_ids(err_title=_('Cannot save to disk'))
         if not ids:
@@ -61,10 +61,10 @@ class SaveToDiskAction(InterfaceAction):
         fmt = list(fmts)[0]
         self.save_to_disk(False, False, fmt)
 
-    def save_to_single_dir(self, checked):
+    def save_to_single_dir(self, checked) -> None:
         self.save_to_disk(checked, True)
 
-    def save_single_fmt_to_single_dir(self, *args):
+    def save_single_fmt_to_single_dir(self, *args) -> None:
         self.save_to_disk(False, single_dir=True, single_format=prefs['output_format'])
 
     def save_to_disk(self, checked, single_dir=False, single_format=None, rows=None, write_opf=None, save_cover=None, saver_class=None, path=None):
@@ -121,7 +121,7 @@ class SaveToDiskAction(InterfaceAction):
             paths = self.gui.current_view().model().paths(rows)
             self.gui.device_manager.save_books(Dispatcher(self.books_saved), paths, path)
 
-    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True, path=None, saver_class=None):
+    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True, path=None, saver_class=None) -> None:
         if isinstance(book_ids, numbers.Integral):
             book_ids = [book_ids]
         rows = list(self.gui.library_view.ids_to_rows(book_ids).values())

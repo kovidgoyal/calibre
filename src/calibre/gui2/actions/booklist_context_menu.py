@@ -13,11 +13,11 @@ class BooklistContextMenuAction(InterfaceAction):
     action_add_menu = False
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_context_menu)
 
-    def show_context_menu(self):
+    def show_context_menu(self) -> None:
         self.gui.library_view.show_column_header_context_menu_from_action()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         self.qaction.setEnabled(loc == 'library')

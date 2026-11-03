@@ -65,7 +65,7 @@ def entry_text(entry: TrashEntry) -> str:
 
 
 class TrashItemDelegate(QStyledItemDelegate):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.pixmap_cache = {}
 
@@ -74,7 +74,7 @@ class TrashItemDelegate(QStyledItemDelegate):
         text_height = (entry_text(entry).count('\n') + 1) * option.fontMetrics.lineSpacing()
         return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, max(THUMBNAIL_SIZE[1], text_height) + MARGIN_SIZE)
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         super().paint(painter, option, index)
         painter.save()
         entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)
@@ -115,7 +115,7 @@ class TrashItemDelegate(QStyledItemDelegate):
 class TrashList(QListWidget):
     restore_item = pyqtSignal(object, object)
 
-    def __init__(self, entries: list[TrashEntry], parent: TrashView, is_books: bool):
+    def __init__(self, entries: list[TrashEntry], parent: TrashView, is_books: bool) -> None:
         super().__init__(parent)
         self.is_books = is_books
         self.db = parent.db
@@ -135,10 +135,10 @@ class TrashList(QListWidget):
         for i in self.selectedItems():
             yield i.data(Qt.ItemDataRole.UserRole)
 
-    def double_clicked(self, item):
+    def double_clicked(self, item) -> None:
         self.restore_item.emit(self, item)
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         item = self.itemAt(pos)
         if item is None:
             return
@@ -149,12 +149,12 @@ class TrashList(QListWidget):
         _save_action.triggered.connect(self.save_current_item)
         m.exec(self.mapToGlobal(pos))
 
-    def save_current_item(self):
+    def save_current_item(self) -> None:
         item = self.currentItem()
         if item is not None:
             self.save_entry(item.data(Qt.ItemDataRole.UserRole))
 
-    def save_entry(self, entry: TrashEntry):
+    def save_entry(self, entry: TrashEntry) -> None:
         if self.is_books:
             dest = choose_dir(self, 'save-trash-book', _('Choose a location to save: {}').format(entry.title))
             if not dest:
@@ -175,7 +175,7 @@ class TrashList(QListWidget):
 class TrashView(Dialog):
     books_restored = pyqtSignal(object)
 
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None) -> None:
         self.db = db.new_api
         self.expire_on_close = False
         self.formats_restored = set()
@@ -187,7 +187,7 @@ class TrashView(Dialog):
         )
         self.finished.connect(self.expire_old_trash)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setWindowIcon(QIcon.ic('trash.png'))
 
@@ -247,7 +247,7 @@ class TrashView(Dialog):
         assert _close_btn is not None
         _close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def clear_all(self):
+    def clear_all(self) -> None:
         if not confirm(
             '<p>' + _('All books and formats will be <b>permanently deleted</b>! Are you sure?'),
             'clear_trash_bin',
@@ -259,13 +259,13 @@ class TrashView(Dialog):
         self.formats.clear()
         self.update_titles()
 
-    def update_restore_button(self):
+    def update_restore_button(self) -> None:
         cw = self.tabs.currentWidget()
         assert isinstance(cw, TrashList)
         entries = tuple(cw.selected_entries)
         self.restore_button.setEnabled(not entries or any(e.restorable for e in entries))
 
-    def mark_formats_restorable(self, book_ids):
+    def mark_formats_restorable(self, book_ids) -> None:
         # Removed formats of a book become restorable once the book itself is restored
         for row in range(self.formats.count()):
             item = self.formats.item(row)
@@ -277,7 +277,7 @@ class TrashView(Dialog):
                 item.setData(Qt.ItemDataRole.UserRole, replace(entry, restorable=True, cover_path=cover_path))
         self.update_restore_button()
 
-    def show_not_restorable(self, entries: list[TrashEntry]):
+    def show_not_restorable(self, entries: list[TrashEntry]) -> None:
         error_dialog(
             self,
             _('Cannot restore formats'),
@@ -286,15 +286,15 @@ class TrashView(Dialog):
             show=True,
         )
 
-    def update_titles(self):
+    def update_titles(self) -> None:
         self.tabs.setTabText(0, _('&Books ({})').format(self.books.count()))
         self.tabs.setTabText(1, _('&Formats ({})').format(self.formats.count()))
 
-    def trash_expiry_time_changed(self, val):
+    def trash_expiry_time_changed(self, val) -> None:
         self.db.set_pref('expire_old_trash_after', 86400 * self.auto_delete.value())
         self.expire_on_close = True
 
-    def expire_old_trash(self):
+    def expire_old_trash(self) -> None:
         if self.expire_on_close:
             self.db.expire_old_trash()
 
@@ -319,7 +319,7 @@ class TrashView(Dialog):
     def books_tab_is_selected(self):
         return self.tabs.currentWidget() is self.books
 
-    def restore_item(self, which, item):
+    def restore_item(self, which, item) -> None:
         is_books = which is self.books
         entry = item.data(Qt.ItemDataRole.UserRole)
         if is_books:
@@ -334,7 +334,7 @@ class TrashView(Dialog):
                 self.db.move_format_from_trash(entry.book_id, fmt)
         self.remove_entries([item])
 
-    def restore_selected(self):
+    def restore_selected(self) -> None:
         is_books = self.books_tab_is_selected
         done = set()
         not_restorable = []
@@ -345,7 +345,7 @@ class TrashView(Dialog):
                     not_restorable.append(entry)
                     i.setSelected(False)
 
-        def f(entry):
+        def f(entry) -> None:
             if is_books:
                 self.db.move_book_from_trash(entry.book_id)
                 done.add(entry.book_id)
@@ -362,7 +362,7 @@ class TrashView(Dialog):
         if not_restorable:
             self.show_not_restorable(not_restorable)
 
-    def remove_entries(self, remove):
+    def remove_entries(self, remove) -> None:
         w = self.tabs.currentWidget()
         assert isinstance(w, TrashList)
         for i in remove:
@@ -370,17 +370,17 @@ class TrashView(Dialog):
         self.update_titles()
         self.update_restore_button()
 
-    def delete_selected(self):
+    def delete_selected(self) -> None:
         category = 'b' if self.books_tab_is_selected else 'f'
 
-        def f(entry):
+        def f(entry) -> None:
             self.db.delete_trash_entry(entry.book_id, category)
 
         ok, failed = self.do_operation_on_selected(f)
         self.remove_entries(ok)
         self.show_failures(failed, _('delete'))
 
-    def show_failures(self, failures, operation):
+    def show_failures(self, failures, operation) -> None:
         if not failures:
             return
         det_msg = []

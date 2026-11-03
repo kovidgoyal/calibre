@@ -35,7 +35,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     action_type = 'current'
     action_add_menu = True
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
@@ -43,7 +43,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             rows = [db.row(i) for i in book_ids]
             self.edit_metadata_for(rows, book_ids)
 
-    def genesis(self):
+    def genesis(self) -> None:
         md = self.qaction.menu()
         assert md is not None
         cm = partial(self.create_menu_action, md)
@@ -120,7 +120,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             group=self.action_spec[0],
         )
 
-    def manage_data_files(self):
+    def manage_data_files(self) -> None:
         from calibre.gui2.dialogs.data_files_manager import DataFilesManager
 
         db = self.gui.current_db
@@ -134,7 +134,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids(ids, cr)
 
-    def _copy_links(self, lines):
+    def _copy_links(self, lines) -> None:
         urls = QUrl.fromStringList(lines)
         cb = qapplication_or_fail().clipboard()
         assert cb is not None
@@ -143,7 +143,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         md.setUrls(urls)
         cb.setMimeData(md)
 
-    def copy_show_link(self):
+    def copy_show_link(self) -> None:
         db = self.gui.current_db
         ids = [db.id(row.row()) for row in self.gui.library_view.selectionModel().selectedRows()]
         db = db.new_api
@@ -153,7 +153,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         lines = [f'calibre://show-book/{library_id}/{book_id}' for book_id in ids]
         self._copy_links(lines)
 
-    def copy_view_link(self):
+    def copy_view_link(self) -> None:
         from calibre.gui2.actions.view import preferred_format
 
         db = self.gui.current_db
@@ -171,7 +171,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if lines:
             self._copy_links(lines)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -202,10 +202,10 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         assert c is not None
         c.setMimeData(md)
 
-    def paste_metadata(self):
+    def paste_metadata(self) -> None:
         self.do_paste()
 
-    def paste_metadata_including_excluded_fields(self):
+    def paste_metadata_including_excluded_fields(self) -> None:
         self.do_paste(ignore_excluded_fields=True)
 
     def do_paste(self, ignore_excluded_fields=False):
@@ -277,7 +277,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             return
         start_download(self.gui, ids, Dispatcher(self.metadata_downloaded), ensure_fields=ensure_fields)
 
-    def cleanup_bulk_download(self, tdir, *args):
+    def cleanup_bulk_download(self, tdir, *args) -> None:
         try:
             shutil.rmtree(tdir, ignore_errors=True)
         except Exception:
@@ -355,7 +355,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             action_icon=QIcon.ic('auto_author_sort.png'),
         )
 
-    def apply_downloaded_metadata(self, review, payload, *args):
+    def apply_downloaded_metadata(self, review, payload, *args) -> None:
         good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
@@ -480,14 +480,14 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             callback=partial(self.downloaded_metadata_applied, tdir, restrict_to_failed),
         )
 
-    def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args):
+    def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args) -> None:
         if restrict_to_failed:
             self.gui.search.set_search_string('marked:true')
         self.cleanup_bulk_download(tdir)
 
     # }}}
 
-    def edit_metadata(self, checked, bulk=None):
+    def edit_metadata(self, checked, bulk=None) -> None:
         """
         Edit metadata of selected books in library.
         """
@@ -536,7 +536,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             else:
                 view.horizontalScrollBar().setValue(hpos)
 
-    def refresh_books_after_metadata_edit(self, book_ids, previous=None):
+    def refresh_books_after_metadata_edit(self, book_ids, previous=None) -> None:
         m = self.gui.library_view.model()
         m.refresh_ids(list(book_ids))
         current = self.gui.library_view.currentIndex()
@@ -573,7 +573,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         finally:
             self.override_parent = orig
 
-    def set_current_callback(self, id_):
+    def set_current_callback(self, id_) -> None:
         db = self.gui.library_view.model().db
         # safe_id_to_index returns -1 (handled as no-op by set_current_row/scroll_to_row)
         # if the book is no longer in the view, e.g., because a metadata change caused
@@ -582,18 +582,18 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         self.gui.library_view.set_current_row(current_row)
         self.gui.library_view.scroll_to_row(current_row)
 
-    def view_format_callback(self, id_, fmt):
+    def view_format_callback(self, id_, fmt) -> None:
         view = self.gui.iactions['View']
         if id_ is None:
             view._view_file(fmt)
         else:
             view.view_format_by_id(id_, fmt)
 
-    def edit_format_callback(self, id_, fmt):
+    def edit_format_callback(self, id_, fmt) -> None:
         edit = self.gui.iactions['Tweak ePub']
         edit.ebook_edit_format(id_, fmt)
 
-    def edit_bulk_metadata(self, checked):
+    def edit_bulk_metadata(self, checked) -> None:
         """
         Edit metadata of selected books in library in bulk.
         """
@@ -606,7 +606,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             return
         self.do_edit_bulk_metadata(rows, ids)
 
-    def do_edit_bulk_metadata(self, rows, book_ids):
+    def do_edit_bulk_metadata(self, rows, book_ids) -> None:
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
         changed = False
@@ -645,7 +645,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.gui,
         )
 
-    def books_dropped(self, merge_map):
+    def books_dropped(self, merge_map) -> None:
         covers_replaced = False
         for dest_id, src_ids in merge_map.items():
             if not self.confirm_large_merge(len(src_ids) + 1):
@@ -770,10 +770,10 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         self.gui.library_view.model().refresh_ids((dest_id,), cr)
         self.gui.library_view.horizontalScrollBar().setValue(hpos)
 
-    def merge_data_files(self, dest_id, src_ids):
+    def merge_data_files(self, dest_id, src_ids) -> None:
         self.gui.current_db.new_api.merge_extra_files(dest_id, src_ids)
 
-    def add_formats(self, dest_id, src_books, replace=False):
+    def add_formats(self, dest_id, src_books, replace=False) -> None:
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
@@ -809,15 +809,15 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 src_ids.append(id_)
         return [dest_id, src_ids]
 
-    def delete_books_after_merge(self, ids_to_delete):
+    def delete_books_after_merge(self, ids_to_delete) -> None:
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
-    def merge_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False):
+    def merge_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False) -> None:
         self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover, save_alternate_cover=save_alternate_cover)
 
     # }}}
 
-    def edit_device_collections(self, view, oncard=None):
+    def edit_device_collections(self, view, oncard=None) -> None:
         model = view.model()
         result = model.get_collections_with_ids()
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
@@ -833,7 +833,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             view.reset()
 
     # Apply bulk metadata changes {{{
-    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None, merge_tags=True, merge_comments=False, icon=None):
+    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None, merge_tags=True, merge_comments=False, icon=None) -> None:
         """
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -892,7 +892,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.apply_pd.value += 1
         QTimer.singleShot(5, self.do_one_apply)
 
-    def apply_mi(self, book_id, mi):
+    def apply_mi(self, book_id, mi) -> None:
         db = self.gui.current_db
 
         try:
@@ -926,7 +926,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         except Exception:
             pass
 
-    def finalize_apply(self):
+    def finalize_apply(self) -> None:
         db = self.gui.current_db
         db.commit()
 
@@ -963,7 +963,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if changed_books:
             QApplication.alert(self.gui, 2000)
 
-    def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True):
+    def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True) -> None:
         if book_ids:
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(list(book_ids), cr)
@@ -974,7 +974,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     # }}}
 
-    def remove_metadata_item(self, book_id, field, value):
+    def remove_metadata_item(self, book_id, field, value) -> None:
         db = self.gui.current_db.new_api
         fm = db.field_metadata[field]
         affected_books = set()

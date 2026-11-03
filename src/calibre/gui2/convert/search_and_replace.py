@@ -21,7 +21,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     ICON = 'search.png'
     STRIP_TEXT_FIELDS = False
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         # Dummy attributes to fool the Widget() option handler code. We handle
         # everything in our *handler methods.
         for i in range(1, 4):
@@ -64,7 +64,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         except TypeError:
             pass  # link already localized
 
-    def sr_add_clicked(self):
+    def sr_add_clicked(self) -> None:
         if self.sr_search.regex:
             row = self.sr_add_row(self.sr_search.regex, self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
@@ -84,7 +84,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.setItem(row, 1, newItem)
         return row
 
-    def sr_change_clicked(self):
+    def sr_change_clicked(self) -> None:
         row = self.search_replace.currentRow()
         if row >= 0:
             item0 = self.search_replace.item(row, 0)
@@ -95,7 +95,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             item1.setText(self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
 
-    def sr_remove_clicked(self):
+    def sr_remove_clicked(self) -> None:
         row = self.search_replace.currentRow()
         if row >= 0:
             self.search_replace.removeRow(row)
@@ -104,7 +104,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.sr_replace.clear()
             self.changed_signal.emit()
 
-    def sr_load_clicked(self):
+    def sr_load_clicked(self) -> None:
         files = choose_files(
             self,
             'sr_saved_patterns',
@@ -127,7 +127,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     show=True,
                 )
 
-    def sr_save_clicked(self):
+    def sr_save_clicked(self) -> None:
         from calibre.ebooks.conversion.cli import escape_sr_pattern as escape
 
         filename = choose_save_file(
@@ -141,13 +141,13 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 for search, replace in self.get_definitions():
                     f.write(escape(search) + '\n' + escape(replace) + '\n\n')
 
-    def sr_up_clicked(self):
+    def sr_up_clicked(self) -> None:
         self.cell_rearrange(-1)
 
-    def sr_down_clicked(self):
+    def sr_down_clicked(self) -> None:
         self.cell_rearrange(1)
 
-    def cell_rearrange(self, i):
+    def cell_rearrange(self, i) -> None:
         row = self.search_replace.currentRow()
         for col in range(self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
@@ -159,7 +159,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             item2.setText(value)
         self.search_replace.setCurrentCell(row + i, 0)
 
-    def sr_currentCellChanged(self, row, column, previousRow, previousColumn):
+    def sr_currentCellChanged(self, row, column, previousRow, previousColumn) -> None:
         if row >= 0:
             self.sr_change.setEnabled(True)
             self.sr_remove.setEnabled(True)
@@ -180,17 +180,17 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.sr_down.setEnabled(False)
             self.sr_up.setEnabled(False)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         Widget.break_cycles(self)
 
         with suppress(TypeError):
             self.sr_search.doc_update.disconnect(self.update_doc)
         self.sr_search.break_cycles()
 
-    def update_doc(self, doc):
+    def update_doc(self, doc) -> None:
         self.sr_search.set_doc(doc)
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         definitions = self.get_definitions()
 
         # Verify the search/replace in the edit widgets has been
@@ -229,7 +229,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     # Options handling
 
-    def connect_gui_obj_handler(self, gui_obj, slot):
+    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
         if gui_obj is self.opt_search_replace:
             self.search_replace.cellChanged.connect(slot)
 
@@ -249,7 +249,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             ans.append(colItems)
         return ans
 
-    def set_value_handler(self, g, val):
+    def set_value_handler(self, g, val) -> bool:
         if g is not self.opt_search_replace:
             return True
 
@@ -275,7 +275,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 self.search_replace.setItem(row, col, newItem)
         return True
 
-    def apply_recommendations(self, recs):
+    def apply_recommendations(self, recs) -> None:
         """
         Handle the legacy sr* options that may have been previously saved. They
         are applied only if the new search_replace option has not been set in
@@ -308,7 +308,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if new_val is not None:
             self.set_value(self.opt_search_replace, new_val)
 
-    def setup_help_handler(self, g, help):
+    def setup_help_handler(self, g, help) -> bool:
         if g is self.opt_search_replace:
             setattr(
                 self.search_replace,

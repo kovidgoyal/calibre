@@ -10,7 +10,7 @@ from calibre.utils.localization import lang_map_for_ui
 
 
 class LanguagesEdit(EditWithComplete):
-    def __init__(self, parent=None, db=None, prefs=None):
+    def __init__(self, parent=None, db=None, prefs=None) -> None:
         self.prefs = prefs or gui_prefs()
         self.refresh_recently_used()
         EditWithComplete.__init__(self, parent, sort_func=self.sort_language_items_key)
@@ -28,14 +28,14 @@ class LanguagesEdit(EditWithComplete):
         assert isinstance(line_edit, LineEdit)
         line_edit.set_use_startswith_search(False)
 
-    def init_langs(self, db):
+    def init_langs(self, db) -> None:
         self.update_items_cache(self._lang_map.values())
 
-    def refresh_recently_used(self):
+    def refresh_recently_used(self) -> None:
         recently_used = self.prefs.get('recently_used_languages') or ()
         self.recently_used = {x: i for i, x in enumerate(recently_used) if x}
 
-    def update_recently_used(self):
+    def update_recently_used(self) -> None:
         recently_used = self.prefs.get('recently_used_languages') or []
         vals = self.vals
         for x in vals:
@@ -71,10 +71,10 @@ class LanguagesEdit(EditWithComplete):
         return ans
 
     @lang_codes.setter
-    def lang_codes(self, lang_codes):
+    def lang_codes(self, lang_codes) -> None:
         self.set_lang_codes(lang_codes, allow_undo=False)
 
-    def set_lang_codes(self, lang_codes, allow_undo=True):
+    def set_lang_codes(self, lang_codes, allow_undo=True) -> None:
         ans = []
         for lc in lang_codes:
             name = self._lang_map.get(lc, None)

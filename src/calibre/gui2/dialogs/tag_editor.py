@@ -12,11 +12,11 @@ from calibre.utils.localization import _
 
 
 class AccentInsensitiveFilter(QSortFilterProxyModel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._filter_text = ''
 
-    def set_filter_text(self, text):
+    def set_filter_text(self, text) -> None:
         self._filter_text = text
         self.invalidateFilter()
 
@@ -31,7 +31,7 @@ class AccentInsensitiveFilter(QSortFilterProxyModel):
 
 
 class TagEditor(QDialog, Ui_TagEditor):
-    def __init__(self, window, db, id_=None, key=None, current_tags=None):
+    def __init__(self, window, db, id_=None, key=None, current_tags=None) -> None:
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
@@ -160,12 +160,12 @@ class TagEditor(QDialog, Ui_TagEditor):
             self._vl_tags_cache = {item.name for item in cats.get(cat_key, [])}
         return self._vl_tags_cache
 
-    def _apply_vl_filter(self):
+    def _apply_vl_filter(self) -> None:
         vl_tags = self._get_vl_tags()
         applied = set(self._get_applied_tags_box_contents())
         self.all_tags_model.setStringList(sorted(vl_tags - applied, key=sort_key))
 
-    def _vl_restriction_changed(self, checked):
+    def _vl_restriction_changed(self, checked) -> None:
         if checked:
             self._apply_vl_filter()
         else:
@@ -176,10 +176,10 @@ class TagEditor(QDialog, Ui_TagEditor):
                 all_tags = list(self.db.all_tags())
             self.all_tags_model.setStringList(sorted(set(all_tags) - applied, key=sort_key))
 
-    def edit_box_changed(self, which):
+    def edit_box_changed(self, which) -> None:
         gprefs['tag_editor_last_filter'] = which
 
-    def delete_tags(self):
+    def delete_tags(self) -> None:
         confirms, deletes = [], []
         _avail_sel_model = self.available_tags.selectionModel()
         assert _avail_sel_model is not None
@@ -221,7 +221,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             _avail_model.removeRows(item.row(), 1)
         _avail_vsb.setValue(pos)
 
-    def apply_tags(self, item=None):
+    def apply_tags(self, item=None) -> None:
         _avail_sel_model2 = self.available_tags.selectionModel()
         assert _avail_sel_model2 is not None
         row_indices = list(_avail_sel_model2.selectedRows())
@@ -251,7 +251,7 @@ class TagEditor(QDialog, Ui_TagEditor):
     def _get_applied_tags_box_contents(self):
         return list(self.applied_model.stringList())
 
-    def unapply_tags(self, item=None):
+    def unapply_tags(self, item=None) -> None:
         _appl_sel_model = self.applied_tags.selectionModel()
         assert _appl_sel_model is not None
         row_indices = list(_appl_sel_model.selectedRows())
@@ -267,7 +267,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         all_tags.sort(key=sort_key)
         self.all_tags_model.setStringList(all_tags)
 
-    def add_tag(self):
+    def add_tag(self) -> None:
         tags = str(self.add_tag_input.text()).split(self.sep)
         tags_in_box = self._get_applied_tags_box_contents()
         for tag in tags:
@@ -291,7 +291,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.applied_model.setStringList(tags_in_box)
         self.add_tag_input.setText('')
 
-    def filter_tags(self, filter_value, which='available_tags'):
+    def filter_tags(self, filter_value, which='available_tags') -> None:
         collection = getattr(self, which)
         collection.model().set_filter_text(filter_value or '')
 
@@ -306,7 +306,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.save_state()
         return QDialog.reject(self)
 
-    def save_state(self):
+    def save_state(self) -> None:
         self.save_geometry(gprefs, 'tag_editor_geometry')
         gprefs['tag_editor_limit_to_vl'] = self.restrict_to_vl.isChecked()
 

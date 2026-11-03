@@ -24,7 +24,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = 'http://www.litres.ru'
     # http://robot.litres.ru/pages/biblio_book/?art=174405
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
 
         aff_id = '?' + _get_affiliate_id()
 
@@ -67,8 +67,8 @@ class LitResStore(BasicStoreConfig, StorePlugin):
                     continue
                 yield sRes
 
-    def get_details(self, search_result, timeout=60):
-        pass
+    def get_details(self, search_result, timeout=60) -> bool:
+        return False
 
     def create_search_result(self, data):
         xp_template = 'normalize-space(@{0})'
@@ -107,7 +107,7 @@ def format_price_in_RUR(price):
     return price
 
 
-def ungzipResponse(r, b):
+def ungzipResponse(r, b) -> None:
     headers = r.info()
     if headers.get('Content-Encoding', '') == 'gzip':
         try:

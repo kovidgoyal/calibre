@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 HIGH_QUALITY_SAMPLE_RATE = 22050
 
 
-def debug(*a, **kw):
+def debug(*a, **kw) -> None:
     if is_debugging():
         if not hasattr(debug, 'first'):
             setattr(debug, 'first', monotonic())
@@ -292,7 +292,7 @@ class UtteranceAudioQueue(QIODevice):
     saying = pyqtSignal(int, int)
     update_status = pyqtSignal()
 
-    def __init__(self, parent: QObject | None = None):
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self.utterances: deque[Utterance] = deque()
         self.current_audio_data = QByteArray()
@@ -317,7 +317,7 @@ class UtteranceAudioQueue(QIODevice):
         if not self.utterance_being_played:
             self.start_utterance()
 
-    def start_utterance(self):
+    def start_utterance(self) -> None:
         if self.utterances:
             u = self.utterances.popleft()
             self.current_audio_data = u.audio_data
@@ -331,7 +331,7 @@ class UtteranceAudioQueue(QIODevice):
         self.utterance_being_played = None
         return super().close()
 
-    def clear(self):
+    def clear(self) -> None:
         self.utterances.clear()
         self.utterance_being_played = None
         self.current_audio_data = QByteArray()
@@ -349,7 +349,7 @@ class UtteranceAudioQueue(QIODevice):
     def isSequential(self) -> bool:
         return True
 
-    def seek(self, pos):
+    def seek(self, pos) -> bool:
         return False
 
     def readData(self, maxlen: int) -> bytes:
@@ -378,7 +378,7 @@ class Piper(TTSBackend):
     filler_char: str = PARAGRAPH_SEPARATOR
     _synthesis_done = pyqtSignal(object, object, object)
 
-    def __init__(self, engine_name: str = '', parent: QObject | None = None):
+    def __init__(self, engine_name: str = '', parent: QObject | None = None) -> None:
         super().__init__(engine_name, parent)
         self._audio_sink: QAudioSink | None = None
 
@@ -516,10 +516,10 @@ class Piper(TTSBackend):
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._audio_sink.start(self._utterances_being_spoken)
 
-    def on_synthesis_done(self, sr, err, tb):
+    def on_synthesis_done(self, sr, err, tb) -> None:
         self._synthesis_done.emit(sr, err, tb)
 
-    def _on_synthesis_done(self, sr: SynthesisResult, err: Exception, tb: str):
+    def _on_synthesis_done(self, sr: SynthesisResult, err: Exception, tb: str) -> None:
         if self._audio_sink is None:
             return
         if err is not None:
@@ -540,7 +540,7 @@ class Piper(TTSBackend):
         self._queue_current_utterance()
         self._update_status()
 
-    def _update_status(self):
+    def _update_status(self) -> None:
         if self._errors_from_piper:
             m = '\n'.join(self._errors_from_piper)
             self._set_error(f'piper failed with error: {m}')
@@ -638,7 +638,7 @@ class Piper(TTSBackend):
 
 
 class PiperEmbedded:
-    def __init__(self):
+    def __init__(self) -> None:
         self._embedded_settings = EngineSpecificSettings.create_from_config('piper', TTS_EMBEDED_CONFIG)
         self._voice_name_map, self._voices, self._voice_for_lang, self.human_voice_name_map = load_voice_metadata()
         lang = get_lang()
@@ -707,7 +707,7 @@ class PiperEmbedded:
                 return False
         return True
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self._current_audio_rate != 0:
             gp = global_piper_instance_if_exists()
             if gp is not None:
@@ -719,7 +719,7 @@ class PiperEmbedded:
     def on_synthesis_done(self, sr: SynthesisResult | None, exc: Exception | None, tb: str | None) -> None:
         self._queue.put((sr, exc, tb))
 
-    def ensure_started(self):
+    def ensure_started(self) -> None:
         if self._current_audio_rate == 0:
             from queue import Queue
 
@@ -737,7 +737,7 @@ def duration_of_raw_audio_data(data: bytes, sample_rate: int = HIGH_QUALITY_SAMP
 
 
 # develop {{{
-def develop_embedded():
+def develop_embedded() -> None:
     p = PiperEmbedded()
     all_data = []
     for data, duration in p.text_to_raw_audio_data((
@@ -750,7 +750,7 @@ def develop_embedded():
     play_pcm_data(b''.join(all_data), HIGH_QUALITY_SAMPLE_RATE)
 
 
-def develop():
+def develop() -> None:
 
     from qt.core import QSocketNotifier
 
@@ -760,7 +760,7 @@ def develop():
     p = Piper()
     play_started = False
 
-    def state_changed(s):
+    def state_changed(s) -> None:
         nonlocal play_started
         debug('TTS State:', s)
         if s is QTextToSpeech.State.Error:
@@ -773,7 +773,7 @@ def develop():
                 debug('Quitting on completion')
                 app.quit()
 
-    def handle_input(q: bytes):
+    def handle_input(q: bytes) -> None:
         nonlocal play_started
         if q in (b'\x03', b'\x1b'):
             app.exit(1)
@@ -795,7 +795,7 @@ def develop():
     )
     # text = f'Hello world{PARAGRAPH_SEPARATOR}.{PARAGRAPH_SEPARATOR}Bye world'
 
-    def saying(offset, length):
+    def saying(offset, length) -> None:
         debug('Saying:', repr(text[offset : offset + length]))
 
     p.state_changed.connect(state_changed)
@@ -809,7 +809,7 @@ def develop():
         o = Dispatcher(app)
         o.dispatch.connect(handle_input)
 
-        def poll_input():
+        def poll_input() -> None:
             import msvcrt
 
             while True:

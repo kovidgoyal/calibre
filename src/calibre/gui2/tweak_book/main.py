@@ -32,11 +32,11 @@ files inside the book which will be opened for editing automatically.
     return parser
 
 
-def gui_main(path=None, notify=None):
+def gui_main(path=None, notify=None) -> None:
     _run(['ebook-edit', path], notify=notify)
 
 
-def _run(args, notify=None):
+def _run(args, notify=None) -> None:
     from calibre.utils.webengine import setup_fake_protocol
 
     # Ensure we can continue to function if GUI is closed
@@ -100,7 +100,7 @@ def _run(args, notify=None):
     gc.collect(), gc.collect()
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> None:
     try:
         _run(args)
     finally:

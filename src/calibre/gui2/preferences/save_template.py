@@ -14,13 +14,13 @@ from calibre.utils.localization import _
 class SaveTemplate(QWidget, Ui_Form):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         Ui_Form.__init__(self)
         self.setupUi(self)
         self.orig_help_text = self.help_label.text()
 
-    def initialize(self, name, default, help, field_metadata):
+    def initialize(self, name, default, help, field_metadata) -> None:
         variables = sorted(FORMAT_ARG_DESCS.keys())
         help_text = self.orig_help_text
         if name == 'send_to_device':
@@ -52,7 +52,7 @@ class SaveTemplate(QWidget, Ui_Form):
         self.option_name = name
         self.open_editor.clicked.connect(self.do_open_editor)
 
-    def do_open_editor(self):
+    def do_open_editor(self) -> None:
         # Try to get selected books
         from calibre.gui2.ui import get_gui
 
@@ -82,7 +82,7 @@ class SaveTemplate(QWidget, Ui_Form):
         if t.exec():
             self.opt_template.set_value(t.rule[1])
 
-    def changed(self, *args):
+    def changed(self, *args) -> None:
         self.changed_signal.emit()
 
     def validate(self):
@@ -113,10 +113,10 @@ class SaveTemplate(QWidget, Ui_Form):
             return False
         return True
 
-    def set_value(self, val):
+    def set_value(self, val) -> None:
         self.opt_template.set_value(val)
 
-    def save_settings(self, config, name):
+    def save_settings(self, config, name) -> None:
         val = str(self.opt_template.text())
         config.set(name, val)
         self.opt_template.save_history(self.option_name + '_template_history')

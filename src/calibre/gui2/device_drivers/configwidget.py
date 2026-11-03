@@ -22,7 +22,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         extra_customization_message,
         device,
         extra_customization_choices=None,
-    ):
+    ) -> None:
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -87,7 +87,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                     def row_func(x, y):
                         return x * 2 + y
 
-                    def col_func(x):
+                    def col_func(x) -> int:
                         return 0
 
                 for i, m in enumerate(extra_customization_message):
@@ -135,13 +135,13 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
         self.opt_save_template.setText(settings.save_template)
 
-    def up_column(self):
+    def up_column(self) -> None:
         idx = self.columns.currentRow()
         if idx > 0:
             self.columns.insertItem(idx - 1, self.columns.takeItem(idx))
             self.columns.setCurrentRow(idx - 1)
 
-    def down_column(self):
+    def down_column(self) -> None:
         idx = self.columns.currentRow()
         if idx < self.columns.count() - 1:
             self.columns.insertItem(idx + 1, self.columns.takeItem(idx))
@@ -165,7 +165,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
     def use_author_sort(self):
         return self.opt_use_author_sort.isChecked()
 
-    def validate(self):
+    def validate(self) -> bool | None:
         formats = set(self.format_map())
         extra = formats - set(self.calibre_known_formats)
         if extra:

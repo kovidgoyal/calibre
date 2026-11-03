@@ -17,7 +17,7 @@ class SplashScreen(QSplashScreen):
     LOGO_SIZE = 96  # px
     WIDTH = 550  # px
 
-    def __init__(self, develop=False):
+    def __init__(self, develop=False) -> None:
         self.drawn_once = False
         self.develop = develop
         self.title_font = f = QFont()
@@ -52,7 +52,7 @@ class SplashScreen(QSplashScreen):
         QSplashScreen.__init__(self, pmap)
         self.setWindowTitle(__appname__)
 
-    def drawContents(self, painter):
+    def drawContents(self, painter) -> None:
         self.drawn_once = True
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
@@ -120,11 +120,11 @@ class SplashScreen(QSplashScreen):
 
         painter.restore()
 
-    def show_message(self, msg):
+    def show_message(self, msg) -> None:
         self.showMessage(msg)
         self.wait_for_draw()
 
-    def wait_for_draw(self):
+    def wait_for_draw(self) -> None:
         # Without this the splash screen is not painted on linux and windows
         self.drawn_once = False
         st = monotonic()
@@ -138,7 +138,7 @@ class SplashScreen(QSplashScreen):
         qapplication_or_fail().exit()
 
 
-def main():
+def main() -> None:
     from calibre.gui2 import Application
 
     app = Application([])

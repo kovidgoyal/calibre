@@ -13,22 +13,22 @@ from calibre.utils.localization import _
 
 
 class EMDisplayedFields(DisplayedFields):
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None) -> None:
         DisplayedFields.__init__(self, db, parent)
 
-    def initialize(self, use_defaults=False, pref_data_override=None):
+    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in em_get_field_list(self.db, use_defaults=use_defaults, pref_data_override=pref_data_override)]
         self.endResetModel()
         self.changed = True
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.new_api.set_pref('edit_metadata_custom_columns_to_display', self.fields)
 
 
 class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
         r = self.register
@@ -62,7 +62,7 @@ class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
         self.em_import_layout_button.clicked.connect(partial(import_layout, self, model=self.em_display_model))
         self.em_reset_layout_button.clicked.connect(partial(reset_layout, model=self.em_display_model))
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.em_display_model.initialize()
 
     def commit(self, *args):
@@ -70,7 +70,7 @@ class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
             self.em_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.em_display_model.restore_defaults()
         self.changed_signal.emit()

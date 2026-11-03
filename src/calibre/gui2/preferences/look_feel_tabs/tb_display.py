@@ -13,13 +13,13 @@ class TBDisplayedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
-    def __init__(self, db, parent=None, category_icons=None):
+    def __init__(self, db, parent=None, category_icons=None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui(fail_if_absent=True)
 
-    def initialize(self, use_defaults=False, pref_data_override=None):
+    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
         from calibre.gui2.tag_browser.model import TagsModel
 
         tv = self.gui.tags_view
@@ -40,14 +40,14 @@ class TBDisplayedFields(DisplayedFields):
         self.fields = [[x, x not in hc] for x in cat_ord]
         self.endResetModel()
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.prefs.set('tag_browser_hidden_categories', sorted(k for k, v in self.fields if not v))
             self.db.prefs.set('tag_browser_category_order', [k for k, v in self.fields])
 
 
 class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         r = self.register
         r('tag_browser_old_look', gprefs)
@@ -77,11 +77,11 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_down_button.clicked.connect(partial(md, use_kbd_modifiers=True))
         self.tb_display_order.set_movement_functions(mu, md)
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.tb_display_model.initialize()
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_display_model.restore_defaults()
 
@@ -89,5 +89,5 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.tags_view.set_look_and_feel()

@@ -6,11 +6,11 @@ from calibre.constants import ismacos, iswindows
 if iswindows:
     from calibre_extensions.winutil import ES_CONTINUOUS, ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED, set_thread_execution_state
 
-    def prevent_sleep(reason=''):
+    def prevent_sleep(reason='') -> int:
         set_thread_execution_state(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED)
         return 1
 
-    def allow_sleep(cookie):
+    def allow_sleep(cookie) -> None:
         set_thread_execution_state(ES_CONTINUOUS)
 
 elif ismacos:
@@ -19,13 +19,13 @@ elif ismacos:
     def prevent_sleep(reason=''):
         return create_io_pm_assertion(kIOPMAssertionTypeNoDisplaySleep, reason or 'E-book viewer automated reading in progress')
 
-    def allow_sleep(cookie):
+    def allow_sleep(cookie) -> None:
         release_io_pm_assertion(cookie)
 
 else:
 
-    def prevent_sleep(reason=''):
+    def prevent_sleep(reason='') -> int:
         return 0
 
-    def allow_sleep(cookie):
+    def allow_sleep(cookie) -> None:
         pass

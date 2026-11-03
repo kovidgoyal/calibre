@@ -5,7 +5,7 @@ from qt.core import QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QSt
 
 
 class Separator(QWidget):
-    def __init__(self, icon_size, parent=None):
+    def __init__(self, icon_size, parent=None) -> None:
         super().__init__(parent)
         self.desired_height = icon_size.height() * 0.85
 
@@ -21,7 +21,7 @@ class Separator(QWidget):
         width = style.pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QStylePainter(self)
         p.drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option())
 
@@ -29,7 +29,7 @@ class Separator(QWidget):
 class Button(QToolButton):
     layout_needed = pyqtSignal()
 
-    def __init__(self, action, parent=None):
+    def __init__(self, action, parent=None) -> None:
         super().__init__(parent)
         self.action = action
         self.setAutoRaise(True)
@@ -37,7 +37,7 @@ class Button(QToolButton):
         self.update_state()
         self.clicked.connect(self.action.trigger)
 
-    def update_state(self):
+    def update_state(self) -> None:
         ac = self.action
         self.setIcon(ac.icon())
         self.setToolTip(ac.toolTip() or self.action.text())
@@ -50,27 +50,27 @@ class Button(QToolButton):
         if self.isVisible() != old:
             self.layout_needed.emit()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Button({self.toolTip()})'
 
 
 class SingleLineToolBar(QToolBar):
-    def __init__(self, parent=None, icon_size=18):
+    def __init__(self, parent=None, icon_size=18) -> None:
         super().__init__(parent)
         self.setIconSize(QSize(icon_size, icon_size))
 
-    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup):
+    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
         self.addAction(ac)
         w = self.widgetForAction(ac)
         assert isinstance(w, QToolButton)
         w.setPopupMode(popup_mode)
 
-    def add_separator(self):
+    def add_separator(self) -> None:
         self.addSeparator()
 
 
 class LayoutItem:
-    def __init__(self, w):
+    def __init__(self, w) -> None:
         self.widget = w
         self.sz = sz = w.sizeHint()
         self.width = sz.width()
@@ -78,13 +78,13 @@ class LayoutItem:
 
 
 class Group:
-    def __init__(self, parent=None, leading_separator=None):
+    def __init__(self, parent=None, leading_separator=None) -> None:
         self.items = []
         self.width = self.height = 0
         self.parent = parent
         self.leading_separator = leading_separator
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return bool(self.items)
 
     def smart_spacing(self, horizontal=True):
@@ -106,7 +106,7 @@ class Group:
             Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical,
         )
 
-    def add_widget(self, w):
+    def add_widget(self, w) -> None:
         item = LayoutItem(w)
         self.items.append(item)
         hs, vs = self.layout_spacing(w), self.layout_spacing(w, False)
@@ -117,7 +117,7 @@ class Group:
 
 
 class FlowToolBar(QWidget):
-    def __init__(self, parent=None, icon_size=18):
+    def __init__(self, parent=None, icon_size=18) -> None:
         super().__init__(parent)
         self.icon_size = QSize(icon_size, icon_size)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -125,7 +125,7 @@ class FlowToolBar(QWidget):
         self.button_map = {}
         self.applied_geometry = QRect(0, 0, 0, 0)
 
-    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup):
+    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
         w = Button(ac, self)
         w.setPopupMode(popup_mode)
         w.setIconSize(self.icon_size)
@@ -134,11 +134,11 @@ class FlowToolBar(QWidget):
         w.layout_needed.connect(self.updateGeometry)
         self.updateGeometry()
 
-    def add_separator(self):
+    def add_separator(self) -> None:
         self.items.append(Separator(self.icon_size, self))
         self.updateGeometry()
 
-    def hasHeightForWidth(self):
+    def hasHeightForWidth(self) -> bool:
         return True
 
     def heightForWidth(self, a0):
@@ -152,7 +152,7 @@ class FlowToolBar(QWidget):
 
     sizeHint = minimumSize
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         if self.applied_geometry != self.rect():
             self.do_layout(self.rect(), apply_geometry=True)
         super().paintEvent(a0)
@@ -167,7 +167,7 @@ class FlowToolBar(QWidget):
                 if isinstance(item, Separator):
                     item.setGeometry(0, 0, 0, 0)
 
-        def commit_line():
+        def commit_line() -> None:
             while current_line and isinstance(current_line[-1], Separator):
                 current_line.pop()
             if current_line:

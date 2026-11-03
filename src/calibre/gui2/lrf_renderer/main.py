@@ -21,7 +21,7 @@ from calibre.utils.localization import _
 
 
 class RenderWorker(QThread):
-    def __init__(self, parent, lrf_stream, logger, opts):
+    def __init__(self, parent, lrf_stream, logger, opts) -> None:
         QThread.__init__(self, parent)
         self.stream, self.logger, self.opts = lrf_stream, logger, opts
         self.aborted = False
@@ -29,7 +29,7 @@ class RenderWorker(QThread):
         self.document = None
         self.exception = None
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.lrf = LRFDocument(self.stream)  # ty: ignore[invalid-argument-type] stream is only None after run()
             self.lrf.parse()
@@ -44,14 +44,14 @@ class RenderWorker(QThread):
             self.exception = err
             self.formatted_traceback = traceback.format_exc()
 
-    def abort(self):
+    def abort(self) -> None:
         if self.lrf is not None:
             self.aborted = True
             self.lrf.keep_parsing = False
 
 
 class Config(QDialog, Ui_ViewerConfig):
-    def __init__(self, parent, opts):
+    def __init__(self, parent, opts) -> None:
         QDialog.__init__(self, parent)
         Ui_ViewerConfig.__init__(self)
         self.setupUi(self)
@@ -60,12 +60,12 @@ class Config(QDialog, Ui_ViewerConfig):
 
 
 class Main(MainWindow, Ui_MainWindow):
-    def create_document(self):
+    def create_document(self) -> None:
         self.document = Document(self.logger, self.opts)
         self.document.chapter_rendered.connect(self.chapter_rendered)
         self.document.page_changed.connect(self.page_changed)
 
-    def __init__(self, logger, opts, parent=None):
+    def __init__(self, logger, opts, parent=None) -> None:
         MainWindow.__init__(self, opts, parent)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
@@ -109,7 +109,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         self.closed = False
 
-    def configure(self, triggered):
+    def configure(self, triggered) -> None:
         opts = self.opts
         d = Config(self, opts)
         d.exec()
@@ -117,7 +117,7 @@ class Main(MainWindow, Ui_MainWindow):
             gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
             gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
 
-    def set_ebook(self, stream):
+    def set_ebook(self, stream) -> None:
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(0)
         self.progress_bar.setValue(0)
@@ -134,7 +134,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.stack.setCurrentIndex(0)
             self.renderer = None
 
-    def open_ebook(self, triggered):
+    def open_ebook(self, triggered) -> None:
         files = choose_files(
             self,
             'open ebook dialog',
@@ -149,16 +149,16 @@ class Main(MainWindow, Ui_MainWindow):
             self.set_ebook(open(file, 'rb'))  # ruff: ignore[open-file-with-context-handler]
             self.render()
 
-    def page_changed(self, num):
+    def page_changed(self, num) -> None:
         self.slider.setValue(num)
         self.spin_box.setValue(num)
 
-    def render(self, *args, **kwargs):  # type: ignore[override]
+    def render(self, *args, **kwargs) -> None:  # type: ignore[override]
         if self.renderer is not None:
             self.stack.setCurrentIndex(1)
             self.renderer.start()
 
-    def find(self, a0):
+    def find(self, a0) -> None:
         self.last_search = a0
         try:
             self.document.search(a0)
@@ -166,7 +166,7 @@ class Main(MainWindow, Ui_MainWindow):
             error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.') % (a0,)).exec()
         self.search.search_done(True)
 
-    def parsed(self):
+    def parsed(self) -> None:
         renderer = self.renderer
         assert renderer is not None
         if not renderer.aborted and renderer.lrf is not None:
@@ -216,7 +216,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = ConversionErrorDialog(self, 'Error while rendering file', msg)
             d.exec()
 
-    def chapter_rendered(self, num):
+    def chapter_rendered(self, num) -> None:
         if num > 0:
             self.progress_bar.setMinimum(0)
             self.progress_bar.setMaximum(num)
@@ -226,35 +226,35 @@ class Main(MainWindow, Ui_MainWindow):
             self.progress_bar.setValue(self.progress_bar.value() + 1)
         QCoreApplication.processEvents()
 
-    def next(self, triggered):
+    def next(self, triggered) -> None:
         self.document.next()
 
-    def next_match(self, triggered):
+    def next_match(self, triggered) -> None:
         try:
             self.document.next_match()
         except StopIteration:
             pass
 
-    def previous(self, triggered):
+    def previous(self, triggered) -> None:
         self.document.previous()
 
-    def go_to_page(self, num):
+    def go_to_page(self, num) -> None:
         self.document.show_page(num)
 
-    def forward(self, triggered):
+    def forward(self, triggered) -> None:
         self.document.forward()
 
-    def back(self, triggered):
+    def back(self, triggered) -> None:
         self.document.back()
 
-    def wheelEvent(self, a0):
+    def wheelEvent(self, a0) -> None:
         d = a0.angleDelta().y()
         if d > 0:
             self.document.previous()
         elif d < 0:
             self.document.next()
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0) -> None:
         if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()
             self.renderer.wait()

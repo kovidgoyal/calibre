@@ -7,7 +7,7 @@ from calibre.utils.localization import _
 
 
 class ChoosePluginToolbarsDialog(QDialog):
-    def __init__(self, parent, plugin, locations):
+    def __init__(self, parent, plugin, locations) -> None:
         QDialog.__init__(self, parent)
         self.locations = locations
 

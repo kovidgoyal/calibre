@@ -50,7 +50,7 @@ from calibre.utils.localization import _
 
 
 class Preview(QLabel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QLabel.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
@@ -59,7 +59,7 @@ class Preview(QLabel):
 
 
 class ColorButton(QToolButton):
-    def __init__(self, color, parent=None):
+    def __init__(self, color, parent=None) -> None:
         QToolButton.__init__(self, parent)
         self.setIconSize(QSize(50, 25))
         self.pix = QPixmap(self.iconSize())
@@ -73,14 +73,14 @@ class ColorButton(QToolButton):
         return self._color.name(QColor.NameFormat.HexRgb)[1:]
 
     @color.setter
-    def color(self, val):
+    def color(self, val) -> None:
         self._color = QColor('#' + val)
 
-    def update_display(self):
+    def update_display(self) -> None:
         self.pix.fill(self._color)
         self.setIcon(QIcon(self.pix))
 
-    def choose_color(self):
+    def choose_color(self) -> None:
         c = QColorDialog.getColor(self._color, self, _('Choose color'))
         if c.isValid():
             self._color = c
@@ -93,7 +93,7 @@ class CreateColorScheme(QDialog):
     contrast_color1: ColorButton
     contrast_color2: ColorButton
 
-    def __init__(self, scheme_name, scheme, existing_names, edit_scheme=False, parent=None):
+    def __init__(self, scheme_name, scheme, existing_names, edit_scheme=False, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.existing_names, self.is_editing, self.scheme_name = existing_names, edit_scheme, scheme_name
         self.l = l = QFormLayout(self)
@@ -135,7 +135,7 @@ class CreateColorScheme(QDialog):
 class CoverSettingsWidget(QWidget):
     changed = pyqtSignal()
 
-    def __init__(self, mi=None, prefs=None, parent=None, for_global_prefs=False):
+    def __init__(self, mi=None, prefs=None, parent=None, for_global_prefs=False) -> None:
         QWidget.__init__(self, parent)
         self.ignore_changed = False
         self.for_global_prefs = for_global_prefs
@@ -220,7 +220,7 @@ class CoverSettingsWidget(QWidget):
         fp.setLayout(l)
         fp_frames: list[QFrame] = []
 
-        def add_hline():
+        def add_hline() -> None:
             f = QFrame()
             fp_frames.append(f)
             f.setFrameShape(QFrame.Shape.HLine)
@@ -282,7 +282,7 @@ class CoverSettingsWidget(QWidget):
         la.setWordWrap(True), la.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(la)
 
-        def create_template_widget(title, which, button):
+        def create_template_widget(title, which, button) -> None:
             attr = which + '_template'
             heading = QLabel('<h2>' + title)
             setattr(tp, attr + '_heading', heading)
@@ -323,15 +323,15 @@ class CoverSettingsWidget(QWidget):
     def __exit__(self, *args):
         self.ignore_changed = False
 
-    def emit_changed(self):
+    def emit_changed(self) -> None:
         if not self.ignore_changed:
             self.changed.emit()
 
-    def apply_prefs(self, prefs):
+    def apply_prefs(self, prefs) -> None:
         with self:
             self._apply_prefs(prefs)
 
-    def _apply_prefs(self, prefs):
+    def _apply_prefs(self, prefs) -> None:
         for x in ('title', 'subtitle', 'footer'):
             attr = f'{x}_font_family'
             getattr(self, attr).font_family = prefs[attr]
@@ -436,7 +436,7 @@ class CoverSettingsWidget(QWidget):
             prefs[x] = getattr(self, x).value()
         return prefs
 
-    def insert_scheme(self, name, li):
+    def insert_scheme(self, name, li) -> None:
         with self:
             self.colors_list.insertItem(0, li)
             cm = OrderedDict()
@@ -450,7 +450,7 @@ class CoverSettingsWidget(QWidget):
                 assert list_item is not None
                 list_item.setSelected(False)
 
-    def create_color_scheme(self):
+    def create_color_scheme(self) -> None:
         cs = self.current_colors
         if cs is None:
             cs = tuple(self.colors_map.keys())[0]
@@ -508,7 +508,7 @@ class CoverSettingsWidget(QWidget):
                 self.original_prefs['color_themes'] = self.current_prefs['color_themes']
                 return
 
-    def change_template(self, which):
+    def change_template(self, which) -> None:
         from calibre.gui2.dialogs.template_dialog import TemplateDialog
         from calibre.gui2.ui import get_gui
 
@@ -531,7 +531,7 @@ class CoverSettingsWidget(QWidget):
         prefs = override_prefs(prefs, override_style=self.current_style, override_color_theme=self.current_colors)
         return prefs
 
-    def update_preview(self):
+    def update_preview(self) -> None:
         if self.ignore_changed:
             return
         dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
@@ -560,18 +560,18 @@ class CoverSettingsWidget(QWidget):
         mi.pubdate = mi.timestamp = now()
         return mi
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         defaults = self.original_prefs.defaults.copy()
         # Don't delete custom color themes when restoring defaults
         defaults['color_themes'] = self.custom_colors
         self.apply_prefs(defaults)
         self.update_preview()
 
-    def save_state(self):
+    def save_state(self) -> None:
         self.original_prefs.set('last_used_colors', self.current_colors)
         self.original_prefs.set('last_used_style', self.current_style)
 
-    def save_as_prefs(self):
+    def save_as_prefs(self) -> None:
         with self.original_prefs:
             for k, v in self.current_prefs.items():
                 self.original_prefs[k] = v
@@ -594,7 +594,7 @@ class CoverSettingsWidget(QWidget):
 
 
 class CoverSettingsDialog(QDialog):
-    def __init__(self, mi=None, prefs=None, parent=None):
+    def __init__(self, mi=None, prefs=None, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Cover generation settings'))
         self.l = l = QVBoxLayout(self)
@@ -633,11 +633,11 @@ class CoverSettingsDialog(QDialog):
         self.restore_geometry(gprefs, 'cover_settings_dialog_geom')
         self.prefs_for_rendering = None
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.settings.restore_defaults()
         self.settings.save_as_prefs()
 
-    def export_settings(self):
+    def export_settings(self) -> None:
         name, ok = QInputDialog.getText(self, _('Name for these settings'), _('Theme name:'), text=_('My cover style'))
         if ok:
             base = os.path.join(config_dir, 'cover-generation-themes')
@@ -647,7 +647,7 @@ class CoverSettingsDialog(QDialog):
             with open(path, 'wb') as f:
                 f.write(raw)
 
-    def populate_load_menu(self):
+    def populate_load_menu(self) -> None:
         m = self.load_menu
         m.clear()
         base = os.path.join(config_dir, 'cover-generation-themes')
@@ -657,7 +657,7 @@ class CoverSettingsDialog(QDialog):
         for name in entries:
             m.addAction(name, self.import_settings)
 
-    def import_settings(self):
+    def import_settings(self) -> None:
         act = self.sender()
         assert isinstance(act, QAction)
         fname = act.text() + '.json'
@@ -666,19 +666,19 @@ class CoverSettingsDialog(QDialog):
             raw = f.read()
         self.settings.serialized_prefs = raw
 
-    def _save_settings(self):
+    def _save_settings(self) -> None:
         gprefs.set('cover_generation_save_settings_for_future', self.save_settings.isChecked())
         self.save_geometry(gprefs, 'cover_settings_dialog_geom')
         self.settings.save_state()
 
-    def accept(self):
+    def accept(self) -> None:
         self._save_settings()
         self.prefs_for_rendering = self.settings.prefs_for_rendering
         if self.save_settings.isChecked():
             self.settings.save_as_prefs()
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self._save_settings()
         QDialog.reject(self)
 

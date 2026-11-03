@@ -56,7 +56,7 @@ class Delegate(QStyledItemDelegate):
 class TOCView(QTreeView):
     searched = pyqtSignal(object)
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         QTreeView.__init__(self, *args)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delegate = Delegate(self)
@@ -81,21 +81,21 @@ class TOCView(QTreeView):
                 return ret
         return super().viewportEvent(event)
 
-    def setModel(self, model):
+    def setModel(self, model) -> None:
         QTreeView.setModel(self, model)
         model.current_toc_nodes_changed.connect(self.current_toc_nodes_changed, type=Qt.ConnectionType.QueuedConnection)
 
-    def current_toc_nodes_changed(self, ancestors, nodes):
+    def current_toc_nodes_changed(self, ancestors, nodes) -> None:
         if ancestors:
             self.auto_expand_indices(ancestors)
         if nodes:
             self.scrollTo(nodes[-1].index())
 
-    def auto_expand_indices(self, indices):
+    def auto_expand_indices(self, indices) -> None:
         for idx in indices:
             self.setExpanded(idx, True)
 
-    def set_style_sheet(self):
+    def set_style_sheet(self) -> None:
         self.setStyleSheet(
             '''
             QTreeView {
@@ -122,7 +122,7 @@ class TOCView(QTreeView):
             self.unsetCursor()
         return QTreeView.mouseMoveEvent(self, event)
 
-    def expand_tree(self, index):
+    def expand_tree(self, index) -> None:
         self.expand(index)
         i = -1
         while True:
@@ -132,7 +132,7 @@ class TOCView(QTreeView):
                 break
             self.expand_tree(child)
 
-    def collapse_at_level(self, index):
+    def collapse_at_level(self, index) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
@@ -141,7 +141,7 @@ class TOCView(QTreeView):
         for x in m.items_at_depth(item.depth):
             self.collapse(m.indexFromItem(x))
 
-    def expand_at_level(self, index):
+    def expand_at_level(self, index) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
@@ -150,7 +150,7 @@ class TOCView(QTreeView):
         for x in m.items_at_depth(item.depth):
             self.expand(m.indexFromItem(x))
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         index = self.indexAt(pos)
         m = QMenu(self)
         if index.isValid():
@@ -175,19 +175,19 @@ class TOCView(QTreeView):
         self.context_menu = m
         m.exec(self.mapToGlobal(pos))
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         m = self.model()
         cb = QApplication.clipboard()
         assert cb is not None
         cb.setText(getattr(m, 'as_plain_text', ''))
 
-    def update_current_toc_nodes(self, families):
+    def update_current_toc_nodes(self, families) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
         m.update_current_toc_nodes(families)
 
-    def scroll_to_current_toc_node(self):
+    def scroll_to_current_toc_node(self) -> None:
         m = self.model()
         if m is None or not isinstance(m, TOC):
             return
@@ -200,7 +200,7 @@ class TOCView(QTreeView):
 
 
 class TOCSearch(QWidget):
-    def __init__(self, toc_view, parent=None):
+    def __init__(self, toc_view, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.toc_view = toc_view
         self.l = l = QHBoxLayout(self)
@@ -215,7 +215,7 @@ class TOCSearch(QWidget):
         b.setToolTip(_('Find next match'))
         l.addWidget(s), l.addWidget(b)
 
-    def do_search(self, text):
+    def do_search(self, text) -> None:
         if not text or not text.strip():
             return
         delta = -1 if qapplication_or_fail().keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier else 1
@@ -234,7 +234,7 @@ class TOCSearch(QWidget):
 
 
 class TOCItem(QStandardItem):
-    def __init__(self, toc, depth, all_items, normal_font, emphasis_font, depths, parent=None):
+    def __init__(self, toc, depth, all_items, normal_font, emphasis_font, depths, parent=None) -> None:
         text = toc.get('title') or ''
         if text == '--pipe-worker':
             text = _('Untitled')
@@ -258,7 +258,7 @@ class TOCItem(QStandardItem):
         self.depth = depth
         self.set_being_viewed(False)
 
-    def set_being_viewed(self, is_being_viewed):
+    def set_being_viewed(self, is_being_viewed) -> None:
         self.is_being_viewed = is_being_viewed
         self.setFont(self.emphasis_font if is_being_viewed else self.normal_font)
 
@@ -273,7 +273,7 @@ class TOCItem(QStandardItem):
     def type(cls):
         return QStandardItem.ItemType.UserType.value + 10
 
-    def set_current_search_result(self, yes):
+    def set_current_search_result(self, yes) -> None:
         if yes and not self.is_current_search_result:
             self.setText(self.text() + ' ◄')
             self.is_current_search_result = True
@@ -281,18 +281,18 @@ class TOCItem(QStandardItem):
             self.setText(self.text()[:-2])
             self.is_current_search_result = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         indent = ' ' * self.depth
         return f'{indent}▶ TOC Item: {self.title} ({self.node_id})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
 class TOC(QStandardItemModel):
     current_toc_nodes_changed = pyqtSignal(object, object)
 
-    def __init__(self, toc=None):
+    def __init__(self, toc=None) -> None:
         QStandardItemModel.__init__(self)
         self.current_query: _SearchQuery = {'text': '', 'index': -1, 'items': ()}
         self.all_items = depth_first = []
@@ -346,7 +346,7 @@ class TOC(QStandardItemModel):
             return index
         return QModelIndex()
 
-    def update_current_toc_nodes(self, current_toc_leaves):
+    def update_current_toc_nodes(self, current_toc_leaves) -> None:
         viewed_nodes = set()
         ancestors = {}
         for node_id in current_toc_leaves:

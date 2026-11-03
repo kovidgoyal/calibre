@@ -6,7 +6,7 @@ class SearchResult:
     DRM_UNLOCKED = 2
     DRM_UNKNOWN = 3
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.store_name = ''
         self.cover_url = ''
         self.cover_data = None
@@ -30,7 +30,7 @@ class SearchResult:
     def __hash__(self):
         return hash((self.title, self.author, self.store_name, self.formats))
 
-    def __str__(self):
+    def __str__(self) -> str:
         items = []
         for x in 'store_name title author price formats detail_item cover_url'.split():
             items.append(f'\t{x}={getattr(self, x)!r}')

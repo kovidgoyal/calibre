@@ -7,7 +7,7 @@ from calibre.gui2 import config
 
 
 class Pointer(QWidget):
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         QWidget.__init__(self, gui)
         self.setObjectName('jobs_pointer')
         self.setVisible(False)
@@ -54,7 +54,7 @@ class Pointer(QWidget):
             parent = parent.parent()
         return pos
 
-    def start(self):
+    def start(self) -> None:
         if config['disable_animations']:
             return
         self.setVisible(True)
@@ -74,7 +74,7 @@ class Pointer(QWidget):
             self.animation.setKeyValueAt(i, self.rect_at(i))
         self.animation.start()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing)
         p.setBrush(self.brush)

@@ -24,13 +24,13 @@ def expand_tabs(text):
 class Smarts(NullSmarts):
     override_tab_stop_width = tw
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         NullSmarts.__init__(self, *args, **kwargs)
         c = re.compile
         self.escape_scope_pat = c(r'\s+(continue|break|return|pass)(\s|$)')
         self.dedent_pat = c(r'\s+(else|elif|except)(\(|\s|$)')
 
-    def handle_key_press(self, ev, editor):
+    def handle_key_press(self, ev, editor) -> bool:
         key = ev.key()
 
         if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
@@ -67,6 +67,7 @@ class Smarts(NullSmarts):
 
         if key == Qt.Key.Key_Home and smart_home(editor, ev):
             return True
+        return False
 
 
 if __name__ == '__main__':

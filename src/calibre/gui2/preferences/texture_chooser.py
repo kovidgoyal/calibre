@@ -45,7 +45,7 @@ def texture_path(fname):
 
 
 class TextureChooser(QDialog):
-    def __init__(self, parent=None, initial=None):
+    def __init__(self, parent=None, initial=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose a texture'))
 
@@ -122,7 +122,7 @@ class TextureChooser(QDialog):
         i.setData(Qt.ItemDataRole.UserRole + 1, x['path'])
         return i
 
-    def update_remove_state(self):
+    def update_remove_state(self) -> None:
         removable = bool(self.selected_fname and not self.selected_fname.startswith(':'))
         assert self.remove_button is not None
         self.remove_button.setEnabled(removable)
@@ -131,7 +131,7 @@ class TextureChooser(QDialog):
     def texture(self):
         return self.selected_fname
 
-    def add_texture(self):
+    def add_texture(self) -> None:
         path = choose_files(
             self,
             'choose-texture-image',

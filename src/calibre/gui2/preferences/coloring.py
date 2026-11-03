@@ -150,7 +150,7 @@ class ConditionEditor(QWidget):  # {{{
     for x in ('float', 'rating'):
         ACTION_MAP[x] = ACTION_MAP['int']
 
-    def __init__(self, fm, parent=None):
+    def __init__(self, fm, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.fm = fm
 
@@ -201,7 +201,7 @@ class ConditionEditor(QWidget):  # {{{
         return str(self.column_box.itemData(idx) or '')
 
     @current_col.setter
-    def current_col(self, val):
+    def current_col(self, val) -> None:
         for idx in range(self.column_box.count()):
             c = str(self.column_box.itemData(idx) or '')
             if c == val:
@@ -215,7 +215,7 @@ class ConditionEditor(QWidget):  # {{{
         return str(self.action_box.itemData(idx) or '')
 
     @current_action.setter
-    def current_action(self, val):
+    def current_action(self, val) -> None:
         for idx in range(self.action_box.count()):
             c = str(self.action_box.itemData(idx) or '')
             if c == val:
@@ -242,7 +242,7 @@ class ConditionEditor(QWidget):  # {{{
         return c, a, v
 
     @condition.setter
-    def condition(self, condition):
+    def condition(self, condition) -> None:
         c, a, v = condition
         if not v:
             v = ''
@@ -251,7 +251,7 @@ class ConditionEditor(QWidget):  # {{{
         self.current_action = a
         self.value_box.setText(v)
 
-    def init_action_box(self):
+    def init_action_box(self) -> None:
         self.action_box.blockSignals(True)
         self.action_box.clear()
         self.action_box.addItem('', '')
@@ -285,7 +285,7 @@ class ConditionEditor(QWidget):  # {{{
         self.action_box.blockSignals(False)
         self.init_value_box()
 
-    def init_value_box(self):
+    def init_value_box(self) -> None:
         self.value_box.setEnabled(True)
         self.value_box.setText('')
         self.value_box.setInputMask('')
@@ -343,7 +343,7 @@ class ConditionEditor(QWidget):  # {{{
 
 
 class RemoveIconFileDialog(QDialog):  # {{{
-    def __init__(self, parent, icon_file_names, icon_folder):
+    def __init__(self, parent, icon_file_names, icon_folder) -> None:
         self.files_to_remove = []
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Remove icons'))
@@ -443,7 +443,7 @@ class RuleEditor(QDialog):  # {{{
     def doing_multiple(self):
         return hasattr(self, 'multiple_icon_cb') and self.multiple_icon_cb.isChecked()
 
-    def __init__(self, fm, pref_name, parent=None):
+    def __init__(self, fm, pref_name, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.fm = fm
 
@@ -491,7 +491,7 @@ class RuleEditor(QDialog):  # {{{
         if self.rule_kind in kind_emblems:
             self.column_box.setVisible(False), l4.setVisible(False)
 
-        def create_filename_box():
+        def create_filename_box() -> None:
             self.filename_box = f = QComboBox()
             self.filenamebox_view = v = QListView()
             v.setIconSize(QSize(32, 32))
@@ -599,7 +599,7 @@ class RuleEditor(QDialog):  # {{{
 
         self.resize(self.sizeHint())
 
-    def show_theme_help(self):
+    def show_theme_help(self) -> None:
         msg = (
             '<p>'
             + _(
@@ -627,7 +627,7 @@ class RuleEditor(QDialog):  # {{{
         )
         info_dialog(self, _('Using icons in light/dark themes'), msg, show=True)
 
-    def multiple_box_clicked(self):
+    def multiple_box_clicked(self) -> None:
         self.update_filename_box()
         self.update_icon_filenames_in_box()
 
@@ -635,7 +635,7 @@ class RuleEditor(QDialog):  # {{{
     def icon_folder(self):
         return os.path.join(config_dir, 'cc_icons')
 
-    def populate_icon_filenames(self):
+    def populate_icon_filenames(self) -> None:
         d = self.icon_folder
         self.icon_file_names = []
         if os.path.exists(d):
@@ -645,7 +645,7 @@ class RuleEditor(QDialog):  # {{{
                     self.icon_file_names.append(icon_file)
         self.icon_file_names.sort(key=sort_key)
 
-    def update_filename_box(self):
+    def update_filename_box(self) -> None:
         doing_multiple = self.doing_multiple
 
         model = QStandardItemModel()
@@ -670,7 +670,7 @@ class RuleEditor(QDialog):  # {{{
             item.setIcon(icon)
             model.appendRow(item)
 
-    def update_color_label(self):
+    def update_color_label(self) -> None:
         pal = QApplication.palette()
         bg1 = str(pal.color(QPalette.ColorRole.Base).name())
         bg2 = str(pal.color(QPalette.ColorRole.AlternateBase).name())
@@ -686,7 +686,7 @@ class RuleEditor(QDialog):  # {{{
         n = lower(sanitize_file_name(os.path.splitext(os.path.basename(icon_path))[0] + '.png'))
         return n.replace("'", '_')
 
-    def filename_button_clicked(self):
+    def filename_button_clicked(self) -> None:
         try:
             path = choose_files(
                 self,
@@ -740,7 +740,7 @@ class RuleEditor(QDialog):  # {{{
             fname = lower(str(self.filename_box.currentText()))
         return fname
 
-    def update_icon_filenames_in_box(self):
+    def update_icon_filenames_in_box(self) -> None:
         if self.rule_icon_files:
             if not self.doing_multiple:
                 idx = self.filename_box.findText(self.rule_icon_files[0])
@@ -758,7 +758,7 @@ class RuleEditor(QDialog):  # {{{
                         if item is not None:
                             item.setCheckState(Qt.CheckState.Checked)
 
-    def remove_icon_file_dialog(self):
+    def remove_icon_file_dialog(self) -> None:
         d = RemoveIconFileDialog(self, self.icon_file_names, self.icon_folder)
         if d.exec() == QDialog.DialogCode.Accepted:
             if len(d.files_to_remove) > 0:
@@ -771,14 +771,14 @@ class RuleEditor(QDialog):  # {{{
                 self.update_filename_box()
                 self.update_icon_filenames_in_box()
 
-    def add_blank_condition(self):
+    def add_blank_condition(self) -> None:
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
         self.conditions.append(c)
         conditions_widget_layout = self.conditions_widget.layout()
         assert conditions_widget_layout is not None
         conditions_widget_layout.addWidget(c)
 
-    def apply_rule(self, kind, col, rule):
+    def apply_rule(self, kind, col, rule) -> None:
         if kind in kind_colors:
             if rule.color:
                 self.color_box.color = rule.color
@@ -813,7 +813,7 @@ class RuleEditor(QDialog):  # {{{
 
                 traceback.print_exc()
 
-    def accept(self):
+    def accept(self) -> None:
         if self.rule_kind in kind_icons:
             fname = self.get_filenames_from_box()
             if not fname:
@@ -822,7 +822,7 @@ class RuleEditor(QDialog):  # {{{
         if self.validate():
             QDialog.accept(self)
 
-    def validate(self):
+    def validate(self) -> bool:
         r = Rule(self.fm)
         for c in self.conditions:
             condition = c.condition
@@ -886,7 +886,7 @@ class RulesModel(QAbstractListModel):  # {{{
             rule = template
         return rule
 
-    def __init__(self, prefs, fm, pref_name, parent=None):
+    def __init__(self, prefs, fm, pref_name, parent=None) -> None:
         QAbstractListModel.__init__(self, parent)
 
         self.fm = fm
@@ -936,11 +936,11 @@ class RulesModel(QAbstractListModel):  # {{{
             return self.index(selected_row.row())
         return self.index(len(self.rules) - 1)
 
-    def replace_rule(self, index, kind, col, r):
+    def replace_rule(self, index, kind, col, r) -> None:
         self.rules[index.row()] = (kind, col, r)
         self.dataChanged.emit(index, index)
 
-    def remove_rule(self, index):
+    def remove_rule(self, index) -> None:
         self.beginResetModel()
         self.rules.remove(self.rules[index.row()])
         self.endResetModel()
@@ -957,7 +957,7 @@ class RulesModel(QAbstractListModel):  # {{{
                     rules.append((kind, col, r))
         return rules
 
-    def import_rules(self, rules):
+    def import_rules(self, rules) -> None:
         self.beginResetModel()
         for kind, col, template in rules:
             if self.pref_name == 'column_color_rules':
@@ -967,7 +967,7 @@ class RulesModel(QAbstractListModel):  # {{{
                 self.rules.append((kind, col, rule))
         self.endResetModel()
 
-    def commit(self, prefs):
+    def commit(self, prefs) -> None:
         prefs[self.pref_name] = self.rules_as_list()
 
     def move(self, idx, delta):
@@ -980,7 +980,7 @@ class RulesModel(QAbstractListModel):  # {{{
             idx = self.index(row)
             return idx
 
-    def clear(self):
+    def clear(self) -> None:
         self.rules = []
         self.beginResetModel()
         self.endResetModel()
@@ -1064,7 +1064,7 @@ class RulesModel(QAbstractListModel):  # {{{
 
 
 class RulesView(ListViewWithMoveByKeyPress):  # {{{
-    def __init__(self, parent, enable_convert_buttons_function):
+    def __init__(self, parent, enable_convert_buttons_function) -> None:
         ListViewWithMoveByKeyPress.__init__(self, parent)
         self.enable_convert_buttons_function = enable_convert_buttons_function
 
@@ -1083,7 +1083,7 @@ class RulesView(ListViewWithMoveByKeyPress):  # {{{
 class EditRules(QWidget):  # {{{
     changed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
 
         self.l = l = QGridLayout(self)
@@ -1186,12 +1186,12 @@ class EditRules(QWidget):  # {{{
         b.clicked.connect(self.import_rules)
         hb.addWidget(b)
 
-    def open_icon_folder(self):
+    def open_icon_folder(self) -> None:
         path = os.path.join(config_dir, 'cc_icons')
         os.makedirs(path, exist_ok=True)
         open_local_file(path)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         match self.pref_name:
             case 'cover_grid_icon_rules':
                 idx = self.choices.findData(gprefs.defaults['emblem_style'])
@@ -1201,7 +1201,7 @@ class EditRules(QWidget):  # {{{
                 self.choices.setCurrentIndex(max(0, idx))
         self.model.clear()
 
-    def initialize(self, fm, prefs, mi, pref_name):
+    def initialize(self, fm, prefs, mi, pref_name) -> None:
         self.pref_name = pref_name
         self.model = RulesModel(prefs, fm, self.pref_name)
         self.rules_view.setModel(self.model)
@@ -1249,16 +1249,16 @@ class EditRules(QWidget):  # {{{
                     self.choices.setCurrentIndex(idx)
             self.choices.currentIndexChanged.connect(self.changed)
 
-    def enabled_toggled(self):
+    def enabled_toggled(self) -> None:
         enabled = self.enabled.isChecked()
         for x in ('add_advanced_button', 'rules_view', 'up_button', 'down_button', 'add_button', 'remove_button'):
             getattr(self, x).setEnabled(enabled)
 
-    def do_enable_convert_buttons(self, to_what):
+    def do_enable_convert_buttons(self, to_what) -> None:
         self.convert_to_advanced_button.setEnabled(to_what)
         self.duplicate_rule_button.setEnabled(True)
 
-    def convert_to_advanced(self):
+    def convert_to_advanced(self) -> None:
         sm = self.rules_view.selectionModel()
         assert sm is not None
         rows = list(sm.selectedRows())
@@ -1277,7 +1277,7 @@ class EditRules(QWidget):  # {{{
                 self.rules_view.setCurrentIndex(new_idx)
                 self.changed.emit()
 
-    def duplicate_rule(self):
+    def duplicate_rule(self) -> None:
         sm = self.rules_view.selectionModel()
         assert sm is not None
         rows = list(sm.selectedRows())
@@ -1293,7 +1293,7 @@ class EditRules(QWidget):  # {{{
             self.rules_view.setCurrentIndex(new_idx)
             self.changed.emit()
 
-    def add_rule(self):
+    def add_rule(self) -> None:
         d = RuleEditor(self.model.fm, self.pref_name)
         d.add_blank_condition()
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -1304,7 +1304,7 @@ class EditRules(QWidget):  # {{{
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
-    def add_advanced(self):
+    def add_advanced(self) -> None:
         selected_row = self.get_first_selected_row()
         td = get_template_dialog(self, '', field='')
         if td.exec() != QDialog.DialogCode.Accepted:
@@ -1322,7 +1322,7 @@ class EditRules(QWidget):  # {{{
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
-    def edit_rule(self, index):
+    def edit_rule(self, index) -> None:
         try:
             kind, col, rule = self.model.data(index, Qt.ItemDataRole.UserRole)
         except Exception:
@@ -1359,14 +1359,14 @@ class EditRules(QWidget):  # {{{
             return None
         return sorted(rows, reverse=True)
 
-    def remove_rule(self):
+    def remove_rule(self) -> None:
         rows = self.get_selected_row(_('removal'))
         if rows is not None:
             for row in rows:
                 self.model.remove_rule(row)
             self.changed.emit()
 
-    def move_rows(self, moving_up=True, use_kbd_modifiers=True):
+    def move_rows(self, moving_up=True, use_kbd_modifiers=True) -> None:
         if use_kbd_modifiers:
             _rvm = self.rules_view.model()
             assert _rvm is not None
@@ -1395,11 +1395,11 @@ class EditRules(QWidget):  # {{{
                     self.rules_view.scrollTo(indices_to_select[0])
                 self.changed.emit()
 
-    def clear(self):
+    def clear(self) -> None:
         self.model.clear()
         self.changed.emit()
 
-    def commit(self, prefs):
+    def commit(self, prefs) -> None:
         self.model.commit(prefs)
         match self.pref_name:
             case 'cover_grid_icon_rules':
@@ -1409,7 +1409,7 @@ class EditRules(QWidget):  # {{{
                 idx = max(0, self.choices.currentIndex())
                 gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)
 
-    def export_rules(self):
+    def export_rules(self) -> None:
         path = choose_save_file(
             self,
             'export-coloring-rules',

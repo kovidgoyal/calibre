@@ -9,7 +9,7 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.proxy = ConfigProxy(config())
 
@@ -32,7 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.send_template.changed_signal.connect(self.changed_signal.emit)
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         self.send_template.blockSignals(True)
         self.send_template.initialize(
@@ -47,7 +47,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.send_template.blockSignals(False)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.send_template.set_value(self.proxy.defaults['send_template'])
 

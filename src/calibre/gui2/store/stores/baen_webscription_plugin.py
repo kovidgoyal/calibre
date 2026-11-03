@@ -75,7 +75,7 @@ def search(query, max_results=10, timeout=60):
 
 
 class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = 'http://www.baenebooks.com/'
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item or url))

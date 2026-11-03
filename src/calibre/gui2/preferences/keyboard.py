@@ -8,7 +8,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
 
 class ConfigWidget(ConfigWidgetBase):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.conf_widget = ShortcutConfig(self)
         self.conf_widget.changed_signal.connect(self.changed_signal)
@@ -17,11 +17,11 @@ class ConfigWidget(ConfigWidgetBase):
         self.setLayout(l)
         l.addWidget(self.conf_widget)
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         self.conf_widget.initialize(self.gui.keyboard)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.conf_widget.restore_defaults()
 
@@ -29,10 +29,10 @@ class ConfigWidget(ConfigWidgetBase):
         self.conf_widget.commit()
         return ConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.keyboard.finalize()
 
-    def highlight_group(self, group_name):
+    def highlight_group(self, group_name) -> None:
         self.conf_widget.highlight_group(group_name)
 
 

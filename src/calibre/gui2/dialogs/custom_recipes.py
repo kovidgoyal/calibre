@@ -50,7 +50,7 @@ def is_basic_recipe(src):
 
 
 class CustomRecipeModel(QAbstractListModel):  # {{{
-    def __init__(self, recipe_model):
+    def __init__(self, recipe_model) -> None:
         QAbstractListModel.__init__(self)
         self.recipe_model = recipe_model
 
@@ -83,14 +83,14 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         if role == Qt.ItemDataRole.DisplayRole:
             return self.title(index)
 
-    def update(self, row, title, script):
+    def update(self, row, title, script) -> None:
         if row > -1 and row < self.rowCount():
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
             self.beginResetModel()
             self.recipe_model.update_custom_recipe(urn, title, script)
             self.endResetModel()
 
-    def replace_many_by_title(self, scriptmap):
+    def replace_many_by_title(self, scriptmap) -> None:
         script_urn_map = {}
         for title, script in scriptmap.items():
             urn = None
@@ -118,12 +118,12 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
                     return row
         return 0
 
-    def add_many(self, scriptmap):
+    def add_many(self, scriptmap) -> None:
         self.beginResetModel()
         self.recipe_model.add_custom_recipes(scriptmap)
         self.endResetModel()
 
-    def remove(self, rows):
+    def remove(self, rows) -> None:
         urns = []
         for r in rows:
             try:
@@ -186,7 +186,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
 class RecipeList(QWidget):  # {{{
     edit_recipe = pyqtSignal(object, object)
 
-    def __init__(self, parent, model):
+    def __init__(self, parent, model) -> None:
         QWidget.__init__(self, parent)
 
         self.l = l = QHBoxLayout(self)
@@ -235,7 +235,7 @@ class RecipeList(QWidget):  # {{{
         assert sel_model is not None
         sel_model.currentRowChanged.connect(self.recipe_selected)
 
-    def select_row(self, row=0):
+    def select_row(self, row=0) -> None:
         v = self.view
         m = v.model()
         assert m is not None
@@ -248,11 +248,11 @@ class RecipeList(QWidget):  # {{{
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
 
-    def add(self, title, src):
+    def add(self, title, src) -> None:
         row = self.model.add(title, src)
         self.select_row(row)
 
-    def update_recipe(self, row, title, src):
+    def update_recipe(self, row, title, src) -> None:
         self.model.update(row, title, src)
         self.select_row(row)
 
@@ -260,21 +260,21 @@ class RecipeList(QWidget):  # {{{
     def model(self):
         return self.view.model()
 
-    def recipe_selected(self, cur, prev=None):
+    def recipe_selected(self, cur, prev=None) -> None:
         if cur.isValid():
             self.stacks.setCurrentIndex(1)
             self.title.setText(f'<h2 style="text-align:center">{self.model.title(cur)}</h2>')
         else:
             self.stacks.setCurrentIndex(0)
 
-    def edit_requested(self):
+    def edit_requested(self) -> None:
         idx = self.view.currentIndex()
         if idx.isValid():
             src = self.model.script(idx)
             if src is not None:
                 self.edit_recipe.emit(idx.row(), src)
 
-    def save_recipe(self):
+    def save_recipe(self) -> None:
         idx = self.view.currentIndex()
         if idx.isValid():
             src = self.model.script(idx)
@@ -291,13 +291,13 @@ class RecipeList(QWidget):  # {{{
                     with open(path, 'wb') as f:
                         f.write(as_bytes(src))
 
-    def item_activated(self, idx):
+    def item_activated(self, idx) -> None:
         if idx.isValid():
             src = self.model.script(idx)
             if src is not None:
                 self.edit_recipe.emit(idx.row(), src)
 
-    def remove(self):
+    def remove(self) -> None:
         idx = self.view.currentIndex()
         if idx.isValid():
             if confirm_delete(_('Are you sure you want to permanently remove this recipe?'), 'remove-custom-recipe', parent=self):
@@ -306,7 +306,7 @@ class RecipeList(QWidget):  # {{{
                 if self.model.rowCount() == 0:
                     self.stacks.setCurrentIndex(0)
 
-    def download(self):
+    def download(self) -> None:
         idx = self.view.currentIndex()
         if idx.isValid():
             urn = self.model.urn(idx)
@@ -319,11 +319,11 @@ class RecipeList(QWidget):  # {{{
     def has_title(self, title):
         return self.model.has_title(title)
 
-    def add_many(self, script_map):
+    def add_many(self, script_map) -> None:
         self.model.add_many(script_map)
         self.select_row()
 
-    def replace_many_by_title(self, script_map):
+    def replace_many_by_title(self, script_map) -> None:
         self.model.replace_many_by_title(script_map)
         self.select_row()
 
@@ -332,7 +332,7 @@ class RecipeList(QWidget):  # {{{
 
 
 class BasicRecipe(QWidget):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -400,7 +400,7 @@ class BasicRecipe(QWidget):  # {{{
         afg_l.addRow(b)
         l.addRow(afg)
 
-    def move_up(self):
+    def move_up(self) -> None:
         items = self.feeds.selectedItems()
         if items:
             row = self.feeds.row(items[0])
@@ -408,7 +408,7 @@ class BasicRecipe(QWidget):  # {{{
                 self.feeds.insertItem(row - 1, self.feeds.takeItem(row))
                 self.feeds.setCurrentItem(items[0])
 
-    def move_down(self):
+    def move_down(self) -> None:
         items = self.feeds.selectedItems()
         if items:
             row = self.feeds.row(items[0])
@@ -416,7 +416,7 @@ class BasicRecipe(QWidget):  # {{{
                 self.feeds.insertItem(row + 1, self.feeds.takeItem(row))
                 self.feeds.setCurrentItem(items[0])
 
-    def remove_feed(self):
+    def remove_feed(self) -> None:
         for item in self.feeds.selectedItems():
             self.feeds.takeItem(self.feeds.row(item))
 
@@ -430,7 +430,7 @@ class BasicRecipe(QWidget):  # {{{
         QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
         self.feed_title.clear(), self.feed_url.clear()
 
-    def validate(self):
+    def validate(self) -> bool:
         title = self.title.text().strip()
         if not title:
             error_dialog(self, _('Title required'), _('You must give your news source a title'), show=True)
@@ -462,7 +462,7 @@ class BasicRecipe(QWidget):  # {{{
         return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
     @recipe_source.setter
-    def recipe_source(self, src):
+    def recipe_source(self, src) -> None:
         self.feeds.clear()
         self.feed_title.clear()
         self.feed_url.clear()
@@ -484,7 +484,7 @@ class BasicRecipe(QWidget):  # {{{
 
 
 class AdvancedRecipe(QWidget):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
@@ -498,7 +498,7 @@ class AdvancedRecipe(QWidget):  # {{{
         self.editor = TextEdit(self)
         l.addWidget(self.editor)
 
-    def validate(self):
+    def validate(self) -> bool:
         src = self.recipe_source
         try:
             compile_recipe(src)
@@ -517,7 +517,7 @@ class AdvancedRecipe(QWidget):  # {{{
         return self.editor.toPlainText()
 
     @recipe_source.setter
-    def recipe_source(self, src):
+    def recipe_source(self, src) -> None:
         self.editor.load_text(src, syntax='python', doc_name='<recipe>')
 
     def sizeHint(self):
@@ -528,7 +528,7 @@ class AdvancedRecipe(QWidget):  # {{{
 
 
 class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
-    def filterAcceptsRow(self, source_row, source_parent):
+    def filterAcceptsRow(self, source_row, source_parent) -> bool:
         src_model = self.sourceModel()
         assert src_model is not None
         idx = src_model.index(source_row, 0, source_parent)
@@ -539,11 +539,11 @@ class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
 
 
 class ChooseBuiltinRecipe(Dialog):  # {{{
-    def __init__(self, recipe_model, parent=None):
+    def __init__(self, recipe_model, parent=None) -> None:
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Choose builtin recipe'), 'choose-builtin-recipe', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.recipes = r = QTreeView(self)
         r.setAnimated(True)
@@ -568,7 +568,7 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
         l.addWidget(self.bb)
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def search_done(self, *args):
+    def search_done(self, *args) -> None:
         if self.recipe_model.showing_count < 10:
             self.recipes.expandAll()
 
@@ -592,11 +592,11 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
 
 
 class CustomRecipes(Dialog):
-    def __init__(self, recipe_model, parent=None):
+    def __init__(self, recipe_model, parent=None) -> None:
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Add custom news source'), 'add-custom-news-source', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.stack = s = QStackedWidget(self)
         l.addWidget(s)
@@ -641,7 +641,7 @@ class CustomRecipes(Dialog):
         s.currentChanged.connect(self.update_button_box)
         self.update_button_box()
 
-    def update_button_box(self, index=0):
+    def update_button_box(self, index=0) -> None:
         bb = self.bb
         bb.clear()
         if index == 0:
@@ -661,14 +661,14 @@ class CustomRecipes(Dialog):
                 b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
 
-    def accept(self):
+    def accept(self) -> None:
         idx = self.stack.currentIndex()
         if idx > 0:
             self.editing_finished()
             return
         Dialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         idx = self.stack.currentIndex()
         if idx > 0:
             if confirm_delete(_('Are you sure? Any unsaved changes will be lost.'), 'confirm-cancel-edit-custom-recipe'):
@@ -686,12 +686,12 @@ class CustomRecipes(Dialog):
             return error_dialog(self, _('No recipes'), _('No custom recipes created.'), show=True)
         open_local_file(bdir)
 
-    def add_recipe(self):
+    def add_recipe(self) -> None:
         self.editing_row = None
         self.basic_recipe.recipe_source = None
         self.stack.setCurrentIndex(1)
 
-    def edit_recipe(self, row, src):
+    def edit_recipe(self, row, src) -> None:
         self.editing_row = row
         if is_basic_recipe(src):
             self.basic_recipe.recipe_source = src
@@ -700,7 +700,7 @@ class CustomRecipes(Dialog):
             self.advanced_recipe.recipe_source = src
             self.stack.setCurrentIndex(2)
 
-    def editing_finished(self):
+    def editing_finished(self) -> None:
         w = self.stack.currentWidget()
         assert isinstance(w, (BasicRecipe, AdvancedRecipe))
         if not w.validate():
@@ -717,7 +717,7 @@ class CustomRecipes(Dialog):
             self.recipe_list.update_recipe(row, recipe.title, src)  # type: ignore
         self.stack.setCurrentIndex(0)
 
-    def customize_recipe(self):
+    def customize_recipe(self) -> None:
         d = ChooseBuiltinRecipe(self.recipe_model, self)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
@@ -732,7 +732,7 @@ class CustomRecipes(Dialog):
 
         self.edit_recipe(None, src)
 
-    def load_recipe(self):
+    def load_recipe(self) -> None:
         files = choose_files(
             self,
             'recipe loader dialog',
@@ -751,7 +751,7 @@ class CustomRecipes(Dialog):
                 return
             self.edit_recipe(None, src)
 
-    def import_opml(self):
+    def import_opml(self) -> None:
         from calibre.gui2.dialogs.opml import ImportOPML
 
         d = ImportOPML(parent=self)
@@ -799,7 +799,7 @@ class CustomRecipes(Dialog):
                 det_msg=det_msg,
             )
 
-    def switch_to_advanced(self):
+    def switch_to_advanced(self) -> None:
         src = self.basic_recipe.recipe_source
         src = src.replace('AutomaticNewsRecipe', 'BasicNewsRecipe')
         src = src.replace('BasicUserRecipe', 'AdvancedUserRecipe')

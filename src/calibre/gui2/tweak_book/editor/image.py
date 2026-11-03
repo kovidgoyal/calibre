@@ -30,7 +30,7 @@ from calibre.utils.localization import _
 
 
 class ResizeDialog(QDialog):  # {{{
-    def __init__(self, width, height, parent=None):
+    def __init__(self, width, height, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -63,7 +63,7 @@ class ResizeDialog(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addRow(bb)
 
-    def keep_ar(self, which):
+    def keep_ar(self, which) -> None:
         if self.ar.isChecked():
             val = getattr(self, which)
             oval = val / self.aspect_ratio if which == 'width' else val * self.aspect_ratio
@@ -77,7 +77,7 @@ class ResizeDialog(QDialog):  # {{{
         return self._width.value()
 
     @width.setter
-    def width(self, val):
+    def width(self, val) -> None:
         self._width.setValue(val)
 
     @property
@@ -85,7 +85,7 @@ class ResizeDialog(QDialog):  # {{{
         return self._height.value()
 
     @height.setter
-    def height(self, val):
+    def height(self, val) -> None:
         self._height.setValue(val)
 
 
@@ -103,7 +103,7 @@ class Editor(QMainWindow):
     cursor_position_changed = pyqtSignal()  # dummy
     copy_available_state_changed = pyqtSignal(object)
 
-    def __init__(self, syntax, parent=None):
+    def __init__(self, syntax, parent=None) -> None:
         QMainWindow.__init__(self, parent)
         if parent is None:
             self.setWindowFlags(Qt.WindowType.Widget)
@@ -127,7 +127,7 @@ class Editor(QMainWindow):
         return self._is_modified
 
     @is_modified.setter
-    def is_modified(self, val):
+    def is_modified(self, val) -> None:
         self._is_modified = val
         self.modification_state_changed.emit(val)
 
@@ -136,7 +136,7 @@ class Editor(QMainWindow):
         return {}
 
     @current_editing_state.setter
-    def current_editing_state(self, val):
+    def current_editing_state(self, val) -> None:
         pass
 
     @property
@@ -152,21 +152,21 @@ class Editor(QMainWindow):
         return redo_action.isEnabled()
 
     @property
-    def current_line(self):
+    def current_line(self) -> int:
         return 0
 
     @current_line.setter
-    def current_line(self, val):
+    def current_line(self, val) -> None:
         pass
 
     @property
-    def number_of_lines(self):
+    def number_of_lines(self) -> int:
         return 0
 
-    def pretty_print(self, name):
+    def pretty_print(self, name) -> bool:
         return False
 
-    def change_document_name(self, newname):
+    def change_document_name(self, newname) -> None:
         pass
 
     def get_raw_data(self):
@@ -177,45 +177,45 @@ class Editor(QMainWindow):
         return self.get_raw_data()
 
     @data.setter
-    def data(self, val):
+    def data(self, val) -> None:
         self.canvas.load_image(val)
         self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
 
-    def replace_data(self, raw, only_if_different=True):
+    def replace_data(self, raw, only_if_different=True) -> None:
         self.canvas.load_image(raw, only_if_different=only_if_different)
 
-    def apply_settings(self, prefs=None, dictionaries_changed=False):
+    def apply_settings(self, prefs=None, dictionaries_changed=False) -> None:
         pass
 
-    def go_to_line(self, *args, **kwargs):
+    def go_to_line(self, *args, **kwargs) -> None:
         pass
 
-    def save_state(self):
+    def save_state(self) -> None:
         for bar in self.bars:
             assert bar is not None
             if bar.isFloating():
                 return
         tprefs['image-editor-state'] = bytearray(self.saveState())
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         state = tprefs.get('image-editor-state', None)
         if state is not None:
             self.restoreState(state)
 
-    def set_focus(self):
+    def set_focus(self) -> None:
         self.canvas.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def undo(self):
+    def undo(self) -> None:
         undo_action = self.canvas.undo_action
         assert undo_action is not None
         undo_action.trigger()
 
-    def redo(self):
+    def redo(self) -> None:
         redo_action = self.canvas.redo_action
         assert redo_action is not None
         redo_action.trigger()
 
-    def copy(self):
+    def copy(self) -> None:
         self.canvas.copy()
 
     def cut(self):
@@ -226,29 +226,29 @@ class Editor(QMainWindow):
             show=True,
         )
 
-    def paste(self):
+    def paste(self) -> None:
         self.canvas.paste()
 
     # Search and replace {{{
-    def mark_selected_text(self, *args, **kwargs):
+    def mark_selected_text(self, *args, **kwargs) -> None:
         pass
 
     def find(self, *args, **kwargs):
         return False
 
-    def replace(self, *args, **kwargs):
+    def replace(self, *args, **kwargs) -> bool:
         return False
 
-    def all_in_marked(self, *args, **kwargs):
+    def all_in_marked(self, *args, **kwargs) -> int:
         return 0
 
     @property
-    def selected_text(self):
+    def selected_text(self) -> str:
         return ''
 
     # }}}
 
-    def image_changed(self, new_image):
+    def image_changed(self, new_image) -> None:
         self.is_synced_to_container = False
         self._is_modified = True
         self.copy_available = self.canvas.is_valid
@@ -260,7 +260,7 @@ class Editor(QMainWindow):
         assert im is not None
         self.size_label.setText('{} x {}{}'.format(im.width(), im.height(), ' px'))
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.canvas.break_cycles()
         self.canvas.image_changed.disconnect()
         self.canvas.undo_redo_state_changed.disconnect()
@@ -272,10 +272,10 @@ class Editor(QMainWindow):
         self.cursor_position_changed.disconnect()
         self.copy_available_state_changed.disconnect()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event) -> None:
         event.ignore()
 
-    def create_toolbars(self):
+    def create_toolbars(self) -> None:
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
         assert b is not None
         b.setObjectName('action_bar')  # Needed for saveState
@@ -324,14 +324,14 @@ class Editor(QMainWindow):
             x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
         self.restore_state()
 
-    def toolbar_floated(self, floating):
+    def toolbar_floated(self, floating) -> None:
         if not floating:
             self.save_state()
             for ed in editors.values():
                 if ed is not self:
                     ed.restore_state()
 
-    def update_clipboard_actions(self, *args):
+    def update_clipboard_actions(self, *args) -> None:
         if self.canvas.has_selection:
             self.action_copy.setText(_('Copy selected region'))
             self.action_paste.setText(_('Paste into selected region'))
@@ -339,14 +339,14 @@ class Editor(QMainWindow):
             self.action_copy.setText(_('Copy image'))
             self.action_paste.setText(_('Paste image'))
 
-    def resize_image(self):
+    def resize_image(self) -> None:
         im = self.canvas.current_image
         assert im is not None
         d = ResizeDialog(im.width(), im.height(), self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.canvas.resize_image(d.width, d.height)
 
-    def sharpen_image(self):
+    def sharpen_image(self) -> None:
         val, ok = QInputDialog.getInt(
             self,
             _('Sharpen image'),
@@ -358,7 +358,7 @@ class Editor(QMainWindow):
         if ok:
             self.canvas.sharpen_image(sigma=val)
 
-    def blur_image(self):
+    def blur_image(self) -> None:
         val, ok = QInputDialog.getInt(
             self,
             _('Blur image'),
@@ -370,7 +370,7 @@ class Editor(QMainWindow):
         if ok:
             self.canvas.blur_image(sigma=val)
 
-    def oilify_image(self):
+    def oilify_image(self) -> None:
         val, ok = QInputDialog.getDouble(
             self,
             _('Oilify image'),
@@ -383,7 +383,7 @@ class Editor(QMainWindow):
             self.canvas.oilify_image(radius=val)
 
 
-def launch_editor(path_to_edit, path_is_raw=False):
+def launch_editor(path_to_edit, path_is_raw=False) -> None:
     app = QApplication([])
     if path_is_raw:
         raw = path_to_edit

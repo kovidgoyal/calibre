@@ -125,7 +125,7 @@ Note: HTML output contains no CSS and does not start with a tag such as <DIV> or
 
 
 class GeneralInformationDialog(Dialog):
-    def __init__(self, include_general_doc=False, include_ffml_doc=False, parent=None):
+    def __init__(self, include_general_doc=False, include_ffml_doc=False, parent=None) -> None:
         self.include_general_doc = include_general_doc
         self.include_ffml_doc = include_ffml_doc
         super().__init__(
@@ -135,7 +135,7 @@ class GeneralInformationDialog(Dialog):
             parent=parent,
         )
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         l = QVBoxLayout(self)
         e = HTMLDisplay(self)
         l.addWidget(e)

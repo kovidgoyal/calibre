@@ -28,7 +28,7 @@ from calibre.utils.resources import get_path as P
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.db = gui.library_view.model().db
         self.ffml = FFMLProcessor()
@@ -130,7 +130,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_textBrowser_showing = not gprefs.get('template_functions_prefs_st_show_help', True)
         self.st_show_hide_help()
 
-    def st_show_hide_help(self):
+    def st_show_hide_help(self) -> None:
         gprefs['template_functions_prefs_st_show_help'] = not self.st_textBrowser_showing
         if self.st_textBrowser_showing:
             self.st_textBrowser.setMaximumHeight(self.st_show_hide_help_button.height())
@@ -141,7 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.st_textBrowser_showing = True
             self.st_show_hide_help_button.setText(_('Hide help'))
 
-    def show_hide_help(self):
+    def show_hide_help(self) -> None:
         gprefs['template_functions_prefs_tf_show_help'] = not self.textBrowser_showing
         if self.textBrowser_showing:
             self.textBrowser.setMaximumHeight(self.show_hide_help_button.height())
@@ -152,7 +152,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.textBrowser_showing = True
             self.show_hide_help_button.setText(_('Hide help'))
 
-    def initialize(self):
+    def initialize(self) -> None:
         try:
             self.builtin_source_dict = json.loads(P('template-functions.json', data=True, allow_user_override=False).decode('utf-8'))
         except Exception:
@@ -243,19 +243,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # Python function tab
 
-    def show_only_user_defined_changed(self, state):
+    def show_only_user_defined_changed(self, state) -> None:
         self.build_function_names_box()
 
-    def enable_replace_button(self):
+    def enable_replace_button(self) -> None:
         self.replace_button.setEnabled(self.delete_button.isEnabled())
 
-    def doc_edit_button_clicked(self):
+    def doc_edit_button_clicked(self) -> None:
         d = FFDocEditor(can_copy_back=True, parent=self)
         d.set_document_text(self.documentation.toPlainText())
         if d.exec() == QDialog.DialogCode.Accepted:
             self.documentation.setPlainText(d.document_text())
 
-    def clear_button_clicked(self):
+    def clear_button_clicked(self) -> None:
         self.build_function_names_box()
         self.program.clear()
         self.documentation.clear()
@@ -269,7 +269,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             return ' -- ' + _('User function')
 
-    def build_function_names_box(self, scroll_to=''):
+    def build_function_names_box(self, scroll_to='') -> None:
         self.function_name.blockSignals(True)
         if self.show_only_user_defined.isChecked():
             func_names = sorted([k for k in self.funcs if k not in self.builtins])
@@ -290,7 +290,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if scroll_to not in self.builtins:
                 self.delete_button.setEnabled(True)
 
-    def delete_button_clicked(self):
+    def delete_button_clicked(self) -> None:
         name = str(self.function_name.itemData(self.function_name.currentIndex()))
         if name in self.builtins:
             error_dialog(self.gui, _('Template functions'), _('You cannot delete a built-in function'), show=True)
@@ -304,7 +304,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             error_dialog(self.gui, _('Template functions'), _('Function not defined'), show=True)
 
-    def check_errors_before_save(self, name, for_replace=False):
+    def check_errors_before_save(self, name, for_replace=False) -> bool:
         # Returns True if there is an error
         if not name:
             error_dialog(self.gui, _('Template functions'), _('Name cannot be empty'), show=True)
@@ -351,7 +351,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return True
         return False
 
-    def create_button_clicked(self, use_name=None, need_error_checks=True):
+    def create_button_clicked(self, use_name=None, need_error_checks=True) -> None:
         name = use_name or str(self.function_name.currentText())
         name = name.split(' -- ')[0]
         if need_error_checks and self.check_errors_before_save(name, for_replace=False):
@@ -371,7 +371,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 det_msg=traceback.format_exc(),
             )
 
-    def function_name_edited(self, txt):
+    def function_name_edited(self, txt) -> None:
         txt = txt.split(' -- ')[0]
         if txt not in self.funcs:
             self.function_name.blockSignals(True)
@@ -384,7 +384,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.delete_button.setEnabled(False)
         self.program.setReadOnly(False)
 
-    def function_index_changed(self, idx):
+    def function_index_changed(self, idx) -> None:
         txt = self.function_name.itemData(idx)
         self.create_button.setEnabled(False)
         if not txt:
@@ -413,19 +413,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.program.setReadOnly(False)
         self.replace_button.setEnabled(False)
 
-    def replace_button_clicked(self):
+    def replace_button_clicked(self) -> None:
         name = str(self.function_name.itemData(self.function_name.currentIndex()))
         if self.check_errors_before_save(name, for_replace=True):
             return
         self.delete_button_clicked()
         self.create_button_clicked(use_name=name, need_error_checks=False)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         pass
 
     # Stored template tab
 
-    def st_test_template(self):
+    def st_test_template(self) -> None:
         if self.mi:
             self.st_replace_button_clicked()
             all_funcs = copy.copy(formatter_functions().get_functions())
@@ -446,7 +446,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             error_dialog(self.gui, _('Template functions'), _('Cannot "test" when no books are selected'), show=True)
 
-    def st_clear_button_clicked(self):
+    def st_clear_button_clicked(self) -> None:
         self.st_build_function_names_box()
         self.te_textbox.clear()
         self.template_editor.new_doc.clear()
@@ -456,7 +456,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_replace_button.setEnabled(False)
         self.st_current_program_name = ''
 
-    def st_build_function_names_box(self, scroll_to=''):
+    def st_build_function_names_box(self, scroll_to='') -> None:
         self.te_name.blockSignals(True)
         func_names = sorted(self.st_funcs)
         self.te_name.setMinimumContentsLength(40)
@@ -470,7 +470,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if idx >= 0:
                 self.te_name.setCurrentIndex(idx)
 
-    def st_import_button_clicked(self):
+    def st_import_button_clicked(self) -> None:
         if self.st_replace_button.isEnabled():
             error_dialog(
                 self,
@@ -507,7 +507,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 traceback.print_exc()
                 error_dialog(self, _('Import template'), _('<p>Could not import the template. Error:<br>%s') % err, show=True)
 
-    def st_export_button_clicked(self):
+    def st_export_button_clicked(self) -> None:
         if not self.te_name.currentText() or not self.te_textbox.toPlainText():
             error_dialog(
                 self,
@@ -540,7 +540,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 traceback.print_exc()
                 error_dialog(self, _('Export template'), _('<p>Could not export the template. Error:<br>%s') % err, show=True)
 
-    def st_delete_button_clicked(self):
+    def st_delete_button_clicked(self) -> None:
         name = str(self.te_name.currentText())
         if name in self.st_funcs:
             del self.st_funcs[name]
@@ -554,7 +554,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             error_dialog(self.gui, _('Stored templates'), _('Function not defined'), show=True)
 
-    def st_create_button_clicked(self, use_name=None):
+    def st_create_button_clicked(self, use_name=None) -> None:
         self.changed_signal.emit()
         name = use_name or str(self.te_name.currentText())
         for k, v in formatter_functions().get_functions().items():
@@ -587,7 +587,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 det_msg=traceback.format_exc(),
             )
 
-    def st_template_name_edited(self, txt):
+    def st_template_name_edited(self, txt) -> None:
         b = txt in self.st_funcs
         self.st_create_button.setEnabled(not b)
         self.st_replace_button.setEnabled(b)
@@ -596,7 +596,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_textbox.setReadOnly(False)
         self.st_doc_edit_button.setEnabled(True)
 
-    def st_function_index_changed(self, idx):
+    def st_function_index_changed(self, idx) -> None:
         txt = self.te_name.currentText()
         if self.st_current_program_name:
             if self.st_current_program_text != self.te_textbox.toPlainText():
@@ -628,19 +628,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_textbox.setPlainText(func.program_text)
         self.st_template_name_edited(txt)
 
-    def st_replace_button_clicked(self):
+    def st_replace_button_clicked(self) -> None:
         name = str(self.te_name.currentText())
         self.st_current_program_text = self.te_textbox.toPlainText()
         self.st_delete_button_clicked()
         self.st_create_button_clicked(use_name=name)
 
-    def st_doc_edit_button_clicked(self):
+    def st_doc_edit_button_clicked(self) -> None:
         d = FFDocEditor(can_copy_back=True, parent=self)
         d.set_document_text(self.template_editor.new_doc.toPlainText())
         if d.exec() == QDialog.DialogCode.Accepted:
             self.template_editor.new_doc.setPlainText(d.document_text())
 
-    def commit(self, *args):
+    def commit(self, *args) -> bool:
         pref_value = []
         for name, cls in self.funcs.items():
             if name not in self.builtins:

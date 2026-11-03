@@ -43,7 +43,7 @@ from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import _, ngettext
 
 
-def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
+def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols) -> bool:  # {{{
     source_metadata = db.field_metadata.custom_field_metadata(include_composites=True)
     dest_library_path = newdb.library_path
     ndbname = os.path.basename(dest_library_path)
@@ -126,7 +126,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, ids, db, loc, progress, done, delete_after, add_duplicates):
+    def __init__(self, ids, db, loc, progress, done, delete_after, add_duplicates) -> None:
         Thread.__init__(self)
         self.was_canceled = False
         self.ids = ids
@@ -144,10 +144,10 @@ class Worker(Thread):  # {{{
         self.check_for_duplicates = not add_duplicates and (prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl'])
         self.failed_books = {}
 
-    def cancel_processing(self):
+    def cancel_processing(self) -> None:
         self.was_canceled = True
 
-    def run(self):
+    def run(self) -> None:
         try:
             self.doit()
         except Exception as err:
@@ -161,7 +161,7 @@ class Worker(Thread):  # {{{
 
         self.done()
 
-    def doit(self):
+    def doit(self) -> None:
         from calibre.gui2.ui import get_gui
 
         library_broker = get_gui(fail_if_absent=True).library_broker
@@ -174,7 +174,7 @@ class Worker(Thread):  # {{{
         finally:
             library_broker.prune_loaded_dbs()
 
-    def _doit(self, newdb):
+    def _doit(self, newdb) -> None:
         for i, x in enumerate(self.ids):
             if self.was_canceled:
                 self.left_after_cancel = len(self.ids) - i
@@ -187,7 +187,7 @@ class Worker(Thread):  # {{{
                 err = as_unicode(err)
                 self.failed_books[x] = (err, as_unicode(traceback.format_exc()))
 
-    def do_one(self, num, book_id, newdb):
+    def do_one(self, num, book_id, newdb) -> None:
         duplicate_action = 'add'
         if self.check_for_duplicates:
             duplicate_action = 'add_formats_to_existing' if prefs['add_formats_to_existing'] else 'ignore'
@@ -213,13 +213,13 @@ class Worker(Thread):  # {{{
 
 
 class ChooseLibrary(Dialog):  # {{{
-    def __init__(self, parent, locations):
+    def __init__(self, parent, locations) -> None:
         self.locations = locations
         Dialog.__init__(self, _('Choose library'), 'copy_to_choose_library_dialog', parent)
         self.resort()
         self.current_changed()
 
-    def resort(self):
+    def resort(self) -> None:
         if self.sort_alphabetically.isChecked():
             sorted_locations = sorted(self.locations, key=lambda name_loc: numeric_sort_key(name_loc[0]))
         else:
@@ -230,7 +230,7 @@ class ChooseLibrary(Dialog):  # {{{
             i.setData(Qt.ItemDataRole.UserRole, loc)
         self.items.setCurrentRow(0)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QGridLayout(self)
         self.items = i = QListWidget(self)
         i.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -279,13 +279,13 @@ class ChooseLibrary(Dialog):  # {{{
     def sizeHint(self):
         return QSize(800, 550)
 
-    def current_changed(self):
+    def current_changed(self) -> None:
         i = self.items.currentItem() or self.items.item(0)
         if i is not None:
             loc = i.data(Qt.ItemDataRole.UserRole)
             self.le.setText(loc)
 
-    def browse(self):
+    def browse(self) -> None:
         d = choose_dir(self, 'choose_library_for_copy', _('Choose library'))
         if d:
             self.le.setText(d)
@@ -299,7 +299,7 @@ class ChooseLibrary(Dialog):  # {{{
 
 
 class DuplicatesQuestion(QDialog):  # {{{
-    def __init__(self, parent, duplicates, loc):
+    def __init__(self, parent, duplicates, loc) -> None:
         QDialog.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -334,17 +334,17 @@ class DuplicatesQuestion(QDialog):  # {{{
         l.addWidget(bb)
         self.resize(600, 400)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text()) for item in self.items]
         _clipboard = QApplication.clipboard()
         assert _clipboard is not None
         _clipboard.setText('\n'.join(items))
 
-    def select_all(self):
+    def select_all(self) -> None:
         for i in self.items:
             i.setCheckState(Qt.CheckState.Checked)
 
-    def select_none(self):
+    def select_none(self) -> None:
         for i in self.items:
             i.setCheckState(Qt.CheckState.Unchecked)
 
@@ -368,7 +368,7 @@ class CopyToLibraryAction(InterfaceAction):
     action_type = 'current'
     action_add_menu = True
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.menu = self.qaction.menu()
         assert self.menu is not None
 
@@ -376,18 +376,18 @@ class CopyToLibraryAction(InterfaceAction):
     def stats(self):
         return self.gui.iactions['Choose Library'].stats
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         self.build_menus()
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.library_changed(self.gui.library_view.model().db)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def build_menus(self):
+    def build_menus(self) -> None:
         assert self.menu is not None
         self.menu.clear()
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
@@ -500,7 +500,7 @@ class CopyToLibraryAction(InterfaceAction):
             ),
         )
 
-        def progress(idx, title):
+        def progress(idx, title) -> None:
             self.pd.set_msg(title)
             self.pd.set_value(idx)
 
@@ -588,7 +588,7 @@ class CopyToLibraryAction(InterfaceAction):
             error_dialog(self.gui, title, msg, det_msg=tb, show=True)
         return self.worker.duplicate_ids
 
-    def cannot_do_dialog(self):
+    def cannot_do_dialog(self) -> None:
         warning_dialog(
             self.gui,
             _('Not allowed'),

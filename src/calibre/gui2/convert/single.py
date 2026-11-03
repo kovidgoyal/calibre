@@ -50,7 +50,7 @@ from calibre.utils.localization import _
 
 
 class GroupModel(QAbstractListModel):
-    def __init__(self, widgets):
+    def __init__(self, widgets) -> None:
         self.widgets = widgets
         QAbstractListModel.__init__(self)
 
@@ -86,7 +86,7 @@ class Config(QDialog):
     recommendations member of the Input/Output plugins.
     """
 
-    def __init__(self, parent, db, book_id, preferred_input_format=None, preferred_output_format=None):
+    def __init__(self, parent, db, book_id, preferred_input_format=None, preferred_output_format=None) -> None:
         QDialog.__init__(self, parent)
         self.widgets = []
         self.setupUi()
@@ -108,10 +108,10 @@ class Config(QDialog):
         self.groups.setMouseTracking(True)
         self.restore_geometry(gprefs, 'convert_single_dialog_geom')
 
-    def current_group_changed(self, cur, prev):
+    def current_group_changed(self, cur, prev) -> None:
         self.show_pane(cur)
 
-    def setupUi(self):
+    def setupUi(self) -> None:
         self.setObjectName('Dialog')
         self.resize(1024, 700)
         self.setWindowIcon(QIcon.ic('convert.png'))
@@ -198,7 +198,7 @@ class Config(QDialog):
         nh, nw = max(300, geom.height() - 100), max(400, geom.width() - 70)
         return QSize(nw, nh)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         delete_specifics(self.db, self.book_id)
         self.setup_pipeline()
 
@@ -216,7 +216,7 @@ class Config(QDialog):
             if hasattr(w, 'manually_fine_tune_toc'):
                 return w.manually_fine_tune_toc.isChecked()
 
-    def setup_pipeline(self, *args):
+    def setup_pipeline(self, *args) -> None:
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
@@ -272,7 +272,7 @@ class Config(QDialog):
         except Exception:
             pass
 
-    def setup_input_output_formats(self, db, book_id, preferred_input_format, preferred_output_format):
+    def setup_input_output_formats(self, db, book_id, preferred_input_format, preferred_output_format) -> None:
         if preferred_output_format:
             preferred_output_format = preferred_output_format.upper()
         output_formats = get_output_formats(preferred_output_format)
@@ -285,7 +285,7 @@ class Config(QDialog):
         self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
-    def show_pane(self, index):
+    def show_pane(self, index) -> None:
         if hasattr(index, 'row'):
             index = index.row()
         ow = self.scrollArea.takeWidget()
@@ -298,7 +298,7 @@ class Config(QDialog):
             else:
                 w.setVisible(False)
 
-    def accept(self):
+    def accept(self) -> None:
         recs = GuiRecommendations()
         for w in self._groups_model.widgets:
             if not w.pre_commit_check():
@@ -313,7 +313,7 @@ class Config(QDialog):
         self.break_cycles()
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.break_cycles()
         QDialog.reject(self)
 
@@ -322,7 +322,7 @@ class Config(QDialog):
             self.save_geometry(gprefs, 'convert_single_dialog_geom')
         return QDialog.done(self, a0)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         for w in self.widgets:
             w.break_cycles()
 
@@ -331,6 +331,6 @@ class Config(QDialog):
         recs = [(k, v, OptionRecommendation.HIGH) for k, v in self._recommendations.items()]
         return recs
 
-    def show_group_help(self, index):
+    def show_group_help(self, index) -> None:
         widget = self._groups_model.widgets[index.row()]
         self.help.setPlainText(widget.HELP)

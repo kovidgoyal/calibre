@@ -31,7 +31,7 @@ def toolbar_widgets_for_action(gui, action):
             continue
 
 
-def show_menu_under_widget(gui, menu, action, name):
+def show_menu_under_widget(gui, menu, action, name) -> None:
     # First try the tool bar
     for w in toolbar_widgets_for_action(gui, action):
         try:
@@ -75,7 +75,7 @@ def show_menu_under_widget(gui, menu, action, name):
     menu.exec(gui.library_view.mapToGlobal(QPoint(10, 10)))
 
 
-def menu_action_unique_name(plugin, unique_name):
+def menu_action_unique_name(plugin, unique_name) -> str:
     return f'{plugin.unique_name} : menu action : {unique_name}'
 
 
@@ -181,26 +181,26 @@ class InterfaceAction(QObject):
 
     qaction: QAction
 
-    def __init__(self, parent, site_customization):
+    def __init__(self, parent, site_customization) -> None:
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
         self.interface_action_base_plugin = None
 
-    def accept_enter_event(self, event, mime_data):
+    def accept_enter_event(self, event, mime_data) -> bool:
         """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
-    def accept_drag_move_event(self, event, mime_data):
+    def accept_drag_move_event(self, event, mime_data) -> bool:
         """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
-    def drop_event(self, event, mime_data):
+    def drop_event(self, event, mime_data) -> bool:
         """This method should perform some useful action and return True
         iff this interface action is capable of handling the drop event. Do not
         call accept/ignore on the event, that will be taken care of by the
@@ -209,7 +209,7 @@ class InterfaceAction(QObject):
         quickly. See the builtin actions for examples."""
         return False
 
-    def do_genesis(self):
+    def do_genesis(self) -> None:
         self.Dispatcher = partial(Dispatcher, parent=self)
         self.create_action()
         self.gui.addAction(self.qaction)
@@ -218,7 +218,7 @@ class InterfaceAction(QObject):
         self.location_selected('library')
 
     @property
-    def unique_name(self):
+    def unique_name(self) -> str:
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
             plugin = self.interface_action_base_plugin
@@ -397,7 +397,7 @@ class InterfaceAction(QObject):
                     ans[candidate] = zf.read(candidate)
         return ans
 
-    def genesis(self):
+    def genesis(self) -> None:
         """
         Setup this plugin. Only called once during initialization. self.gui is
         available. The action specified by :attr:`action_spec` is available as
@@ -405,7 +405,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         """
         Called whenever the book list being displayed in calibre changes.
         Currently values for loc are: ``library, main, card and cardb``.
@@ -415,7 +415,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def library_about_to_change(self, olddb, db):
+    def library_about_to_change(self, olddb, db) -> None:
         """
         Called whenever the current library is changed.
 
@@ -425,7 +425,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         """
         Called whenever the current library is changed.
 
@@ -434,7 +434,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def gui_layout_complete(self):
+    def gui_layout_complete(self) -> None:
         """
         Called once per action when the layout of the main GUI is
         completed. If your action needs to make changes to the layout, they
@@ -442,7 +442,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         """
         Called once per action when the initialization of the main GUI is
         completed.
@@ -460,7 +460,7 @@ class InterfaceAction(QObject):
         if False:
             yield QAction()
 
-    def shutting_down(self):
+    def shutting_down(self) -> None:
         """
         Called once per plugin when the main GUI is in the process of shutting
         down. Release any used resources, but try not to block the shutdown for
@@ -487,7 +487,7 @@ class InterfaceActionWithLibraryDrop(InterfaceAction):
     def accept_drag_move_event(self, event, mime_data):
         return mime_data.hasFormat(self.mimetype_for_drop)
 
-    def drop_event(self, event, mime_data):
+    def drop_event(self, event, mime_data) -> bool:
         if mime_data.hasFormat(self.mimetype_for_drop):
             self.dropped_ids = tuple(map(int, mime_data.data(self.mimetype_for_drop).data().split()))
             QTimer.singleShot(1, self.do_drop)

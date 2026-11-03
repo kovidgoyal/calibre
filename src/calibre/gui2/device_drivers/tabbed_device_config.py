@@ -30,7 +30,7 @@ def wrap_msg(msg):
     return textwrap.fill(msg.strip(), 100)
 
 
-def setToolTipFor(widget, tt):
+def setToolTipFor(widget, tt) -> None:
     widget.setToolTip(wrap_msg(tt))
 
 
@@ -78,7 +78,7 @@ class TabbedDeviceConfig(QTabWidget):
         extra_customization_choices=None,
         parent=None,
         validate_before_accept=False,
-    ):
+    ) -> None:
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 
@@ -157,7 +157,7 @@ class TabbedDeviceConfig(QTabWidget):
 
         self.setCurrentIndex(0)
 
-    def addDeviceTab(self, tab, label):
+    def addDeviceTab(self, tab, label) -> None:
         '''
         This is used to add a new tab for the device config. The new tab will always be added
         as immediately before the "Extra Customization" tab.
@@ -208,7 +208,7 @@ class TabbedDeviceConfig(QTabWidget):
     def label(self):
         return self.opt_save_template
 
-    def validate(self):
+    def validate(self) -> bool:
         if hasattr(self, 'formats'):
             if not self.formats.validate():
                 return False
@@ -236,11 +236,11 @@ class DeviceConfigTab(QWidget):  # {{{
     will iterate over all known widgets looking for the property.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self)
         self.device_widgets = []
 
-    def addDeviceWidget(self, widget):
+    def addDeviceWidget(self, widget) -> None:
         self.device_widgets.append(widget)
 
     def __getattr__(self, attr_name):
@@ -253,7 +253,7 @@ class DeviceConfigTab(QWidget):  # {{{
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
-    def __init__(self, extra_customization_message, extra_customization_choices, device_settings):
+    def __init__(self, extra_customization_message, extra_customization_choices, device_settings) -> None:
         super().__init__()
 
         debug_print('ExtraCustomization.__init__ - extra_customization_message=', extra_customization_message)
@@ -293,7 +293,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                     def row_func(x, y):
                         return x * 2 + y
 
-                    def col_func(x):
+                    def col_func(x) -> int:
                         return 0
 
                 for i, m in enumerate(extra_customization_message):
@@ -387,7 +387,7 @@ class DeviceOptionsGroupBox(QGroupBox):
     This is a container for the individual options for a device driver.
     """
 
-    def __init__(self, parent, device=None, title=_('Unknown')):
+    def __init__(self, parent, device=None, title=_('Unknown')) -> None:
         QGroupBox.__init__(self, parent)
 
         self.device = device

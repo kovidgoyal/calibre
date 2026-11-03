@@ -14,7 +14,7 @@ class TOCWidget(Widget, Ui_Form):
     HELP = _('Control the creation/conversion of the Table of Contents.')
     COMMIT_NAME = 'toc'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['toc'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
@@ -26,7 +26,7 @@ class TOCWidget(Widget, Ui_Form):
         except TypeError:
             pass  # link already localized
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         for x in ('level1', 'level2', 'level3'):
             x = getattr(self, 'opt_' + x + '_toc')
             if not x.check():

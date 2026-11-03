@@ -14,7 +14,7 @@ from calibre.utils.localization import _
 class ConfigWidget(ConfigWidgetBase):
     restart_critical = False
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -57,14 +57,14 @@ class ConfigWidget(ConfigWidgetBase):
         b.clicked.connect(self.reset_confirmations)
         l.addWidget(b)
 
-    def reset_confirmations(self):
+    def reset_confirmations(self) -> None:
         self.confirms_reset = True
         self.changed_signal.emit()
 
-    def toggle_item(self, item):
+    def toggle_item(self, item) -> None:
         item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.confirms_reset = False
         self.devices.blockSignals(True)
         self.devices.clear()
@@ -87,11 +87,11 @@ class ConfigWidget(ConfigWidgetBase):
         self.device_plugins.sortItems()
         self.device_plugins.blockSignals(False)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         if self.devices.count() > 0:
             self.devices.clear()
 
-    def commit(self, *args):
+    def commit(self, *args) -> bool:
         devs = {}
         for i in range(self.devices.count()):
             e = self.devices.item(i)

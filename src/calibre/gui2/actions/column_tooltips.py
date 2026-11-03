@@ -18,17 +18,17 @@ def column_template_placeholder_text():
 
 
 class ToolTipDialog(Dialog):
-    def __init__(self, title, prefs):
+    def __init__(self, title, prefs) -> None:
         super().__init__(title, 'show_tooltip_dialog', prefs=prefs, default_buttons=QDialogButtonBox.StandardButton.Ok)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         l = QVBoxLayout(self)
         d = self.display = HTMLDisplay()
         l.addWidget(d)
         l.addWidget(self.bb)
         d.anchor_clicked.connect(safe_open_url)
 
-    def set_html(self, tt_text):
+    def set_html(self, tt_text) -> None:
         self.display.setHtml(tt_text)
 
 
@@ -40,7 +40,7 @@ class ColumnTooltipsAction(InterfaceAction):
     action_menu_clone_qaction = _('Edit/define column tooltip')
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_template_editor)
         m = self.qaction.menu()
         assert m is not None
@@ -73,7 +73,7 @@ class ColumnTooltipsAction(InterfaceAction):
             return (None, None, None, None)
         return view, idx, column, rows
 
-    def show_tooltip_in_dialog(self):
+    def show_tooltip_in_dialog(self) -> None:
         view, idx, column, rows = self.check_errors(only_one_row=True)
         if view is None:
             return
@@ -89,7 +89,7 @@ class ColumnTooltipsAction(InterfaceAction):
         d.set_html(idx.data(Qt.ItemDataRole.ToolTipRole))
         d.exec()
 
-    def show_template_editor(self):
+    def show_template_editor(self) -> None:
         view, _, column, rows = self.check_errors()
         if view is None:
             return
@@ -112,6 +112,6 @@ class ColumnTooltipsAction(InterfaceAction):
                 tt_dict[column] = d.rule[1]
                 db.new_api.set_pref('column_tooltip_templates', tt_dict)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)

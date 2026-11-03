@@ -121,7 +121,7 @@ def filter_upgradeable_plugins(display_plugin):
     return display_plugin.installation_type is PluginInstallationType.EXTERNAL and display_plugin.is_upgrade_available()
 
 
-def filter_not_installed_plugins(display_plugin):
+def filter_not_installed_plugins(display_plugin) -> bool:
     return not display_plugin.is_installed()
 
 
@@ -157,7 +157,7 @@ def read_available_plugins(raise_error=False):
     return display_plugins
 
 
-def get_installed_plugin_status(display_plugin):
+def get_installed_plugin_status(display_plugin) -> None:
     display_plugin.installed_version = None
     display_plugin.plugin = None
     for plugin in initialized_plugins():
@@ -186,7 +186,7 @@ class ImageTitleLayout(QHBoxLayout):
     A reusable layout widget displaying an image followed by a title
     """
 
-    def __init__(self, parent, icon_name, title):
+    def __init__(self, parent, icon_name, title) -> None:
         QHBoxLayout.__init__(self)
         title_font = QFont()
         title_font.setPointSize(16)
@@ -213,7 +213,7 @@ class SizePersistedDialog(QDialog):
 
     initial_extra_size = QSize(0, 0)
 
-    def __init__(self, parent, unique_pref_name):
+    def __init__(self, parent, unique_pref_name) -> None:
         QDialog.__init__(self, parent)
         self.unique_pref_name = unique_pref_name
         self.finished.connect(self.dialog_closing)
@@ -222,22 +222,22 @@ class SizePersistedDialog(QDialog):
         ans = super().sizeHint()
         return ans + self.initial_extra_size
 
-    def resize_dialog(self):
+    def resize_dialog(self) -> None:
         self.restore_geometry(gprefs, self.unique_pref_name)
 
-    def dialog_closing(self, result):
+    def dialog_closing(self, result) -> None:
         self.save_geometry(gprefs, self.unique_pref_name)
 
 
 class PluginFilterComboBox(QComboBox):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QComboBox.__init__(self, parent)
         items = [_('All'), _('Installed'), _('Update available'), _('Not installed')]
         self.addItems(items)
 
 
 class CategoryFilterComboBox(QComboBox):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QComboBox.__init__(self, parent)
         self.addItem(_('All'), None)
         for c in Category:
@@ -260,7 +260,7 @@ class CategoryFilterComboBox(QComboBox):
 
 
 class DisplayPlugin:
-    def __init__(self, plugin):
+    def __init__(self, plugin) -> None:
         self.name = plugin['index_name']
         self.qname = plugin.get('name', self.name)
         self.forum_link = plugin['thread_url']
@@ -318,7 +318,7 @@ class DisplayPlugin:
 
 
 class DisplayPluginSortFilterModel(QSortFilterProxyModel):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QSortFilterProxyModel.__init__(self, parent)
         self.setSortRole(Qt.ItemDataRole.UserRole)
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -342,21 +342,21 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
             return not display_plugin.is_installed() and not display_plugin.is_deprecated and matches_filters
         return False
 
-    def set_filter_criteria(self, filter_value):
+    def set_filter_criteria(self, filter_value) -> None:
         self.filter_criteria = filter_value
         self.invalidateFilter()
 
-    def set_filter_text(self, filter_text_value):
+    def set_filter_text(self, filter_text_value) -> None:
         self.filter_text = icu_lower(str(filter_text_value))
         self.invalidateFilter()
 
-    def set_filter_category(self, filter_text_value):
+    def set_filter_category(self, filter_text_value) -> None:
         self.filter_by_category = filter_text_value
         self.invalidateFilter()
 
 
 class DisplayPluginModel(QAbstractTableModel):
-    def __init__(self, display_plugins):
+    def __init__(self, display_plugins) -> None:
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
         self.headers = list(
@@ -446,7 +446,7 @@ class DisplayPluginModel(QAbstractTableModel):
                 return self.index(i, 0, QModelIndex())
         return QModelIndex()
 
-    def refresh_plugin(self, display_plugin):
+    def refresh_plugin(self, display_plugin) -> None:
         idx = self.plugin_to_index(display_plugin)
         self.dataChanged.emit(idx, idx)
 
@@ -534,7 +534,7 @@ def notify_on_successful_install(parent, plugin):
     b.setIcon(QIcon.ic('lt.png'))
     d.do_restart = False
 
-    def rf():
+    def rf() -> None:
         d.do_restart = True
 
     b.clicked.connect(rf)
@@ -555,7 +555,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         return get_gui()
 
-    def __init__(self, parent, initial_filter=FILTER_UPDATE_AVAILABLE, initial_category: Category | None = None):
+    def __init__(self, parent, initial_filter=FILTER_UPDATE_AVAILABLE, initial_category: Category | None = None) -> None:
         SizePersistedDialog.__init__(self, parent, 'Plugin Updater plugin:plugin updater dialog')
         self.number_installed = 0
         self.forum_link = None
@@ -600,7 +600,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
 
-    def _initialize_controls(self):
+    def _initialize_controls(self) -> None:
         self.setWindowTitle(_('User plugins'))
         self.setWindowIcon(QIcon.ic('plugins/plugin_updater.png'))
         layout = QVBoxLayout(self)
@@ -679,13 +679,13 @@ class PluginUpdaterDialog(SizePersistedDialog):
         configure_button.setEnabled(False)
         layout.addWidget(self.button_box)
 
-    def update_forum_label(self):
+    def update_forum_label(self) -> None:
         txt = ''
         if self.forum_link:
             txt = f'<a href="{self.forum_link}">{self.forum_label_text}</a>'
         self.forum_label.setText(txt)
 
-    def _create_context_menu(self):
+    def _create_context_menu(self) -> None:
         self.plugin_view.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
         self.install_action = QAction(QIcon.ic('plugins/plugin_upgrade_ok.png'), _('&Install'), self)
         self.install_action.setToolTip(_('Install the selected plugin'))
@@ -732,7 +732,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.configure_action.setEnabled(False)
         self.plugin_view.addAction(self.configure_action)
 
-    def _finished(self, *args):
+    def _finished(self, *args) -> None:
         if self.model:
             update_plugins = list(filter(filter_upgradeable_plugins, self.model.display_plugins))
             if self.gui is not None:
@@ -789,7 +789,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.description.setTextFormat(Qt.TextFormat.RichText if found_links else Qt.TextFormat.PlainText)
         self.description.setText(src)
 
-    def _plugin_current_changed(self, current, previous):
+    def _plugin_current_changed(self, current, previous) -> None:
         model = self.model
         assert model is not None
         install_button = self.install_button
@@ -824,12 +824,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.donate_enabled_action.setEnabled(False)
         self.update_forum_label()
 
-    def _donate_clicked(self):
+    def _donate_clicked(self) -> None:
         plugin = self._selected_display_plugin()
         if plugin and plugin.donation_link:
             open_url(QUrl(plugin.donation_link))
 
-    def _select_and_focus_view(self, change_selection=True):
+    def _select_and_focus_view(self, change_selection=True) -> None:
         pv_model = self.plugin_view.model()
         assert pv_model is not None
         if change_selection and pv_model.rowCount() > 0:
@@ -841,7 +841,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self._plugin_current_changed(idx, 0)
         self.plugin_view.setFocus()
 
-    def _filter_combo_changed(self, idx):
+    def _filter_combo_changed(self, idx) -> None:
         self.filter_by_name_lineedit.setText('')  # clear the name filter text when a different group was selected
         self.proxy_model.set_filter_criteria(idx)
         if idx == FILTER_NOT_INSTALLED:
@@ -850,15 +850,15 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.plugin_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         self._select_and_focus_view()
 
-    def _category_combo_changed(self, idx):
+    def _category_combo_changed(self, idx) -> None:
         self.filter_by_name_lineedit.setText('')  # clear the name filter text when a different group was selected
         self.proxy_model.set_filter_category(self.category_combo.filter_value)
         self._select_and_focus_view()
 
-    def _filter_name_lineedit_changed(self, text):
+    def _filter_name_lineedit_changed(self, text) -> None:
         self.proxy_model.set_filter_text(text)  # set the filter text for filterAcceptsRow
 
-    def _forum_label_activated(self):
+    def _forum_label_activated(self) -> None:
         if self.forum_link:
             open_url(QUrl(self.forum_link))
 
@@ -871,7 +871,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         assert model is not None
         return model.display_plugins[actual_idx.row()]
 
-    def _uninstall_plugin(self, name_to_remove):
+    def _uninstall_plugin(self, name_to_remove) -> None:
         if DEBUG:
             prints('Removing plugin: ', name_to_remove)
         remove_plugin(name_to_remove)
@@ -895,7 +895,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 if self.proxy_model.filter_criteria not in [FILTER_INSTALLED, FILTER_UPDATE_AVAILABLE]:
                     model.refresh_plugin(display_plugin)
 
-    def _uninstall_clicked(self):
+    def _uninstall_clicked(self) -> None:
         display_plugin = self._selected_display_plugin()
         if not question_dialog(
             self,

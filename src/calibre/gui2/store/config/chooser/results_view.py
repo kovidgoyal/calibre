@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class ResultsView(QTreeView):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QTreeView.__init__(self, parent)
 
         self._model = Matches(list(store_plugins()))
@@ -34,7 +34,7 @@ class ResultsView(QTreeView):
         assert _header is not None
         _header.setSortIndicator(self._model.sort_col, self._model.sort_order)
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         index = self.indexAt(a0.pos())
 
         if not index.isValid():
@@ -51,5 +51,5 @@ class ResultsView(QTreeView):
             ca.setEnabled(False)
         menu.exec(a0.globalPos())
 
-    def configure_plugin(self, plugin):
+    def configure_plugin(self, plugin) -> None:
         plugin.do_user_config(self)

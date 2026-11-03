@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 current_qv_action_pi = None
 
 
-def set_quickview_action_plugin(pi):
+def set_quickview_action_plugin(pi) -> None:
     global current_qv_action_pi
     current_qv_action_pi = pi
 
@@ -28,7 +28,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     current_instance = None
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.menuless_qaction.changed.connect(self.update_layout_button)
         self.qaction.triggered.connect(self.toggle_quick_view)
         self.focus_action = QAction(self.gui)
@@ -78,10 +78,10 @@ class ShowQuickviewAction(InterfaceAction):
         )
         self.search_action.triggered.connect(self.search_quickview)
 
-    def update_layout_button(self):
+    def update_layout_button(self) -> None:
         self.qv_button.update_shortcut(self.menuless_qaction)
 
-    def toggle_quick_view(self):
+    def toggle_quick_view(self) -> None:
         if self.current_instance and not self.current_instance.is_closed:
             self._hide_quickview()
         else:
@@ -91,7 +91,7 @@ class ShowQuickviewAction(InterfaceAction):
     def qv_button(self):
         return self.gui.layout_container.quick_view_button
 
-    def shutting_down(self):
+    def shutting_down(self) -> None:
         is_open = True
         if not self.current_instance or self.current_instance.is_closed:
             is_open = False
@@ -100,15 +100,15 @@ class ShowQuickviewAction(InterfaceAction):
     def needs_show_on_startup(self):
         return gprefs.get('qv_open_at_shutdown', False)
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         set_quickview_action_plugin(self)
         self.qv_button.toggled.connect(self.toggle_quick_view)
 
-    def show_on_startup(self):
+    def show_on_startup(self) -> None:
         self.gui.hide_panel('quick_view')
         self._show_quickview()
 
-    def _hide_quickview(self):
+    def _hide_quickview(self) -> None:
         """
         This is called only from the QV button toggle
         """
@@ -117,7 +117,7 @@ class ShowQuickviewAction(InterfaceAction):
                 self.current_instance._reject()
             self.current_instance = None
 
-    def _show_quickview(self, *args):
+    def _show_quickview(self, *args) -> None:
         """
         This is called only from the QV button toggle
         """
@@ -133,7 +133,7 @@ class ShowQuickviewAction(InterfaceAction):
         self.qv_button.blockSignals(False)
         self._create_current_instance()
 
-    def _create_current_instance(self):
+    def _create_current_instance(self) -> None:
         index = self.gui.library_view.currentIndex()
         self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(), focus_booklist_shortcut=self.focus_bl_action.shortcut())
 
@@ -141,7 +141,7 @@ class ShowQuickviewAction(InterfaceAction):
         self.current_instance.show()
         self.current_instance.quickview_closed.connect(self.qv_button.set_state_to_show)
 
-    def open_quickview(self):
+    def open_quickview(self) -> None:
         """
         QV moved from/to dock. Close and reopen the pane/window.
         Also called when QV is closed and the user asks to move the focus
@@ -151,21 +151,21 @@ class ShowQuickviewAction(InterfaceAction):
         self.current_instance = None
         self.qaction.triggered.emit()
 
-    def refill_quickview(self):
+    def refill_quickview(self) -> None:
         """
         Called when the columns shown in the QV pane might have changed.
         """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refill()
 
-    def refresh_quickview(self, idx):
+    def refresh_quickview(self, idx) -> None:
         """
         Called when the data shown in the QV pane might have changed.
         """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refresh(idx)
 
-    def change_quickview_column(self, idx, show=True):
+    def change_quickview_column(self, idx, show=True) -> None:
         """
         Called from the column header context menu to change the QV query column
         """
@@ -179,7 +179,7 @@ class ShowQuickviewAction(InterfaceAction):
             # don't know if this happens for any context menu.
             QTimer.singleShot(0, _cur_inst.set_focus)
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         """
         If QV is open, close it then reopen it so the columns are correct
         """
@@ -187,7 +187,7 @@ class ShowQuickviewAction(InterfaceAction):
             self.current_instance.reject()
             self.qaction.triggered.emit()
 
-    def focus_quickview(self):
+    def focus_quickview(self) -> None:
         """
         Used to move the focus to the QV books table. Open QV if needed
         """
@@ -196,11 +196,11 @@ class ShowQuickviewAction(InterfaceAction):
         else:
             self.current_instance.set_focus()
 
-    def focus_booklist(self):
+    def focus_booklist(self) -> None:
         self.gui.activateWindow()
         self.gui.library_view.setFocus()
 
-    def search_quickview(self):
+    def search_quickview(self) -> None:
         if not self.current_instance or self.current_instance.is_closed:
             return
         self.current_instance.do_search()

@@ -17,7 +17,7 @@ SUPPORTED = {'EPUB', 'AZW3'}
 
 
 class ChooseFormat(QDialog):  # {{{
-    def __init__(self, formats, parent=None):
+    def __init__(self, formats, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose format to edit'))
         self.setWindowIcon(QIcon.ic('dialog_question.png'))
@@ -47,7 +47,7 @@ class ChooseFormat(QDialog):  # {{{
         self.resize(self.sizeHint())
         connect_lambda(self.finished, self, lambda self, code: gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
 
-    def do_all(self):
+    def do_all(self) -> None:
         for b in self.buttons:
             b.setChecked(True)
         self.accept()
@@ -59,7 +59,7 @@ class ChooseFormat(QDialog):  # {{{
                 yield str(b.text())[1:]
 
     @formats.setter
-    def formats(self, formats):
+    def formats(self, formats) -> None:
         formats = {x.upper() for x in formats}
         for b in self.buttons:
             b.setChecked(b.text()[1:] in formats)
@@ -74,13 +74,13 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_id_map = self.get_supported_books(self.dropped_ids)
         del self.dropped_ids
         if book_id_map:
             self.do_edit(book_id_map)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.shm_count = count()
         self.qaction.triggered.connect(self.edit_books)
         self.jobs = []
@@ -120,7 +120,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         ans = (db.id(r) for r in rows)
         return self.get_supported_books(ans)
 
-    def do_edit(self, book_id_map):
+    def do_edit(self, book_id_map) -> None:
         for book_id, fmts in book_id_map.items():
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
@@ -130,7 +130,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
             for fmt in fmts:
                 self.do_one(book_id, fmt)
 
-    def do_one(self, book_id, fmt):
+    def do_one(self, book_id, fmt) -> None:
         import atexit
         import json
         import struct
@@ -163,10 +163,10 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         self.jobs.append(job)
         self.check_for_completions()
 
-    def check_for_completions(self):
+    def check_for_completions(self) -> None:
         import struct
 
-        def remove_job(job):
+        def remove_job(job) -> None:
             job['shm'].close()
             self.jobs.remove(job)
 
@@ -206,7 +206,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         if self.jobs:
             QTimer.singleShot(100, self.check_for_completions)
 
-    def edit_books(self):
+    def edit_books(self) -> None:
         book_id_map = self.get_books_for_editing()
         if not book_id_map:
             return

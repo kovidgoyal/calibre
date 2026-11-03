@@ -35,7 +35,7 @@ from calibre.utils.resources import set_data
 
 
 class IdLinksRuleEdit(Dialog):
-    def __init__(self, key='', name='', template='', parent=None):
+    def __init__(self, key='', name='', template='', parent=None) -> None:
         title = _('Edit rule') if key else _('Create a new rule')
         Dialog.__init__(self, title=title, name='id-links-rule-editor', parent=parent)
         self.key.setText(key), self.nw.setText(name), self.template.setText(template or 'https://example.com/{id}')
@@ -46,7 +46,7 @@ class IdLinksRuleEdit(Dialog):
     def rule(self):
         return self.key.text().lower(), self.nw.text(), self.template.text()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         l.addRow(QLabel(_('The key of the identifier, for example, in isbn:XXX, the key is "isbn"')))
@@ -80,10 +80,10 @@ class IdLinksRuleEdit(Dialog):
 
 
 class IdLinksEditor(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, title=_('Create rules for identifiers'), name='id-links-rules-editor', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Create rules to convert identifiers into links.'))
         la.setWordWrap(True)
@@ -117,7 +117,7 @@ class IdLinksEditor(Dialog):
     def sizeHint(self):
         return QSize(700, 550)
 
-    def accept(self):
+    def accept(self) -> None:
         rules = defaultdict(list)
         for r in range(self.table.rowCount()):
 
@@ -130,7 +130,7 @@ class IdLinksEditor(Dialog):
         msprefs['id_link_rules'] = dict(rules)
         Dialog.accept(self)
 
-    def edit_rule(self, r=-1):
+    def edit_rule(self, r=-1) -> None:
         key = name = template = ''
         if r > -1:
             _i0 = self.table.item(r, 0)
@@ -148,20 +148,20 @@ class IdLinksEditor(Dialog):
                 self.table.setItem(r, c, QTableWidgetItem(rule[c]))
             self.table.scrollToItem(self.table.item(r, 0))
 
-    def remove_rule(self):
+    def remove_rule(self) -> None:
         r = self.table.currentRow()
         if r > -1:
             self.table.removeRow(r)
 
 
 class BDVerticalCats(DisplayedFields):
-    def __init__(self, db, parent=None, category_icons=None):
+    def __init__(self, db, parent=None, category_icons=None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui()
 
-    def initialize(self, use_defaults=False, pref_data_override=None):
+    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
         fm = self.db.field_metadata
         cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and not k.startswith('#')]
         cats.append('path')
@@ -182,13 +182,13 @@ class BDVerticalCats(DisplayedFields):
         self.fields = ans
         self.endResetModel()
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.prefs.set('book_details_vertical_categories', [k for k, v in self.fields if v])
 
 
 class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         r = self.register
 
@@ -225,7 +225,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.css_highlighter.apply_theme(get_theme(None))
         self.css_highlighter.set_document(self.opt_book_details_css.document())
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.blockSignals(True)
         self.default_author_link.value = default_author_link()
         self.display_model.initialize()
@@ -233,7 +233,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', data=True).decode('utf-8'))
         self.blockSignals(False)
 
-    def edit_id_link_rules(self):
+    def edit_id_link_rules(self) -> None:
         if IdLinksEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
@@ -249,7 +249,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
             set_data('templates/book_details.css', bcss)
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.default_author_link.restore_defaults()
         self.display_model.restore_defaults()
@@ -257,7 +257,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', allow_user_override=False, data=True).decode('utf-8'))
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.book_details.book_info.refresh_css()
         gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_composite_edit()

@@ -51,13 +51,13 @@ MAX_MARGIN_INCHES = 3
 class PrintDialog(Dialog):
     OUTPUT_NAME = 'print-to-pdf-choose-file'
 
-    def __init__(self, book_title, parent=None, prefs=vprefs):
+    def __init__(self, book_title, parent=None, prefs=vprefs) -> None:
         self.book_title = book_title
         self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
         self.paper_size_map = {a: getattr(QPageSize.PageSizeId, a.capitalize()) for a in PAPER_SIZES}
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.vl = vl = QVBoxLayout(self)
         self.l = l = QFormLayout()
         vl.addLayout(l)
@@ -175,7 +175,7 @@ class PrintDialog(Dialog):
         ans['margin_unit'] = self.current_margin_unit
         return ans
 
-    def choose_file(self):
+    def choose_file(self) -> None:
         ans = choose_save_file(
             self,
             self.OUTPUT_NAME,
@@ -187,7 +187,7 @@ class PrintDialog(Dialog):
         if ans:
             self.file_name.setText(ans)
 
-    def save_used_values(self):
+    def save_used_values(self) -> None:
         data = self.data
         vprefs['print-to-pdf-page-size'] = data['paper_size']
         vprefs['print-to-pdf-page-numbers'] = data['page_numbers']
@@ -219,12 +219,12 @@ class PrintDialog(Dialog):
 class DoPrint(Thread):
     daemon = True
 
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         Thread.__init__(self, name='DoPrint')
         self.data = data
         self.tb = self.log = None
 
-    def run(self):
+    def run(self) -> None:
         try:
             with PersistentTemporaryFile('print-to-pdf-log.txt') as f:
                 p = self.worker = start_pipe_worker('from calibre.gui2.viewer.printing import do_print; do_print()', stdout=f, stderr=subprocess.STDOUT)
@@ -243,7 +243,7 @@ class DoPrint(Thread):
             self.tb = traceback.format_exc()
 
 
-def do_print():
+def do_print() -> None:
     from calibre.customize.ui import plugin_for_input_format
 
     stdin = getattr(sys.stdin, 'buffer', sys.stdin)
@@ -279,7 +279,7 @@ def do_print():
 
 
 class Printing(QProgressDialog):
-    def __init__(self, thread, show_file, parent=None):
+    def __init__(self, thread, show_file, parent=None) -> None:
         QProgressDialog.__init__(self, _('Printing, this will take a while, please wait...'), _('&Cancel'), 0, 0, parent)
         self.show_file = show_file
         self.setWindowTitle(_('Printing...'))
@@ -290,7 +290,7 @@ class Printing(QProgressDialog):
         self.canceled.connect(self.do_cancel)
         t.start(100)
 
-    def check(self):
+    def check(self) -> None:
         if self.print_thread.is_alive():
             return
         if self.print_thread.tb or self.print_thread.log:
@@ -305,7 +305,7 @@ class Printing(QProgressDialog):
             open_local_file(self.print_thread.data['output'])
         self.accept()
 
-    def do_cancel(self):
+    def do_cancel(self) -> None:
         if hasattr(self.print_thread, 'worker'):
             try:
                 if self.print_thread.worker.poll() is None:
@@ -318,7 +318,7 @@ class Printing(QProgressDialog):
         self.reject()
 
 
-def print_book(path_to_book, parent=None, book_title=None):
+def print_book(path_to_book, parent=None, book_title=None) -> None:
     book_title = book_title or os.path.splitext(os.path.basename(path_to_book))[0]
     d = PrintDialog(book_title, parent)
     if d.exec() == QDialog.DialogCode.Accepted:

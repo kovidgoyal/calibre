@@ -57,7 +57,7 @@ class Cover(CoverView):
     resize_requested = pyqtSignal(object)
     size_hint_callback: Callable[[QSize], QSize] = lambda x: x
 
-    def __init__(self, parent, show_size=False):
+    def __init__(self, parent, show_size=False) -> None:
         CoverView.__init__(self, parent, show_size=show_size)
 
     def resizeEvent(self, event) -> None:
@@ -77,17 +77,17 @@ class Cover(CoverView):
         download.triggered.connect(self.download_cover)
         return ans
 
-    def open_with(self, entry):
+    def open_with(self, entry) -> None:
         self.open_with_requested.emit(entry)
 
-    def choose_open_with(self):
+    def choose_open_with(self) -> None:
         self.choose_open_with_requested.emit()
 
-    def mouseDoubleClickEvent(self, event):
+    def mouseDoubleClickEvent(self, event) -> None:
         event.accept()
         self.open_with_requested.emit(None)
 
-    def set_marked(self, marked):
+    def set_marked(self, marked) -> None:
         if marked:
             marked_brush = QBrush(Qt.GlobalColor.darkGray if qapplication_or_fail().is_dark_theme else Qt.GlobalColor.lightGray)
             self.set_background(marked_brush)
@@ -96,11 +96,11 @@ class Cover(CoverView):
 
 
 class Configure(Dialog):
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None) -> None:
         self.db = db
         Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
 
         self.l = QVBoxLayout(self)
@@ -152,13 +152,13 @@ class Configure(Dialog):
         self.l.addWidget(self.bb)
         self.setMinimumHeight(500)
 
-    def select_all(self):
+    def select_all(self) -> None:
         self.model.toggle_all(True)
 
-    def select_none(self):
+    def select_none(self) -> None:
         self.model.toggle_all(False)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.model.initialize(use_defaults=True)
 
     def accept(self):
@@ -169,7 +169,7 @@ class Configure(Dialog):
 class Details(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
-    def __init__(self, book_info, parent=None, allow_context_menu=True, is_locked=False):
+    def __init__(self, book_info, parent=None, allow_context_menu=True, is_locked=False) -> None:
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
         self.edit_metadata = getattr(parent, 'edit_metadata', None)
@@ -183,7 +183,7 @@ class Details(HTMLDisplay):
     def sizeHint(self):
         return QSize(350, 350)
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, e) -> None:
         if self.allow_context_menu:
             details_context_menu_event(self, e, self.book_info, edit_metadata=None if self.is_locked else self.edit_metadata)
 
@@ -205,7 +205,7 @@ class ListenerSignal(QObject):
 listener_object = ListenerSignal()
 
 
-def book_metatada_changed(event_type: EventType, library_id, event_data):
+def book_metatada_changed(event_type: EventType, library_id, event_data) -> None:
     if event_type not in (
         EventType.book_created,
         EventType.books_removed,
@@ -219,7 +219,7 @@ class BookInfo(QDialog, DropMixin):
     closed = pyqtSignal(object)
     open_cover_with = pyqtSignal(object, object)
 
-    def __init__(self, parent, view, row, link_delegate, dialog_number=None, library_id=None, library_path=None, book_id=None):
+    def __init__(self, parent, view, row, link_delegate, dialog_number=None, library_id=None, library_path=None, book_id=None) -> None:
         QDialog.__init__(self, parent)
         DropMixin.__init__(self)
         self.files_dropped.connect(self.on_files_dropped)
@@ -357,10 +357,10 @@ class BookInfo(QDialog, DropMixin):
         except Exception:
             pass
 
-    def do_update_book_details_debounce(self):
+    def do_update_book_details_debounce(self) -> None:
         self.update_debounce_timer.start()
 
-    def do_update_book_details(self):
+    def do_update_book_details(self) -> None:
         if self.current_row is not None:
             view = self.view
             assert view is not None
@@ -368,11 +368,11 @@ class BookInfo(QDialog, DropMixin):
             if mi is not None:
                 self.refresh(self.current_row, mi=mi)
 
-    def on_files_dropped(self, event, paths):
+    def on_files_dropped(self, event, paths) -> None:
         gui = get_gui(fail_if_absent=True)
         gui.iactions['Add Books'].files_dropped_on_book(event, paths)
 
-    def on_remote_file_dropped(self, event, url):
+    def on_remote_file_dropped(self, event, url) -> None:
         gui = get_gui(fail_if_absent=True)
         gui.iactions['Add Books'].remote_file_dropped_on_book(event, url)
 
@@ -392,14 +392,14 @@ class BookInfo(QDialog, DropMixin):
         except Exception:
             return QSize(800, 600)
 
-    def view_book(self):
+    def view_book(self) -> None:
         if self.current_row is not None:
             view = self.view
             assert view is not None
             book_id = view.model().id(self.current_row)
             get_gui(fail_if_absent=True).iactions['View']._view_calibre_books((book_id,))
 
-    def edit_metadata(self):
+    def edit_metadata(self) -> None:
         if self.current_row is not None:
             view = self.view
             assert view is not None
@@ -408,7 +408,7 @@ class BookInfo(QDialog, DropMixin):
             with em.different_parent(self):
                 em.edit_metadata_for([self.current_row], [book_id], bulk=False)
 
-    def configure(self):
+    def configure(self) -> None:
         d = Configure(get_gui(fail_if_absent=True).current_db, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             if self.current_row is not None:
@@ -418,7 +418,7 @@ class BookInfo(QDialog, DropMixin):
                 if mi is not None:
                     self.refresh(self.current_row, mi=mi)
 
-    def on_link_clicked(self, qurl):
+    def on_link_clicked(self, qurl) -> None:
         link = str(qurl.toString(NO_URL_FORMATTING))
         if self.link_delegate is not None:
             self.link_delegate(link, self)
@@ -439,7 +439,7 @@ class BookInfo(QDialog, DropMixin):
             listener_object.metadata_changed.disconnect(self.do_update_book_details_debounce)
         return ret
 
-    def cover_changed(self, data):
+    def cover_changed(self, data) -> None:
         view = self.view
         assert view is not None
         if self.current_row is not None:
@@ -455,23 +455,23 @@ class BookInfo(QDialog, DropMixin):
     def details_size_hint(self, sz: QSize = QSize()) -> QSize:
         return QSize(350, 550)
 
-    def toggle_cover_fit(self, state):
+    def toggle_cover_fit(self, state) -> None:
         gprefs.set('book_info_dialog_fit_cover', self.fit_cover.isChecked())
         self.resize_cover()
 
-    def cover_view_resized(self, event):
+    def cover_view_resized(self, event) -> None:
         QTimer.singleShot(1, self.resize_cover)
 
-    def slave(self, mi):
+    def slave(self, mi) -> None:
         self._mi_for_debounce = mi
         self.slave_debounce_timer.start()  # start() will automatically reset the timer if it was already running
 
-    def _debounce_refresh(self):
+    def _debounce_refresh(self) -> None:
         mi, self._mi_for_debounce = self._mi_for_debounce, None
         assert mi is not None
         self.refresh(mi.row_number, mi)
 
-    def move(self, *args, **kwargs):
+    def move(self, *args, **kwargs) -> None:
         a0 = args[0] if args else 1
         view = self.view
         assert view is not None
@@ -484,13 +484,13 @@ class BookInfo(QDialog, DropMixin):
                     view.scrollTo(ni)
                 view.setCurrentIndex(ni)
 
-    def next(self):
+    def next(self) -> None:
         self.move()
 
-    def previous(self):
+    def previous(self) -> None:
         self.move(-1)
 
-    def resize_cover(self):
+    def resize_cover(self) -> None:
         if self.cover_pixmap is None:
             self.cover.set_marked(self.marked)
             return
@@ -513,13 +513,13 @@ class BookInfo(QDialog, DropMixin):
         self.cover.set_marked(self.marked)
         self.update_cover_tooltip()
 
-    def copy_cover_to_clipboard(self):
+    def copy_cover_to_clipboard(self) -> None:
         if self.cover_pixmap is not None:
             clipboard = qapplication_or_fail().clipboard()
             assert clipboard is not None
             clipboard.setPixmap(self.cover_pixmap)
 
-    def download_cover(self):
+    def download_cover(self) -> None:
         from calibre.gui2.book_details import download_cover
 
         if self.current_row is not None:
@@ -529,7 +529,7 @@ class BookInfo(QDialog, DropMixin):
             if pmap := download_cover(self, book_id, self.cover_pixmap):
                 self.cover_changed(pmap)
 
-    def update_cover_tooltip(self):
+    def update_cover_tooltip(self) -> None:
         tt = ''
         if self.marked:
             tt += _('This book is marked') if self.marked in {True, 'true'} else _('This book is marked as: %s') % self.marked
@@ -545,7 +545,7 @@ class BookInfo(QDialog, DropMixin):
         self.cover.setToolTip(tt)
         self.cover.pixmap_size = sz.width(), sz.height()
 
-    def refresh(self, row, mi=None):
+    def refresh(self, row, mi=None) -> None:
         if isinstance(row, QModelIndex):
             row = row.row()
         if row == self.current_row and mi is None:
@@ -579,13 +579,13 @@ class BookInfo(QDialog, DropMixin):
         set_html(mi, html, self.details)
         self.update_cover_tooltip()
 
-    def open_with(self, entry):
+    def open_with(self, entry) -> None:
         view = self.view
         assert view is not None
         id_ = view.model().id(self.current_row)
         self.open_cover_with.emit(id_, entry)
 
-    def choose_open_with(self):
+    def choose_open_with(self) -> None:
         from calibre.gui2.open_with import choose_program
 
         entry = choose_program('cover_image', self)

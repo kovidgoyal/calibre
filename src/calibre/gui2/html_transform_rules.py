@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class TagAction(QWidget):
     remove_action = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -65,7 +65,7 @@ class TagAction(QWidget):
         l.addWidget(sep)
         self.update_state()
 
-    def request_remove(self):
+    def request_remove(self) -> None:
         self.remove_action.emit(self)
 
     @property
@@ -73,7 +73,7 @@ class TagAction(QWidget):
         return {'type': self.action_type.currentData(), 'data': self.action_data.text()}
 
     @as_dict.setter
-    def as_dict(self, val):
+    def as_dict(self, val) -> None:
         self.action_data.setText(val.get('data') or '')
         at = val.get('type')
         if at:
@@ -81,7 +81,7 @@ class TagAction(QWidget):
             if idx > -1:
                 self.action_type.setCurrentIndex(idx)
 
-    def update_state(self):
+    def update_state(self) -> None:
         val = self.as_dict
         ac = ACTION_MAP[val['type']]
         self.action_desc.setText(ac.long_text)
@@ -93,7 +93,7 @@ class TagAction(QWidget):
 
 
 class ActionsContainer(QScrollArea):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWidgetResizable(True)
         self.w = w = QWidget()
@@ -112,7 +112,7 @@ class ActionsContainer(QScrollArea):
         a.action_type.setFocus(Qt.FocusReason.OtherFocusReason)
         return a
 
-    def remove_action(self, ac):
+    def remove_action(self, ac) -> None:
         if ac in self.all_actions:
             self.w_layout.removeWidget(ac)
             del self.all_actions[self.all_actions.index(ac)]
@@ -128,7 +128,7 @@ class ActionsContainer(QScrollArea):
         return [t.as_dict for t in self.all_actions]
 
     @as_list.setter
-    def as_list(self, val):
+    def as_list(self, val) -> None:
         for ac in tuple(self.all_actions):
             self.remove_action(ac)
         for entry in val:
@@ -136,7 +136,7 @@ class ActionsContainer(QScrollArea):
 
 
 class GenericEdit(QLineEdit):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setClearButtonEnabled(True)
 
@@ -145,12 +145,12 @@ class GenericEdit(QLineEdit):
         return self.text()
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         self.setText(str(val))
 
 
 class CSSEdit(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -167,7 +167,7 @@ class CSSEdit(QWidget):
         return self.edit.value
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         self.edit.value = val
 
 
@@ -177,7 +177,7 @@ class CSSEdit(QWidget):
 class RuleEdit(QWidget):  # {{{
     MSG = _('Create the rule to transform HTML tags below')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -227,7 +227,7 @@ class RuleEdit(QWidget):  # {{{
     def current_query_widget(self):
         return {'css': self.css_query, 'xpath': self.xpath_query}.get(self.match_type.currentData(), self.generic_query)
 
-    def update_state(self):
+    def update_state(self) -> None:
         r = self.rule
         mt = r['match_type']
         self.generic_query.setVisible(False), self.css_query.setVisible(False), self.xpath_query.setVisible(False)
@@ -249,8 +249,8 @@ class RuleEdit(QWidget):  # {{{
             raise
 
     @rule.setter
-    def rule(self, rule):
-        def sc(name):
+    def rule(self, rule) -> None:
+        def sc(name) -> None:
             c = getattr(self, name)
             c.setCurrentIndex(max(0, c.findData(str(rule.get(name, '')))))
 
@@ -259,7 +259,7 @@ class RuleEdit(QWidget):  # {{{
         self.actions_container.as_list = rule.get('actions') or []
         self.update_state()
 
-    def validate(self):
+    def validate(self) -> bool:
         rule = self.rule
         title, msg = validate_rule(rule)
         if msg is not None and title is not None:
@@ -332,7 +332,7 @@ class Tester(TesterBase):  # {{{
     def compile_rules(self, rules):
         return rules
 
-    def do_test(self):
+    def do_test(self) -> None:
         changed, html = transform_html('\n' + self.value + '\n', self.rules)
         self.set_result(html)
 
@@ -360,7 +360,7 @@ class RulesDialog(RulesDialogBase):  # {{{
         return self.scope_cb.currentData()
 
     @transform_scope.setter
-    def transform_scope(self, val):
+    def transform_scope(self, val) -> None:
         idx = self.scope_cb.findData(val)
         self.scope_cb.setCurrentIndex(max(0, idx))
 

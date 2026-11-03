@@ -37,7 +37,7 @@ class TOCEditor(QDialog):
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
-    def __init__(self, title=None, parent=None):
+    def __init__(self, title=None, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.last_reject_at = self.last_accept_at = -1000
 
@@ -73,20 +73,20 @@ class TOCEditor(QDialog):
     def sizeHint(self):
         return QSize(950, 630)
 
-    def add_new_item(self, item, where):
+    def add_new_item(self, item, where) -> None:
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(1)
         if ismacos:
             QTimer.singleShot(0, self.workaround_macos_mouse_with_webview_bug)
 
-    def workaround_macos_mouse_with_webview_bug(self):
+    def workaround_macos_mouse_with_webview_bug(self) -> None:
         # macOS is weird: https://bugs.launchpad.net/calibre/+bug/2004639
         # needed as of Qt 6.4.2
         d = info_dialog(self, _('Loading...'), _('Loading table of contents view, please wait...'), show_copy_button=False)
         QTimer.singleShot(0, d.reject)
         d.exec()
 
-    def accept(self):
+    def accept(self) -> None:
         if monotonic() - self.last_accept_at < 1:
             return
         self.last_accept_at = monotonic()
@@ -99,7 +99,7 @@ class TOCEditor(QDialog):
             self.save_geometry(tprefs, 'toc_editor_window_geom')
             super().accept()
 
-    def really_accept(self, tb):
+    def really_accept(self, tb) -> None:
         self.save_geometry(tprefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(
@@ -114,7 +114,7 @@ class TOCEditor(QDialog):
 
         super().accept()
 
-    def reject(self):
+    def reject(self) -> None:
         if not self.bb.isEnabled():
             return
         if monotonic() - self.last_reject_at < 1:
@@ -127,12 +127,12 @@ class TOCEditor(QDialog):
             self.save_geometry(tprefs, 'toc_editor_window_geom')
             super().reject()
 
-    def read_toc(self):
+    def read_toc(self) -> None:
         self.toc_view(current_container())
         self.item_edit.load(current_container())
         self.stacks.setCurrentIndex(0)
 
-    def write_toc(self):
+    def write_toc(self) -> None:
         toc = self.toc_view.create_toc()
         toc.toc_title = getattr(self.toc_view, 'toc_title', None)
         commit_toc(current_container(), toc, lang=self.toc_view.toc_lang, uid=self.toc_view.toc_uid)
@@ -153,7 +153,7 @@ class TOCViewer(QWidget):
     navigate_requested = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         self.toc_title = None
@@ -181,11 +181,11 @@ class TOCViewer(QWidget):
         self.toc_name = None
         self.currently_editing = None
 
-    def start_refresh_timer(self, name):
+    def start_refresh_timer(self, name) -> None:
         if self.isVisible() and self.toc_name == name:
             self.refresh_timer.start()
 
-    def auto_refresh(self):
+    def auto_refresh(self) -> None:
         if self.isVisible():
             try:
                 self.refresh()
@@ -195,15 +195,15 @@ class TOCViewer(QWidget):
 
                 traceback.print_exc()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.refresh_requested.emit()  # Give boss a chance to commit dirty editors to the container
         self.build()
 
-    def item_pressed(self, item):
+    def item_pressed(self, item) -> None:
         if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             QTimer.singleShot(0, self.emit_navigate)
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         menu = QMenu(self)
         menu.addAction(actions['edit-toc'])
         menu.addAction(QIcon.ic('plus.png'), _('&Expand all'), self.view.expandAll)
@@ -211,16 +211,16 @@ class TOCViewer(QWidget):
         menu.addAction(self.refresh_action)
         menu.exec(self.view.mapToGlobal(pos))
 
-    def mark_name_as_current(self, name):
+    def mark_name_as_current(self, name) -> None:
         if name == self.currently_editing:
             return
         self.currently_editing = name
         self.apply_currently_editing(scroll=True)
 
-    def clear_currently_edited_name(self):
+    def clear_currently_edited_name(self) -> None:
         self.mark_name_as_current(None)
 
-    def apply_currently_editing(self, scroll=False):
+    def apply_currently_editing(self, scroll=False) -> None:
         font = QFont(self.view.font())
         font.setItalic(True), font.setBold(True)
         current = None
@@ -246,7 +246,7 @@ class TOCViewer(QWidget):
             yield child
             yield from self.iter_items(parent=child)
 
-    def emit_navigate(self, *args):
+    def emit_navigate(self, *args) -> None:
         item = self.view.currentItem()
         if item is not None:
             dest = str(item.data(0, DEST_ROLE) or '')
@@ -255,7 +255,7 @@ class TOCViewer(QWidget):
                 frag = TOP
             self.navigate_requested.emit(dest, frag)
 
-    def build(self):
+    def build(self) -> None:
         c = current_container()
         if c is None:
             return
@@ -263,7 +263,7 @@ class TOCViewer(QWidget):
         self.toc_name = getattr(toc, 'toc_file_name', None)
         self.toc_title = toc.toc_title
 
-        def process_node(toc, parent):
+        def process_node(toc, parent) -> None:
             for child in toc:
                 node = QTreeWidgetItem(parent)
                 node.setText(0, child.title or '')
@@ -285,9 +285,9 @@ class TOCViewer(QWidget):
         QTimer.singleShot(0, self.apply_currently_editing_and_scroll)
         return super().showEvent(a0)
 
-    def apply_currently_editing_and_scroll(self):
+    def apply_currently_editing_and_scroll(self) -> None:
         self.apply_currently_editing(scroll=True)
 
-    def update_if_visible(self):
+    def update_if_visible(self) -> None:
         if self.isVisible():
             self.build()

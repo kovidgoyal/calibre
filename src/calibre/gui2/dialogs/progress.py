@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 class ProgressDialog(QDialog):
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None, cancel_confirm_msg=''):
+    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None, cancel_confirm_msg='') -> None:
         QDialog.__init__(self, parent)
         self.cancel_confirm_msg = cancel_confirm_msg
         if icon is None:
@@ -62,10 +62,10 @@ class ProgressDialog(QDialog):
         self.cancelable = cancelable
         self.resize(self.sizeHint())
 
-    def set_msg(self, msg=''):
+    def set_msg(self, msg='') -> None:
         self.msg = msg
 
-    def set_value(self, val):
+    def set_value(self, val) -> None:
         self.value = val
 
     @property
@@ -73,13 +73,13 @@ class ProgressDialog(QDialog):
         return self.bar.value()
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         self.bar.setValue(val)
 
-    def set_min(self, min):
+    def set_min(self, min) -> None:
         self.min = min
 
-    def set_max(self, max):
+    def set_max(self, max) -> None:
         self.max = max
 
     @property
@@ -87,7 +87,7 @@ class ProgressDialog(QDialog):
         return self.bar.maximum()
 
     @max.setter
-    def max(self, val):
+    def max(self, val) -> None:
         self.bar.setMaximum(val)
 
     @property
@@ -95,7 +95,7 @@ class ProgressDialog(QDialog):
         return self.bar.minimum()
 
     @min.setter
-    def min(self, val):
+    def min(self, val) -> None:
         self.bar.setMinimum(val)
 
     @property
@@ -103,7 +103,7 @@ class ProgressDialog(QDialog):
         return self.title_label.text()
 
     @title.setter
-    def title(self, val):
+    def title(self, val) -> None:
         self.title_label.setText(str(val or ''))
 
     @property
@@ -111,11 +111,11 @@ class ProgressDialog(QDialog):
         return self.message.text()
 
     @msg.setter
-    def msg(self, val):
+    def msg(self, val) -> None:
         val = str(val or '')
         self.message.setText(elided_text(val, self.font(), self.message.minimumWidth() - 10))
 
-    def _canceled(self, *args):
+    def _canceled(self, *args) -> None:
         if self.cancel_confirm_msg:
             if not question_dialog(
                 self,
@@ -131,12 +131,12 @@ class ProgressDialog(QDialog):
         self.title = _('Aborting...')
         self.canceled_signal.emit()
 
-    def reject(self):
+    def reject(self) -> None:
         if not self.cancelable:
             return
         QDialog.reject(self)
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0) -> None:
         if a0.key() == Qt.Key.Key_Escape:
             if self.cancelable:
                 self._canceled()
@@ -145,7 +145,7 @@ class ProgressDialog(QDialog):
 
 
 class BlockingBusy(QDialog):
-    def __init__(self, msg, parent=None, window_title=_('Working')):
+    def __init__(self, msg, parent=None, window_title=_('Working')) -> None:
         QDialog.__init__(self, parent)
 
         self._layout = QVBoxLayout()
@@ -164,17 +164,17 @@ class BlockingBusy(QDialog):
         self.setWindowTitle(window_title)
         self.resize(self.sizeHint())
 
-    def start(self):
+    def start(self) -> None:
         self.pi.startAnimation()
 
-    def stop(self):
+    def stop(self) -> None:
         self.pi.stopAnimation()
 
     def accept(self):
         self.stop()
         return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         pass  # Cannot cancel this dialog
 
 

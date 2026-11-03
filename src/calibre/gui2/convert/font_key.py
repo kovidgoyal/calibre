@@ -8,7 +8,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 
 class FontKeyChooser(QDialog, Ui_Dialog):
-    def __init__(self, parent=None, base_font_size=0.0, font_key=None):
+    def __init__(self, parent=None, base_font_size=0.0, font_key=None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -27,7 +27,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
         self.initialize()
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.input_base_font_size.setValue(12.0)
         self.input_font_size.setValue(12.0)
         self.input_mapped_font_size.setText('0.0 pt')
@@ -38,7 +38,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
             self.font_size_key.setText('')
         self.calculate()
 
-    def button_clicked(self, button):
+    def button_clicked(self, button) -> None:
         if button is self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults):
             self.output_base_font_size.setValue(0.0)
             self.font_size_key.setText('')
@@ -67,7 +67,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
     def dbase(self):
         return self.output_base_font_size.value()
 
-    def calculate(self, *args):
+    def calculate(self, *args) -> None:
         sbase = self.input_base_font_size.value()
         dbase = self.dbase
         fsize = self.input_font_size.value()
@@ -89,7 +89,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         msize = mapper[fsize]
         self.input_mapped_font_size.setText(f'{msize:.1f} pt')
 
-    def use_default(self):
+    def use_default(self) -> None:
         dbase, fsizes = self.get_profile_values()
         self.output_base_font_size.setValue(dbase)
         self.font_size_key.setText(', '.join([f'{x:.1f}' for x in fsizes]))

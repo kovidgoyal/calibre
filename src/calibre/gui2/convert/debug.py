@@ -16,18 +16,18 @@ class DebugWidget(Widget, Ui_Form):
     HELP = _('Debug the conversion process.')
     COMMIT_NAME = 'debug'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['debug'])
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
         self.button_debug_dir.clicked.connect(self.set_debug_dir)
 
-    def set_debug_dir(self):
+    def set_debug_dir(self) -> None:
         x = choose_dir(self, 'conversion debug dir', _('Choose debug folder'))
         if x:
             self.opt_debug_pipeline.setText(x)
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         try:
             x = str(self.opt_debug_pipeline.text()).strip()
             if not x:

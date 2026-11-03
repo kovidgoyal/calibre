@@ -17,10 +17,10 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
         r = self.register
@@ -66,7 +66,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         connect_lambda(self.cover_grid_larger_cover.clicked, self, lambda self: self.resize_cover(False))
         self.cover_grid_reset_size.clicked.connect(self.cg_reset_size)
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.update_aspect_ratio()
 
     @property
@@ -80,12 +80,12 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
             wval = 0.75 * cval
         return wval, cval
 
-    def update_aspect_ratio(self):
+    def update_aspect_ratio(self) -> None:
         width, height = self.current_cover_size
         ar = width / height
         self.cover_grid_aspect_ratio.setText(_('Current aspect ratio (width/height): %.2g') % ar)
 
-    def resize_cover(self, smaller):
+    def resize_cover(self, smaller) -> None:
         wval, cval = self.current_cover_size
         ar = wval / cval
         delta = 0.2 * (-1 if smaller else 1)
@@ -94,11 +94,11 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         self.opt_cover_grid_height.setValue(cval)
         self.opt_cover_grid_width.setValue(cval * ar)
 
-    def cg_reset_size(self):
+    def cg_reset_size(self) -> None:
         self.opt_cover_grid_width.setValue(0)
         self.opt_cover_grid_height.setValue(0)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.library_view.refresh_grid()
         gui.grid_view.refresh_settings()
         gui.update_auto_scroll_timeout()

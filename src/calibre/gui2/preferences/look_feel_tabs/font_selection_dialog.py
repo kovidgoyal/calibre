@@ -6,7 +6,7 @@ from calibre.utils.localization import _
 class FontSelectionDialog(QDialog):
     fontSelected = pyqtSignal(str, str)  # family, style
 
-    def __init__(self, family: str = '', style: str = '', min_size=8, medium_size=12, max_size=24, parent=None):
+    def __init__(self, family: str = '', style: str = '', min_size=8, medium_size=12, max_size=24, parent=None) -> None:
         super().__init__(parent)
         if family:
             self.initial_family, self.initial_style = family, style
@@ -26,7 +26,7 @@ class FontSelectionDialog(QDialog):
         self.families_list.setFocus(Qt.FocusReason.OtherFocusReason)
         self.resize(self.sizeHint())
 
-    def _setup_ui(self):
+    def _setup_ui(self) -> None:
         main_layout = QVBoxLayout(self)
 
         # Top section: Font families and styles side by side
@@ -84,7 +84,7 @@ class FontSelectionDialog(QDialog):
 
         main_layout.addWidget(button_box)
 
-    def _populate_families(self):
+    def _populate_families(self) -> None:
         """Populate the families list with smoothly scalable fonts only"""
         self.families_list.clear()
 
@@ -109,7 +109,7 @@ class FontSelectionDialog(QDialog):
             self.families_list.setCurrentRow(idx)
             self._on_family_changed(self.families_list.currentItem(), None)
 
-    def _on_family_changed(self, current, previous):
+    def _on_family_changed(self, current, previous) -> None:
         """When a family is selected, populate the styles list"""
         if not current:
             self.styles_list.clear()
@@ -130,11 +130,11 @@ class FontSelectionDialog(QDialog):
             self.styles_list.setCurrentRow(idx)
         self._update_preview()
 
-    def _on_style_changed(self, current, previous):
+    def _on_style_changed(self, current, previous) -> None:
         """Update the preview when style changes"""
         self._update_preview()
 
-    def _update_preview(self):
+    def _update_preview(self) -> None:
         """Update the preview labels with the selected font"""
         family_item = self.families_list.currentItem()
         style_item = self.styles_list.currentItem()
@@ -151,7 +151,7 @@ class FontSelectionDialog(QDialog):
                 text = t
                 break
 
-        def s(label, sz):
+        def s(label, sz) -> None:
             font = QFontDatabase.font(family, style, int(sz))
             font.setPointSizeF(sz)
             label.setFont(font)
@@ -186,7 +186,7 @@ class FontSelectionDialog(QDialog):
             return QFontDatabase.font(family, style, size)
         return None
 
-    def accept(self):
+    def accept(self) -> None:
         """Override accept to emit signal with selected font"""
         family, style = self.selected_font()
         if family and style:
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
     app = Application()
 
-    def show_dialog():
+    def show_dialog() -> None:
         dialog = FontSelectionDialog(min_size=10, medium_size=14, max_size=28)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             family, style = dialog.selected_font()

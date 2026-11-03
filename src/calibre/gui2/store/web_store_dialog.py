@@ -9,7 +9,7 @@ counter = count()
 
 
 class WebStoreDialog:
-    def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None):
+    def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None) -> None:
         self.id = next(counter)
         self.gui = gui
         self.base_url = base_url
@@ -17,13 +17,13 @@ class WebStoreDialog:
         self.window_title = None
         self.tags = None
 
-    def setWindowTitle(self, title):
+    def setWindowTitle(self, title) -> None:
         self.window_title = title
 
-    def set_tags(self, tags):
+    def set_tags(self, tags) -> None:
         self.tags = tags
 
-    def exec(self):
+    def exec(self) -> None:
         data = {
             'base_url': self.base_url,
             'detail_url': self.detail_url,

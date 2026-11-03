@@ -58,7 +58,7 @@ def rule_for_font(font_file, added_name):
     return rule
 
 
-def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+def show_font_face_rule_for_font_file(file_data, added_name, parent=None) -> None:
     rule = rule_for_font(BytesIO(file_data), added_name)
     clip = QApplication.clipboard()
     assert clip is not None
@@ -73,7 +73,7 @@ def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
     )
 
 
-def show_font_face_rule_for_font_files(container, added_names, parent=None):
+def show_font_face_rule_for_font_files(container, added_names, parent=None) -> None:
     rules = []
     for name in sorted(added_names):
         rule = rule_for_font(container.open(name), name)
@@ -94,7 +94,7 @@ def show_font_face_rule_for_font_files(container, added_names, parent=None):
 
 
 class EmbeddingData(Dialog):
-    def __init__(self, family, faces, parent=None):
+    def __init__(self, family, faces, parent=None) -> None:
         Dialog.__init__(self, _('Font faces for %s') % family, 'editor-embedding-data', parent)
         self.family, self.faces = family, faces
         self.populate_text()
@@ -102,14 +102,14 @@ class EmbeddingData(Dialog):
     def sizeHint(self):
         return QSize(600, 500)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.text = t = QTextEdit(self)
         t.setReadOnly(True)
         l.addWidget(t), l.addWidget(self.bb)
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
 
-    def populate_text(self):
+    def populate_text(self) -> None:
         text = ['<h2>' + self.windowTitle() + '</h2><ul>']
         for face in self.faces:
             text.append('<li style="margin-bottom:2em">' + '<b>' + face['path'] + '</b>')
@@ -124,7 +124,7 @@ class EmbeddingData(Dialog):
 
 
 class AllFonts(QAbstractTableModel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.items = []
         self.font_data = {}
@@ -133,7 +133,7 @@ class AllFonts(QAbstractTableModel):
     def rowCount(self, parent=None):
         return len(self.items)
 
-    def columnCount(self, parent=None):
+    def columnCount(self, parent=None) -> int:
         return 2
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
@@ -141,14 +141,14 @@ class AllFonts(QAbstractTableModel):
             return _('Font family') if section == 1 else _('Embedded')
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
-    def build(self):
+    def build(self) -> None:
         with BusyCursor():
             self.beginResetModel()
             self.font_data = font_family_data(current_container())
             self.do_sort()
             self.endResetModel()
 
-    def do_sort(self):
+    def do_sort(self) -> None:
         reverse = not self.sorted_on[1]
         self.items = sorted(self.font_data, key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
@@ -181,7 +181,7 @@ class AllFonts(QAbstractTableModel):
             else:
                 return name
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
         sorted_on = (('name' if column == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
         if sorted_on != self.sorted_on:
             self.sorted_on = sorted_on
@@ -201,14 +201,14 @@ class AllFonts(QAbstractTableModel):
 
 
 class ChangeFontFamily(Dialog):
-    def __init__(self, old_family, embedded_families, parent=None):
+    def __init__(self, old_family, embedded_families, parent=None) -> None:
         self.old_family = old_family
         self.local_families = {icu_lower(f) for f in font_scanner.find_font_families()} | {icu_lower(f) for f in embedded_families}
         Dialog.__init__(self, _('Change font'), 'change-font-family', parent=parent)
         self.setMinimumWidth(300)
         self.resize(self.sizeHint())
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         self.setLayout(l)
         self.la = la = QLabel(ngettext('Change the font %s to:', 'Change the fonts %s to:', self.old_family.count(',') + 1) % self.old_family)
@@ -236,7 +236,7 @@ class ChangeFontFamily(Dialog):
             ans = 'sans-serif'
         return ans
 
-    def updated_family(self):
+    def updated_family(self) -> None:
         family = self.family
         found = icu_lower(family) in self.local_families
         t = _('The font <i>%s</i> <b>exists</b> on your computer') if found else _('The font <i>%s</i> <b>does not exist</b> on your computer')
@@ -250,10 +250,10 @@ class ManageFonts(Dialog):
     embed_all_fonts = pyqtSignal()
     subset_all_fonts = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Manage fonts'), 'manage-fonts', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
@@ -339,7 +339,7 @@ class ManageFonts(Dialog):
             )
         EmbeddingData(family, faces, self).exec()
 
-    def install_fonts(self):
+    def install_fonts(self) -> None:
         from calibre.gui2.font_family_chooser import add_fonts
 
         families = add_fonts(self)
@@ -352,7 +352,7 @@ class ManageFonts(Dialog):
     def sizeHint(self):
         return Dialog.sizeHint(self) + QSize(100, 50)
 
-    def display(self):
+    def display(self) -> None:
         if not self.isVisible():
             self.show()
         self.raise_and_focus()
@@ -369,7 +369,7 @@ class ManageFonts(Dialog):
             )
         return ans
 
-    def change_fonts(self):
+    def change_fonts(self) -> None:
         fonts = self.get_selected_data()
         if not fonts:
             return
@@ -384,7 +384,7 @@ class ManageFonts(Dialog):
             self.model.build()
             self.container_changed.emit()
 
-    def remove_fonts(self):
+    def remove_fonts(self) -> None:
         fonts = self.get_selected_data()
         if not fonts:
             return
@@ -395,13 +395,13 @@ class ManageFonts(Dialog):
             self.model.build()
             self.container_changed.emit()
 
-    def embed_fonts(self):
+    def embed_fonts(self) -> None:
         self.embed_all_fonts.emit()
 
-    def subset_fonts(self):
+    def subset_fonts(self) -> None:
         self.subset_all_fonts.emit()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.model.build()
 
 

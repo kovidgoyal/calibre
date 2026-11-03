@@ -16,7 +16,7 @@ class ManageCategoriesAction(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.menu = m = self.qaction.menu()
         assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
@@ -39,14 +39,14 @@ class ManageCategoriesAction(InterfaceAction):
     # If a shortcut is triggered and there isn't a toolbar button visible then
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
-    def show_menu(self):
+    def show_menu(self) -> None:
         show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         db = self.gui.current_db
         self.gui.populate_manage_categories_menu(db, self.menu, add_column_items=True)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         assert self.menu is not None

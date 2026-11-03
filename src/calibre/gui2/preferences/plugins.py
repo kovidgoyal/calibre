@@ -30,12 +30,12 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 
 class AdaptSQP(SearchQueryParser):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pass
 
 
 class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
-    def __init__(self, show_only_user_plugins=False):
+    def __init__(self, show_only_user_plugins=False) -> None:
         QAbstractItemModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
         self.show_only_user_plugins = show_only_user_plugins
@@ -45,13 +45,13 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         self._p = p
         self.populate()
 
-    def toggle_shown_plugins(self, show_only_user_plugins):
+    def toggle_shown_plugins(self, show_only_user_plugins) -> None:
         self.show_only_user_plugins = show_only_user_plugins
         self.beginResetModel()
         self.populate()
         self.endResetModel()
 
-    def populate(self):
+    def populate(self) -> None:
         self._data = {}
         for plugin in initialized_plugins():
             if getattr(plugin, 'installation_type', None) is not PluginInstallationType.EXTERNAL and self.show_only_user_plugins:
@@ -156,7 +156,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return len(self._data[category])
         return 0
 
-    def columnCount(self, parent=None):
+    def columnCount(self, parent=None) -> int:
         return 1
 
     def index_to_plugin(self, index):
@@ -179,7 +179,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
                     return self.index(j, 0, parent)
         return QModelIndex()
 
-    def refresh_plugin(self, plugin, rescan=False):
+    def refresh_plugin(self, plugin, rescan=False) -> None:
         if rescan:
             self.populate()
         idx = self.plugin_to_index(plugin)
@@ -226,7 +226,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
     supports_restoring_to_defaults = False
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self._plugin_model = PluginModel(self.user_installed_plugins.isChecked())
         self.plugin_view.setModel(self._plugin_model)
@@ -247,13 +247,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.plugin_view.customContextMenuRequested.connect(self.show_context_menu)
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         menu = QMenu(self)
         menu.addAction(QIcon.ic('plus.png'), _('Expand all'), self.plugin_view.expandAll)
         menu.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.plugin_view.collapseAll)
         menu.exec(self.plugin_view.mapToGlobal(pos))
 
-    def show_user_installed_plugins(self, state):
+    def show_user_installed_plugins(self, state) -> None:
         self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
 
     def find(self, a0):
@@ -262,7 +262,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return info_dialog(self, _('No matches'), _('Could not find any matching plugins'), show=True, show_copy_button=False)
         self.highlight_index(idx)
 
-    def highlight_index(self, idx):
+    def highlight_index(self, idx) -> None:
         sm = self.plugin_view.selectionModel()
         assert sm is not None
         sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
@@ -270,31 +270,31 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.plugin_view.scrollTo(idx, QAbstractItemView.ScrollHint.EnsureVisible)
 
-    def find_next(self, *args):
+    def find_next(self, *args) -> None:
         idx = self.plugin_view.currentIndex()
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx, str(self.search.currentText()))
         self.highlight_index(idx)
 
-    def find_previous(self, *args):
+    def find_previous(self, *args) -> None:
         idx = self.plugin_view.currentIndex()
         if not idx.isValid():
             idx = self._plugin_model.index(0, 0)
         idx = self._plugin_model.find_next(idx, str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
-    def toggle_plugin(self, *args):
+    def toggle_plugin(self, *args) -> None:
         self.modify_plugin(op='toggle')
 
-    def double_clicked(self, index):
+    def double_clicked(self, index) -> None:
         if index.parent().isValid():
             self.modify_plugin(op='customize')
 
-    def customize_plugin(self, *args):
+    def customize_plugin(self, *args) -> None:
         self.modify_plugin(op='customize')
 
-    def remove_plugin(self, *args):
+    def remove_plugin(self, *args) -> None:
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
@@ -419,10 +419,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         plugin.name + _(' cannot be removed. It is a builtin plugin. Try disabling it instead.'),
                     ).exec()
 
-    def get_plugins(self):
+    def get_plugins(self) -> None:
         self.update_plugins(not_installed=True)
 
-    def update_plugins(self, not_installed=False):
+    def update_plugins(self, not_installed=False) -> None:
         from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
 
         mode = FILTER_NOT_INSTALLED if not_installed else FILTER_UPDATE_AVAILABLE
@@ -435,7 +435,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if d.do_restart:
             self.restart_now.emit()
 
-    def reload_store_plugins(self):
+    def reload_store_plugins(self) -> None:
         self.gui.load_store_plugins()
         if 'Store' in self.gui.iactions:
             self.gui.iactions['Store'].load_menu()
@@ -480,7 +480,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 installed_actions.append(plugin_action.name)
                 gprefs['action-layout-' + key] = tuple(installed_actions)
 
-    def check_for_add_to_editor_toolbar(self, plugin, previously_installed):
+    def check_for_add_to_editor_toolbar(self, plugin, previously_installed) -> None:
         if not previously_installed:
             from calibre.utils.config import JSONConfig
 

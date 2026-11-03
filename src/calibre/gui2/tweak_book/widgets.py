@@ -75,15 +75,15 @@ ROOT = QModelIndex()
 
 
 class Dialog(BaseDialog):
-    def __init__(self, title, name, parent=None):
+    def __init__(self, title, name, parent=None) -> None:
         BaseDialog.__init__(self, title, name, parent=parent, prefs=tprefs)
 
 
 class InsertTag(Dialog):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Choose tag name'), 'insert-tag', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.ebooks.constants import html5_tags
 
         self.l = l = QVBoxLayout(self)
@@ -105,7 +105,7 @@ class InsertTag(Dialog):  # {{{
         return str(self.tag_input.text()).strip()
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         d = cls()
         if d.exec() == QDialog.DialogCode.Accepted:
             print(d.tag)
@@ -117,12 +117,12 @@ class InsertTag(Dialog):  # {{{
 class ManageTagList(Dialog):  # {{{
     _tag_re = re.compile(r'[a-zA-Z0-9:-]+')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self._entries = list(tprefs['insert_tag_mru'])
         self._collapsed_tags = set(tprefs.get('manage_tag_list_collapsed_tags', []))
         Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
 
-    def open_menu(self, position):
+    def open_menu(self, position) -> None:
         menu = QMenu(self)
         expand_action = menu.addAction('Expand All')
         assert expand_action is not None
@@ -137,7 +137,7 @@ class ManageTagList(Dialog):  # {{{
     def sizeHint(self):
         return QSize(400, 500)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
 
         self.tree = t = QTreeWidget(self)
@@ -172,7 +172,7 @@ class ManageTagList(Dialog):  # {{{
         m = self._tag_re.match(entry)
         return m.group() if m else entry
 
-    def _populate_tree(self):
+    def _populate_tree(self) -> None:
         self._save_expanded_state()
         self.tree.clear()
         groups = {}
@@ -196,12 +196,12 @@ class ManageTagList(Dialog):  # {{{
             return None
         return item.data(0, Qt.ItemDataRole.UserRole)
 
-    def _update_button_states(self):
+    def _update_button_states(self) -> None:
         has_entry = self._current_entry() is not None
         self.edit_button.setEnabled(has_entry)
         self.remove_button.setEnabled(has_entry)
 
-    def _add_entry(self):
+    def _add_entry(self) -> None:
         name, ok = QInputDialog.getText(self, _('Add tag'), _('Enter the tag to add (may include attributes, for example: div class="chapter"):'))
         if ok:
             name = name.strip()
@@ -213,7 +213,7 @@ class ManageTagList(Dialog):  # {{{
             self._entries.insert(0, name)
             self._populate_tree()
 
-    def _edit_entry(self):
+    def _edit_entry(self) -> None:
         old_entry = self._current_entry()
         if old_entry is None:
             return
@@ -229,7 +229,7 @@ class ManageTagList(Dialog):  # {{{
             self._entries[idx] = name
             self._populate_tree()
 
-    def _remove_entry(self):
+    def _remove_entry(self) -> None:
         entry = self._current_entry()
         if entry is None:
             return
@@ -239,7 +239,7 @@ class ManageTagList(Dialog):  # {{{
             pass
         self._populate_tree()
 
-    def _save_expanded_state(self):
+    def _save_expanded_state(self) -> None:
         root = self.tree.invisibleRootItem()
         assert root is not None
         for i in range(root.childCount()):
@@ -251,12 +251,12 @@ class ManageTagList(Dialog):  # {{{
                 self._collapsed_tags.add(item.text(0))
         tprefs['manage_tag_list_collapsed_tags'] = list(self._collapsed_tags)
 
-    def accept(self):
+    def accept(self) -> None:
         self._save_expanded_state()
         tprefs['insert_tag_mru'] = self._entries
         super().accept()
 
-    def reject(self):
+    def reject(self) -> None:
         self._save_expanded_state()
         super().reject()
 
@@ -276,10 +276,10 @@ class RationalizeFolders(Dialog):  # {{{
         ('toc', _('Table of contents file (NCX)')),
     )
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Arrange in folders'), 'rationalize-folders', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QGridLayout()
         self.setLayout(l)
 
@@ -324,10 +324,10 @@ class RationalizeFolders(Dialog):  # {{{
 
 
 class MultiSplit(Dialog):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Specify locations to split at'), 'multisplit-xpath', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.gui2.convert.xpath_wizard import XPathEdit
 
         self.l = l = QVBoxLayout(self)
@@ -359,7 +359,7 @@ class MultiSplit(Dialog):  # {{{
 
 
 class ImportForeign(Dialog):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Choose file to import'), 'import-foreign', parent=parent)
 
     def sizeHint(self):
@@ -367,7 +367,7 @@ class ImportForeign(Dialog):  # {{{
         ans.setWidth(ans.width() + 200)
         return ans
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.setLayout(l)
@@ -407,7 +407,7 @@ class ImportForeign(Dialog):  # {{{
 
         l.addRow(self.bb)
 
-    def choose_source(self):
+    def choose_source(self) -> None:
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
 
         path = choose_files(
@@ -420,11 +420,11 @@ class ImportForeign(Dialog):  # {{{
         if path:
             self.set_src(path[0])
 
-    def set_src(self, path):
+    def set_src(self, path) -> None:
         self.src.setText(path)
         self.dest.setText(self.data[1])
 
-    def choose_destination(self):
+    def choose_destination(self) -> None:
         path = choose_save_file(
             self,
             'edit-book-destination-for-generated-epub',
@@ -471,7 +471,7 @@ def make_highlighted_text(emph, text, positions):
     return text
 
 
-def emphasis_style():
+def emphasis_style() -> str:
     pal = qapplication_or_fail().palette()
     return f'color: {pal.color(QPalette.ColorRole.Link).name()}; font-weight: bold'
 
@@ -481,7 +481,7 @@ class Results(QWidget):
 
     item_selected = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent=parent)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -512,7 +512,7 @@ class Results(QWidget):
                 break
         return -1
 
-    def mouseMoveEvent(self, a0):
+    def mouseMoveEvent(self, a0) -> None:
         y = a0.pos().y()
         prev = self.mouse_hover_result
         self.mouse_hover_result = self.item_from_y(y)
@@ -530,7 +530,7 @@ class Results(QWidget):
                 return
         return QWidget.mousePressEvent(self, a0)
 
-    def change_current(self, delta=1):
+    def change_current(self, delta=1) -> None:
         if not self.results:
             return
         nc = self.current_result + delta
@@ -558,7 +558,7 @@ class Results(QWidget):
         text.setTextFormat(Qt.TextFormat.RichText)
         return text
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         offset = QPoint(0, 0)
         p = QPainter(self)
         p.setClipRect(a0.rect())
@@ -615,7 +615,7 @@ class QuickOpen(Dialog):
         level2=DEFAULT_LEVEL2,
         level3=DEFAULT_LEVEL3,
         help_text=None,
-    ):
+    ) -> None:
         self.matcher = Matcher(items, level1=level1, level2=level2, level3=level3)
         self.matches = ()
         self.selected_result = None
@@ -639,7 +639,7 @@ class QuickOpen(Dialog):
         {chars}
         and press Enter.''').format(example=example, chars=chars)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -662,7 +662,7 @@ class QuickOpen(Dialog):
 
         l.addWidget(self.bb, alignment=Qt.AlignmentFlag.AlignBottom)
 
-    def update_matches(self, text):
+    def update_matches(self, text) -> None:
         text = str(text).strip()
         self.help_label.setVisible(False)
         self.results.setVisible(True)
@@ -682,7 +682,7 @@ class QuickOpen(Dialog):
         return Dialog.accept(self)
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         from calibre.utils.matcher import get_items_from_dir
 
         items = get_items_from_dir(os.getcwd(), lambda x: not x.endswith('.pyc'))
@@ -702,7 +702,7 @@ class NamesDelegate(QStyledItemDelegate):
         ans.setHeight(ans.height() + 10)
         return ans
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
         text, positions = index.data(Qt.ItemDataRole.UserRole)
         self.initStyleOption(option, index)
@@ -742,12 +742,12 @@ class NamesDelegate(QStyledItemDelegate):
 class NamesModel(QAbstractListModel):
     filtered = pyqtSignal(object)
 
-    def __init__(self, names, parent=None):
+    def __init__(self, names, parent=None) -> None:
         self.items = []
         QAbstractListModel.__init__(self, parent)
         self.set_names(names)
 
-    def set_names(self, names):
+    def set_names(self, names) -> None:
         self.names = names
         self.matcher = Matcher(names)
         self.filter('')
@@ -761,7 +761,7 @@ class NamesModel(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             return '\xa0' * 20
 
-    def filter(self, query):
+    def filter(self, query) -> None:
         query = str(query or '')
         self.beginResetModel()
         if not query:
@@ -805,7 +805,7 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 class AnchorsModel(QAbstractListModel):
     filtered = pyqtSignal(object)
 
-    def __init__(self, names, parent=None):
+    def __init__(self, names, parent=None) -> None:
         self.items = []
         self.names = []
         QAbstractListModel.__init__(self, parent=parent)
@@ -822,11 +822,11 @@ class AnchorsModel(QAbstractListModel):
             text, frag = self.items[index.row()]
             return _('Anchor: {0}\nLeading text: {1}').format(frag, text)
 
-    def set_names(self, names):
+    def set_names(self, names) -> None:
         self.names = names
         self.filter('')
 
-    def filter(self, query):
+    def filter(self, query) -> None:
         query = str(query or '')
         self.beginResetModel()
         self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
@@ -835,7 +835,7 @@ class AnchorsModel(QAbstractListModel):
 
 
 class InsertLink(Dialog):
-    def __init__(self, container, source_name, initial_text=None, parent=None):
+    def __init__(self, container, source_name, initial_text=None, parent=None) -> None:
         self.container = container
         self.source_name = source_name
         self.initial_text = initial_text
@@ -845,7 +845,7 @@ class InsertLink(Dialog):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -917,7 +917,7 @@ class InsertLink(Dialog):
             tprefs.set('insert-hyperlink-template', self.template)
         return Dialog.accept(self)
 
-    def selected_file_changed(self, *args):
+    def selected_file_changed(self, *args) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             self.anchor_names.model().set_names([])
@@ -925,7 +925,7 @@ class InsertLink(Dialog):
             name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
             self.populate_anchors(name)
 
-    def populate_anchors(self, name):
+    def populate_anchors(self, name) -> None:
         if name not in self.anchor_cache:
             from calibre.ebooks.oeb.base import XHTML_NS
 
@@ -941,7 +941,7 @@ class InsertLink(Dialog):
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
-    def update_target(self):
+    def update_target(self) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
@@ -988,7 +988,7 @@ class InsertLink(Dialog):
         return ans
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         import sys
 
         from calibre.ebooks.oeb.polish.container import get_container
@@ -1003,7 +1003,7 @@ class InsertLink(Dialog):
 
 
 class InsertSemantics(Dialog):  # {{{
-    def __init__(self, container, parent=None):
+    def __init__(self, container, parent=None) -> None:
         self.container = container
         self.create_known_type_map()
         self.anchor_cache = {}
@@ -1015,7 +1015,7 @@ class InsertSemantics(Dialog):  # {{{
     def sizeHint(self):
         return QSize(800, 600)
 
-    def create_known_type_map(self):
+    def create_known_type_map(self) -> None:
         def _(x):
             return x
 
@@ -1051,7 +1051,7 @@ class InsertSemantics(Dialog):  # {{{
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -1101,7 +1101,7 @@ class InsertSemantics(Dialog):  # {{{
         self.semantic_type.currentIndexChanged.connect(self.semantic_type_changed)
         self.target.textChanged.connect(self.target_text_changed)
 
-    def help_requested(self):
+    def help_requested(self) -> None:
         d = info_dialog(
             self,
             _('About semantics'),
@@ -1128,12 +1128,12 @@ class InsertSemantics(Dialog):  # {{{
             return item['dest'], item['frag']
         return None, None
 
-    def semantic_type_changed(self):
+    def semantic_type_changed(self) -> None:
         item_type = str(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         name, frag = self.dest_for_type(item_type)
         self.show_type(name, frag)
 
-    def show_type(self, name, frag):
+    def show_type(self, name, frag) -> None:
         self.file_names_filter.clear(), self.anchor_names_filter.clear()
         self.file_names.clearSelection(), self.anchor_names.clearSelection()
         if name is not None:
@@ -1153,13 +1153,13 @@ class InsertSemantics(Dialog):  # {{{
             self.target.setText('')
         self.target.blockSignals(False)
 
-    def target_text_changed(self):
+    def target_text_changed(self) -> None:
         name, frag = str(self.target.text()).partition('#')[::2]
         item_type = str(self.semantic_type.itemData(self.semantic_type.currentIndex()) or '')
         if item_type:
             self.changes[item_type] = (name, frag or None)
 
-    def selected_file_changed(self, *args):
+    def selected_file_changed(self, *args) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             self.anchor_names.model().set_names([])
@@ -1167,7 +1167,7 @@ class InsertSemantics(Dialog):  # {{{
             name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
             self.populate_anchors(name)
 
-    def populate_anchors(self, name):
+    def populate_anchors(self, name) -> None:
         if name not in self.anchor_cache:
             from calibre.ebooks.oeb.base import XHTML_NS
 
@@ -1179,7 +1179,7 @@ class InsertSemantics(Dialog):  # {{{
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
-    def update_target(self):
+    def update_target(self) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
@@ -1194,7 +1194,7 @@ class InsertSemantics(Dialog):  # {{{
         href += frag
         self.target.setText(href or '#')
 
-    def apply_changes(self, container):
+    def apply_changes(self, container) -> None:
         from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
         from calibre.translations.dynamic import translate
 
@@ -1228,7 +1228,7 @@ class InsertSemantics(Dialog):  # {{{
             container.dirty(tocname)
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         import sys
 
         from calibre.ebooks.oeb.polish.container import get_container
@@ -1252,11 +1252,11 @@ class FilterCSS(Dialog):  # {{{
     opt_floats: QCheckBox
     opt_colors: QCheckBox
 
-    def __init__(self, current_name=None, parent=None):
+    def __init__(self, current_name=None, parent=None) -> None:
         self.current_name = current_name
         Dialog.__init__(self, _('Filter style information'), 'filter-css', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 
         f, w = Ui_Form(), QWidget()
@@ -1317,7 +1317,7 @@ class FilterCSS(Dialog):  # {{{
         return ans
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         d = cls()
         if d.exec() == QDialog.DialogCode.Accepted:
             print(d.filtered_properties)
@@ -1329,18 +1329,18 @@ class FilterCSS(Dialog):  # {{{
 
 
 class CoverView(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.current_pixmap_size = QSize(0, 0)
         self.pixmap = QPixmap()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-    def set_pixmap(self, data):
+    def set_pixmap(self, data) -> None:
         self.pixmap.loadFromData(data)
         self.current_pixmap_size = self.pixmap.size()
         self.update()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         if self.pixmap.isNull():
             return
         canvas_size = self.rect()
@@ -1368,7 +1368,7 @@ class CoverView(QWidget):
 class AddCover(Dialog):
     import_requested = pyqtSignal(object, object)
 
-    def __init__(self, container, parent=None):
+    def __init__(self, container, parent=None) -> None:
         self.container = container
         Dialog.__init__(self, _('Add a cover'), 'add-cover-wizard', parent)
 
@@ -1379,7 +1379,7 @@ class AddCover(Dialog):
             if mt.lower() in img_types:
                 yield name
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
         self.gb = gb = QGroupBox(_('&Images in book'), self)
@@ -1415,7 +1415,7 @@ class AddCover(Dialog):
         p.setChecked(tprefs['add_cover_preserve_aspect_ratio'])
         p.setVisible(self.container.book_type != 'azw3')
 
-        def on_state_change(s):
+        def on_state_change(s) -> None:
             tprefs.set('add_cover_preserve_aspect_ratio', Qt.CheckState(s) == Qt.CheckState.Checked)
 
         p.stateChanged.connect(on_state_change)
@@ -1436,14 +1436,14 @@ class AddCover(Dialog):
             if row > -1:
                 self.names.setCurrentIndex(self.names.model().index(row))
 
-    def double_clicked(self):
+    def double_clicked(self) -> None:
         self.accept()
 
     @property
     def file_name(self):
         return self.names.model().name_for_index(self.names.currentIndex())
 
-    def current_image_changed(self):
+    def current_image_changed(self) -> None:
         self.info_label.setText('')
         name = self.file_name
         if name is not None:
@@ -1451,7 +1451,7 @@ class AddCover(Dialog):
             self.cover_view.set_pixmap(data)
             self.info_label.setText(f'{self.cover_view.pixmap.width()}x{self.cover_view.pixmap.height()}px | {human_readable(len(data))}')
 
-    def import_image(self):
+    def import_image(self) -> None:
         ans = choose_images(self, 'add-cover-choose-image', _('Choose a cover image'), formats=('jpg', 'jpeg', 'png', 'gif'))
         if ans:
             from calibre.gui2.tweak_book.file_list import NewFileDialog
@@ -1468,7 +1468,7 @@ class AddCover(Dialog):
                 self.current_image_changed()
 
     @classmethod
-    def test(cls):
+    def test(cls) -> None:
         import sys
 
         from calibre.ebooks.oeb.polish.container import get_container
@@ -1486,7 +1486,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     """A class that overrides some methods from QPlainTextEdit to fix handling
     of the nbsp unicode character and AltGr input method on windows."""
 
-    def __init__(self, parent=None, *, use_smarten_punctuation: bool = False):
+    def __init__(self, parent=None, *, use_smarten_punctuation: bool = False) -> None:
         QPlainTextEdit.__init__(self, parent)
         self.use_smarten_punctuation = use_smarten_punctuation
 
@@ -1496,7 +1496,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     def selected_text_from_cursor(self, cursor):
         return unicodedata.normalize('NFC', str(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
-    def paste(self):
+    def paste(self) -> None:
         super().paste()
 
     @property
@@ -1514,10 +1514,10 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         ans.setText(self.selected_text)  # to workaround Qt converting nbsp to plain space and other infelicities
         return ans
 
-    def show_tooltip(self, ev):
+    def show_tooltip(self, ev) -> None:
         pass
 
-    def override_shortcut(self, ev):
+    def override_shortcut(self, ev) -> bool | None:
         if iswindows and self.windows_ignore_altgr_shortcut(ev):
             ev.accept()
             return True
@@ -1539,7 +1539,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
                 return True
         return QPlainTextEdit.event(self, e)
 
-    def mouseDoubleClickEvent(self, e):
+    def mouseDoubleClickEvent(self, e) -> None:
         super().mouseDoubleClickEvent(e)
         c = self.textCursor()
         # Workaround for QTextCursor considering smart quotes as word
@@ -1568,7 +1568,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         if changed:
             self.setTextCursor(c)
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, e) -> None:
         m = self.createStandardContextMenu()
         assert m is not None
         if self.use_smarten_punctuation:
@@ -1576,7 +1576,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
             m.addAction(_('Smarten punctuation'), self.smarten_punctuation)
         m.exec(e.globalPos())
 
-    def smarten_punctuation(self):
+    def smarten_punctuation(self) -> None:
         from calibre.ebooks.conversion.preprocess import smarten_punctuation
 
         text = self.toPlainText().strip()

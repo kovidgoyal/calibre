@@ -13,19 +13,19 @@ from calibre.utils.resources import get_path as P
 
 
 class Color(QColor):
-    def __init__(self, color):
+    def __init__(self, color) -> None:
         QColor.__init__(self, color.r, color.g, color.b, 0xFF - color.a)
 
 
 class Pen(QPen):
-    def __init__(self, color, width):
+    def __init__(self, color, width) -> None:
         QPen.__init__(self, QBrush(Color(color)), width, (Qt.PenStyle.SolidLine if width > 0 else Qt.PenStyle.NoPen))
 
 
 class ContentObject:
     has_content = True
 
-    def reset(self):
+    def reset(self) -> None:
         self.has_content = True
 
 
@@ -37,7 +37,7 @@ class RuledLine(QGraphicsLineItem, ContentObject):
         'double': Qt.PenStyle.DashDotLine,
     }
 
-    def __init__(self, rl):
+    def __init__(self, rl) -> None:
         QGraphicsLineItem.__init__(self, 0, 0, rl.linelength, 0)
         ContentObject.__init__(self)
         self.setPen(
@@ -49,7 +49,7 @@ class RuledLine(QGraphicsLineItem, ContentObject):
 
 
 class ImageBlock(PixmapItem, ContentObject):
-    def __init__(self, obj):
+    def __init__(self, obj) -> None:
         ContentObject.__init__(self)
         x0, y0, x1, y1 = obj.attrs['x0'], obj.attrs['y0'], obj.attrs['x1'], obj.attrs['y1']
         xsize, ysize, refstream = obj.attrs['xsize'], obj.attrs['ysize'], obj.refstream
@@ -81,7 +81,7 @@ def object_factory(container, obj, respect_max_y=False):
 
 
 class _Canvas(QGraphicsRectItem):
-    def __init__(self, font_loader, logger, opts, width=0, height=0, parent=None, x=0, y=0):
+    def __init__(self, font_loader, logger, opts, width=0, height=0, parent=None, x=0, y=0) -> None:
         QGraphicsRectItem.__init__(self, x, y, width, height, parent)
         self.font_loader, self.logger, self.opts = font_loader, logger, opts
         self.current_y, self.max_y, self.max_x = 0, height, width
@@ -90,7 +90,7 @@ class _Canvas(QGraphicsRectItem):
         pen.setStyle(Qt.PenStyle.NoPen)
         self.setPen(pen)
 
-    def layout_block(self, block, x, y):
+    def layout_block(self, block, x, y) -> None:
         if isinstance(block, TextBlock):
             self.layout_text_block(block, x, y)
         elif isinstance(block, RuledLine):
@@ -100,7 +100,7 @@ class _Canvas(QGraphicsRectItem):
         elif isinstance(block, Canvas):
             self.layout_canvas(block, x, y)
 
-    def layout_canvas(self, canvas, x, y):
+    def layout_canvas(self, canvas, x, y) -> None:
         if canvas.max_y + y > self.max_y and y > 0:
             self.is_full = True
             return
@@ -110,7 +110,7 @@ class _Canvas(QGraphicsRectItem):
         canvas.put_objects()
         self.current_y += canvas.max_y
 
-    def layout_text_block(self, block, x, y):
+    def layout_text_block(self, block, x, y) -> None:
         textwidth = block.bs.blockwidth - block.bs.sidemargin
         if block.max_y == 0 or not block.lines:  # Empty block skipping
             self.is_full = False
@@ -139,7 +139,7 @@ class _Canvas(QGraphicsRectItem):
         self.current_y = y
         self.is_full = not block_consumed
 
-    def layout_ruled_line(self, rl, x, y):
+    def layout_ruled_line(self, rl, x, y) -> None:
         br = rl.boundingRect()
         rl.setParentItem(self)
         rl.setPos(x, y + 1)
@@ -147,7 +147,7 @@ class _Canvas(QGraphicsRectItem):
         self.is_full = y > self.max_y - 5
         rl.has_content = False
 
-    def layout_image_block(self, ib, x, y):
+    def layout_image_block(self, ib, x, y) -> None:
         mw, mh = self.max_x - x, self.max_y - y
         if self.current_y + ib.height > self.max_y - y and self.current_y > 5:
             self.is_full = True
@@ -193,7 +193,7 @@ class _Canvas(QGraphicsRectItem):
 
 
 class Canvas(_Canvas, ContentObject):
-    def __init__(self, font_loader, canvas, logger, opts, ruby_tags, link_activated, width=0, height=0):
+    def __init__(self, font_loader, canvas, logger, opts, ruby_tags, link_activated, width=0, height=0) -> None:
         if hasattr(canvas, 'canvaswidth'):
             width, height = canvas.canvaswidth, canvas.canvasheight
         _Canvas.__init__(self, font_loader, logger, opts, width=width, height=height)
@@ -213,17 +213,17 @@ class Canvas(_Canvas, ContentObject):
             if item:
                 self.items.append((item, po.x1, po.y1))
 
-    def put_objects(self):
+    def put_objects(self) -> None:
         for block, x, y in self.items:
             self.layout_block(block, x, y)
 
-    def layout_block(self, block, x, y):
+    def layout_block(self, block, x, y) -> None:
         block.reset()
         _Canvas.layout_block(self, block, x, y)
 
 
 class Header(Canvas):
-    def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated):
+    def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated) -> None:
         Canvas.__init__(
             self,
             font_loader,
@@ -240,7 +240,7 @@ class Header(Canvas):
 
 
 class Footer(Canvas):
-    def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated):
+    def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated) -> None:
         Canvas.__init__(
             self,
             font_loader,
@@ -257,7 +257,7 @@ class Footer(Canvas):
 
 
 class Screen(_Canvas):
-    def __init__(self, font_loader, chapter, odd, logger, opts, ruby_tags, link_activated):
+    def __init__(self, font_loader, chapter, odd, logger, opts, ruby_tags, link_activated) -> None:
         self.logger, self.opts = logger, opts
         page_style = chapter.style
         sidemargin = page_style.oddsidemargin if odd else page_style.evensidemargin
@@ -293,7 +293,7 @@ class Screen(_Canvas):
 
         self.page = None
 
-    def set_page(self, page):
+    def set_page(self, page) -> None:
         scene = self.scene()
         assert scene is not None
         if self.page is not None and self.page.scene():
@@ -302,7 +302,7 @@ class Screen(_Canvas):
         self.page.setPos(self.content_x, self.text_y)
         scene.addItem(self.page)
 
-    def remove(self):
+    def remove(self) -> None:
         scene = self.scene()
         if scene is not None:
             if self.page is not None and self.page.scene():
@@ -311,7 +311,7 @@ class Screen(_Canvas):
 
 
 class Page(_Canvas):
-    def __init__(self, font_loader, logger, opts, width, height):
+    def __init__(self, font_loader, logger, opts, width, height) -> None:
         _Canvas.__init__(self, font_loader, logger, opts, width, height)
         if opts.visual_debug:
             self.setPen(QPen(Qt.GlobalColor.cyan, 1, Qt.PenStyle.DashLine))
@@ -321,14 +321,14 @@ class Page(_Canvas):
             if hasattr(child, 'block_id'):
                 return child.block_id
 
-    def add_block(self, block):
+    def add_block(self, block) -> None:
         self.layout_block(block, 0, self.current_y)
 
 
 class Chapter:
     num_of_pages = property(fget=lambda self: len(self.pages))
 
-    def __init__(self, oddscreen, evenscreen, pages, object_to_page_map):
+    def __init__(self, oddscreen, evenscreen, pages, object_to_page_map) -> None:
         self.oddscreen, self.evenscreen, self.pages, self.object_to_page_map = (
             oddscreen,
             evenscreen,
@@ -355,7 +355,7 @@ class Chapter:
 
 
 class History(collections.deque):
-    def __init__(self):
+    def __init__(self) -> None:
         collections.deque.__init__(self)
         self.pos = 0
 
@@ -371,7 +371,7 @@ class History(collections.deque):
         self.pos += 1
         return self[self.pos]
 
-    def add(self, item):
+    def add(self, item) -> None:
         while len(self) > self.pos + 1:
             self.pop()
         self.append(item)
@@ -383,7 +383,7 @@ class Document(QGraphicsScene):
     chapter_rendered = pyqtSignal(object)
     page_changed = pyqtSignal(object)
 
-    def __init__(self, logger, opts):
+    def __init__(self, logger, opts) -> None:
         QGraphicsScene.__init__(self)
         self.logger, self.opts = logger, opts
         self.pages = []
@@ -409,13 +409,13 @@ class Document(QGraphicsScene):
         assert self.chapter_layout is not None
         return sum(self.chapter_layout[:cnum]) + page
 
-    def add_to_history(self):
+    def add_to_history(self) -> None:
         page = self.chapter_page(self.current_page)[1]
         page_id = page.id()
         if page_id is not None:
             self.history.add(page_id)
 
-    def link_activated(self, objid, on_creation=None):
+    def link_activated(self, objid, on_creation=None) -> None:
         if on_creation is None:
             cid, oid = self.link_map[objid]
             if oid is not None:
@@ -427,19 +427,19 @@ class Document(QGraphicsScene):
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)
 
-    def back(self):
+    def back(self) -> None:
         oid = self.history.back()
         if oid is not None:
             page = self.page_of(oid)
             self.show_page(page)
 
-    def forward(self):
+    def forward(self) -> None:
         oid = self.history.forward()
         if oid is not None:
             page = self.page_of(oid)
             self.show_page(page)
 
-    def load_fonts(self, lrf, load_substitutions=True):
+    def load_fonts(self, lrf, load_substitutions=True) -> None:
         font_map = {}
 
         for font in lrf.font_map:
@@ -455,7 +455,7 @@ class Document(QGraphicsScene):
 
         self.font_loader = FontLoader(font_map, self.dpi)
 
-    def render_chapter(self, chapter, lrf):
+    def render_chapter(self, chapter, lrf) -> None:
         oddscreen, evenscreen = (
             Screen(self.font_loader, chapter, True, self.logger, self.opts, self.ruby_tags, self.link_activated),
             Screen(self.font_loader, chapter, False, self.logger, self.opts, self.ruby_tags, self.link_activated),
@@ -480,7 +480,7 @@ class Document(QGraphicsScene):
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
         self.chapter_map[chapter.id] = len(self.chapters) - 1
 
-    def render(self, painter=None, target=None, source=None, mode=None, load_substitutions=True):
+    def render(self, painter=None, target=None, source=None, mode=None, load_substitutions=True) -> None:
         lrf = painter
         assert lrf is not None
         self.dpi = lrf.device_info.dpi / 10.0
@@ -508,7 +508,7 @@ class Document(QGraphicsScene):
             num -= chapter.num_of_pages
         return chapter, chapter.page(num)
 
-    def show_page(self, num):
+    def show_page(self, num) -> None:
         num = int(num)
         if num < 1 or num > self.num_of_pages or num == self.current_page:
             return
@@ -526,23 +526,23 @@ class Document(QGraphicsScene):
         self.current_screen.set_page(page)
         self.page_changed.emit(self.current_page)
 
-    def next(self):
+    def next(self) -> None:
         self.next_by(1)
 
-    def previous(self):
+    def previous(self) -> None:
         self.previous_by(1)
 
-    def next_by(self, num):
+    def next_by(self, num) -> None:
         self.show_page(self.current_page + num)
 
-    def previous_by(self, num):
+    def previous_by(self, num) -> None:
         self.show_page(self.current_page - num)
 
-    def show_page_at_percent(self, p):
+    def show_page_at_percent(self, p) -> None:
         num = self.num_of_pages * (p / 100.0)
         self.show_page(num)
 
-    def search(self, phrase):
+    def search(self, phrase) -> None:
         if not phrase:
             return
         matches = []
@@ -555,7 +555,7 @@ class Document(QGraphicsScene):
         self.last_search = itertools.cycle(matches)
         self.next_match()
 
-    def next_match(self):
+    def next_match(self) -> None:
         page_num = next(self.last_search)[0]
         if self.current_page == page_num:
             self.update()

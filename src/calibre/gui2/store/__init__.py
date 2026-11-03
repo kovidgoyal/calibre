@@ -46,7 +46,7 @@ class StorePlugin:  # {{{
 
     minimum_calibre_version = (0, 9, 14)
 
-    def __init__(self, gui, name, config=None, base_plugin=None):
+    def __init__(self, gui, name, config=None, base_plugin=None) -> None:
         self.gui = gui
         self.name = name
         self.base_plugin = base_plugin
@@ -121,7 +121,7 @@ class StorePlugin:  # {{{
         """
         raise NotImplementedError()
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         """
         Delayed search for information about specific search items.
 
@@ -142,7 +142,7 @@ class StorePlugin:  # {{{
         """
         return False
 
-    def update_cache(self, parent=None, timeout=60, force=False, suppress_progress=False):
+    def update_cache(self, parent=None, timeout=60, force=False, suppress_progress=False) -> bool:
         """
         Some plugins need to keep an local cache of available books. This function
         is called to update the caches. It is recommended to call this function
@@ -176,10 +176,10 @@ class StorePlugin:  # {{{
         """
         return False
 
-    def do_genesis(self):
+    def do_genesis(self) -> None:
         self.genesis()
 
-    def genesis(self):
+    def genesis(self) -> None:
         """
         Plugin specific initialization.
         """

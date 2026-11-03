@@ -201,7 +201,7 @@ def handle_selection_click(self: ItemView, index: QModelIndex, row_cmp=cmp, sele
     return get_click_start_data(self, index, row_cmp)
 
 
-def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
+def handle_enter_press(self, ev, special_action=None, has_edit_cell=True) -> bool:
     if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
         mods = ev.modifiers()
         if (
@@ -308,7 +308,7 @@ def qt_item_view_base_class(self):
     return QAbstractItemView
 
 
-def dragMoveEvent(self, event):
+def dragMoveEvent(self, event) -> None:
     event.acceptProposedAction()
 
 
@@ -406,7 +406,7 @@ def drag_data(self):
     return drag
 
 
-def mouseMoveEvent(self, event):
+def mouseMoveEvent(self, event) -> None:
     if self.event_has_mods() or not event.buttons() & Qt.MouseButton.LeftButton:
         self.drag_start_pos = None
     if not self.drag_allowed:
@@ -434,7 +434,7 @@ def dnd_merge_ok(md):
     return md.hasFormat('application/calibre+from_library') and gprefs['dnd_merge']
 
 
-def dragEnterEvent(self, event):
+def dragEnterEvent(self, event) -> None:
     if not event.possibleActions() & (Qt.DropAction.CopyAction | Qt.DropAction.MoveAction):
         return
     paths = self.paths_from_event(event)
@@ -444,7 +444,7 @@ def dragEnterEvent(self, event):
         event.acceptProposedAction()
 
 
-def dropEvent(self, event):
+def dropEvent(self, event) -> None:
     md = event.mimeData()
     if dnd_merge_ok(md):
         ids = set(map(int, filter(None, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' '))))
@@ -521,7 +521,7 @@ def sync(func):
 
 
 class AlternateViews:
-    def __init__(self, main_view):
+    def __init__(self, main_view) -> None:
         self.views = {None: main_view}
         self.stack_positions = {None: 0}
         self.current_view = self.main_view = main_view
@@ -536,7 +536,7 @@ class AlternateViews:
         self.stack.addWidget(pin_container)
         return pin_container
 
-    def add_view(self, key, view):
+    def add_view(self, key, view) -> None:
         self.views[key] = view
         stack = self.stack
         assert stack is not None
@@ -549,7 +549,7 @@ class AlternateViews:
         view.files_dropped.connect(self.main_view.files_dropped)
         view.books_dropped.connect(self.main_view.books_dropped)
 
-    def show_view(self, key=None):
+    def show_view(self, key=None) -> None:
         view = self.views[key]
         if view is self.current_view:
             return
@@ -567,7 +567,7 @@ class AlternateViews:
                 self.main_view.selectionModel().selectionChanged.connect(self.main_selection_changed)
             view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def set_database(self, db, stage=0):
+    def set_database(self, db, stage=0) -> None:
         for view in self.views.values():
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
@@ -579,38 +579,38 @@ class AlternateViews:
         self.break_link = False
 
     @sync
-    def slave_current_changed(self, current, *args):
+    def slave_current_changed(self, current, *args) -> None:
         self.main_view.set_current_row(current.row(), for_sync=True)
 
     @sync
-    def slave_selection_changed(self, *args):
+    def slave_selection_changed(self, *args) -> None:
         rows = {r.row() for r in self.current_view.selectionModel().selectedIndexes()}
         self.main_view.select_rows(rows, using_ids=False, change_current=False, scroll=False)
 
     @sync
-    def main_current_changed(self, current, *args):
+    def main_current_changed(self, current, *args) -> None:
         self.current_view.set_current_row(current.row())
 
     @sync
-    def main_selection_changed(self, *args):
+    def main_selection_changed(self, *args) -> None:
         rows = {r.row() for r in self.main_view.selectionModel().selectedIndexes()}
         self.current_view.select_rows(rows)
 
-    def set_context_menu(self, menu):
+    def set_context_menu(self, menu) -> None:
         for view in self.views.values():
             if view is not self.main_view:
                 view.set_context_menu(menu)
 
-    def save_current_book_state(self):
+    def save_current_book_state(self) -> None:
         self.current_book_state = self.current_view, self.current_view.current_book_state()
 
-    def restore_current_book_state(self):
+    def restore_current_book_state(self) -> None:
         if self.current_book_state is not None:
             if self.current_book_state[0] is self.current_view:
                 self.current_view.restore_current_book_state(self.current_book_state[1])
             self.current_book_state = None
 
-    def marked_changed(self, old_marked, current_marked):
+    def marked_changed(self, old_marked, current_marked) -> None:
         if self.current_view is not self.main_view:
             self.current_view.marked_changed(old_marked, current_marked)
 
@@ -629,10 +629,10 @@ class CoverDelegate(QStyledItemDelegate):
         return self._animated_size
 
     @animated_size.setter
-    def animated_size(self, val):
+    def animated_size(self, val) -> None:
         self._animated_size = val
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self._animated_size = 1.0
         self.animation = QPropertyAnimation(self, b'animated_size', self)
@@ -643,7 +643,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.rating_font = QFont(rating_font())
         self.set_dimensions()
 
-    def set_dimensions(self):
+    def set_dimensions(self) -> None:
         p = self.parent()
         assert isinstance(p, GridView)
         width = self.original_width = gprefs['cover_grid_width']
@@ -692,7 +692,7 @@ class CoverDelegate(QStyledItemDelegate):
         else:
             self.cover_cache = CoverThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1)
 
-    def calculate_spacing(self):
+    def calculate_spacing(self) -> None:
         _cs_p = self.parent()
         assert isinstance(_cs_p, GridView)
         spc = self.original_spacing = gprefs['cover_grid_spacing']
@@ -724,7 +724,7 @@ class CoverDelegate(QStyledItemDelegate):
                 traceback.print_exc()
         return '', is_stars
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         with clip_border_radius(painter, option.rect):
             QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         m = index.model()
@@ -823,11 +823,11 @@ class CoverDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
-    def paint_cover(self, painter: QPainter, rect: QRect, pixmap: QPixmap):
+    def paint_cover(self, painter: QPainter, rect: QRect, pixmap: QPixmap) -> None:
         with clip_border_radius(painter, rect):
             painter.drawPixmap(rect, pixmap)
 
-    def paint_title(self, painter, rect, db, book_id, align_top: bool = False):
+    def paint_title(self, painter, rect, db, book_id, align_top: bool = False) -> None:
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         title, is_stars = self.render_field(db, book_id)
         if is_stars:
@@ -842,7 +842,7 @@ class CoverDelegate(QStyledItemDelegate):
             align |= Qt.AlignmentFlag.AlignCenter
         painter.drawText(rect, align, text)
 
-    def paint_emblems(self, painter, rect, emblems):
+    def paint_emblems(self, painter, rect, emblems) -> None:
         gutter = self.emblem_size + self.MARGIN
         grect = QRect(rect)
         gpos = self.gutter_position
@@ -874,7 +874,7 @@ class CoverDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
-    def paint_emblems_on_cover(self, painter, rect, emblems):
+    def paint_emblems_on_cover(self, painter, rect, emblems) -> None:
         if not (esz := self.emblem_size):
             return
         r = gprefs['cover_corner_radius']
@@ -915,7 +915,7 @@ class CoverDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
-    def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True):
+    def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True) -> None:
         drect = QRect(orect)
         pw = int(pixmap.width() / pixmap.devicePixelRatio())
         ph = int(pixmap.height() / pixmap.devicePixelRatio())
@@ -930,7 +930,7 @@ class CoverDelegate(QStyledItemDelegate):
         painter.drawPixmap(drect, pixmap)
 
     @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result='bool')
-    def helpEvent(self, event, view, option, index):
+    def helpEvent(self, event, view, option, index) -> bool:
         if event is not None and view is not None and event.type() == QEvent.Type.ToolTip:
             try:
                 db = index.model().db
@@ -1000,7 +1000,7 @@ class GridView(MomentumScrollMixin, QListView):
     # __init__().
     setting_color = True
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QListView.__init__(self, parent)
         self.setFrameShape(QFrame.Shape.Box)
         self.setFrameShadow(QFrame.Shadow.Plain)
@@ -1045,7 +1045,7 @@ class GridView(MomentumScrollMixin, QListView):
         t.setInterval(200), t.setSingleShot(True)
         t.timeout.connect(self.update_memory_cover_cache_size)
 
-    def wheelEvent(self, a0):  # ty: ignore[invalid-method-override]
+    def wheelEvent(self, a0) -> None:  # ty: ignore[invalid-method-override]
         MomentumScrollMixin.wheelEvent(self, a0)
 
     def viewportEvent(self, e):
@@ -1082,7 +1082,7 @@ class GridView(MomentumScrollMixin, QListView):
                     item_width = self.delegate.item_size.width() + 2 * self.spacing()
                     return ans + (geom.width() // item_width)
 
-    def update_viewport(self):
+    def update_viewport(self) -> None:
         self.ignore_render_requests.clear()
         self.update_timer.stop()
         m = self.model()
@@ -1090,27 +1090,27 @@ class GridView(MomentumScrollMixin, QListView):
         for r in range(self.first_visible_row or 0, self.last_visible_row or (m.rowCount() - 1)):
             self.update(m.index(r, 0))
 
-    def start_view_animation(self, index):
+    def start_view_animation(self, index) -> None:
         d = self.delegate
         if d.animating is None and not config['disable_animations']:
             d.animating = index
             d.animation.start()
 
-    def double_clicked(self, index):
+    def double_clicked(self, index) -> None:
         self.start_view_animation(index)
         double_click_action(index)
 
-    def animation_value_changed(self, value):
+    def animation_value_changed(self, value) -> None:
         if self.delegate.animating is not None:
             self.update(self.delegate.animating)
 
-    def animation_done(self):
+    def animation_done(self) -> None:
         if self.delegate.animating is not None:
             idx = self.delegate.animating
             self.delegate.animating = None
             self.update(idx)
 
-    def set_color(self):
+    def set_color(self) -> None:
         if self.setting_color:
             # setPalette() below causes changeEvent() to be called, ignore it
             return
@@ -1120,7 +1120,7 @@ class GridView(MomentumScrollMixin, QListView):
         finally:
             self.setting_color = False
 
-    def do_set_color(self):
+    def do_set_color(self) -> None:
         # Use the palette that is currently in effect rather than the value
         # cached by PaletteManager, since this is also called in response to
         # palette changes made by Qt itself, which PaletteManager does not
@@ -1160,7 +1160,7 @@ class GridView(MomentumScrollMixin, QListView):
         vp.setAutoFillBackground(self._texture_pixmap is None)
         vp.update()
 
-    def changeEvent(self, a0):
+    def changeEvent(self, a0) -> None:
         super().changeEvent(a0)
         if a0 is not None and a0.type() in (QEvent.Type.PaletteChange, QEvent.Type.ApplicationPaletteChange):
             # This view overrides the colors it inherits from the application
@@ -1199,7 +1199,7 @@ class GridView(MomentumScrollMixin, QListView):
                 return False
         return super().eventFilter(object, event)
 
-    def refresh_settings(self):
+    def refresh_settings(self) -> None:
         size_changed = gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height
         if (
             size_changed
@@ -1224,7 +1224,7 @@ class GridView(MomentumScrollMixin, QListView):
         self.resize_timer.start()
         return QListView.resizeEvent(self, e)
 
-    def update_memory_cover_cache_size(self):
+    def update_memory_cover_cache_size(self) -> None:
         try:
             sz = self.delegate.item_size
         except AttributeError:
@@ -1234,10 +1234,10 @@ class GridView(MomentumScrollMixin, QListView):
         limit = max(100, num * max(2, gprefs['cover_grid_cache_size_multiple']))
         self.delegate.cover_cache.set_ram_limit(limit)
 
-    def shown(self):
+    def shown(self) -> None:
         self.update_memory_cover_cache_size()
 
-    def re_render(self, book_id, thumb):
+    def re_render(self, book_id, thumb) -> None:
         m = self.model()
         assert isinstance(m, BooksModel) and m.db is not None
         try:
@@ -1246,15 +1246,15 @@ class GridView(MomentumScrollMixin, QListView):
             return
         self.update(m.index(index, 0))
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.delegate.cover_cache.shutdown()
 
-    def set_database(self, newdb, stage=0):
+    def set_database(self, newdb, stage=0) -> None:
         self.dbref = weakref.ref(newdb)
         if stage == 0:
             self.delegate.cover_cache.set_database(newdb)
 
-    def select_rows(self, rows):
+    def select_rows(self, rows) -> None:
         m = self.model()
         assert m is not None
         sel = selection_for_rows(m, rows)
@@ -1262,7 +1262,7 @@ class GridView(MomentumScrollMixin, QListView):
         assert sm is not None
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
 
-    def selectAll(self):
+    def selectAll(self) -> None:
         # We re-implement this to ensure that only indexes from column 0 are
         # selected. The base class implementation selects all columns. This
         # causes problems with selection syncing, see
@@ -1274,17 +1274,17 @@ class GridView(MomentumScrollMixin, QListView):
         sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex()) - 1, 0))
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
-    def set_current_row(self, row):
+    def set_current_row(self, row) -> None:
         sm = self.selectionModel()
         assert sm is not None
         m = self.model()
         assert m is not None
         sm.setCurrentIndex(m.index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
-    def set_context_menu(self, menu):
+    def set_context_menu(self, menu) -> None:
         self.context_menu = menu
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         if self.context_menu is None:
             return
         from calibre.gui2.main_window import clone_menu
@@ -1301,12 +1301,12 @@ class GridView(MomentumScrollMixin, QListView):
         assert isinstance(m, BooksModel) and m.db is not None
         return [m.id(i) for i in sm.selectedIndexes()]
 
-    def restore_vpos(self, vpos):
+    def restore_vpos(self, vpos) -> None:
         vsb = self.verticalScrollBar()
         assert vsb is not None
         vsb.setValue(vpos)
 
-    def restore_hpos(self, hpos):
+    def restore_hpos(self, hpos) -> None:
         pass
 
     def handle_mouse_move_event(self, ev):
@@ -1357,7 +1357,7 @@ class GridView(MomentumScrollMixin, QListView):
                                 return self._ncols
         return self._ncols
 
-    def default_wheel_event_handler(self, event):
+    def default_wheel_event_handler(self, event) -> None:
         if event.phase() not in (
             Qt.ScrollPhase.ScrollUpdate,
             Qt.ScrollPhase.NoScrollPhase,
@@ -1428,7 +1428,7 @@ class GridView(MomentumScrollMixin, QListView):
     def current_book_state(self):
         return self.current_book
 
-    def restore_current_book_state(self, state):
+    def restore_current_book_state(self, state) -> None:
         book_id = state
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         try:
@@ -1443,7 +1443,7 @@ class GridView(MomentumScrollMixin, QListView):
         assert restore_m is not None
         self.scrollTo(restore_m.index(row, 0), QAbstractItemView.ScrollHint.PositionAtCenter)
 
-    def marked_changed(self, old_marked, current_marked):
+    def marked_changed(self, old_marked, current_marked) -> None:
         changed = old_marked | current_marked
         m = self.model()
         assert isinstance(m, BooksModel) and m.db is not None

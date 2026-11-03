@@ -27,7 +27,7 @@ from calibre.utils.localization import _
 
 
 class ChooseFolder(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.folder_edit = fe = HistoryLineEdit2(parent=self)
         fe.initialize('connect-to-folder')
@@ -42,7 +42,7 @@ class ChooseFolder(QWidget):
         l.addWidget(fe)
         l.addWidget(bb)
 
-    def browse(self):
+    def browse(self) -> None:
         ans = choose_dir(self, 'Select Device Folder', _('Select folder to open as device'))
         if ans:
             self.folder_edit.setText(ans)
@@ -52,16 +52,16 @@ class ChooseFolder(QWidget):
         return self.folder_edit.text().strip()
 
     @folder.setter
-    def folder(self, val):
+    def folder(self, val) -> None:
         self.folder_edit.setText((val or '').strip())
 
-    def on_accept(self):
+    def on_accept(self) -> None:
         if self.folder:
             self.folder_edit.save_history()
 
 
 class Model(QStandardItemModel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent=parent)
         root = self.invisibleRootItem()
         assert root is not None
@@ -98,7 +98,7 @@ class Model(QStandardItemModel):
 
 
 class ConnectToFolder(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(_('Connect to folder'), 'connect-to-folder', parent=parent)
 
     def sizeHint(self):
@@ -106,7 +106,7 @@ class ConnectToFolder(Dialog):
         sz.setWidth(max(sz.width(), 600))
         return sz
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.folder_chooser = fc = ChooseFolder(self)
         l.addWidget(fc)
@@ -162,11 +162,11 @@ class ConnectToFolder(Dialog):
         assert sm2 is not None
         sm2.selectionChanged.connect(self.device_selection_changed)
 
-    def update_filter(self):
+    def update_filter(self) -> None:
         q = self.filter_edit.text().strip()
         self.proxy_model.setFilterFixedString(q)
 
-    def device_selection_changed(self):
+    def device_selection_changed(self) -> None:
         dev = self.model_metadata
         if dev is None:
             name = _('Generic Folder device')

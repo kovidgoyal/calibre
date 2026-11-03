@@ -12,7 +12,7 @@ from calibre.utils.xml_parse import safe_html_fromstring
 
 
 class URLMap:
-    def __init__(self):
+    def __init__(self) -> None:
         self.cache = {}
 
     def __getitem__(self, key):
@@ -154,7 +154,7 @@ def get_opf3_tag_index():
     return ans
 
 
-def write_tag_help():
+def write_tag_help() -> None:
     base = 'editor-help/%s.json'
     dump = partial(json.dumps, indent=2, sort_keys=True)
 

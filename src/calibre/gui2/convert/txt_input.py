@@ -15,7 +15,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'txt_input'
     ICON = 'mimetypes/txt.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['input']['txt'])
         self.markdown_label.setText(self.markdown_label.text().format('https://daringfireball.net/projects/markdown'))
         self.markdown_extensions_label.setText(self.markdown_extensions_label.text().format('https://python-markdown.github.io/extensions/'))
@@ -33,7 +33,7 @@ class PluginWidget(Widget, Ui_Form):
 
         self.initialize_options(get_option, get_help, db, book_id)
 
-    def set_value_handler(self, g, val):
+    def set_value_handler(self, g, val) -> bool:
         if g is self.opt_markdown_extensions:
             for i in self.md_map.values():
                 i.setCheckState(Qt.CheckState.Unchecked)
@@ -42,13 +42,14 @@ class PluginWidget(Widget, Ui_Form):
                 if x in self.md_map:
                     self.md_map[x].setCheckState(Qt.CheckState.Checked)
             return True
+        return False
 
     def get_value_handler(self, g):
         if g is not self.opt_markdown_extensions:
             return Widget.get_value_handler(self, g)
         return ', '.join(str(i.data(Qt.ItemDataRole.UserRole) or '') for i in self.md_map.values() if i.checkState() == Qt.CheckState.Checked)
 
-    def connect_gui_obj_handler(self, gui_obj, slot):
+    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
         if gui_obj is not self.opt_markdown_extensions:
             raise NotImplementedError()
         gui_obj.itemChanged.connect(self.changed_signal)

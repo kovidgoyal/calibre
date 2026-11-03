@@ -73,7 +73,7 @@ def convert_day_time_schedule(val):
 class RecipesView(QTreeView):
     item_activated = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QTreeView.__init__(self, parent)
         self.setAnimated(True)
         self.setHeaderHidden(True)
@@ -82,10 +82,10 @@ class RecipesView(QTreeView):
         self.doubleClicked.connect(self.double_clicked)
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-    def double_clicked(self, index):
+    def double_clicked(self, index) -> None:
         self.item_activated.emit(index)
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current, previous) -> None:
         QTreeView.currentChanged(self, current, previous)
         p = self.parent()
         assert isinstance(p, SchedulerDialog)
@@ -98,13 +98,13 @@ class RecipesView(QTreeView):
 class Base(QWidget):
     HELP: str = ''
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.setToolTip(textwrap.dedent(self.HELP))
 
-    def initialize(self, typ=None, val=None):
+    def initialize(self, typ=None, val=None) -> None:
         pass
 
     @property
@@ -120,7 +120,7 @@ class DaysOfWeek(Base):
                 soon after 9:00 AM as possible.
             ''')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Base.__init__(self, parent)
         self.days = [QCheckBox(force_unicode(calendar.day_abbr[d]), self) for d in range(7)]
         for i, cb in enumerate(self.days):
@@ -140,7 +140,7 @@ class DaysOfWeek(Base):
         self.l.addLayout(self.hl, 1, 3, 1, 1)
         self.initialize()
 
-    def initialize(self, typ=None, val=None):
+    def initialize(self, typ=None, val=None) -> None:
         if typ is None:
             typ = 'day/time'
             val = (-1, 6, 0)
@@ -173,7 +173,7 @@ class DaysOfMonth(Base):
                 month, as soon after 9:00 AM as possible.
             ''')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Base.__init__(self, parent)
 
         self.l1 = QLabel(_('&Days of the month:'))
@@ -191,7 +191,7 @@ class DaysOfMonth(Base):
         self.l.addWidget(self.l2, 1, 0, 1, 1)
         self.l.addWidget(self.time, 1, 1, 1, 1)
 
-    def initialize(self, typ=None, val=None):
+    def initialize(self, typ=None, val=None) -> None:
         if val is None:
             val = ((1,), 6, 0)
         days_of_month, hour, minute = val
@@ -220,7 +220,7 @@ class EveryXDays(Base):
                 0.1 days to download a periodical more than once a day.
             ''')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Base.__init__(self, parent)
         self.l1 = QLabel(_('&Download every:'))
         self.interval = QDoubleSpinBox(self)
@@ -239,7 +239,7 @@ class EveryXDays(Base):
         self.l.addWidget(self.interval, 0, 1, 1, 1)
         self.l.addWidget(self.l2, 1, 0, 1, -1)
 
-    def initialize(self, typ=None, val=None):
+    def initialize(self, typ=None, val=None) -> None:
         if val is None:
             val = 31.0
         self.interval.setValue(val)
@@ -262,7 +262,7 @@ class SchedulerDialog(QDialog):
 
     download = pyqtSignal(object)
 
-    def __init__(self, recipe_model, parent=None):
+    def __init__(self, recipe_model, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.commit_on_change = True
         self.previous_urn = None
@@ -416,10 +416,10 @@ class SchedulerDialog(QDialog):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def set_pw_echo_mode(self, state):
+    def set_pw_echo_mode(self, state) -> None:
         self.password.setEchoMode(QLineEdit.EchoMode.Normal if Qt.CheckState(state) == Qt.CheckState.Checked else QLineEdit.EchoMode.Password)
 
-    def schedule_type_selected(self, *args):
+    def schedule_type_selected(self, *args) -> None:
         for i, st in enumerate(self.SCHEDULE_TYPES):
             if getattr(self, st).isChecked():
                 self.schedule_stack.setCurrentIndex(i)
@@ -429,7 +429,7 @@ class SchedulerDialog(QDialog):
         if a0.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             return QDialog.keyPressEvent(self, a0)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         try:
             rm = self.recipe_model
             assert rm is not None
@@ -441,20 +441,20 @@ class SchedulerDialog(QDialog):
             pass
         self.recipe_model = None
 
-    def search_done(self, *args):
+    def search_done(self, *args) -> None:
         rm = self.recipe_model
         assert rm is not None
         if rm.showing_count < 20:
             self.recipes.expandAll()
 
-    def toggle_schedule_info(self, *args):
+    def toggle_schedule_info(self, *args) -> None:
         enabled = self.schedule.isChecked()
         for x in self.SCHEDULE_TYPES:
             getattr(self, x).setEnabled(enabled)
         self.schedule_stack.setEnabled(enabled)
         self.last_downloaded.setVisible(enabled)
 
-    def current_changed(self, current, previous):
+    def current_changed(self, current, previous) -> None:
         if self.previous_urn is not None:
             self.commit(urn=self.previous_urn)
             self.previous_urn = None
@@ -474,12 +474,12 @@ class SchedulerDialog(QDialog):
         self.save_geometry(gprefs, 'scheduler_dialog_geometry')
         return QDialog.reject(self)
 
-    def download_clicked(self, *args):
+    def download_clicked(self, *args) -> None:
         self.commit()
         if self.commit() and self.current_urn:
             self.download.emit(self.current_urn)
 
-    def download_all_clicked(self, *args):
+    def download_all_clicked(self, *args) -> None:
         if self.commit() and self.commit():
             self.download.emit(None)
 
@@ -489,7 +489,7 @@ class SchedulerDialog(QDialog):
         if current.isValid():
             return getattr(current.internalPointer(), 'urn', None)
 
-    def commit(self, urn=None):
+    def commit(self, urn=None) -> bool:
         urn = self.current_urn if urn is None else urn
         if not self.detail_box.isVisible() or urn is None:
             return True
@@ -535,7 +535,7 @@ class SchedulerDialog(QDialog):
         recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
         return True
 
-    def initialize_detail_box(self, urn):
+    def initialize_detail_box(self, urn) -> None:
         self.previous_urn = urn
         self.detail_box.setVisible(True)
         download_button = self.download_button
@@ -647,7 +647,7 @@ class Scheduler(QObject):
     delete_old_news = pyqtSignal(object)
     start_recipe_fetch = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
         self._parent = parent
@@ -680,7 +680,7 @@ class Scheduler(QObject):
         self.oldest = gconf['oldest_news']
         QTimer.singleShot(5 * 1000, self.oldest_check)
 
-    def populate_recent_menu(self):
+    def populate_recent_menu(self) -> None:
         m: QMenu = self.recent_menu
         m.clear()
         p = sprefs()
@@ -700,7 +700,7 @@ class Scheduler(QObject):
             nrdnac = QAction(_('No recently downloaded news'), m)
             m.addAction(nrdnac)
 
-    def clear_history(self):
+    def clear_history(self) -> None:
         p = sprefs()
         with suppress(KeyError):
             del p['history']
@@ -715,7 +715,7 @@ class Scheduler(QObject):
             if ans is not None and not ans.new_api.is_doing_rebuild_or_vacuum:
                 return ans
 
-    def oldest_check(self):
+    def oldest_check(self) -> None:
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             db = self.db
@@ -732,7 +732,7 @@ class Scheduler(QObject):
                     self.delete_old_news.emit(ids)
         QTimer.singleShot(60 * 60 * 1000, self.oldest_check)
 
-    def show_dialog(self, *args):
+    def show_dialog(self, *args) -> None:
         self.lock.lock()
         try:
             d = SchedulerDialog(self.recipe_model)
@@ -743,7 +743,7 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
-    def customize_feeds(self, *args):
+    def customize_feeds(self, *args) -> None:
         from calibre.gui2.dialogs.custom_recipes import CustomRecipes
 
         d = CustomRecipes(self.recipe_model, self._parent)
@@ -752,7 +752,7 @@ class Scheduler(QObject):
         finally:
             d.deleteLater()
 
-    def do_download(self, urn):
+    def do_download(self, urn) -> None:
         self.lock.lock()
         try:
             account_info = self.recipe_model.get_account_info(urn)
@@ -776,7 +776,7 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
-    def recipe_downloaded(self, arg):
+    def recipe_downloaded(self, arg) -> None:
         self.lock.lock()
         p = sprefs()
         history = p.get('history', [])
@@ -791,7 +791,7 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
-    def recipe_download_failed(self, arg):
+    def recipe_download_failed(self, arg) -> None:
         self.lock.lock()
         try:
             self.recipe_model.update_last_downloaded(arg['urn'])
@@ -806,10 +806,10 @@ class Scheduler(QObject):
             if not self.download(urn):
                 break
 
-    def download_all_scheduled(self):
+    def download_all_scheduled(self) -> None:
         self.download_clicked(None)
 
-    def has_internet_connection(self):
+    def has_internet_connection(self) -> bool:
         if not internet_connected():
             if not self.internet_connection_failed:
                 self.internet_connection_failed = True
@@ -823,7 +823,7 @@ class Scheduler(QObject):
             self.no_internet_dialog.hide()
         return True
 
-    def download(self, urn):
+    def download(self, urn) -> bool:
         self.lock.lock()
         if not self.has_internet_connection():
             return False
@@ -833,7 +833,7 @@ class Scheduler(QObject):
             self.do_download(urn)
         return True
 
-    def check(self):
+    def check(self) -> None:
         recipes = self.recipe_model.get_to_be_downloaded_recipes()
         for urn in recipes:
             if not self.download(urn):

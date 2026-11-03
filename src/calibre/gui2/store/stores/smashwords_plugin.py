@@ -79,7 +79,7 @@ def search(query, max_results=10, timeout=60, save_raw=None):
 
 
 class SmashwordsStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = 'https://www.smashwords.com/'
 
         aff_id = '?ref=usernone'
@@ -103,7 +103,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         yield from search(query, max_results=max_results, timeout=timeout)
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         url = 'https://www.smashwords.com/'
 
         br = browser()

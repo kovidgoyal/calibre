@@ -51,14 +51,14 @@ if TYPE_CHECKING:
 
 
 class EditWithComplete(EWC):
-    def __init__(self, *a, **kw):
+    def __init__(self, *a, **kw) -> None:
         super().__init__(*a, **kw)
         self.set_clear_button_enabled(False)
         if le := self.lineEdit():
             le.setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
 
 
-def safe_disconnect(signal):
+def safe_disconnect(signal) -> None:
     try:
         signal.disconnect()
     except Exception:
@@ -99,7 +99,7 @@ class Base:
     def set_to_undefined(self):
         raise NotImplementedError
 
-    def __init__(self, db, col_id, parent=None):
+    def __init__(self, db, col_id, parent=None) -> None:
         self.db, self.col_id = db, col_id
         self.book_id = None
         self.col_metadata = db.custom_column_num_map[col_id]
@@ -130,7 +130,7 @@ class Base:
         assert db is not None
         return '.' if self.field_name in db.new_api.pref('categories_using_hierarchy', default=()) else ''
 
-    def finish_ui_setup(self, parent, edit_widget):
+    def finish_ui_setup(self, parent, edit_widget) -> None:
         self.was_none = False
         w = QWidget(parent)
         widgets = self.widgets
@@ -147,7 +147,7 @@ class Base:
         self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.addWidget(self.clear_button)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.book_id = book_id
         db = self.db
         assert db is not None
@@ -173,7 +173,7 @@ class Base:
         else:
             return set()
 
-    def apply_to_metadata(self, mi):
+    def apply_to_metadata(self, mi) -> None:
         mi.set('#' + self.col_metadata['label'], self.current_val)
 
     def normalize_db_val(self, val):
@@ -182,20 +182,20 @@ class Base:
     def normalize_ui_val(self, val):
         return val
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.db = self.initial_val = None
         self.widgets = None
         for signal in self.signals_to_disconnect:
             safe_disconnect(signal)
         self.signals_to_disconnect = []
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         pass
 
     def values_changed(self):
         return self.getter() != self.initial_val and (self.getter() or self.initial_val)
 
-    def edit(self):
+    def edit(self) -> None:
         if self.values_changed():
             d = _save_dialog(
                 self.parent,
@@ -219,28 +219,28 @@ class Base:
 
 
 class SimpleText(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.widgets = [
             QLabel(label_string(self.col_metadata['name']), parent),
         ]
         self.finish_ui_setup(parent, QLineEdit)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.setText('')
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         self.editor.setText(str(val or ''))
 
     def getter(self):
         return self.editor.text().strip()
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.editor.textChanged.connect(slot)
         self.signals_to_disconnect.append(self.editor.textChanged)
 
 
 class LongText(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self._box = QGroupBox(parent)
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
@@ -251,19 +251,19 @@ class LongText(Base):
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         self._tb.setPlainText(str(val or ''))
 
     def getter(self):
         return self._tb.toPlainText()
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self._tb.textChanged.connect(slot)
         self.signals_to_disconnect.append(self._tb.textChanged)
 
 
 class Bool(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         name = self.col_metadata['name']
         widgets: list[QWidget] = [QLabel(label_string(name), parent)]
         self.widgets = widgets
@@ -306,7 +306,7 @@ class Bool(Base):
         for icon, text in zip(icons, items):
             w.addItem(QIcon.ic(icon), text)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         val = {None: 2, False: 1, True: 0}[val]
         db = self.db
         assert db is not None
@@ -318,33 +318,33 @@ class Bool(Base):
         val = self.combobox.currentIndex()
         return {2: None, 1: False, 0: True}[val]
 
-    def set_to_yes(self):
+    def set_to_yes(self) -> None:
         self.combobox.setCurrentIndex(0)
 
-    def set_to_no(self):
+    def set_to_no(self) -> None:
         self.combobox.setCurrentIndex(1)
 
-    def set_to_cleared(self):
+    def set_to_cleared(self) -> None:
         self.combobox.setCurrentIndex(2)
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.combobox.currentTextChanged.connect(slot)
         self.signals_to_disconnect.append(self.combobox.currentTextChanged)
 
 
 class Int(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, ClearingSpinBox)
         self.editor.setRange(-1000000, 100000000)
 
-    def finish_ui_setup(self, parent, edit_widget):
+    def finish_ui_setup(self, parent, edit_widget) -> None:
         Base.finish_ui_setup(self, parent, edit_widget)
         self.editor.setSpecialValueText(_('Undefined'))
         self.editor.setSingleStep(1)
         self.editor.valueChanged.connect(self.valueChanged)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if val is None:
             val = self.editor.minimum()
         self.editor.setValue(val)
@@ -356,21 +356,21 @@ class Int(Base):
             val = None
         return val
 
-    def valueChanged(self, to_what):
+    def valueChanged(self, to_what) -> None:
         if self.was_none and to_what == -999999:
             self.setter(0)
         self.was_none = to_what == self.editor.minimum()
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.editor.valueChanged.connect(slot)
         self.signals_to_disconnect.append(self.editor.valueChanged)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.setValue(-1000000)
 
 
 class Float(Int):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, ClearingDoubleSpinBox)
         self.editor.setRange(-1000000.0, float(100000000))
@@ -378,44 +378,44 @@ class Float(Int):
 
 
 class Rating(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         allow_half_stars = self.col_metadata['display'].get('allow_half_stars', False)
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, partial(RatingEditor, is_half_star=allow_half_stars))
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.setCurrentIndex(0)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         val = max(0, min(int(val or 0), 10))
         self.editor.rating_value = val
 
     def getter(self):
         return self.editor.rating_value or None
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.editor.currentTextChanged.connect(slot)
         self.signals_to_disconnect.append(self.editor.currentTextChanged)
 
 
 class DateTimeEdit(DateTimeEditBase):
-    def focusInEvent(self, e):
+    def focusInEvent(self, e) -> None:
         self.setSpecialValueText('')
         DateTimeEditBase.focusInEvent(self, e)
 
-    def focusOutEvent(self, e):
+    def focusOutEvent(self, e) -> None:
         self.setSpecialValueText(_('Undefined'))
         DateTimeEditBase.focusOutEvent(self, e)
 
-    def set_to_today(self):
+    def set_to_today(self) -> None:
         self.setDateTime(qt_from_dt(now()))
 
-    def set_to_clear(self):
+    def set_to_clear(self) -> None:
         self.setDateTime(UNDEFINED_QDATETIME)
 
 
 class DateTime(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         cm = self.col_metadata
         widgets: list[QWidget] = [QLabel(label_string(cm['name']), parent)]
         self.widgets = widgets
@@ -448,13 +448,13 @@ class DateTime(Base):
         l.addWidget(self.clear_button)
         self.connect_data_changed(self.set_tooltip)
 
-    def set_tooltip(self, val):
+    def set_tooltip(self, val) -> None:
         if is_date_undefined(val):
             self.dte.setToolTip(get_tooltip(self.col_metadata, False))
         else:
             self.dte.setToolTip(get_tooltip(self.col_metadata, False) + '\n' + _('Exact time: {}').format(as_local_time(qt_to_dt(val))))
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if val is None:
             val = self.dte.minimumDateTime()
         else:
@@ -475,13 +475,13 @@ class DateTime(Base):
     def normalize_ui_val(self, val):
         return as_utc(val) if val is not None else None
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.dte.dateTimeChanged.connect(slot)
         self.signals_to_disconnect.append(self.dte.dateTimeChanged)
 
 
 class Comments(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self._box = QGroupBox(parent)
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
@@ -500,7 +500,7 @@ class Comments(Base):
             self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         return Base.initialize(self, book_id)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if not val or not val.strip():
             val = ''
         else:
@@ -519,16 +519,16 @@ class Comments(Base):
         return self._tb.tab
 
     @tab.setter
-    def tab(self, val):
+    def tab(self, val) -> None:
         self._tb.tab = val
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self._tb.data_changed.connect(slot)
         self.signals_to_disconnect.append(self._tb.data_changed)
 
 
 class Markdown(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self._box = QGroupBox(parent)
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
@@ -547,7 +547,7 @@ class Markdown(Base):
             self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         return super().initialize(book_id)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         self._tb.markdown = str(val or '').strip()
 
     def getter(self):
@@ -561,16 +561,16 @@ class Markdown(Base):
         return self._tb.tab
 
     @tab.setter
-    def tab(self, val):
+    def tab(self, val) -> None:
         self._tb.tab = val
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self._tb.editor.textChanged.connect(slot)
         self.signals_to_disconnect.append(self._tb.editor.textChanged)
 
 
 class MultipleWidget(QWidget):
-    def __init__(self, parent, only_manage_items=False, widget=EditWithComplete, name=None):
+    def __init__(self, parent, only_manage_items=False, widget=EditWithComplete, name=None) -> None:
         QWidget.__init__(self, parent)
         layout = QHBoxLayout()
         layout.setSpacing(5)
@@ -592,35 +592,35 @@ class MultipleWidget(QWidget):
     def get_editor_button(self):
         return self.editor_button
 
-    def update_items_cache(self, values):
+    def update_items_cache(self, values) -> None:
         self.edit_widget.update_items_cache(values)
 
-    def clear(self):
+    def clear(self) -> None:
         self.edit_widget.clear()
 
     def setEditText(self, text: str = '') -> None:
         self.edit_widget.setEditText(text)
 
-    def addItem(self, itm):
+    def addItem(self, itm) -> None:
         self.edit_widget.addItem(itm)
 
-    def set_separator(self, sep):
+    def set_separator(self, sep) -> None:
         self.edit_widget.set_separator(sep)
 
-    def set_hierarchy_separator(self, sep):
+    def set_hierarchy_separator(self, sep) -> None:
         if hasattr(self.edit_widget, 'set_hierarchy_separator'):
             self.edit_widget.set_hierarchy_separator(sep)
 
-    def set_add_separator(self, sep):
+    def set_add_separator(self, sep) -> None:
         self.edit_widget.set_add_separator(sep)
 
-    def set_space_before_sep(self, v):
+    def set_space_before_sep(self, v) -> None:
         self.edit_widget.set_space_before_sep(v)
 
-    def setSizePolicy(self, *args, **kwargs):
+    def setSizePolicy(self, *args, **kwargs) -> None:
         self.edit_widget.setSizePolicy(*args, **kwargs)
 
-    def setText(self, v):
+    def setText(self, v) -> None:
         self.edit_widget.setText(v)
 
     def text(self):
@@ -636,10 +636,10 @@ def _save_dialog(parent, title, msg, det_msg=''):
 
 
 class Text(Base):
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.clear()
 
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.sep = self.col_metadata['multiple_seps']
         db = self.db
         assert db is not None
@@ -662,7 +662,7 @@ class Text(Base):
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, lambda parent: w)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         db = self.db
         assert db is not None
         values = list(db.all_custom(num=self.col_id))
@@ -682,7 +682,7 @@ class Text(Base):
             self.editor.setText(val)
         self.initial_val = self.current_val
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if self.col_metadata['is_multiple']:
             if not val:
                 val = []
@@ -699,7 +699,7 @@ class Text(Base):
             val = None
         return val
 
-    def edit(self):
+    def edit(self) -> None:
         ctrl_or_shift_pressed = QApplication.keyboardModifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier)
         if self.getter() != self.initial_val and (self.getter() or self.initial_val):
             d = _save_dialog(
@@ -727,14 +727,14 @@ class Text(Base):
             if d.exec() == QDialog.DialogCode.Accepted:
                 self.setter(d.tags)
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         s = self.editor.edit_widget.currentTextChanged
         s.connect(slot)
         self.signals_to_disconnect.append(s)
 
 
 class Series(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.parent = parent
         db = self.db
         assert db is not None
@@ -760,12 +760,12 @@ class Series(Base):
         w.setToolTip(get_tooltip(self.col_metadata, add_index=True))
         self.widgets.append(w)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.clear()
         self.name_widget.clearEditText()
         self.idx_widget.setValue(1.0)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.book_id = book_id
         db = self.db
         assert db is not None
@@ -790,7 +790,7 @@ class Series(Base):
         i = self.idx_widget.value()
         return n, i
 
-    def series_changed(self, val):
+    def series_changed(self, val) -> None:
         val, s_index = self.gui_val
         if tweaks['series_index_auto_increment'] == 'no_change':
             pass
@@ -823,18 +823,18 @@ class Series(Base):
         else:
             return set()
 
-    def apply_to_metadata(self, mi):
+    def apply_to_metadata(self, mi) -> None:
         val, s_index = self.current_val
         mi.set('#' + self.col_metadata['label'], val, extra=s_index)
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         for s in self.name_widget.editTextChanged, self.idx_widget.valueChanged:
             s.connect(slot)
             self.signals_to_disconnect.append(s)
 
 
 class Enumeration(Base):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.parent = parent
         db = self.db
         assert db is not None
@@ -851,7 +851,7 @@ class Enumeration(Base):
         for v in vals:
             self.editor.addItem(v)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.book_id = book_id
         db = self.db
         assert db is not None
@@ -871,7 +871,7 @@ class Enumeration(Base):
         self.editor.setCurrentIndex(idx)
         self.initial_val = val
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         self.editor.setCurrentIndex(self.editor.findText(val))
 
     def getter(self):
@@ -887,10 +887,10 @@ class Enumeration(Base):
             val = None
         return val
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.editor.setCurrentIndex(0)
 
-    def connect_data_changed(self, slot):
+    def connect_data_changed(self, slot) -> None:
         self.editor.currentIndexChanged.connect(slot)
         self.signals_to_disconnect.append(self.editor.currentIndexChanged)
 
@@ -1109,7 +1109,7 @@ class BulkBase(Base):
         edit_widget: bool = False,
         add_edit_tags_button: tuple[bool, Callable] | tuple[bool] = (False,),
         is_bool: bool = False,
-    ):
+    ) -> None:
         self.was_none = False
         widgets = self.widgets
         assert widgets is not None
@@ -1140,12 +1140,12 @@ class BulkBase(Base):
             l.insertWidget(1, self.edit_tags_button)
         l.insertStretch(2)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.initial_val = val = self.get_initial_value(book_id)
         val = self.normalize_db_val(val)
         self.setter(val)
 
-    def commit(self, book_id, notify=False):
+    def commit(self, book_id, notify=False) -> None:
         if not self.a_c_checkbox.isChecked():
             return
         val = self.gui_val
@@ -1154,7 +1154,7 @@ class BulkBase(Base):
         assert db is not None
         db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
-    def make_widgets(self, parent, main_widget_class):
+    def make_widgets(self, parent, main_widget_class) -> None:
         w = QWidget(parent)
         self.widgets = [QLabel(label_string(self.col_metadata['name']), w), w]
         l = QHBoxLayout()
@@ -1187,7 +1187,7 @@ class BulkBase(Base):
             # dateEdit widgets
             self.main_widget.dateTimeChanged.connect(self.a_c_checkbox_changed)
 
-    def a_c_checkbox_changed(self):
+    def a_c_checkbox_changed(self) -> None:
         if not self.ignore_change_signals:
             self.a_c_checkbox.setChecked(True)
 
@@ -1206,7 +1206,7 @@ class BulkBool(BulkBase, Bool):
             value = val
         return value
 
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.make_widgets(parent, QComboBox)
         items = [_('Yes'), _('No')]
         db = self.db
@@ -1223,7 +1223,7 @@ class BulkBool(BulkBase, Bool):
         self.main_widget.blockSignals(False)
         self.finish_ui_setup(parent, is_bool=True)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         # Only called if bools are tristate
         self.main_widget.setCurrentIndex(2)
 
@@ -1234,12 +1234,12 @@ class BulkBool(BulkBase, Bool):
         else:
             return {2: None, 1: False, 0: True}[val]
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         val = {None: 2, False: 1, True: 0}[val]
         self.main_widget.setCurrentIndex(val)
         self.ignore_change_signals = False
 
-    def commit(self, book_id, notify=False):
+    def commit(self, book_id, notify=False) -> None:
         if not self.a_c_checkbox.isChecked():
             return
         val = self.gui_val
@@ -1250,7 +1250,7 @@ class BulkBool(BulkBase, Bool):
         assert db is not None
         db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
-    def a_c_checkbox_changed(self):
+    def a_c_checkbox_changed(self) -> None:
         if not self.ignore_change_signals:
             if not self.bools_are_tristate and self.main_widget.currentIndex() == 2:
                 self.a_c_checkbox.setChecked(False)
@@ -1259,7 +1259,7 @@ class BulkBool(BulkBase, Bool):
 
 
 class BulkInt(BulkBase):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.make_widgets(parent, ClearingSpinBox)
         self.main_widget.setRange(-1000000, 100000000)
         self.finish_ui_setup(parent)
@@ -1270,13 +1270,13 @@ class BulkInt(BulkBase):
         edit_widget: bool = False,
         add_edit_tags_button: tuple[bool, Callable] | tuple[bool] = (False,),
         is_bool: bool = False,
-    ):
+    ) -> None:
         BulkBase.finish_ui_setup(self, parent)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
         self.main_widget.valueChanged.connect(self.valueChanged)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if val is None:
             val = self.main_widget.minimum()
         self.main_widget.setValue(val)
@@ -1289,36 +1289,36 @@ class BulkInt(BulkBase):
             val = None
         return val
 
-    def valueChanged(self, to_what):
+    def valueChanged(self, to_what) -> None:
         if self.was_none and to_what == -999999:
             self.setter(0)
         self.was_none = to_what == self.main_widget.minimum()
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.main_widget.setValue(-1000000)
 
 
 class BulkFloat(BulkInt):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.make_widgets(parent, ClearingDoubleSpinBox)
         self.main_widget.setRange(-1000000.0, float(100000000))
         self.main_widget.setDecimals(int(self.col_metadata['display'].get('decimals', 2)))
         self.finish_ui_setup(parent)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.main_widget.setValue(-1000000.0)
 
 
 class BulkRating(BulkBase):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         allow_half_stars = self.col_metadata['display'].get('allow_half_stars', False)
         self.make_widgets(parent, partial(RatingEditor, is_half_star=allow_half_stars))
         self.finish_ui_setup(parent)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.main_widget.setCurrentIndex(0)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         val = max(0, min(int(val or 0), 10))
         self.main_widget.rating_value = val
         self.ignore_change_signals = False
@@ -1328,7 +1328,7 @@ class BulkRating(BulkBase):
 
 
 class BulkDateTime(BulkBase):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         cm = self.col_metadata
         self.make_widgets(parent, DateTimeEdit)
         widgets = self.widgets
@@ -1357,7 +1357,7 @@ class BulkDateTime(BulkBase):
         self.today_button.clicked.connect(w.set_to_today)
         self.clear_button.clicked.connect(w.set_to_clear)
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if val is None:
             val = self.main_widget.minimumDateTime()
         else:
@@ -1381,7 +1381,7 @@ class BulkDateTime(BulkBase):
 
 
 class BulkSeries(BulkBase):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.make_widgets(parent, partial(EditWithComplete, sort_func=title_sort))
         db = self.db
         assert db is not None
@@ -1448,8 +1448,8 @@ class BulkSeries(BulkBase):
         self.remove_series.stateChanged.connect(self.a_c_checkbox_changed)
         self.ignore_change_signals = False
 
-    def a_c_checkbox_changed(self):
-        def disable_numbering_checkboxes(idx_widget_enable):
+    def a_c_checkbox_changed(self) -> None:
+        def disable_numbering_checkboxes(idx_widget_enable) -> None:
             if idx_widget_enable:
                 self.idx_widget.setEnabled(True)
             else:
@@ -1486,7 +1486,7 @@ class BulkSeries(BulkBase):
         self.ignore_change_signals = False
         self.a_c_checkbox.setChecked(apply_changes)
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.idx_widget.setChecked(False)
         self.main_widget.set_separator(None)
         self.main_widget.update_items_cache(self.all_values)
@@ -1502,7 +1502,7 @@ class BulkSeries(BulkBase):
         increment = self.series_increment.value()
         return n, autonumber, force, start, remove, increment
 
-    def commit(self, book_id, notify=False):
+    def commit(self, book_id, notify=False) -> None:
         if not self.a_c_checkbox.isChecked():
             return
         val, update_indices, force_start, at_value, clear, increment = self.gui_val
@@ -1557,7 +1557,7 @@ class BulkEnumeration(BulkBase, Enumeration):
             self.ignore_change_signals = False
         return value
 
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         self.parent = parent
         self.make_widgets(parent, QComboBox)
         self.finish_ui_setup(parent)
@@ -1567,13 +1567,13 @@ class BulkEnumeration(BulkBase, Enumeration):
         self.main_widget.addItems(vals)
         self.main_widget.blockSignals(False)
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.main_widget.setCurrentIndex(0)
 
     def getter(self):
         return str(self.main_widget.currentText())
 
-    def setter(self, val):
+    def setter(self, val) -> None:
         if val is None:
             self.main_widget.setCurrentIndex(0)
         else:
@@ -1582,7 +1582,7 @@ class BulkEnumeration(BulkBase, Enumeration):
 
 
 class RemoveTags(QWidget):
-    def __init__(self, parent, values):
+    def __init__(self, parent, values) -> None:
         QWidget.__init__(self, parent)
         layout = QHBoxLayout()
         layout.setSpacing(5)
@@ -1601,7 +1601,7 @@ class RemoveTags(QWidget):
         self.setLayout(layout)
         self.checkbox.stateChanged[int].connect(self.box_touched)
 
-    def box_touched(self, state):
+    def box_touched(self, state) -> None:
         if state:
             self.tags_box.setText('')
             self.tags_box.setEnabled(False)
@@ -1610,7 +1610,7 @@ class RemoveTags(QWidget):
 
 
 class BulkText(BulkBase):
-    def setup_ui(self, parent):
+    def setup_ui(self, parent) -> None:
         db = self.db
         assert db is not None
         values = self.all_values = list(db.all_custom(num=self.col_id))
@@ -1650,10 +1650,10 @@ class BulkText(BulkBase):
         self.parent = parent
         self.finish_ui_setup(parent, add_edit_tags_button=(is_tags, self.edit_add))
 
-    def set_to_undefined(self):
+    def set_to_undefined(self) -> None:
         self.main_widget.clearEditText()
 
-    def initialize(self, book_id):
+    def initialize(self, book_id) -> None:
         self.main_widget.update_items_cache(self.all_values)
         if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_id)
@@ -1664,7 +1664,7 @@ class BulkText(BulkBase):
             self.main_widget.blockSignals(False)
             self.ignore_change_signals = False
 
-    def commit(self, book_id, notify=False):
+    def commit(self, book_id, notify=False) -> None:
         if not self.a_c_checkbox.isChecked():
             return
         db = self.db
@@ -1709,13 +1709,13 @@ class BulkText(BulkBase):
             val = None
         return val
 
-    def edit_remove(self):
+    def edit_remove(self) -> None:
         self.edit(widget=self.removing_widget.tags_box)
 
-    def edit_add(self):
+    def edit_add(self) -> None:
         self.edit(widget=self.main_widget)
 
-    def edit(self, widget=None):
+    def edit(self, widget=None) -> None:
         if widget is None:
             return
         if widget.text():

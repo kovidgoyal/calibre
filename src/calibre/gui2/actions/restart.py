@@ -9,8 +9,8 @@ class RestartAction(InterfaceAction):
     name = 'Restart'
     action_spec = (_('Restart'), 'restart.png', _('Restart calibre'), 'Ctrl+R')
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.restart)
 
-    def restart(self, *args):
+    def restart(self, *args) -> None:
         self.gui.quit(restart=True)

@@ -103,7 +103,7 @@ def get_container(*args, **kwargs):
     return container
 
 
-def setup_css_parser_serialization():
+def setup_css_parser_serialization() -> None:
     scs(tprefs['editor_tab_stop_width'])
 
 
@@ -124,7 +124,7 @@ def get_boss() -> Boss:
     return _boss
 
 
-def open_path_in_new_editor_instance(path: str):
+def open_path_in_new_editor_instance(path: str) -> None:
     import subprocess
 
     from calibre.gui2 import sanitize_env_vars
@@ -142,7 +142,7 @@ def open_path_in_new_editor_instance(path: str):
 class Boss(QObject):
     handle_completion_result_signal = pyqtSignal(object)
 
-    def __init__(self, parent, notify=None):
+    def __init__(self, parent, notify=None) -> None:
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.file_was_readonly = False
@@ -222,7 +222,7 @@ class Boss(QObject):
         "Return the name of the file being edited currently or None if no file is being edited"
         return editor_name(self.gui.central.current_editor)
 
-    def preferences(self):
+    def preferences(self) -> None:
         orig_spell = tprefs['inline_spell_check']
         orig_size = tprefs['toolbar_icon_size']
         p = Preferences(self.gui)
@@ -259,7 +259,7 @@ class Boss(QObject):
                 except AttributeError:
                     pass
 
-    def mark_requested(self, name, action):
+    def mark_requested(self, name, action) -> None:
         self.commit_dirty_opf()
         c = current_container()
         if action == 'cover':
@@ -297,7 +297,7 @@ class Boss(QObject):
             )
         return True
 
-    def new_book(self):
+    def new_book(self) -> None:
         if not self._check_before_open():
             return
         d = NewBook(self.gui)
@@ -318,7 +318,7 @@ class Boss(QObject):
                 create_book(d.mi, path, fmt=fmt)
                 self.open_book(path=path)
 
-    def import_book(self, path=None):
+    def import_book(self, path=None) -> None:
         if not self._check_before_open():
             return
         d = ImportForeign(self.gui)
@@ -500,7 +500,7 @@ class Boss(QObject):
             if st:
                 self.find_initial_text(st)
 
-    def update_editors_from_container(self, container=None, names=None):
+    def update_editors_from_container(self, container=None, names=None) -> None:
         c = container or current_container()
         for name, ed in tuple(editors.items()):
             if c.has_name(name):
@@ -510,12 +510,12 @@ class Boss(QObject):
             else:
                 self.close_editor(name)
 
-    def refresh_file_list(self):
+    def refresh_file_list(self) -> None:
         container = current_container()
         self.gui.file_list.build(container)
         completion_worker().clear_caches('names')
 
-    def apply_container_update_to_gui(self, mark_as_modified=True):
+    def apply_container_update_to_gui(self, mark_as_modified=True) -> None:
         """
         Update all the components of the user interface to reflect the latest data in the current book container.
 
@@ -532,7 +532,7 @@ class Boss(QObject):
         self.gui.preview.start_refresh_timer()
 
     @in_thread_job
-    def delete_requested(self, spine_items, other_items):
+    def delete_requested(self, spine_items, other_items) -> None:
         self.add_savepoint(_('Before: Delete files'))
         self.commit_dirty_opf()
         c = current_container()
@@ -560,13 +560,13 @@ class Boss(QObject):
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
         self.gui.message_popup(ngettext('One file deleted', '{} files deleted', len(items)).format(len(items)))
 
-    def commit_dirty_opf(self):
+    def commit_dirty_opf(self) -> None:
         c = current_container()
         if c.opf_name in editors and not editors[c.opf_name].is_synced_to_container:
             self.commit_editor_to_container(c.opf_name)
             self.gui.update_window_title()
 
-    def reorder_spine(self, items):
+    def reorder_spine(self, items) -> None:
         if not self.ensure_book():
             return
         self.add_savepoint(_('Before: Re-order text'))
@@ -578,7 +578,7 @@ class Boss(QObject):
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
         completion_worker().clear_caches('names')
 
-    def add_file(self):
+    def add_file(self) -> None:
         if not self.ensure_book(_('You must first open a book to edit, before trying to create new files in it.')):
             return
         self.commit_dirty_opf()
@@ -618,7 +618,7 @@ class Boss(QObject):
         completion_worker().clear_caches('names')
         return added_name
 
-    def add_files(self):
+    def add_files(self) -> None:
         if not self.ensure_book(_('You must first open a book to edit, before trying to create new files in it.')):
             return
 
@@ -654,7 +654,7 @@ class Boss(QObject):
 
                 show_font_face_rule_for_font_files(c, added_fonts, self.gui)
 
-    def add_cover(self):
+    def add_cover(self) -> None:
         if not self.ensure_book():
             return
         d = AddCover(current_container(), self.gui)
@@ -674,14 +674,14 @@ class Boss(QObject):
         finally:
             d.import_requested.disconnect()
 
-    def ensure_book(self, msg=None):
+    def ensure_book(self, msg=None) -> bool:
         msg = msg or _('No book is currently open. You must first open a book.')
         if current_container() is None:
             error_dialog(self.gui, _('No book open'), msg, show=True)
             return False
         return True
 
-    def edit_toc(self):
+    def edit_toc(self) -> None:
         if not self.ensure_book(_('You must open a book before trying to edit the Table of Contents.')):
             return
         self.add_savepoint(_('Before: Edit Table of Contents'))
@@ -690,7 +690,7 @@ class Boss(QObject):
         # Using d.exec() causes showing the webview to hide the dialog
         d.open()
 
-    def toc_edit_finished(self, retcode: int):
+    def toc_edit_finished(self, retcode: int) -> None:
         self.__current_toc_editor = None
         if retcode != QDialog.DialogCode.Accepted:
             self.rewind_savepoint()
@@ -722,7 +722,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         self.edit_file(name, 'html')
 
-    def polish(self, action, name, parent=None):
+    def polish(self, action, name, parent=None) -> None:
         if not self.ensure_book():
             return
         from calibre.gui2.tweak_book.polish import get_customization, show_report
@@ -794,7 +794,7 @@ class Boss(QObject):
             return info_dialog(self.gui, _('No changes'), _('No HTML was changed.'), show=True)
         self.show_current_diff()
 
-    def transform_styles(self):
+    def transform_styles(self) -> None:
         global last_used_transform_rules
         if not self.ensure_book(_('You must first open a book in order to transform styles.')):
             return
@@ -822,7 +822,7 @@ class Boss(QObject):
             return
         self.show_current_diff()
 
-    def get_external_resources(self):
+    def get_external_resources(self) -> None:
         if not self.ensure_book(_('You must first open a book in order to transform styles.')):
             return
         from calibre.gui2.tweak_book.download import DownloadResources
@@ -842,17 +842,17 @@ class Boss(QObject):
         else:
             self.rewind_savepoint()
 
-    def manage_fonts(self):
+    def manage_fonts(self) -> None:
         if not self.ensure_book(_('No book is currently open. You must first open a book to manage fonts.')):
             return
         self.commit_all_editors_to_container()
         self.gui.manage_fonts.display()
 
-    def manage_fonts_embed(self):
+    def manage_fonts_embed(self) -> None:
         self.polish('embed', _('Embed all fonts'), parent=self.gui.manage_fonts)
         self.gui.manage_fonts.refresh()
 
-    def manage_fonts_subset(self):
+    def manage_fonts_subset(self) -> None:
         self.polish('subset', _('Subset all fonts'), parent=self.gui.manage_fonts)
 
     # Renaming {{{
@@ -896,7 +896,7 @@ class Boss(QObject):
             name_map,
         )
 
-    def rename_requested(self, oldname, newname):
+    def rename_requested(self, oldname, newname) -> None:
         self.commit_all_editors_to_container()
         if guess_type(oldname) != guess_type(newname):
             args = os.path.splitext(oldname) + os.path.splitext(newname)
@@ -933,7 +933,7 @@ class Boss(QObject):
             name_map,
         )
 
-    def bulk_rename_requested(self, name_map):
+    def bulk_rename_requested(self, name_map) -> None:
         self.add_savepoint(_('Before: Bulk rename'))
         self.gui.blocking_job(
             'bulk_rename_files',
@@ -971,26 +971,26 @@ class Boss(QObject):
     # }}}
 
     # Global history {{{
-    def do_global_undo(self, *a):
+    def do_global_undo(self, *a) -> None:
         container = self.global_undo.undo()
         if container is not None:
             set_current_container(container)
             self.apply_container_update_to_gui()
 
-    def do_global_redo(self):
+    def do_global_redo(self) -> None:
         container = self.global_undo.redo()
         if container is not None:
             set_current_container(container)
             self.apply_container_update_to_gui()
 
-    def update_global_history_actions(self):
+    def update_global_history_actions(self) -> None:
         gu = self.global_undo
         for x, text in (('undo', _('&Revert to')), ('redo', _('&Revert to'))):
             ac = getattr(self.gui, f'action_global_{x}')
             ac.setEnabled(getattr(gu, 'can_' + x))
             ac.setText(text + ' "%s"' % (getattr(gu, x + '_msg') or '...'))
 
-    def add_savepoint(self, msg):
+    def add_savepoint(self, msg) -> None:
         "Create a restore checkpoint with the name specified as ``msg``"
         self.commit_all_editors_to_container()
         nc = clone_container(current_container(), self.mkdtemp())
@@ -998,7 +998,7 @@ class Boss(QObject):
         set_current_container(nc)
         self.update_global_history_actions()
 
-    def rewind_savepoint(self):
+    def rewind_savepoint(self) -> None:
         "Undo the previous creation of a restore checkpoint, useful if you create a checkpoint, then abort the operation with no changes"
         container = self.global_undo.rewind_savepoint()
         if container is not None:
@@ -1009,7 +1009,7 @@ class Boss(QObject):
         global _diff_dialogs
         from calibre.gui2.tweak_book.diff.main import Diff
 
-        def line_activated(name, lnum, right):
+        def line_activated(name, lnum, right) -> None:
             if right:
                 self.edit_file_requested(name, None, guess_type(name))
                 if name in editors:
@@ -1031,7 +1031,7 @@ class Boss(QObject):
             d.line_activated.connect(line_activated)
         return d
 
-    def show_current_diff(self, allow_revert=True, to_container=None):
+    def show_current_diff(self, allow_revert=True, to_container=None) -> None:
         """
         Show the changes to the book from its last checkpointed state
 
@@ -1053,7 +1053,7 @@ class Boss(QObject):
             ),
         )
 
-    def ask_to_show_current_diff(self, name, title, msg, allow_revert=True, to_container=None):
+    def ask_to_show_current_diff(self, name, title, msg, allow_revert=True, to_container=None) -> None:
         if tprefs.get('skip_ask_to_show_current_diff_for_' + name):
             return
         d = QDialog(self.gui)
@@ -1077,7 +1077,7 @@ class Boss(QObject):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.show_current_diff(allow_revert=allow_revert, to_container=to_container)
 
-    def compare_book(self):
+    def compare_book(self) -> None:
         if not self.ensure_book():
             return
         self.commit_all_editors_to_container()
@@ -1096,18 +1096,18 @@ class Boss(QObject):
                 d = self.create_diff_dialog(revert_msg=None)
                 d.container_diff(other, c, names=(_('Other book'), _('Current book')))
 
-    def revert_requested(self, container):
+    def revert_requested(self, container) -> None:
         self.commit_all_editors_to_container()
         nc = self.global_undo.revert_to(container)
         set_current_container(nc)
         self.apply_container_update_to_gui()
 
-    def compare_requested(self, container):
+    def compare_requested(self, container) -> None:
         self.show_current_diff(to_container=container)
 
     # }}}
 
-    def set_modified(self):
+    def set_modified(self) -> None:
         "Mark the book as having been modified"
         self.gui.action_save.setEnabled(True)
 
@@ -1120,13 +1120,13 @@ class Boss(QObject):
         completion_worker().queue_completion(request_id, completion_type, completion_data, query)
         return request_id[0]
 
-    def handle_completion_result(self, result):
+    def handle_completion_result(self, result) -> None:
         name = result.request_id[1]
         editor = editors.get(name)
         if editor is not None:
             editor.handle_completion_result(result)
 
-    def fix_html(self, current):
+    def fix_html(self, current) -> None:
         if current:
             ed = self.gui.central.current_editor
             if hasattr(ed, 'fix_html'):
@@ -1139,7 +1139,7 @@ class Boss(QObject):
                 self.set_modified()
             self.ask_to_show_current_diff('html-fix', _('Fixing done'), _('All HTML files fixed'))
 
-    def pretty_print(self, current):
+    def pretty_print(self, current) -> None:
         if current:
             ed = self.gui.central.current_editor
             ed.pretty_print(editor_name(ed))
@@ -1152,7 +1152,7 @@ class Boss(QObject):
                 QApplication.alert(self.gui)
             self.ask_to_show_current_diff('beautify', _('Beautified'), _('All files beautified'))
 
-    def mark_selected_text(self):
+    def mark_selected_text(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.mark_selected_text()
@@ -1226,7 +1226,7 @@ class Boss(QObject):
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
 
-    def edit_accessibility(self):
+    def edit_accessibility(self) -> None:
         if not self.ensure_book(_('You must open a book before trying to make it accessible.')):
             return
         self.commit_all_editors_to_container()
@@ -1269,7 +1269,7 @@ class Boss(QObject):
                 self.rewind_savepoint()
                 return info_dialog(self.gui, _('No matches'), _('No matching style rules were found'), show=True)
 
-    def show_find(self):
+    def show_find(self) -> None:
         self.gui.central.show_find()
         ed = self.gui.central.current_editor
         if ed is not None and hasattr(ed, 'selected_text'):
@@ -1277,7 +1277,7 @@ class Boss(QObject):
             if text and text.strip():
                 self.gui.central.pre_fill_search(text)
 
-    def show_text_search(self):
+    def show_text_search(self) -> None:
         self.gui.text_search_dock.show()
         self.gui.text_search.find_widget.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -1288,7 +1288,7 @@ class Boss(QObject):
             return self.gui.saved_searches.trigger_action(action, overrides=overrides)
         self.search(action, overrides)
 
-    def run_saved_searches(self, searches, action):
+    def run_saved_searches(self, searches, action) -> None:
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         searchable_names = self.gui.file_list.searchable_names
@@ -1317,7 +1317,7 @@ class Boss(QObject):
         else:
             self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def search(self, action, overrides=None):
+    def search(self, action, overrides=None) -> None:
         # Run a search/replace
         sp = self.gui.central.search_panel
         # Ensure the search panel is visible
@@ -1354,7 +1354,7 @@ class Boss(QObject):
         else:
             self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def find_text(self, state):
+    def find_text(self, state) -> None:
         from calibre.gui2.tweak_book.text_search import run_text_search
 
         searchable_names = self.gui.file_list.searchable_names
@@ -1368,7 +1368,7 @@ class Boss(QObject):
             if getattr(ed, 'has_line_numbers', False):
                 ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def find_initial_text(self, text):
+    def find_initial_text(self, text) -> None:
         from calibre.gui2.tweak_book.search import get_search_regex
         from calibre.gui2.tweak_book.text_search import file_matches_pattern
 
@@ -1386,29 +1386,29 @@ class Boss(QObject):
                 if editors[name].find_text(pat, complete=True):
                     return
 
-    def find_word(self, word, locations):
+    def find_word(self, word, locations) -> None:
         # Go to a word from the spell check dialog
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
 
-    def next_spell_error(self):
+    def next_spell_error(self) -> None:
         # Go to the next spelling error
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         find_next_error(ed, name, self.gui, self.show_editor, self.edit_file, self.close_editor)
 
-    def word_change_requested(self, w, new_word):
+    def word_change_requested(self, w, new_word) -> None:
         if self.commit_all_editors_to_container():
             self.gui.spell_check.change_word_after_update(w, new_word)
         else:
             self.gui.spell_check.do_change_word(w, new_word)
 
-    def word_replaced(self, changed_names):
+    def word_replaced(self, changed_names) -> None:
         self.set_modified()
         self.update_editors_from_container(names=set(changed_names))
 
-    def word_ignored(self, word, locale):
+    def word_ignored(self, word, locale) -> None:
         if tprefs['inline_spell_check']:
             for ed in editors.values():
                 try:
@@ -1416,7 +1416,7 @@ class Boss(QObject):
                 except AttributeError:
                     pass
 
-    def editor_link_clicked(self, url):
+    def editor_link_clicked(self, url) -> None:
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         if url.startswith('#'):
@@ -1436,7 +1436,7 @@ class Boss(QObject):
             else:
                 error_dialog(self.gui, _('Not found'), _('No file with the name %s was found in the book') % target, show=True)
 
-    def editor_class_clicked(self, class_data):
+    def editor_class_clicked(self, class_data) -> None:
         from calibre.gui2.tweak_book.jump_to_class import NoMatchingRuleFound, NoMatchingTagFound, find_first_matching_rule
 
         ed = self.gui.central.current_editor
@@ -1457,17 +1457,17 @@ class Boss(QObject):
                 show=True,
             )
 
-    def save_search(self):
+    def save_search(self) -> None:
         state = self.gui.central.search_panel.state
         self.show_saved_searches()
         self.gui.saved_searches.add_predefined_search(state)
 
-    def show_saved_searches(self):
+    def show_saved_searches(self) -> None:
         self.gui.saved_searches_dock.show()
 
     saved_searches = show_saved_searches
 
-    def create_checkpoint(self):
+    def create_checkpoint(self) -> None:
         text, ok = QInputDialog.getText(
             self.gui,
             _('Choose name'),
@@ -1476,7 +1476,7 @@ class Boss(QObject):
         if ok:
             self.add_savepoint(text)
 
-    def commit_editor_to_container(self, name, container=None):
+    def commit_editor_to_container(self, name, container=None) -> None:
         container = container or current_container()
         ed = editors[name]
         with container.open(name, 'wb') as f:
@@ -1503,7 +1503,7 @@ class Boss(QObject):
                     changed = True
         return changed
 
-    def save_book(self):
+    def save_book(self) -> None:
         "Save the book. Saving is performed in the background"
         self.gui.update_window_title()
         c = current_container()
@@ -1594,7 +1594,7 @@ class Boss(QObject):
             tdir,
         )
 
-    def save_copy(self):
+    def save_copy(self) -> None:
         self._save_copy()
 
     def copy_saved(self, job, post_action=None):
@@ -1635,7 +1635,7 @@ class Boss(QObject):
                 subprocess.Popen(cmd)
         self.gui.show_status_message(msg, 5)
 
-    def report_save_error(self, tb):
+    def report_save_error(self, tb) -> None:
         if self.doing_terminal_save:
             prints(tb, file=sys.stderr)
             self.abort_terminal_save()
@@ -1652,7 +1652,7 @@ class Boss(QObject):
             show=True,
         )
 
-    def go_to_line_number(self):
+    def go_to_line_number(self) -> None:
         ed = self.gui.central.current_editor
         if ed is None or not ed.has_line_numbers:
             return
@@ -1660,12 +1660,12 @@ class Boss(QObject):
         if ok:
             ed.current_line = num
 
-    def split_start_requested(self):
+    def split_start_requested(self) -> None:
         self.commit_all_editors_to_container()
         self.gui.preview.do_start_split()
 
     @in_thread_job
-    def split_requested(self, name, loc, totals):
+    def split_requested(self, name, loc, totals) -> None:
         self.add_savepoint(_('Before: Split %s') % self.gui.elided_text(name))
         try:
             bottom_name = split(current_container(), name, loc, totals=totals)
@@ -1675,7 +1675,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         self.edit_file(bottom_name, 'html')
 
-    def multisplit(self):
+    def multisplit(self) -> None:
         ed = self.gui.central.current_editor
         if ed.syntax != 'html':
             return
@@ -1725,7 +1725,7 @@ class Boss(QObject):
             editor = self.edit_file(name, syntax)
         return editor
 
-    def link_clicked(self, name, anchor, show_anchor_not_found=False):
+    def link_clicked(self, name, anchor, show_anchor_not_found=False) -> None:
         if not name:
             return
         editor = self.open_editor_for_name(name)
@@ -1736,7 +1736,7 @@ class Boss(QObject):
                 error_dialog(self.gui, _('Not found'), _('The anchor %s was not found in this file') % anchor, show=True)
 
     @in_thread_job
-    def check_item_activated(self, item):
+    def check_item_activated(self, item) -> None:
         is_mult = item.has_multiple_locations and getattr(item, 'current_location_index', None) is not None
         name = item.all_locations[item.current_location_index][0] if is_mult else item.name
         editor = None
@@ -1762,7 +1762,7 @@ class Boss(QObject):
             editor.set_focus()
 
     @in_thread_job
-    def check_requested(self, *args):
+    def check_requested(self, *args) -> None:
         if current_container() is None:
             return
         self.commit_all_editors_to_container()
@@ -1771,7 +1771,7 @@ class Boss(QObject):
         c.parent().raise_and_focus()
         c.run_checks(current_container())
 
-    def spell_check_requested(self):
+    def spell_check_requested(self) -> None:
         if current_container() is None:
             return
         self.commit_all_editors_to_container()
@@ -1779,7 +1779,7 @@ class Boss(QObject):
         self.gui.spell_check.show()
 
     @in_thread_job
-    def fix_requested(self, errors):
+    def fix_requested(self, errors) -> None:
         self.add_savepoint(_('Before: Auto-fix errors'))
         c = self.gui.check_book
         c.parent().show()
@@ -1792,7 +1792,7 @@ class Boss(QObject):
             self.rewind_savepoint()
 
     @in_thread_job
-    def merge_requested(self, category, names, master):
+    def merge_requested(self, category, names, master) -> None:
         self.add_savepoint(_('Before: Merge files into %s') % self.gui.elided_text(master))
         try:
             merge(current_container(), category, names, master)
@@ -1806,7 +1806,7 @@ class Boss(QObject):
         self.gui.message_popup(_('{} files merged').format(len(names)))
 
     @in_thread_job
-    def link_stylesheets_requested(self, names, sheets, remove):
+    def link_stylesheets_requested(self, names, sheets, remove) -> None:
         self.add_savepoint(_('Before: Link stylesheets'))
         changed_names = link_stylesheets(current_container(), names, sheets, remove)
         if changed_names:
@@ -1827,7 +1827,7 @@ class Boss(QObject):
                         raise
             self.export_file(name, dest)
 
-    def open_file_with(self, file_name, fmt, entry):
+    def open_file_with(self, file_name, fmt, entry) -> None:
         if file_name in editors and not editors[file_name].is_synced_to_container:
             self.commit_editor_to_container(file_name)
         with current_container().open(file_name) as src:
@@ -1854,7 +1854,7 @@ class Boss(QObject):
             pass
 
     @in_thread_job
-    def copy_files_to_clipboard(self, names):
+    def copy_files_to_clipboard(self, names) -> None:
         names = tuple(names)
         for name in names:
             if name in editors and not editors[name].is_synced_to_container:
@@ -1876,7 +1876,7 @@ class Boss(QObject):
         _clipboard.setMimeData(md)
 
     @in_thread_job
-    def paste_files_from_clipboard(self):
+    def paste_files_from_clipboard(self) -> None:
         _clipboard = qapplication_or_fail().clipboard()
         assert _clipboard is not None
         md = _clipboard.mimeData()
@@ -1892,44 +1892,44 @@ class Boss(QObject):
                     container.add_file(name, f.read(), media_type=mt, modify_name_if_needed=True)
             self.apply_container_update_to_gui()
 
-    def export_file(self, name, path):
+    def export_file(self, name, path) -> None:
         if name in editors and not editors[name].is_synced_to_container:
             self.commit_editor_to_container(name)
         with current_container().open(name, 'rb') as src, open(path, 'wb') as dest:
             shutil.copyfileobj(src, dest)
 
     @in_thread_job
-    def replace_requested(self, name, path, basename, force_mt):
+    def replace_requested(self, name, path, basename, force_mt) -> None:
         self.add_savepoint(_('Before: Replace %s') % name)
         replace_file(current_container(), name, path, basename, force_mt)
         self.apply_container_update_to_gui()
 
-    def browse_images(self):
+    def browse_images(self) -> None:
         self.gui.image_browser.refresh()
         self.gui.image_browser.show()
         self.gui.image_browser.raise_and_focus()
 
-    def show_reports(self):
+    def show_reports(self) -> None:
         if not self.ensure_book(_('You must first open a book in order to see the report.')):
             return
         self.gui.reports.refresh()
         self.gui.reports.show()
         self.gui.reports.raise_and_focus()
 
-    def reports_edit_requested(self, name):
+    def reports_edit_requested(self, name) -> None:
         mt = current_container().mime_map.get(name, guess_type(name))
         self.edit_file_requested(name, None, mt)
 
-    def image_activated(self, name):
+    def image_activated(self, name) -> None:
         mt = current_container().mime_map.get(name, guess_type(name))
         self.edit_file_requested(name, None, mt)
 
-    def check_external_links(self):
+    def check_external_links(self) -> None:
         if self.ensure_book(_('You must first open a book in order to check links.')):
             self.commit_all_editors_to_container()
             self.gui.check_external_links.show()
 
-    def embed_tts(self):
+    def embed_tts(self) -> None:
         if not self.ensure_book(_('You must first open a book in order to add Text-to-speech narration.')):
             return
         self.commit_all_editors_to_container()
@@ -1980,7 +1980,7 @@ class Boss(QObject):
                     self.rewind_savepoint()
             show_report(changed, self.current_metadata.title, report, self.gui, self.show_current_diff)
 
-    def sync_editor_to_preview(self, name, sourceline_address):
+    def sync_editor_to_preview(self, name, sourceline_address) -> None:
         editor = self.edit_file(name, 'html')
         self.ignore_preview_to_editor_sync = True
         try:
@@ -1988,7 +1988,7 @@ class Boss(QObject):
         finally:
             self.ignore_preview_to_editor_sync = False
 
-    def do_sync_preview_to_editor(self, wait_for_highlight_to_finish=False):
+    def do_sync_preview_to_editor(self, wait_for_highlight_to_finish=False) -> None:
         if self.ignore_preview_to_editor_sync:
             return
         ed = self.gui.central.current_editor
@@ -2005,11 +2005,11 @@ class Boss(QObject):
                 if hl is not None and hl.is_working:
                     QTimer.singleShot(75, self.sync_preview_to_editor_on_highlight_finish)
 
-    def sync_preview_to_editor(self):
+    def sync_preview_to_editor(self) -> None:
         "Sync the position of the preview panel to the current cursor position in the current editor"
         self.do_sync_preview_to_editor()
 
-    def sync_preview_to_editor_on_highlight_finish(self):
+    def sync_preview_to_editor_on_highlight_finish(self) -> None:
         self.do_sync_preview_to_editor(wait_for_highlight_to_finish=True)
 
     def show_partial_cfi_in_editor(self, name, cfi):
@@ -2044,12 +2044,12 @@ class Boss(QObject):
                 return editor.goto_sourceline(lnum, tags_before, attribute='id' if node.get('id') else None)
         return False
 
-    def goto_style_declaration(self, data):
+    def goto_style_declaration(self, data) -> None:
         name = data['name']
         editor = self.edit_file(name, syntax=data['syntax'])
         self.gui.live_css.navigate_to_declaration(data, editor)
 
-    def init_editor(self, name, editor, data=None, use_template=False):
+    def init_editor(self, name, editor, data=None, use_template=False) -> None:
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
@@ -2106,7 +2106,7 @@ class Boss(QObject):
         self.show_editor(name)
         return editor
 
-    def show_editor(self, name):
+    def show_editor(self, name) -> None:
         "Show the editor that is editing the file specified by ``name``"
         self.gui.central.show_editor(editors[name])
         editors[name].set_focus()
@@ -2121,10 +2121,10 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Unsupported file format'), _('Editing files of type %s is not supported') % mime, show=True)
         return self.edit_file(name, syntax)
 
-    def edit_next_file(self, backwards=False):
+    def edit_next_file(self, backwards=False) -> None:
         self.gui.file_list.edit_next_file(self.currently_editing, backwards)
 
-    def quick_open(self):
+    def quick_open(self) -> None:
         if not self.ensure_book(_('No book is currently open. You must first open a book to edit.')):
             return
         c = current_container()
@@ -2134,59 +2134,59 @@ class Boss(QObject):
             self.edit_file_requested(d.selected_result, None, c.mime_map[d.selected_result])
 
     # Editor basic controls {{{
-    def do_editor_undo(self):
+    def do_editor_undo(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.undo()
 
-    def do_editor_redo(self):
+    def do_editor_redo(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.redo()
 
-    def do_editor_copy(self):
+    def do_editor_copy(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.copy()
 
-    def do_editor_cut(self):
+    def do_editor_cut(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.cut()
 
-    def do_editor_paste(self):
+    def do_editor_paste(self) -> None:
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.paste()
 
-    def toggle_line_wrapping_in_all_editors(self):
+    def toggle_line_wrapping_in_all_editors(self) -> None:
         tprefs['editor_line_wrap'] ^= True
         yes = tprefs['editor_line_wrap']
         for ed in editors.values():
             if getattr(ed, 'editor', None) and hasattr(ed.editor, 'apply_line_wrap_mode'):
                 ed.editor.apply_line_wrap_mode(yes)
 
-    def editor_data_changed(self, editor):
+    def editor_data_changed(self, editor) -> None:
         self.gui.preview.start_refresh_timer()
         for name, ed in editors.items():
             if ed is editor:
                 self.gui.toc_view.start_refresh_timer(name)
                 break
 
-    def editor_undo_redo_state_changed(self, *args):
+    def editor_undo_redo_state_changed(self, *args) -> None:
         self.apply_current_editor_state()
 
-    def editor_copy_available_state_changed(self, *args):
+    def editor_copy_available_state_changed(self, *args) -> None:
         self.apply_current_editor_state()
 
-    def editor_modification_state_changed(self, is_modified):
+    def editor_modification_state_changed(self, is_modified) -> None:
         self.apply_current_editor_state()
         if is_modified:
             self.set_modified()
 
     # }}}
 
-    def apply_current_editor_state(self):
+    def apply_current_editor_state(self) -> None:
         ed = self.gui.central.current_editor
         self.gui.cursor_position_widget.update_position()
         if ed is not None:
@@ -2217,14 +2217,14 @@ class Boss(QObject):
             self.gui.file_list.clear_currently_edited_name()
             self.gui.toc_view.clear_currently_edited_name()
 
-    def update_cursor_position(self):
+    def update_cursor_position(self) -> None:
         ed = self.gui.central.current_editor
         if getattr(ed, 'has_line_numbers', False):
             self.gui.cursor_position_widget.update_position(*ed.cursor_position)
         else:
             self.gui.cursor_position_widget.update_position()
 
-    def editor_close_requested(self, editor):
+    def editor_close_requested(self, editor) -> None:
         name = editor_name(editor)
         if not name:
             return
@@ -2232,7 +2232,7 @@ class Boss(QObject):
             self.commit_editor_to_container(name)
         self.close_editor(name)
 
-    def close_editor(self, name):
+    def close_editor(self, name) -> None:
         "Close the editor that is editing the file specified by ``name``"
         editor = editors.pop(name)
         self.gui.central.close_editor(editor)
@@ -2241,20 +2241,20 @@ class Boss(QObject):
             self.gui.preview.clear()
             self.gui.live_css.clear()
 
-    def insert_character(self):
+    def insert_character(self) -> None:
         self.gui.insert_char.show()
 
-    def manage_snippets(self):
+    def manage_snippets(self) -> None:
         from calibre.gui2.tweak_book.editor.snippets import UserSnippets
 
         UserSnippets(self.gui).exec()
 
-    def merge_files(self):
+    def merge_files(self) -> None:
         self.gui.file_list.merge_files()
 
     # Shutdown {{{
 
-    def quit(self):
+    def quit(self) -> bool:
         if self.doing_terminal_save:
             return False
         if self.save_manager.has_tasks:
@@ -2275,7 +2275,7 @@ class Boss(QObject):
         qapplication_or_fail().exit()
         return True
 
-    def confirm_quit(self):
+    def confirm_quit(self) -> bool:
         if self.gui.action_save.isEnabled():
             d = QDialog(self.gui)
             l = QGridLayout(d)
@@ -2294,7 +2294,7 @@ class Boss(QObject):
             l.addWidget(bb, 1, 0, 1, 2)
             do_save: list[bool | None] = [None]
 
-            def endit(x):
+            def endit(x) -> None:
                 do_save[0] = x
                 d.accept()
 
@@ -2315,22 +2315,22 @@ class Boss(QObject):
 
         return True
 
-    def start_terminal_save_indicator(self):
+    def start_terminal_save_indicator(self) -> None:
         self.save_state()
         self.gui.blocking_job.set_msg(_('Saving, please wait...'))
         self.gui.blocking_job.start()
         self.doing_terminal_save = True
 
-    def abort_terminal_save(self):
+    def abort_terminal_save(self) -> None:
         self.doing_terminal_save = False
         self.gui.blocking_job.stop()
 
-    def check_terminal_save(self):
+    def check_terminal_save(self) -> None:
         if self.doing_terminal_save and not self.save_manager.has_tasks:  # terminal save could have been aborted
             self.shutdown()
             qapplication_or_fail().exit()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.save_state()
         completion_worker().shutdown()
         self.save_manager.check_for_completion.disconnect()
@@ -2342,13 +2342,13 @@ class Boss(QObject):
         parse_worker.shutdown()
         self.save_manager.wait(0.1)
 
-    def save_state(self):
+    def save_state(self) -> None:
         with self.editor_cache:
             self.save_book_edit_state()
         with tprefs:
             self.gui.save_state()
 
-    def save_book_edit_state(self):
+    def save_book_edit_state(self) -> None:
         c = current_container()
         if c and c.path_to_ebook:
             tprefs = self.editor_cache
@@ -2371,7 +2371,7 @@ class Boss(QObject):
             tprefs['edit_book_state'] = mem
             tprefs['edit_book_state_order'] = order
 
-    def restore_book_edit_state(self):
+    def restore_book_edit_state(self) -> None:
         c = current_container()
         if c and c.path_to_ebook:
             tprefs = self.editor_cache

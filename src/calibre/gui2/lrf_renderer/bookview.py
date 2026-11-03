@@ -6,7 +6,7 @@ from qt.core import QGraphicsView, QSize
 class BookView(QGraphicsView):
     MINIMUM_SIZE = QSize(400, 500)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QGraphicsView.__init__(self, parent)
         self.preferred_size = self.MINIMUM_SIZE
 
@@ -16,5 +16,5 @@ class BookView(QGraphicsView):
     def sizeHint(self):
         return self.preferred_size
 
-    def resize_for(self, width, height):
+    def resize_for(self, width, height) -> None:
         self.preferred_size = QSize(width, height)

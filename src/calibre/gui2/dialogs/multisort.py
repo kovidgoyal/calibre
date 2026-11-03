@@ -15,7 +15,7 @@ descending_symbol = '⏶'
 
 
 class ChooseMultiSort(Dialog):
-    def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF):
+    def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF) -> None:
         self.db = db.new_api
         self.hidden_fields: set[str] = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
         if not is_device_connected:
@@ -30,7 +30,7 @@ class ChooseMultiSort(Dialog):
     def sizeHint(self):
         return QSize(600, 400)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.vl = vl = QVBoxLayout(self)
         self.la = la = QLabel(
             _(
@@ -87,15 +87,15 @@ class ChooseMultiSort(Dialog):
         b.setMenu(self.load_menu)
         self.load_menu.aboutToShow.connect(self.populate_load_menu)
 
-    def clear(self):
+    def clear(self) -> None:
         for item in self.iteritems():
             item.setCheckState(Qt.CheckState.Unchecked)
         self.column_list.sortItems()
 
-    def item_double_clicked(self, item):
+    def item_double_clicked(self, item) -> None:
         item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
 
-    def current_changed(self):
+    def current_changed(self) -> None:
         self.update_order_label()
 
     @property
@@ -107,7 +107,7 @@ class ChooseMultiSort(Dialog):
                 ans.append((k, self.sort_order_map[k]))
         return ans
 
-    def update_order_label(self):
+    def update_order_label(self) -> None:
         t = ''
         for i, (k, ascending) in enumerate(self.current_sort_spec):
             name = self.key_map[k]
@@ -121,7 +121,7 @@ class ChooseMultiSort(Dialog):
             t = _('Effective sort') + ': ' + t
         self.order_label.setText(t)
 
-    def link_activated(self, url):
+    def link_activated(self, url) -> None:
         key = bytes.fromhex(url).decode('utf-8')
         self.sort_order_map[key] ^= True
         self.update_order_label()
@@ -139,7 +139,7 @@ class ChooseMultiSort(Dialog):
         return self.db.pref('saved_multisort_specs', {}).copy()
 
     @saved_specs.setter
-    def saved_specs(self, val):
+    def saved_specs(self, val) -> None:
         self.db.set_pref('saved_multisort_specs', val.copy())
 
     def save(self):
@@ -160,7 +160,7 @@ class ChooseMultiSort(Dialog):
             else:
                 error_dialog(self, _('No name provided'), _('You must provide a name for the settings'), show=True)
 
-    def populate_load_menu(self):
+    def populate_load_menu(self) -> None:
         m = self.load_menu
         m.clear()
         specs = self.saved_specs
@@ -179,14 +179,14 @@ class ChooseMultiSort(Dialog):
             assert ac is not None
             ac.setObjectName(name)
 
-    def load_spec(self):
+    def load_spec(self) -> None:
         sender = self.sender()
         assert sender is not None
         name = sender.objectName()
         spec = self.saved_specs[name]
         self.apply_spec(spec)
 
-    def remove_spec(self):
+    def remove_spec(self) -> None:
         sender = self.sender()
         assert sender is not None
         name = sender.objectName()
@@ -198,7 +198,7 @@ class ChooseMultiSort(Dialog):
         cl = self.column_list
         return (cl.item(i) for i in range(cl.count()))
 
-    def apply_spec(self, spec):
+    def apply_spec(self, spec) -> None:
         self.clear()
         cl = self.column_list
         imap = {item.data(Qt.ItemDataRole.UserRole): item for item in self.iteritems()}

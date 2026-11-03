@@ -76,7 +76,7 @@ class CreateCustomColumn(QDialog):
     )
     column_types_map = {k['datatype']: idx for idx, k in column_types.items()}
 
-    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
+    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False) -> None:
         QDialog.__init__(self, gui)
         self.orig_column_number = -1
         self.gui = gui
@@ -205,7 +205,7 @@ class CreateCustomColumn(QDialog):
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
         self.exec()
 
-    def shortcut_activated(self, url):  # {{{
+    def shortcut_activated(self, url) -> None:  # {{{
         which = str(url).split(':')[-1]
         self.column_type_box.setCurrentIndex(
             {
@@ -253,7 +253,7 @@ class CreateCustomColumn(QDialog):
 
     # }}}
 
-    def setup_ui(self):  # {{{
+    def setup_ui(self) -> None:  # {{{
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowIcon(QIcon.ic('column.png'))
         self.vl = l = QVBoxLayout(self)
@@ -610,7 +610,7 @@ class CreateCustomColumn(QDialog):
 
     # }}}
 
-    def composite_template_button_clicked(self):
+    def composite_template_button_clicked(self) -> None:
         db = self.gui.current_db.new_api
         lv = self.gui.library_view
         rows = lv.selectionModel().selectedRows()
@@ -623,7 +623,7 @@ class CreateCustomColumn(QDialog):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.composite_box.setText(d.rule[1])
 
-    def cws_template_button_clicked(self):
+    def cws_template_button_clicked(self) -> None:
         db = self.gui.current_db.new_api
         lv = self.gui.library_view
         rows = lv.selectionModel().selectedRows()
@@ -654,11 +654,11 @@ class CreateCustomColumn(QDialog):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.web_search_template.setText(d.rule[1])
 
-    def bool_radio_button_clicked(self, button, clicked):
+    def bool_radio_button_clicked(self, button, clicked) -> None:
         if clicked:
             self.bool_button_group.setFocusProxy(button)
 
-    def composite_show_in_comments_clicked(self, state):
+    def composite_show_in_comments_clicked(self, state) -> None:
         if state == Qt.CheckState.Checked.value:  # state is passed as an int
             self.composite_sort_by.setEnabled(False)
             self.composite_sort_by_label.setEnabled(False)
@@ -676,7 +676,7 @@ class CreateCustomColumn(QDialog):
             self.composite_heading_position_label.setEnabled(False)
             self.composite_heading_position.setCurrentIndex(0)
 
-    def datatype_changed(self, *args):
+    def datatype_changed(self, *args) -> None:
         try:
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         except Exception:
@@ -994,7 +994,7 @@ class CreateCustomColumn(QDialog):
             self.caller.cc_column_key = key
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         QDialog.reject(self)
 
 
@@ -1122,7 +1122,7 @@ class CreateNewCustomColumn:
         MUST_RESTART = 9
         COLUMN_EDITED = 11
 
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         self.gui = gui
         self.restart_required = gui.must_restart_before_config
         self.db = db = self.gui.library_view.model().db

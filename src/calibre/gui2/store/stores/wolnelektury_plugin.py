@@ -24,7 +24,7 @@ import json
 
 
 class WolneLekturyStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
 
         url = 'https://wolnelektury.pl'
         detail_url = None

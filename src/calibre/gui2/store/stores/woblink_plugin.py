@@ -86,7 +86,7 @@ def search(query, max_results=10, timeout=60):
 
 
 class WoblinkStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'https://woblink.com/publication'
 

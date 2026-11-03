@@ -29,7 +29,7 @@ DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
 DRM_FREE_TEXT = 'Unlimited'
 
 
-def get_user_agent():
+def get_user_agent() -> str:
     return 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 
 
@@ -100,14 +100,14 @@ def search_amazon(
 
 
 class AmazonKindleStore(StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         store_link = (DETAILS_URL + detail_item) if detail_item else STORE_LINK
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
         yield from search_amazon(query, max_results=max_results, timeout=timeout)
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         url = DETAILS_URL
 
         br = browser(user_agent=get_user_agent())

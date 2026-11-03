@@ -18,7 +18,7 @@ class BooksModel(QAbstractItemModel):
 
     HEADERS = [_('Title'), _('Author(s)'), _('Format')]
 
-    def __init__(self, all_books):
+    def __init__(self, all_books) -> None:
         QAbstractItemModel.__init__(self)
         self.books = all_books
         self.all_books = all_books
@@ -34,7 +34,7 @@ class BooksModel(QAbstractItemModel):
         else:
             return None
 
-    def search(self, filter):
+    def search(self, filter) -> None:
         self.filter = filter.strip()
         if not self.filter:
             self.books = self.all_books
@@ -98,7 +98,7 @@ class BooksModel(QAbstractItemModel):
             text = result.formats
         return text
 
-    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True) -> None:
         self.sort_col = column
         self.sort_order = order
         if not self.books:
@@ -119,7 +119,7 @@ class SearchFilter(SearchQueryParser):
         'title',
     ]
 
-    def __init__(self, all_books=None):
+    def __init__(self, all_books=None) -> None:
         if all_books is None:
             all_books = []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)

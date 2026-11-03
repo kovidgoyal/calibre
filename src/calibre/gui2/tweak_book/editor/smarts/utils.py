@@ -52,7 +52,7 @@ def test_modifiers(ev, *args):
     return all(mods & mod_mask for mod_mask in args)
 
 
-def smart_home(editor, ev):
+def smart_home(editor, ev) -> bool:
     if no_modifiers(ev, Qt.KeyboardModifier.ControlModifier) and not is_cursor_on_wrapped_line(editor):
         cursor, text = get_text_before_cursor(editor)
         cursor = editor.textCursor()
@@ -70,7 +70,7 @@ def expand_tabs(text, tw):
     return text.replace('\t', ' ' * tw)
 
 
-def smart_tab_if_whitespace_only_before_cursor(editor, backwards):
+def smart_tab_if_whitespace_only_before_cursor(editor, backwards) -> bool:
     cursor, text = get_text_before_cursor(editor)
     if not text.lstrip():
         # cursor is preceded by only whitespace
@@ -139,7 +139,7 @@ def smart_tab(editor, ev):
     return smart_tab_if_whitespace_only_before_cursor(editor, backwards)
 
 
-def smart_backspace(editor, ev):
+def smart_backspace(editor, ev) -> bool:
     if editor.textCursor().hasSelection():
         return False
     cursor, text = get_text_before_cursor(editor)

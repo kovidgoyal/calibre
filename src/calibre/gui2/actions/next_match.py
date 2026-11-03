@@ -18,7 +18,7 @@ class NextMatchAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         """
         Setup this plugin. Only called once during initialization. self.gui is
         available. The action specified by :attr:`action_spec` is available as
@@ -38,17 +38,17 @@ class NextMatchAction(InterfaceAction):
         self.gui.addAction(self.p_action)
         self.p_action.triggered.connect(self.move_backward)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         self.can_move = loc == 'library'
 
-    def move_forward(self):
+    def move_forward(self) -> None:
         if self.can_move is None:
             self.can_move = self.gui.current_view() is self.gui.library_view
 
         if self.can_move:
             self.gui.current_view().move_highlighted_row(forward=True)
 
-    def move_backward(self):
+    def move_backward(self) -> None:
         if self.can_move is None:
             self.can_move = self.gui.current_view() is self.gui.library_view
 

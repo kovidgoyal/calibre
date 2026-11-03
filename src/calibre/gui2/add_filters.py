@@ -38,7 +38,7 @@ class RuleEdit(RuleEditBase):
     SUBJECT = _('the file, if the filename')
     VALUE_ERROR = _('You must provide a value for the filename to match')
 
-    def update_state(self):
+    def update_state(self) -> None:
         tt = _('A comma separated list of tags')
         q = self.match_type.currentData()
         if 'with' in q:
@@ -59,8 +59,8 @@ class RuleEdit(RuleEditBase):
         }
 
     @rule.setter
-    def rule(self, rule):
-        def sc(name):
+    def rule(self, rule) -> None:
+        def sc(name) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -119,7 +119,7 @@ class Tester(TesterBase):
     PLACEHOLDER = _('Enter filename and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
-    def do_test(self):
+    def do_test(self) -> None:
         filename = self.value.strip()
         allowed = filter_filename(map(compile_rule, self.rules), filename)
         if allowed is None:

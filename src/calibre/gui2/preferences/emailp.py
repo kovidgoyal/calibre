@@ -18,7 +18,7 @@ from polyglot.builtins import as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
-    def __init__(self, accounts, subjects, aliases=None, tags=None):
+    def __init__(self, accounts, subjects, aliases=None, tags=None) -> None:
         if tags is None:
             tags = {}
         if aliases is None:
@@ -63,7 +63,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             )
         )
 
-    def do_sort(self):
+    def do_sort(self) -> None:
         col = self.sorted_on[0]
         if col == 0:
 
@@ -97,7 +97,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
 
         self.account_order.sort(key=key, reverse=not self.sorted_on[1])
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
         nsort = (column, order == Qt.SortOrder.AscendingOrder)
         if nsort != self.sorted_on:
             self.sorted_on = nsort
@@ -152,7 +152,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         else:
             return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
 
-    def setData(self, index, value, role=...):
+    def setData(self, index, value, role=...) -> bool:
         if not index.isValid():
             return False
         row, col = index.row(), index.column()
@@ -188,7 +188,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), 3))
         return True
 
-    def make_default(self, index):
+    def make_default(self, index) -> None:
         if index.isValid():
             self.beginResetModel()
             row = index.row()
@@ -212,7 +212,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.endResetModel()
         return self.index(self.account_order.index(y), 0)
 
-    def remove_rows(self, *rows):
+    def remove_rows(self, *rows) -> None:
         for row in sorted(rows, reverse=True):
             try:
                 account = self.account_order[row]
@@ -232,7 +232,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.endResetModel()
         self.do_sort()
 
-    def remove(self, index):
+    def remove(self, index) -> None:
         if index.isValid():
             self.remove(index.row())
 
@@ -243,7 +243,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
     supports_restoring_to_defaults = False
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.proxy = ConfigProxy(smtp_prefs())
         r = self.register
@@ -267,11 +267,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self._email_accounts.account_order:
             return self._email_accounts.account_order[0]
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         # Initializing all done in genesis
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         # No defaults to restore to
 
@@ -290,18 +290,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         return ConfigWidgetBase.commit(self)
 
-    def make_default(self, *args):
+    def make_default(self, *args) -> None:
         self._email_accounts.make_default(self.email_view.currentIndex())
         self.changed_signal.emit()
 
-    def add_email_account(self, *args):
+    def add_email_account(self, *args) -> None:
         index = self._email_accounts.add()
         self.email_view.setCurrentIndex(index)
         self.email_view.resizeColumnsToContents()
         self.email_view.edit(index)
         self.changed_signal.emit()
 
-    def remove_email_account(self, *args):
+    def remove_email_account(self, *args) -> None:
         rows = set()
         sm = self.email_view.selectionModel()
         assert sm is not None
@@ -310,7 +310,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._email_accounts.remove_rows(*rows)
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         from calibre.gui2.email import gui_sendmail
 
         gui_sendmail.calculate_rate_limit()

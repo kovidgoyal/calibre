@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
         r = self.register
@@ -54,7 +54,7 @@ class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
             ),
         )
 
-    def edit_cb_title_template(self):
+    def edit_cb_title_template(self) -> None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         mi = None
         db = self.gui.current_db.new_api
@@ -68,7 +68,7 @@ class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
         if t.exec():
             self.opt_cover_browser_title_template.setText(t.rule[1])
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])

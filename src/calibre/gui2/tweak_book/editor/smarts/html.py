@@ -37,7 +37,7 @@ DEFAULT_LINK_TEMPLATE = '<a href="_TARGET_">_TEXT_</a>'
 
 
 class Tag:
-    def __init__(self, start_block, tag_start, end_block, tag_end, self_closing=False):
+    def __init__(self, start_block, tag_start, end_block, tag_end, self_closing=False) -> None:
         self.start_block, self.end_block = start_block, end_block
         self.start_offset, self.end_offset = tag_start.offset, tag_end.offset
         tag = tag_start.name
@@ -46,7 +46,7 @@ class Tag:
         self.name = tag
         self.self_closing = self_closing
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'<{self.name} start_block={self.start_block.blockNumber()} start_offset={self.start_offset} '
             f'end_block={self.end_block.blockNumber()} end_offset={self.end_offset} self_closing={self.self_closing}>'
@@ -236,7 +236,7 @@ def edit_block(cursor):
         cursor.endEditBlock()
 
 
-def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
+def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False) -> None:
     with edit_block(cursor):
         text = select_tag(cursor, closing_tag)
         if insert:
@@ -252,7 +252,7 @@ def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
         cursor.insertText(text)
 
 
-def split_tag(cursor, opening_tag, closing_tag):
+def split_tag(cursor, opening_tag, closing_tag) -> None:
     pos = cursor.position()
     with edit_block(cursor):
         open_text = select_tag(cursor, opening_tag)
@@ -274,7 +274,7 @@ def split_tag(cursor, opening_tag, closing_tag):
         cursor.insertText(f'{close_text}{prefix}{open_text}')
 
 
-def ensure_not_within_tag_definition(cursor, forward=True):
+def ensure_not_within_tag_definition(cursor, forward=True) -> bool:
     """Ensure the cursor is not inside a tag definition <>. Returns True iff the cursor was moved."""
     block, offset = cursor.block(), cursor.positionInBlock()
     b, boundary = next_tag_boundary(block, offset, forward=False)
@@ -347,7 +347,7 @@ class Smarts(NullSmarts):
     self_closing_pat: re.Pattern[str]
     complete_attr_pat: re.Pattern[str]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if not hasattr(Smarts, 'regexps_compiled'):
             Smarts.regexps_compiled = True
             Smarts.tag_pat = re.compile(r'<[^>]+>')
@@ -361,7 +361,7 @@ class Smarts(NullSmarts):
     def get_extra_selections(self, editor):
         ans = []
 
-        def add_tag(tag):
+        def add_tag(tag) -> None:
             a = QTextEdit.ExtraSelection()
             a.cursor, a.format = editor.textCursor(), editor.match_paren_format
             (
@@ -391,7 +391,7 @@ class Smarts(NullSmarts):
                 add_tag(tag)
         return ans
 
-    def jump_to_enclosing_tag(self, editor, start=True):
+    def jump_to_enclosing_tag(self, editor, start=True) -> bool:
         editor.highlighter.join()
         tag = self.last_matched_tag if start else self.last_matched_closing_tag
         if tag is None:
@@ -401,7 +401,7 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         return True
 
-    def select_tag_contents(self, editor):
+    def select_tag_contents(self, editor) -> bool:
         editor.highlighter.join()
         start = self.last_matched_tag
         end = self.last_matched_closing_tag
@@ -413,14 +413,14 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         return True
 
-    def remove_tag(self, editor):
+    def remove_tag(self, editor) -> None:
         editor.highlighter.join()
         if not self.last_matched_closing_tag and not self.last_matched_tag:
             return
         c = editor.textCursor()
         c.beginEditBlock()
 
-        def erase_tag(tag):
+        def erase_tag(tag) -> None:
             c.setPosition(tag.start_block.position() + tag.start_offset)
             c.setPosition(tag.end_block.position() + tag.end_offset + 1, QTextCursor.MoveMode.KeepAnchor)
             c.removeSelectedText()
@@ -500,7 +500,7 @@ class Smarts(NullSmarts):
             editor.setTextCursor(cursor)
         return editor.selected_text_from_cursor(cursor)
 
-    def insert_hyperlink(self, editor, target, text, template=None):
+    def insert_hyperlink(self, editor, target, text, template=None) -> None:
         template = template or DEFAULT_LINK_TEMPLATE
         template = template.replace('_TARGET_', prepare_string_for_xml(target, True))
         offset = template.find('_TEXT_')
@@ -517,12 +517,12 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         c.endEditBlock()
 
-    def insert_tag(self, editor, name):
+    def insert_tag(self, editor, name) -> None:
         m = re.match(r'[a-zA-Z0-9:-]+', name)
         cname = name if m is None else m.group()
         self.surround_with_custom_tag(editor, f'<{name}>', f'</{cname}>')
 
-    def surround_with_custom_tag(self, editor, opent, close):
+    def surround_with_custom_tag(self, editor, opent, close) -> None:
         editor.highlighter.join()
         text = self.get_smart_selection(editor, update=True)
         c = editor.textCursor()
@@ -533,7 +533,7 @@ class Smarts(NullSmarts):
         c.setPosition(c.position() + sellen, QTextCursor.MoveMode.KeepAnchor)
         editor.setTextCursor(c)
 
-    def verify_for_spellcheck(self, cursor, highlighter):
+    def verify_for_spellcheck(self, cursor, highlighter) -> bool:
         # Return True iff the cursor is in a location where spelling is
         # checked (inside a tag or inside a checked attribute)
         highlighter.join()
@@ -781,7 +781,7 @@ class Smarts(NullSmarts):
 
         return False
 
-    def replace_possible_entity(self, editor):
+    def replace_possible_entity(self, editor) -> None:
         c = editor.textCursor()
         c.insertText(';')
         c.setPosition(c.position() - min(c.positionInBlock(), 10), QTextCursor.MoveMode.KeepAnchor)
@@ -795,11 +795,11 @@ class Smarts(NullSmarts):
                 c.insertText(repl)
                 editor.setTextCursor(c)
 
-    def auto_close_tag(self, editor):
+    def auto_close_tag(self, editor) -> bool:
         if not tprefs['auto_close_tags']:
             return False
 
-        def check_if_in_tag(block, offset=0):
+        def check_if_in_tag(block, offset=0) -> bool:
             if block.isValid():
                 text = block.text()
                 close_pos = text.find('>', offset)
@@ -876,7 +876,7 @@ class Smarts(NullSmarts):
                     break
                 pb = pb.previous()
 
-        def append(text, start):
+        def append(text, start) -> None:
             text = text.replace(PARAGRAPH_SEPARATOR, '\n')
             after = start + len(text)
             if start <= cend and cstart < after:
@@ -956,7 +956,7 @@ if __name__ == '__main__':  # {{{
 </html>
 '''
 
-    def callback(ed):
+    def callback(ed) -> None:
         import regex
 
         ed.find_text(regex.compile(r'A bold word'))

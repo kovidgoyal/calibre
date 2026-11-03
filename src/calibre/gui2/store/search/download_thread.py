@@ -18,7 +18,7 @@ class GenericDownloadThreadPool:
     at the end of the function.
     """
 
-    def __init__(self, thread_type, thread_count=1):
+    def __init__(self, thread_type, thread_count=1) -> None:
         self.thread_type = thread_type
         self.thread_count = thread_count
 
@@ -26,10 +26,10 @@ class GenericDownloadThreadPool:
         self.results = Queue()
         self.threads = []
 
-    def set_thread_count(self, thread_count):
+    def set_thread_count(self, thread_count) -> None:
         self.thread_count = thread_count
 
-    def add_task(self, *args, **kwargs):
+    def add_task(self, *args, **kwargs) -> None:
         """
         This must be implemented in a sub class and this function
         must be called at the end of the add_task function in
@@ -44,14 +44,14 @@ class GenericDownloadThreadPool:
             self.threads.append(t)
             t.start()
 
-    def abort(self):
+    def abort(self) -> None:
         self.tasks = Queue()
         self.results = Queue()
         for t in self.threads:
             t.abort()
         self.threads = []
 
-    def has_tasks(self):
+    def has_tasks(self) -> bool:
         return not self.tasks.empty()
 
     def get_result(self):
@@ -63,7 +63,7 @@ class GenericDownloadThreadPool:
     def result_count(self):
         return self.results.qsize()
 
-    def has_results(self):
+    def has_results(self) -> bool:
         return not self.results.empty()
 
     def threads_running(self):
@@ -88,26 +88,26 @@ class SearchThreadPool(GenericDownloadThreadPool):
     sp.add_task(...)
     """
 
-    def __init__(self, thread_count):
+    def __init__(self, thread_count) -> None:
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
-    def add_task(self, query=None, store_name=None, store_plugin=None, max_results=None, timeout=None):
+    def add_task(self, query=None, store_name=None, store_plugin=None, max_results=None, timeout=None) -> None:
         self.tasks.put((query, store_name, store_plugin, max_results, timeout))
         GenericDownloadThreadPool.add_task(self)
 
 
 class SearchThread(Thread):
-    def __init__(self, tasks, results):
+    def __init__(self, tasks, results) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.tasks = tasks
         self.results = results
         self._run = True
 
-    def abort(self):
+    def abort(self) -> None:
         self._run = False
 
-    def run(self):
+    def run(self) -> None:
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, max_results, timeout = self.tasks.get()
@@ -126,10 +126,10 @@ class SearchThread(Thread):
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
-    def __init__(self, thread_count):
+    def __init__(self, thread_count) -> None:
         GenericDownloadThreadPool.__init__(self, CoverThread, thread_count)
 
-    def add_task(self, search_result=None, update_callback=None, timeout=5):
+    def add_task(self, search_result=None, update_callback=None, timeout=5) -> None:
         self.tasks.put((search_result, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
@@ -139,7 +139,7 @@ def decode_data_url(url):
 
 
 class CoverThread(Thread):
-    def __init__(self, tasks, results):
+    def __init__(self, tasks, results) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.tasks = tasks
@@ -148,10 +148,10 @@ class CoverThread(Thread):
 
         self.br = browser()
 
-    def abort(self):
+    def abort(self) -> None:
         self._run = False
 
-    def run(self):
+    def run(self) -> None:
         while self._run and not self.tasks.empty():
             try:
                 result, callback, timeout = self.tasks.get()
@@ -170,26 +170,26 @@ class CoverThread(Thread):
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
-    def __init__(self, thread_count):
+    def __init__(self, thread_count) -> None:
         GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 
-    def add_task(self, search_result=None, store_plugin=None, update_callback=None, timeout=10):
+    def add_task(self, search_result=None, store_plugin=None, update_callback=None, timeout=10) -> None:
         self.tasks.put((search_result, store_plugin, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
 
 class DetailsThread(Thread):
-    def __init__(self, tasks, results):
+    def __init__(self, tasks, results) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.tasks = tasks
         self.results = results
         self._run = True
 
-    def abort(self):
+    def abort(self) -> None:
         self._run = False
 
-    def run(self):
+    def run(self) -> None:
         while self._run and not self.tasks.empty():
             try:
                 result, store_plugin, callback, timeout = self.tasks.get()
@@ -203,25 +203,25 @@ class DetailsThread(Thread):
 
 
 class CacheUpdateThreadPool(GenericDownloadThreadPool):
-    def __init__(self, thread_count):
+    def __init__(self, thread_count) -> None:
         GenericDownloadThreadPool.__init__(self, CacheUpdateThread, thread_count)
 
-    def add_task(self, store_plugin=None, timeout=10):
+    def add_task(self, store_plugin=None, timeout=10) -> None:
         self.tasks.put((store_plugin, timeout))
         GenericDownloadThreadPool.add_task(self)
 
 
 class CacheUpdateThread(Thread):
-    def __init__(self, tasks, results):
+    def __init__(self, tasks, results) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.tasks = tasks
         self._run = True
 
-    def abort(self):
+    def abort(self) -> None:
         self._run = False
 
-    def run(self):
+    def run(self) -> None:
         while self._run and not self.tasks.empty():
             try:
                 store_plugin, timeout = self.tasks.get()

@@ -7,7 +7,7 @@ from calibre.utils.localization import _
 
 
 class StoreChooserDialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QDialog.__init__(self, parent)
 
         self.setWindowTitle(_('Choose stores'))

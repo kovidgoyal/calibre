@@ -73,7 +73,7 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
         yield s
 
 
-def parse_details_amazon(self, idata, search_result):
+def parse_details_amazon(self, idata, search_result) -> bool:
     if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' + self.DRM_SEARCH_TEXT + '")])'):
         if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' + self.DRM_FREE_TEXT + '") and contains(b, "' + self.DRM_SEARCH_TEXT + '")])'):
             search_result.drm = SearchResult.DRM_UNLOCKED

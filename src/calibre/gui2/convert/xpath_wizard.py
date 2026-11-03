@@ -9,7 +9,7 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class WizardWidget(QWidget, Ui_Form):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -37,7 +37,7 @@ class WizardWidget(QWidget, Ui_Form):
 
 
 class Wizard(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.resize(440, 480)
         self.verticalLayout = QVBoxLayout(self)
@@ -58,7 +58,7 @@ class Wizard(QDialog):
 
 
 class XPathEdit(QWidget):
-    def __init__(self, parent=None, object_name='', show_msg=True):
+    def __init__(self, parent=None, object_name='', show_msg=True) -> None:
         QWidget.__init__(self, parent)
         self.g = g = QGridLayout(self)
         g.setContentsMargins(0, 0, 0, 0)
@@ -86,20 +86,20 @@ class XPathEdit(QWidget):
         if object_name:
             self.setObjectName(object_name)
 
-    def setPlaceholderText(self, val):
+    def setPlaceholderText(self, val) -> None:
         self.edit.setPlaceholderText(val)
 
-    def wizard(self):
+    def wizard(self) -> None:
         wiz = Wizard(self)
         if wiz.exec() == QDialog.DialogCode.Accepted:
             self.edit.setText(wiz.xpath)
 
-    def setObjectName(self, name):
+    def setObjectName(self, name) -> None:
         QWidget.setObjectName(self, name)
         if hasattr(self, 'edit'):
             self.edit.initialize('xpath_edit_' + str(self.objectName()))
 
-    def set_msg(self, msg):
+    def set_msg(self, msg) -> None:
         self.msg.setText(msg)
 
     @property
@@ -107,7 +107,7 @@ class XPathEdit(QWidget):
         return str(self.edit.text())
 
     @text.setter
-    def text(self, val):
+    def text(self, val) -> None:
         self.edit.setText(str(val))
 
     value = text
@@ -116,7 +116,7 @@ class XPathEdit(QWidget):
     def xpath(self):
         return self.text
 
-    def check(self):
+    def check(self) -> bool:
         from calibre.ebooks.oeb.base import XPath
 
         try:

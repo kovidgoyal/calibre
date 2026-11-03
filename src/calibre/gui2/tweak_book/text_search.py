@@ -19,7 +19,7 @@ from polyglot.builtins import error_message
 
 
 class ModeBox(QComboBox):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QComboBox.__init__(self, parent)
         self.addItems([_('Normal'), _('Regex')])
         self.setToolTip(
@@ -40,12 +40,12 @@ class ModeBox(QComboBox):
         return ('normal', 'regex')[self.currentIndex()]
 
     @mode.setter
-    def mode(self, val):
+    def mode(self, val) -> None:
         self.setCurrentIndex({'regex': 1}.get(val, 0))
 
 
 class WhereBox(QComboBox):
-    def __init__(self, parent, emphasize=False):
+    def __init__(self, parent, emphasize=False) -> None:
         QComboBox.__init__(self)
         self.addItems([_('Current file'), _('All text files'), _('Selected files'), _('Open files')])
         self.setToolTip(
@@ -78,17 +78,17 @@ class WhereBox(QComboBox):
         return wm[self.currentIndex()]
 
     @where.setter
-    def where(self, val):
+    def where(self, val) -> None:
         wm = {0: 'current', 1: 'text', 2: 'selected', 3: 'open'}
         self.setCurrentIndex({v: k for k, v in wm.items()}[val])
 
-    def showPopup(self):
+    def showPopup(self) -> None:
         # We do it like this so that the popup uses a normal font
         if self.emphasize:
             self.setFont(self.ofont)
         QComboBox.showPopup(self)
 
-    def hidePopup(self):
+    def hidePopup(self) -> None:
         if self.emphasize:
             self.setFont(self.emph_font)
         QComboBox.hidePopup(self)
@@ -97,7 +97,7 @@ class WhereBox(QComboBox):
 class TextSearch(QWidget):
     find_text = pyqtSignal(object)
 
-    def __init__(self, ui):
+    def __init__(self, ui) -> None:
         QWidget.__init__(self, ui)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('&Find:'))
@@ -148,22 +148,22 @@ class TextSearch(QWidget):
         }
 
     @state.setter
-    def state(self, val):
+    def state(self, val) -> None:
         self.mode.mode = val.get('mode', 'normal')
         self.where_box.where = val.get('where', 'current')
         self.cs.setChecked(bool(val.get('case_sensitive')))
         self.da.setChecked(bool(val.get('dot_all', True)))
 
-    def save_state(self):
+    def save_state(self) -> None:
         tprefs['text_search_widget_state'] = self.state
 
-    def do_search(self, direction='down'):
+    def do_search(self, direction='down') -> None:
         state = self.state
         state['find'] = self.find_widget.text()
         state['direction'] = direction
         self.find_text.emit(state)
 
-    def search_activated(self):
+    def search_activated(self) -> None:
         self.do_search()
 
 

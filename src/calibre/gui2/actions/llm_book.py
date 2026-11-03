@@ -15,17 +15,17 @@ class LLMBookAction(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-device', 'toolbar-device', 'menubar-device'))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.ask_ai)
         self.ask_action = self.menuless_qaction
         self.ask_menu = self.qaction.menu()
         assert self.ask_menu is not None
         self.ask_menu.aboutToShow.connect(self.about_to_show_menu)
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.gui.iactions['View'].llm_action.setShortcut(self.menuless_qaction.shortcut())
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         from calibre.utils.icu import primary_sort_key
 
         m = self.ask_menu
@@ -37,7 +37,7 @@ class LLMBookAction(InterfaceAction):
             a = m.addAction(ac.human_name)
             a.triggered.connect(partial(self.ask_ai_with_action, ac))
 
-    def ask_ai_with_action(self, action=None):
+    def ask_ai_with_action(self, action=None) -> None:
         from calibre.gui2.dialogs.llm_book import LLMBookDialog
 
         rows = list(self.gui.library_view.selectionModel().selectedRows())
@@ -53,5 +53,5 @@ class LLMBookAction(InterfaceAction):
             d.llm.activate_action(action)
         d.exec()
 
-    def ask_ai(self):
+    def ask_ai(self) -> None:
         self.ask_ai_with_action()

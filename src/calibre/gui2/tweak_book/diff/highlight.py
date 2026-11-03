@@ -13,7 +13,7 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_f
 
 
 class QtHighlighter(QTextDocument):
-    def __init__(self, parent, text, hlclass):
+    def __init__(self, parent, text, hlclass) -> None:
         QTextDocument.__init__(self, parent)
         self.l = QPlainTextDocumentLayout(self)
         self.setDocumentLayout(self.l)
@@ -22,7 +22,7 @@ class QtHighlighter(QTextDocument):
         self.highlighter.set_document(self)
         self.setPlainText(text)
 
-    def copy_lines(self, lo, hi, cursor):
+    def copy_lines(self, lo, hi, cursor) -> None:
         """Copy specified lines from the syntax highlighted buffer into the
         destination cursor, preserving all formatting created by the syntax
         highlighter."""
@@ -51,10 +51,10 @@ class QtHighlighter(QTextDocument):
 
 
 class NullHighlighter:
-    def __init__(self, text):
+    def __init__(self, text) -> None:
         self.lines = text.splitlines()
 
-    def copy_lines(self, lo, hi, cursor):
+    def copy_lines(self, lo, hi, cursor) -> None:
         for i in range(lo, hi):
             cursor.insertText(self.lines[i])
             cursor.insertBlock()
@@ -79,7 +79,7 @@ def pygments_lexer(filename):
 
 
 class PygmentsHighlighter:
-    def __init__(self, text, lexer):
+    def __init__(self, text, lexer) -> None:
         theme, cache = get_theme(tprefs['editor_theme']), {}
         theme = {k: highlight_to_char_format(v) for k, v in theme.items()}
         theme[None] = NULL_FMT
@@ -99,7 +99,7 @@ class PygmentsHighlighter:
                     current_line = lines[-1]
                     continue
 
-    def copy_lines(self, lo, hi, cursor):
+    def copy_lines(self, lo, hi, cursor) -> None:
         for i in range(lo, hi):
             for fmt, text in self.lines[i]:
                 cursor.insertText(text, fmt)

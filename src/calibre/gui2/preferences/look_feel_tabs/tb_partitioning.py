@@ -14,7 +14,7 @@ class TBPartitionedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
-    def __init__(self, db, parent=None, category_icons=None):
+    def __init__(self, db, parent=None, category_icons=None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
@@ -35,7 +35,7 @@ class TBPartitionedFields(DisplayedFields):
                 filtered.add(key)
         return answer
 
-    def initialize(self, use_defaults=False, pref_data_override=None):
+    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
         tv = self.gui.tags_view
         cats = self.filter_user_categories(tv)
         ans = []
@@ -55,14 +55,14 @@ class TBPartitionedFields(DisplayedFields):
         self.fields = ans
         self.endResetModel()
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             # Migrate to a per-library setting
             self.db.prefs.set('tag_browser_dont_collapse', [k for k, v in self.fields if not v])
 
 
 class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         r = self.register
 
@@ -82,10 +82,10 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_partition_export_layout_button.clicked.connect(partial(export_layout, self, model=self.tb_categories_to_part_model))
         self.tb_partition_import_layout_button.clicked.connect(partial(import_layout, self, model=self.tb_categories_to_part_model))
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.tb_categories_to_part_model.initialize()
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_categories_to_part_model.restore_defaults()
 
@@ -93,5 +93,5 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_categories_to_part_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.tags_view.reread_collapse_parameters()

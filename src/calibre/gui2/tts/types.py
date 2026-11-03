@@ -205,7 +205,7 @@ class EngineSpecificSettings(NamedTuple):
             ans['preferred_voices'] = self.preferred_voices
         return ans
 
-    def save_to_config(self, prefs: JSONConfig | None = None, config_name: str = CONFIG_NAME):
+    def save_to_config(self, prefs: JSONConfig | None = None, config_name: str = CONFIG_NAME) -> None:
         prefs = load_config(config_name) if prefs is None else prefs
         val = self.as_dict
         engines = prefs.get('engines', {})
@@ -353,7 +353,7 @@ class TTSBackend(QObject):
         engine_name: str = ''
         default_output_module: str = ''
 
-    def __init__(self, engine_name: str = '', parent: QObject | None = None):
+    def __init__(self, engine_name: str = '', parent: QObject | None = None) -> None:
         super().__init__(parent)
 
     def pause(self) -> None:

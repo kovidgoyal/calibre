@@ -46,7 +46,7 @@ from calibre.utils.localization import _
 
 
 class BusyWidget(QWidget):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -59,7 +59,7 @@ class BusyWidget(QWidget):  # {{{
         l.addStretch(10)
         self.text = _('Calculating differences, please wait...')
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         br = a0.region().boundingRect()
         QWidget.paintEvent(self, a0)
         p = QPainter(self)
@@ -78,7 +78,7 @@ class BusyWidget(QWidget):  # {{{
 
 
 class Cache:
-    def __init__(self):
+    def __init__(self) -> None:
         self._left, self._right = {}, {}
         self.left, self.right = self._left.get, self._right.get
         self.set_left, self.set_right = self._left.__setitem__, self._right.__setitem__
@@ -228,7 +228,7 @@ class Diff(Dialog):
     revert_requested = pyqtSignal()
     line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False, show_as_window=False):
+    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False, show_as_window=False) -> None:
         self.context = 3
         self.beautify = False
         self.apply_diff_calls = []
@@ -245,7 +245,7 @@ class Diff(Dialog):
         geom = screen.availableSize()
         return QSize(int(0.9 * geom.width()), int(0.8 * geom.height()))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setWindowIcon(QIcon.ic('diff.png'))
         if self.show_as_window:
             self.setWindowFlags(Qt.WindowType.Window)
@@ -340,7 +340,7 @@ class Diff(Dialog):
 
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.view = None
         for x in ('revert_requested', 'line_activated'):
             try:
@@ -348,7 +348,7 @@ class Diff(Dialog):
             except Exception:
                 pass
 
-    def do_search(self, reverse):
+    def do_search(self, reverse) -> None:
         text = str(self.search.text())
         if not text.strip():
             return
@@ -356,13 +356,13 @@ class Diff(Dialog):
         v = self.view.view.left if self.lb.isChecked() else self.view.view.right
         v.search(text, reverse=reverse)
 
-    def change_context(self, context):
+    def change_context(self, context) -> None:
         if context == self.context:
             return
         self.context = context
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         view = self.view
         assert view is not None
         with self:
@@ -373,12 +373,12 @@ class Diff(Dialog):
                 view.add_diff(*args, **kwargs)
             view.finalize()
 
-    def toggle_beautify(self):
+    def toggle_beautify(self) -> None:
         self.beautify = not self.beautify
         self.set_beautify_action_text()
         self.refresh()
 
-    def set_beautify_action_text(self):
+    def set_beautify_action_text(self) -> None:
         assert self.beautify_action is not None
         self.beautify_action.setText(_('Beautify files before comparing them') if not self.beautify else _('Do not beautify files before comparing'))
 
@@ -394,13 +394,13 @@ class Diff(Dialog):
         self.stacks.setCurrentIndex(1)
         QApplication.restoreOverrideCursor()
 
-    def set_names(self, names):
+    def set_names(self, names) -> None:
         t = ''
         if isinstance(names, tuple):
             t = '{} <--> {}'.format(*names)
         self.names.setText(t)
 
-    def ebook_diff(self, path1, path2, names=None):
+    def ebook_diff(self, path1, path2, names=None) -> None:
         self.set_names(names)
         with self:
             identical = self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
@@ -409,7 +409,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def container_diff(self, left, right, identical_msg=None, names=None):
+    def container_diff(self, left, right, identical_msg=None, names=None) -> None:
         self.set_names(names)
         with self:
             identical = self.apply_diff(identical_msg or _('No changes found'), *container_diff(left, right))
@@ -418,7 +418,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def file_diff(self, left, right, identical_msg=None):
+    def file_diff(self, left, right, identical_msg=None) -> None:
         with self:
             identical = self.apply_diff(identical_msg or _('The files are identical'), *file_diff(left, right))
             assert self.view is not None
@@ -426,7 +426,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def string_diff(self, left, right, **kw):
+    def string_diff(self, left, right, **kw) -> None:
         with self:
             identical = self.apply_diff(kw.pop('identical_msg', None) or _('No differences found'), *string_diff(left, right, **kw))
             assert self.view is not None
@@ -434,7 +434,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def dir_diff(self, left, right, identical_msg=None):
+    def dir_diff(self, left, right, identical_msg=None) -> None:
         with self:
             identical = self.apply_diff(identical_msg or _('The folders are identical'), *dir_diff(left, right))
             assert self.view is not None
@@ -442,13 +442,13 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
+    def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names) -> bool | None:
         view = self.view
         assert view is not None
         view.clear()
         self.apply_diff_calls = calls = []
 
-        def add(args, kwargs):
+        def add(args, kwargs) -> None:
             view.add_diff(*args, **kwargs)
             calls.append((args, kwargs))
 
@@ -506,7 +506,7 @@ class Diff(Dialog):
             return Dialog.keyPressEvent(self, a0)
 
 
-def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
+def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None) -> None:
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
         assert revert_callback is not None
@@ -520,7 +520,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     d.break_cycles()
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int:
     from calibre.gui2 import Application
 
     left, right = args[-2:]

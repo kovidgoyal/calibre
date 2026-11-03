@@ -18,7 +18,7 @@ from calibre.utils.localization import _
 
 
 class Target(QTextBrowser):
-    def __init__(self, mi, parent=None):
+    def __init__(self, mi, parent=None) -> None:
         QTextBrowser.__init__(self, parent)
         series = ''
         fm = field_metadata
@@ -68,7 +68,7 @@ class Target(QTextBrowser):
 
 
 class ConfirmMerge(Dialog):
-    def __init__(self, msg, name, parent, mi, ask_about_save_alternate_cover=False):
+    def __init__(self, msg, name, parent, mi, ask_about_save_alternate_cover=False) -> None:
         self.msg, self.mi, self.conf_name = msg, mi, name
         self.ask_about_save_alternate_cover = ask_about_save_alternate_cover
         Dialog.__init__(self, _('Are you sure?'), 'confirm-merge-dialog', parent)
@@ -76,7 +76,7 @@ class ConfirmMerge(Dialog):
         if needed.width() > sz.width() or needed.height() > sz.height():
             self.resize(needed)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
@@ -105,10 +105,10 @@ class ConfirmMerge(Dialog):
         self.right = r = Target(self.mi, self)
         s.addWidget(r)
 
-    def alternate_covers_toggled(self):
+    def alternate_covers_toggled(self) -> None:
         gprefs.set(self.save_alternate_cover_cb.objectName(), self.save_alternate_cover_cb.isChecked())
 
-    def toggle(self):
+    def toggle(self) -> None:
         dynamic[confirm_config_name(self.conf_name)] = self.confirm.isChecked()
 
     def sizeHint(self):
@@ -131,17 +131,17 @@ class ChooseMerge(Dialog):
     replace_cover: QCheckBox
     save_alternate_cover: QCheckBox
 
-    def __init__(self, dest_id, src_ids, gui):
+    def __init__(self, dest_id, src_ids, gui) -> None:
         self.dest_id, self.src_ids = dest_id, src_ids
         self.mi = gui.current_db.new_api.get_metadata(dest_id, get_cover=True)
         Dialog.__init__(self, _('Merge books'), 'choose-merge-dialog', parent=gui)
         self.finished.connect(self.cleanup_resources)
 
-    def cleanup_resources(self):
+    def cleanup_resources(self) -> None:
         if self.mi.cover:
             os.remove(self.mi.cover)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
@@ -194,7 +194,7 @@ class ChooseMerge(Dialog):
         self.right = r = Target(self.mi, self)
         s.addWidget(r)
 
-    def state_changed(self, cb, state):
+    def state_changed(self, cb, state) -> None:
         mm = self.merge_metadata.isChecked()
         mf = self.merge_formats.isChecked()
         if not mm and not mf:
@@ -202,7 +202,7 @@ class ChooseMerge(Dialog):
         gprefs[cb.objectName()] = cb.isChecked()
         self.update_msg()
 
-    def update_msg(self):
+    def update_msg(self) -> None:
         mm = self.merge_metadata.isChecked()
         mf = self.merge_formats.isChecked()
         rm = self.delete_books.isChecked()

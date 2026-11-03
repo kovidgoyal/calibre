@@ -8,5 +8,5 @@ from qt.core import QBoxLayout
 
 
 class BoxLayout(QBoxLayout):
-    def __init__(self):
+    def __init__(self) -> None:
         QBoxLayout.__init__(self, QBoxLayout.Direction.TopToBottom)

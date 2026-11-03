@@ -12,7 +12,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class DuplicatesQuestion(QDialog):
-    def __init__(self, db, duplicates, parent=None):
+    def __init__(self, db, duplicates, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -55,33 +55,33 @@ class DuplicatesQuestion(QDialog):
         self.restore_geometry(gprefs, 'duplicates-question-dialog-geometry')
         self.exec()
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(self.as_text)
 
-    def select_all(self):
+    def select_all(self) -> None:
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             assert x is not None
             x.setCheckState(0, Qt.CheckState.Checked)
 
-    def select_none(self):
+    def select_none(self) -> None:
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             assert x is not None
             x.setCheckState(0, Qt.CheckState.Unchecked)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry()
         self.select_none()
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_geometry()
         QDialog.accept(self)
 
-    def save_geometry(self, prefs=None, name=None):
+    def save_geometry(self, prefs=None, name=None) -> None:
         super().save_geometry(gprefs, 'duplicates-question-dialog-geometry')
 
     def process_duplicates(self, db, duplicates):

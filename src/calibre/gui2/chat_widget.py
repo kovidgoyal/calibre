@@ -32,7 +32,7 @@ from calibre.utils.resources import get_image_path
 
 
 class Browser(QTextBrowser):
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setOpenLinks(False)
         self.setMinimumHeight(150)
@@ -91,7 +91,7 @@ class Header(NamedTuple):
 class InputEdit(QTextEdit):
     returnPressed = pyqtSignal()
 
-    def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = '') -> None:
         super().__init__(parent)
         self.setPlaceholderText(placeholder_text)
         self.height_for_frame = 2 * self.frameWidth() + self.contentsMargins().top() + self.contentsMargins().bottom()
@@ -116,7 +116,7 @@ class InputEdit(QTextEdit):
         self.maximum_height = val
         self.adjust_height()
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e) -> None:
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             mods = e.modifiers() & (
                 Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
@@ -138,7 +138,7 @@ class InputEdit(QTextEdit):
 class Input(QWidget):
     send_requested = pyqtSignal()
 
-    def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = '') -> None:
         super().__init__(parent)
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -170,7 +170,7 @@ class ChatWidget(QWidget):
     link_clicked = pyqtSignal(QUrl)
     input_from_user = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget | None = None, placeholder_text: str = '', disclaimer_text: str | None = None):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = '', disclaimer_text: str | None = None) -> None:
         super().__init__(parent)
         if disclaimer_text is None:
             disclaimer_text = _('AI generated answers can be inaccurate, please verify any answers before acting on them.')

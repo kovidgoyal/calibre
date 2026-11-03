@@ -78,13 +78,13 @@ def parse_html(raw):
 class ParseItem:
     __slots__ = ('fingerprint', 'length', 'name', 'parsed_data', 'parsing_done')
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         self.name = name
         self.length, self.fingerprint = 0, None
         self.parsed_data = None
         self.parsing_done = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'ParsedItem(name={self.name!r}, length={self.length!r}, fingerprint={self.fingerprint!r}, '
             f'parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})'
@@ -95,14 +95,14 @@ class ParseWorker(Thread):
     daemon = True
     SLEEP_TIME = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         Thread.__init__(self)
         self.requests = Queue()
         self.request_count = 0
         self.parse_items = {}
         self.launch_error = None
 
-    def run(self):
+    def run(self) -> None:
         mod, func = 'calibre.gui2.tweak_book.preview', 'parse_html'
         try:
             # Connect to the worker and send a dummy job to initialize it
@@ -145,7 +145,7 @@ class ParseWorker(Thread):
                 else:
                     pi.parsed_data = parsed_data
 
-    def add_request(self, name):
+    def add_request(self, name) -> None:
         data = get_data(name)
         ldata, hdata = len(data), hash(data)
         pi = self.parse_items.get(name, None)
@@ -160,13 +160,13 @@ class ParseWorker(Thread):
         self.requests.put((self.request_count, pi, data))
         self.request_count += 1
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.requests.put(shutdown)
 
     def get_data(self, name):
         return getattr(self.parse_items.get(name, None), 'parsed_data', None)
 
-    def clear(self):
+    def clear(self) -> None:
         self.parse_items.clear()
 
     def is_alive(self):
@@ -180,11 +180,11 @@ parse_worker = ParseWorker()
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.requests = defaultdict(list)
 
-    def requestStarted(self, a0):
+    def requestStarted(self, a0) -> None:
         if bytes(a0.requestMethod()) != b'GET':
             a0.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
             return
@@ -350,15 +350,15 @@ class PreviewBridge(Bridge):
 
 
 class WebPage(QWebEnginePage):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWebEnginePage.__init__(self, create_profile(), parent)
         secure_webengine(self, for_viewer=True)
         self.bridge = PreviewBridge(self)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         prints(f'{sourceID}:{lineNumber}: {message}')
 
-    def acceptNavigationRequest(self, url, type, isMainFrame):
+    def acceptNavigationRequest(self, url, type, isMainFrame) -> bool:
         if type in (
             QWebEnginePage.NavigationType.NavigationTypeReload,
             QWebEnginePage.NavigationType.NavigationTypeBackForward,
@@ -371,18 +371,18 @@ class WebPage(QWebEnginePage):
         prints('Blocking navigation request to:', url.toString())
         return False
 
-    def go_to_anchor(self, anchor):
+    def go_to_anchor(self, anchor) -> None:
         if anchor is TOP:
             anchor = ''
         self.bridge.go_to_anchor.emit(anchor or '')
 
-    def runjs(self, src, callback=None):
+    def runjs(self, src, callback=None) -> None:
         if callback is None:
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
-    def go_to_sourceline_address(self, sourceline_address):
+    def go_to_sourceline_address(self, sourceline_address) -> None:
         if self.bridge.ready:
             lnum, tags = sourceline_address
             if lnum is None:
@@ -390,26 +390,26 @@ class WebPage(QWebEnginePage):
             tags = [x.lower() for x in tags]
             self.bridge.go_to_sourceline_address.emit(lnum, tags, tprefs['preview_sync_context'])
 
-    def split_mode(self, enabled):
+    def split_mode(self, enabled) -> None:
         if self.bridge.ready:
             self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
 class Inspector(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
         h = QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
 
-    def connect_to_dock(self):
+    def connect_to_dock(self) -> None:
         ac = actions['inspector-dock']
         ac.toggled.connect(self.visibility_changed)
         if ac.isChecked():
             self.visibility_changed(True)
 
-    def visibility_changed(self, visible):
+    def visibility_changed(self, visible) -> None:
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
             view_page = self.view.page()
@@ -429,7 +429,7 @@ class Inspector(QWidget):
 
 
 class WebView(QWebEngineView, OpenWithHandler):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.inspector = Inspector(self)
         screen = self.screen()
@@ -443,7 +443,7 @@ class WebView(QWebEngineView, OpenWithHandler):
         self.dead_renderer_error_shown = False
         self.renderProcessTerminated.connect(self.render_process_died)
 
-    def render_process_died(self):
+    def render_process_died(self) -> None:
         if self.dead_renderer_error_shown:
             return
         self.dead_renderer_error_shown = True
@@ -457,24 +457,24 @@ class WebView(QWebEngineView, OpenWithHandler):
     def sizeHint(self):
         return self._size_hint
 
-    def update_settings(self):
+    def update_settings(self) -> None:
         settings = get_editor_settings(tprefs)
         p = self._page.profile()
         assert p is not None
         ua = p.httpUserAgent().split('|')[0] + '|' + json.dumps(settings)
         p.setHttpUserAgent(ua)
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.update_settings()
         reload_action = self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
         assert reload_action is not None
         reload_action.trigger()
 
-    def set_url(self, qurl):
+    def set_url(self, qurl) -> None:
         self.update_settings()
         super().setUrl(qurl)
 
-    def clear(self):
+    def clear(self) -> None:
         self.update_settings()
         self.setHtml(
             _(
@@ -491,10 +491,10 @@ class WebView(QWebEngineView, OpenWithHandler):
             )
         )
 
-    def reset_zoom(self):
+    def reset_zoom(self) -> None:
         self.setZoomFactor(1.0)
 
-    def inspect(self):
+    def inspect(self) -> None:
         p = self.inspector.parent()
         assert isinstance(p, QWidget)
         p.show()
@@ -503,7 +503,7 @@ class WebView(QWebEngineView, OpenWithHandler):
         assert inspect_action is not None
         inspect_action.trigger()
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         menu = QMenu(self)
         data = self.lastContextMenuRequest()
         assert data is not None
@@ -536,12 +536,12 @@ class WebView(QWebEngineView, OpenWithHandler):
                                 menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
         menu.exec(a0.globalPos())
 
-    def open_with(self, file_name, fmt, entry):
+    def open_with(self, file_name, fmt, entry) -> None:
         p = self.parent()
         assert isinstance(p, Preview)
         p.open_file_with.emit(file_name, fmt, entry)
 
-    def edit_image(self, resource_name):
+    def edit_image(self, resource_name) -> None:
         p = self.parent()
         assert isinstance(p, Preview)
         p.edit_file.emit(resource_name)
@@ -558,7 +558,7 @@ class Preview(QWidget):
     open_file_with = pyqtSignal(object, object, object)
     edit_file = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -640,23 +640,23 @@ class Preview(QWidget):
             ac.triggered.connect(getattr(self, 'find_' + d))
             self.bar.addAction(ac)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         self.view.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
-    def clear_clicked(self):
+    def clear_clicked(self) -> None:
         self.view._page.findText('')
 
-    def find(self, a0):
+    def find(self, a0) -> None:
         text = str(self.search.text())
         self.view._page.findText(text, (QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
 
-    def find_next(self):
+    def find_next(self) -> None:
         self.find('next')
 
-    def find_prev(self):
+    def find_prev(self) -> None:
         self.find('prev')
 
-    def go_to_anchor(self, anchor):
+    def go_to_anchor(self, anchor) -> None:
         self.view._page.go_to_anchor(anchor)
 
     def request_sync(self, tagname, href, lnum):
@@ -684,7 +684,7 @@ class Preview(QWidget):
     def bridge_ready(self):
         return self.view._page.bridge.ready
 
-    def sync_to_editor(self, name, sourceline_address):
+    def sync_to_editor(self, name, sourceline_address) -> None:
         self.current_sync_request = (name, sourceline_address)
         self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
@@ -700,7 +700,7 @@ class Preview(QWidget):
         self.current_sync_retry_count = 0
         self.view._page.go_to_sourceline_address(sourceline_address)
 
-    def report_worker_launch_error(self):
+    def report_worker_launch_error(self) -> None:
         if parse_worker.launch_error is not None:
             tb, parse_worker.launch_error = parse_worker.launch_error, None
             error_dialog(
@@ -728,7 +728,7 @@ class Preview(QWidget):
             self.view.set_url(self.name_to_qurl())
             return True
 
-    def refresh(self):
+    def refresh(self) -> None:
         if self.current_name:
             self.refresh_timer.stop()
             # This will check if the current html has changed in its editor,
@@ -745,7 +745,7 @@ class Preview(QWidget):
                 self.view.refresh()
             self.refreshed.emit()
 
-    def clear(self):
+    def clear(self) -> None:
         self.view.clear()
         self.current_name = None
 
@@ -760,14 +760,14 @@ class Preview(QWidget):
         except KeyError:
             return False
 
-    def start_refresh_timer(self):
+    def start_refresh_timer(self) -> None:
         if self.live_css_is_visible or (self.is_visible and actions['auto-reload-preview'].isChecked()):
             self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
 
-    def stop_refresh_timer(self):
+    def stop_refresh_timer(self) -> None:
         self.refresh_timer.stop()
 
-    def auto_reload_toggled(self, checked):
+    def auto_reload_toggled(self, checked) -> None:
         if self.live_css_is_visible and not actions['auto-reload-preview'].isChecked():
             actions['auto-reload-preview'].setChecked(True)
             error_dialog(
@@ -778,16 +778,16 @@ class Preview(QWidget):
             )
         actions['auto-reload-preview'].setToolTip(_('Auto reload preview when text changes in editor') if not checked else _('Disable auto reload of preview'))
 
-    def sync_toggled(self, checked):
+    def sync_toggled(self, checked) -> None:
         actions['sync-preview-to-editor'].setToolTip(
             _('Disable syncing of preview position to editor position') if checked else _('Enable syncing of preview position to editor position')
         )
 
-    def visibility_changed(self, is_visible):
+    def visibility_changed(self, is_visible) -> None:
         if is_visible:
             self.refresh()
 
-    def split_toggled(self, checked):
+    def split_toggled(self, checked) -> None:
         actions['split-in-preview'].setToolTip(
             '<p>'
             + (
@@ -804,19 +804,19 @@ class Preview(QWidget):
         else:
             self.view._page.split_mode(False)
 
-    def do_start_split(self):
+    def do_start_split(self) -> None:
         self.view._page.split_mode(True)
 
-    def stop_split(self):
+    def stop_split(self) -> None:
         actions['split-in-preview'].setChecked(False)
 
-    def load_started(self):
+    def load_started(self) -> None:
         self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
 
-    def on_bridge_ready(self):
+    def on_bridge_ready(self) -> None:
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
 
-    def load_finished(self, ok):
+    def load_finished(self, ok) -> None:
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
         if self.pending_go_to_anchor:
             self.view._page.go_to_anchor(self.pending_go_to_anchor)
@@ -827,11 +827,11 @@ class Preview(QWidget):
             else:
                 self.stop_split()
 
-    def request_live_css_data(self, editor_name, sourceline, tags):
+    def request_live_css_data(self, editor_name, sourceline, tags) -> None:
         if self.view._page.bridge.ready:
             self.view._page.bridge.live_css(editor_name, sourceline, tags)
 
-    def apply_settings(self):
+    def apply_settings(self) -> None:
         s = self.view.settings()
         assert s is not None
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(tprefs['preview_base_font_size']))

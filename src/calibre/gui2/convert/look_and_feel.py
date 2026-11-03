@@ -26,7 +26,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         'colors': {'color', 'background', 'background-color'},
     }
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['look_and_feel'])
         for val, text in [('original', _('Original')), ('left', _('Left align')), ('justify', _('Justify text'))]:
             self.opt_change_justification.addItem(text, (val))
@@ -68,7 +68,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return json.dumps(g.rules)
         return Widget.get_value_handler(self, g)
 
-    def set_value_handler(self, g, val):
+    def set_value_handler(self, g, val) -> bool:
         if g is self.opt_change_justification:
             for i in range(g.count()):
                 c = str(g.itemData(i) or '')
@@ -92,8 +92,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
         if g is self.opt_transform_css_rules or g is self.opt_transform_html_rules:
             g.rules = json.loads(val) if val else []
             return True
+        return False
 
-    def connect_gui_obj_handler(self, gui_obj, slot):
+    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
         if gui_obj is self.opt_filter_css:
             for key in self.FILTER_CSS:
                 w = getattr(self, f'filter_css_{key}')
@@ -105,7 +106,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return
         raise NotImplementedError()
 
-    def font_key_wizard(self):
+    def font_key_wizard(self) -> None:
         from calibre.gui2.convert.font_key import FontKeyChooser
 
         d = FontKeyChooser(self, self.opt_base_font_size.value(), str(self.opt_font_size_mapping.text()).strip())

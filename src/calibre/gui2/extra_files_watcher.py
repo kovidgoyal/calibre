@@ -25,18 +25,18 @@ class ExtraFilesWatcher(QObject):
     WATCH_FOR = 300  # seconds
     TICK_INTERVAL = 1  # seconds
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.watched_book_ids = {}
         self.timer = QTimer(self)
         self.timer.setInterval(int(self.TICK_INTERVAL * 1000))
         self.timer.timeout.connect(self.check_registered_books)
 
-    def clear(self):
+    def clear(self) -> None:
         self.watched_book_ids.clear()
         self.timer.stop()
 
-    def watch_book(self, book_id):
+    def watch_book(self, book_id) -> None:
         if book_id not in self.watched_book_ids:
             try:
                 self.watched_book_ids[book_id] = ExtraFiles(monotonic(), self.get_extra_files(book_id))
@@ -60,7 +60,7 @@ class ExtraFilesWatcher(QObject):
         db = self.gui.current_db.new_api
         return tuple(ExtraFile(ef.relpath, ef.stat_result.st_mtime, ef.stat_result.st_size) for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
 
-    def check_registered_books(self):
+    def check_registered_books(self) -> None:
         changed = {}
         remove = set()
         now = monotonic()
@@ -84,7 +84,7 @@ class ExtraFilesWatcher(QObject):
         if not self.watched_book_ids:
             self.timer.stop()
 
-    def refresh_gui(self, book_ids):
+    def refresh_gui(self, book_ids) -> None:
         lv = self.gui.library_view
         book_ids = frozenset(book_ids)
         lv.model().refresh_ids(book_ids, current_row=lv.currentIndex().row())

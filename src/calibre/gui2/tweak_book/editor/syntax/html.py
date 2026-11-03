@@ -83,7 +83,7 @@ LINK_ATTRS = frozenset(('href', 'src', 'poster', 'xlink:href'))
 do_spell_check = False
 
 
-def refresh_spell_check_status():
+def refresh_spell_check_status() -> None:
     global do_spell_check
     do_spell_check = tprefs['inline_spell_check'] and hasattr(dictionaries, 'active_user_dictionaries')
 
@@ -115,7 +115,7 @@ del spell_property
 check_spelling = _speedup.check_spelling
 
 
-def finish_opening_tag(state, cdata_tags):
+def finish_opening_tag(state, cdata_tags) -> None:
     state.parse = NORMAL
     if state.tag_being_defined is None:
         return
@@ -129,7 +129,7 @@ def finish_opening_tag(state, cdata_tags):
         state.sub_parser_state = None
 
 
-def close_tag(state, name):
+def close_tag(state, name) -> None:
     removed_tags = []
     for tag in reversed(state.tags):
         removed_tags.append(tag)
@@ -162,7 +162,7 @@ def close_tag(state, name):
 
 
 class HTMLUserData(QTextBlockUserData):
-    def __init__(self):
+    def __init__(self) -> None:
         QTextBlockUserData.__init__(self)
         self.tags = []
         self.attributes = []
@@ -171,7 +171,7 @@ class HTMLUserData(QTextBlockUserData):
         self.css_user_data = None
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None):
+    def clear(self, state=None, doc_name=None) -> None:
         self.tags, self.attributes, self.non_tag_structures = [], [], []
         self.state = State() if state is None else state
         self.doc_name = doc_name
@@ -187,14 +187,14 @@ class XMLUserData(HTMLUserData):
         return name in xml_spell_tags
 
 
-def add_tag_data(user_data, tag):
+def add_tag_data(user_data, tag) -> None:
     user_data.tags.append(tag)
 
 
 ATTR_NAME, ATTR_VALUE, ATTR_START, ATTR_END = object(), object(), object(), object()
 
 
-def add_attr_data(user_data, data_type, data, offset):
+def add_attr_data(user_data, data_type, data, offset) -> None:
     user_data.attributes.append(Attr(offset, data_type, data))
 
 
@@ -542,7 +542,7 @@ class XMLHighlighter(Highlighter):
         return XMLUserData.tag_ok_for_spell(name)
 
 
-def profile():
+def profile() -> None:
     import sys
 
     from qt.core import QTextDocument

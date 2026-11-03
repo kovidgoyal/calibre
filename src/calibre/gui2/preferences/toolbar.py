@@ -22,7 +22,7 @@ def sort_key_for_action(ac):
 
 
 class FakeAction:
-    def __init__(self, name, gui_name, icon, tooltip=None, dont_add_to=frozenset(), dont_remove_from=frozenset()):
+    def __init__(self, name, gui_name, icon, tooltip=None, dont_add_to=frozenset(), dont_remove_from=frozenset()) -> None:
         self.name = name
         self.action_spec = (gui_name, icon, tooltip, None)
         self.dont_remove_from = dont_remove_from
@@ -108,7 +108,7 @@ class BaseModel(QAbstractListModel):
 
 
 class AllModel(BaseModel):
-    def __init__(self, key, gui):
+    def __init__(self, key, gui) -> None:
         BaseModel.__init__(self)
         self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
@@ -125,7 +125,7 @@ class AllModel(BaseModel):
         all.sort(key=sort_key_for_action)
         return all
 
-    def add(self, names):
+    def add(self, names) -> None:
         actions = []
         for name in names:
             if name is None or name.startswith('---'):
@@ -136,7 +136,7 @@ class AllModel(BaseModel):
         self._data.sort(key=sort_key_for_action)
         self.endResetModel()
 
-    def remove(self, indices, allowed):
+    def remove(self, indices, allowed) -> None:
         rows = [i.row() for i in indices]
         remove = set()
         for row in rows:
@@ -153,7 +153,7 @@ class AllModel(BaseModel):
         self._data = ndata
         self.endResetModel()
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         current = gprefs.defaults[self.gprefs_name]
         self.beginResetModel()
         self._data = self.get_all_actions(current)
@@ -161,7 +161,7 @@ class AllModel(BaseModel):
 
 
 class CurrentModel(BaseModel):
-    def __init__(self, key, gui):
+    def __init__(self, key, gui) -> None:
         BaseModel.__init__(self)
         self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
@@ -170,7 +170,7 @@ class CurrentModel(BaseModel):
         self.key = key
         self.gui = gui
 
-    def move_single(self, idx, delta):
+    def move_single(self, idx, delta) -> None:
         row = idx.row()
         nrow = (row + delta + len(self._data)) % len(self._data)
         if row + delta < 0:
@@ -228,7 +228,7 @@ class CurrentModel(BaseModel):
         self.endResetModel()
         return rejected
 
-    def commit(self):
+    def commit(self) -> None:
         old = gprefs[self.gprefs_name]
         new = []
         for x in self._data:
@@ -244,7 +244,7 @@ class CurrentModel(BaseModel):
             else:
                 gprefs[self.gprefs_name] = new
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         current = gprefs.defaults[self.gprefs_name]
         self.beginResetModel()
         self._data = [self.name_to_action(x, self.gui) for x in current]
@@ -265,7 +265,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ('context-menu-cover-browser', _('The context menu for the Cover browser')),
     ]
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.all_actions.doubleClicked.connect(self.add_single_action)
         self.current_actions.doubleClicked.connect(self.remove_single_action)
         self.models = {}
@@ -288,19 +288,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.all_actions.entered.connect(self.all_entered)
         self.current_actions.entered.connect(self.current_entered)
 
-    def all_entered(self, index):
+    def all_entered(self, index) -> None:
         all_model = self.all_actions.model()
         assert all_model is not None
         tt = all_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
-    def current_entered(self, index):
+    def current_entered(self, index) -> None:
         cur_model = self.current_actions.model()
         assert cur_model is not None
         tt = cur_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
-    def what_changed(self, idx):
+    def what_changed(self, idx) -> None:
         key = str(self.what.itemData(idx) or '')
         if key == 'blank':
             self.actions_widget.setVisible(False)
@@ -311,15 +311,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.all_actions.setModel(self.models[key][0])
             self.current_actions.setModel(self.models[key][1])
 
-    def add_action(self, *args):
+    def add_action(self, *args) -> None:
         all_sm = self.all_actions.selectionModel()
         assert all_sm is not None
         self._add_action(all_sm.selectedIndexes())
 
-    def add_single_action(self, index):
+    def add_single_action(self, index) -> None:
         self._add_action([index])
 
-    def _add_action(self, indices):
+    def _add_action(self, indices) -> None:
         all_model = self.all_actions.model()
         assert isinstance(all_model, AllModel)
         names = all_model.names(indices)
@@ -345,15 +345,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
-    def remove_action(self, *args):
+    def remove_action(self, *args) -> None:
         cur_sm = self.current_actions.selectionModel()
         assert cur_sm is not None
         self._remove_action(cur_sm.selectedIndexes())
 
-    def remove_single_action(self, index):
+    def remove_single_action(self, index) -> None:
         self._remove_action([index])
 
-    def _remove_action(self, indices):
+    def _remove_action(self, indices) -> None:
         cur_model = self.current_actions.model()
         assert isinstance(cur_model, CurrentModel)
         names = cur_model.names(indices)
@@ -393,7 +393,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.current_actions.scrollTo(newci, QAbstractItemView.ScrollHint.EnsureVisible)
             self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args) -> bool:
         # Ensure preferences are showing in either the toolbar or
         # the menubar.
         pref_in_toolbar = self.models['toolbar'][1].has_action('Preferences')
@@ -422,13 +422,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cm.commit()
         return False
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         for am, cm in self.models.values():
             cm.restore_defaults()
             am.restore_defaults()
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.bars_manager.init_bars()
         gui.bars_manager.update_bars()
 

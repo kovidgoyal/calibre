@@ -49,7 +49,7 @@ class MetadataWidget(Widget, Ui_Form):
     HELP = _('Set the metadata. The output file will contain as much of this metadata as possible.')
     COMMIT_NAME = 'metadata'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['metadata'])
         self.db, self.book_id = db, book_id
         self.cover_changed = False
@@ -70,11 +70,11 @@ class MetadataWidget(Widget, Ui_Form):
             self.tags.set_hierarchy_separator('.')
         self.cover.draw_border = False
 
-    def change_cover(self, data):
+    def change_cover(self, data) -> None:
         self.cover_changed = True
         self.cover_data = data
 
-    def deduce_author_sort(self, *args):
+    def deduce_author_sort(self, *args) -> None:
         au = str(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
@@ -83,7 +83,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.author_sort.setText(db.author_sort_from_authors(authors))
         self.author_sort.home(False)
 
-    def initialize_metadata_options(self):
+    def initialize_metadata_options(self) -> None:
         db = self.db
         assert db is not None
         self.initialize_combos()
@@ -125,19 +125,19 @@ class MetadataWidget(Widget, Ui_Form):
             x.lineEdit().deselect()
         self.series_changed()
 
-    def series_changed(self):
+    def series_changed(self) -> None:
         self.series_index.setEnabled(len(self.series.currentText().strip()) > 0)
 
-    def set_cover_tooltip(self, pm):
+    def set_cover_tooltip(self, pm) -> None:
         tt = _('Cover size: %(width)d x %(height)d pixels') % dict(width=pm.width(), height=pm.height())
         self.cover.setToolTip(tt)
 
-    def initialize_combos(self):
+    def initialize_combos(self) -> None:
         self.initalize_authors()
         self.initialize_series()
         self.initialize_publisher()
 
-    def initalize_authors(self):
+    def initalize_authors(self) -> None:
         db = self.db
         assert db is not None
         all_authors = db.all_authors()
@@ -154,13 +154,13 @@ class MetadataWidget(Widget, Ui_Form):
         self.author.show_initial_value(au)
         self.author.home(False)
 
-    def initialize_series(self):
+    def initialize_series(self) -> None:
         db = self.db
         assert db is not None
         self.series.set_separator(None)
         self.series.update_items_cache(db.new_api.all_field_names('series'))
 
-    def initialize_publisher(self):
+    def initialize_publisher(self) -> None:
         db = self.db
         assert db is not None
         self.publisher.set_separator(None)
@@ -196,7 +196,7 @@ class MetadataWidget(Widget, Ui_Form):
 
         return mi
 
-    def select_cover(self):
+    def select_cover(self) -> None:
         files = choose_images(self, 'change cover dialog', _('Choose cover for ') + str(self.title.text()))
         if not files:
             return
@@ -238,7 +238,7 @@ class MetadataWidget(Widget, Ui_Form):
             'prefer_metadata_cover': bool(self.opt_prefer_metadata_cover.isChecked()),
         }
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         if self.db is None:
             return True
         db = self.db.new_api

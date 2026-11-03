@@ -54,12 +54,12 @@ def icon_to_bytes(icon):
 
 
 class StateTableWidgetItem(QTableWidgetItem):
-    def __init__(self, txt):
+    def __init__(self, txt) -> None:
         super().__init__(txt)
         self.setIcon(QIcon.cached_icon('blank.png'))
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
 
-    def setText(self, atext):
+    def setText(self, atext) -> None:
         if atext == 'deleted':
             super().setText(_('Deleted'))
             self.setIcon(QIcon.cached_icon('trash.png'))
@@ -75,7 +75,7 @@ class StateTableWidgetItem(QTableWidgetItem):
 
 
 class CategoryTableWidgetItem(QTableWidgetItem):
-    def __init__(self, lookup_name, category_icons, field_metadata, table):
+    def __init__(self, lookup_name, category_icons, field_metadata, table) -> None:
         super().__init__('')
         self._table = table
         self._category_icons = category_icons
@@ -85,7 +85,7 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         self._original_in_library = lookup_name in self._field_metadata
         self.setText(lookup_name)
 
-    def setText(self, atext):
+    def setText(self, atext) -> None:
         self._lookup_name = atext
         if in_library := (self._lookup_name in self._field_metadata):
             txt = f"{self._field_metadata[self._lookup_name]['name']} ({self._lookup_name})"
@@ -105,11 +105,11 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         return self._is_deleted
 
     @is_deleted.setter
-    def is_deleted(self, to_what):
+    def is_deleted(self, to_what) -> None:
         self._is_deleted = to_what
         self._set_icon()
 
-    def _set_icon(self):
+    def _set_icon(self) -> None:
         deleted_item = self._table.item(self.row(), DELETED_COLUMN)
         if self._is_deleted:
             deleted_item.setText('deleted')
@@ -123,7 +123,7 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         return self._is_new
 
     @is_new.setter
-    def is_new(self, to_what):
+    def is_new(self, to_what) -> None:
         self._is_new = to_what
         self._set_icon()
 
@@ -131,12 +131,12 @@ class CategoryTableWidgetItem(QTableWidgetItem):
     def lookup_name(self):
         return self._lookup_name
 
-    def undo(self):
+    def undo(self) -> None:
         self.is_deleted = False
 
 
 class ValueTableWidgetItem(QTableWidgetItem):
-    def __init__(self, txt, table, all_values):
+    def __init__(self, txt, table, all_values) -> None:
         self._table = table
         self._is_template = is_template = txt == TEMPLATE_ICON_INDICATOR
         self._original_name = txt
@@ -157,7 +157,7 @@ class ValueTableWidgetItem(QTableWidgetItem):
     def original_name(self):
         return self._original_name
 
-    def set_icon(self, txt):
+    def set_icon(self, txt) -> None:
         if not self._is_template and txt not in self._all_values:
             icon = 'dialog_error.png'
             self.setToolTip(_("The value {} doesn't exist in the library").format(txt))
@@ -168,7 +168,7 @@ class ValueTableWidgetItem(QTableWidgetItem):
 
 
 class IconFileTableWidgetItem(QTableWidgetItem):
-    def __init__(self, icon_file, value_text, table):
+    def __init__(self, icon_file, value_text, table) -> None:
         super().__init__(icon_file)
         self._new_icon = None
         self._table = table
@@ -191,7 +191,7 @@ class IconFileTableWidgetItem(QTableWidgetItem):
         return self._new_icon
 
     @new_icon.setter
-    def new_icon(self, to_what):
+    def new_icon(self, to_what) -> None:
         # to_what is the new icon pixmap
         self.setIcon(to_what)
         self._new_icon = icon_to_bytes(to_what)
@@ -202,28 +202,28 @@ class IconFileTableWidgetItem(QTableWidgetItem):
         return self._is_modified
 
     @is_modified.setter
-    def is_modified(self, to_what):
+    def is_modified(self, to_what) -> None:
         self._is_modified = to_what
         del_item = self._table.item(self.row(), ICON_MODIFIED_COLUMN)
         del_item.setText('modified' if to_what else '')
 
-    def set_text(self, txt):
+    def set_text(self, txt) -> None:
         self.setText(txt)
         self.setToolTip(txt)
 
-    def undo(self):
+    def undo(self) -> None:
         self.is_modified = False
         self.setIcon(self._original_icon)
 
 
 class IconColumnDelegate(QStyledItemDelegate):
-    def __init__(self, parent, table, changed_signal):
+    def __init__(self, parent, table, changed_signal) -> None:
         super().__init__(parent)
         self._parent = parent
         self._table = table
         self._changed_signal = changed_signal
 
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent, option, index) -> None:
         row = index.row()
         value_item = self._table.item(row, VALUE_COLUMN)
         icon_item = self._table.item(row, ICON_COLUMN)
@@ -270,7 +270,7 @@ class IconColumnDelegate(QStyledItemDelegate):
 
 
 class ChildrenTableWidgetItem(QTableWidgetItem):
-    def __init__(self, value, item_value, table):
+    def __init__(self, value, item_value, table) -> None:
         super().__init__('')
         self._is_modified = False
         self._original_value = self._value = value
@@ -278,7 +278,7 @@ class ChildrenTableWidgetItem(QTableWidgetItem):
         self._table = table
         self._set_text_and_icon(value)
 
-    def _set_text_and_icon(self, value):
+    def _set_text_and_icon(self, value) -> None:
         if self._item_value == TEMPLATE_ICON_INDICATOR:
             txt = ''
         else:
@@ -306,22 +306,22 @@ class ChildrenTableWidgetItem(QTableWidgetItem):
         return self._is_modified
 
     @is_modified.setter
-    def is_modified(self, to_what):
+    def is_modified(self, to_what) -> None:
         del_item = self._table.item(self.row(), FOR_CHILDREN_MODIFIED_COLUMN)
         del_item.setText('modified' if to_what else '')
         self._is_modified = to_what
 
-    def set_value(self, val):
+    def set_value(self, val) -> None:
         self._set_text_and_icon(val)
         self.is_modified = val != self.original_value
 
-    def undo(self):
+    def undo(self) -> None:
         self.is_modified = False
         self._set_text_and_icon(self._original_value)
 
 
 class ChildrenColumnDelegate(QStyledItemDelegate):
-    def __init__(self, parent, table, changed_signal):
+    def __init__(self, parent, table, changed_signal) -> None:
         super().__init__(parent)
         self._parent = parent
         self._table = table
@@ -342,14 +342,14 @@ class ChildrenColumnDelegate(QStyledItemDelegate):
             editor.addItem(QIcon.cached_icon(icon), text)
         return editor
 
-    def setModelData(self, editor, model, index):
+    def setModelData(self, editor, model, index) -> None:
         val = {0: True, 1: False}[editor.currentIndex()]
         item = self._table.item(index.row(), index.column())
         item.set_value(val)
         self._parent.check_button_state(item)
         self._changed_signal.emit()
 
-    def setEditorData(self, editor, index):
+    def setEditorData(self, editor, index) -> None:
         item = self._table.item(index.row(), index.column())
         val = item.original_value
         val = 0 if val else 1
@@ -357,7 +357,7 @@ class ChildrenColumnDelegate(QStyledItemDelegate):
 
 
 class AddItemDialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self._owner = parent
         self.pref_name = 'tb_icons_add_item_dialog'
@@ -417,7 +417,7 @@ class AddItemDialog(QDialog):
             gl.addWidget(col1, row, 1)
         return row + 1
 
-    def category_box_changed(self, to_what):
+    def category_box_changed(self, to_what) -> None:
         txt = self.category_box.currentText()
         item_values = sorted(self._owner.all_values[txt], key=sort_key)
         self.value_box.blockSignals(True)
@@ -427,7 +427,7 @@ class AddItemDialog(QDialog):
         self.value_box.blockSignals(False)
         self.value_box_changed(0)
 
-    def value_box_changed(self, to_what):
+    def value_box_changed(self, to_what) -> None:
         if to_what == 0:
             self.icon_box.setText('')  # Don't do templates here
             self.icon_chooser.setEnabled(False)
@@ -437,7 +437,7 @@ class AddItemDialog(QDialog):
             self.icon_box.setText(f'icon_{sanitize_file_name(category)}@@{sanitize_file_name(item)}_{self._owner.db.get_item_id(category, item)}.png')
             self.icon_chooser.setEnabled(True)
 
-    def choose_icon(self):
+    def choose_icon(self) -> None:
         path = choose_files(
             self.parent,
             'choose_category_icon',
@@ -453,17 +453,17 @@ class AddItemDialog(QDialog):
         h = self.icon_box.height() - 1
         self.icon_widget.setPixmap(self.icon.pixmap(QSize(h, h)))
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_geometry(gprefs, self.pref_name + '-geometry')
         super().accept()
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(gprefs, self.pref_name + '-geometry')
         super().reject()
 
 
 class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.db = gui.current_db.new_api
         r = self.register
@@ -548,7 +548,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         except Exception:
             pass
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.rules_table.setItemDelegateForColumn(ICON_COLUMN, IconColumnDelegate(self, self.rules_table, self.changed_signal))
         self.rules_table.setItemDelegateForColumn(FOR_CHILDREN_COLUMN, ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
 
@@ -559,7 +559,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.do_sort(CATEGORY_COLUMN)
         self.changed_signal.connect(self.something_changed)
 
-    def populate_content(self):
+    def populate_content(self) -> None:
         self.field_metadata = field_metadata = self.gui.current_db.field_metadata
         self.category_icons = self.gui.tags_view.model().category_custom_icons
         is_hierarchical_category = self.gui.tags_view.model().is_key_a_hierarchical_category
@@ -598,7 +598,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                     self.add_table_row(row, category, item_value, vdict[item_value][0], vdict[item_value][1])
                     row += 1
 
-    def add_table_row(self, row, category, item_value, icon_name, for_children):
+    def add_table_row(self, row, category, item_value, icon_name, for_children) -> None:
         t = self.rules_table
         t.setRowCount(row + 1)
 
@@ -611,7 +611,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         item = ChildrenTableWidgetItem(for_children, item_value, t)
         t.setItem(row, FOR_CHILDREN_COLUMN, item)
 
-    def add_rule(self):
+    def add_rule(self) -> None:
         d = AddItemDialog(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             category = d.category_box.currentText()
@@ -655,10 +655,10 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                             break
             self.changed_signal.emit()
 
-    def something_changed(self):
+    def something_changed(self) -> None:
         self.show_only_current_library.setEnabled(False)
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> None:
         item = self.rules_table.itemAt(point)
         if item is None:
             return
@@ -688,7 +688,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         assert vp is not None
         m.exec(vp.mapToGlobal(point))
 
-    def context_menu_handler(self, action, item):
+    def context_menu_handler(self, action, item) -> None:
         if action == 'copy':
             cb = QApplication.clipboard()
             assert cb is not None
@@ -711,7 +711,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             return
         return super().keyPressEvent(a0)
 
-    def check_button_state(self, item):
+    def check_button_state(self, item) -> None:
         if item is None:
             item = self.rules_table.currentItem()
         assert item is not None
@@ -730,12 +730,12 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 self.undo_button.setEnabled(True)
             self.edit_button.setEnabled(True)
 
-    def change_filter_library(self, state):
+    def change_filter_library(self, state) -> None:
         gprefs['tag_browser_rules_show_only_current_library'] = self.show_only_current_library.isChecked()
         self.populate_content()
         self.rules_table.sortByColumn(self.last_section_sorted, Qt.SortOrder(self.section_order[self.last_section_sorted]))
 
-    def undo_changes(self):
+    def undo_changes(self) -> None:
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             column = idx.column()
@@ -744,7 +744,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             elif column in (ICON_COLUMN, FOR_CHILDREN_COLUMN):
                 self.undo_modification()
 
-    def edit_column(self):
+    def edit_column(self) -> None:
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             column = idx.column()
@@ -752,7 +752,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 self.rules_table.edit(idx)
             self.check_button_state(None)  # Here to make buttons enabled/disabled
 
-    def delete_rule(self):
+    def delete_rule(self) -> None:
         idx = self.rules_table.currentIndex()
         if idx.isValid() and idx.column() == CATEGORY_COLUMN:
             item = self.rules_table.item(idx.row(), idx.column())
@@ -761,7 +761,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.check_button_state(item)
 
-    def undo_delete(self):
+    def undo_delete(self) -> None:
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             item = self.rules_table.item(idx.row(), CATEGORY_COLUMN)
@@ -771,7 +771,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.check_button_state(item)
 
-    def undo_modification(self):
+    def undo_modification(self) -> None:
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             item = self.rules_table.item(idx.row(), idx.column())
@@ -781,13 +781,13 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.check_button_state(item)
 
-    def table_column_resized(self, col, old, new):
+    def table_column_resized(self, col, old, new) -> None:
         self.table_column_widths = []
         for c in range(self.rules_table.columnCount()):
             self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0) -> None:
         super().resizeEvent(a0)
         if self.table_column_widths is not None:
             for c, w in enumerate(self.table_column_widths):
@@ -810,13 +810,13 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
-    def do_sort(self, section):
+    def do_sort(self, section) -> None:
         order = 1 - self.section_order[section]
         self.section_order[section] = order
         self.last_section_sorted = section
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
 
     def commit(self, *args):

@@ -53,7 +53,7 @@ def safe_makedirs(path):
     return path
 
 
-def robust_rmtree(x):
+def robust_rmtree(x) -> bool:
     retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
@@ -95,7 +95,7 @@ def robust_rename(a: str, b: str) -> OSError | None:
     return None
 
 
-def clear_temp(temp_path):
+def clear_temp(temp_path) -> None:
     now = time.time()
     for x in os.listdir(temp_path):
         x = os.path.join(temp_path, x)
@@ -104,7 +104,7 @@ def clear_temp(temp_path):
             robust_rmtree(x)
 
 
-def expire_cache(path, instances, max_age):
+def expire_cache(path, instances, max_age) -> None:
     now = time.time()
     remove = [x for x in instances if now - x['atime'] > max_age and x['status'] == 'finished']
     for instance in remove:
@@ -120,7 +120,7 @@ def expire_old_versions(path, instances):
             yield instance
 
 
-def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_expire):
+def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_expire) -> None:
     now = time.time()
     if now - metadata['last_clear_at'] < DAY and max_age >= 0 and not force_expire:
         return
@@ -174,7 +174,7 @@ def prepare_convert(temp_path, key, st, book_path):
 
 
 class ConversionFailure(ValueError):
-    def __init__(self, book_path, worker_output):
+    def __init__(self, book_path, worker_output) -> None:
         self.book_path = book_path
         self.worker_output = worker_output
         ValueError.__init__(self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
@@ -190,7 +190,7 @@ def create_worker():
     return start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stderr=subprocess.STDOUT)
 
 
-def clean_running_workers():
+def clean_running_workers() -> None:
     global preloaded_worker
     if preloaded_worker is not None:
         preloaded_worker.kill()
@@ -203,14 +203,14 @@ def clean_running_workers():
     del running_workers[:]
 
 
-def initialize_worker():
+def initialize_worker() -> None:
     global preloaded_worker
     if preloaded_worker is None:
         preloaded_worker = create_worker()
         atexit.register(clean_running_workers)
 
 
-def do_convert(path, temp_path, key, instance):
+def do_convert(path, temp_path, key, instance) -> None:
     global preloaded_worker
     tdir = os.path.join(temp_path, instance['path'])
     p = preloaded_worker or create_worker()
@@ -236,7 +236,7 @@ def do_convert(path, temp_path, key, instance):
     instance['cache_size'] = size
 
 
-def save_metadata(metadata, f):
+def save_metadata(metadata, f) -> None:
     f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
 
 
@@ -298,7 +298,7 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
     return ans
 
 
-def update_book(path, old_stat, name_data_map=None):
+def update_book(path, old_stat, name_data_map=None) -> None:
     old_key = book_hash(path, old_stat.st_size, old_stat.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
 
@@ -338,23 +338,23 @@ def find_tests():
     class TestViewerCache(unittest.TestCase):
         ae = unittest.TestCase.assertEqual
 
-        def setUp(self):
+        def setUp(self) -> None:
             self.tdir = tempfile.mkdtemp()
             setattr(book_cache_dir, 'override', os.path.join(self.tdir, 'ev2'))
 
-        def tearDown(self):
+        def tearDown(self) -> None:
             rmtree(self.tdir)
             delattr(book_cache_dir, 'override')
 
-        def test_viewer_cache(self):
+        def test_viewer_cache(self) -> None:
 
-            def convert_mock(path, temp_path, key, instance):
+            def convert_mock(path, temp_path, key, instance) -> None:
                 self.ae(instance['status'], 'working')
                 self.ae(instance['key'], key)
                 with open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb') as f:
                     f.write(b'test')
 
-            def set_data(x):
+            def set_data(x) -> None:
                 if not isinstance(x, bytes):
                     x = x.encode('utf-8')
                 with open(book_src, 'wb') as f:

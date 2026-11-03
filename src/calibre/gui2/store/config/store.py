@@ -11,5 +11,5 @@ def config_widget():
     return StoreConfigWidget()
 
 
-def save_settings(config_widget):
+def save_settings(config_widget) -> None:
     config_widget.save_settings()

@@ -21,7 +21,7 @@ class ChoosePopupWidget(QWidget):
     TOP_MARGIN = BOTTOM_MARGIN = 2
     SIDE_MARGIN = 4
 
-    def __init__(self, parent, max_height=1000):
+    def __init__(self, parent, max_height=1000) -> None:
         QWidget.__init__(self, parent)
 
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -47,11 +47,11 @@ class ChoosePopupWidget(QWidget):
         self.relayout_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(25), t.timeout.connect(self.layout)
 
-    def clear_caches(self):
+    def clear_caches(self) -> None:
         self.rendered_text_cache.clear()
         self.current_size_hint = None
 
-    def set_items(self, items, descriptions=None):
+    def set_items(self, items, descriptions=None) -> None:
         self.current_results = items
         self.current_size_hint = None
         self.descriptions = descriptions or {}
@@ -107,7 +107,7 @@ class ChoosePopupWidget(QWidget):
             if top <= y < top + height:
                 return idx
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         painter = QPainter(self)
         painter.setClipRect(a0.rect())
         pal = self.palette()
@@ -133,7 +133,7 @@ class ChoosePopupWidget(QWidget):
         if self.current_size_hint is None:
             QTimer.singleShot(0, self.layout)
 
-    def layout(self, cursor_rect=None):
+    def layout(self, cursor_rect=None) -> None:
         p_raw = self.parent()
         assert p_raw is not None
         p = cast('TextEdit', p_raw)
@@ -157,7 +157,7 @@ class ChoosePopupWidget(QWidget):
         self.move(left, top)
         self.update()
 
-    def ensure_index_visible(self, index):
+    def ensure_index_visible(self, index) -> None:
         if index < self.current_top_index:
             self.current_top_index = max(0, index)
         else:
@@ -168,13 +168,13 @@ class ChoosePopupWidget(QWidget):
             if i < index:
                 self.current_top_index += index - i
 
-    def show(self):
+    def show(self) -> None:
         if self.current_results:
             self.layout()
             QWidget.show(self)
             self.raise_without_focus()
 
-    def hide(self):
+    def hide(self) -> None:
         QWidget.hide(self)
         self.relayout_timer.stop()
 
@@ -183,7 +183,7 @@ class ChoosePopupWidget(QWidget):
     def activate_current_result(self):
         raise NotImplementedError('You must implement this method in a subclass')
 
-    def handle_keypress(self, ev):
+    def handle_keypress(self, ev) -> bool:
         key = ev.key()
         if key == Qt.Key.Key_Escape:
             self.abort(), ev.accept()
@@ -212,7 +212,7 @@ class ChoosePopupWidget(QWidget):
                 self.relayout_timer.start()
         return False
 
-    def mouseMoveEvent(self, a0):
+    def mouseMoveEvent(self, a0) -> None:
         y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None and idx != self.current_index:
@@ -220,7 +220,7 @@ class ChoosePopupWidget(QWidget):
             self.update()
             a0.accept()
 
-    def mouseReleaseEvent(self, a0):
+    def mouseReleaseEvent(self, a0) -> None:
         y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None:
@@ -228,7 +228,7 @@ class ChoosePopupWidget(QWidget):
             self.hide()
         a0.accept()
 
-    def choose_next_result(self, previous=False):
+    def choose_next_result(self, previous=False) -> None:
         if self.current_results:
             if previous:
                 if self.current_index == -1:
@@ -244,21 +244,21 @@ class ChoosePopupWidget(QWidget):
 
 
 class CompletionPopup(ChoosePopupWidget):
-    def __init__(self, parent, max_height=1000):
+    def __init__(self, parent, max_height=1000) -> None:
         ChoosePopupWidget.__init__(self, parent, max_height=max_height)
         self.completion_error_shown = False
 
         self.current_query = self.current_completion = None
 
-    def set_items(self, items, descriptions=None, query=None):
+    def set_items(self, items, descriptions=None, query=None) -> None:
         self.current_query = query
         ChoosePopupWidget.set_items(self, tuple(items.items()), descriptions=descriptions)
 
-    def choose_next_result(self, previous=False):
+    def choose_next_result(self, previous=False) -> None:
         ChoosePopupWidget.choose_next_result(self, previous=previous)
         self.activate_current_result()
 
-    def activate_current_result(self):
+    def activate_current_result(self) -> None:
         if self.current_completion is not None:
             c = self.current_completion
             text = (self.current_query or '') if self.current_index == -1 else self.current_results[self.current_index][0]
@@ -267,17 +267,17 @@ class CompletionPopup(ChoosePopupWidget):
             c.setPosition(c.position() - chars)
             c.setPosition(c.position() + chars, QTextCursor.MoveMode.KeepAnchor)
 
-    def abort(self):
+    def abort(self) -> None:
         ChoosePopupWidget.abort(self)
         self.current_completion = self.current_query = None
 
-    def mark_completion(self, editor, query):
+    def mark_completion(self, editor, query) -> None:
         self.current_completion = c = editor.textCursor()
         chars = string_length(query or '')
         c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, QTextCursor.MoveMode.KeepAnchor)
         self.hide()
 
-    def handle_result(self, result):
+    def handle_result(self, result) -> None:
         if result.traceback:
             prints(result.traceback)
             if not self.completion_error_shown:
@@ -305,7 +305,7 @@ class CompletionPopup(ChoosePopupWidget):
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
 
-    def test(editor):
+    def test(editor) -> None:
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()
         m = Matcher(items)

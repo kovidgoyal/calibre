@@ -36,7 +36,7 @@ from calibre.utils.localization import _
 
 
 class CoverDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
         assert style is not None
@@ -57,7 +57,7 @@ class PDFCovers(QDialog):
 
     rendering_done = pyqtSignal()
 
-    def __init__(self, pdfpath, parent=None):
+    def __init__(self, pdfpath, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.pdfpath = pdfpath
         self.ext = os.path.splitext(pdfpath)[1][1:].lower()
@@ -94,7 +94,7 @@ class PDFCovers(QDialog):
         self.tdir = PersistentTemporaryDirectory('_pdf_covers')
         QTimer.singleShot(0, self.start_rendering)
 
-    def start_rendering(self):
+    def start_rendering(self) -> None:
         self.hide_pages()
         self._render_thread = Thread(target=self.render, daemon=True, name='RenderPages')
         self._render_thread.start()
@@ -108,13 +108,13 @@ class PDFCovers(QDialog):
             assert _item is not None
             return str(_item.data(Qt.ItemDataRole.UserRole) or '')
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         try:
             shutil.rmtree(self.tdir)
         except OSError:
             pass
 
-    def render(self, *args, **kwargs):
+    def render(self, *args, **kwargs) -> None:
         self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:
@@ -132,13 +132,13 @@ class PDFCovers(QDialog):
         if not sip.isdeleted(self) and self.isVisible():
             self.rendering_done.emit()
 
-    def hide_pages(self):
+    def hide_pages(self) -> None:
         self.stack.start()
         more_pages = self.more_pages
         assert more_pages is not None
         more_pages.setVisible(False)
 
-    def show_pages(self):
+    def show_pages(self) -> None:
         if self.error is not None:
             error_dialog(self, _('Failed to render'), _('Could not render this file'), show=True, det_msg=self.error)
             self.reject()

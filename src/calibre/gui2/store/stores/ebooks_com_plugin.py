@@ -61,7 +61,7 @@ def search_ec(query, max_results=10, timeout=60, write_html_to=''):
 storage = []
 
 
-def ec_details(search_result, timeout=30, write_data_to=''):
+def ec_details(search_result, timeout=30, write_data_to='') -> None:
     import json
 
     from calibre.scraper.simple import read_url
@@ -89,7 +89,7 @@ def ec_details(search_result, timeout=30, write_data_to=''):
 
 
 class EbookscomStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         if detail_item:
             purl = detail_item
             url = purl
@@ -108,7 +108,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         yield from search_ec(query, max_results, timeout)
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         ec_details(search_result, timeout)
         return True
 

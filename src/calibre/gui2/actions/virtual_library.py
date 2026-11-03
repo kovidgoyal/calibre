@@ -15,7 +15,7 @@ class VirtualLibraryAction(InterfaceAction):
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.menu = m = self.qaction.menu()
         assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
@@ -44,11 +44,11 @@ class VirtualLibraryAction(InterfaceAction):
         )
         self.gui.addAction(ac)
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         self.gui.build_virtual_library_menu(self.menu, add_tabs_action=False)
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         self.gui.clear_vl_history()
 
-    def switch_to_previous_virtual_library(self):
+    def switch_to_previous_virtual_library(self) -> None:
         self.gui.switch_to_previous_virtual_library()

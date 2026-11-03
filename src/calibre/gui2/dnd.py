@@ -35,14 +35,14 @@ IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, url, fpath, rq):
+    def __init__(self, url, fpath, rq) -> None:
         Thread.__init__(self)
         self.url, self.fpath = url, fpath
         self.daemon = True
         self.rq = rq
         self.err = self.tb = None
 
-    def run(self):
+    def run(self) -> None:
         try:
             br = browser()
             br.retrieve(self.url, self.fpath, self.callback)
@@ -52,7 +52,7 @@ class Worker(Thread):  # {{{
 
             self.tb = traceback.format_exc()
 
-    def callback(self, a, b, c):
+    def callback(self, a, b, c) -> None:
         self.rq.put((a, b, c))
 
 
@@ -60,7 +60,7 @@ class Worker(Thread):  # {{{
 
 
 class DownloadDialog(QDialog):  # {{{
-    def __init__(self, url, fname, parent):
+    def __init__(self, url, fname, parent) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Download %s') % fname)
         self.l = QVBoxLayout(self)
@@ -85,11 +85,11 @@ class DownloadDialog(QDialog):  # {{{
         self.worker = Worker(url, self.fpath, Queue())
         self._download_rejected = False
 
-    def reject(self):
+    def reject(self) -> None:
         self._download_rejected = True
         QDialog.reject(self)
 
-    def start_download(self):
+    def start_download(self) -> None:
         self.worker.start()
         QTimer.singleShot(50, self.update)
         self.exec()
@@ -117,7 +117,7 @@ class DownloadDialog(QDialog):  # {{{
             return self.accept()
         QTimer.singleShot(50, self.update)
 
-    def update_pb(self, progress):
+    def update_pb(self, progress) -> None:
         transferred, block_size, total = progress
         if total == -1:
             self.pb.setMaximum(0)

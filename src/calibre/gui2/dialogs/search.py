@@ -45,7 +45,7 @@ last_matchkind = CONTAINS_MATCH
 
 
 # UI {{{
-def init_dateop(cb):
+def init_dateop(cb) -> None:
     for op, desc in [
         ('=', _('equal to')),
         ('<', _('before')),
@@ -107,7 +107,7 @@ def create_button_box(self):
     return bb
 
 
-def create_adv_tab(self):
+def create_adv_tab(self) -> None:
     self.adv_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('A&dvanced search'))
 
@@ -135,7 +135,7 @@ def create_adv_tab(self):
     l.addRow(_('Any of these &unwanted words:'), le)
 
 
-def create_simple_tab(self, db):
+def create_simple_tab(self, db) -> None:
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('Titl&e/author/series...'))
 
@@ -194,7 +194,7 @@ def create_simple_tab(self, db):
         self.general_combo.setCurrentIndex(self.general_combo.findText(self.box_last_values['general_index']))
 
 
-def toggle_date_conditions_visibility(self):
+def toggle_date_conditions_visibility(self) -> None:
     dcl = self.date_condition_layouts
     op = current_dateop(self.dateop_date)
     visible = op not in 'su'
@@ -206,7 +206,7 @@ def toggle_date_conditions_visibility(self):
                 w.setVisible(visible)
 
 
-def create_date_tab(self, db):
+def create_date_tab(self, db) -> None:
     self.date_tab = w = QWidget(self.tab_widget)
     self.date_condition_layouts = dcl = []
     self.tab_widget.addTab(w, _('&Date search'))
@@ -292,7 +292,7 @@ def create_date_tab(self, db):
     toggle_date_conditions_visibility(self)
 
 
-def create_template_tab(self):
+def create_template_tab(self) -> None:
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('&Template search'))
 
@@ -360,7 +360,7 @@ def create_template_tab(self):
     l.addRow('', le)
 
 
-def setup_ui(self, db):
+def setup_ui(self, db) -> None:
     self.setWindowTitle(_('Advanced search'))
     self.setWindowIcon(QIcon.ic('search.png'))
     self.l = l = QVBoxLayout(self)
@@ -417,7 +417,7 @@ class SearchDialog(QDialog):
     any: QLineEdit
     none: QLineEdit
 
-    def __init__(self, parent, db):
+    def __init__(self, parent, db) -> None:
         QDialog.__init__(self, parent)
         setup_ui(self, db)
 
@@ -460,10 +460,10 @@ class SearchDialog(QDialog):
         self.edit_template_button.clicked.connect(self.open_template_program_box_editor)
         self.resize(self.sizeHint())
 
-    def open_template_program_box_editor(self):
+    def open_template_program_box_editor(self) -> None:
         self.template_program_box.open_editor()
 
-    def retrieve_template_search(self):
+    def retrieve_template_search(self) -> None:
         template, sep, query = re.split(r'#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)
         self.template_value_box.setText(query)
         cb = self.template_test_type_box
@@ -473,7 +473,7 @@ class SearchDialog(QDialog):
                 break
         self.template_program_box.setText(template)
 
-    def save_state(self):
+    def save_state(self) -> None:
         gprefs['advanced search dialog current tab'] = self.tab_widget.currentIndex()
         if self.tab_widget.currentIndex() == 1:
             fw = self.tab_widget.focusWidget()
@@ -492,7 +492,7 @@ class SearchDialog(QDialog):
         self.save_state()
         return QDialog.reject(self)
 
-    def clear_button_pushed(self):
+    def clear_button_pushed(self) -> None:
         w = self.tab_widget.currentWidget()
         assert w is not None
         for c in w.findChildren(QComboBox):

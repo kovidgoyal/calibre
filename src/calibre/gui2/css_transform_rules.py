@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 class RuleEdit(QWidget):  # {{{
     MSG = _('Create the rule below, the rule can be used to transform style properties')
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -104,7 +104,7 @@ class RuleEdit(QWidget):  # {{{
         a.setWidth(a.width() + 100)
         return a
 
-    def update_state(self):
+    def update_state(self) -> None:
         r = self.rule
         self.action_data.setVisible(r['action'] != 'remove')
         tt = _('The CSS property value')
@@ -145,8 +145,8 @@ class RuleEdit(QWidget):  # {{{
         }
 
     @rule.setter
-    def rule(self, rule):
-        def sc(name):
+    def rule(self, rule) -> None:
+        def sc(name) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -158,7 +158,7 @@ class RuleEdit(QWidget):  # {{{
         self.action_data.setText(str(rule.get('action_data', '')).strip())
         self.update_state()
 
-    def validate(self):
+    def validate(self) -> bool:
         rule = self.rule
         title, msg = validate_rule(rule)
         if msg is not None and title is not None:
@@ -227,14 +227,14 @@ class Tester(Dialog):  # {{{
     SYNTAX = 'css'
     RESULTS = '/* {} */\n\n'.format(_('Resulting stylesheet'))
 
-    def __init__(self, rules, parent=None):
+    def __init__(self, rules, parent=None) -> None:
         self.rules = self.compile_rules(rules)
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
     def compile_rules(self, rules):
         return compile_rules(rules)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.gui2.tweak_book.editor.text import TextEdit
 
         self.l = l = QVBoxLayout(self)
@@ -262,7 +262,7 @@ class Tester(Dialog):  # {{{
     def value(self):
         return self.css.toPlainText()
 
-    def do_test(self):
+    def do_test(self) -> None:
         decl = safe_parser().parseString(self.value)
         transform_sheet(self.rules, decl)
         css = decl.cssText
@@ -270,7 +270,7 @@ class Tester(Dialog):  # {{{
             css = css.decode('utf-8')
         self.set_result(css)
 
-    def set_result(self, css):
+    def set_result(self, css) -> None:
         self.result_widget.load_text(self.RESULTS + css, self.SYNTAX)
 
     def sizeHint(self):
@@ -287,7 +287,7 @@ class RulesDialog(RulesDialogBase):  # {{{
     RulesClass = Rules
     TesterClass = Tester
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         # This has to be loaded on instantiation as it can be shared by
         # multiple processes
         self.PREFS_OBJECT = JSONConfig(self.PREFS_OBJECT_NAME)
@@ -307,7 +307,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
     TesterClass = Tester
     RulesClass = Rules
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self.loaded_ruleset = None
         QWidget.__init__(self, parent)
         self.PREFS_OBJECT = JSONConfig(self.PREFS_NAME)
@@ -352,7 +352,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             with open(path, 'wb') as f:
                 f.write(raw)
 
-    def import_rules(self):
+    def import_rules(self) -> None:
         paths = choose_files(self, self.DIR_SAVE_NAME, _('Choose file to import rules from'), select_only_single_file=True)
         if paths:
             func = self.__class__.import_func
@@ -361,11 +361,11 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             self.rules_widget.rules = list(rules) + list(self.rules_widget.rules)
             self.changed.emit()
 
-    def load_ruleset(self, name):
+    def load_ruleset(self, name) -> None:
         SaveLoadMixin.load_ruleset(self, name)
         self.changed.emit()
 
-    def test_rules(self):
+    def test_rules(self) -> None:
         self.TesterClass(self.rules_widget.rules, self).exec()
 
     @property
@@ -373,7 +373,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         return self.rules_widget.rules
 
     @rules.setter
-    def rules(self, val):
+    def rules(self, val) -> None:
         try:
             self.rules_widget.rules = val or []
         except Exception:

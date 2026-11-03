@@ -16,11 +16,11 @@ class BrowseNotesAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.d = None
         self.qaction.triggered.connect(self.show_browser)
 
-    def show_browser(self):
+    def show_browser(self) -> None:
         if self.d is not None and self.d.isVisible():
             self.d.raise_and_focus()
         else:

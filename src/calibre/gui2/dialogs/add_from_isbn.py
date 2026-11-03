@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 
 
 class AddFromISBN(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setup_ui()
 
@@ -23,7 +23,7 @@ class AddFromISBN(QDialog):
         self.books = []
         self.set_tags = []
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.resize(678, 430)
         self.setWindowTitle(_('Add books by ISBN'))
         self.setWindowIcon(QIcon.ic('add_book.png'))
@@ -75,7 +75,7 @@ class AddFromISBN(QDialog):
 
         l.addStretch(10)
 
-    def paste(self, *args):
+    def paste(self, *args) -> None:
         app = qapplication_or_fail()
         c = app.clipboard()
         assert c is not None

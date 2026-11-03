@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 
 
 class Choose(QDialog):
-    def __init__(self, title, fmts, parent=None):
+    def __init__(self, title, fmts, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
@@ -39,10 +39,10 @@ class Choose(QDialog):
         self.fmt = None
         self.resize(self.sizeHint())
 
-    def chosen(self, fmt):
+    def chosen(self, fmt) -> None:
         self.fmt = fmt
 
-    def accept(self):
+    def accept(self) -> None:
         from calibre.gui2.tweak_book import tprefs
 
         tprefs['choose_tweak_fmt'] = self.rem.isChecked()
@@ -55,13 +55,13 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
             self.do_tweak(book_ids[0])
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.tweak_book)
 
     def tweak_book(self):

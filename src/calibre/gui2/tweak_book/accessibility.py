@@ -76,7 +76,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class LanguagePanel(QWidget):
-    def __init__(self, container: Container, parent: QWidget | None = None):
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.original_languages = book_languages(container)
         self.num_html = len(html_names(container))
@@ -190,7 +190,7 @@ def render_svg(svg: etree._Element, size: int, dpr: float) -> QPixmap:
 
 
 class ImagesPanel(QWidget):
-    def __init__(self, container: Container, parent: QWidget | None = None):
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.container = container
         self.uses = image_uses(container)
@@ -503,7 +503,7 @@ class CheckList(QGroupBox):
     # Check boxes for the known values of a property, along with any other
     # values the book already has, so that they are kept
 
-    def __init__(self, title: str, prop: str, known: tuple[str, ...], values: list[str], columns: int = 2, parent: QWidget | None = None):
+    def __init__(self, title: str, prop: str, known: tuple[str, ...], values: list[str], columns: int = 2, parent: QWidget | None = None) -> None:
         QGroupBox.__init__(self, title, parent)
         self.prop = prop
         names = labels()[prop]
@@ -523,7 +523,7 @@ class CheckList(QGroupBox):
 
 
 class MetadataPanel(QScrollArea):
-    def __init__(self, container: Container, parent: QWidget | None = None):
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         QScrollArea.__init__(self, parent)
         self.original = read_accessibility_metadata(container)
         self.setWidgetResizable(True)
@@ -639,7 +639,7 @@ class MetadataPanel(QScrollArea):
 
 
 class Accessibility(Dialog):
-    def __init__(self, container: Container, parent: QWidget | None = None):
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         self.container = container
         Dialog.__init__(self, _('Accessibility'), 'accessibility-tool', parent=parent)
 

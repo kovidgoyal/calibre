@@ -66,7 +66,7 @@ def wrap_preference_button_text(text, max_width=0, font_metrics=None):
 
 
 class Message(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.text_layout = QTextLayout()
         self.text_layout.setFont(self.font())
@@ -74,7 +74,7 @@ class Message(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.last_layout_rect = None
 
-    def setText(self, text):
+    def setText(self, text) -> None:
         self.text_layout.setText(text)
         self.last_layout_rect = None
         self.update()
@@ -82,7 +82,7 @@ class Message(QWidget):
     def sizeHint(self):
         return QSize(10, 10)
 
-    def do_layout(self):
+    def do_layout(self) -> None:
         ly = self.text_layout
         ly.beginLayout()
         w = self.width() - 5
@@ -98,7 +98,7 @@ class Message(QWidget):
             height += line.height()
         ly.endLayout()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         if self.last_layout_rect != self.rect():
             self.do_layout()
         p = QPainter(self)
@@ -110,7 +110,7 @@ class Message(QWidget):
 
 
 class TitleBar(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.icon = Icon(self, size=ICON_SIZE)
@@ -125,11 +125,11 @@ class TitleBar(QWidget):
         self.show_plugin()
         self.show_msg()
 
-    def show_plugin(self, plugin=None):
+    def show_plugin(self, plugin=None) -> None:
         self.icon.set_icon(QIcon.ic('lt.png' if plugin is None else plugin.icon))
         self.title.setText('<h1>' + (_('Preferences') if plugin is None else plugin.gui_name))
 
-    def show_msg(self, msg=None):
+    def show_msg(self, msg=None) -> None:
         msg = msg or self.default_message
         self.msg.setText(' '.join(msg.splitlines()).strip())
 
@@ -138,7 +138,7 @@ class TitleBar(QWidget):
 
 
 class SectionSeparator(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setFixedHeight(1)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -146,7 +146,7 @@ class SectionSeparator(QWidget):
     def sizeHint(self):
         return QSize(1, 1)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QPainter(self)
         p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Mid))
 
@@ -154,7 +154,7 @@ class SectionSeparator(QWidget):
 class Category(QWidget):  # {{{
     plugin_activated = pyqtSignal(object)
 
-    def __init__(self, name, plugins, gui_name, parent=None, add_separator=True, columns=1):
+    def __init__(self, name, plugins, gui_name, parent=None, add_separator=True, columns=1) -> None:
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
@@ -208,11 +208,11 @@ class Category(QWidget):  # {{{
         self.bar_layout.addStretch(1)
         self.update_button_widths()
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0) -> None:
         QWidget.resizeEvent(self, a0)
         self.update_button_widths()
 
-    def update_button_widths(self, available_width=None):
+    def update_button_widths(self, available_width=None) -> None:
         if not self.buttons:
             return
         # Keep every category on the same grid; empty columns remain blank instead of creating overflow buttons.
@@ -222,7 +222,7 @@ class Category(QWidget):  # {{{
             button.setFixedWidth(width)
             button.setText(wrap_preference_button_text(button_text, width - PREFERENCE_BUTTON_TEXT_PADDING, button.fontMetrics()))
 
-    def triggered(self, plugin, *args):
+    def triggered(self, plugin, *args) -> None:
         self.plugin_activated.emit(plugin)
 
 
@@ -232,7 +232,7 @@ class Category(QWidget):  # {{{
 class Browser(QScrollArea):  # {{{
     show_plugin = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -275,11 +275,11 @@ class Browser(QScrollArea):  # {{{
         self._layout.addStretch(1)
         self.update_category_widths()
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0) -> None:
         QScrollArea.resizeEvent(self, a0)
         self.update_category_widths()
 
-    def update_category_widths(self):
+    def update_category_widths(self) -> None:
         margins = self._layout.contentsMargins()
         viewport = self.viewport()
         assert viewport is not None
@@ -300,7 +300,7 @@ class Preferences(QDialog):
     run_wizard_requested = pyqtSignal()
     showing_widget: ConfigWidgetBase
 
-    def __init__(self, gui, initial_plugin=None, close_after_initial=False):
+    def __init__(self, gui, initial_plugin=None, close_after_initial=False) -> None:
         QDialog.__init__(self, gui)
         self.gui = gui
         self.must_restart = False
@@ -388,13 +388,13 @@ class Preferences(QDialog):
             self.title_bar.show_msg(msg)
         return QDialog.event(self, a0)
 
-    def run_wizard(self):
+    def run_wizard(self) -> None:
         self.run_wizard_requested.emit()
         self.accept()
 
-    def set_tooltips_for_labels(self):
+    def set_tooltips_for_labels(self) -> None:
 
-        def process_child(child):
+        def process_child(child) -> None:
             for g in child.children():
                 if isinstance(g, QLabel):
                     buddy = g.buddy()
@@ -409,7 +409,7 @@ class Preferences(QDialog):
 
         process_child(self.showing_widget)
 
-    def show_plugin(self, plugin):
+    def show_plugin(self, plugin) -> None:
         self.showing_widget = plugin.create_widget(self.scroll_area)
         self.showing_widget.genesis(self.gui)
         self.showing_widget.do_on_child_tabs('genesis', self.gui)
@@ -451,12 +451,12 @@ class Preferences(QDialog):
         self.showing_widget.changed_signal.connect(self.changed_signal)
         self.showing_widget.do_on_child_tabs('set_changed_signal', self.changed_signal)
 
-    def changed_signal(self):
+    def changed_signal(self) -> None:
         b = self.bb.button(QDialogButtonBox.StandardButton.Apply)
         assert b is not None
         b.setEnabled(True)
 
-    def hide_plugin(self):
+    def hide_plugin(self) -> None:
         for sig in 'changed_signal restart_now'.split():
             try:
                 getattr(self.showing_widget, sig).disconnect(getattr(self, sig))
@@ -481,7 +481,7 @@ class Preferences(QDialog):
         close_button.setDefault(False), close_button.setDefault(True)
         self.wizard_button.setVisible(True)
 
-    def restart_now(self):
+    def restart_now(self) -> None:
         try:
             self.showing_widget.commit()
         except AbortCommit:
@@ -511,11 +511,11 @@ class Preferences(QDialog):
             self.do_restart = True
         return self.close_after_initial or (must_restart and rc) or do_restart
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         self.showing_widget.do_on_child_tabs('restore_defaults')
         self.showing_widget.restore_defaults()
 
-    def on_shutdown(self):
+    def on_shutdown(self) -> None:
         self.save_geometry(gprefs, 'preferences dialog geometry')
         if self.committed:
             self.gui.must_restart_before_config = self.must_restart

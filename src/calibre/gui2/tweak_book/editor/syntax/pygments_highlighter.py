@@ -103,7 +103,7 @@ def create_lexer(base_class):
 class State:
     __slots__ = ('parse', 'pygments_stack')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parse = NORMAL
         self.pygments_stack = None
 
@@ -118,19 +118,19 @@ class State:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'PythonState({self.pygments_stack!r})'
 
     __str__ = __repr__
 
 
 class PygmentsUserData(QTextBlockUserData):
-    def __init__(self):
+    def __init__(self) -> None:
         QTextBlockUserData.__init__(self)
         self.state = State()
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None):
+    def clear(self, state=None, doc_name=None) -> None:
         self.state = State() if state is None else state
         self.doc_name = doc_name
 

@@ -17,7 +17,7 @@ from calibre.utils.config import JSONConfig
 
 
 class VersionMismatch(ValueError):
-    def __init__(self, ver):
+    def __init__(self, ver) -> None:
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
 
@@ -51,7 +51,7 @@ def download_updates(ver_map=None, server='https://code.calibre-ebook.com'):
 class Stores(OrderedDict):
     CHECK_INTERVAL = 24 * 60 * 60
 
-    def builtins_loaded(self):
+    def builtins_loaded(self) -> None:
         self.last_check_time = 0
         self.version_map = {}
         self.cached_version_map = {}
@@ -68,7 +68,7 @@ class Stores(OrderedDict):
         self.cache_file = JSONConfig('store/plugin_cache')
         self.load_cache()
 
-    def load_cache(self):
+    def load_cache(self) -> None:
         # Load plugins from on disk cache
         remove = set()
         pat = re.compile(r'^store_version\s*=\s*(\d+)', re.M)
@@ -105,7 +105,7 @@ class Stores(OrderedDict):
                 for name in remove:
                     del self.cache_file[name]
 
-    def check_for_updates(self):
+    def check_for_updates(self) -> None:
         if hasattr(self, 'update_thread') and self.update_thread.is_alive():
             return
         if time.time() - self.last_check_time < self.CHECK_INTERVAL:
@@ -117,7 +117,7 @@ class Stores(OrderedDict):
             self.update_thread = Thread(target=self.do_update)
             self.update_thread.start()
 
-    def join(self, timeout=None):
+    def join(self, timeout=None) -> None:
         hasattr(self, 'update_thread') and self.update_thread.join(timeout)
 
     def download_updates(self):
@@ -131,7 +131,7 @@ class Stores(OrderedDict):
         else:
             yield from updates
 
-    def do_update(self):
+    def do_update(self) -> None:
         replacements = {}
 
         for name, src in self.download_updates():
@@ -161,7 +161,7 @@ class Stores(OrderedDict):
                 for name, src in replacements.items():
                     self.cache_file[name] = src
 
-    def replace_plugin(self, ver, name, obj, source):
+    def replace_plugin(self, ver, name, obj, source) -> bool:
         if ver > self.version_map[name]:
             if DEBUG:
                 prints('Loaded', source, 'store plugin for:', self.name_rmap[name], 'at version:', ver)

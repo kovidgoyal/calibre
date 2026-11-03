@@ -30,10 +30,10 @@ class Position(NamedTuple):
 
 
 class Tracker:
-    def __init__(self):
+    def __init__(self) -> None:
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         self.positions: list[Position] = []
         self.last_pos = 0
         self.queue: deque[Utterance] = deque()
@@ -43,7 +43,7 @@ class Tracker:
         text = []
         text_len = chunk_len = index_in_positions = offset_in_text = 0
 
-        def commit():
+        def commit() -> None:
             self.queue.append(Utterance(''.join(text), index_in_positions, offset_in_text))
 
         for x in marked_text:
@@ -88,7 +88,7 @@ class Tracker:
                 self.queue[0] = self.queue[0]._replace(text=(filler_char * o) + self.queue[0].text[o:])
         return self.current_text()
 
-    def boundary_reached(self, start):
+    def boundary_reached(self, start) -> None:
         if self.queue:
             self.queue[0] = self.queue[0]._replace(reached_offset=start)
 
@@ -120,7 +120,7 @@ class TTSManager(QObject):
     saying = pyqtSignal(int, int)
     configured = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._tts: TTSBackend | None = None
         self.state = QTextToSpeech.State.Ready
@@ -172,7 +172,7 @@ class TTSManager(QObject):
         self.speaking_simple_text = True
         self.tts.say(text)
 
-    def speak_marked_text(self, marked_text):
+    def speak_marked_text(self, marked_text) -> None:
         self._stop()
         self.speaking_simple_text = False
         text = self.tracker.parse_marked_text(marked_text)

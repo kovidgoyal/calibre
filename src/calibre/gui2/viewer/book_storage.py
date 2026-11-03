@@ -109,7 +109,7 @@ class BookStorageSaveWorker(Thread):
     the same book are queued, only the most recent one is saved.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         Thread.__init__(self, name='BookStorageSaveWorker')
         self.daemon = True
         self.queue: Queue[SaveRequest] = Queue()
@@ -166,7 +166,7 @@ def find_tests():
     from calibre.gui2.viewer.integration import load_book_storage_from_library, save_book_storage_to_library
 
     class BookStorageTest(BaseTest):
-        def setUp(self):
+        def setUp(self) -> None:
             super().setUp()
             self.storage_dir = self.mkdtemp()
             p = patch(f'{__name__}.book_storage_dir', lambda: self.storage_dir)
@@ -187,7 +187,7 @@ def find_tests():
                 'calibre_data': {'library_id': None, 'book_id': None, 'book_fmt': None},
             }
 
-        def test_book_storage_file(self):
+        def test_book_storage_file(self) -> None:
             self.assertIsNone(load_book_storage_from_file('missing'))
             e = new_book_storage_entry({'a': 'b', 'ü': '\U0001f600'}, 3)
             save_book_storage_to_file('key', e)
@@ -200,7 +200,7 @@ def find_tests():
             self.assertEqual(load_book_storage('missing', None), new_book_storage_entry(timestamp=0))
             self.assertEqual(load_book_storage('key', None), e)
 
-        def test_book_storage_library(self):
+        def test_book_storage_library(self) -> None:
             bld = self.bld()
             # Libraries last opened with an older version of calibre are ignored
             old_library = self.bld()
@@ -243,7 +243,7 @@ def find_tests():
             assert entry is not None
             return entry['data']
 
-        def test_book_storage_save_worker(self):
+        def test_book_storage_save_worker(self) -> None:
             w = BookStorageSaveWorker()
             w.start()
             for i in range(10):

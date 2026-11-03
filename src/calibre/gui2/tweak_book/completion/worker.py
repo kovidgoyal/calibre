@@ -18,7 +18,7 @@ CLEAR_REQUEST = 'clear request'
 class CompletionWorker(Thread):
     daemon = True
 
-    def __init__(self, result_callback=lambda x: x, worker_entry_point='main'):
+    def __init__(self, result_callback=lambda x: x, worker_entry_point='main') -> None:
         Thread.__init__(self)
         self.worker_entry_point = worker_entry_point
         self.start()
@@ -31,7 +31,7 @@ class CompletionWorker(Thread):
         self.request_count = 0
         self.lock = RLock()
 
-    def launch_worker_process(self):
+    def launch_worker_process(self) -> None:
         from calibre.utils.ipc.pool import start_worker
 
         control_a, control_b = Pipe()
@@ -50,7 +50,7 @@ class CompletionWorker(Thread):
         t.start()
         self.connected.set()
 
-    def send(self, data, conn=None):
+    def send(self, data, conn=None) -> None:
         conn = conn or self.control_conn
         try:
             eintr_retry_call(conn.send, data)
@@ -66,10 +66,10 @@ class CompletionWorker(Thread):
             if not self.shutting_down:
                 raise
 
-    def wait_for_connection(self, timeout=None):
+    def wait_for_connection(self, timeout=None) -> None:
         self.connected.wait(timeout)
 
-    def handle_data_requests(self):
+    def handle_data_requests(self) -> None:
         from calibre.gui2.tweak_book.completion.basic import handle_data_request
 
         while True:
@@ -95,7 +95,7 @@ class CompletionWorker(Thread):
                 traceback.print_exc()
                 break
 
-    def run(self):
+    def run(self) -> None:
         self.launch_worker_process()
         while True:
             obj = self.main_queue.get()
@@ -114,7 +114,7 @@ class CompletionWorker(Thread):
 
                 traceback.print_exc()
 
-    def send_completion_request(self, request):
+    def send_completion_request(self, request) -> None:
         self.send(request)
         result = self.recv()
         latest_completion_request_id = self.latest_completion_request_id
@@ -126,16 +126,16 @@ class CompletionWorker(Thread):
 
                 traceback.print_exc()
 
-    def clear_caches(self, cache_type=None):
+    def clear_caches(self, cache_type=None) -> None:
         self.main_queue.put((CLEAR_REQUEST, Request(None, 'clear_caches', cache_type, None)))
 
-    def queue_completion(self, request_id, completion_type, completion_data, query=None):
+    def queue_completion(self, request_id, completion_type, completion_data, query=None) -> None:
         with self.lock:
             ccr = Request(request_id, completion_type, completion_data, query)
             self.latest_completion_request_id = ccr.id
         self.main_queue.put((COMPLETION_REQUEST, ccr))
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.shutting_down = True
         self.main_queue.put(None)
         for conn in (getattr(self, 'control_conn', None), getattr(self, 'data_conn', None)):
@@ -169,7 +169,7 @@ def completion_worker():
     return _completion_worker
 
 
-def run_main(control_fd, data_fd, func):
+def run_main(control_fd, data_fd, func) -> None:
     if iswindows:
         from multiprocessing.connection import PipeConnection as Connection
     else:
@@ -185,7 +185,7 @@ class Result(NamedTuple):
     query: str
 
 
-def main(control_conn, data_conn):
+def main(control_conn, data_conn) -> None:
     from calibre.gui2.tweak_book.completion.basic import handle_control_request
 
     while True:
@@ -211,13 +211,13 @@ def main(control_conn, data_conn):
                 break
 
 
-def test_main(control_conn, data_conn):
+def test_main(control_conn, data_conn) -> None:
     obj = control_conn.recv()
     dobj = data_conn.recv()
     control_conn.send((obj, dobj))
 
 
-def test():
+def test() -> None:
     w = CompletionWorker(worker_entry_point='test_main')
     w.wait_for_connection()
     w.data_conn.send('got the data')

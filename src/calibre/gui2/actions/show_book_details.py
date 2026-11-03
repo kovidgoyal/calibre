@@ -23,7 +23,7 @@ class ShowBookDetailsAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = _('Show Book details in a separate window')
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.dialogs = [None, None, None]
         m = self.qaction.menu()
         self.show_info_locked = l = self.create_menu_action(
@@ -38,7 +38,7 @@ class ShowBookDetailsAction(InterfaceAction):
         l.triggered.connect(self.close_all_windows)
         self.qaction.triggered.connect(self.show_book_info)
 
-    def show_book_info(self, *args, **kwargs):
+    def show_book_info(self, *args, **kwargs) -> None:
         library_path = kwargs.get('library_path', None)
         book_id = kwargs.get('book_id', None)
         library_id = kwargs.get('library_id', None)
@@ -90,21 +90,21 @@ class ShowBookDetailsAction(InterfaceAction):
         d.closed.connect(self.closed, type=Qt.ConnectionType.QueuedConnection)
         d.show()
 
-    def open_locked_window(self):
+    def open_locked_window(self) -> None:
         self.show_book_info(locked=True)
 
-    def shutting_down(self):
+    def shutting_down(self) -> None:
         self.close_all_windows()
 
-    def close_all_windows(self):
+    def close_all_windows(self) -> None:
         for dialog in [d for d in self.dialogs if d is not None]:
             dialog.done(0)
 
-    def library_about_to_change(self, olddb, db):
+    def library_about_to_change(self, olddb, db) -> None:
         for dialog in [d for d in self.dialogs[1:] if d is not None]:
             dialog.done(0)
 
-    def closed(self, d):
+    def closed(self, d) -> None:
         try:
             d.closed.disconnect(self.closed)
             self.dialogs[d.dialog_number] = None

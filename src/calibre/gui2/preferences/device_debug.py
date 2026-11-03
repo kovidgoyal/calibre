@@ -8,7 +8,7 @@ from calibre.utils.localization import _
 
 
 class DebugDevice(QDialog):
-    def __init__(self, gui, parent=None):
+    def __init__(self, gui, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.gui = gui
         self._layout = QVBoxLayout(self)
@@ -32,7 +32,7 @@ class DebugDevice(QDialog):
         self.bbox.setEnabled(False)
         QTimer.singleShot(1000, self.debug)
 
-    def debug(self):
+    def debug(self) -> None:
         if self.gui.device_manager.is_device_connected:
             error_dialog(
                 self,
@@ -59,7 +59,7 @@ class DebugDevice(QDialog):
             )
         self.log.setPlainText(job.result)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         cb = QApplication.clipboard()
         assert cb is not None
         cb.setText(self.log.toPlainText())

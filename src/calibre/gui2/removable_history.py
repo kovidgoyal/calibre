@@ -49,7 +49,7 @@ removers: set[HistoryItemRemover] = set()
 class RemovableItemDelegate(QStyledItemDelegate):  # {{{
     "Draws a remove button at the right edge of the item the mouse is over"
 
-    def __init__(self, remover: HistoryItemRemover):
+    def __init__(self, remover: HistoryItemRemover) -> None:
         super().__init__(remover.view)
         self.remover = remover
 
@@ -59,7 +59,7 @@ class RemovableItemDelegate(QStyledItemDelegate):  # {{{
             ans.setWidth(ans.width() + ans.height() + 2 * MARGIN)
         return ans
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         opt = QStyleOptionViewItem(option)
         self.initStyleOption(opt, index)
         # Match the behavior of the delegate QCompleter uses for its popup,
@@ -106,7 +106,7 @@ class HistoryItemRemover(QObject):
         hide_popup: Callable[[], None] | None = None,
         restore_current_row: bool = True,
         text_role: Qt.ItemDataRole = Qt.ItemDataRole.DisplayRole,
-    ):
+    ) -> None:
         super().__init__(view)
         self.view = view
         self.remove_item = remove_item

@@ -75,7 +75,7 @@ class DOAJStore(StorePlugin):
             query = query.decode('utf-8', 'replace')
         yield from search(query, max_results, timeout)
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = detail_item or BASE_URL
         if external:
             open_url(url)

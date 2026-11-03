@@ -7,6 +7,7 @@ import re
 import sys
 import time
 import traceback
+from typing import Never
 
 import apsw
 from qt.core import QCoreApplication, QIcon, QObject, QTimer, sip
@@ -101,7 +102,7 @@ def args_for_add_and_delete(paths: list[str]) -> list[str]:
     return ans
 
 
-def find_portable_library():
+def find_portable_library() -> None:
     base = get_portable_base()
     if base is None:
         return
@@ -233,7 +234,7 @@ def repair_library(library_path):
     return repair_library_at(library_path)
 
 
-def windows_repair(library_path=None):
+def windows_repair(library_path=None) -> None:
     import subprocess
 
     from calibre.utils.serialize import json_dumps, json_loads
@@ -266,7 +267,7 @@ def windows_repair(library_path=None):
 
 
 class EventAccumulator:
-    def __init__(self):
+    def __init__(self) -> None:
         self.events = []
 
     def __call__(self, ev):
@@ -277,7 +278,7 @@ class GuiRunner(QObject):
     """Make sure an event loop is running before starting the main work of
     initialization"""
 
-    def __init__(self, opts, args, actions, app, gui_debug=None):
+    def __init__(self, opts, args, actions, app, gui_debug=None) -> None:
         self.startup_time = monotonic()
         timed_print('Starting up...')
         self.opts, self.args, self.app = opts, args, app
@@ -288,7 +289,7 @@ class GuiRunner(QObject):
         self.splash_screen = None
         self.timer = QTimer.singleShot(1, self.initialize)
 
-    def start_gui(self, db):
+    def start_gui(self, db) -> None:
         from calibre.gui2.ui import Main
 
         timed_print('Constructing main UI...')
@@ -322,18 +323,18 @@ class GuiRunner(QObject):
             default_dir=initial_dir,
         )
 
-    def show_error(self, title, msg, det_msg=''):
+    def show_error(self, title, msg, det_msg='') -> None:
         print(det_msg, file=sys.stderr)
         self.hide_splash_screen()
         with self.app:
             error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
 
-    def initialization_failed(self):
+    def initialization_failed(self) -> Never:
         print('Catastrophic failure initializing GUI, bailing out...')
         QCoreApplication.exit(1)
         raise SystemExit(1)
 
-    def initialize_db_stage2(self, db, tb):
+    def initialize_db_stage2(self, db, tb) -> None:
         from calibre.db.legacy import LibraryDatabase
 
         if db is None and tb is not None:
@@ -369,7 +370,7 @@ class GuiRunner(QObject):
                 det_msg=details,
             )
 
-    def initialize_db(self):
+    def initialize_db(self) -> None:
         from calibre.db.legacy import LibraryDatabase
 
         db = None
@@ -410,19 +411,19 @@ class GuiRunner(QObject):
 
         self.initialize_db_stage2(db, None)
 
-    def show_splash_screen(self):
+    def show_splash_screen(self) -> None:
         timed_print('Showing splash screen...')
         self.splash_screen = SplashScreen()
         self.splash_screen.show()
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
         timed_print('splash screen shown')
 
-    def hide_splash_screen(self):
+    def hide_splash_screen(self) -> None:
         if self.splash_screen is not None:
             self.splash_screen.hide()
         self.splash_screen = None
 
-    def initialize(self, *args):
+    def initialize(self, *args) -> None:
         if gprefs['show_splash_screen'] and not self.opts.start_in_tray:
             self.show_splash_screen()
         self.library_path = get_library_path(self)
@@ -432,7 +433,7 @@ class GuiRunner(QObject):
         self.initialize_db()
 
 
-def run_in_debug_mode():
+def run_in_debug_mode() -> None:
     import subprocess
 
     from calibre.constants import cache_dir
@@ -443,7 +444,7 @@ def run_in_debug_mode():
         run_calibre_debug('--gui-debug', logpath, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
 
 
-def run_gui(opts, args, app, gui_debug=None):
+def run_gui(opts, args, app, gui_debug=None) -> int | None:
     with SingleInstance('db') as si:
         if not si:
             ext = '.exe' if iswindows else ''
@@ -462,7 +463,7 @@ def run_gui(opts, args, app, gui_debug=None):
         run_gui_(opts, args, app, gui_debug)
 
 
-def workaround_windows_shutdown_hang(timeout: float = 1.0, exit_code: int = 0):
+def workaround_windows_shutdown_hang(timeout: float = 1.0, exit_code: int = 0) -> None:
     # On Windows we get a mysterious deadlock that hangs the process on
     # exit even if we call os._exit(0), once the wireless device driver connects.
     # See https://bugs.launchpad.net/bugs/2141994
@@ -563,7 +564,7 @@ class FailedToCommunicate(Exception):
     pass
 
 
-def send_message(msg):
+def send_message(msg) -> bool:
     fail_err = None
     try:
         send_message_in_process(msg)
@@ -596,7 +597,7 @@ def send_message(msg):
     return False
 
 
-def shutdown_other():
+def shutdown_other() -> None:
     if send_message('shutdown:'):
         print(_('Shutdown command sent, waiting for shutdown...'), flush=True)
         for i in range(50):
@@ -607,7 +608,7 @@ def shutdown_other():
         raise SystemExit(_('Failed to shutdown running calibre instance'))
 
 
-def communicate(opts, args):
+def communicate(opts, args) -> Never:
     if opts.shutdown_running_calibre:
         shutdown_other()
     else:
@@ -623,7 +624,7 @@ def communicate(opts, args):
     raise SystemExit(0)
 
 
-def restart_after_quit():
+def restart_after_quit() -> None:
     e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
     is_calibre_debug_exe = os.path.splitext(e)[0].endswith('-debug')
     if iswindows and not is_calibre_debug_exe:
@@ -657,7 +658,7 @@ def restart_after_quit():
         subprocess.Popen(cmd)
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> int | None:
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
         return 0

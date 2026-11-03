@@ -17,7 +17,7 @@ from calibre.utils.localization import _
 
 
 class UnpackBook(QDialog):
-    def __init__(self, parent, book_id, fmts, db):
+    def __init__(self, parent, book_id, fmts, db) -> None:
         QDialog.__init__(self, parent)
         self.setWindowIcon(QIcon.ic('unpack-book.png'))
         self.book_id, self.fmts, self.db_ref = book_id, fmts, weakref.ref(db)
@@ -45,13 +45,13 @@ class UnpackBook(QDialog):
         for button in self.fmt_choice_buttons:
             button.toggled.connect(self.init_state)
 
-    def init_state(self, *args):
+    def init_state(self, *args) -> None:
         self._exploded = None
         self.preview_button.setEnabled(False)
         self.rebuild_button.setEnabled(False)
         self.explode_button.setEnabled(True)
 
-    def setup_ui(self):  # {{{
+    def setup_ui(self) -> None:  # {{{
         self._g = g = QHBoxLayout(self)
         self.setLayout(g)
         self._l = l = QVBoxLayout()
@@ -136,16 +136,16 @@ class UnpackBook(QDialog):
 
     # }}}
 
-    def show_msg(self, msg):
+    def show_msg(self, msg) -> None:
         self.msg.setText(msg)
         self.msg.resize(self.size() - QSize(50, 25))
         self.msg.move((self.width() - self.msg.width()) // 2, (self.height() - self.msg.height()) // 2)
         self.msg.setVisible(True)
 
-    def hide_msg(self):
+    def hide_msg(self) -> None:
         self.msg.setVisible(False)
 
-    def explode(self):
+    def explode(self) -> None:
         self.show_msg(_('Exploding, please wait...'))
         if len(self.fmt_choice_buttons) > 1:
             gprefs.set('last_tweak_format', self.current_format.upper())
@@ -236,11 +236,11 @@ class UnpackBook(QDialog):
 
         return of
 
-    def preview(self):
+    def preview(self) -> None:
         self.show_msg(_('Rebuilding, please wait...'))
         QTimer.singleShot(5, self.do_preview)
 
-    def do_preview(self):
+    def do_preview(self) -> None:
         rebuilt = self.rebuild_it()
         if rebuilt is not None:
             from calibre.gui2.ui import get_gui
@@ -249,11 +249,11 @@ class UnpackBook(QDialog):
             assert g is not None
             g.iactions['View']._view_file(rebuilt)
 
-    def rebuild(self):
+    def rebuild(self) -> None:
         self.show_msg(_('Rebuilding, please wait...'))
         QTimer.singleShot(5, self.do_rebuild)
 
-    def do_rebuild(self):
+    def do_rebuild(self) -> None:
         rebuilt = self.rebuild_it()
         if rebuilt is not None:
             fmt = os.path.splitext(rebuilt)[1][1:].upper()
@@ -261,10 +261,10 @@ class UnpackBook(QDialog):
                 self.db.add_format(self.book_id, fmt, f, index_is_id=True)
             self.accept()
 
-    def cancel(self):
+    def cancel(self) -> None:
         self.reject()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         if ismacos and self._exploded:
             try:
                 from calibre_extensions.cocoa import close_finder_window
@@ -307,13 +307,13 @@ class UnpackBookAction(InterfaceActionWithLibraryDrop):
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
             self.do_tweak(book_ids[0])
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.tweak_book)
 
     def tweak_book(self):

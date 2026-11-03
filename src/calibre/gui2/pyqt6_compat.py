@@ -68,7 +68,7 @@ QCoreApplication.exec_ = exec_
 
 
 # Restore ability to associate a menu with an action
-def set_menu(self, menu):
+def set_menu(self, menu) -> None:
     self.keep_menu_ref = menu
     progress_indicator.set_menu_on_action(self, menu)
 

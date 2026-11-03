@@ -18,7 +18,7 @@ def gui_convert(
     abort_after_input_dump=False,
     log=None,
     override_input_metadata=False,
-):
+) -> None:
     recommendations = list(recommendations)
     recommendations.append(('verbose', 2, OptionRecommendation.HIGH))
     if log is None:
@@ -44,7 +44,7 @@ def gui_convert_recipe(
     abort_after_input_dump=False,
     log=None,
     override_input_metadata=False,
-):
+) -> None:
     os.environ['CALIBRE_RECIPE_URN'] = input
     gui_convert(
         'from-gui.recipe',
@@ -57,7 +57,7 @@ def gui_convert_recipe(
     )
 
 
-def gui_convert_override(input, output, recommendations, notification=DummyReporter(), abort_after_input_dump=False, log=None):
+def gui_convert_override(input, output, recommendations, notification=DummyReporter(), abort_after_input_dump=False, log=None) -> None:
     gui_convert(
         input,
         output,

@@ -32,7 +32,7 @@ from calibre.utils.localization import _, ngettext
 class ProgressBar(QWidget):
     done = pyqtSignal(str)
 
-    def __init__(self, qurl: QUrl, path: str, nam: QNetworkAccessManager, text: str, parent: QWidget | None, sha256: str = ''):
+    def __init__(self, qurl: QUrl, path: str, nam: QNetworkAccessManager, text: str, parent: QWidget | None, sha256: str = '') -> None:
         super().__init__(parent)
         self.expected_sha256 = sha256.lower()
         self.hasher = hashlib.sha256()
@@ -64,7 +64,7 @@ class ProgressBar(QWidget):
         reply.finished.connect(self.finished)
         reply.readyRead.connect(self.data_received)
 
-    def data_received(self):
+    def data_received(self) -> None:
         try:
             reply = self.reply
             assert reply is not None
@@ -113,7 +113,7 @@ class ProgressBar(QWidget):
             r = human_readable(received)
             self.pb.setFormat(f'%p% {r} of {t}')
 
-    def finished(self):
+    def finished(self) -> None:
         self.pb.setMaximum(100)
         self.pb.setValue(100)
         self.pb.setFormat(_('Download finished'))
@@ -128,7 +128,7 @@ class DownloadResources(QDialog):
         urls: dict[str, tuple[str, str]],
         parent: QWidget | None = None,
         hashes: dict[str, str] | None = None,
-    ):
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle(title)
         self.l = l = QVBoxLayout(self)
@@ -161,7 +161,7 @@ class DownloadResources(QDialog):
         sz.setWidth(max(500, sz.width()))
         self.resize(sz)
 
-    def on_done(self, err_msg: str):
+    def on_done(self, err_msg: str) -> None:
         pb = self.sender()
         assert pb is not None
         assert isinstance(pb, ProgressBar)
@@ -185,7 +185,7 @@ class DownloadResources(QDialog):
             else:
                 self.accept()
 
-    def reject(self):
+    def reject(self) -> None:
         for pb in self.bars:
             pb.blockSignals(True)
             pb_reply = pb.reply
@@ -233,7 +233,7 @@ def download_resources(
     return True
 
 
-def develop():
+def develop() -> None:
     from calibre.gui2 import Application
 
     app = Application([])

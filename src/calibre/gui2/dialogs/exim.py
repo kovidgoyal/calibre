@@ -60,7 +60,7 @@ def disk_usage(path_to_dir, abort=None):
 
 
 class ImportLocation(QWidget):
-    def __init__(self, lpath, parent=None):
+    def __init__(self, lpath, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         self.la = la = QLabel(_('Previous location: ') + lpath)
@@ -75,7 +75,7 @@ class ImportLocation(QWidget):
         l.addWidget(b, 1, 1)
         self.lpath = lpath
 
-    def select_folder(self):
+    def select_folder(self) -> None:
         path = choose_dir(self, 'select-folder-for-imported-library', _('Choose a folder for this library'))
         if path is not None:
             self.le.setText(path)
@@ -90,7 +90,7 @@ class RunAction(QDialog):
     update_overall_signal = pyqtSignal(object, object, object)
     finish_signal = pyqtSignal()
 
-    def __init__(self, title, err_msg, action, parent=None):
+    def __init__(self, title, err_msg, action, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Working, please wait...'))
         self.title, self.action, self.tb, self.err_msg = title, action, None, err_msg
@@ -100,7 +100,7 @@ class RunAction(QDialog):
         t.daemon = True
         t.start()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QGridLayout(self)
         self.bb = QDialogButtonBox(self)
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
@@ -130,15 +130,15 @@ class RunAction(QDialog):
         self.update_overall_signal.connect(self.update_overall, type=Qt.ConnectionType.QueuedConnection)
         self.finish_signal.connect(self.finish_processing, type=Qt.ConnectionType.QueuedConnection)
 
-    def update_overall(self, msg, count, total):
+    def update_overall(self, msg, count, total) -> None:
         self.overall.setMaximum(total), self.overall.setValue(count)
         self.omsg.setText(msg)
 
-    def update_current(self, msg, count, total):
+    def update_current(self, msg, count, total) -> None:
         self.current.setMaximum(total), self.current.setValue(count)
         self.cmsg.setText(msg)
 
-    def reject(self):
+    def reject(self) -> None:
         self.abort.set()
         cancel_btn = self.bb.button(QDialogButtonBox.StandardButton.Cancel)
         assert cancel_btn is not None
@@ -157,7 +157,7 @@ class RunAction(QDialog):
             )
         self.accept()
 
-    def run_action(self):
+    def run_action(self) -> None:
         try:
             self.action(abort=self.abort, progress1=self.update_overall_signal.emit, progress2=self.update_current_signal.emit)
         except Exception:
@@ -170,7 +170,7 @@ class RunAction(QDialog):
 class EximDialog(Dialog):
     update_disk_usage = pyqtSignal(object, object)
 
-    def __init__(self, parent=None, initial_panel=None):
+    def __init__(self, parent=None, initial_panel=None) -> None:
         self.initial_panel = initial_panel
         self.abort_disk_usage = Event()
         self.restart_needed = False
@@ -179,7 +179,7 @@ class EximDialog(Dialog):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.stack = s = QStackedLayout()
         l.addLayout(s)
@@ -221,7 +221,7 @@ class EximDialog(Dialog):
             os.path.dirname(lpath),
         )
 
-    def setup_export_panel(self):
+    def setup_export_panel(self) -> None:
         self.export_panel = w = QWidget(self)
         self.stack.addWidget(w)
         l = QVBoxLayout(w)
@@ -240,14 +240,14 @@ class EximDialog(Dialog):
             i.setIcon(QIcon.ic('lt.png'))
             i.setSelected(True)
 
-        def _on_disk_usage_update(i, sz):
+        def _on_disk_usage_update(i, sz) -> None:
             item = self.lib_list.item(i)
             assert item is not None
             item.setText(self.export_lib_text(item.data(Qt.ItemDataRole.UserRole), sz))
 
         self.update_disk_usage.connect(_on_disk_usage_update, type=Qt.ConnectionType.QueuedConnection)
 
-    def get_lib_sizes(self):
+    def get_lib_sizes(self) -> None:
         for i in range(self.lib_list.count()):
             lib_list_item = self.lib_list.item(i)
             assert lib_list_item is not None
@@ -260,7 +260,7 @@ class EximDialog(Dialog):
                 traceback.print_exc()
             self.update_disk_usage.emit(i, sz)
 
-    def setup_import_panel(self):
+    def setup_import_panel(self) -> None:
         self.import_panel = w = QWidget(self)
         self.stack.addWidget(w)
         self.import_panel_stack = s = QStackedLayout(w)
@@ -321,7 +321,7 @@ class EximDialog(Dialog):
         self.setup_select_libraries_panel()
         self.import_panel_stack.setCurrentIndex(1)
 
-    def setup_select_libraries_panel(self):
+    def setup_select_libraries_panel(self) -> None:
         self.imported_lib_widgets = []
         self.frames = []
         l = self.slp.layout()
@@ -336,7 +336,7 @@ class EximDialog(Dialog):
             self.imported_lib_widgets.append(w)
         l.addStretch()
 
-    def validate_import(self):
+    def validate_import(self) -> bool:
         from calibre.gui2.ui import get_gui
 
         g = get_gui()
@@ -395,7 +395,7 @@ class EximDialog(Dialog):
                     return False
         return True
 
-    def show_panel(self, which):
+    def show_panel(self, which) -> None:
         self.validate = self.run_action = lambda: True
         if which is None:
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
@@ -412,7 +412,7 @@ class EximDialog(Dialog):
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.stack.setCurrentIndex({'export': 1, 'import': 2}.get(which, 0))
 
-    def validate_export(self):
+    def validate_export(self) -> bool:
         path = choose_dir(self, 'export-calibre-dir', _('Choose a folder to export to'))
         if not path:
             return False
@@ -461,7 +461,7 @@ class EximDialog(Dialog):
             == QDialog.DialogCode.Accepted
         )
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.validate():
             return
         self.abort_disk_usage.set()
@@ -469,7 +469,7 @@ class EximDialog(Dialog):
             self.restart_needed = self.stack.currentIndex() == 2
             Dialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.abort_disk_usage.set()
         Dialog.reject(self)
 

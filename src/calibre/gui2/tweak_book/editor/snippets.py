@@ -164,7 +164,7 @@ class TabStop(str):
         tab_stops.append(self)
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'TabStop(text={str.__repr__(self)} num={self.num} start={self.start} is_mirror={self.is_mirror}'
             f' takes_selection={self.takes_selection} is_toplevel={self.is_toplevel})'
@@ -218,7 +218,7 @@ def snippets(refresh=False):
 
 
 class EditorTabStop:
-    def __init__(self, left, tab_stops, editor):
+    def __init__(self, left, tab_stops, editor) -> None:
         self.editor = weakref.ref(editor)
         tab_stop = tab_stops[0]
         self.num = tab_stop.num
@@ -241,7 +241,7 @@ class EditorTabStop:
     def __exit__(self, *args):
         self.join_previous_edit = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'EditorTabStop(num={self.num!r} text={self.text!r} left={self.left!r} right={self.right!r} '
             f'is_deleted={self.is_deleted!r} mirrors={self.mirrors!r})'
@@ -249,7 +249,7 @@ class EditorTabStop:
 
     __str__ = __unicode__ = __repr__
 
-    def apply_selected_text(self, text):
+    def apply_selected_text(self, text) -> None:
         if self.takes_selection and not self.is_deleted:
             with self:
                 self.text = text
@@ -267,7 +267,7 @@ class EditorTabStop:
         return editor.selected_text_from_cursor(c)
 
     @text.setter
-    def text(self, text):
+    def text(self, text) -> None:
         editor = self.editor()
         if editor is None or self.is_deleted:
             return
@@ -277,7 +277,7 @@ class EditorTabStop:
         c.insertText(text)
         c.endEditBlock()
 
-    def set_editor_cursor(self, editor):
+    def set_editor_cursor(self, editor) -> None:
         if not self.is_deleted:
             c = editor.textCursor()
             c.setPosition(self.left), c.setPosition(self.right, QTextCursor.MoveMode.KeepAnchor)
@@ -289,7 +289,7 @@ class EditorTabStop:
     def contains(self, left, right):
         return contains(self.left, self.right, left, right)
 
-    def update_positions(self, position, chars_removed, chars_added):
+    def update_positions(self, position, chars_removed, chars_added) -> None:
         for m in self.mirrors:
             m.update_positions(position, chars_removed, chars_added)
         if position > self.right or self.is_deleted or self.ignore_position_update:
@@ -412,14 +412,14 @@ def find_matching_snip(text, syntax=None, snip_func=None):
 
 
 class SnippetManager(QObject):
-    def __init__(self, editor):
+    def __init__(self, editor) -> None:
         QObject.__init__(self, editor)
         self.active_templates = []
         self.last_selected_text = ''
         editor.document().contentsChange.connect(self.contents_changed)
         self.snip_func = None
 
-    def contents_changed(self, position, chars_removed, chars_added):
+    def contents_changed(self, position, chars_removed, chars_added) -> None:
         for template in self.active_templates:
             for ets in template:
                 ets.update_positions(position, chars_removed, chars_added)
@@ -437,7 +437,7 @@ class SnippetManager(QObject):
             self.active_templates.remove(template)
         return at
 
-    def handle_key_press(self, ev):
+    def handle_key_press(self, ev) -> bool:
         editor_raw = self.parent()
         assert editor_raw is not None
         editor = cast('TextEdit', editor_raw)
@@ -479,25 +479,25 @@ class SnippetManager(QObject):
 
 
 class SnippetTextEdit(PlainTextEdit):
-    def __init__(self, text, parent=None):
+    def __init__(self, text, parent=None) -> None:
         PlainTextEdit.__init__(self, parent)
         self.syntax = None
         if text:
             self.setPlainText(text)
         self.snippet_manager = SnippetManager(self)
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e) -> None:
         if self.snippet_manager.handle_key_press(e):
             return
         PlainTextEdit.keyPressEvent(self, e)
 
 
 class EditSnippet(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
 
-        def add_row(*args):
+        def add_row(*args) -> None:
             r = l.rowCount()
             if len(args) == 1:
                 l.addWidget(args[0], r, 0, 1, 2)
@@ -559,7 +559,7 @@ class EditSnippet(QWidget):
         key = snip_key(self.trig.text(), '*')
         return ((key, self.snip),)
 
-    def apply_snip(self, snip, creating_snippet=None):
+    def apply_snip(self, snip, creating_snippet=None) -> None:
         self.creating_snippet = not snip if creating_snippet is None else creating_snippet
         self.heading.setText('<h2>' + (_('Create a snippet') if self.creating_snippet else _('Edit snippet')))
         snip = snip or {}
@@ -595,7 +595,7 @@ class EditSnippet(QWidget):
         }
 
     @snip.setter
-    def snip(self, snip):
+    def snip(self, snip) -> None:
         self.apply_snip(snip)
 
     def validate(self):
@@ -613,11 +613,11 @@ class EditSnippet(QWidget):
 
 
 class UserSnippets(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Create/edit snippets'), 'snippet-editor', parent=parent)
         self.setWindowIcon(QIcon.ic('snippets.png'))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setWindowIcon(QIcon.ic('modified.png'))
         self.l = l = QVBoxLayout(self)
         self.stack = s = QStackedLayout()
@@ -738,11 +738,11 @@ class UserSnippets(Dialog):
         self.stack.setCurrentIndex(1)
         self.edit_snip.snip = item.data(Qt.ItemDataRole.UserRole)
 
-    def add_snippet(self, *args):
+    def add_snippet(self, *args) -> None:
         self.stack.setCurrentIndex(1)
         self.edit_snip.snip = None
 
-    def remove_snippet(self, *args):
+    def remove_snippet(self, *args) -> None:
         item = self.snip_list.currentItem()
         if item is not None:
             self.snip_list.takeItem(self.snip_list.row(item))
@@ -762,7 +762,7 @@ class UserSnippets(Dialog):
         self.snip_list.setCurrentItem(item)
         self.snip_list.scrollToItem(item)
 
-    def change_builtin(self):
+    def change_builtin(self) -> None:
         d = QDialog(self)
         lw = QListWidget(d)
         for (trigger, syntaxes), snip in builtin_snippets.items():

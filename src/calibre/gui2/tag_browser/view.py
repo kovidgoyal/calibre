@@ -77,7 +77,7 @@ if TYPE_CHECKING:
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
-    def __init__(self, tags_view):
+    def __init__(self, tags_view) -> None:
         QStyledItemDelegate.__init__(self, tags_view)
         self.old_look = False
         self.rating_pat = re.compile(rf'[{rating_to_stars(3, True)}]')
@@ -87,7 +87,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.notes_icon = QIcon.ic('notes.png')
         self.blank_icon = QIcon()
 
-    def draw_average_rating(self, item, style, painter, option, widget):
+    def draw_average_rating(self, item, style, painter, option, widget) -> None:
         rating = item.average_rating
         if rating is None:
             return
@@ -106,7 +106,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
         painter.restore()
 
-    def draw_icon(self, style, painter, option, widget):
+    def draw_icon(self, style, painter, option, widget) -> None:
         r = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, widget)
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
@@ -116,7 +116,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             return QColor(Qt.GlobalColor.black)
         return palette.color(QPalette.ColorRole.WindowText)
 
-    def draw_text(self, style, painter, option, widget, index, item):
+    def draw_text(self, style, painter, option, widget, index, item) -> None:
         tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.ItemDataRole.DisplayRole)
         flags = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextSingleLine
@@ -129,7 +129,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         pen.setColor(self.text_color(hover, option.palette))
         painter.setPen(pen)
 
-        def render_count():
+        def render_count() -> None:
             if not is_search and (hover or gprefs['tag_browser_show_counts']):
                 count = str(index.data(COUNT_ROLE))
                 width = painter.fontMetrics().boundingRect(count).width()
@@ -152,7 +152,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             # ensures they are a 'pleasant' size compared to the text.
             icon_width = int(tr.height() / 2) + 4
 
-            def render_link_icon():
+            def render_link_icon() -> None:
                 icon = self.links_icon if m.item_has_link(category, name) else self.blank_icon
                 r = QRect(tr)
                 r.setRight(r.right() - 1)
@@ -161,7 +161,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                 icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
                 tr.setRight(r.left() - 1)
 
-            def render_note_icon():
+            def render_note_icon() -> None:
                 icon = self.notes_icon if m.item_has_note(category, name) else self.blank_icon
                 r = QRect(tr)
                 r.setRight(r.right() - 1)
@@ -214,7 +214,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.setPen(pen)
         painter.drawText(tr, flags, text)
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         widget = self.parent()
         style = widget.style() if isinstance(widget, QWidget) else qapplication_or_fail().style()
@@ -294,7 +294,7 @@ class TagsView(QTreeView):  # {{{
     apply_tag_to_selected = pyqtSignal(object, object, object)
     edit_enum_values = pyqtSignal(object, object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QTreeView.__init__(self, parent=None)
         self.possible_drag_start = None
         self.setProperty('frame_for_focus', True)
@@ -343,12 +343,12 @@ class TagsView(QTreeView):  # {{{
         qapplication_or_fail().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
         self.marked_change_listener = FunctionDispatcher(self.recount_on_mark_change)
 
-    def convert_requested(self, book_ids, to_fmt):
+    def convert_requested(self, book_ids, to_fmt) -> None:
         from calibre.gui2.ui import get_gui
 
         get_gui(fail_if_absent=True).iactions['Convert Books'].convert_ebooks_to_format(book_ids, to_fmt)
 
-    def set_style_sheet(self):
+    def set_style_sheet(self) -> None:
         stylish_tb = '''
                 QTreeView {
                     background-color: palette(window);
@@ -370,7 +370,7 @@ class TagsView(QTreeView):  # {{{
         )
         self.setProperty('hovered_item_is_highlighted', True)
 
-    def set_look_and_feel(self, first=False):
+    def set_look_and_feel(self, first=False) -> None:
         self.set_style_sheet()
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
         d = self.itemDelegate()
@@ -406,7 +406,7 @@ class TagsView(QTreeView):  # {{{
     def collapse_model(self):
         return self._model.collapse_model
 
-    def set_pane_is_visible(self, to_what):
+    def set_pane_is_visible(self, to_what) -> None:
         pv = self.pane_is_visible
         self.pane_is_visible = to_what
         if to_what and not pv:
@@ -430,10 +430,10 @@ class TagsView(QTreeView):  # {{{
             state_map[category.category_key] = dict(zip(names, states))
         return expanded_categories, state_map
 
-    def reread_collapse_parameters(self):
+    def reread_collapse_parameters(self) -> None:
         self._model.reread_collapse_model(self.get_state()[1])
 
-    def set_database(self, db, alter_tb: AlterTagBrowser):
+    def set_database(self, db, alter_tb: AlterTagBrowser) -> None:
         # Building the tree is slow in a large library, so a hidden pane does
         # not build it. recount() builds it when the pane is shown.
         self.pending_expansion = None
@@ -464,7 +464,7 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
         db.data.add_marked_listener(self.marked_change_listener)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event) -> None:
 
         def on_last_visible_item(dex, check_children):
             model = self._model
@@ -517,12 +517,12 @@ class TagsView(QTreeView):  # {{{
                     node.ignore_vl = True
         QTreeView.keyPressEvent(self, event)
 
-    def database_changed(self, event, ids):
+    def database_changed(self, event, ids) -> None:
         if self.refresh_signal_processed:
             self.refresh_signal_processed = False
             self.refresh_required.emit()
 
-    def user_categories_edited(self, user_cats, nkey):
+    def user_categories_edited(self, user_cats, nkey) -> None:
         state_map = self.get_state()[1]
         self.db.new_api.set_pref('user_categories', user_cats)
         self._model.rebuild_node_tree(state_map=state_map)
@@ -533,7 +533,7 @@ class TagsView(QTreeView):  # {{{
     def match_all(self):
         return self.alter_tb and self.alter_tb.match_menu.actions()[1].isChecked()
 
-    def sort_changed(self, action):
+    def sort_changed(self, action) -> None:
         alter_tb = self.alter_tb
         assert alter_tb is not None
         sort_menu = alter_tb.m.named_action('sort_menu').menu()
@@ -544,7 +544,7 @@ class TagsView(QTreeView):  # {{{
                 self.recount()
                 break
 
-    def match_changed(self, action):
+    def match_changed(self, action) -> None:
         try:
             alter_tb = self.alter_tb
             assert alter_tb is not None
@@ -566,7 +566,7 @@ class TagsView(QTreeView):  # {{{
                 self.possible_drag_start = None
         return QTreeView.mousePressEvent(self, e)
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event) -> None:
         dex = self.indexAt(event.pos())
         if dex.isValid():
             self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -601,7 +601,7 @@ class TagsView(QTreeView):  # {{{
         else:
             drag.exec(Qt.DropAction.CopyAction)
 
-    def mouseDoubleClickEvent(self, e):
+    def mouseDoubleClickEvent(self, e) -> None:
         # swallow these to avoid toggling and editing at the same time
         pass
 
@@ -615,12 +615,12 @@ class TagsView(QTreeView):  # {{{
         range_tuple = self.category_button_positions[category].get(item_name, {}).get(kind)
         return range_tuple and range_tuple[0] <= val <= range_tuple[1]
 
-    def toggle_current_index(self):
+    def toggle_current_index(self) -> None:
         ci = self.currentIndex()
         if ci.isValid():
             self.toggle(ci)
 
-    def toggle_on_mouse_click(self, index):
+    def toggle_on_mouse_click(self, index) -> None:
         # Check if one of the link or note icons was clicked. If so, deal with
         # it here and don't do the real toggle
         t = self._model.data(index, Qt.ItemDataRole.UserRole)
@@ -645,10 +645,10 @@ class TagsView(QTreeView):  # {{{
                     return
         self._toggle(index, None)
 
-    def toggle(self, index):
+    def toggle(self, index) -> None:
         self._toggle(index, None)
 
-    def _toggle(self, index, set_to):
+    def _toggle(self, index, set_to) -> None:
         """
         set_to: if None, advance the state. Otherwise must be one of the values
         in TAG_SEARCH_STATES
@@ -668,10 +668,10 @@ class TagsView(QTreeView):  # {{{
                 # some of searching is done using queued signals.
                 QTimer.singleShot(0, self.set_focus)
 
-    def set_focus(self):
+    def set_focus(self) -> None:
         self.setFocus()
 
-    def conditional_clear(self, search_string):
+    def conditional_clear(self, search_string) -> None:
         if search_string != self.search_string:
             self.clear()
 
@@ -685,7 +685,7 @@ class TagsView(QTreeView):  # {{{
         is_first_letter=False,
         ignore_vl=False,
         extra=None,
-    ):
+    ) -> None:
         """
         action: a string specifying the operation
         category: the human readable label for the category
@@ -985,7 +985,7 @@ class TagsView(QTreeView):  # {{{
             traceback.print_exc()
             return
 
-    def apply_to_selected_books(self, item, remove=False):
+    def apply_to_selected_books(self, item, remove=False) -> None:
         if item.type != item.TAG:
             return
         tag = item.tag
@@ -993,7 +993,7 @@ class TagsView(QTreeView):  # {{{
             return
         self.apply_tag_to_selected.emit(tag.category, tag.original_name, remove)
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> bool:
         def display_name(tag):
             ans = tag.name
             if tag.category == 'search':
@@ -1012,7 +1012,7 @@ class TagsView(QTreeView):  # {{{
         added_show_hidden_categories = False
         key = None
 
-        def add_show_hidden_categories():
+        def add_show_hidden_categories() -> None:
             nonlocal added_show_hidden_categories
             if self.hidden_categories and not added_show_hidden_categories:
                 added_show_hidden_categories = True
@@ -1147,7 +1147,7 @@ class TagsView(QTreeView):  # {{{
                         m.setIcon(self.user_category_icon)
                         added = [False]
 
-                        def add_node_tree(tree_dict, m, path):
+                        def add_node_tree(tree_dict, m, path) -> None:
                             p = path[:]
                             for k in sorted(tree_dict.keys(), key=sort_key):
                                 p.append(k)
@@ -1714,21 +1714,21 @@ class TagsView(QTreeView):  # {{{
         assert model is not None
         return model.rowCount(idx) > 0
 
-    def collapse_node_and_children(self, idx):
+    def collapse_node_and_children(self, idx) -> None:
         self.collapse(idx)
         model = self.model()
         assert model is not None
         for r in range(model.rowCount(idx)):
             self.collapse_node_and_children(idx.child(r, 0))
 
-    def collapse_node(self, idx):
+    def collapse_node(self, idx) -> None:
         if not idx.isValid():
             return
         self.collapse_node_and_children(idx)
         self.setCurrentIndex(idx)
         self.scrollTo(idx)
 
-    def expand_node_and_children(self, index):
+    def expand_node_and_children(self, index) -> None:
         if not index.isValid():
             return
         self.expand(index)
@@ -1748,13 +1748,13 @@ class TagsView(QTreeView):  # {{{
                 return self.has_unexpanded_children(dex)
         return False
 
-    def collapse_menu_hovered(self, action):
+    def collapse_menu_hovered(self, action) -> None:
         tip = action.toolTip()
         if tip == '*':
             tip = ''
         QToolTip.showText(QCursor.pos(), tip)
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event) -> None:
         QTreeView.dragMoveEvent(self, event)
         self.setDropIndicatorShown(False)
         index = self.indexAt(event.pos())
@@ -1818,7 +1818,7 @@ class TagsView(QTreeView):  # {{{
                     ):
                         self.setDropIndicatorShown(True)
 
-    def clear(self):
+    def clear(self) -> None:
         self._model.clear_state()
 
     def is_visible(self, idx):
@@ -1827,11 +1827,11 @@ class TagsView(QTreeView):  # {{{
             idx = idx.parent()
         return self.isExpanded(idx)
 
-    def recount_on_mark_change(self, *args):
+    def recount_on_mark_change(self, *args) -> None:
         # Let other marked listeners run before we do the recount
         QTimer.singleShot(0, self.recount)
 
-    def skip_recount(self):
+    def skip_recount(self) -> bool:
         """
         True if nothing the Tag browser displays can have changed since the tree
         was last built, so that rebuilding it would be a no-op.
@@ -1843,7 +1843,7 @@ class TagsView(QTreeView):  # {{{
         self.refresh_signal_processed = True
         return True
 
-    def recount_if_categories_changed(self):
+    def recount_if_categories_changed(self) -> None:
         """
         Used for the queued refresh after a database change. The change may
         already have been handled by a recount triggered synchronously, for
@@ -1854,7 +1854,7 @@ class TagsView(QTreeView):  # {{{
             return
         self.recount()
 
-    def recount_after_metadata_edit(self):
+    def recount_after_metadata_edit(self) -> None:
         """
         Recount unless nothing that the Tag browser displays can have changed
         since it was last built, for example after editing only titles or
@@ -1864,11 +1864,11 @@ class TagsView(QTreeView):  # {{{
             return
         self.recount_with_position_based_index()
 
-    def recount_with_position_based_index(self):
+    def recount_with_position_based_index(self) -> None:
         self._model.use_position_based_index_on_next_recount = True
         self.recount()
 
-    def recount(self, *args):
+    def recount(self, *args) -> None:
         """
         Rebuild the category tree, expand any categories that were expanded,
         reset the search states, and reselect the current node.
@@ -1909,7 +1909,7 @@ class TagsView(QTreeView):  # {{{
                         self.collapse(index)
         self.blockSignals(False)
 
-    def show_item_at_path(self, path, box=False, position=QAbstractItemView.ScrollHint.PositionAtCenter):
+    def show_item_at_path(self, path, box=False, position=QAbstractItemView.ScrollHint.PositionAtCenter) -> None:
         """
         Scroll the browser and open categories to show the item referenced by
         path. If possible, the item is placed in the center. If box=True, a
@@ -1918,7 +1918,7 @@ class TagsView(QTreeView):  # {{{
         if path:
             self.show_item_at_index(self._model.index_for_path(path), box=box, position=position)
 
-    def expand_parent(self, idx):
+    def expand_parent(self, idx) -> None:
         # Needed otherwise Qt sometimes segfaults if the node is buried in a
         # collapsed, off screen hierarchy. To be safe, we expand from the
         # outermost in
@@ -1927,7 +1927,7 @@ class TagsView(QTreeView):  # {{{
             self.expand_parent(p)
         self.expand(idx)
 
-    def show_item_at_index(self, idx, box=False, position=QAbstractItemView.ScrollHint.PositionAtCenter):
+    def show_item_at_index(self, idx, box=False, position=QAbstractItemView.ScrollHint.PositionAtCenter) -> None:
         if idx.isValid() and idx.data(Qt.ItemDataRole.UserRole) is not self._model.root_item:
             self.expand_parent(idx)
             self.setCurrentIndex(idx)
@@ -1935,24 +1935,24 @@ class TagsView(QTreeView):  # {{{
             if box:
                 self._model.set_boxed(idx)
 
-    def item_expanded(self, idx):
+    def item_expanded(self, idx) -> None:
         """
         Called by the expanded signal
         """
         self.setCurrentIndex(idx)
         self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
 
-    def item_collapsed(self, idx):
+    def item_collapsed(self, idx) -> None:
         """
         Called by the collapsed signal
         """
         self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current, previous) -> None:
         self.current_expansion = (self.isExpanded(current), self._model.named_path_for_index(current))
         super().currentChanged(current, previous)
 
-    def restore_expansion(self, expansion):
+    def restore_expansion(self, expansion) -> None:
         if not self.pane_is_visible:
             # Restored by recount() when the pane is shown. Until then it is the
             # current expansion, so that it is saved again on shutdown.

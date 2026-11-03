@@ -16,7 +16,7 @@ class PluginWidget(Widget):
     COMMIT_NAME = 'docx_output'
     ICON = 'mimetypes/docx.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['docx'])
         for x in get_option('docx_page_size').option.choices:
             self.opt_docx_page_size.addItem(x)
@@ -26,7 +26,7 @@ class PluginWidget(Widget):
         assert isinstance(lay, QFormLayout)
         lay.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-    def setupUi(self, *a):
+    def setupUi(self, *a) -> None:
         self.l = l = QFormLayout(self)
         self.opt_docx_page_size = QComboBox(self)
         l.addRow(_('Paper si&ze:'), self.opt_docx_page_size)

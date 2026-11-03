@@ -44,7 +44,7 @@ def compile_code(src, name='<string>'):
 
 
 class Function:
-    def __init__(self, name, source=None, func=None):
+    def __init__(self, name, source=None, func=None) -> None:
         self._source = source
         self.is_builtin = source is None
         self.name = name
@@ -58,7 +58,7 @@ class Function:
             raise TypeError(f'{self.func!r} is not a function')
         self.file_order = getattr(self.func, 'file_order', None)
 
-    def init_env(self, name=''):
+    def init_env(self, name='') -> None:
         from calibre.gui2.tweak_book.boss import get_boss
 
         self.context_name = name or ''
@@ -124,11 +124,11 @@ class Function:
 
 
 class DebugOutput(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, 'Debug output', 'sr-function-debug-output')
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.text = t = QPlainTextEdit(self)
         self.log_text = ''
@@ -140,7 +140,7 @@ class DebugOutput(Dialog):
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon.ic('edit-copy.png'))
 
-    def show_log(self, name, text):
+    def show_log(self, name, text) -> None:
         if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         self.setWindowTitle(_('Debug output from %s') % name)
@@ -153,7 +153,7 @@ class DebugOutput(Dialog):
         fm = QFontMetrics(self.text.font())
         return QSize(fm.averageCharWidth() * 120, 400)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         clipboard = qapplication_or_fail().clipboard()
         assert clipboard is not None
         clipboard.setText(self.log_text)
@@ -183,7 +183,7 @@ def functions(refresh=False):
     return _functions
 
 
-def remove_function(name, gui_parent=None):
+def remove_function(name, gui_parent=None) -> bool:
     funcs = functions()
     if not name:
         return False
@@ -206,7 +206,7 @@ def remove_function(name, gui_parent=None):
 boxes = []
 
 
-def refresh_boxes():
+def refresh_boxes() -> None:
     for ref in boxes:
         box = ref()
         if box is not None:
@@ -217,7 +217,7 @@ class FunctionBox(EditWithComplete):
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
 
-    def __init__(self, parent=None, show_saved_search_actions=False):
+    def __init__(self, parent=None, show_saved_search_actions=False) -> None:
         EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.show_saved_search_actions = show_saved_search_actions
@@ -225,10 +225,10 @@ class FunctionBox(EditWithComplete):
         self.setToolTip(_('Choose a function to run on matched text (by name)'))
         boxes.append(weakref.ref(self))
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.update_items_cache(set(functions()))
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, e) -> None:
         le = self.lineEdit()
         assert le is not None
         menu = le.createStandardContextMenu()
@@ -241,11 +241,11 @@ class FunctionBox(EditWithComplete):
 
 
 class FunctionEditor(Dialog):
-    def __init__(self, func_name='', parent=None):
+    def __init__(self, func_name='', parent=None) -> None:
         self._func_name = func_name
         Dialog.__init__(self, _('Create/edit a function'), 'edit-sr-func', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
         l.addLayout(h)

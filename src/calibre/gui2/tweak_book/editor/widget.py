@@ -56,7 +56,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     return QIcon(QPixmap.fromImage(img))
 
 
-def register_text_editor_actions(_reg, palette):
+def register_text_editor_actions(_reg, palette) -> None:
     def reg(*args, **kw):
         ac = _reg(*args)
         for s in kw.get('syntaxes', ('format',)):
@@ -292,7 +292,7 @@ class Editor(QMainWindow):
     rename_class = pyqtSignal(object)
     smart_highlighting_updated = pyqtSignal()
 
-    def __init__(self, syntax, parent=None):
+    def __init__(self, syntax, parent=None) -> None:
         QMainWindow.__init__(self, parent)
         if parent is None:
             self.setWindowFlags(Qt.WindowType.Widget)
@@ -321,7 +321,7 @@ class Editor(QMainWindow):
         return self.editor.textCursor().blockNumber()
 
     @current_line.setter
-    def current_line(self, val):
+    def current_line(self, val) -> None:
         self.editor.go_to_line(val)
 
     @property
@@ -330,7 +330,7 @@ class Editor(QMainWindow):
         return {'cursor': (c.anchor(), c.position())}
 
     @current_editing_state.setter
-    def current_editing_state(self, val):
+    def current_editing_state(self, val) -> None:
         anchor, position = val.get('cursor', (None, None))
         if anchor is not None and position is not None:
             c = self.editor.textCursor()
@@ -357,13 +357,13 @@ class Editor(QMainWindow):
         return ans.encode('utf-8')
 
     @data.setter
-    def data(self, val):
+    def data(self, val) -> None:
         self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
 
-    def init_from_template(self, template):
+    def init_from_template(self, template) -> None:
         self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
 
-    def change_document_name(self, newname):
+    def change_document_name(self, newname) -> None:
         self.editor.change_document_name(newname)
         self.editor.completion_doc_name = newname
 
@@ -372,31 +372,31 @@ class Editor(QMainWindow):
         # http://www.idpf.org/epub/20/spec/OPS_2.0.1_draft.htm
         return unicodedata.normalize('NFC', str(self.editor.toPlainText()).rstrip('\0'))
 
-    def replace_data(self, raw, only_if_different=True):
+    def replace_data(self, raw, only_if_different=True) -> None:
         if isinstance(raw, bytes):
             raw = raw.decode('utf-8')
         current = self.get_raw_data() if only_if_different else False
         if current != raw:
             self.editor.replace_text(raw)
 
-    def apply_settings(self, prefs=None, dictionaries_changed=False):
+    def apply_settings(self, prefs=None, dictionaries_changed=False) -> None:
         self.editor.apply_settings(prefs=None, dictionaries_changed=dictionaries_changed)
 
-    def set_focus(self):
+    def set_focus(self) -> None:
         self.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def action_triggered(self, action):
+    def action_triggered(self, action) -> None:
         action, args = action[0], action[1:]
         func = getattr(self.editor, action)
         func(*args)
 
-    def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1):
+    def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False, width=-1, height=-1) -> None:
         self.editor.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_aspect_ratio, width=width, height=height)
 
-    def insert_hyperlink(self, href, text, template=None):
+    def insert_hyperlink(self, href, text, template=None) -> None:
         self.editor.insert_hyperlink(href, text, template=template)
 
-    def _build_insert_tag_button_menu(self):
+    def _build_insert_tag_button_menu(self) -> None:
         m = self.insert_tag_menu
         m.clear()
         names = tprefs['insert_tag_mru']
@@ -405,7 +405,7 @@ class Editor(QMainWindow):
         m.addSeparator()
         m.addAction(_('Manage the entries in this menu'), self.manage_insert_tags)
 
-    def insert_tag(self, name):
+    def insert_tag(self, name) -> None:
         self.editor.insert_tag(name)
         mru = tprefs['insert_tag_mru']
         try:
@@ -416,24 +416,24 @@ class Editor(QMainWindow):
         tprefs['insert_tag_mru'] = mru
         self._build_insert_tag_button_menu()
 
-    def manage_insert_tags(self):
+    def manage_insert_tags(self) -> None:
         from calibre.gui2.tweak_book.widgets import ManageTagList
 
         d = ManageTagList(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self._build_insert_tag_button_menu()
 
-    def set_request_completion(self, callback=None, doc_name=None):
+    def set_request_completion(self, callback=None, doc_name=None) -> None:
         self.editor.request_completion = callback
         self.editor.completion_doc_name = doc_name
 
     def handle_completion_result(self, result):
         return self.editor.handle_completion_result(result)
 
-    def undo(self):
+    def undo(self) -> None:
         self.editor.undo()
 
-    def redo(self):
+    def redo(self) -> None:
         self.editor.redo()
 
     @property
@@ -444,7 +444,7 @@ class Editor(QMainWindow):
         return self.editor.smarts.get_smart_selection(self.editor, update=update)
 
     # Search and replace {{{
-    def mark_selected_text(self):
+    def mark_selected_text(self) -> None:
         self.editor.mark_selected_text()
 
     def find(self, *args, **kwargs):
@@ -476,10 +476,10 @@ class Editor(QMainWindow):
         return self.editor.is_modified
 
     @is_modified.setter
-    def is_modified(self, val):
+    def is_modified(self, val) -> None:
         self.editor.is_modified = val
 
-    def create_toolbars(self):
+    def create_toolbars(self) -> None:
         self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
         assert b is not None
         b.setObjectName('action_bar')  # Needed for saveState
@@ -500,21 +500,21 @@ class Editor(QMainWindow):
             x.topLevelChanged.connect(self.toolbar_floated)
             x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
-    def toolbar_floated(self, floating):
+    def toolbar_floated(self, floating) -> None:
         if not floating:
             self.save_state()
             for ed in editors.values():
                 if ed is not self:
                     ed.restore_state()
 
-    def save_state(self):
+    def save_state(self) -> None:
         for bar in self.bars:
             assert bar is not None
             if bar.isFloating():
                 return
         tprefs[f'{self.syntax}-editor-state'] = bytearray(self.saveState())
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         state = tprefs.get(f'{self.syntax}-editor-state', None)
         if state is not None:
             self.restoreState(state)
@@ -522,12 +522,12 @@ class Editor(QMainWindow):
             assert bar is not None
             bar.setVisible(len(bar.actions()) > 0)
 
-    def populate_toolbars(self):
+    def populate_toolbars(self) -> None:
         assert self.action_bar is not None
         assert self.tools_bar is not None
         self.action_bar.clear(), self.tools_bar.clear()
 
-        def add_action(name, bar):
+        def add_action(name, bar) -> None:
             if name is None:
                 bar.addSeparator()
                 return
@@ -572,7 +572,7 @@ class Editor(QMainWindow):
                 add_action(name, self.format_bar)
         self.restore_state()
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         for x in (
             'modification_state_changed',
             'word_ignored',
@@ -601,27 +601,27 @@ class Editor(QMainWindow):
         self.editor.smarts = None
         self.editor.request_completion = None
 
-    def _modification_state_changed(self):
+    def _modification_state_changed(self) -> None:
         self.is_synced_to_container = self.is_modified
         self.modification_state_changed.emit(self.is_modified)
 
-    def _data_changed(self):
+    def _data_changed(self) -> None:
         self.is_synced_to_container = False
         self.data_changed.emit(self)
 
-    def _undo_available(self, available):
+    def _undo_available(self, available) -> None:
         self.undo_available = available
         self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
 
-    def _redo_available(self, available):
+    def _redo_available(self, available) -> None:
         self.redo_available = available
         self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
 
-    def _copy_available(self, available):
+    def _copy_available(self, available) -> None:
         self.copy_available = self.cut_available = available
         self.copy_available_state_changed.emit(available)
 
-    def _cursor_position_changed(self, *args):
+    def _cursor_position_changed(self, *args) -> None:
         self.cursor_position_changed.emit()
 
     @property
@@ -635,13 +635,13 @@ class Editor(QMainWindow):
             char = str(c.selectedText()).rstrip('\0')
         return (c.blockNumber() + 1, col, char)
 
-    def cut(self):
+    def cut(self) -> None:
         self.editor.cut()
 
-    def copy(self):
+    def copy(self) -> None:
         self.editor.copy()
 
-    def go_to_line(self, line, col=None):
+    def go_to_line(self, line, col=None) -> None:
         self.editor.go_to_line(line, col=col)
 
     def paste(self):
@@ -649,10 +649,10 @@ class Editor(QMainWindow):
             return error_dialog(self, _('No text'), _('There is no suitable text in the clipboard to paste.'), show=True)
         self.editor.paste()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event) -> None:
         event.ignore()
 
-    def fix_html(self):
+    def fix_html(self) -> bool:
         if self.syntax == 'html':
             from calibre.ebooks.oeb.polish.pretty import fix_html
 
@@ -660,7 +660,7 @@ class Editor(QMainWindow):
             return True
         return False
 
-    def pretty_print(self, name):
+    def pretty_print(self, name) -> bool:
         from calibre.ebooks.oeb.polish.pretty import pretty_css, pretty_html, pretty_xml
 
         if self.syntax in {'css', 'html', 'xml'}:
@@ -672,7 +672,7 @@ class Editor(QMainWindow):
             return True
         return False
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         m = QMenu(self)
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
@@ -779,7 +779,7 @@ class Editor(QMainWindow):
     def get_tag_contents(self, *args, **kwargs):
         return self.editor.get_tag_contents(*args, **kwargs)
 
-    def _nuke_word(self, dic, word, locale):
+    def _nuke_word(self, dic, word, locale) -> None:
         if dic is None:
             dictionaries.ignore_word(word, locale)
         else:
@@ -787,7 +787,7 @@ class Editor(QMainWindow):
         self.word_ignored.emit(word, locale)
 
 
-def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None):
+def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None) -> None:
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import dictionaries
     from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status

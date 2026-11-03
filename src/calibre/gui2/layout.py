@@ -42,7 +42,7 @@ class LocationManager(QObject):  # {{{
     configure_device = pyqtSignal()
     update_device_metadata = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QObject.__init__(self, parent)
         self.free = [-1, -1, -1]
         self.count = 0
@@ -97,7 +97,7 @@ class LocationManager(QObject):  # {{{
         self.location_carda = ac('carda', _('Card A'), 'sd.png', _('Show books in storage card A'))
         self.location_cardb = ac('cardb', _('Card B'), 'sd.png', _('Show books in storage card B'))
 
-    def set_switch_actions(self, quick_actions, rename_actions, delete_actions, switch_actions, choose_action):
+    def set_switch_actions(self, quick_actions, rename_actions, delete_actions, switch_actions, choose_action) -> None:
         self.switch_menu = self.library_action.menu()
         if self.switch_menu:
             self.switch_menu.addSeparator()
@@ -123,19 +123,19 @@ class LocationManager(QObject):  # {{{
         if self.switch_menu != self.library_action.menu():
             self.library_action.setMenu(self.switch_menu)
 
-    def _location_selected(self, location, *args):
+    def _location_selected(self, location, *args) -> None:
         if location != self.current_location and hasattr(self, 'location_' + location):
             self.current_location = location
             self.location_selected.emit(location)
             getattr(self, 'location_' + location).setChecked(True)
 
-    def _eject_requested(self, *args):
+    def _eject_requested(self, *args) -> None:
         self.unmount_device.emit()
 
-    def _configure_requested(self):
+    def _configure_requested(self) -> None:
         self.configure_device.emit()
 
-    def update_devices(self, cp=(None, None), fs=None, icon=None):
+    def update_devices(self, cp=(None, None), fs=None, icon=None) -> None:
         if fs is None:
             fs = [-1, -1, -1]
         self.location_main.setIcon(QIcon.ic(icon or 'reader.png'))
@@ -159,7 +159,7 @@ class LocationManager(QObject):  # {{{
             if not self.has_device:
                 self.location_library.trigger()
 
-    def update_tooltips(self):
+    def update_tooltips(self) -> None:
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             t = self.tooltips[loc]
             if self.free[i] > -1:
@@ -202,7 +202,7 @@ def search_as_url(text):
 
 
 class SearchBar(QFrame):  # {{{
-    def __init__(self, parent: Main):
+    def __init__(self, parent: Main) -> None:
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setObjectName('search_bar')
@@ -313,23 +313,23 @@ class SearchBar(QFrame):  # {{{
         # Add the searchbar tool buttons to the bar
         l.addLayout(parent.bars_manager.search_tool_bar)
 
-    def populate_sort_menu(self):
+    def populate_sort_menu(self) -> None:
         from calibre.gui2.ui import get_gui
 
         get_gui(fail_if_absent=True).iactions['Sort By'].update_menu(self.sort_button.menu())
 
-    def populate_group_by_menu(self):
+    def populate_group_by_menu(self) -> None:
         from calibre.gui2.ui import get_gui
 
         m = self.group_by_button.menu()
         assert m is not None
         get_gui(fail_if_absent=True).bookshelf_view.populate_group_by_menu(m)
 
-    def show_group_by_menu(self):
+    def show_group_by_menu(self) -> None:
         if self.group_by_button.isVisible():
             self.group_by_button.click()
 
-    def do_fts(self):
+    def do_fts(self) -> None:
         from calibre.gui2.ui import get_gui
 
         get_gui(fail_if_absent=True).iactions['Full Text Search'].show_fts()
@@ -339,7 +339,7 @@ class SearchBar(QFrame):  # {{{
 
 
 class Spacer(QWidget):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
@@ -358,7 +358,7 @@ class MainWindowMixin:  # {{{
     full_text_search_action: QAction
     advanced_search_toggle_action: QAction
 
-    def init_main_window_mixin(self: Main):
+    def init_main_window_mixin(self: Main) -> None:
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon.ic('lt.png'))
         self.setWindowTitle(__appname__)
@@ -402,7 +402,7 @@ class MainWindowMixin:  # {{{
         smw.setVisible(False)
         smw.setAutoFillBackground(True)
 
-    def show_shutdown_message(self: Main, message=''):
+    def show_shutdown_message(self: Main, message='') -> None:
         smw = self.shutdown_message_widget
         bg, fg = 200, 'black'
         if qapplication_or_fail().is_dark_theme:

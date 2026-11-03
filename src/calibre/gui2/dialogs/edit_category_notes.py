@@ -45,13 +45,13 @@ IMAGE_EXTENSIONS = 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'
 
 
 class AskLink(Dialog):  # {{{
-    def __init__(self, initial_name='', parent=None):
+    def __init__(self, initial_name='', parent=None) -> None:
         super().__init__(_('Create link'), 'create-link-for-notes', parent=parent)
         self.setWindowIcon(QIcon.ic('insert-link.png'))
         if initial_name:
             self.name_edit.setText(initial_name)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.v = v = QVBoxLayout(self)
         self.f = f = QFormLayout()
         f.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -91,14 +91,14 @@ class ImageResource(NamedTuple):
 
 
 class AskImage(Dialog):
-    def __init__(self, local_images, db, parent=None):
+    def __init__(self, local_images, db, parent=None) -> None:
         self.local_images = local_images
         self.db = db
         self.current_digest = ''
         super().__init__(_('Insert image'), 'insert-image-for-notes', parent=parent)
         self.setWindowIcon(QIcon.ic('view-image.png'))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.v = v = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
         v.addLayout(h)
@@ -163,7 +163,7 @@ class AskImage(Dialog):
         vr.addStretch(10)
         self.add_file_button.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def image_pasted_or_dropped(self, cover_data):
+    def image_pasted_or_dropped(self, cover_data) -> None:
         digest = hash_data(cover_data)
         if digest in self.local_images:
             ir = self.local_images[digest]
@@ -222,7 +222,7 @@ class NoteEditorWidget(EditorWidget):
     referenced_resources: set[str]
     can_store_images = True
 
-    def resource_digest_from_qurl(self, qurl):
+    def resource_digest_from_qurl(self, qurl) -> str:
         alg = qurl.host()
         digest = qurl.path()[1:]
         return f'{alg}:{digest}'
@@ -276,7 +276,7 @@ class NoteEditorWidget(EditorWidget):
         alg, digest = ir.digest.split(':', 1)
         return RESOURCE_URL_SCHEME + f'://{alg}/{digest}?placement={uuid4()}'
 
-    def get_html_callback(self, root, text):
+    def get_html_callback(self, root, text) -> None:
         self.searchable_text = text.replace(OBJECT_REPLACEMENT_CHAR, '')
         self.referenced_resources = set()
         doc = self.document()
@@ -296,7 +296,7 @@ class NoteEditorWidget(EditorWidget):
             return d.url, d.link_name, False
         return '', '', False
 
-    def do_insert_image(self):
+    def do_insert_image(self) -> None:
         # See https://bugreports.qt.io/browse/QTBUG-118537
         # for why we can't have a nice margin for floating images
         assert self.images is not None
@@ -335,7 +335,7 @@ class NoteEditor(Editor):
         html = self.get_doc()[0]
         return export_note(html, self.editor.get_resource)
 
-    def import_note(self, path_to_html_file):
+    def import_note(self, path_to_html_file) -> None:
         self.editor.images = {}
         self.editor.setPlainText('')
         with open(path_to_html_file, 'rb') as f:
@@ -344,7 +344,7 @@ class NoteEditor(Editor):
 
 
 class EditNoteWidget(QWidget):
-    def __init__(self, db, field, item_id, item_val, parent=None):
+    def __init__(self, db, field, item_id, item_val, parent=None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -357,7 +357,7 @@ class EditNoteWidget(QWidget):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def commit(self):
+    def commit(self) -> bool:
         doc, searchable_text, resources, resources_to_add = self.editor.get_doc()
         s = self.editor.editor
         db = s.db
@@ -369,14 +369,14 @@ class EditNoteWidget(QWidget):
 
 
 class EditNoteDialog(Dialog):
-    def __init__(self, field, item_id, db, parent=None):
+    def __init__(self, field, item_id, db, parent=None) -> None:
         self.db = db.new_api
         self.field, self.item_id = field, item_id
         self.item_val = self.db.get_item_name(field, item_id)
         super().__init__(_('Edit notes for {}').format(self.item_val), 'edit-notes-for-category', parent=parent)
         self.setWindowIcon(QIcon.ic('notes.png'))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.edit_note_widget = EditNoteWidget(self.db, self.field, self.item_id, self.item_val, self)
         l.addWidget(self.edit_note_widget)
@@ -389,7 +389,7 @@ class EditNoteDialog(Dialog):
 
         l.addWidget(self.bb)
 
-    def export_note(self):
+    def export_note(self) -> None:
         dest = choose_save_file(
             self,
             'save-exported-note',
@@ -403,7 +403,7 @@ class EditNoteDialog(Dialog):
             with open(dest, 'wb') as f:
                 f.write(html.encode('utf-8'))
 
-    def import_note(self):
+    def import_note(self) -> None:
         dest = choose_files(
             self,
             'load-imported-note',
@@ -418,12 +418,12 @@ class EditNoteDialog(Dialog):
     def sizeHint(self):
         return QSize(800, 620)
 
-    def accept(self):
+    def accept(self) -> None:
         if self.edit_note_widget.commit():
             super().accept()
 
 
-def develop_edit_note():
+def develop_edit_note() -> None:
     from calibre.library import db as dbc
 
     app = Application([])
@@ -432,7 +432,7 @@ def develop_edit_note():
     del d, app
 
 
-def develop_ask_image():
+def develop_ask_image() -> None:
     app = Application([])
     from calibre.library import db as dbc
 

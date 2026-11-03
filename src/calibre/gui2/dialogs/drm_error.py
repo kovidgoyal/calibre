@@ -8,7 +8,7 @@ from calibre.utils.localization import _, localize_website_link
 
 
 class DRMErrorMessage(QDialog, Ui_Dialog):
-    def __init__(self, parent=None, title=None):
+    def __init__(self, parent=None, title=None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         msg = _(

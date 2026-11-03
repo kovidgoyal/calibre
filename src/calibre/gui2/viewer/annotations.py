@@ -37,7 +37,7 @@ def split_lines(chunk, length=80):
         pos += length
 
 
-def save_annots_to_epub(path, serialized_annots):
+def save_annots_to_epub(path, serialized_annots) -> None:
     serialized_annots = EPUB_FILE_TYPE_MAGIC + b'\n'.join(split_lines(as_base64_bytes(serialized_annots)))
     safe_replace(path, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
@@ -51,7 +51,7 @@ def save_annotations(
     sync_annots_user,
     calibre_data,
     last_read_data=None,
-):
+) -> None:
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir(), annotations_path_key), 'wb') as f:
         f.write(annots)
@@ -64,16 +64,16 @@ def save_annotations(
 
 
 class AnnotationsSaveWorker(Thread):
-    def __init__(self):
+    def __init__(self) -> None:
         Thread.__init__(self, name='AnnotSaveWorker')
         self.daemon = True
         self.queue = Queue()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.queue.shutdown(immediate=False)
         self.join()
 
-    def run(self):
+    def run(self) -> None:
         while True:
             try:
                 x = self.queue.get()
@@ -106,7 +106,7 @@ class AnnotationsSaveWorker(Thread):
 
                 traceback.print_exc()
 
-    def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user=''):
+    def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user='') -> None:
         amap = current_book_data['annotations_map']
         alist = tuple(annotations_as_copied_list(amap))
         last_read_data = {}
@@ -154,7 +154,7 @@ def find_tests():
         }
 
     class AnnotationsTest(unittest.TestCase):
-        def test_merge_annotations(self):
+        def test_merge_annotations(self) -> None:
             for atype in 'bookmark highlight'.split():
                 f = bm if atype == 'bookmark' else hl
                 a = [

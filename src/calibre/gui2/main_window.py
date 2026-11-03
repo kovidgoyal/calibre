@@ -37,7 +37,7 @@ class GarbageCollector(QObject):
 
     INTERVAL = 5000
 
-    def __init__(self, parent, debug=False):
+    def __init__(self, parent, debug=False) -> None:
         QObject.__init__(self, parent)
         self.debug = debug
 
@@ -49,7 +49,7 @@ class GarbageCollector(QObject):
         self.timer.start(self.INTERVAL)
         # gc.set_debug(gc.DEBUG_SAVEALL)
 
-    def check(self):
+    def check(self) -> None:
         # return self.debug_cycles()
         l0, l1, l2 = gc.get_count()
         if self.debug:
@@ -67,14 +67,14 @@ class GarbageCollector(QObject):
                     if self.debug:
                         print('collecting gen 2, found:', num, 'unreachable')
 
-    def debug_cycles(self):
+    def debug_cycles(self) -> None:
         gc.collect()
         for obj in gc.garbage:
             print(obj, repr(obj), type(obj))
 
 
 class ExceptionHandler:
-    def __init__(self, main_window):
+    def __init__(self, main_window) -> None:
         self.wref = weakref.ref(main_window)
 
     def __call__(self, type, value, tb):
@@ -116,19 +116,19 @@ class MainWindow(QMainWindow):
     def native_menubar(self):
         return self.___menu_bar
 
-    def __init__(self, opts=None, parent=None, disable_automatic_gc=False):
+    def __init__(self, opts=None, parent=None, disable_automatic_gc=False) -> None:
         QMainWindow.__init__(self, parent)
         self.display_unhandled_exception.connect(self.unhandled_exception, type=Qt.ConnectionType.QueuedConnection)
         if disable_automatic_gc:
             self._gc = GarbageCollector(self, debug=False)
 
-    def enable_garbage_collection(self, enabled=True):
+    def enable_garbage_collection(self, enabled=True) -> None:
         if hasattr(self, '_gc'):
             self._gc.timer.blockSignals(not enabled)
         else:
             gc.enable() if enabled else gc.disable()
 
-    def set_exception_handler(self):
+    def set_exception_handler(self) -> None:
         sys.excepthook = ExceptionHandler(self)
 
     def show_possible_sharing_violation(self, e: Exception, det_msg: str = '') -> bool:
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
         error_dialog(self, _('Cannot open file or folder as it is in use'), '<p>' + msg + dmsg, det_msg=det_msg, show=True)
         return True
 
-    def unhandled_exception(self, exc_type, value, tb):
+    def unhandled_exception(self, exc_type, value, tb) -> None:
         if exc_type is KeyboardInterrupt:
             return
         import traceback

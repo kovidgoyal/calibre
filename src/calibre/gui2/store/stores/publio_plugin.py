@@ -32,7 +32,7 @@ def as_base64(data):
 
 
 class PublioStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/29/58/'
         url = 'http://www.publio.pl/'
 

@@ -20,7 +20,7 @@ from calibre.utils.localization import _
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
-    def __init__(self, db, book_id, regex, doc=None, parent=None):
+    def __init__(self, db, book_id, regex, doc=None, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -49,10 +49,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.restore_geometry(gprefs, 'regex_builder_geometry')
         self.finished.connect(self.save_state)
 
-    def save_state(self, result):
+    def save_state(self, result) -> None:
         self.save_geometry(gprefs, 'regex_builder_geometry')
 
-    def regex_valid(self):
+    def regex_valid(self) -> bool:
         regex = str(self.regex.text())
         if regex:
             try:
@@ -72,7 +72,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         return False
 
-    def do_test(self):
+    def do_test(self) -> None:
         selections = []
         self.match_locs = []
 
@@ -105,7 +105,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             self.previous.setEnabled(True)
         self.occurrences.setText(str(len(self.match_locs)))
 
-    def goto_previous(self):
+    def goto_previous(self) -> None:
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = len(self.match_locs) - 1
@@ -120,7 +120,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0],
             )
 
-    def goto_next(self):
+    def goto_next(self) -> None:
         pos = self.preview.textCursor().position()
         if self.match_locs:
             match_loc = 0
@@ -131,14 +131,14 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     break
             self.goto_loc(self.match_locs[match_loc][0], n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
 
-    def goto_loc(self, loc, operation=QTextCursor.MoveOperation.Right, mode=QTextCursor.MoveMode.KeepAnchor, n=0):
+    def goto_loc(self, loc, operation=QTextCursor.MoveOperation.Right, mode=QTextCursor.MoveMode.KeepAnchor, n=0) -> None:
         cursor = QTextCursor(self.preview.document())
         cursor.setPosition(loc)
         if n:
             cursor.movePosition(operation, mode, n)
         self.preview.setTextCursor(cursor)
 
-    def select_format(self, db, book_id):
+    def select_format(self, db, book_id) -> bool:
         format = None
         formats = db.formats(book_id, index_is_id=True).upper().split(',')
         if len(formats) == 1:
@@ -199,7 +199,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             with open(tf, 'rb') as f:
                 self.preview.setPlainText(f.read().decode('utf-8'))
 
-    def open_clicked(self):
+    def open_clicked(self) -> None:
         files = choose_files(self, 'regexp tester dialog', _('Open book'), select_only_single_file=True)
         if files:
             self.open_book(files[0])
@@ -211,7 +211,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 class RegexEdit(XPathEdit):
     doc_update = pyqtSignal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         _completer = self.edit.completer()
         assert _completer is not None
@@ -223,7 +223,7 @@ class RegexEdit(XPathEdit):
     def wizard(self):
         return self.builder()
 
-    def builder(self):
+    def builder(self) -> None:
         if self.db is None:
             self.doc_cache = _('Click the "Open" button below to open a e-book to use for testing.')
         bld = RegexBuilder(self.db, self.book_id, self.edit.text(), self.doc_cache, self)
@@ -238,28 +238,28 @@ class RegexEdit(XPathEdit):
     def doc(self):
         return self.doc_cache
 
-    def setObjectName(self, name=None):
+    def setObjectName(self, name=None) -> None:
         args = (name,)
         super().setObjectName(*args)
         if hasattr(self, 'edit'):
             self.edit.initialize('regex_edit_' + str(self.objectName()))
 
-    def set_msg(self, msg):
+    def set_msg(self, msg) -> None:
         self.msg.setText(msg)
 
-    def set_book_id(self, book_id):
+    def set_book_id(self, book_id) -> None:
         self.book_id = book_id
 
-    def set_db(self, db):
+    def set_db(self, db) -> None:
         self.db = db
 
-    def set_doc(self, doc):
+    def set_doc(self, doc) -> None:
         self.doc_cache = doc
 
-    def set_regex(self, regex):
+    def set_regex(self, regex) -> None:
         self.edit.setText(regex)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.db = self.doc_cache = None
 
     @property
@@ -270,10 +270,10 @@ class RegexEdit(XPathEdit):
     def regex(self):
         return self.text
 
-    def clear(self):
+    def clear(self) -> None:
         self.edit.clear()
 
-    def check(self):
+    def check(self) -> bool:
         return True
 
 

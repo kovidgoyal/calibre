@@ -32,11 +32,11 @@ if TYPE_CHECKING:
 
 
 class Worker(Thread):
-    def __init__(self, func, args):
+    def __init__(self, func, args) -> None:
         super().__init__(name='EmailWorker', daemon=True, target=self.do_work, args=(func, args))
         self.exception = self.tb = None
 
-    def do_work(self, func, args):
+    def do_work(self, func, args) -> None:
         # time.sleep(1000)
         try:
             func(*args)
@@ -51,11 +51,11 @@ class Sendmail:
     MAX_RETRIES = 1
     TIMEOUT = 25 * 60  # seconds
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.calculate_rate_limit()
         self.last_send_time = time.time() - self.rate_limit
 
-    def calculate_rate_limit(self):
+    def calculate_rate_limit(self) -> None:
         self.rate_limit = 1
         opts = email_config().parse()
         rh = opts.relay_host
@@ -96,7 +96,7 @@ class Sendmail:
             if try_count > self.MAX_RETRIES:
                 raise worker.exception
 
-    def sendmail(self, attachment, aname, to, subject, text, log):
+    def sendmail(self, attachment, aname, to, subject, text, log) -> None:
         logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
             if not logged and self.rate_limit > 0:
@@ -150,7 +150,7 @@ def is_for_kindle(to):
     return isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to or '@free.kindle.com' in to or '@free.kindle.cn' in to)
 
 
-def send_mails(jobnames, callback, attachments, to_s, subjects, texts, attachment_names, job_manager):
+def send_mails(jobnames, callback, attachments, to_s, subjects, texts, attachment_names, job_manager) -> None:
     for name, attachment, to, subject, text, aname in zip(jobnames, attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         if isinstance(to, str) and (is_for_kindle(to) or '@pbsync.com' in to):
@@ -221,7 +221,7 @@ plugboard_email_formats = ['epub', 'mobi', 'azw3']
 
 
 class SelectRecipients(QDialog):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QDialog.__init__(self, parent)
         self._layout = l = QGridLayout(self)
         self.setLayout(l)
@@ -300,14 +300,14 @@ class SelectRecipients(QDialog):  # {{{
             c.set('subjects', opts.subjects)
         self.create_item(alias or to, to, checked=True)
 
-    def create_item(self, alias, key, checked=False):
+    def create_item(self, alias, key, checked=False) -> None:
         i = QListWidgetItem(alias, self.recipients)
         i.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
         i.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
         i.setData(Qt.ItemDataRole.UserRole, key)
         self.items.append(i)
 
-    def init_list(self):
+    def init_list(self) -> None:
         opts = email_config().parse()
         self.items = []
 
@@ -346,7 +346,7 @@ def select_recipients(parent=None):
 
 
 class EmailMixin:  # {{{
-    def send_multiple_by_mail(self: Main, recipients, delete_from_library):
+    def send_multiple_by_mail(self: Main, recipients, delete_from_library) -> None:
         sm = self.library_view.selectionModel()
         assert sm is not None
         ids = {self.library_view._model.id(r) for r in sm.selectedRows()}
@@ -401,7 +401,7 @@ class EmailMixin:  # {{{
                 show=True,
             )
 
-    def send_by_mail(self: Main, to, fmts, delete_from_library, subject='', send_ids=None, do_auto_convert=True, specific_format=None):
+    def send_by_mail(self: Main, to, fmts, delete_from_library, subject='', send_ids=None, do_auto_convert=True, specific_format=None) -> None:
         ids = [self.library_view._model.id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
             return
@@ -530,7 +530,7 @@ class EmailMixin:  # {{{
             )
             d.exec()
 
-    def email_sent(self: Main, job, remove=None):
+    def email_sent(self: Main, job, remove=None) -> None:
         if remove is None:
             remove = []
         if job.failed:
@@ -550,7 +550,7 @@ class EmailMixin:  # {{{
                 # to delete the book is not catastrophic
                 traceback.print_exc()
 
-    def email_news(self: Main, id_):
+    def email_news(self: Main, id_) -> None:
         mi = self.current_db.get_metadata(id_, index_is_id=True)
         remove = [id_] if config['delete_news_from_library_on_upload'] else []
 

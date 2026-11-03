@@ -127,10 +127,10 @@ if iswindows:
             entry['icon_data'] = data
         return entry
 
-    def change_name_in_entry(entry, newname):
+    def change_name_in_entry(entry, newname) -> None:
         entry['name'] = newname
 
-    def entry_to_item(entry, parent):
+    def entry_to_item(entry, parent) -> None:
         try:
             icon = icon_for_entry(entry)
         except Exception:
@@ -204,10 +204,10 @@ elif ismacos:
             entry['icon_data'] = data
         return entry
 
-    def change_name_in_entry(entry, newname):
+    def change_name_in_entry(entry, newname) -> None:
         entry['name'] = newname
 
-    def entry_to_item(entry, parent):
+    def entry_to_item(entry, parent) -> None:
         icon = get_icon(entry.get('icon_file'), as_data=False)
         if icon is None:
             icon = entry_to_icon_text(entry)[0]
@@ -245,10 +245,10 @@ else:
     oprefs = JSONConfig('xdg_open_with')
     from calibre.utils.open_with.linux import entry_sort_key, entry_to_cmdline, find_programs
 
-    def change_name_in_entry(entry, newname):
+    def change_name_in_entry(entry, newname) -> None:
         entry['Name'] = newname
 
-    def entry_to_item(entry, parent):
+    def entry_to_item(entry, parent) -> None:
         icon_path = entry.get('Icon') or I('blank.png')
         if not isinstance(icon_path, (str, bytes)):
             icon_path = I('blank.png')
@@ -294,7 +294,7 @@ else:
 class ChooseProgram(Dialog):  # {{{
     found = pyqtSignal()
 
-    def __init__(self, file_type='jpeg', parent=None, prefs=oprefs):
+    def __init__(self, file_type='jpeg', parent=None, prefs=oprefs) -> None:
         self.file_type = file_type
         self.programs = self.find_error = self.selected_entry = None
         self.select_manually = False
@@ -305,7 +305,7 @@ class ChooseProgram(Dialog):  # {{{
         t.daemon = True
         t.start()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.stacks = s = QStackedLayout(self)
         self.w = w = QWidget(self)
         l = QVBoxLayout(w)
@@ -337,7 +337,7 @@ class ChooseProgram(Dialog):  # {{{
     def sizeHint(self):
         return QSize(600, 500)
 
-    def find_programs(self):
+    def find_programs(self) -> None:
         try:
             self.programs = find_programs(self.file_type.split())
         except Exception:
@@ -370,7 +370,7 @@ class ChooseProgram(Dialog):  # {{{
             self.selected_entry = ci.data(ENTRY_ROLE)
         return Dialog.accept(self)
 
-    def manual(self):
+    def manual(self) -> None:
         self.select_manually = True
         self.reject()
 
@@ -414,7 +414,7 @@ def populate_menu(menu, connect_action, file_type):
 
 
 class EditPrograms(Dialog):  # {{{
-    def __init__(self, file_type='jpeg', parent=None):
+    def __init__(self, file_type='jpeg', parent=None) -> None:
         self.file_type = file_type.lower()
         Dialog.__init__(
             self,
@@ -423,7 +423,7 @@ class EditPrograms(Dialog):  # {{{
             parent=parent,
         )
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.plist = pl = QListWidget(self)
         pl.setIconSize(QSize(48, 48)), pl.setSpacing(5)
@@ -446,7 +446,7 @@ class EditPrograms(Dialog):  # {{{
     def sizeHint(self):
         return QSize(600, 400)
 
-    def populate(self):
+    def populate(self) -> None:
         self.plist.clear()
         for entry in oprefs['entries'].get(self.file_type, ()):
             entry_to_item(entry, self.plist)
@@ -490,7 +490,7 @@ class EditPrograms(Dialog):  # {{{
         self.update_stored_config()
         register_keyboard_shortcuts(finalize=True)
 
-    def update_stored_config(self):
+    def update_stored_config(self) -> None:
         entries = []
         for i in range(self.plist.count()):
             plist_item = self.plist.item(i)
@@ -500,7 +500,7 @@ class EditPrograms(Dialog):  # {{{
         oprefs['entries'] = oprefs['entries']
 
 
-def edit_programs(file_type, parent):
+def edit_programs(file_type, parent) -> None:
     d = EditPrograms(file_type, parent)
     d.exec()
 
@@ -510,7 +510,7 @@ def edit_programs(file_type, parent):
 registered_shortcuts = {}
 
 
-def register_keyboard_shortcuts(gui=None, finalize=False):
+def register_keyboard_shortcuts(gui=None, finalize=False) -> None:
     if gui is None:
         from calibre.gui2.ui import get_gui
 

@@ -26,10 +26,10 @@ class ThrobbingButton(QToolButton):
         return self._icon_size
 
     @icon_size.setter
-    def icon_size(self, value):
+    def icon_size(self, value) -> None:
         self._icon_size = value
 
-    def __init__(self, *args):
+    def __init__(self, *args) -> None:
         QToolButton.__init__(self, *args)
         # vertically size policy must be expanding for it to align inside a
         # toolbar
@@ -44,19 +44,19 @@ class ThrobbingButton(QToolButton):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.animation.finished.connect(self.animation_finished)
 
-    def animation_finished(self):
+    def animation_finished(self) -> None:
         self.icon_size = self.iconSize().width()
 
-    def enterEvent(self, a0):
+    def enterEvent(self, a0) -> None:
         self.start_animation()
 
-    def leaveEvent(self, a0):
+    def leaveEvent(self, a0) -> None:
         self.stop_animation()
 
-    def value_changed(self, val):
+    def value_changed(self, val) -> None:
         self.update()
 
-    def start_animation(self):
+    def start_animation(self) -> None:
         if config['disable_animations']:
             return
         if self.animation.state() != QAbstractAnimation.State.Stopped or not self.isVisible():
@@ -69,11 +69,11 @@ class ThrobbingButton(QToolButton):
         self.animation.setEndValue(size)
         QMetaObject.invokeMethod(self.animation, 'start', Qt.ConnectionType.QueuedConnection)
 
-    def stop_animation(self):
+    def stop_animation(self) -> None:
         self.animation.stop()
         self.animation_finished()
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         size = self._icon_size if self._icon_size > 10 else self.iconSize().width()
         size = size or max(0, self.width() - 4)
         p = QPainter(self)

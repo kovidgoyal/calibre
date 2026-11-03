@@ -26,7 +26,7 @@ class RuleLocation(NamedTuple):
     style_tag_address: tuple[int, list[int]] | None = None
 
 
-def rule_matches_elem(rule, elem, select, class_name):
+def rule_matches_elem(rule, elem, select, class_name) -> bool:
     for selector in rule.selectorList:
         if class_name in selector.selectorText:
             with suppress(SelectorError):
@@ -114,7 +114,7 @@ def find_first_matching_rule(container, html_file_name, raw_html, class_data, ln
     raise NoMatchingRuleFound(f'No CSS rules that apply to the specified tag in {html_file_name} with the class {class_name} found')
 
 
-def develop():
+def develop() -> None:
     container = get_container('/t/demo.epub', tweak_mode=True)
     fname = 'index_split_002.html'
     data = {'class': 'xxx', 'sourceline_address': (13, ['body'])}

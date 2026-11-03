@@ -4,7 +4,7 @@
 from qt.core import QObject, pyqtSignal
 
 
-def set_sync_override(allowed):
+def set_sync_override(allowed) -> None:
     from calibre.gui2.viewer.lookup import set_sync_override
 
     set_sync_override(allowed)
@@ -15,7 +15,7 @@ class TTS(QObject):
     settings_changed = pyqtSignal(object)
     configured = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self._manager = None
 
@@ -30,45 +30,45 @@ class TTS(QObject):
             self._manager.configured.connect(self.configured)
         return self._manager
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self._manager is not None:
             self._manager.stop()
             self._manager = None
 
-    def speak_simple_text(self, text):
+    def speak_simple_text(self, text) -> None:
         self.manager.speak_simple_text(text)
 
-    def action(self, action, data):
+    def action(self, action, data) -> None:
         if action != 'resume_after_configure':  # resume_after_configure is not used in new tts backend
             getattr(self, action)(data)
 
-    def play(self, data):
+    def play(self, data) -> None:
         set_sync_override(False)
         self.manager.speak_marked_text(data['marked_text'])
 
-    def pause(self, data):
+    def pause(self, data) -> None:
         set_sync_override(True)
         self.manager.pause()
 
-    def resume(self, data):
+    def resume(self, data) -> None:
         set_sync_override(False)
         self.manager.resume()
 
     def saying(self, first: int, last: int) -> None:
         self.event_received.emit('mark', {'first': first, 'last': last})
 
-    def state_event(self, name: str):
+    def state_event(self, name: str) -> None:
         self.event_received.emit(name, None)
 
-    def stop(self, data):
+    def stop(self, data) -> None:
         set_sync_override(True)
         self.manager.stop()
 
-    def configure(self, data):
+    def configure(self, data) -> None:
         self.manager.configure()
 
-    def slower(self, data):
+    def slower(self, data) -> None:
         self.manager.change_rate(steps=-1)
 
-    def faster(self, data):
+    def faster(self, data) -> None:
         self.manager.change_rate(steps=1)

@@ -45,7 +45,7 @@ class TableView(MomentumScrollMixin, QTableView):
         @property
         def column_map(self) -> list[str]: ...
 
-    def closeEditor(self, editor, hint):
+    def closeEditor(self, editor, hint) -> None:
         # We want to implement our own go to next/previous cell behavior
         delta = 0
         if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
@@ -105,7 +105,7 @@ class TableView(MomentumScrollMixin, QTableView):
             self.setCurrentIndex(idx)
             self.edit(idx)
 
-    def create_delegates(self):
+    def create_delegates(self) -> None:
         self.rating_delegate = RatingDelegate(self)
         self.half_rating_delegate = RatingDelegate(self, is_half_star=True)
         self.timestamp_delegate = DateDelegate(self)
@@ -129,13 +129,13 @@ class TableView(MomentumScrollMixin, QTableView):
         self.cc_template_delegate = CcTemplateDelegate(self)
         self.cc_number_delegate = CcNumberDelegate(self)
 
-    def set_delegates(self):
+    def set_delegates(self) -> None:
         cm = self.column_map
         m = self.model()
         assert m is not None
         bm = cast('BooksModel', m)
 
-        def set_item_delegate(colhead, delegate):
+        def set_item_delegate(colhead, delegate) -> None:
             idx = self.column_map.index(colhead)
             self.setItemDelegateForColumn(idx, delegate)
 
@@ -182,10 +182,10 @@ class TableView(MomentumScrollMixin, QTableView):
                 delegate = colhead if hasattr(self, dattr) else 'text'
                 set_item_delegate(colhead, getattr(self, delegate + '_delegate'))
 
-    def refresh_composite_edit(self):
+    def refresh_composite_edit(self) -> None:
         self.cc_template_delegate.refresh()
 
-    def allow_one_edit_for_f2(self):
+    def allow_one_edit_for_f2(self) -> None:
         key = self.column_map[self.currentIndex().column()]
         m = self.model()
         assert m is not None
@@ -206,7 +206,7 @@ class TableView(MomentumScrollMixin, QTableView):
 class PinTableView(TableView):
     disable_save_state = False
 
-    def __init__(self, books_view, parent=None):
+    def __init__(self, books_view, parent=None) -> None:
         QTableView.__init__(self, parent)
         self.books_view = books_view
         vh = self.verticalHeader()
@@ -218,10 +218,10 @@ class PinTableView(TableView):
     def column_map(self):
         return self.books_view.column_map
 
-    def set_context_menu(self, menu):
+    def set_context_menu(self, menu) -> None:
         self.context_menu = menu
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         self.books_view.show_context_menu(self.context_menu, a0)
 
     def get_default_state(self):
@@ -242,7 +242,7 @@ class PinTableView(TableView):
                     old_state['column_sizes'][name] += 12
         return old_state
 
-    def apply_state(self, state):
+    def apply_state(self, state) -> None:
         self.disable_save_state = True  # moveSection() can cause save_state() to be called
         h = self.column_header
         cmap = {}
@@ -300,7 +300,7 @@ class PinTableView(TableView):
                 state['column_sizes'][name] = h.sectionSize(i)
         return state
 
-    def save_state(self):
+    def save_state(self) -> None:
         db = getattr(self.model(), 'db', None)
         if db is not None and not self.disable_save_state:
             state = self.get_state()
@@ -308,7 +308,7 @@ class PinTableView(TableView):
             if self.splitter is not None:
                 self.splitter.save_state()
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         db = getattr(self.model(), 'db', None)
         if db is not None:
             state = db.new_api.pref('books view split pane state', None)
@@ -319,7 +319,7 @@ class PinTableView(TableView):
 
 
 class PinContainer(QSplitter):
-    def __init__(self, books_view, parent=None):
+    def __init__(self, books_view, parent=None) -> None:
         super().__init__(parent)
         self.setChildrenCollapsible(False)
         self.books_view = books_view
@@ -332,13 +332,13 @@ class PinContainer(QSplitter):
         return bytearray(self.saveState())
 
     @splitter_state.setter
-    def splitter_state(self, val):
+    def splitter_state(self, val) -> None:
         if val is not None:
             self.restoreState(val)
 
-    def save_state(self):
+    def save_state(self) -> None:
         gprefs['book_list_pin_splitter_state'] = self.splitter_state
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         val = gprefs.get('book_list_pin_splitter_state', None)
         self.splitter_state = val

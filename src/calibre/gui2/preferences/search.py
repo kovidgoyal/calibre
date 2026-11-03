@@ -14,7 +14,7 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         db = gui.library_view.model().db
         self.db = db
@@ -118,13 +118,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         assert _muc_le is not None
         _muc_le.editingFinished.connect(self.muc_box_changed)
 
-    def set_similar_fields(self, initial=False):
+    def set_similar_fields(self, initial=False) -> None:
         self.set_similar('similar_authors_search_key', initial=initial)
         self.set_similar('similar_tags_search_key', initial=initial)
         self.set_similar('similar_series_search_key', initial=initial)
         self.set_similar('similar_publisher_search_key', initial=initial)
 
-    def set_similar(self, name, initial=False):
+    def set_similar(self, name, initial=False) -> None:
         field = getattr(self, name)
         if not initial:
             val = field.currentText()
@@ -151,10 +151,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             QTimer.singleShot(0, self.changed_signal.emit)
         field.blockSignals(False)
 
-    def something_changed(self, dex):
+    def something_changed(self, dex) -> None:
         self.changed_signal.emit()
 
-    def muc_box_changed(self):
+    def muc_box_changed(self) -> None:
         self.muc_changed = True
 
     def gst_save_clicked(self):
@@ -206,7 +206,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gst_changed = True
             self.set_similar_fields(initial=False)
 
-    def fill_gst_box(self, select=None):
+    def fill_gst_box(self, select=None) -> None:
         terms = sorted(self.gst.keys(), key=sort_key)
         self.opt_grouped_search_make_user_categories.update_items_cache(terms)
         self.gst_names.blockSignals(True)
@@ -221,12 +221,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             elif select in terms:
                 self.gst_names.setCurrentIndex(self.gst_names.findText(select))
 
-    def gst_text_changed(self):
+    def gst_text_changed(self) -> None:
         t = self.gst_names.currentText()
         self.gst_delete_button.setEnabled(len(t) > 0 and t in self.gst)
         self.gst_save_button.setEnabled(True)
 
-    def gst_index_changed(self, idx):
+    def gst_index_changed(self, idx) -> None:
         self.gst_delete_button.setEnabled(idx != 0)
         self.gst_save_button.setEnabled(False)
         self.gst_value.blockSignals(True)
@@ -277,7 +277,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.db.new_api.set_pref('categories_using_hierarchy', list(cats))
         return restart
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.refresh_search_bar_widgets()
         self.gui.bars_manager.update_bars()
         gui.current_db.new_api.clear_caches()
@@ -288,7 +288,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.search_as_you_type(config['search_as_you_type'])
         gui.search.do_search()
 
-    def clear_histories(self, *args):
+    def clear_histories(self, *args) -> None:
         for key, val in config.defaults.items():
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []

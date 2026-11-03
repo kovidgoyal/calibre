@@ -21,7 +21,7 @@ from calibre.utils.localization import _
 singleinstance_name = 'calibre_viewer'
 
 
-def migrate_previous_viewer_prefs():
+def migrate_previous_viewer_prefs() -> None:
     new_prefs = vprefs
     if new_prefs['old_prefs_migrated']:
         return
@@ -78,7 +78,7 @@ def migrate_previous_viewer_prefs():
 class EventAccumulator(QObject):
     got_file = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QObject.__init__(self, parent)
         self.events = []
 
@@ -88,13 +88,13 @@ class EventAccumulator(QObject):
                 self.events.append(path)
                 self.got_file.emit(path)
 
-    def flush(self):
+    def flush(self) -> None:
         if self.events:
             self.got_file.emit(self.events[-1])
             self.events = []
 
 
-def send_message_to_viewer_instance(args, open_at):
+def send_message_to_viewer_instance(args, open_at) -> None:
     if len(args) > 1:
         msg = json.dumps((os.path.abspath(args[1]), open_at))
         try:
@@ -171,7 +171,7 @@ View an e-book.
     return parser
 
 
-def run_gui(app, opts, args, internal_book_data, listener=None):
+def run_gui(app, opts, args, internal_book_data, listener=None) -> None:
     from calibre.gui2.viewer.convert_book import initialize_worker
 
     initialize_worker()
@@ -211,7 +211,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     gc.collect(), gc.collect()
 
 
-def main(args=sys.argv):
+def main(args=sys.argv) -> None:
     from calibre.utils.webengine import setup_fake_protocol
 
     # Ensure viewer can continue to function if GUI is closed

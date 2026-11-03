@@ -17,8 +17,8 @@ class HelpAction(InterfaceAction):
         _('F1'),
     )
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_help)
 
-    def show_help(self, *args):
+    def show_help(self, *args) -> None:
         open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com')))

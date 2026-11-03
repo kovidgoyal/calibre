@@ -42,7 +42,7 @@ class DBCheck(QDialog):  # {{{
     finished_vacuum = pyqtSignal()
     was_rejected = False
 
-    def __init__(self, parent, db):
+    def __init__(self, parent, db) -> None:
         QDialog.__init__(self, parent)
         self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
@@ -103,7 +103,7 @@ class DBCheck(QDialog):  # {{{
         self.db = weakref.ref(db.new_api)
         self.setMinimumWidth(450)
 
-    def start(self):
+    def start(self) -> None:
         self.setWindowTitle(_('Vacuuming...'))
         sl = self.layout()
         assert isinstance(sl, QStackedLayout)
@@ -119,7 +119,7 @@ class DBCheck(QDialog):  # {{{
         )
         t.start()
 
-    def vacuum(self, db, include_fts_db, include_notes_db, rebuild_annotations_fts):
+    def vacuum(self, db, include_fts_db, include_notes_db, rebuild_annotations_fts) -> None:
         try:
             db.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
         except Exception as e:
@@ -140,7 +140,7 @@ class DBCheck(QDialog):  # {{{
             return
         return super().closeEvent(a0)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         if self.vacuum_started:
             QApplication.restoreOverrideCursor()
         self._worker = None
@@ -152,7 +152,7 @@ class DBCheck(QDialog):  # {{{
 class TextWithButtonWidget(QWidget):
     button_icon = None
 
-    def __init__(self, library_path, text, item_path):
+    def __init__(self, library_path, text, item_path) -> None:
         QWidget.__init__(self)
         if self.button_icon is None:
             self.button_icon = QIcon.ic('document_open.png')
@@ -175,7 +175,7 @@ class TextWithButtonWidget(QWidget):
         self.setLayout(l)
         self.setContentsMargins(0, 0, 0, 0)
 
-    def button_clicked(self):
+    def button_clicked(self) -> None:
         open_local_file(self.path)
 
 
@@ -183,7 +183,7 @@ class CheckLibraryDialog(QDialog):
     is_deletable = 1
     is_fixable = 2
 
-    def __init__(self, parent, db):
+    def __init__(self, parent, db) -> None:
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -336,7 +336,7 @@ class CheckLibraryDialog(QDialog):
         self._layout.addLayout(self.bbox)
         self.resize(950, 500)
 
-    def do_exec(self):
+    def do_exec(self) -> bool:
         self.run_the_check()
 
         probs = 0
@@ -347,7 +347,7 @@ class CheckLibraryDialog(QDialog):
         self.exec()
         return True
 
-    def accept(self):
+    def accept(self) -> None:
         self.db.new_api.set_pref('check_library_ignore_extensions', str(self.ext_ignores.text()))
         self.db.new_api.set_pref('check_library_ignore_names', str(self.name_ignores.text()))
         QDialog.accept(self)
@@ -355,13 +355,13 @@ class CheckLibraryDialog(QDialog):
     def box_to_list(self, txt):
         return [f.strip() for f in txt.split(',') if f.strip()]
 
-    def run_the_check(self):
+    def run_the_check(self) -> None:
         checker = CheckLibrary(self.db.library_path, self.db)
         checker.scan_library(self.box_to_list(str(self.name_ignores.text())), self.box_to_list(str(self.ext_ignores.text())))
 
         plaintext = []
 
-        def builder(tree, checker, check):
+        def builder(tree, checker, check) -> None:
             attr, h, checkable, fixable = check
             list_ = getattr(checker, attr, None)
             if list_ is None:
@@ -422,12 +422,12 @@ class CheckLibraryDialog(QDialog):
         self.fix_button.setEnabled(False)
         self.text_results = '\n'.join(plaintext)
 
-    def item_expanded_or_collapsed(self, item):
+    def item_expanded_or_collapsed(self, item) -> None:
         self.log.resizeColumnToContents(0)
         self.log.resizeColumnToContents(1)
 
-    def item_changed(self, item, column):
-        def set_delete_boxes(node, col, to_what):
+    def item_changed(self, item, column) -> None:
+        def set_delete_boxes(node, col, to_what) -> None:
             if isinstance(to_what, bool):
                 to_what = Qt.CheckState.Checked if to_what else Qt.CheckState.Unchecked
             self.log.blockSignals(True)
@@ -446,14 +446,14 @@ class CheckLibraryDialog(QDialog):
                 all_checked = all_checked and c == Qt.CheckState.Checked
             return checked, all_checked
 
-        def any_child_delete_checked():
+        def any_child_delete_checked() -> bool:
             for parent in self.top_level_items.values():
                 c, _ = is_child_delete_checked(parent)
                 if c:
                     return True
             return False
 
-        def any_fix_checked():
+        def any_fix_checked() -> bool:
             for parent in self.top_level_items.values():
                 if parent.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable and parent.checkState(1) == Qt.CheckState.Checked:
                     return True
@@ -493,17 +493,17 @@ class CheckLibraryDialog(QDialog):
         self.delete_button.setEnabled(any_child_delete_checked())
         self.fix_button.setEnabled(any_fix_checked())
 
-    def mark_for_fix(self):
+    def mark_for_fix(self) -> None:
         for it in self.top_level_items.values():
             if it.flags() & Qt.ItemFlag.ItemIsUserCheckable and it.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable and it.childCount() > 0:
                 it.setCheckState(1, Qt.CheckState.Checked)
 
-    def mark_for_delete(self):
+    def mark_for_delete(self) -> None:
         for it in self.all_items:
             if it.flags() & Qt.ItemFlag.ItemIsUserCheckable and it.data(2, Qt.ItemDataRole.UserRole) == self.is_deletable:
                 it.setCheckState(2, Qt.CheckState.Checked)
 
-    def delete_marked(self):
+    def delete_marked(self) -> None:
         if not confirm(
             '<p>' + _('The marked files and folders will be <b>permanently deleted</b>. Are you sure?') + '</p>',
             'check_library_editor_delete',
@@ -526,7 +526,7 @@ class CheckLibraryDialog(QDialog):
                     prints('failed to delete', os.path.join(self.db.library_path, str(it.text(2))))
         self.run_the_check()
 
-    def fix_missing_formats(self):
+    def fix_missing_formats(self) -> None:
         tl = self.top_level_items['missing_formats']
         child_count = tl.childCount()
         for i in range(child_count):
@@ -539,7 +539,7 @@ class CheckLibraryDialog(QDialog):
             for fmt in all - valid:
                 self.db.remove_format(id, fmt, index_is_id=True, db_only=True)
 
-    def fix_missing_covers(self):
+    def fix_missing_covers(self) -> None:
         tl = self.top_level_items['missing_covers']
         child_count = tl.childCount()
         for i in range(child_count):
@@ -547,7 +547,7 @@ class CheckLibraryDialog(QDialog):
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, False)
 
-    def fix_extra_covers(self):
+    def fix_extra_covers(self) -> None:
         tl = self.top_level_items['extra_covers']
         child_count = tl.childCount()
         for i in range(child_count):
@@ -555,7 +555,7 @@ class CheckLibraryDialog(QDialog):
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, True)
 
-    def fix_malformed_paths(self):
+    def fix_malformed_paths(self) -> None:
         tl = self.top_level_items['malformed_paths']
         child_count = tl.childCount()
         for i in range(child_count):
@@ -573,7 +573,7 @@ class CheckLibraryDialog(QDialog):
             if not dirnames and not filenames:
                 os.rmdir(path_ath_lib)
 
-    def fix_malformed_formats(self):
+    def fix_malformed_formats(self) -> None:
         tl = self.top_level_items['malformed_formats']
         child_count = tl.childCount()
         for i in range(child_count):
@@ -585,7 +585,7 @@ class CheckLibraryDialog(QDialog):
             filename = self.db.new_api.format_files(id_)[ext.upper()] + '.' + ext.lower()
             os.rename(os.path.join(self.db.library_path, lib_path), os.path.join(self.db.library_path, book_path, filename))
 
-    def fix_items(self):
+    def fix_items(self) -> None:
         for check in CHECKS:
             attr = check[0]
             fixable = check[3]
@@ -596,7 +596,7 @@ class CheckLibraryDialog(QDialog):
                     func()
         self.run_the_check()
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         cb = QApplication.clipboard()
         assert cb is not None
         cb.setText(self.text_results)

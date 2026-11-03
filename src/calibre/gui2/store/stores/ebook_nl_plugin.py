@@ -22,7 +22,7 @@ except ImportError:
 
 
 class EBookNLStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = 'http://www.ebook.nl/'
         url_details = 'http://www.ebook.nl/store/{0}'
 
@@ -71,7 +71,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())

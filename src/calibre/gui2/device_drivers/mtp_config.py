@@ -47,7 +47,7 @@ BOOK_EXTENSIONS = frozenset(EBOOK_EXTENSIONS) | {'mp3', 'aac', 'aax', 'm4a', 'm4
 
 
 class FormatsConfig(QWidget):  # {{{
-    def __init__(self, all_formats, format_map):
+    def __init__(self, all_formats, format_map) -> None:
         QWidget.__init__(self)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -81,7 +81,7 @@ class FormatsConfig(QWidget):  # {{{
                 result.append(str(item.data(Qt.ItemDataRole.UserRole) or ''))
         return result
 
-    def validate(self):
+    def validate(self) -> bool:
         if not self.format_map:
             error_dialog(
                 self,
@@ -92,13 +92,13 @@ class FormatsConfig(QWidget):  # {{{
             return False
         return True
 
-    def up(self):
+    def up(self) -> None:
         idx = self.f.currentRow()
         if idx > 0:
             self.f.insertItem(idx - 1, self.f.takeItem(idx))
             self.f.setCurrentRow(idx - 1)
 
-    def down(self):
+    def down(self) -> None:
         idx = self.f.currentRow()
         if idx < self.f.count() - 1:
             self.f.insertItem(idx + 1, self.f.takeItem(idx))
@@ -109,7 +109,7 @@ class FormatsConfig(QWidget):  # {{{
 
 
 class TemplateConfig(QWidget):  # {{{
-    def __init__(self, val):
+    def __init__(self, val) -> None:
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(val or '')
@@ -134,13 +134,13 @@ class TemplateConfig(QWidget):  # {{{
     def template(self):
         return str(self.t.text()).strip()
 
-    def edit_template(self):
+    def edit_template(self) -> None:
         t = TemplateDialog(self, self.template)
         t.setWindowTitle(_('Edit template'))
         if t.exec():
             self.t.setText(t.rule[1])
 
-    def validate(self):
+    def validate(self) -> bool | None:
         from calibre.utils.formatter import validation_formatter
 
         tmpl = self.template
@@ -162,7 +162,7 @@ class TemplateConfig(QWidget):  # {{{
 
 
 class SendToConfig(QWidget):  # {{{
-    def __init__(self, val, device):
+    def __init__(self, val, device) -> None:
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(', '.join(val or []))
@@ -189,7 +189,7 @@ class SendToConfig(QWidget):  # {{{
     def device(self):
         return self._device()
 
-    def browse(self):
+    def browse(self) -> None:
         b = Browser(self.device.filesystem_cache, show_files=False, parent=self)
         if b.exec() == QDialog.DialogCode.Accepted and b.current_item is not None:
             sid, path = b.current_item
@@ -205,7 +205,7 @@ class SendToConfig(QWidget):  # {{{
 
 
 class IgnoredDevices(QWidget):  # {{{
-    def __init__(self, devs, blacklist):
+    def __init__(self, devs, blacklist) -> None:
         QWidget.__init__(self)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -240,7 +240,7 @@ class IgnoredDevices(QWidget):  # {{{
                 result.append(str(item.data(Qt.ItemDataRole.UserRole) or ''))
         return result
 
-    def ignore_device(self, snum):
+    def ignore_device(self, snum) -> None:
         for i in range(self.f.count()):
             i = self.f.item(i)
             assert i is not None
@@ -258,7 +258,7 @@ class IgnoredDevices(QWidget):  # {{{
 class Rule(QWidget):
     remove = pyqtSignal(object)
 
-    def __init__(self, device, rule=None):
+    def __init__(self, device, rule=None) -> None:
         QWidget.__init__(self)
         self._device = weakref.ref(device)
 
@@ -302,13 +302,13 @@ class Rule(QWidget):
     def device(self):
         return self._device()
 
-    def browse(self):
+    def browse(self) -> None:
         b = Browser(self.device.filesystem_cache, show_files=False, parent=self)
         if b.exec() == QDialog.DialogCode.Accepted and b.current_item is not None:
             sid, path = b.current_item
             self.folder.setText('/'.join(path[1:]))
 
-    def removed(self):
+    def removed(self) -> None:
         self.remove.emit(self)
 
     @property
@@ -320,7 +320,7 @@ class Rule(QWidget):
 
 
 class FormatRules(QGroupBox):
-    def __init__(self, device, rules):
+    def __init__(self, device, rules) -> None:
         QGroupBox.__init__(self, _('Format specific sending'))
         self._device = weakref.ref(device)
         self.l = l = QVBoxLayout()
@@ -361,7 +361,7 @@ class FormatRules(QGroupBox):
     def device(self):
         return self._device()
 
-    def add_rule(self):
+    def add_rule(self) -> None:
         r = Rule(self.device)
         self.widgets.append(r)
         self.wl.addWidget(r)
@@ -370,7 +370,7 @@ class FormatRules(QGroupBox):
         assert scrollbar is not None
         scrollbar.setValue(scrollbar.maximum())
 
-    def remove_rule(self, rule):
+    def remove_rule(self, rule) -> None:
         rule.setVisible(False)
         rule.ignore = True
 
@@ -387,7 +387,7 @@ class FormatRules(QGroupBox):
 
 
 class APNX(QWidget):  # {{{
-    def __init__(self):
+    def __init__(self) -> None:
         from calibre.devices.kindle.apnx import APNXBuilder
         from calibre.devices.kindle.driver import KINDLE2, get_apnx_opts
 
@@ -434,7 +434,7 @@ class APNX(QWidget):  # {{{
         l.addWidget(f4)
         l.addWidget(QLabel(_('Note that these settings apply to all Kindle devices not just this particular one')))
 
-    def commit(self):
+    def commit(self) -> None:
         from calibre.devices.kindle.driver import KINDLE2
 
         vals = list(KINDLE2.EXTRA_CUSTOMIZATION_DEFAULT)
@@ -450,7 +450,7 @@ class APNX(QWidget):  # {{{
 
 
 class MTPConfig(QTabWidget):
-    def __init__(self, device, parent=None, highlight_ignored_folders=False):
+    def __init__(self, device, parent=None, highlight_ignored_folders=False) -> None:
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 
@@ -517,7 +517,7 @@ class MTPConfig(QTabWidget):
 
         self.setCurrentIndex(1 if msg else 0)
 
-    def show_debug_info(self):
+    def show_debug_info(self) -> None:
         info = self.device.device_debug_info()
         d = QDialog(self)
         l = QVBoxLayout()
@@ -534,7 +534,7 @@ class MTPConfig(QTabWidget):
         l.addWidget(bb)
         bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
 
-        def _copy_debug_to_clipboard():
+        def _copy_debug_to_clipboard() -> None:
             clipboard = QApplication.clipboard()
             assert clipboard is not None
             clipboard.setText(v.toPlainText())
@@ -542,12 +542,12 @@ class MTPConfig(QTabWidget):
         bb.clicked.connect(_copy_debug_to_clipboard)
         d.exec()
 
-    def change_ignored_folders(self):
+    def change_ignored_folders(self) -> None:
         d = IgnoredFolders(self.device, self.current_ignored_folders, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_ignored_folders = d.ignored_folders
 
-    def ignore_device(self):
+    def ignore_device(self) -> None:
         self.igntab.ignore_device(self.device.current_serial_num)
         self._base_b.setEnabled(False)
         self._base_b.setText(_('The %s will be ignored in calibre') % self.device.current_friendly_name)
@@ -564,7 +564,7 @@ class MTPConfig(QTabWidget):
     def device(self):
         return self._device()
 
-    def validate(self):
+    def validate(self) -> bool:
         if hasattr(self, 'formats'):
             if not self.formats.validate():
                 return False
@@ -572,7 +572,7 @@ class MTPConfig(QTabWidget):
                 return False
         return True
 
-    def commit(self):
+    def commit(self) -> None:
         self.device.prefs['blacklist'] = self.igntab.blacklist
         p = self.device.prefs.get(self.current_device_key, {})
 
@@ -608,7 +608,7 @@ class MTPConfig(QTabWidget):
 
 
 class SendError(QDialog):
-    def __init__(self, gui, error):
+    def __init__(self, gui, error) -> None:
         QDialog.__init__(self, gui)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -636,7 +636,7 @@ class SendError(QDialog):
 
         self.resize(self.sizeHint())
 
-    def accept(self):
+    def accept(self) -> None:
         QDialog.accept(self)
         p = self.parent()
         assert isinstance(p, DeviceMixin)

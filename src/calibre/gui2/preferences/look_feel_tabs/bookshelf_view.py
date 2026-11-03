@@ -19,7 +19,7 @@ from calibre.utils.localization import _
 
 
 class LogViewer(QDialog):  # {{{
-    def __init__(self, path: str, text: str, parent=None):
+    def __init__(self, path: str, text: str, parent=None) -> None:
         super().__init__(parent)
         self.log_path = path
         self.setWindowTitle(_('Log of page count failures'))
@@ -39,7 +39,7 @@ class LogViewer(QDialog):  # {{{
         b.setIcon(QIcon.ic('trash.png'))
         self.resize(600, 500)
 
-    def clear_log(self):
+    def clear_log(self) -> None:
         if not confirm(
             '<p>' + _('The log for page count failures will be <b>permanently deleted</b>! Are you sure?'),
             'clear_log_count',
@@ -59,24 +59,24 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     restart_now = pyqtSignal()
     recount_updated = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         super().__init__(parent)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         super().restore_defaults()
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         self.update_font_display()
         self.populate_custom_color_theme(use_defaults=True)
 
-    def update_font_display(self):
+    def update_font_display(self) -> None:
         text = ''
         s = self.current_font_choice
         if s.get('family'):
             text = s['family'] + ' - ' + (s.get('style') or '')
         self.bookshelf_font_display.setText(text)
 
-    def initialize(self):
+    def initialize(self) -> None:
         super().initialize()
         s = gprefs['bookshelf_font'] or gprefs.defaults['bookshelf_font']
         self.current_font_choice = s.copy()
@@ -103,7 +103,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         gprefs['bookshelf_font'] = self.current_font_choice.copy()
         return super().commit(*args)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         db = self.gui.current_db
         r = self.register
@@ -239,7 +239,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
         self.change_font_button.clicked.connect(self.change_font)
         self.restore_default_font_button.clicked.connect(self.restore_font)
 
-    def change_font(self):
+    def change_font(self) -> None:
         from calibre.gui2.preferences.look_feel_tabs.font_selection_dialog import FontSelectionDialog
 
         s = self.current_font_choice
@@ -261,12 +261,12 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             self.update_font_display()
             self.changed_signal.emit()
 
-    def restore_font(self):
+    def restore_font(self) -> None:
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         self.update_font_display()
         self.changed_signal.emit()
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.recount_timer.start()
 
     def show_log(self) -> None:
@@ -307,7 +307,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             msg += ' ({})'.format(_('pending recount: {}').format(count))
         self.recount_button.setText(msg)
 
-    def edit_template_button(self, line_edit, title):
+    def edit_template_button(self, line_edit, title) -> None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         mi = None
         db = self.gui.current_db.new_api
@@ -321,7 +321,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
         if t.exec():
             line_edit.setText(t.rule[1])
 
-    def use_pages(self):
+    def use_pages(self) -> None:
         fm = self.gui.current_db.new_api.field_metadata
         keys = sorted((k for k in fm.all_field_keys() if fm[k].get('name')), key=lambda k: fm[k].get('name').lower())
         names = ['{} ({})'.format(fm[k]['name'], k) for k in keys]
@@ -355,7 +355,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             'current_selected_color': _('&The current and selected book highlight'),
         }
 
-    def populate_custom_color_theme(self, use_defaults=False):
+    def populate_custom_color_theme(self, use_defaults=False) -> None:
         from calibre.gui2.library.bookshelf_view import ColorTheme
 
         default = {
@@ -371,10 +371,10 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
                 b.color = configs[theme].get(k)
                 b.blockSignals(False)
 
-    def restore_defaults_colors(self):
+    def restore_defaults_colors(self) -> None:
         for v in self.color_buttons.values():
             for b in v.values():
                 b.color = None
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.bookshelf_view.refresh_settings()

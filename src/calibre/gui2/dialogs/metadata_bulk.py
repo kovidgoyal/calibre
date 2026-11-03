@@ -97,16 +97,16 @@ class Settings(NamedTuple):
 
 
 class Caser(LineEditECM):
-    def __init__(self, title):
+    def __init__(self, title) -> None:
         self.title = title
 
     def text(self):
         return self.title
 
-    def setText(self, a0):
+    def setText(self, a0) -> None:
         self.title = a0
 
-    def hasSelectedText(self):
+    def hasSelectedText(self) -> bool:
         return False
 
 
@@ -128,7 +128,7 @@ class MyBlockingBusy(QDialog):  # {{{
         sr_calls,
         parent=None,
         window_title=_('Working'),
-    ):
+    ) -> None:
         QDialog.__init__(self, parent)
 
         self._layout = l = QVBoxLayout()
@@ -208,25 +208,25 @@ class MyBlockingBusy(QDialog):  # {{{
         self.sr_calls = sr_calls
         self.refresh_books = refresh_books
 
-    def accept(self):
+    def accept(self) -> None:
         pass
 
-    def reject(self):
+    def reject(self) -> None:
         pass
 
-    def on_progress_update(self, processed_steps):
+    def on_progress_update(self, processed_steps) -> None:
         """
         This signal should be emitted if a step can be traced with numbers.
         """
         self.current_step_value += processed_steps
         self.current_step_pb.setValue(self.current_step_value)
 
-    def on_progress_finished_cur_step(self):
+    def on_progress_finished_cur_step(self) -> None:
         if self.selected_options > 1:
             self.current_option += 1
             self.overall_pb.setValue(self.current_option)
 
-    def on_progress_next_step_range(self, steps_of_progress):
+    def on_progress_next_step_range(self, steps_of_progress) -> None:
         """
         If steps_of_progress equals 0 results this in a indetermined ProgressBar
         Otherwise the range is from 0..steps_of_progress
@@ -234,7 +234,7 @@ class MyBlockingBusy(QDialog):  # {{{
         self.current_step_value = 0
         self.current_step_pb.setRange(0, steps_of_progress)
 
-    def on_all_done(self):
+    def on_all_done(self) -> None:
         if not self.error:
             # The cc widgets can only be accessed in the GUI thread
             try:
@@ -253,7 +253,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
     exec_ = exec
 
-    def do_it(self):
+    def do_it(self) -> None:
         try:
             self.do_all()
         except Exception as err:
@@ -267,7 +267,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
         self.all_done.emit()
 
-    def read_file_metadata(self, args):
+    def read_file_metadata(self, args) -> None:
         from calibre.utils.ipc.simple_worker import offload_worker
 
         db = self.db.new_api
@@ -311,7 +311,7 @@ class MyBlockingBusy(QDialog):  # {{{
         finally:
             worker.shutdown()
 
-    def do_all(self):
+    def do_all(self) -> None:
         cache = self.db.new_api
         args = self.args
         from_file = args.cover_action == 'fromfmt' or args.read_file_metadata
@@ -633,7 +633,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_compress_cover:
             self.progress_next_step_range.emit(len(self.ids))
 
-            def pc(book_id, old_sz, new_sz):
+            def pc(book_id, old_sz, new_sz) -> None:
                 if isinstance(new_sz, int):
                     self.cover_sizes['old'] += old_sz
                     self.cover_sizes['new'] += new_sz
@@ -684,7 +684,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         _('Append to field'),
     ]
 
-    def __init__(self, window, rows, model, starting_tab, refresh_books):
+    def __init__(self, window, rows, model, starting_tab, refresh_books) -> None:
         QDialog.__init__(self, window)
         self.setupUi(self)
         setup_status_actions(cast('LineEditIndicatorsProtocol', self.test_result))
@@ -797,8 +797,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.central_widget.setCurrentIndex(starting_tab)
         self.exec()
 
-    def update_transform_labels(self):
-        def f(label, count):
+    def update_transform_labels(self) -> None:
+        def f(label, count) -> None:
             if count:
                 label.setText(_('Number of rules: {}').format(count))
             else:
@@ -813,7 +813,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.button_clear_publishers_rules.setVisible(bool(self.publisher_map_rules))
         self.button_clear_series_rules.setVisible(bool(self.series_map_rules))
 
-    def clear_transform_rules_for(self):
+    def clear_transform_rules_for(self) -> None:
         sender = self.sender()
         assert sender is not None
         n = sender.objectName()
@@ -827,7 +827,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.series_map_rules = ()
         self.update_transform_labels()
 
-    def _change_transform_rules(self, RulesDialog, which):
+    def _change_transform_rules(self, RulesDialog, which) -> None:
         d = RulesDialog(self)
         pref = f'{which}_map_on_bulk_metadata_rules'
         previously_used = gprefs.get(pref)
@@ -838,22 +838,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             gprefs.set(pref, d.rules)
             self.update_transform_labels()
 
-    def transform_tags(self):
+    def transform_tags(self) -> None:
         from calibre.gui2.tag_mapper import RulesDialog
 
         self._change_transform_rules(RulesDialog, 'tag')
 
-    def transform_authors(self):
+    def transform_authors(self) -> None:
         from calibre.gui2.author_mapper import RulesDialog
 
         self._change_transform_rules(RulesDialog, 'author')
 
-    def transform_publishers(self):
+    def transform_publishers(self) -> None:
         from calibre.gui2.publisher_mapper import RulesDialog
 
         self._change_transform_rules(RulesDialog, 'publisher')
 
-    def transform_series(self):
+    def transform_series(self) -> None:
         from calibre.gui2.series_mapper import RulesDialog
 
         self._change_transform_rules(RulesDialog, 'series')
@@ -888,14 +888,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         geom = screen.availableSize()
         return QSize(max(400, min(nw, geom.width() - 70)), max(300, min(nh, geom.height() - 50)))
 
-    def customize_cover_generation(self):
+    def customize_cover_generation(self) -> None:
         from calibre.gui2.covers import CoverSettingsDialog
 
         d = CoverSettingsDialog(parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.generate_cover_settings = d.prefs_for_rendering
 
-    def set_comments(self):
+    def set_comments(self) -> None:
         from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 
         d = CommentsDialog(self, '' if self.comments is null else (self.comments or ''), _('Comments'))
@@ -906,32 +906,32 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if str(b.text())[-1] != '*':
                 b.setText(str(b.text()) + ' *')
 
-    def save_refresh_booklist(self, *args):
+    def save_refresh_booklist(self, *args) -> None:
         gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
 
-    def save_state(self, *args):
+    def save_state(self, *args) -> None:
         self.save_geometry(gprefs, 'bulk_metadata_window_geometry')
         gprefs['bulk_metadata_window_tab'] = self.central_widget.currentIndex()
 
-    def do_apply_pubdate(self, *args):
+    def do_apply_pubdate(self, *args) -> None:
         self.apply_pubdate.setChecked(True)
 
-    def clear_pubdate(self, *args):
+    def clear_pubdate(self, *args) -> None:
         self.pubdate.setDateTime(UNDEFINED_QDATETIME)
 
-    def do_apply_adddate(self, *args):
+    def do_apply_adddate(self, *args) -> None:
         self.apply_adddate.setChecked(True)
 
-    def clear_adddate(self, *args):
+    def clear_adddate(self, *args) -> None:
         self.adddate.setDateTime(UNDEFINED_QDATETIME)
 
-    def button_clicked(self, which):
+    def button_clicked(self, which) -> None:
         if which == self.button_box.button(QDialogButtonBox.StandardButton.Apply):
             self.do_again = True
             self.accept()
 
     # S&R {{{
-    def prepare_search_and_replace(self):
+    def prepare_search_and_replace(self) -> None:
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
         self.s_r_template.initialize('bulk_edit_template')
@@ -1127,10 +1127,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val = ['']
         return val
 
-    def s_r_display_bounds_changed(self, i):
+    def s_r_display_bounds_changed(self, i) -> None:
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
-    def s_r_edit_template_button_clicked(self):
+    def s_r_edit_template_button_clicked(self) -> None:
         try:
             mi = []
             for c, _id in enumerate(self.ids):
@@ -1145,11 +1145,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if t.exec():
             self.s_r_template.setText(t.rule[1])
 
-    def s_r_identifier_type_changed(self, idx):
+    def s_r_identifier_type_changed(self, idx) -> None:
         self.s_r_search_field_changed(self.search_field.currentIndex())
         self.s_r_paint_results(idx)
 
-    def s_r_search_field_changed(self, idx):
+    def s_r_search_field_changed(self, idx) -> None:
         self.s_r_template.setVisible(False)
         self.s_r_edit_template_button.setVisible(False)
         self.template_label.setVisible(False)
@@ -1178,7 +1178,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_destination_field_changed(self.destination_field.currentIndex())
             self.s_r_paint_results(None)
 
-    def s_r_destination_field_changed(self, idx):
+    def s_r_destination_field_changed(self, idx) -> None:
         self.s_r_dst_ident_label.setVisible(False)
         self.s_r_dst_ident.setVisible(False)
         txt = self.s_r_df_itemdata(idx)
@@ -1191,7 +1191,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
 
-    def s_r_search_mode_changed(self, val):
+    def s_r_search_mode_changed(self, val) -> None:
         self.search_field.clear()
         self.destination_field.clear()
         if val == 0:
@@ -1223,10 +1223,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_heading.setText('<p>' + self.main_heading + self.regexp_heading)
         self.s_r_paint_results(None)
 
-    def s_r_separator_changed(self, txt):
+    def s_r_separator_changed(self, txt) -> None:
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
-    def s_r_set_colors(self):
+    def s_r_set_colors(self) -> None:
         tt = ''
         if self.s_r_error is not None:
             tt = error_message(self.s_r_error)
@@ -1313,12 +1313,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             val[0:0] = dest_val
         return val
 
-    def s_r_replace_mode_separator(self):
+    def s_r_replace_mode_separator(self) -> str:
         if self.comma_separated.isChecked():
             return ','
         return ''
 
-    def s_r_paint_results(self, txt):
+    def s_r_paint_results(self, txt) -> None:
         self.s_r_error = None
         self.s_r_set_colors()
         flags = regex.FULLCASE | regex.UNICODE
@@ -1433,7 +1433,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     # }}}
 
-    def create_custom_column_editors(self):
+    def create_custom_column_editors(self) -> None:
         w = self.tab
         layout = QGridLayout()
         self.custom_column_widgets, self.__cc_spacers = populate_metadata_page(layout, self.db, self.ids, parent=w, two_column=False, bulk=True)
@@ -1445,7 +1445,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             for c in range(2, len(ans[i].widgets), 2):
                 w.setTabOrder(ans[i].widgets[c - 1], ans[i].widgets[c + 1])
 
-    def initialize_combos(self):
+    def initialize_combos(self) -> None:
         self.initalize_authors()
         self.initialize_series()
         self.initialize_publisher()
@@ -1454,7 +1454,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             x.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             x.setMinimumContentsLength(25)
 
-    def initalize_authors(self):
+    def initalize_authors(self) -> None:
         all_authors = self.db.all_authors()
         all_authors.sort(key=lambda x: sort_key(x[1]))
 
@@ -1464,18 +1464,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.authors.update_items_cache(self.db.new_api.all_field_names('authors'))
         self.authors.show_initial_value('')
 
-    def initialize_series(self):
+    def initialize_series(self) -> None:
         self.series.set_separator(None)
         self.series.update_items_cache(self.db.new_api.all_field_names('series'))
         self.series.show_initial_value('')
         self.publisher.set_add_separator(False)
 
-    def initialize_publisher(self):
+    def initialize_publisher(self) -> None:
         self.publisher.update_items_cache(self.db.new_api.all_field_names('publisher'))
         self.publisher.set_add_separator(False)
         self.publisher.show_initial_value('')
 
-    def tag_editor(self, *args):
+    def tag_editor(self, *args) -> None:
         d = TagEditor(self, self.db, None)
         d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
@@ -1485,7 +1485,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.tags.update_items_cache(all_tags)
             self.remove_tags.update_items_cache(all_tags)
 
-    def auto_number_changed(self, state):
+    def auto_number_changed(self, state) -> None:
         self.series_start_number.setEnabled(bool(state))
         self.series_increment.setEnabled(bool(state))
         if state:
@@ -1496,7 +1496,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.series_start_number.setValue(1.0)
             self.series_increment.setValue(1.0)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_state()
         QDialog.reject(self)
 
@@ -1661,11 +1661,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 ).exec()
         return QDialog.accept(self)
 
-    def series_changed(self, *args):
+    def series_changed(self, *args) -> None:
         self.write_series = bool(str(self.series.currentText()).strip())
         self.autonumber_series.setEnabled(True)
 
-    def s_r_remove_query(self, *args):
+    def s_r_remove_query(self, *args) -> None:
         if self.query_field.currentIndex() == 0:
             return
 
@@ -1688,7 +1688,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             del self.queries[item_name]
             self.queries.commit()
 
-    def s_r_save_query(self, *args):
+    def s_r_save_query(self, *args) -> None:
         names = ['']
         names.extend(self.query_field_values)
         try:
@@ -1743,7 +1743,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))
 
-    def s_r_query_change(self, idx):
+    def s_r_query_change(self, idx) -> None:
         item_name = self.query_field.currentText()
         if not item_name:
             self.s_r_reset_query_fields()
@@ -1755,25 +1755,25 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
         self.saved_search_name = item_name
 
-        def set_text(attr, key):
+        def set_text(attr, key) -> None:
             try:
                 attr.setText(item[key])
             except Exception:
                 pass
 
-        def set_checked(attr, key):
+        def set_checked(attr, key) -> None:
             try:
                 attr.setChecked(item[key])
             except Exception:
                 attr.setChecked(False)
 
-        def set_value(attr, key):
+        def set_value(attr, key) -> None:
             try:
                 attr.setValue(int(item[key]))
             except Exception:
                 attr.setValue(0)
 
-        def set_index(attr, key):
+        def set_index(attr, key) -> None:
             try:
                 attr.setCurrentIndex(attr.findText(item[key]))
             except Exception:
@@ -1796,7 +1796,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         set_value(self.starting_from, 'starting_from')
         set_text(self.multiple_separator, 'multiple_separator')
 
-    def s_r_reset_query_fields(self):
+    def s_r_reset_query_fields(self) -> None:
         # Don't reset the search mode. The user will probably want to use it
         # as it was
         self.search_field.setCurrentIndex(0)

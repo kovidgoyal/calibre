@@ -13,15 +13,15 @@ class MatchBookAction(InterfaceAction):
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child', 'context-menu-cover-browser'))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.match_books_in_library)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def match_books_in_library(self, *args):
+    def match_books_in_library(self, *args) -> None:
         view = self.gui.current_view()
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:
@@ -44,15 +44,15 @@ class ShowMatchedBookAction(InterfaceAction):
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child', 'context-menu-cover-browser'))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_matched_books_in_library)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def show_matched_books_in_library(self, *args):
+    def show_matched_books_in_library(self, *args) -> None:
         view = self.gui.current_view()
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:

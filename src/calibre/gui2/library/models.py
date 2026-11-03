@@ -94,7 +94,7 @@ def group_numbers(numbers):
 
 
 class ColumnColor:  # {{{
-    def __init__(self, formatter):
+    def __init__(self, formatter) -> None:
         self.mi = None
         self.formatter = formatter
 
@@ -136,7 +136,7 @@ def themed_icon_name(icon_dir, icon_name):
 
 
 class ColumnIcon:  # {{{
-    def __init__(self, formatter, model):
+    def __init__(self, formatter, model) -> None:
         self.mi = None
         self.formatter = formatter
         self.model = model
@@ -219,7 +219,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     searched = pyqtSignal(object)
     search_done = pyqtSignal()
 
-    def __init__(self, parent=None, buffer=40):
+    def __init__(self, parent=None, buffer=40) -> None:
         QAbstractTableModel.__init__(self, parent)
         base_font = parent.font() if parent else qapplication_or_fail().font()
         self.zero_page_cache = {}
@@ -332,7 +332,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         dpr = gui.devicePixelRatio() if gui else 0
         return qapplication_or_fail().cached_qimage('default_cover.png', device_pixel_ratio=dpr)
 
-    def _clear_caches(self):
+    def _clear_caches(self) -> None:
         self.color_cache = defaultdict(dict)
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
@@ -346,13 +346,13 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.cover_grid_template_cache = {}
         self.bookshelf_template_cache = {}
 
-    def set_row_height(self, height):
+    def set_row_height(self, height) -> None:
         self.row_height = height
 
-    def set_row_decoration(self, current_marked):
+    def set_row_decoration(self, current_marked) -> None:
         self.row_decoration = self.bool_blank_icon_as_icon if current_marked else None
 
-    def change_alignment(self, colname, alignment):
+    def change_alignment(self, colname, alignment) -> None:
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
             old = self.alignment_map.get(colname, 'left')
             if old == alignment:
@@ -362,7 +362,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.alignment_map[colname] = alignment
             self.column_changed(colname)
 
-    def change_column_font(self, colname, font_type):
+    def change_column_font(self, colname, font_type) -> None:
         if colname in self.column_map and font_type in ('normal', 'bold', 'italic', 'bi'):
             sdb = self.db
             assert sdb is not None
@@ -376,7 +376,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             db.set_pref('styled_columns', old)
             self.column_changed(colname)
 
-    def column_changed(self, colname):
+    def column_changed(self, colname) -> None:
         """Notify views that the display of every cell in the column has changed, with a single signal"""
         col = self.column_map.index(colname)
         num_rows = self.rowCount(QModelIndex())
@@ -389,23 +389,23 @@ class BooksModel(QAbstractTableModel):  # {{{
         except AttributeError:
             return False
 
-    def read_config(self):
+    def read_config(self) -> None:
         pass
 
-    def set_device_connected(self, is_connected):
+    def set_device_connected(self, is_connected) -> None:
         self.device_connected = is_connected
 
-    def refresh_ondevice(self):
+    def refresh_ondevice(self) -> None:
         db = self.db
         assert db is not None
         db.refresh_ondevice()
         self.resort()
         self.research()
 
-    def set_book_on_device_func(self, func):
+    def set_book_on_device_func(self, func) -> None:
         self.book_on_device = func
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.ids_to_highlight = []
         self.zero_page_cache = {}
         if db:
@@ -472,7 +472,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 else:
                     self.dataChanged.emit(self.index(row, cc), self.index(row, cc))
 
-    def update_db_prefs_cache(self):
+    def update_db_prefs_cache(self) -> None:
         db = self.db
         assert db is not None
         self.db_prefs = {
@@ -480,20 +480,20 @@ class BooksModel(QAbstractTableModel):  # {{{
             'column_color_rules': tuple(db.new_api.pref('column_color_rules', ())),
         }
 
-    def start_metadata_backup(self):
+    def start_metadata_backup(self) -> None:
         from calibre.db.backup import MetadataBackup
 
         self.metadata_backup = MetadataBackup(self.db)  # ty: ignore[invalid-argument-type]
         self.metadata_backup.start()
 
-    def stop_metadata_backup(self):
+    def stop_metadata_backup(self) -> None:
         metadata_backup = getattr(self, 'metadata_backup', None)
         if metadata_backup is not None:
             metadata_backup.stop()
             # Would like to a join here, but the thread might be waiting to
             # do something on the GUI thread. Deadlock.
 
-    def refresh_ids(self, ids, current_row=-1):
+    def refresh_ids(self, ids, current_row=-1) -> None:
         self._clear_caches()
         db = self.db
         assert db is not None
@@ -501,7 +501,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
-    def refresh_rows(self, rows, current_row=-1):
+    def refresh_rows(self, rows, current_row=-1) -> None:
         self._clear_caches()
         cc = self.columnCount(QModelIndex()) - 1
         db = self.db
@@ -513,7 +513,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if current_row >= 0 and first_row <= current_row <= last_row:
                 self.new_bookdisplay_data.emit(self.get_book_display_info(current_row))
 
-    def close(self):
+    def close(self) -> None:
         self.update_page_count_timer.stop()
         if self.db is not None:
             self.db.close()
@@ -541,7 +541,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.count_changed()
         return ret
 
-    def count_changed(self, *args):
+    def count_changed(self, *args) -> None:
         self._clear_caches()
         db = self.db
         assert db is not None
@@ -563,7 +563,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     def by_author(self):
         return self.sorted_on[0] == 'authors'
 
-    def books_deleted(self):
+    def books_deleted(self) -> None:
         self.count_changed()
         self.beginResetModel(), self.endResetModel()
 
@@ -572,7 +572,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.delete_books_by_id(ids, permanent=permanent)
         return ids
 
-    def delete_books_by_id(self, ids, permanent=False):
+    def delete_books_by_id(self, ids, permanent=False) -> None:
         db = self.db
         assert db is not None
         try:
@@ -583,20 +583,20 @@ class BooksModel(QAbstractTableModel):  # {{{
             raise
         self.ids_deleted(ids)
 
-    def ids_deleted(self, ids):
+    def ids_deleted(self, ids) -> None:
         db = self.db
         assert db is not None
         db.data.books_deleted(tuple(ids))
         db.notify('delete', list(ids))
         self.books_deleted()
 
-    def books_added(self, num):
+    def books_added(self, num) -> None:
         if num > 0:
             self.beginInsertRows(QModelIndex(), 0, num - 1)
             self.endInsertRows()
             self.count_changed()
 
-    def set_highlight_only(self, toWhat):
+    def set_highlight_only(self, toWhat) -> None:
         self.highlight_only = toWhat
 
     def get_current_highlighted_id(self):
@@ -629,7 +629,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             return None
         return self.get_current_highlighted_id()
 
-    def highlight_ids(self, ids_to_highlight):
+    def highlight_ids(self, ids_to_highlight) -> None:
         self.ids_to_highlight = ids_to_highlight
         self.ids_to_highlight_set = set(self.ids_to_highlight)
         if self.ids_to_highlight:
@@ -638,7 +638,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.current_highlighted_idx = None
         self.beginResetModel(), self.endResetModel()
 
-    def search(self, text, reset=True):
+    def search(self, text, reset=True) -> None:
         db = self.db
         assert db is not None
         try:
@@ -672,7 +672,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.searched.emit(True)
         self.search_done.emit()
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder, reset=True):
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder, reset=True) -> None:
         if not self.db:
             return
         if not isinstance(order, bool):
@@ -680,13 +680,13 @@ class BooksModel(QAbstractTableModel):  # {{{
         label = self.column_map[column]
         self._sort(label, order, reset)
 
-    def sort_by_named_field(self, field, order, reset=True):
+    def sort_by_named_field(self, field, order, reset=True) -> None:
         db = self.db
         assert db is not None
         if field in list(db.field_metadata.keys()):
             self._sort(field, order, reset)
 
-    def _sort(self, label, order, reset):
+    def _sort(self, label, order, reset) -> None:
         db = self.db
         assert db is not None
         self.about_to_be_sorted.emit(db.id)
@@ -697,20 +697,20 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(db.index)
 
-    def refresh(self, reset=True):
+    def refresh(self, reset=True) -> None:
         db = self.db
         assert db is not None
         db.refresh(field=None)
         self.resort(reset=reset)
 
-    def beginResetModel(self):
+    def beginResetModel(self) -> None:
         self._clear_caches()
         QAbstractTableModel.beginResetModel(self)
 
-    def reset(self):
+    def reset(self) -> None:
         self.beginResetModel(), self.endResetModel()
 
-    def resort(self, reset=True):
+    def resort(self, reset=True) -> None:
         if not self.db:
             return
         self.db.multisort(self.sort_history[: tweaks['maximum_resort_levels']])
@@ -722,7 +722,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         if reset:
             self.beginResetModel(), self.endResetModel()
 
-    def research(self, reset=True):
+    def research(self, reset=True) -> None:
         self.search(self.last_search, reset=reset)
 
     def columnCount(self, parent: QModelIndex = QModelIndex()):
@@ -979,7 +979,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         load_from_data_without_gil(img, data)
         return self.default_image if img.isNull() else img
 
-    def build_data_convertors(self):
+    def build_data_convertors(self) -> None:
         rating_fields = {}
         bool_fields = set()
 
@@ -1027,7 +1027,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
                 else:
 
-                    def func(idx):
+                    def func(idx) -> None:
                         return None
 
             elif field == 'size':
@@ -1122,7 +1122,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif dt == 'series':
                 sidx_field = db.new_api.fields[field + '_index']
 
-                def func(idx):
+                def func(idx) -> str | None:
                     book_id = idfunc(idx)
                     series = fffunc(field_obj, book_id, default_value=False)
                     if series:
@@ -1152,12 +1152,12 @@ class BooksModel(QAbstractTableModel):  # {{{
 
                 else:
 
-                    def func(idx):
+                    def func(idx) -> None:
                         return None
 
             else:
 
-                def func(idx):
+                def func(idx) -> None:
                     return None
 
             return func
@@ -1446,7 +1446,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     flags |= Qt.ItemFlag.ItemIsEditable
         return flags
 
-    def set_custom_column_data(self, row, colhead, value):
+    def set_custom_column_data(self, row, colhead, value) -> bool:
         db = self.db
         assert db is not None
         cc = self.custom_columns[colhead]
@@ -1546,7 +1546,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 )
         return False
 
-    def _set_data(self, index, value):
+    def _set_data(self, index, value) -> bool:
         db = self.db
         assert db is not None
         row, col = index.row(), index.column()
@@ -1622,7 +1622,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         'search',
     ]
 
-    def __init__(self, model):
+    def __init__(self, model) -> None:
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.model = model
 
@@ -1702,7 +1702,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
 
 
 class DeviceDBSortKeyGen:  # {{{
-    def __init__(self, attr, keyfunc, db):
+    def __init__(self, attr, keyfunc, db) -> None:
         self.attr = attr
         self.db = db
         self.keyfunc = keyfunc
@@ -1726,7 +1726,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     map: list[int]
     sorted_map: list[int]
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         BooksModel.__init__(self, parent)
         self.db = BookList()
         self.map = []
@@ -1752,10 +1752,10 @@ class DeviceBooksModel(BooksModel):  # {{{
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))
 
-    def count_changed(self, *args):
+    def count_changed(self, *args) -> None:
         self.count_changed_signal.emit(len(self.db))
 
-    def mark_for_deletion(self, job, rows, rows_are_ids=False):
+    def mark_for_deletion(self, job, rows, rows_are_ids=False) -> None:
         db_indices = rows if rows_are_ids else self.indices(rows)
         db_items = [self.db[i] for i in db_indices if -1 < i < len(self.db)]
         self.marked_for_deletion[job] = db_items
@@ -1781,7 +1781,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                         break
         return idx
 
-    def deletion_done(self, job, succeeded=True):
+    def deletion_done(self, job, succeeded=True) -> None:
         db_items = self.marked_for_deletion.pop(job, [])
         rows = []
         for item in db_items:
@@ -1798,13 +1798,13 @@ class DeviceBooksModel(BooksModel):  # {{{
                 self.dataChanged.emit(indices[0], indices[-1])
         self.count_changed()
 
-    def paths_deleted(self, paths):
+    def paths_deleted(self, paths) -> None:
         self.map = list(range(len(self.db)))
         self.resort(False)
         self.research(True)
         self.count_changed()
 
-    def is_row_marked_for_deletion(self, row):
+    def is_row_marked_for_deletion(self, row) -> bool:
         try:
             item = self.db[self.map[row]]
         except IndexError:
@@ -1817,7 +1817,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                     return True
         return False
 
-    def clear_ondevice(self, db_ids, to_what=None):
+    def clear_ondevice(self, db_ids, to_what=None) -> None:
         for data in self.db:
             if data is None:
                 continue
@@ -1843,7 +1843,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 flags |= Qt.ItemFlag.ItemIsEditable
         return flags
 
-    def search(self, text, reset=True):
+    def search(self, text, reset=True) -> None:
         # This should not be here, but since the DeviceBooksModel does not
         # implement count_changed and I am too lazy to fix that, this kludge
         # will have to do
@@ -1870,10 +1870,10 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.searched.emit(True)
         self.count_changed()
 
-    def research(self, reset=True):
+    def research(self, reset=True) -> None:
         self.search(self.last_search, reset)
 
-    def sort(self, column, order=..., reset=True):
+    def sort(self, column, order=..., reset=True) -> None:
         if not isinstance(order, Qt.SortOrder):
             order = Qt.SortOrder.AscendingOrder if order else Qt.SortOrder.DescendingOrder
         descending = order != Qt.SortOrder.AscendingOrder
@@ -1917,7 +1917,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         if reset:
             self.beginResetModel(), self.endResetModel()
 
-    def resort(self, reset=True):
+    def resort(self, reset=True) -> None:
         if self.sorted_on:  # ty: ignore[redundant-condition]
             self.sort(self.column_map.index(self.sorted_on[0]), self.sorted_on[1], reset=False)
         if reset:
@@ -1933,7 +1933,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return 0
         return len(self.map)
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.custom_columns = {}
         self.zero_page_cache = {}
         self.db = db
@@ -2050,7 +2050,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             self.collections.append(collection)
         return result
 
-    def rename_collection(self, old_id, new_name):
+    def rename_collection(self, old_id, new_name) -> None:
         old_name = self.collections[old_id]
         for book in self.db:
             if book.device_collections is None:
@@ -2060,7 +2060,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                 if new_name not in book.device_collections:
                     book.device_collections.append(new_name)
 
-    def delete_collection_using_id(self, old_id):
+    def delete_collection_using_id(self, old_id) -> None:
         old_name = self.collections[old_id]
         for book in self.db:
             if book.device_collections is None:
@@ -2179,7 +2179,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             done = True
         return done
 
-    def set_editable(self, editable):
+    def set_editable(self, editable) -> None:
         # Cannot edit if metadata is sent on connect. Reason: changes will
         # revert to what is in the library on next connect.
         if isinstance(editable, list):

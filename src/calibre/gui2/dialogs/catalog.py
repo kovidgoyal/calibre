@@ -18,7 +18,7 @@ from calibre.utils.localization import _
 class Catalog(QDialog, Ui_Dialog):
     """Catalog Dialog builder"""
 
-    def __init__(self, parent, dbspec, ids, db):
+    def __init__(self, parent, dbspec, ids, db) -> None:
         import re
 
         from PyQt6.uic import compileUi
@@ -154,7 +154,7 @@ class Catalog(QDialog, Ui_Dialog):
             ans = ans.widget()
         return ans
 
-    def show_plugin_tab(self, idx):
+    def show_plugin_tab(self, idx) -> None:
         cf = str(self.format.currentText()).lower()
         while self.tabs.count() > 1:
             self.tabs.removeTab(1)
@@ -174,7 +174,7 @@ class Catalog(QDialog, Ui_Dialog):
         else:
             help_button.setVisible(False)
 
-    def format_changed(self, idx):
+    def format_changed(self, idx) -> None:
         cf = str(self.format.currentText())
         if cf in self.sync_enabled_formats:
             self.sync.setEnabled(True)
@@ -182,7 +182,7 @@ class Catalog(QDialog, Ui_Dialog):
             self.sync.setDisabled(True)
             self.sync.setChecked(False)
 
-    def settings_changed(self):
+    def settings_changed(self) -> None:
         """
         When title/format change, invalidate Preset in E-book options tab
         """
@@ -198,7 +198,7 @@ class Catalog(QDialog, Ui_Dialog):
             ans = w.options()
         return ans
 
-    def save_catalog_settings(self):
+    def save_catalog_settings(self) -> None:
         self.catalog_format = str(self.format.currentText())
         dynamic.set('catalog_preferred_format', self.catalog_format)
         self.catalog_title = str(self.title.text())
@@ -208,7 +208,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.save_geometry(dynamic, 'catalog_window_geom')
         dynamic.set('catalog_add_to_library', self.add_to_library.isChecked())
 
-    def apply(self, *args):
+    def apply(self, *args) -> None:
         # Store current values without building catalog
         self.save_catalog_settings()
         if self.tabs.count() > 1:
@@ -218,7 +218,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.save_catalog_settings()
         return QDialog.accept(self)
 
-    def help(self):
+    def help(self) -> None:
         """
         To add help functionality for a specific format:
         In gui2.catalog.catalog_<format>.py, add the following:
@@ -244,6 +244,6 @@ class Catalog(QDialog, Ui_Dialog):
                     show=True,
                 )
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(dynamic, 'catalog_window_geom')
         QDialog.reject(self)

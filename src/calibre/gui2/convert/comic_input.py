@@ -13,7 +13,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'comic_input'
     ICON = 'mimetypes/png.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['input']['comic'])
         self.db, self.book_id = db, book_id
         for x in get_option('output_format').option.choices:

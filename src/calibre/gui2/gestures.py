@@ -25,7 +25,7 @@ def touch_supported():
 
 
 class TouchPoint:
-    def __init__(self, tp):
+    def __init__(self, tp) -> None:
         self.creation_time = self.last_update_time = self.time_of_last_move = monotonic()
         self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.globalPosition())
         self.time_since_last_update = -1
@@ -33,7 +33,7 @@ class TouchPoint:
         self.start_position = self.current_position = tp.position()
         self.extra_data = None
 
-    def update(self, tp):
+    def update(self, tp) -> None:
         self.current_position = tp.position()
         now = monotonic()
         self.time_since_last_update = now - self.last_update_time
@@ -55,21 +55,21 @@ class State(QObject):
     tap_hold_updated = pyqtSignal(object)
     tap_hold_finished = pyqtSignal(object)
 
-    def __init__(self):
+    def __init__(self) -> None:
         QObject.__init__(self)
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         self.possible_gestures = set()
         self.touch_points = {}
         self.hold_started = False
         self.hold_data = None
 
-    def start(self):
+    def start(self) -> None:
         self.clear()
         self.possible_gestures = {Tap, TapAndHold, Flick}
 
-    def update(self, ev, boundary='update'):
+    def update(self, ev, boundary='update') -> None:
         if boundary == 'cancel':
             self.clear()
             return
@@ -96,7 +96,7 @@ class State(QObject):
                 tp = next(iter(self.touch_points.values()))
                 self.flicking.emit(tp, False)
 
-    def check_for_holds(self):
+    def check_for_holds(self) -> None:
         if not {TapAndHold} & self.possible_gestures:
             return
         now = monotonic()
@@ -116,7 +116,7 @@ class State(QObject):
                 self.hold_data = now
                 self.tap_hold_started.emit(tp)
 
-    def finalize(self):
+    def finalize(self) -> None:
         if Tap in self.possible_gestures:
             tp = next(iter(self.touch_points.values()))
             if tp.total_movement <= TAP_THRESHOLD:
@@ -136,7 +136,7 @@ class State(QObject):
             return
 
 
-def send_click(view, pos, button=Qt.MouseButton.LeftButton, double_click=False):
+def send_click(view, pos, button=Qt.MouseButton.LeftButton, double_click=False) -> None:
     mods = QApplication.keyboardModifiers()
     if double_click:
         ev = QMouseEvent(QEvent.Type.MouseButtonDblClick, pos, button, button, mods)
@@ -149,7 +149,7 @@ def send_click(view, pos, button=Qt.MouseButton.LeftButton, double_click=False):
 
 
 class GestureManager(QObject):
-    def __init__(self, view):
+    def __init__(self, view) -> None:
         QObject.__init__(self, view)
         if touch_supported():
             view.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents)
@@ -172,7 +172,7 @@ class GestureManager(QObject):
         if touch_supported():
             self.scroller = QScroller.scroller(view.viewport())
 
-    def handle_event(self, ev):
+    def handle_event(self, ev) -> bool | None:
         if not touch_supported():
             return
         etype = ev.type()
@@ -201,13 +201,13 @@ class GestureManager(QObject):
         ev.accept()
         return True
 
-    def close_open_menu(self):
+    def close_open_menu(self) -> bool | None:
         m = getattr(self.parent(), 'context_menu', None)
         if m is not None and hasattr(m, 'isVisible') and m.isVisible():
             m.close()
             return True
 
-    def handle_flicking(self, touch_point, is_end):
+    def handle_flicking(self, touch_point, is_end) -> None:
         if is_end:
             it = QScroller.Input.InputRelease
         else:
@@ -217,7 +217,7 @@ class GestureManager(QObject):
         assert scroller is not None
         scroller.handleInput(it, touch_point.current_position, int(touch_point.last_update_time * 1000))
 
-    def handle_tap(self, tp):
+    def handle_tap(self, tp) -> None:
         scroller = self.scroller
         assert scroller is not None
         scroller.stop()
@@ -228,7 +228,7 @@ class GestureManager(QObject):
         double_tap = self.last_tap_at - last_tap_at < interval
         send_click(self.parent(), tp.start_position, double_click=double_tap)
 
-    def handle_tap_hold(self, action, tp):
+    def handle_tap_hold(self, action, tp) -> None:
         scroller = self.scroller
         assert scroller is not None
         scroller.stop()

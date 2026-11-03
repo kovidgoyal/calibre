@@ -9,7 +9,7 @@ from calibre.gui2.dialogs.password_ui import Ui_Dialog
 
 
 class PasswordDialog(QDialog, Ui_Dialog):
-    def __init__(self, window, name, msg):
+    def __init__(self, window, name, msg) -> None:
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
@@ -27,7 +27,7 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.msg.setText(msg)
         self.show_password.stateChanged.connect(self.toggle_password)
 
-    def toggle_password(self, state):
+    def toggle_password(self, state) -> None:
         if Qt.CheckState(state) == Qt.CheckState.Unchecked:
             self.gui_password.setEchoMode(QLineEdit.EchoMode.Password)
         else:
@@ -39,7 +39,7 @@ class PasswordDialog(QDialog, Ui_Dialog):
     def password(self):
         return str(self.gui_password.text())
 
-    def accept(self):
+    def accept(self) -> None:
         dynamic.set(self.cfg_key + '__un', str(self.gui_username.text()))
         dynamic.set(self.cfg_key + '__pw', str(self.gui_password.text()))
         QDialog.accept(self)

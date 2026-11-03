@@ -9,7 +9,7 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
 
         self.tabWidget.setCurrentIndex(0)
@@ -28,10 +28,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def initial_tab_changed(self):
+    def initial_tab_changed(self) -> None:
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
 
-    def _restore_widget_defaults(self, widget):
+    def _restore_widget_defaults(self, widget) -> None:
         if hasattr(widget, 'restore_defaults'):
             widget.restore_defaults()
         elif isinstance(widget, QTabWidget):
@@ -40,13 +40,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if sw is not None and hasattr(sw, 'restore_defaults'):
                     sw.restore_defaults()
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         for w in self.tabWidget.all_widgets:
             self._restore_widget_defaults(w)
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         m = gui.library_view.model()
         m.update_db_prefs_cache()
         m.beginResetModel(), m.endResetModel()

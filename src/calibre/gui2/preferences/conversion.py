@@ -20,7 +20,7 @@ from calibre.utils.logging import Log
 
 
 class Model(QStringListModel):
-    def __init__(self, widgets):
+    def __init__(self, widgets) -> None:
         QStringListModel.__init__(self)
         self.widgets = widgets
         self.setStringList([w.TITLE for w in widgets])
@@ -36,7 +36,7 @@ class Model(QStringListModel):
 class ListView(QListView):
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QListView.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
         f = self.font()
@@ -46,7 +46,7 @@ class ListView(QListView):
         self.setFlow(QListView.Flow.TopToBottom)
         self.setSpacing(10)
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current, previous) -> None:
         QListView.currentChanged(self, current, previous)
         self.current_changed.emit(current, previous)
 
@@ -57,7 +57,7 @@ class Base(ConfigWidgetBase):
 
     def load_conversion_widgets(self) -> None: ...
 
-    def setupUi(self, x):
+    def setupUi(self, x) -> None:
         self.resize(720, 603)
         self.l = l = QHBoxLayout(self)
         self.list = lv = ListView(self)
@@ -65,7 +65,7 @@ class Base(ConfigWidgetBase):
         self.stack = s = QStackedWidget(self)
         l.addWidget(s, stretch=10)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         log = Log()
         log.outputs = []
 
@@ -105,10 +105,10 @@ class Base(ConfigWidgetBase):
         self.list.current_changed.connect(self.category_current_changed)
         self.list.setCurrentIndex(self.model.index(0))
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         sa = self.stack.currentWidget()
         assert isinstance(sa, QScrollArea)
@@ -126,12 +126,12 @@ class Base(ConfigWidgetBase):
             widget.commit(save_defaults=True)
         return ConfigWidgetBase.commit(self)
 
-    def category_current_changed(self, n, p):
+    def category_current_changed(self, n, p) -> None:
         self.stack.setCurrentIndex(n.row())
 
 
 class CommonOptions(Base):
-    def load_conversion_widgets(self):
+    def load_conversion_widgets(self) -> None:
         self.conversion_widgets = [
             LookAndFeelWidget,
             HeuristicsWidget,
@@ -143,7 +143,7 @@ class CommonOptions(Base):
 
 
 class InputOptions(Base):
-    def load_conversion_widgets(self):
+    def load_conversion_widgets(self) -> None:
         self.conversion_widgets = []
         for plugin in input_format_plugins():
             pw = config_widget_for_input_plugin(plugin)
@@ -153,7 +153,7 @@ class InputOptions(Base):
 
 
 class OutputOptions(Base):
-    def load_conversion_widgets(self):
+    def load_conversion_widgets(self) -> None:
         self.conversion_widgets = []
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')

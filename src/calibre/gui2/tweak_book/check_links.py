@@ -35,7 +35,7 @@ def get_data(name):
     return current_container().raw_data(name)
 
 
-def set_data(name, val):
+def set_data(name, val) -> None:
     if name in editors:
         editors[name].replace_data(val, only_if_different=False)
     else:
@@ -49,7 +49,7 @@ def set_data(name, val):
 class CheckExternalLinks(Dialog):
     progress_made = pyqtSignal(object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Check external links'), 'check-external-links-dialog', parent)
         self.progress_made.connect(self.on_progress_made, type=Qt.ConnectionType.QueuedConnection)
 
@@ -60,7 +60,7 @@ class CheckExternalLinks(Dialog):
             self.refresh()
         return Dialog.show(self)
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.stack.setCurrentIndex(0)
         rb = self.rb
         assert rb is not None
@@ -69,7 +69,7 @@ class CheckExternalLinks(Dialog):
         t.daemon = True
         t.start()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.pb = pb = QProgressBar(self)
         pb.setTextVisible(True)
         pb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -103,7 +103,7 @@ class CheckExternalLinks(Dialog):
         b.setIcon(QIcon.ic('view-refresh.png'))
         b.clicked.connect(self.refresh)
 
-    def anchors_changed(self):
+    def anchors_changed(self) -> None:
         tprefs.set('check_external_link_anchors', self.check_anchors.isChecked())
 
     def sizeHint(self):
@@ -112,7 +112,7 @@ class CheckExternalLinks(Dialog):
         ans.setWidth(max(ans.width(), 800))
         return ans
 
-    def run(self):
+    def run(self) -> None:
         from calibre.ebooks.oeb.polish.check.links import check_external_links
 
         self.tb = None
@@ -148,7 +148,7 @@ class CheckExternalLinks(Dialog):
         else:
             self.pb.setMaximum(total), self.pb.setValue(curr)
 
-    def populate_results(self, preserve_pos=False):
+    def populate_results(self, preserve_pos=False) -> None:
         num = len(self.errors) - len(self.fixed_errors)
         text = '<h3>{}</h3><ol>'.format(ngettext('Found a broken link', 'Found {} broken links', num).format(num))
         for i, (locations, err, url) in enumerate(self.errors):
@@ -160,7 +160,7 @@ class CheckExternalLinks(Dialog):
             text += '</ul></li><hr>'
         self.results.setHtml(text)
 
-    def anchor_clicked(self, qurl):
+    def anchor_clicked(self, qurl) -> None:
         url = qurl.toString()
         if url.startswith('err:'):
             errnum = int(url[4:])

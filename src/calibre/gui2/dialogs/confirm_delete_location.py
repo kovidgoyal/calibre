@@ -8,7 +8,7 @@ from calibre.utils.localization import _
 
 
 class Dialog(QDialog):
-    def __init__(self, msg, name, parent, icon='dialog_warning.png'):
+    def __init__(self, msg, name, parent, icon='dialog_warning.png') -> None:
         super().__init__(parent)
         ic = QIcon.ic(icon)
         self.setWindowIcon(ic)
@@ -46,14 +46,14 @@ class Dialog(QDialog):
         connect_lambda(self.button_cancel.clicked, self, lambda self: self.reject())
         self.resize(self.sizeHint())
 
-    def set_loc(self, loc):
+    def set_loc(self, loc) -> None:
         self.loc = loc
         self.accept()
 
     def choice(self):
         return self.loc
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         for x in ('lib', 'device', 'both'):
             b = getattr(self, 'button_' + x)
             try:

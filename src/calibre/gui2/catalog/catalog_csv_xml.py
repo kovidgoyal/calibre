@@ -23,7 +23,7 @@ def get_saved_field_data(name, all_fields):
     return sort_order, fields
 
 
-def set_saved_field_data(name, fields, sort_order):
+def set_saved_field_data(name, fields, sort_order) -> None:
     db = get_gui(fail_if_absent=True).current_db
     db.new_api.set_pref('catalog-field-data-for-' + name, {'fields': fields, 'sort_order': sort_order})
     gprefs.set(name + '_db_fields', fields)
@@ -31,7 +31,7 @@ def set_saved_field_data(name, fields, sort_order):
 
 
 class ListWidgetItem(QListWidgetItem):
-    def __init__(self, colname, human_name, position_in_booklist, parent):
+    def __init__(self, colname, human_name, position_in_booklist, parent) -> None:
         super().__init__(human_name, parent)
         self.setData(Qt.ItemDataRole.UserRole, colname)
         self.position_in_booklist = position_in_booklist
@@ -50,7 +50,7 @@ class PluginWidget(QWidget):
     formats = {'csv', 'xml'}
     handles_scrolling = True
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Fields to include in output:'))
@@ -82,19 +82,19 @@ class PluginWidget(QWidget):
         b.setToolTip(_('Sort the fields by their position in the book list'))
         h.addWidget(b)
 
-    def select_all(self):
+    def select_all(self) -> None:
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
             assert item is not None
             item.setCheckState(Qt.CheckState.Checked)
 
-    def select_none(self):
+    def select_none(self) -> None:
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
             assert item is not None
             item.setCheckState(Qt.CheckState.Unchecked)
 
-    def select_visible(self):
+    def select_visible(self) -> None:
         state = get_gui(fail_if_absent=True).library_view.get_state()
         hidden = frozenset(state['hidden_columns'])
         for row in range(self.db_fields.count()):
@@ -103,10 +103,10 @@ class PluginWidget(QWidget):
             field = item.data(Qt.ItemDataRole.UserRole)
             item.setCheckState(Qt.CheckState.Unchecked if field in hidden else Qt.CheckState.Checked)
 
-    def order_by_booklist(self):
+    def order_by_booklist(self) -> None:
         self.db_fields.sortItems()
 
-    def initialize(self, catalog_name, db):
+    def initialize(self, catalog_name, db) -> None:
         self.name = catalog_name
         from calibre.library.catalogs import FIELDS
 

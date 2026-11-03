@@ -93,7 +93,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 class KoboStore(BasicStoreConfig, StorePlugin):
     minimum_calibre_version = (5, 40, 1)
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         if detail_item:
             purl = detail_item
             url = purl
@@ -112,7 +112,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         yield from search_kobo(query, max_results=max_results, timeout=timeout)
 
-    def get_details(self, search_result, timeout=60):
+    def get_details(self, search_result, timeout=60) -> bool:
         raw = read_url(search_result.detail_item, timeout=timeout)
         idata = safe_html_fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):

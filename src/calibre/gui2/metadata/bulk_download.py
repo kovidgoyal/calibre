@@ -23,7 +23,7 @@ class Job(ThreadedJob):
     metadata_and_covers: tuple[bool, bool]
     download_debug_log: str
 
-    def consolidate_log(self):
+    def consolidate_log(self) -> None:
         log = self.log
         assert log is not None
         self.consolidated_log = log.plain_text
@@ -45,7 +45,7 @@ class Job(ThreadedJob):
         return open(self.download_debug_log, 'rb')
 
 
-def show_config(parent):
+def show_config(parent) -> None:
     from calibre.gui2.preferences import show_config_widget
     from calibre.gui2.ui import get_gui
 
@@ -53,7 +53,7 @@ def show_config(parent):
 
 
 class ConfirmDialog(QDialog):
-    def __init__(self, ids, parent):
+    def __init__(self, ids, parent) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Schedule download?'))
         self.setWindowIcon(QIcon.ic('download-metadata.png'))
@@ -109,11 +109,11 @@ class ConfirmDialog(QDialog):
         self.resize(self.sizeHint())
         b.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def only_metadata(self):
+    def only_metadata(self) -> None:
         self.covers = False
         self.accept()
 
-    def only_covers(self):
+    def only_covers(self) -> None:
         self.identify = False
         self.accept()
 
@@ -128,7 +128,7 @@ def split_jobs(ids, batch_size=100):
     return ans
 
 
-def start_download(gui, ids, callback, ensure_fields=None):
+def start_download(gui, ids, callback, ensure_fields=None) -> None:
     d = ConfirmDialog(ids, gui)
     ret = d.exec()
     d_b = d.b
@@ -174,7 +174,7 @@ class HeartBeat:
     CHECK_INTERVAL = 300  # seconds
     ''' Check that the file count in tdir changes every five minutes '''
 
-    def __init__(self, tdir):
+    def __init__(self, tdir) -> None:
         self.tdir = tdir
         self.last_count = len(os.listdir(self.tdir))
         self.last_time = time.time()
@@ -190,7 +190,7 @@ class HeartBeat:
 
 
 class Notifier(Thread):
-    def __init__(self, notifications, title_map, tdir, total):
+    def __init__(self, notifications, title_map, tdir, total) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.notifications, self.title_map = notifications, title_map
@@ -198,7 +198,7 @@ class Notifier(Thread):
         self.seen = set()
         self.keep_going = True
 
-    def run(self):
+    def run(self) -> None:
         while self.keep_going:
             try:
                 names = os.listdir(self.tdir)

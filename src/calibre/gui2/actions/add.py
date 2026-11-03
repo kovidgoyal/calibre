@@ -61,7 +61,7 @@ class AddAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = _('Add books from a single folder')
 
-    def genesis(self):
+    def genesis(self) -> None:
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
         assert self.add_menu is not None
@@ -86,13 +86,13 @@ class AddAction(InterfaceAction):
         ma('add-config', _('Control the adding of books'), icon='config.png', triggered=self.add_config)
         self.qaction.triggered.connect(self.add_books)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         assert self.add_menu is not None
         for action in list(self.add_menu.actions())[1:]:
             action.setEnabled(enabled)
 
-    def add_config(self):
+    def add_config(self) -> None:
         self.gui.iactions['Preferences'].do_config(initial_plugin=('Import/Export', 'Adding'), close_after_initial=True)
 
     def _check_add_formats_ok(self):
@@ -144,7 +144,7 @@ class AddAction(InterfaceAction):
             current = self.gui.library_view.currentIndex()
             m.current_changed(current, current)
 
-    def add_formats(self, *args):
+    def add_formats(self, *args) -> None:
         ids = self._check_add_formats_ok()
         if not ids:
             return
@@ -152,14 +152,14 @@ class AddAction(InterfaceAction):
         if books:
             self._add_formats(books, ids)
 
-    def _add_extra_files(self, book_ids, paths):
+    def _add_extra_files(self, book_ids, paths) -> None:
         rmap = {'data/' + os.path.basename(x): x for x in paths}
         db = self.gui.current_db.new_api
         for book_id in book_ids:
             db.add_extra_files(book_id, rmap)
         self.gui.library_view.model().refresh_ids(book_ids, current_row=self.gui.library_view.currentIndex().row())
 
-    def add_extra_files(self):
+    def add_extra_files(self) -> None:
         ids = self._check_add_formats_ok()
         if not ids:
             return
@@ -167,7 +167,7 @@ class AddAction(InterfaceAction):
         if books:
             self._add_extra_files(ids, books)
 
-    def _add_formats(self, paths, ids):
+    def _add_formats(self, paths, ids) -> None:
         if len(ids) > 1 and not question_dialog(
             self.gui,
             _('Are you sure?'),
@@ -234,7 +234,7 @@ class AddAction(InterfaceAction):
             return
         return True
 
-    def add_empty_format_choose(self):
+    def add_empty_format_choose(self) -> None:
         if not self.is_ok_to_add_empty_formats():
             return
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
@@ -245,12 +245,12 @@ class AddAction(InterfaceAction):
             return
         self._add_empty_format(d.format())
 
-    def add_empty_format(self, format_):
+    def add_empty_format(self, format_) -> None:
         if not self.is_ok_to_add_empty_formats():
             return
         self._add_empty_format(format_)
 
-    def _add_empty_format(self, format_):
+    def _add_empty_format(self, format_) -> None:
         view = self.gui.library_view
         rows = view.selectionModel().selectedRows()
         ids = [view.model().id(r) for r in rows]
@@ -272,7 +272,7 @@ class AddAction(InterfaceAction):
         if current_idx.isValid():
             view.model().current_changed(current_idx, current_idx)
 
-    def add_empty_format_to_book(self, book_id, fmt):
+    def add_empty_format_to_book(self, book_id, fmt) -> None:
         from calibre.ebooks.oeb.polish.create import create_book
 
         db = self.gui.current_db
@@ -285,7 +285,7 @@ class AddAction(InterfaceAction):
         finally:
             os.remove(pt.name)
 
-    def add_archive(self, single):
+    def add_archive(self, single) -> None:
         paths = choose_files(
             self.gui,
             'recursive-archive-add',
@@ -297,7 +297,7 @@ class AddAction(InterfaceAction):
         if paths:
             self.do_add_recursive(paths, single, list_of_archives=True)
 
-    def add_from_archive(self):
+    def add_from_archive(self) -> None:
         single = question_dialog(self.gui, _('Type of archive'), _('Will the archive have a single book per internal folder?'))
         paths = choose_files(
             self.gui,
@@ -324,7 +324,7 @@ class AddAction(InterfaceAction):
             )
         self.do_add_recursive(root, single)
 
-    def do_add_recursive(self, root, single, list_of_archives=False):
+    def do_add_recursive(self, root, single, list_of_archives=False) -> None:
         from calibre.gui2.add import Adder
 
         Adder(
@@ -337,21 +337,21 @@ class AddAction(InterfaceAction):
             pool=self.gui.spare_pool(),
         )
 
-    def add_recursive_single(self, *args):
+    def add_recursive_single(self, *args) -> None:
         """
         Add books from the local filesystem to either the library or the device
         recursively assuming one book per folder.
         """
         self.add_recursive(True)
 
-    def add_recursive_multiple(self, *args):
+    def add_recursive_multiple(self, *args) -> None:
         """
         Add books from the local filesystem to either the library or the device
         recursively assuming multiple books per folder.
         """
         self.add_recursive(False)
 
-    def add_recursive_question(self):
+    def add_recursive_question(self) -> None:
         single = question_dialog(
             self.gui,
             _('Multi-file books?'),
@@ -359,7 +359,7 @@ class AddAction(InterfaceAction):
         )
         self.add_recursive(single)
 
-    def add_empty(self, *args):
+    def add_empty(self, *args) -> None:
         """
         Add an empty book item to the library. This does not import any formats
         from a book file.
@@ -457,7 +457,7 @@ class AddAction(InterfaceAction):
                 ok += [x[0] for x in duplicates]
         return ok
 
-    def add_isbns(self, books, add_tags=None, check_for_existing=False):
+    def add_isbns(self, books, add_tags=None, check_for_existing=False) -> None:
         if add_tags is None:
             add_tags = []
         books = list(books)
@@ -472,7 +472,7 @@ class AddAction(InterfaceAction):
         self.isbn_add_dialog = ProgressDialog(_('Adding'), _('Creating book records from ISBNs'), max=len(books), cancelable=False, parent=self.gui)
         self.isbn_add_dialog.exec()
 
-    def do_one_isbn_add(self):
+    def do_one_isbn_add(self) -> None:
         try:
             db = self.gui.library_view.model().db
 
@@ -499,11 +499,11 @@ class AddAction(InterfaceAction):
             self.isbn_add_dialog.accept()
             raise
 
-    def files_dropped(self, paths):
+    def files_dropped(self, paths) -> None:
         to_device = self.gui.stack.currentIndex() != 0
         self._add_books(paths, to_device)
 
-    def remote_file_dropped_on_book(self, url, fname):
+    def remote_file_dropped_on_book(self, url, fname) -> None:
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
@@ -518,7 +518,7 @@ class AddAction(InterfaceAction):
         if d.err is None:
             self.files_dropped_on_book(None, [d.fpath], cid=cid)
 
-    def files_dropped_on_book(self, event, paths, cid=None, do_confirm=True):
+    def files_dropped_on_book(self, event, paths, cid=None, do_confirm=True) -> None:
         accept = False
         if self.gui.current_view() is not self.gui.library_view:
             return
@@ -586,7 +586,7 @@ class AddAction(InterfaceAction):
         if add_as_data_files:
             self._add_extra_files({cid}, add_as_data_files)
 
-    def __add_filesystem_book(self, paths, allow_device=True, delete_after_add=()):
+    def __add_filesystem_book(self, paths, allow_device=True, delete_after_add=()) -> None:
         if isinstance(paths, (str, bytes)):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path, os.R_OK)]
@@ -597,19 +597,19 @@ class AddAction(InterfaceAction):
             if to_device:
                 self.gui.status_bar.show_message(_('Uploading books to device.'), 2000)
 
-    def add_filesystem_book(self, paths, allow_device=True, delete_after_add=()):
+    def add_filesystem_book(self, paths, allow_device=True, delete_after_add=()) -> None:
         # delete_after_add is for temporary files that are to be deleted once
         # they have been added, see calibre --add-and-delete
         self._add_filesystem_book(paths, allow_device=allow_device, delete_after_add=delete_after_add)
 
-    def add_from_isbn(self, *args):
+    def add_from_isbn(self, *args) -> None:
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
 
         d = AddFromISBN(self.gui)
         if d.exec() == QDialog.DialogCode.Accepted and d.books:
             self.add_isbns(d.books, add_tags=d.set_tags, check_for_existing=d.check_for_existing)
 
-    def add_books(self, *args):
+    def add_books(self, *args) -> None:
         """
         Add books from the local filesystem to either the library or the device.
         """
@@ -624,7 +624,7 @@ class AddAction(InterfaceAction):
             return
         self._add_books(books, to_device)
 
-    def _add_books(self, paths, to_device, on_card=None, delete_after_add=()):
+    def _add_books(self, paths, to_device, on_card=None, delete_after_add=()) -> None:
         if on_card is None:
             on_card = 'carda' if self.gui.stack.currentIndex() == 2 else 'cardb' if self.gui.stack.currentIndex() == 3 else None
         if not paths:
@@ -639,7 +639,7 @@ class AddAction(InterfaceAction):
             pool=self.gui.spare_pool(),
         )
 
-    def refresh_gui(self, num, set_current_row=-1, recount=True):
+    def refresh_gui(self, num, set_current_row=-1, recount=True) -> None:
         tv = self.gui.tags_view
         orig = tv.disable_recounting
         if recount:
@@ -658,7 +658,7 @@ class AddAction(InterfaceAction):
         if recount:
             tv.recount()
 
-    def _files_added(self, adder, on_card=None, delete_after_add=()):
+    def _files_added(self, adder, on_card=None, delete_after_add=()) -> None:
         if adder.items:
             paths, infos, names = [], [], []
             for mi, cover_path, format_paths in adder.items:
@@ -719,7 +719,7 @@ class AddAction(InterfaceAction):
             if current_idx.isValid():
                 self.gui.library_view.model().current_changed(current_idx, current_idx)
 
-    def _add_from_device_adder(self, adder, on_card=None, model=None):
+    def _add_from_device_adder(self, adder, on_card=None, model=None) -> None:
         self._files_added(adder, on_card=on_card)
         # set the in-library flags, and as a consequence send the library's
         # metadata for this book to the device. This sets the uuid to the
@@ -764,11 +764,11 @@ class AddAction(InterfaceAction):
         self.bpd = ProgressDialog(_('Downloading books'), msg=_('Downloading books from device'), parent=self.gui, cancelable=False)
         QTimer.singleShot(1000, self.show_bpd)
 
-    def show_bpd(self):
+    def show_bpd(self) -> None:
         if self.bpd is not None:
             self.bpd.show()
 
-    def books_prepared(self, view, job):
+    def books_prepared(self, view, job) -> None:
         bpd = self.bpd
         assert bpd is not None
         bpd.hide()

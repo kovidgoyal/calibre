@@ -18,7 +18,7 @@ def mark_words(text: str, lang: str) -> str:
     ans = []
     pos = 0
 
-    def a(x):
+    def a(x) -> None:
         ans.append(prepare_string_for_xml(x))
 
     for offset, sz in split_into_words_and_positions(text, lang):
@@ -41,7 +41,7 @@ class SpeechdTTSBackend(TTSBackend):
 
     _event_signal = pyqtSignal(object, object)
 
-    def __init__(self, engine_name: str = '', parent: QObject | None = None):
+    def __init__(self, engine_name: str = '', parent: QObject | None = None) -> None:
         super().__init__(engine_name, parent)
         self._last_error = ''
         self._state = QTextToSpeech.State.Ready
@@ -109,7 +109,7 @@ class SpeechdTTSBackend(TTSBackend):
     def reload_after_configure(self) -> None:
         self._apply_settings(EngineSpecificSettings.create_from_config(self.engine_name))
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self._ssip_client is not None:
             try:
                 self._ssip_client.cancel()
@@ -244,7 +244,7 @@ class SpeechdTTSBackend(TTSBackend):
                 self._set_state(QTextToSpeech.State.Ready)
         return event
 
-    def _speak_callback(self, callback_type: CallbackType, index_mark=None):
+    def _speak_callback(self, callback_type: CallbackType, index_mark=None) -> None:
         self._event_signal.emit(callback_type, index_mark)
 
     def _speak(self, text: str) -> None:

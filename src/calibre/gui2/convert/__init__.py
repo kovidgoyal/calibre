@@ -70,7 +70,7 @@ class Widget(QWidget):
     changed_signal = pyqtSignal()
     set_help_signal = pyqtSignal(object)
 
-    def __init__(self, parent, options):
+    def __init__(self, parent, options) -> None:
         options = list(options)
         QWidget.__init__(self, parent)
         if hasattr(self, 'setupUi'):
@@ -85,7 +85,7 @@ class Widget(QWidget):
                 raise Exception(f'Option {name} missing in {self.__class__.__name__}')
             self.connect_gui_obj(getattr(self, 'opt_' + name))
 
-    def initialize_options(self, get_option, get_help, db=None, book_id=None):
+    def initialize_options(self, get_option, get_help, db=None, book_id=None) -> None:
         """
         :param get_option: A callable that takes one argument: the option name
         and returns the corresponding OptionRecommendation.
@@ -103,7 +103,7 @@ class Widget(QWidget):
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
 
-        def process_child(child):
+        def process_child(child) -> None:
             for g in child.children():
                 if isinstance(g, QLabel):
                     buddy = g.buddy()
@@ -118,7 +118,7 @@ class Widget(QWidget):
 
         process_child(self)
 
-    def restore_defaults(self, get_option):
+    def restore_defaults(self, get_option) -> None:
         defaults = GuiRecommendations()
         defaults.merge_recommendations(get_option, OptionRecommendation.LOW, self._options)
         self.apply_recommendations(defaults)
@@ -138,7 +138,7 @@ class Widget(QWidget):
             recs[name] = self.get_value(gui_opt)
         return recs
 
-    def apply_recommendations(self, recs):
+    def apply_recommendations(self, recs) -> None:
         for name, val in recs.items():
             gui_opt = getattr(self, 'opt_' + name, None)
             if gui_opt is None:
@@ -192,10 +192,10 @@ class Widget(QWidget):
         else:
             raise TypeError(f"Can't get value from {type(g)}")
 
-    def gui_obj_changed(self, gui_obj, *args):
+    def gui_obj_changed(self, gui_obj, *args) -> None:
         self.changed_signal.emit()
 
-    def connect_gui_obj(self, g):
+    def connect_gui_obj(self, g) -> None:
         f = partial(self.gui_obj_changed, g)
         try:
             self.connect_gui_obj_handler(g, f)
@@ -225,7 +225,7 @@ class Widget(QWidget):
     def connect_gui_obj_handler(self, gui_obj, slot):
         raise NotImplementedError()
 
-    def set_value(self, g, val):
+    def set_value(self, g, val) -> None:
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
@@ -267,14 +267,14 @@ class Widget(QWidget):
             raise Exception(f"Can't set value {val!r} in {g.objectName()!s}")
         self.post_set_value(g, val)
 
-    def set_help(self, msg):
+    def set_help(self, msg) -> None:
         if msg and getattr(msg, 'strip', lambda: True)():
             try:
                 self.set_help_signal.emit(msg)
             except Exception:
                 pass
 
-    def setup_help(self, help_provider):
+    def setup_help(self, help_provider) -> None:
         for name in self._options:
             g = getattr(self, 'opt_' + name, None)
             if g is None:
@@ -287,33 +287,33 @@ class Widget(QWidget):
             g._help = help
             self.setup_widget_help(g)
 
-    def setup_widget_help(self, g):
+    def setup_widget_help(self, g) -> None:
         w = textwrap.TextWrapper(80)
         htext = '<div>{}</div>'.format(prepare_string_for_xml('\n'.join(w.wrap(g._help))))
         g.setToolTip(htext)
         g.setWhatsThis(htext)
         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
-    def set_value_handler(self, g, val):
+    def set_value_handler(self, g, val) -> bool:
         "Return True iff you handle setting the value for g"
         return False
 
-    def post_set_value(self, g, val):
+    def post_set_value(self, g, val) -> None:
         pass
 
-    def get_value_handler(self, g):
+    def get_value_handler(self, g) -> str:
         return 'this is a dummy return value, xcswx1avcx4x'
 
-    def post_get_value(self, g):
+    def post_get_value(self, g) -> None:
         pass
 
-    def setup_help_handler(self, g, help):
+    def setup_help_handler(self, g, help) -> bool:
         return False
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.db = None
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         return True
 
     def commit(self, save_defaults=False):

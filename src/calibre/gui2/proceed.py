@@ -72,7 +72,7 @@ class Icon(QWidget):
         return self._fraction
 
     @fraction.setter
-    def fraction(self, val):
+    def fraction(self, val) -> None:
         self._fraction = max(0, min(2, float(val)))
         self.update()
 
@@ -84,7 +84,7 @@ class Icon(QWidget):
         self.animation.stop()
         return QWidget.hideEvent(self, a0)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.set_icon('dialog_question.png')
@@ -94,7 +94,7 @@ class Icon(QWidget):
         a.setDuration(2000), a.setEasingCurve(QEasingCurve.Type.Linear)
         a.setStartValue(0.0), a.setEndValue(2.0), a.setLoopCount(10)
 
-    def set_icon(self, icon):
+    def set_icon(self, icon) -> None:
         if isinstance(icon, QIcon):
             self.icon = icon.pixmap(self.sizeHint())
         elif icon is None:
@@ -106,7 +106,7 @@ class Icon(QWidget):
     def sizeHint(self):
         return QSize(64, 64)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QPainter(self)
         p.setOpacity(min(1, abs(1 - self._fraction)))
         p.drawPixmap(self.rect(), self.icon)
@@ -129,11 +129,11 @@ class ProceedQuestion(QWidget):
         return self._show_fraction
 
     @show_fraction.setter
-    def show_fraction(self, val):
+    def show_fraction(self, val) -> None:
         self._show_fraction = max(0, min(1, float(val)))
         self.update()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWidget.__init__(self, parent)
         self.setVisible(False)
         self.auto_hide_timer = None
@@ -205,16 +205,16 @@ class ProceedQuestion(QWidget):
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0, a1) -> bool:
         if a1.type() == QEvent.Type.Resize and self.isVisible():
             self.resize_timer.start()
         return False
 
-    def parent_resized(self):
+    def parent_resized(self) -> None:
         if self.isVisible():
             self.do_resize()
 
-    def copy_to_clipboard(self, *args):
+    def copy_to_clipboard(self, *args) -> None:
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(f'calibre, version {__version__}\n{self.windowTitle()!s}: {self.msg_label.text()!s}\n\n{self.det_msg.toPlainText()!s}')
@@ -222,13 +222,13 @@ class ProceedQuestion(QWidget):
         assert copy_button is not None
         copy_button.setText(_('Copied'))
 
-    def action_clicked(self):
+    def action_clicked(self) -> None:
         if self.questions:
             q = self.questions[0]
             self.questions[0] = q._replace(callback=q.action_callback)
         self.accept()
 
-    def accept(self):
+    def accept(self) -> None:
         self.cancel_auto_hide()
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
@@ -239,7 +239,7 @@ class ProceedQuestion(QWidget):
             self.ask_question.emit(callback, payload, cb)
         self.hide()
 
-    def reject(self):
+    def reject(self) -> None:
         self.cancel_auto_hide()
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
@@ -250,7 +250,7 @@ class ProceedQuestion(QWidget):
             self.ask_question.emit(cancel_callback, payload, cb)
         self.hide()
 
-    def do_ask_question(self, callback, payload, checkbox_checked):
+    def do_ask_question(self, callback, payload, checkbox_checked) -> None:
         if callable(callback):
             args = [payload]
             if checkbox_checked is not None:
@@ -258,7 +258,7 @@ class ProceedQuestion(QWidget):
             callback(*args)
         self.show_question()
 
-    def toggle_det_msg(self, *args):
+    def toggle_det_msg(self, *args) -> None:
         det_msg_toggle = self.det_msg_toggle
         assert det_msg_toggle is not None
         vis = str(det_msg_toggle.text()) == self.hide_det_msg
@@ -266,7 +266,7 @@ class ProceedQuestion(QWidget):
         self.det_msg.setVisible(not vis)
         self.do_resize()
 
-    def do_resize(self):
+    def do_resize(self) -> None:
         sz = self.sizeHint()
         p = self.parent()
         assert p is not None
@@ -279,12 +279,12 @@ class ProceedQuestion(QWidget):
         self.resize(sz)
         self.position_widget()
 
-    def cancel_auto_hide(self):
+    def cancel_auto_hide(self) -> None:
         if self.auto_hide_timer is not None:
             self.auto_hide_timer.stop()
             self.auto_hide_timer = None
 
-    def show_question(self):
+    def show_question(self) -> None:
         if not self.questions:
             return
         if not self.isVisible():
@@ -340,12 +340,12 @@ class ProceedQuestion(QWidget):
                 t.timeout.connect(self.auto_hide)
                 t.start(1000 * question.auto_hide_after)
 
-    def auto_hide(self):
+    def auto_hide(self) -> None:
         self.auto_hide_timer = None
         if not sip.isdeleted(self) and self.isVisible():
             self.reject()
 
-    def start_show_animation(self):
+    def start_show_animation(self) -> None:
         if self.rendered_pixmap is not None:
             return
 
@@ -368,7 +368,7 @@ class ProceedQuestion(QWidget):
                 v.append(child)
         self.show_animation.start()
 
-    def stop_show_animation(self):
+    def stop_show_animation(self) -> None:
         self.rendered_pixmap = None
         [c.setVisible(True) for c in getattr(self, 'original_visibility', ())]
         self.update()
@@ -379,7 +379,7 @@ class ProceedQuestion(QWidget):
                 if vp is not None:
                     vp.update()
 
-    def position_widget(self):
+    def position_widget(self) -> None:
         pw = self.parent()
         assert pw is not None
         assert isinstance(pw, QMainWindow)
@@ -392,11 +392,11 @@ class ProceedQuestion(QWidget):
             y = sb.geometry().top() - self.height()
         self.move(x, y)
 
-    def show_widget(self):
+    def show_widget(self) -> None:
         self.show()
         self.position_widget()
 
-    def dummy_question(self, action_label=None, auto_hide_after=0):
+    def dummy_question(self, action_label=None, auto_hide_after=0) -> None:
         self(
             lambda *args: args,
             (),
@@ -499,7 +499,7 @@ class ProceedQuestion(QWidget):
         self.questions.append(question)
         self.show_question()
 
-    def show_log(self):
+    def show_log(self) -> None:
         if self.questions:
             q = self.questions[0]
             log = q.html_log
@@ -508,7 +508,7 @@ class ProceedQuestion(QWidget):
                     log = f.read().decode('utf-8')
             self.log_viewer = ViewLog(q.log_viewer_title, log, parent=self, unique_name=q.log_viewer_unique_name)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
@@ -520,11 +520,11 @@ class ProceedQuestion(QWidget):
         finally:
             painter.end()
 
-    def animated_paint(self, painter):
+    def animated_paint(self, painter) -> None:
         top = (1 - self._show_fraction) * self.height()
         painter.drawPixmap(0, int(top), self.rendered_pixmap)
 
-    def paint_background(self, painter):
+    def paint_background(self, painter) -> None:
         br = 12  # border_radius
         bw = 1  # border_width
         pal = self.palette()
@@ -537,7 +537,7 @@ class ProceedQuestion(QWidget):
         painter.fillPath(p, pal.color(QPalette.ColorRole.WindowText))
 
 
-def main():
+def main() -> None:
     from qt.core import QMainWindow, QStatusBar, QTimer
 
     from calibre.gui2 import Application
@@ -550,7 +550,7 @@ def main():
     w.show()
     p = ProceedQuestion(w)
 
-    def doit():
+    def doit() -> None:
         p(
             lambda p: None,
             None,

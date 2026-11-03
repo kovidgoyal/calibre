@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 
 
 class EngineSettingsWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         from calibre.ebooks.oeb.polish.tts import skip_name
         from calibre.gui2.tts.config import EmbeddingConfig
 
@@ -55,7 +55,7 @@ class Progress(QWidget):
     current_stage: str = ''
     stage_start_at: float = 0
 
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.v = v = QVBoxLayout(self)
         v.setContentsMargins(0, 0, 0, 0)
@@ -94,11 +94,11 @@ class TTSEmbed(Dialog):
     worker_done = pyqtSignal(object)
     ensure_voices_downloaded_signal = pyqtSignal(object, object)
 
-    def __init__(self, container, parent=None):
+    def __init__(self, container, parent=None) -> None:
         self.container = container
         super().__init__(_('Add Text-to-speech narration'), 'tts-overlay-dialog', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from threading import Thread
 
         self.worker_thread = Thread(target=self.worker, daemon=True)
@@ -124,7 +124,7 @@ class TTSEmbed(Dialog):
         self.update_button_box()
         self.stack.currentChanged.connect(self.update_button_box)
 
-    def update_button_box(self):
+    def update_button_box(self) -> None:
         remove_media_button = self.remove_media_button
         assert remove_media_button is not None
         if self.stack.currentIndex() == 0:
@@ -134,22 +134,22 @@ class TTSEmbed(Dialog):
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
             remove_media_button.setVisible(False)
 
-    def remove_media(self):
+    def remove_media(self) -> None:
         from calibre.ebooks.oeb.polish.tts import remove_embedded_tts
 
         remove_embedded_tts(self.container)
         super().accept()
 
-    def accept(self):
+    def accept(self) -> None:
         if self.stack.currentIndex() == 0:
             self.engine_settings_widget.save_settings()
             self.stack.setCurrentIndex(1)
             self.worker_thread.start()
 
-    def do_report_progress(self, a, kw):
+    def do_report_progress(self, a, kw) -> None:
         self.progress(*a, **kw)
 
-    def worker(self):
+    def worker(self) -> None:
         from calibre.ebooks.oeb.polish.tts import embed_tts
 
         def report_progress(*a, **kw):
@@ -173,7 +173,7 @@ class TTSEmbed(Dialog):
             raise e
         return e
 
-    def do_ensure_voices_downloaded(self, callback, queue):
+    def do_ensure_voices_downloaded(self, callback, queue) -> None:
         try:
             queue.put(callback(self))
         except Exception as e:
@@ -203,7 +203,7 @@ class TTSEmbed(Dialog):
         return super().reject()
 
 
-def develop():
+def develop() -> None:
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.gui2 import Application
 

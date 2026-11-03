@@ -91,12 +91,12 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'entity': {'color': '#ff82ac'},
     }
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         theme = self.dark_theme if qapplication_or_fail().is_dark_theme else self.light_theme
         self.setTheme(theme)
 
-    def setTheme(self, theme):
+    def setTheme(self, theme) -> None:
         self.theme = theme
         self.MARKDOWN_KWS_FORMAT = {}
 
@@ -121,12 +121,12 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         self.rehighlight()
 
-    def highlightBlock(self, text):
+    def highlightBlock(self, text) -> None:
         self.offset = 0
         self.highlightMarkdown(text)
         self.highlightHtml(text)
 
-    def highlightMarkdown(self, text):
+    def highlightMarkdown(self, text) -> None:
         cursor = QTextCursor(self.document())
         bf = cursor.blockFormat()
 
@@ -170,7 +170,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightEmptyLine(self, text, cursor, bf):
+    def highlightEmptyLine(self, text, cursor, bf) -> bool:
         textAscii = str(text.replace('\u2029', '\n'))
         return not textAscii.strip()
 
@@ -259,7 +259,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         # detect and apply imbricated Bold/Emphasis
         found = False
 
-        def apply(match, bold, emphasis):
+        def apply(match, bold, emphasis) -> None:
             if bold and emphasis:
                 self.setFormat(
                     self.offset + offset + match.start(),
@@ -275,7 +275,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     self.MARKDOWN_KWS_FORMAT['Italic'],
                 )
 
-        def recursive(match, extra_offset, bold, emphasis):
+        def recursive(match, extra_offset, bold, emphasis) -> None:
             apply(match, bold, emphasis)
             if bold and emphasis:
                 return  # max deep => return, do not process extra Bold/Italic
@@ -334,6 +334,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightHtml(self, text):
+    def highlightHtml(self, text) -> None:
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Html'], text):
             self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Html'])

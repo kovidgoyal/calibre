@@ -9,7 +9,7 @@ from calibre.utils.localization import _
 
 
 class StoreChooserWidget(QWidget, Ui_Form):
-    def __init__(self):
+    def __init__(self) -> None:
         QWidget.__init__(self)
         self.setupUi(self)
 
@@ -31,13 +31,13 @@ class StoreChooserWidget(QWidget, Ui_Form):
         self.enable_invert.clicked.connect(_m.enable_invert)
         self.results_view.activated.connect(_m.toggle_plugin)
 
-    def do_search(self):
+    def do_search(self) -> None:
         _m = self.results_view.model()
         assert _m is not None
         assert isinstance(_m, Matches)
         _m.search(str(self.query.text()))
 
-    def build_adv_search(self):
+    def build_adv_search(self) -> None:
         adv = AdvSearchBuilderDialog(self)
         if adv.exec() == QDialog.DialogCode.Accepted:
             self.query.setText(adv.search_string())

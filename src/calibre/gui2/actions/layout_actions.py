@@ -38,7 +38,7 @@ def default_layout_settings():
 
 
 class SaveLayoutDialog(QDialog):
-    def __init__(self, parent, names):
+    def __init__(self, parent, names) -> None:
         QDialog.__init__(self, parent)
         self.names = names
         l = QVBoxLayout(self)
@@ -58,7 +58,7 @@ class SaveLayoutDialog(QDialog):
     def current_name(self):
         return self.cb.currentText().strip()
 
-    def accept(self):
+    def accept(self) -> None:
         n = self.current_name()
         if not n:
             error_dialog(self, _('Invalid name'), _('The settings name cannot be blank'), show=True, show_copy_button=False)
@@ -96,7 +96,7 @@ class LayoutActions(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset({'context-menu-device', 'menubar-device'})
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.layout_icon = QIcon.ic('layout.png')
         self.menu = m = self.qaction.menu()
         assert m is not None
@@ -121,24 +121,24 @@ class LayoutActions(InterfaceAction):
     # If a shortcut is triggered and there isn't a toolbar button visible then
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
-    def show_menu(self):
+    def show_menu(self) -> None:
         show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
-    def toggle_layout(self):
+    def toggle_layout(self) -> None:
         self.gui.layout_container.toggle_layout()
 
-    def gui_layout_complete(self):
+    def gui_layout_complete(self) -> None:
         m = self.qaction.menu()
         assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.populate_menu()
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         self.populate_menu()
 
-    def populate_menu(self):
+    def populate_menu(self) -> None:
         m = self.qaction.menu()
         assert m is not None
         m.clear()
@@ -168,13 +168,13 @@ class LayoutActions(InterfaceAction):
             m.addAction(ic, _('Hide {}').format(button.label), partial(self.set_visible, Panel(name), False))
             m.addAction(ic, _('Toggle {}').format(button.label), partial(self.toggle_item, Panel(name)))
 
-    def _change_item(self, button, show=True):
+    def _change_item(self, button, show=True) -> None:
         if button.isChecked() and not show:
             button.click()
         elif not button.isChecked() and show:
             button.click()
 
-    def _toggle_item(self, button):
+    def _toggle_item(self, button) -> None:
         button.click()
 
     def _button_from_enum(self, name: Panel):
@@ -183,7 +183,7 @@ class LayoutActions(InterfaceAction):
                 return b
 
     # Public API
-    def apply_layout(self, name):
+    def apply_layout(self, name) -> None:
         """apply_layout()
         Apply a saved GUI panel layout.
 
@@ -199,7 +199,7 @@ class LayoutActions(InterfaceAction):
         layouts = gprefs['saved_layouts']
         self.apply_settings(layouts[name])
 
-    def reset_layout(self):
+    def reset_layout(self) -> None:
         """reset_layout()
         Reset the layout of the main window to the calibre defaults: the wide
         layout with the Tag browser, book list, Book details and search bar
@@ -211,7 +211,7 @@ class LayoutActions(InterfaceAction):
         self.gui.layout_container.update_button_states_from_visibility()
         self.set_visible(Panel.SEARCH_BAR, True)
 
-    def apply_settings(self, settings):
+    def apply_settings(self, settings) -> None:
         """apply_settings()
         Apply the specified GUI layout settings, as returned by :meth:`current_settings`.
         """
@@ -234,7 +234,7 @@ class LayoutActions(InterfaceAction):
                 self.set_visible(Panel.GRID_VIEW, False)
                 self.set_visible(Panel.BOOKSHELF, False)
 
-    def save_current_layout(self):
+    def save_current_layout(self) -> None:
         """save_current_layout()
         Opens a dialog asking for the name to use to save the current layout.
         Saves the current settings under the provided name.
@@ -259,7 +259,7 @@ class LayoutActions(InterfaceAction):
             settings['alternate_view'] = ''
         return settings
 
-    def save_named_layout(self, name, settings):
+    def save_named_layout(self, name, settings) -> None:
         """save_named_layout()
         Saves the settings under the provided name.
 
@@ -274,7 +274,7 @@ class LayoutActions(InterfaceAction):
         gprefs['saved_layouts'] = layouts
         self.populate_menu()
 
-    def delete_layout(self, name, show_warning=True):
+    def delete_layout(self, name, show_warning=True) -> None:
         """delete_layout()
         Delete a saved layout.
 
@@ -305,7 +305,7 @@ class LayoutActions(InterfaceAction):
         layouts = gprefs['saved_layouts']
         return sorted(layouts.keys(), key=sort_key)
 
-    def toggle_item(self, name):
+    def toggle_item(self, name) -> None:
         """toggle_item()
         Toggle the visibility of the panel.
 
@@ -319,7 +319,7 @@ class LayoutActions(InterfaceAction):
         """
         self._toggle_item(self._button_from_enum(name))
 
-    def set_visible(self, name: Panel, show=True):
+    def set_visible(self, name: Panel, show=True) -> None:
         """set_visible()
         Show or hide a panel. Does nothing if the panel is already in the
         desired state.
@@ -351,11 +351,11 @@ class LayoutActions(InterfaceAction):
         """
         return self._button_from_enum(name).isChecked()
 
-    def hide_all(self):
+    def hide_all(self) -> None:
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=False)
 
-    def show_all(self):
+    def show_all(self) -> None:
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
 

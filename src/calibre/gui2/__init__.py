@@ -108,7 +108,7 @@ BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visua
 
 
 class IconResourceManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.override_icon_path = None
         self.initialized = False
         self.dark_theme_name = self.default_dark_theme_name = 'calibre-default-dark'
@@ -120,7 +120,7 @@ class IconResourceManager:
     def user_theme_resource_file(self, which):
         return os.path.join(config_dir, f'icons-{which}.rcc')
 
-    def remove_user_theme(self, which):
+    def remove_user_theme(self, which) -> None:
         path = self.user_theme_resource_file(which)
         if path in self.registered_user_resource_files:
             QResource.unregisterResource(path)
@@ -128,7 +128,7 @@ class IconResourceManager:
         with suppress(FileNotFoundError):
             os.remove(path)
 
-    def register_user_resource_files(self):
+    def register_user_resource_files(self) -> None:
         self.user_icon_theme_metadata.cache_clear()
         for x in self.registered_user_resource_files:
             QResource.unregisterResource(x)
@@ -181,7 +181,7 @@ class IconResourceManager:
     def user_theme_name(self):
         return self.active_user_theme_metadata.get('name', 'default')
 
-    def dump_available_icon_resource_names(self):
+    def dump_available_icon_resource_names(self) -> None:
         from qt.core import QDirIterator
 
         it = QDirIterator(':', QDirIterator.IteratorFlag.Subdirectories)
@@ -190,7 +190,7 @@ class IconResourceManager:
             if val.startswith(':/icons/calibre-'):
                 print(val)
 
-    def initialize(self):
+    def initialize(self) -> None:
         if self.initialized:
             return
         self.icon_cache = {}
@@ -215,7 +215,7 @@ class IconResourceManager:
                 self.override_items[k] = items
         self.register_user_resource_files()
 
-    def migrate_legacy_icon_theme(self, legacy_theme_metadata):
+    def migrate_legacy_icon_theme(self, legacy_theme_metadata) -> None:
         import shutil
 
         from calibre.utils.rcc import compile_icon_dir_as_themes
@@ -303,7 +303,7 @@ class IconResourceManager:
             w.write(pmap.toImage())
         return ba if as_bytearray else ba.data()
 
-    def set_theme(self):
+    def set_theme(self) -> None:
         self.icon_cache = {}
         is_dark = qapplication_or_fail().is_dark_theme
         set_icon_theme(is_dark, bool(self.user_dark_theme_name), bool(self.user_light_theme_name), bool(self.user_any_theme_name))
@@ -317,7 +317,7 @@ QIcon.cached_icon = icon_resource_manager.cached_icon  # type: ignore
 qtb_init = QToolBar.__init__
 
 
-def configure_toolbar_extension_button(self, parent=None):
+def configure_toolbar_extension_button(self, parent=None) -> None:
     qtb_init(self, parent)
     if teb := self.findChild(QToolButton, name='qt_toolbar_ext_button'):
         teb.setToolTip(_('Show more buttons'))
@@ -351,7 +351,7 @@ native_menubar_defaults = {
 }
 
 
-def create_defs():
+def create_defs() -> None:
     defs = gprefs.defaults
     if ismacos:
         defs['action-layout-menubar'] = native_menubar_defaults['action-layout-menubar']
@@ -668,7 +668,7 @@ def create_defs():
         if isinstance(vhv := gprefs.get('bookshelf_variable_height'), bool):
             gprefs['bookshelf_variable_height'] = 'variable' if vhv else 'constant'
 
-        def migrate_tweak(tweak_name, pref_name):
+        def migrate_tweak(tweak_name, pref_name) -> None:
             # If the tweak has been changed then leave the tweak in the file so
             # that the user can bounce between versions with and without the
             # migration. For versions before the migration the tweak wins. For
@@ -996,7 +996,7 @@ def show_restart_warning(msg, parent=None):
     b.setIcon(QIcon.ic('lt.png'))
     d.do_restart = False
 
-    def rf():
+    def rf() -> None:
         d.do_restart = True
 
     b.clicked.connect(rf)
@@ -1018,7 +1018,7 @@ class Dispatcher(QObject):
 
     dispatch_signal = pyqtSignal(object, object)
 
-    def __init__(self, func, queued=True, parent=None):
+    def __init__(self, func, queued=True, parent=None) -> None:
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.ConnectionType.QueuedConnection
@@ -1029,7 +1029,7 @@ class Dispatcher(QObject):
     def __call__(self, *args, **kwargs):
         self.dispatch_signal.emit(args, kwargs)
 
-    def dispatch(self, args, kwargs):
+    def dispatch(self, args, kwargs) -> None:
         self.func(*args, **kwargs)
 
 
@@ -1044,7 +1044,7 @@ class FunctionDispatcher(QObject):
 
     dispatch_signal = pyqtSignal(object, object, object)
 
-    def __init__(self, func, queued=True, parent=None):
+    def __init__(self, func, queued=True, parent=None) -> None:
         global gui_thread
         if gui_thread is None:
             gui_thread = QThread.currentThread()
@@ -1072,7 +1072,7 @@ class FunctionDispatcher(QObject):
             res = self.q.get()
         return res
 
-    def dispatch(self, q, args, kwargs):
+    def dispatch(self, q, args, kwargs) -> None:
         res = None
         if (f := self.func) is not None:
             try:
@@ -1096,7 +1096,7 @@ class GetMetadata(QObject):
     metadataf = pyqtSignal(object, object)
     metadata = pyqtSignal(object, object)
 
-    def __init__(self):
+    def __init__(self) -> None:
         QObject.__init__(self)
         self.edispatch.connect(self._get_metadata, type=Qt.ConnectionType.QueuedConnection)
         self.idispatch.connect(self._from_formats, type=Qt.ConnectionType.QueuedConnection)
@@ -1104,10 +1104,10 @@ class GetMetadata(QObject):
     def __call__(self, id, *args, **kwargs):
         self.edispatch.emit(id, args, kwargs)
 
-    def from_formats(self, id, *args, **kwargs):
+    def from_formats(self, id, *args, **kwargs) -> None:
         self.idispatch.emit(id, args, kwargs)
 
-    def _from_formats(self, id, args, kwargs):
+    def _from_formats(self, id, args, kwargs) -> None:
         from calibre.ebooks.metadata.meta import metadata_from_formats
 
         try:
@@ -1116,7 +1116,7 @@ class GetMetadata(QObject):
             mi = MetaInformation('', [_('Unknown')])
         self.metadataf.emit(id, mi)
 
-    def _get_metadata(self, id, args, kwargs):
+    def _get_metadata(self, id, args, kwargs) -> None:
         from calibre.ebooks.metadata.meta import get_metadata
 
         try:
@@ -1130,7 +1130,7 @@ class FileIconProvider(QFileIconProvider):
     ICONS = EXT_MAP
     icons: dict[str, str | QIcon]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.icons = {k: f'mimetypes/{v}.png' for k, v in self.ICONS.items()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
@@ -1191,7 +1191,7 @@ class FileIconProvider(QFileIconProvider):
 _file_icon_provider = None
 
 
-def initialize_file_icon_provider():
+def initialize_file_icon_provider() -> None:
     global _file_icon_provider
     if _file_icon_provider is None:
         _file_icon_provider = FileIconProvider()
@@ -1276,7 +1276,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     return ba.data()
 
 
-def decouple(prefix):
+def decouple(prefix) -> None:
     "Ensure that config files used by utility code are not the same as those used by the main calibre GUI"
     dynamic.decouple(prefix)
     from calibre.gui2.widgets import history
@@ -1291,7 +1291,7 @@ def gui_prefs():
     return _gui_prefs
 
 
-def set_gui_prefs(prefs):
+def set_gui_prefs(prefs) -> None:
     global _gui_prefs
     _gui_prefs = prefs
 
@@ -1300,7 +1300,7 @@ class ResizableDialog(QDialog):
     # This class is present only for backwards compat with third party plugins
     # that might use it. Do not use it in new code.
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         QDialog.__init__(self, *args)
         if s := getattr(self, 'setupUi', None):
             s(self)
@@ -1322,7 +1322,7 @@ def calibre_font_files():
     return glob.glob(P('fonts/liberation/*.?tf')) + [P('fonts/calibreSymbols.otf')] + glob.glob(os.path.join(config_dir, 'fonts', '*.?tf'))
 
 
-def load_builtin_fonts():
+def load_builtin_fonts() -> None:
     global _rating_font, builtin_fonts_loaded
     # Load the builtin fonts and any fonts added to calibre by the user to
     # Qt
@@ -1342,7 +1342,7 @@ def load_builtin_fonts():
                         _rating_font = 'calibre Symbols'
 
 
-def setup_gui_option_parser(parser):
+def setup_gui_option_parser(parser) -> None:
     if islinux:
         parser.add_option(
             '--detach',
@@ -1352,7 +1352,7 @@ def setup_gui_option_parser(parser):
         )
 
 
-def show_temp_dir_error(err):
+def show_temp_dir_error(err) -> None:
     import traceback
 
     extra = _('Click "Show details" for more information.')
@@ -1405,7 +1405,7 @@ def webengine_args(disable_gpu: bool = False) -> list[str]:
     return ans
 
 
-def setup_to_run_webengine():
+def setup_to_run_webengine() -> None:
     # Allow import of webengine after construction of QApplication on new enough PyQt
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
@@ -1432,7 +1432,7 @@ class Application(QApplication):
         color_prefs=gprefs,
         windows_app_uid=None,
         should_handle_calibre_urls=False,
-    ):
+    ) -> None:
         if not args:
             args = sys.argv[:1]
         args = [args[0]]
@@ -1601,7 +1601,7 @@ class Application(QApplication):
         self.ensure_window_on_screen(widget)
         return restored
 
-    def ensure_window_on_screen(self, widget):
+    def ensure_window_on_screen(self, widget) -> None:
         screen_rect = widget.screen().availableGeometry()
         g = widget.geometry()
         w = min(screen_rect.width(), g.width())
@@ -1614,7 +1614,7 @@ class Application(QApplication):
             widget.resize(w, h)
             widget.move((screen_rect.width() - w) // 2, (screen_rect.height() - h) // 2)
 
-    def setup_ui_font(self):
+    def setup_ui_font(self) -> None:
         f = QFont(QApplication.font())
         q = (f.family(), f.pointSize())
         if iswindows:
@@ -1630,7 +1630,7 @@ class Application(QApplication):
         f = QFontInfo(f)
         self.original_font = (f.family(), f.pointSize(), f.weight(), f.italic(), 100)
 
-    def flush_clipboard(self):
+    def flush_clipboard(self) -> None:
         try:
             cb = self.clipboard()
             assert cb is not None
@@ -1643,7 +1643,7 @@ class Application(QApplication):
 
             traceback.print_exc()
 
-    def load_builtin_fonts(self, scan_for_fonts=False):
+    def load_builtin_fonts(self, scan_for_fonts=False) -> None:
         if scan_for_fonts:
             # Start scanning the users computer for fonts
             from calibre.utils.fonts.scanner import font_scanner  # ruff: ignore[unused-import]
@@ -1667,7 +1667,7 @@ class Application(QApplication):
         ans.setDevicePixelRatio(device_pixel_ratio)
         return ans
 
-    def _send_file_open_events(self):
+    def _send_file_open_events(self) -> None:
         with self._file_open_lock:
             if self._file_open_paths:
                 if callable(self.file_event_hook):
@@ -1680,7 +1680,7 @@ class Application(QApplication):
             self._file_open_paths = []
         return ans
 
-    def load_translations(self):
+    def load_translations(self) -> None:
         install_qt_translator()
 
     def event(self, a0):
@@ -1706,14 +1706,14 @@ class Application(QApplication):
             return QApplication.event(self, a0)
 
     @pyqtSlot(QUrl)
-    def handle_calibre_url(self, qurl):
+    def handle_calibre_url(self, qurl) -> None:
         url = qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)
         with self._file_open_lock:
             self._file_open_paths.append(url)
         QTimer.singleShot(100, self._send_file_open_events)
 
     @pyqtSlot(QUrl)
-    def handle_http_url(self, qurl):
+    def handle_http_url(self, qurl) -> None:
         safe_open_url(qurl)
 
     @property
@@ -1723,19 +1723,19 @@ class Application(QApplication):
         return [col.getRgb() for col in (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
     @current_custom_colors.setter
-    def current_custom_colors(self, colors):
+    def current_custom_colors(self, colors) -> None:
         from qt.core import QColorDialog
 
         num = min(len(colors), QColorDialog.customCount())
         for i in range(num):
             QColorDialog.setCustomColor(i, QColor(*colors[i]))
 
-    def read_custom_colors(self):
+    def read_custom_colors(self) -> None:
         colors = self.color_prefs.get('custom_colors_for_color_dialog', None)
         if colors is not None:
             self.current_custom_colors = colors
 
-    def save_custom_colors(self):
+    def save_custom_colors(self) -> None:
         # Qt 5 regression, it no longer saves custom colors
         colors = self.current_custom_colors
         if colors != self.color_prefs.get('custom_colors_for_color_dialog', None):
@@ -1747,10 +1747,10 @@ class Application(QApplication):
     def __exit__(self, type, value, traceback):
         self.setQuitOnLastWindowClosed(True)
 
-    def setup_unix_signals(self):
+    def setup_unix_signals(self) -> None:
         setup_unix_signals(self)
 
-    def signal_received(self):
+    def signal_received(self) -> None:
         try:
             os.read(int(self.signal_notifier.socket()), 1024)
         except OSError:
@@ -1763,7 +1763,7 @@ _store_app: QApplication | None = None
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 
-def open_url(qurl):
+def open_url(qurl) -> None:
     if isinstance(qurl, (str, bytes)):
         qurl = QUrl(qurl)
     scheme = qurl.scheme().lower() or 'file'
@@ -1779,7 +1779,7 @@ def open_url(qurl):
                     opener = shlex.split(spec)
                     break
 
-    def run_cmd(cmd):
+    def run_cmd(cmd) -> None:
         import subprocess
 
         subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1845,7 +1845,7 @@ def get_current_db():
     return db()
 
 
-def open_local_file(path):
+def open_local_file(path) -> None:
     if iswindows:
         with sanitize_env_vars():
             os.startfile(os.path.normpath(path))
@@ -1912,7 +1912,7 @@ def qapplication_or_fail() -> Application:
     return cast('Application', ans)
 
 
-def destroy_app():
+def destroy_app() -> None:
     global _store_app
     _store_app = None
 
@@ -1921,7 +1921,7 @@ def app_is_headless():
     return getattr(_store_app, 'headless', False)
 
 
-def must_use_qt(headless=True):
+def must_use_qt(headless=True) -> None:
     """This function should be called if you want to use Qt for some non-GUI
     task like rendering HTML/SVG or using a headless browser. It will raise a
     RuntimeError if using Qt is not possible, which will happen if the current
@@ -1935,7 +1935,7 @@ def must_use_qt(headless=True):
         raise RuntimeError('Cannot use Qt in non GUI thread')
 
 
-def is_ok_to_use_qt():
+def is_ok_to_use_qt() -> bool:
     try:
         must_use_qt()
     except RuntimeError:
@@ -1997,7 +1997,7 @@ empty_model = QStringListModel([''])
 empty_index = empty_model.index(0)
 
 
-def set_app_uid(val):
+def set_app_uid(val) -> bool:
     import ctypes
     from ctypes import HRESULT, wintypes
 
@@ -2015,7 +2015,7 @@ def set_app_uid(val):
     return True
 
 
-def add_to_recent_docs(path):
+def add_to_recent_docs(path) -> None:
     from calibre_extensions import winutil
 
     app = qapplication_or_fail()

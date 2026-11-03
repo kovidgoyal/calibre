@@ -34,7 +34,7 @@ from polyglot.io import PolyglotStringIO
 class TestEmail(QDialog):
     test_done = pyqtSignal(object)
 
-    def __init__(self, pa, parent):
+    def __init__(self, pa, parent) -> None:
         QDialog.__init__(self, parent)
         self.test_func = parent.test_email_settings
         self.setWindowTitle(_('Test email settings'))
@@ -84,7 +84,7 @@ class TestEmail(QDialog):
         t.daemon = True
         t.start()
 
-    def run_test(self):
+    def run_test(self) -> None:
         from email.utils import parseaddr
 
         q = self.to.text().strip()
@@ -100,14 +100,14 @@ class TestEmail(QDialog):
                 tb = traceback.format_exc()
         self.test_done.emit(tb)
 
-    def on_test_done(self, txt):
+    def on_test_done(self, txt) -> None:
         if self.isVisible():
             self.test_button.setEnabled(True)
             self.log.setPlainText(txt)
 
 
 class RelaySetup(QDialog):
-    def __init__(self, service, parent):
+    def __init__(self, service, parent) -> None:
         QDialog.__init__(self, parent)
 
         self.l = l = QGridLayout()
@@ -164,7 +164,7 @@ class RelaySetup(QDialog):
         self.resize(self.sizeHint())
         self.service = service
 
-    def update_pssword_visibility(self):
+    def update_pssword_visibility(self) -> None:
         self.password.setEchoMode(QLineEdit.EchoMode.Normal if self.ptoggle.isChecked() else QLineEdit.EchoMode.PasswordEchoOnEdit)
 
     @property
@@ -198,11 +198,11 @@ class RelaySetup(QDialog):
 class SendEmail(QWidget, Ui_Form):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def initialize(self, preferred_to_address):
+    def initialize(self, preferred_to_address) -> None:
         self.preferred_to_address = preferred_to_address
         opts = smtp_prefs().parse()
         self.smtp_opts = opts
@@ -231,10 +231,10 @@ class SendEmail(QWidget, Ui_Form):
         )
         self.test_email_button.clicked.connect(self.test_email)
 
-    def changed(self, *args):
+    def changed(self, *args) -> None:
         self.changed_signal.emit()
 
-    def test_email(self, *args):
+    def test_email(self, *args) -> None:
         pa = self.preferred_to_address()
         to_set = pa is not None
         if self.set_email_settings(to_set):
@@ -280,7 +280,7 @@ class SendEmail(QWidget, Ui_Form):
             sys.stdout, sys.stderr = oout, oerr
         return tb
 
-    def create_service_relay(self, service, *args):
+    def create_service_relay(self, service, *args) -> None:
         rservice = {
             'gmx': {
                 'name': 'GMX',
@@ -336,7 +336,7 @@ class SendEmail(QWidget, Ui_Form):
         self.relay_port.setValue(int(rservice['port']))
         self.relay_tls.setChecked(True)
 
-    def set_email_settings(self, to_set):
+    def set_email_settings(self, to_set) -> bool:
         from_ = str(self.email_from.text()).strip()
         if to_set and not from_:
             error_dialog(self, _('Bad configuration'), _('You must set the From email address')).exec()

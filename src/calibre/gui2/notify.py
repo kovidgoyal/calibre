@@ -29,10 +29,10 @@ def icon(data=False):
 
 
 class DBUSNotifier(Notifier):
-    def __init__(self):
+    def __init__(self) -> None:
         self.initialized = False
 
-    def initialize(self):
+    def initialize(self) -> None:
         from jeepney.io.blocking import open_dbus_connection
 
         if self.initialized:
@@ -83,7 +83,7 @@ class DBUSNotifier(Notifier):
         reply = self.connection.send_and_get_reply(msg)
         return bool(reply and reply.header.message_type is MessageType.method_return and reply.body[0][1] >= 1)
 
-    def fdo_notify(self, body, summary=None, replaces_id=None, timeout=0):
+    def fdo_notify(self, body, summary=None, replaces_id=None, timeout=0) -> None:
         from jeepney import new_method_call
 
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
@@ -109,7 +109,7 @@ class DBUSNotifier(Notifier):
 
             traceback.print_exc()
 
-    def portal_notify(self, body, summary=None, replaces_id=None, timeout=0):
+    def portal_notify(self, body, summary=None, replaces_id=None, timeout=0) -> None:
         from jeepney import new_method_call
 
         _, body, summary = self.get_msg_parms(timeout, body, summary)
@@ -157,7 +157,7 @@ class DBUSNotifier(Notifier):
 
 
 class QtNotifier(Notifier):
-    def __init__(self, systray=None):
+    def __init__(self, systray=None) -> None:
         self.systray = systray
         self.ok = self.systray is not None and self.systray.supportsMessages()
 
@@ -183,7 +183,7 @@ class QtNotifier(Notifier):
 
 
 class WinToastNotifier(Notifier):
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             from calibre_extensions.wintoast import initialize_toast
         except ImportError:
@@ -211,7 +211,7 @@ class WinToastNotifier(Notifier):
             self.dispatcher = dispatcher()
             self.dispatcher.dispatch.connect(self.do_notify, type=Qt.ConnectionType.QueuedConnection)
 
-    def do_notify(self, title, message):
+    def do_notify(self, title, message) -> None:
         from calibre_extensions.wintoast import notify
 
         try:
@@ -236,13 +236,13 @@ class DummyNotifier(Notifier):
 
 
 class AppleNotifier(Notifier):
-    def __init__(self):
+    def __init__(self) -> None:
         from calibre_extensions import cocoa
 
         self.cocoa = cocoa
         self.ok = True
 
-    def notify(self, body, summary):
+    def notify(self, body, summary) -> None:
         if summary:
             title, informative_text = summary, body
         else:
@@ -284,12 +284,12 @@ def get_notifier(systray=None):
     return ans
 
 
-def hello():
+def hello() -> None:
     n = get_notifier()
     n('hello')
 
 
-def develop_win():
+def develop_win() -> None:
     from calibre_extensions.wintoast import initialize_toast, notify
 
     initialize_toast(__appname__, MAIN_APP_UID)

@@ -44,7 +44,7 @@ def get_sorted_fields(db):
 class SortAction(QAction):
     sort_requested = pyqtSignal(object, object)
 
-    def __init__(self, text, key, ascending, parent):
+    def __init__(self, text, key, ascending, parent) -> None:
         QAction.__init__(self, text, parent)
         self.key, self.ascending = key, ascending
         self.triggered.connect(self)
@@ -64,7 +64,7 @@ class SortByAction(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-cover-browser',))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.sorted_icon = QIcon.ic('ok.png')
         self.menu = m = self.qaction.menu()
         assert m is not None
@@ -99,33 +99,33 @@ class SortByAction(InterfaceAction):
         )
         self.reapply_action = c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         self.update_menu()
 
-    def show_menu(self):
+    def show_menu(self) -> None:
         show_menu_under_widget(self.gui, self.qaction.menu(), self.qaction, self.name)
 
-    def reverse_sort(self):
+    def reverse_sort(self) -> None:
         self.gui.current_view().reverse_sort()
 
-    def reapply_sort(self):
+    def reapply_sort(self) -> None:
         self.gui.current_view().resort()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         self.update_menu()
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.update_menu()
 
     def get_sorted_fields(self):
         return get_sorted_fields(self.gui.current_db)
 
-    def update_menu(self, menu=None):
+    def update_menu(self, menu=None) -> None:
         if menu is None:
             menu = self.qaction.menu()
         assert menu is not None
@@ -176,7 +176,7 @@ class SortByAction(InterfaceAction):
             sac.sort_requested.connect(self.sort_requested)
             menu.addAction(sac)
 
-    def select_sortable_columns(self):
+    def select_sortable_columns(self) -> None:
         db = self.gui.current_db
         hidden = hidden_fields(db)
         items = QListWidget()
@@ -204,10 +204,10 @@ class SortByAction(InterfaceAction):
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))
             self.update_menu()
 
-    def named_sort_selected(self, sort_spec):
+    def named_sort_selected(self, sort_spec) -> None:
         self.gui.library_view.multisort(sort_spec)
 
-    def choose_multisort(self):
+    def choose_multisort(self) -> None:
         from calibre.gui2.dialogs.multisort import ChooseMultiSort
 
         d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
@@ -215,7 +215,7 @@ class SortByAction(InterfaceAction):
             self.gui.library_view.multisort(d.current_sort_spec)
             self.update_menu()
 
-    def sort_requested(self, key, ascending):
+    def sort_requested(self, key, ascending) -> None:
         if ascending is None:
             self.gui.library_view.intelligent_sort(key, True)
         else:

@@ -126,7 +126,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         m = QFontMetrics(font)
         return QSize(m.boundingRect(text).width(), m.height())
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         painter.save()
         try:
@@ -137,7 +137,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
             traceback.print_exc()
         painter.restore()
 
-    def do_paint(self, painter, option, index):
+    def do_paint(self, painter, option, index) -> None:
         text = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         font = QFont(option.font)
         font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
@@ -175,14 +175,14 @@ class FontFamilyDelegate(QStyledItemDelegate):
 
 
 class Typefaces(QLabel):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QLabel.__init__(self, parent)
         self.setMinimumWidth(400)
         self.base_msg = '<h3>' + _('Choose a font family') + '</h3>'
         self.setText(self.base_msg)
         self.setWordWrap(True)
 
-    def show_family(self, family, faces):
+    def show_family(self, family, faces) -> None:
         if not family:
             self.setText(self.base_msg)
             return
@@ -210,20 +210,20 @@ class Typefaces(QLabel):
 class FontsView(QListView):
     changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QListView.__init__(self, parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAlternatingRowColors(True)
         self.d = FontFamilyDelegate(self)
         self.setItemDelegate(self.d)
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current, previous) -> None:
         self.changed.emit()
         QListView.currentChanged(self, current, previous)
 
 
 class FontFamilyDialog(QDialog):
-    def __init__(self, current_family, parent=None):
+    def __init__(self, current_family, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose font family'))
         self.setWindowIcon(QIcon.ic('font.png'))
@@ -277,7 +277,7 @@ class FontFamilyDialog(QDialog):
 
         self.resize(800, 600)
 
-    def set_current(self, i):
+    def set_current(self, i) -> None:
         self.view.setCurrentIndex(self.m.index(i))
 
     def keyPressEvent(self, a0):
@@ -285,7 +285,7 @@ class FontFamilyDialog(QDialog):
             return
         return QDialog.keyPressEvent(self, a0)
 
-    def _find(self, backwards=False):
+    def _find(self, backwards=False) -> None:
         i = self.view.currentIndex().row()
         i = max(i, 0)
         q = icu_lower(str(self.search.text())).strip()
@@ -298,13 +298,13 @@ class FontFamilyDialog(QDialog):
                 self.set_current(j)
                 return
 
-    def find_next(self):
+    def find_next(self) -> None:
         self._find()
 
-    def find_previous(self):
+    def find_previous(self) -> None:
         self._find(backwards=True)
 
-    def build_font_list(self):
+    def build_font_list(self) -> None:
         try:
             self.families = list(self.font_scanner.find_font_families())
         except Exception:
@@ -316,7 +316,7 @@ class FontFamilyDialog(QDialog):
         self.families.insert(0, _('None'))
         self.m.setStringList(self.families)
 
-    def add_fonts(self):
+    def add_fonts(self) -> None:
         families = add_fonts(self)
         if not families:
             return
@@ -340,7 +340,7 @@ class FontFamilyDialog(QDialog):
             return None
         return self.families[idx]
 
-    def current_changed(self):
+    def current_changed(self) -> None:
         fam = self.font_family
         self.faces.show_family(fam, self.font_scanner.fonts_for_family(fam) if fam else None)
 
@@ -348,7 +348,7 @@ class FontFamilyDialog(QDialog):
 class FontFamilyChooser(QWidget):
     family_changed = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
@@ -370,10 +370,10 @@ class FontFamilyChooser(QWidget):
     def toolTip(self) -> str:
         return self.button.toolTip()
 
-    def setToolTip(self, a0):
+    def setToolTip(self, a0) -> None:
         self.button.setToolTip(a0)
 
-    def clear_family(self):
+    def clear_family(self) -> None:
         self.font_family = None
 
     @property
@@ -381,20 +381,20 @@ class FontFamilyChooser(QWidget):
         return self._current_family
 
     @font_family.setter
-    def font_family(self, val):
+    def font_family(self, val) -> None:
         if not val:
             val = None
         self._current_family = val
         self.button.setText(val or self.default_text)
         self.family_changed.emit(val)
 
-    def show_chooser(self):
+    def show_chooser(self) -> None:
         d = FontFamilyDialog(self.font_family, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.font_family = d.font_family
 
 
-def test():
+def test() -> None:
     from calibre.gui2 import Application
 
     _app = Application([])

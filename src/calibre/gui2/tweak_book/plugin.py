@@ -56,7 +56,7 @@ class Tool:
         "Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited."
         return current_container()
 
-    def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data):
+    def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data) -> None:
         """
         Register a keyboard shortcut that will trigger the specified ``qaction``. This keyboard shortcut
         will become automatically customizable by the user in the Keyboard shortcuts section of the editor preferences.
@@ -169,7 +169,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
 _tool_memory = []  # Needed to prevent the tool object from being garbage collected
 
 
-def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
+def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions) -> None:
     del _tool_memory[:]
     del plugin_toolbar_actions[:]
 
@@ -192,7 +192,7 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
                 create_plugin_action(plugin, tool, False, actions, toolbar_actions, plugin_menu_actions)
 
 
-def install_plugin(plugin):
+def install_plugin(plugin) -> None:
     for tool in load_plugin_tools(plugin):
         if tool.allowed_in_toolbar:
             sid = plugin_action_sid(plugin, tool, True)

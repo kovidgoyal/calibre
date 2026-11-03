@@ -137,7 +137,7 @@ def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, .
 
 
 class Manager(QObject):  # {{{
-    def __init__(self, parent=None, config_name='shortcuts/main'):
+    def __init__(self, parent=None, config_name='shortcuts/main') -> None:
         QObject.__init__(self, parent)
 
         self.config = JSONConfig(config_name)
@@ -145,7 +145,7 @@ class Manager(QObject):  # {{{
         self.keys_map = {}
         self.groups = {}
 
-    def register_shortcut(self, unique_name, name, default_keys=(), description=None, action=None, group=None, persist_shortcut=False):
+    def register_shortcut(self, unique_name, name, default_keys=(), description=None, action=None, group=None, persist_shortcut=False) -> None:
         '''
         Register a shortcut with calibre. calibre will manage the shortcut,
         automatically resolving conflicts and allowing the user to customize
@@ -183,7 +183,7 @@ class Manager(QObject):  # {{{
         group = group or pgettext('keyboard shortcuts', 'Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
-    def unregister_shortcut(self, unique_name):
+    def unregister_shortcut(self, unique_name) -> None:
         """
         Remove a registered shortcut. You need to call finalize() after you are
         done unregistering.
@@ -195,11 +195,11 @@ class Manager(QObject):  # {{{
             except ValueError:
                 pass
 
-    def finalize(self):
+    def finalize(self) -> None:
         custom_keys_map = {un: tuple(keys) for un, keys in self.config.get('map', {}).items()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
-    def replace_action(self, unique_name, new_action):
+    def replace_action(self, unique_name, new_action) -> None:
         """
         Replace the action associated with a shortcut.
         Once you're done calling replace_action() for all shortcuts you want
@@ -216,14 +216,14 @@ class Manager(QObject):  # {{{
 
 
 class Node:
-    def __init__(self, group_map, shortcut_map, name=None, shortcut=None):
+    def __init__(self, group_map, shortcut_map, name=None, shortcut=None) -> None:
         self.data = name if name is not None else shortcut
         self.is_shortcut = shortcut is not None
         self.children = []
         if name is not None:
             self.children = [Node(None, None, shortcut=shortcut_map[uname]) for uname in group_map[name]]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.children)
 
     def __getitem__(self, row):
@@ -234,7 +234,7 @@ class Node:
 
 
 class ConfigModel(SearchQueryParser, QAbstractItemModel):
-    def __init__(self, keyboard, parent=None):
+    def __init__(self, keyboard, parent=None) -> None:
         QAbstractItemModel.__init__(self, parent)
         SearchQueryParser.__init__(self, ['all'])
 
@@ -261,7 +261,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             return len(self.root_nodes)
         return len(ip)
 
-    def columnCount(self, parent=ROOT):
+    def columnCount(self, parent=ROOT) -> int:
         return 1
 
     def index(self, row, column, parent=ROOT):
@@ -297,7 +297,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             ans |= Qt.ItemFlag.ItemIsEditable
         return ans
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         shortcut_map = {}
         for node in self.all_shortcuts:
             sc = node.data
@@ -313,7 +313,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             if num > 0:
                 self.dataChanged.emit(self.index(0, 0, group), self.index(num - 1, 0, group))
 
-    def commit(self):
+    def commit(self) -> None:
         kmap = {}
         # persist flags not in map for back compat
         # not *just* persist flag for forward compat
@@ -433,7 +433,7 @@ class Editor(QFrame):  # {{{
     button1: QPushButton
     button2: QPushButton
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QFrame.__init__(self, parent)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAutoFillBackground(True)
@@ -483,7 +483,7 @@ class Editor(QFrame):  # {{{
 
         self.custom_toggled(False)
 
-    def initialize(self, shortcut, all_shortcuts):
+    def initialize(self, shortcut, all_shortcuts) -> None:
         self.header.setText('<b>{}: {}</b>'.format(_('Customize'), shortcut['name']))
         self.all_shortcuts = all_shortcuts
         self.shortcut = shortcut
@@ -509,19 +509,19 @@ class Editor(QFrame):  # {{{
                 button.setText(ns.replace('&', '&&'))
                 button.setObjectName(ns)
 
-    def custom_toggled(self, checked):
+    def custom_toggled(self, checked) -> None:
         for w in ('1', '2'):
             for o in ('label', 'button', 'clear'):
                 getattr(self, o + w).setEnabled(checked)
 
-    def capture_clicked(self, which=1):
+    def capture_clicked(self, which=1) -> None:
         self.capture = which
         button = getattr(self, f'button{which}')
         button.setText(_('Press a key...'))
         button.setFocus(Qt.FocusReason.OtherFocusReason)
         button.setStyleSheet('QPushButton { font-weight: bold}')
 
-    def clear_clicked(self, which=0):
+    def clear_clicked(self, which=0) -> None:
         button = getattr(self, f'button{which}')
         button.setText(_('None'))
         button.setObjectName(_('None'))
@@ -591,7 +591,7 @@ class Editor(QFrame):  # {{{
 class Delegate(QStyledItemDelegate):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.editing_index = None
         self.closeEditor.connect(self.editing_done)
@@ -622,7 +622,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         ans = self.to_doc(index).size().toSize()
         return ans
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         if hasattr(QStyle, 'CE_ItemViewItem'):
@@ -643,18 +643,18 @@ class Delegate(QStyledItemDelegate):  # {{{
         self.sizeHintChanged.emit(index)
         return w
 
-    def accept_changes(self):
+    def accept_changes(self) -> None:
         self.editor_done(self.current_editor)
 
-    def editor_done(self, editor):
+    def editor_done(self, editor) -> None:
         self.commitData.emit(editor)
 
-    def setEditorData(self, editor, index):
+    def setEditorData(self, editor, index) -> None:
         all_shortcuts = [x.data for x in index.model().all_shortcuts]
         shortcut = index.internalPointer().data
         editor.initialize(shortcut, all_shortcuts)
 
-    def setModelData(self, editor, model, index):
+    def setModelData(self, editor, model, index) -> None:
         self.closeEditor.emit(editor, QAbstractItemDelegate.EndEditHint.NoHint)
         custom_keys = editor.custom_keys
         sc = index.data(Qt.ItemDataRole.UserRole).data
@@ -680,10 +680,10 @@ class Delegate(QStyledItemDelegate):  # {{{
         sc['keys'] = candidates
         self.changed_signal.emit()
 
-    def updateEditorGeometry(self, editor, option, index):
+    def updateEditorGeometry(self, editor, option, index) -> None:
         editor.setGeometry(option.rect)
 
-    def editing_done(self, *args):
+    def editing_done(self, *args) -> None:
         self.current_editor = None
         idx = self.editing_index
         self.editing_index = None
@@ -697,7 +697,7 @@ class Delegate(QStyledItemDelegate):  # {{{
 class ShortcutConfig(QWidget):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self._layout = l = QVBoxLayout(self)
         self.header = QLabel(_('Double click on any entry to change the keyboard shortcuts associated with it'))
@@ -726,33 +726,33 @@ class ShortcutConfig(QWidget):  # {{{
         h.addWidget(self.nb), h.addWidget(self.pb)
         h.setStretch(0, 100)
 
-    def show_context_menu(self, pos):
+    def show_context_menu(self, pos) -> None:
         menu = QMenu(self)
         menu.addAction(QIcon.ic('plus.png'), _('Expand all'), self.view.expandAll)
         menu.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.view.collapseAll)
         menu.exec(self.view.mapToGlobal(pos))
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self._model.restore_defaults()
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self) -> None:
         if self.view.state() == QAbstractItemView.State.EditingState:
             self.delegate.accept_changes()
         self._model.commit()
 
-    def initialize(self, keyboard):
+    def initialize(self, keyboard) -> None:
         self._model = ConfigModel(keyboard, parent=self)
         self.view.setModel(self._model)
 
-    def editor_opened(self, index):
+    def editor_opened(self, index) -> None:
         self.view.scrollTo(index, QAbstractItemView.ScrollHint.EnsureVisible)
 
     @property
     def is_editing(self):
         return self.view.state() == QAbstractItemView.State.EditingState
 
-    def find(self, a0):
+    def find(self, a0) -> None:
         if not a0:
             return
         try:
@@ -772,7 +772,7 @@ class ShortcutConfig(QWidget):  # {{{
             return
         self.highlight_index(idx)
 
-    def highlight_index(self, idx):
+    def highlight_index(self, idx) -> None:
         self.view.scrollTo(idx)
         sel_model = self.view.selectionModel()
         assert sel_model is not None
@@ -780,21 +780,21 @@ class ShortcutConfig(QWidget):  # {{{
         self.view.setCurrentIndex(idx)
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def find_next(self, *args):
+    def find_next(self, *args) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx, str(self.search.currentText()))
         self.highlight_index(idx)
 
-    def find_previous(self, *args):
+    def find_previous(self, *args) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx, str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
-    def highlight_group(self, group_name):
+    def highlight_group(self, group_name) -> None:
         model = self.view.model()
         assert isinstance(model, ConfigModel)
         idx = model.index_for_group(group_name)

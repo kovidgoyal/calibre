@@ -6,7 +6,7 @@ from calibre.gui2.dialogs.conversion_error_ui import Ui_ConversionErrorDialog
 
 
 class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
-    def __init__(self, window, title, html, show=False):
+    def __init__(self, window, title, html, show=False) -> None:
         QDialog.__init__(self, window)
         Ui_ConversionErrorDialog.__init__(self)
         self.setupUi(self)
@@ -15,5 +15,5 @@ class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
         if show:
             self.show()
 
-    def set_message(self, html):
+    def set_message(self, html) -> None:
         self.text.setHtml(f'<html><body>{html}</body></html')

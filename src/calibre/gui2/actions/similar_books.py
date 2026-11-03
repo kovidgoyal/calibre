@@ -17,7 +17,7 @@ class SimilarBooksAction(InterfaceAction):
     action_type = 'current'
     action_add_menu = True
 
-    def genesis(self):
+    def genesis(self) -> None:
         m = self.qaction.menu()
         assert m is not None
         for text, icon, target, shortcut in [
@@ -37,12 +37,12 @@ class SimilarBooksAction(InterfaceAction):
         ac.setVisible(not tweaks['hide_ai_features'])
         self.qaction.setMenu(m)
 
-    def ask_ai(self):
+    def ask_ai(self) -> None:
         from calibre.gui2.dialogs.llm_book import read_next_action
 
         self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action())
 
-    def show_similar_books(self, typ, *args):
+    def show_similar_books(self, typ, *args) -> None:
         idx = self.gui.library_view.currentIndex()
         if not idx.isValid():
             return

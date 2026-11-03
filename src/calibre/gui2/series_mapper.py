@@ -41,10 +41,10 @@ class RuleEdit(RuleEditBase):
     SINGLE_EDIT_FIELD_NAME = 'series'
 
     @property
-    def can_use_tag_editor(self):
+    def can_use_tag_editor(self) -> bool:
         return False
 
-    def update_state(self):
+    def update_state(self) -> None:
         a = self.action.currentData()
         replace = a == 'replace'
         self.la3.setVisible(replace), self.replace.setVisible(replace)
@@ -62,8 +62,8 @@ class RuleEdit(RuleEditBase):
         }
 
     @rule.setter
-    def rule(self, rule):
-        def sc(name):
+    def rule(self, rule) -> None:
+        def sc(name) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -110,7 +110,7 @@ class Tester(TesterBase):
     PLACEHOLDER = _('Enter series and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;</p>'
 
-    def do_test(self):
+    def do_test(self) -> None:
         series = self.value.strip()
         ans = map_tags([series], self.rules, separator='')
         self.result_widget.setText((ans or ('',))[0])

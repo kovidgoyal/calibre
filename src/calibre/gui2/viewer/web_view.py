@@ -66,7 +66,7 @@ _book_parsed_metadata: object = None
 _book_parsed_manifest: object = None
 
 
-def set_book_path(path, pathtoebook):
+def set_book_path(path, pathtoebook) -> None:
     global _book_path, _book_pathtoebook, _book_metadata, _book_manifest
     global _book_manifest_mime, _book_parsed_metadata, _book_parsed_manifest
     _book_pathtoebook = pathtoebook
@@ -133,7 +133,7 @@ def get_mathjax_dir():
     return P('mathjax', allow_user_override=False)
 
 
-def handle_mathjax_request(rq, name):
+def handle_mathjax_request(rq, name) -> None:
     mathjax_dir = get_mathjax_dir()
     mathjax_name = name.partition('/')[2]
     try:
@@ -158,7 +158,7 @@ def handle_mathjax_request(rq, name):
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
@@ -216,7 +216,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         else:
             return self.fail_request(a0)
 
-    def fail_request(self, rq, fail_code=None):
+    def fail_request(self, rq, fail_code=None) -> None:
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
@@ -381,7 +381,7 @@ def apply_font_settings(page_or_view):
 
 
 class WebPage(QWebEnginePage):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         profile = create_profile()
         QWebEnginePage.__init__(self, profile, parent)
         profile.setParent(self)
@@ -390,7 +390,7 @@ class WebPage(QWebEnginePage):
         self.bridge = ViewerBridge(self)
         self.bridge.copy_selection.connect(self.trigger_copy)
 
-    def trigger_copy(self, text, html):
+    def trigger_copy(self, text, html) -> None:
         if text:
             md = QMimeData()
             md.setText(text)
@@ -400,7 +400,7 @@ class WebPage(QWebEnginePage):
             assert cb is not None
             cb.setMimeData(md)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING',
@@ -411,7 +411,7 @@ class WebPage(QWebEnginePage):
         except OSError:
             pass
 
-    def acceptNavigationRequest(self, url, type, isMainFrame):
+    def acceptNavigationRequest(self, url, type, isMainFrame) -> bool:
         if type in (
             QWebEnginePage.NavigationType.NavigationTypeReload,
             QWebEnginePage.NavigationType.NavigationTypeBackForward,
@@ -427,10 +427,10 @@ class WebPage(QWebEnginePage):
             prints('Blocking navigation request to:', url.toString(), file=sys.stderr)
         return False
 
-    def go_to_anchor(self, anchor):
+    def go_to_anchor(self, anchor) -> None:
         self.bridge.go_to_anchor.emit(anchor or '')
 
-    def runjs(self, src, callback=None):
+    def runjs(self, src, callback=None) -> None:
         if callback is None:
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:
@@ -448,7 +448,7 @@ def viewer_html() -> bytes:
 
 
 class Inspector(QWidget):
-    def __init__(self, dock_action, parent=None):
+    def __init__(self, dock_action, parent=None) -> None:
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
@@ -457,13 +457,13 @@ class Inspector(QWidget):
         self.dock_action = dock_action
         QTimer.singleShot(0, self.connect_to_dock)
 
-    def connect_to_dock(self):
+    def connect_to_dock(self) -> None:
         ac = self.dock_action
         ac.toggled.connect(self.visibility_changed)
         if ac.isChecked():
             self.visibility_changed(True)
 
-    def visibility_changed(self, visible):
+    def visibility_changed(self, visible) -> None:
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
             view_page = self.view.page()
@@ -542,7 +542,7 @@ class WebView(QWebEngineView):
     update_last_read_position = pyqtSignal(object, object)
     change_toolbar_actions = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self._host_widget = None
         self.callback_id_counter = count()
         self.callback_map = {}
@@ -645,7 +645,7 @@ class WebView(QWebEngineView):
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
         return super().eventFilter(a0, a1)
 
-    def html_input_focusin(self):
+    def html_input_focusin(self) -> None:
         # Programmatic focus of HTML editors in Qt WebEngine can leave the
         # native input method state stale until the next real mouse action.
         im = QApplication.inputMethod()
@@ -653,7 +653,7 @@ class WebView(QWebEngineView):
             im.reset()
             im.update(Qt.InputMethodQuery.ImQueryAll)
 
-    def profile_op(self, which, profile_name, settings):
+    def profile_op(self, which, profile_name, settings) -> None:
         if which == 'all-profiles':
             vp = load_viewer_profiles('viewer:')
             self.execute_when_ready('profile_response', 'all-profiles', vp)
@@ -670,19 +670,19 @@ class WebView(QWebEngineView):
             toolbar_actions = s.get('toolbar-actions', None)
             self.change_toolbar_actions.emit(toolbar_actions)
 
-    def link_hovered(self, url):
+    def link_hovered(self, url) -> None:
         if url == 'javascript:void(0)':
             url = ''
         self.generic_action('show-status-message', {'text': url})
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.tts.shutdown()
 
-    def set_shortcut_map(self, smap):
+    def set_shortcut_map(self, smap) -> None:
         self.shortcut_map = smap
         self.shortcuts_changed.emit(smap)
 
-    def url_changed(self, url):
+    def url_changed(self, url) -> None:
         if url.hasFragment():
             frag = url.fragment(QUrl.ComponentFormattingOption.FullyDecoded)
             if frag and frag.startswith('bookpos='):
@@ -691,7 +691,7 @@ class WebView(QWebEngineView):
                     self.current_cfi = cfi
                     self.cfi_changed.emit(cfi)
 
-    def render_process_died(self):
+    def render_process_died(self) -> None:
         if self.dead_renderer_error_shown:
             return
         self.dead_renderer_error_shown = True
@@ -705,7 +705,7 @@ class WebView(QWebEngineView):
     def sizeHint(self):
         return self._size_hint
 
-    def refresh(self):
+    def refresh(self) -> None:
         page_action = self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
         assert page_action is not None
         page_action.trigger()
@@ -714,7 +714,7 @@ class WebView(QWebEngineView):
     def bridge(self):
         return self._page.bridge
 
-    def on_bridge_ready(self):
+    def on_bridge_ready(self) -> None:
         f = qapplication_or_fail().font()
         fi = QFontInfo(f)
         family = f.family()
@@ -735,18 +735,18 @@ class WebView(QWebEngineView):
         for func, args in self.pending_bridge_ready_actions.items():
             getattr(self.bridge, func)(*args)
 
-    def on_iframe_ready(self):
+    def on_iframe_ready(self) -> None:
         performance_monitor('iframe ready')
 
-    def on_view_created(self, data):
+    def on_view_created(self, data) -> None:
         self.view_created.emit(data)
         self.view_is_ready = True
 
-    def on_content_file_changed(self, data):
+    def on_content_file_changed(self, data) -> None:
         self.current_content_file = data
         self.content_file_changed.emit(self.current_content_file)
 
-    def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None, book_storage=None):
+    def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None, book_storage=None) -> None:
         key = (_book_path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
         book_in_library_url = url_for_book_in_library()
@@ -762,22 +762,22 @@ class WebView(QWebEngineView):
             book_storage,
         )
 
-    def execute_when_ready(self, action, *args):
+    def execute_when_ready(self, action, *args) -> None:
         if self.bridge.ready:
             getattr(self.bridge, action)(*args)
         else:
             self.pending_bridge_ready_actions[action] = args
 
-    def goto_toc_node(self, node_id):
+    def goto_toc_node(self, node_id) -> None:
         self.execute_when_ready('goto_toc_node', node_id)
 
-    def goto_cfi(self, cfi, add_to_history=False):
+    def goto_cfi(self, cfi, add_to_history=False) -> None:
         self.execute_when_ready('goto_cfi', cfi, bool(add_to_history))
 
-    def notify_full_screen_state_change(self, in_fullscreen_mode):
+    def notify_full_screen_state_change(self, in_fullscreen_mode) -> None:
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
 
-    def adjust_font_size_by_fraction(self, frac):
+    def adjust_font_size_by_fraction(self, frac) -> bool:
         sd = vprefs['session_data']
         fs = sd.get('standalone_font_settings', {})
         if (mfs := fs.get('minimum_font_size')) is None:
@@ -791,11 +791,11 @@ class WebView(QWebEngineView):
             return True
         return False
 
-    def set_session_data(self, key, val):
+    def set_session_data(self, key, val) -> None:
         fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = False
         sd = vprefs['session_data']
 
-        def change(key, val):
+        def change(key, val) -> None:
             nonlocal fonts_changed, paged_mode_changed, standalone_misc_settings_changed, update_vprefs
             changed = sd.get(key) != val
             if changed:
@@ -828,7 +828,7 @@ class WebView(QWebEngineView):
         if standalone_misc_settings_changed:
             self.standalone_misc_settings_changed.emit(val)
 
-    def set_local_storage(self, key, val):
+    def set_local_storage(self, key, val) -> None:
         if key == '*' and val is None:
             vprefs['local_storage'] = {}
         elif key != '*':
@@ -836,26 +836,26 @@ class WebView(QWebEngineView):
             sd[key] = val
             vprefs['local_storage'] = sd
 
-    def do_callback(self, func_name, callback):
+    def do_callback(self, func_name, callback) -> None:
         cid = str(next(self.callback_id_counter))
         self.callback_map[cid] = callback
         self.execute_when_ready('get_current_cfi', cid)
 
-    def call_callback(self, request_id, data):
+    def call_callback(self, request_id, data) -> None:
         callback = self.callback_map.pop(request_id, None)
         if callback is not None:
             callback(data)
 
-    def get_current_cfi(self, callback):
+    def get_current_cfi(self, callback) -> None:
         self.do_callback('get_current_cfi', callback)
 
-    def show_home_page(self):
+    def show_home_page(self) -> None:
         self.execute_when_ready('show_home_page')
 
-    def redraw_tts_bar(self):
+    def redraw_tts_bar(self) -> None:
         self.execute_when_ready('redraw_tts_bar', get_session_pref('tts_bar_position', 'float', None))
 
-    def change_background_image(self, img_id):
+    def change_background_image(self, img_id) -> None:
         files = choose_images(self, 'viewer-background-image', _('Choose background image'), formats=['png', 'gif', 'jpg', 'jpeg', 'webp'])
         if files:
             img = files[0]
@@ -867,57 +867,57 @@ class WebView(QWebEngineView):
             encoded = fname.encode().hex()
             self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
-    def goto_frac(self, frac):
+    def goto_frac(self, frac) -> None:
         self.execute_when_ready('goto_frac', frac)
 
-    def clear_history(self):
+    def clear_history(self) -> None:
         history = self._page.history()
         assert history is not None
         history.clear()
 
-    def clear_caches(self):
+    def clear_caches(self) -> None:
         profile = self._page.profile()
         assert profile is not None
         profile.clearHttpCache()
 
-    def trigger_shortcut(self, which):
+    def trigger_shortcut(self, which) -> None:
         if which:
             self.execute_when_ready('trigger_shortcut', which)
 
-    def show_search_result(self, sr):
+    def show_search_result(self, sr) -> None:
         self.execute_when_ready('show_search_result', sr)
 
-    def palette_changed(self):
+    def palette_changed(self) -> None:
         self.execute_when_ready('set_system_palette', system_colors())
 
-    def prepare_for_close(self):
+    def prepare_for_close(self) -> None:
         self.execute_when_ready('prepare_for_close')
 
-    def highlight_action(self, uuid, which):
+    def highlight_action(self, uuid, which) -> None:
         self.execute_when_ready('highlight_action', uuid, which)
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def generic_action(self, which, data):
+    def generic_action(self, which, data) -> None:
         self.execute_when_ready('generic_action', which, data)
 
-    def tts_event_received(self, which, data):
+    def tts_event_received(self, which, data) -> None:
         self.execute_when_ready('tts_event', which, data)
 
-    def tts_settings_changed(self, ui_settings):
+    def tts_settings_changed(self, ui_settings) -> None:
         self.execute_when_ready('tts_event', 'configured', ui_settings)
 
-    def show_book_folder(self):
+    def show_book_folder(self) -> None:
         if _book_pathtoebook is None:
             return
         path = os.path.dirname(os.path.abspath(_book_pathtoebook))
         safe_open_url(QUrl.fromLocalFile(path))
 
-    def show_help(self, which):
+    def show_help(self, which) -> None:
         if which == 'viewer':
             safe_open_url(localize_user_manual_link('https://manual.calibre-ebook.com/viewer.html'))
 
-    def repair_after_fullscreen_switch(self):
+    def repair_after_fullscreen_switch(self) -> None:
         self.execute_when_ready('repair_after_fullscreen_switch')
 
-    def remove_recently_opened(self, path=''):
+    def remove_recently_opened(self, path='') -> None:
         self.generic_action('remove-recently-opened', {'path': path})

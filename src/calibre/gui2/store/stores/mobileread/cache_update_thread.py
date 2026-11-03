@@ -18,7 +18,7 @@ class CacheUpdateThread(Thread, QObject):
     update_progress = pyqtSignal(int)
     update_details = pyqtSignal(str)
 
-    def __init__(self, config, seralize_books_function, timeout):
+    def __init__(self, config, seralize_books_function, timeout) -> None:
         Thread.__init__(self)
         QObject.__init__(self)
 
@@ -28,10 +28,10 @@ class CacheUpdateThread(Thread, QObject):
         self.timeout = timeout
         self._run = True
 
-    def abort(self):
+    def abort(self) -> None:
         self._run = False
 
-    def run(self):
+    def run(self) -> None:
         url = 'https://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
 
         self.update_details.emit(_('Checking last download date.'))

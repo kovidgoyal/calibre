@@ -20,7 +20,7 @@ from calibre.utils.logging import Log
 
 
 class BulkConfig(Config):
-    def __init__(self, parent, db, preferred_output_format=None, has_saved_settings=True, book_ids=()):
+    def __init__(self, parent, db, preferred_output_format=None, has_saved_settings=True, book_ids=()) -> None:
         QDialog.__init__(self, parent)
         self.widgets = []
         self.setupUi()
@@ -64,7 +64,7 @@ class BulkConfig(Config):
 
         self.restore_geometry(gprefs, 'convert_bulk_dialog_geom')
 
-    def setup_pipeline(self, *args):
+    def setup_pipeline(self, *args) -> None:
         oidx = self.groups.currentIndex().row()
         output_format = self.output_format
 
@@ -111,7 +111,7 @@ class BulkConfig(Config):
         except Exception:
             pass
 
-    def setup_output_formats(self, db, preferred_output_format):
+    def setup_output_formats(self, db, preferred_output_format) -> None:
         if preferred_output_format:
             preferred_output_format = preferred_output_format.upper()
         output_formats = get_output_formats(preferred_output_format)
@@ -123,7 +123,7 @@ class BulkConfig(Config):
         self.output_formats.addItems(str(x.upper()) for x in output_formats)
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
-    def accept(self):
+    def accept(self) -> None:
         recs = GuiRecommendations()
         for w in self._groups_model.widgets:
             if not w.pre_commit_check():

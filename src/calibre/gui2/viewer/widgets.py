@@ -20,7 +20,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             return None, None, None, None, None
         return result.is_hidden, result.before, result.text, result.after, False
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
         result = index.data(Qt.ItemDataRole.UserRole)
         is_hidden, result_before, result_text, result_after, show_leading_dot = self.result_data(result)
@@ -102,7 +102,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
         ellipsis_width,
         emphasis_font,
         normal_font,
-    ):
+    ) -> None:
         extra_width = int(rect.width() - match_width)
         if before_width < after_width:
             left_width = min(extra_width // 2, before_width)
@@ -146,7 +146,7 @@ class SearchBox(HistoryComboBox):  # {{{
     history_cleared = pyqtSignal()
     cleared = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.suppress_history = False
         le = self.lineEdit()
@@ -165,15 +165,15 @@ class SearchBox(HistoryComboBox):  # {{{
         self.history_saved.emit(self.text(), self.history)
         return ret
 
-    def remove_history_item(self, item):
+    def remove_history_item(self, item) -> None:
         super().remove_history_item(item)
         self.history_pruned.emit(self.history)
 
-    def clear_history(self):
+    def clear_history(self) -> None:
         super().clear_history()
         self.history_cleared.emit()
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, e) -> None:
         ctx_le = self.lineEdit()
         assert ctx_le is not None
         menu = ctx_le.createStandardContextMenu()

@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 
 
 class CommentsDialog(QDialog):
-    def __init__(self, parent, text, column_name=None):
+    def __init__(self, parent, text, column_name=None) -> None:
         QDialog.__init__(self, parent)
         self.setObjectName('CommentsDialog')
         self.setWindowTitle(_('Edit comments'))
@@ -39,11 +39,11 @@ class CommentsDialog(QDialog):
     def sizeHint(self):
         return QSize(650, 600)
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.reject(self)
 
@@ -55,10 +55,10 @@ class CommentsDialog(QDialog):
 class PlainTextEdit(BasePlainTextEdit):
     ctrl_enter_pushed = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent, use_smarten_punctuation=True)
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e) -> None:
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier and e.key() == Qt.Key.Key_Return:
             e.accept()
             self.ctrl_enter_pushed.emit()
@@ -67,12 +67,12 @@ class PlainTextEdit(BasePlainTextEdit):
 
 
 class PlainTextDialog(Dialog):
-    def __init__(self, parent, text, column_name=None):
+    def __init__(self, parent, text, column_name=None) -> None:
         title = _('Edit "{0}"').format(column_name) if column_name else _('Edit text')
         Dialog.__init__(self, title, 'edit-plain-text-dialog', parent=parent)
         self.text = text
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self._text = PlainTextEdit(self)
         self._text.ctrl_enter_pushed.connect(self.ctrl_enter_pushed)
@@ -82,7 +82,7 @@ class PlainTextDialog(Dialog):
         hl.addWidget(self.bb)
         l.addLayout(hl)
 
-    def ctrl_enter_pushed(self):
+    def ctrl_enter_pushed(self) -> None:
         self.accept()
 
     @property
@@ -90,7 +90,7 @@ class PlainTextDialog(Dialog):
         return self._text.toPlainText()
 
     @text.setter
-    def text(self, val):
+    def text(self, val) -> None:
         self._text.setPlainText(val or '')
 
     def sizeHint(self):

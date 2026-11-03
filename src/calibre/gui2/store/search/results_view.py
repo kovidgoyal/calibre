@@ -12,7 +12,7 @@ from calibre.utils.localization import _
 
 
 class ImageDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         img = index.data(Qt.ItemDataRole.DecorationRole)
         if img:
@@ -40,7 +40,7 @@ class ResultsView(QTreeView):
     download_requested = pyqtSignal(object)
     open_requested = pyqtSignal(object)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         QTreeView.__init__(self, *args, **kwargs)
 
         self._model = Matches()
@@ -54,7 +54,7 @@ class ResultsView(QTreeView):
         for i in self._model.IMG_COLS:
             self.setItemDelegateForColumn(i, self.img_delegate)
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         index = self.indexAt(a0.pos())
 
         if not index.isValid():

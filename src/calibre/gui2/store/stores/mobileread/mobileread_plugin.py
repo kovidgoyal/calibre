@@ -20,7 +20,7 @@ from calibre.utils.localization import _
 
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         StorePlugin.__init__(self, *args, **kwargs)
         self.lock = Lock()
 
@@ -34,7 +34,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             self._mr_cache.refresh()
         return self._mr_cache
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
@@ -64,7 +64,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             book.drm = SearchResult.DRM_UNLOCKED
             yield book
 
-    def update_cache(self, parent=None, timeout=10, force=False, suppress_progress=False):
+    def update_cache(self, parent=None, timeout=10, force=False, suppress_progress=False) -> bool:
         if self.lock.acquire(False):
             try:
                 update_thread = CacheUpdateThread(self.cache, self.seralize_books, timeout)
@@ -89,6 +89,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                     update_thread.start()
             finally:
                 self.lock.release()
+        return False
 
     def get_book_list(self):
         return self.deseralize_books(self.cache.get('book_list', []))

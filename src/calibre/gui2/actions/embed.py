@@ -18,13 +18,13 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
     action_add_menu = True
     action_menu_clone_qaction = _('Embed metadata into book files')
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
             self.do_embed(book_ids)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.embed)
         self.embed_menu = self.qaction.menu()
         m = partial(self.create_menu_action, self.embed_menu)
@@ -38,14 +38,14 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         self.pd_timer = t = QTimer()
         t.timeout.connect(self.do_one)
 
-    def embed(self):
+    def embed(self) -> None:
         rb = self.gui.iactions['Remove Books']
         ids = rb._get_selected_ids(err_title=_('Cannot embed'))
         if not ids:
             return
         self.do_embed(ids)
 
-    def embed_selected_formats(self):
+    def embed_selected_formats(self) -> None:
         rb = self.gui.iactions['Remove Books']
         ids = rb._get_selected_ids(err_title=_('Cannot embed'))
         if not ids:
@@ -55,7 +55,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
             return
         self.do_embed(ids, fmts)
 
-    def do_embed(self, book_ids, only_fmts=None):
+    def do_embed(self, book_ids, only_fmts=None) -> None:
         pd = QProgressDialog(_('Embedding updated metadata into book files...'), _('&Stop'), 0, len(book_ids), self.gui)
         pd.setWindowTitle(_('Embedding metadata...'))
         pd.setWindowModality(Qt.WindowModality.WindowModal)
@@ -63,7 +63,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         self.job_data = (0, tuple(book_ids), pd, only_fmts, errors)
         self.pd_timer.start()
 
-    def do_one(self):
+    def do_one(self) -> None:
         job_data = self.job_data
         if job_data is None:
             return
@@ -113,7 +113,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         db = self.gui.current_db.new_api
         book_id = book_ids[i]
 
-        def report_error(mi, fmt, tb):
+        def report_error(mi, fmt, tb) -> None:
             mi.book_id = book_id
             errors.append((mi, fmt, tb))
 

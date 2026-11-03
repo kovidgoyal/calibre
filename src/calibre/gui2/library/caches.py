@@ -22,7 +22,7 @@ from calibre_extensions.imageops import load_from_data_without_gil
 
 
 class ThumbnailCache(TC):
-    def __init__(self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0, location=None):
+    def __init__(self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0, location=None) -> None:
         TC.__init__(
             self,
             name=name,
@@ -33,7 +33,7 @@ class ThumbnailCache(TC):
             location=location,
         )
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         TC.set_group_id(self, db.library_id)
 
 
@@ -48,7 +48,7 @@ class RAMCache(MutableMapping[int, T]):
     book is removed either by the GUI or the content server.
     """
 
-    def __init__(self, limit=100):
+    def __init__(self, limit=100) -> None:
         self.cached_items = OrderedDict[int, T]()
         self.lock = RLock()
         self.limit = limit
@@ -107,7 +107,7 @@ class RAMCache(MutableMapping[int, T]):
                 self.pixmap_staging = []
             self.cached_items.clear()
 
-    def set_limit(self, limit):
+    def set_limit(self, limit) -> None:
         with self.lock:
             self.limit = max(0, int(limit))
             needs_staging = current_thread() is not self.gui_thread
@@ -122,7 +122,7 @@ class Thumbnailer:
     pixmap_class: type[QPixmap] = QPixmap
     CACHE_FORMAT = 'PPM'
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.image_format_for_pixmap = self.pixmap_class(1, 1).toImage().format()
 
     def make_thumbnail(self, cover_as_bytes: bytes, width: int, height: int) -> tuple[QImage, bytes]:
@@ -179,7 +179,7 @@ class ThumbnailRenderer(QObject):
     def emit_rendered(self, book_id: int, thumb: QPixmap) -> None:
         self.rendered.emit(book_id, thumb)
 
-    def __init__(self, disk_cache: ThumbnailCache, ram_cache: RAMCache, thumbnailer: Thumbnailer, parent: QObject | None):
+    def __init__(self, disk_cache: ThumbnailCache, ram_cache: RAMCache, thumbnailer: Thumbnailer, parent: QObject | None) -> None:
         super().__init__(parent)
         self.dbref = lambda: None
         self.thumbnailer = thumbnailer
@@ -212,7 +212,7 @@ class ThumbnailRenderer(QObject):
 
     __del__ = shutdown
 
-    def fetch_covers(self):
+    def fetch_covers(self) -> None:
         q = self.render_queue
         ignore_render_requests = self.ignore_render_requests
         while True:
@@ -306,7 +306,7 @@ class ThumbnailRenderer(QObject):
         self.ram_cache.invalidate(book_ids)
         self.disk_cache.invalidate(book_ids)
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.current_library_id = db.new_api.library_id
         self.ignore_render_requests.set()
         try:
@@ -395,7 +395,7 @@ class CoverThumbnailCache(QObject):
         ram_limit=100,
         thumbnailer: Thumbnailer | None = None,
         parent: QObject | None = None,
-    ):
+    ) -> None:
         super().__init__(parent)
         self.renderer = ThumbnailRenderer(
             ThumbnailCache(max_size=max_size, thumbnail_size=thumbnail_size, name=name, version=version),
@@ -405,7 +405,7 @@ class CoverThumbnailCache(QObject):
         )
         self.renderer.rendered.connect(self.rendered)
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.renderer.set_database(db)
 
     def set_thumbnail_size(self, width: int, height: int) -> None:
@@ -438,7 +438,7 @@ class CoverThumbnailCache(QObject):
 class ThumbnailerForTest(Thumbnailer):
     pixmap_class = QImage  # ty: ignore[invalid-assignment] QImage stands in for QPixmap so tests can run without a GUI
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
 
     def as_pixmap(self, img):
@@ -446,7 +446,7 @@ class ThumbnailerForTest(Thumbnailer):
 
 
 class ThumbnailRendererForTest(ThumbnailRenderer):
-    def __init__(self, tdir):
+    def __init__(self, tdir) -> None:
         super().__init__(ThumbnailCache(thumbnail_size=(5, 5), location=tdir), RAMCache(), ThumbnailerForTest(), None)
         self.signal_queue = Queue()
         self.rendered_items = []
@@ -469,7 +469,7 @@ class ThumbnailRendererForTest(ThumbnailRenderer):
         return count
 
 
-def run_test(self, t: ThumbnailRendererForTest):
+def run_test(self, t: ThumbnailRendererForTest) -> None:
     from calibre.db.constants import COVER_FILE_NAME
 
     legacy = self.init_legacy(self.cloned_library)
@@ -485,14 +485,14 @@ def run_test(self, t: ThumbnailRendererForTest):
     self.assertIsNotNone(db.cover_timestamp(3))
     ae = self.assertEqual
 
-    def set_database(legacy):
+    def set_database(legacy) -> None:
         t.pump_signals()
         before = len(t.rendered_items)
         t.set_database(legacy)
         t.pump_signals()
         ae(before, len(t.rendered_items))
 
-    def wait_for_render(timeout=2):
+    def wait_for_render(timeout=2) -> None:
         if not t.rendered_items:
             limit = monotonic() + timeout
             while (now := monotonic()) < limit:
@@ -500,7 +500,7 @@ def run_test(self, t: ThumbnailRendererForTest):
                     return
             raise AssertionError('Timed out waiting for render')
 
-    def ac(book_id, col, n=0):
+    def ac(book_id, col, n=0) -> None:
         wait_for_render()
         q, i = t.rendered_items[n]
         del t.rendered_items[n]
@@ -580,7 +580,7 @@ def run_test(self, t: ThumbnailRendererForTest):
     from calibre.gui2.library.bookshelf_view import ThumbnailerWithDominantColor
 
     class T(ThumbnailerWithDominantColor):
-        def __init__(self):
+        def __init__(self) -> None:
             self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
 
     th = T()
@@ -590,7 +590,7 @@ def run_test(self, t: ThumbnailRendererForTest):
     ae(i.dominant_color.name(), q.dominant_color.name())  # type: ignore
 
 
-def test_cover_cache(self):
+def test_cover_cache(self) -> None:
     with tempfile.TemporaryDirectory() as tdir:
         t = ThumbnailRendererForTest(tdir)
         try:

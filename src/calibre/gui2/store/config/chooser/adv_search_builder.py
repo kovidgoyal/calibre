@@ -15,7 +15,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
     negate: QCheckBox
     field: QComboBox
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -34,7 +34,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(0)
 
-    def tab_changed(self, idx):
+    def tab_changed(self, idx) -> None:
         if idx == 1:
             btn = self.tab_2_button_box.button(QDialogButtonBox.StandardButton.Ok)
             assert btn is not None
@@ -44,11 +44,11 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             assert btn is not None
             btn.setDefault(True)
 
-    def advanced_search_button_pushed(self):
+    def advanced_search_button_pushed(self) -> None:
         self.adv_search_used = True
         self.accept()
 
-    def clear_button_pushed(self):
+    def clear_button_pushed(self) -> None:
         self.name_box.setText('')
         self.description_box.setText('')
         self.headquarters_box.setText('')

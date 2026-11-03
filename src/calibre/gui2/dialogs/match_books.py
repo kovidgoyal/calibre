@@ -17,7 +17,7 @@ class TableItem(QTableWidgetItem):
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     """
 
-    def __init__(self, val, sort, idx=0):
+    def __init__(self, val, sort, idx=0) -> None:
         self.sort = sort
         self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
@@ -43,7 +43,7 @@ class TableItem(QTableWidgetItem):
 
 
 class MatchBooks(QDialog, Ui_MatchBooks):
-    def __init__(self, gui, view, id_, row_index):
+    def __init__(self, gui, view, id_, row_index) -> None:
         QDialog.__init__(self, gui, flags=Qt.WindowType.Window)
         Ui_MatchBooks.__init__(self)
         self.setupUi(self)
@@ -116,11 +116,11 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         if search_text and len(self.library_db.new_api.all_book_ids()) < 8000:
             QTimer.singleShot(0, self.search_button.click)
 
-    def return_pressed(self):
+    def return_pressed(self) -> None:
         self.ignore_next_key = True
         self.do_search()
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0) -> None:
         if self.ignore_next_key:
             self.ignore_next_key = False
         else:
@@ -188,7 +188,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, a0=None):
+    def resizeEvent(self, a0=None) -> None:
         QDialog.resizeEvent(self, a0)
         if self.books_table_column_widths is not None:
             for c, w in enumerate(self.books_table_column_widths):
@@ -205,24 +205,24 @@ class MatchBooks(QDialog, Ui_MatchBooks):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
 
-    def selection_changed(self):
+    def selection_changed(self) -> None:
         x = self.books_table.selectedIndexes()
         if x:
             id_ = x[0].data(Qt.ItemDataRole.UserRole)
             self.current_library_book_id = id_
 
-    def book_clicked(self, row, column):
+    def book_clicked(self, row, column) -> None:
         self.book_selected = True
         item = self.books_table.item(row, 0)
         assert item is not None
         id_ = int(item.data(Qt.ItemDataRole.UserRole))
         self.current_library_book_id = id_
 
-    def book_doubleclicked(self, row, column):
+    def book_doubleclicked(self, row, column) -> None:
         self.book_clicked(row, column)
         self.accept()
 
-    def save_state(self):
+    def save_state(self) -> None:
         self.books_table_column_widths = []
         for c in range(self.books_table.columnCount()):
             self.books_table_column_widths.append(self.books_table.columnWidth(c))
@@ -235,7 +235,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         # clean up to prevent memory leaks
         self.device_db = self.view = self.gui = None
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.current_library_book_id:
             d = error_dialog(self.gui, _('Match books'), _('You must select a matching book'))
             d.exec()
@@ -254,6 +254,6 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.save_state()
         QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.close()
         QDialog.reject(self)

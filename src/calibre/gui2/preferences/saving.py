@@ -10,7 +10,7 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.proxy = ConfigProxy(config())
 
@@ -32,7 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.save_template.changed_signal.connect(self.changed_signal.emit)
 
-    def initialize(self):
+    def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
         self.save_template.blockSignals(True)
         self.save_template.initialize(
@@ -46,7 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         )
         self.save_template.blockSignals(False)
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.save_template.set_value(self.proxy.defaults['template'])
 
@@ -56,7 +56,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.save_template.save_settings(self.proxy, 'template')
         return ConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         gui.iactions['Save To Disk'].reread_prefs()
         # Ensure worker process reads updated settings
         gui.spare_pool().shutdown()

@@ -51,7 +51,7 @@ class Matches(QAbstractItemModel):
     HTML_COLS = (1, 4)
     IMG_COLS = (0, 3, 5, 6)
 
-    def __init__(self, cover_thread_count=2, detail_thread_count=4):
+    def __init__(self, cover_thread_count=2, detail_thread_count=4) -> None:
         QAbstractItemModel.__init__(self)
 
         self.DRM_LOCKED_ICON = QIcon.ic('drm-locked.png')
@@ -78,11 +78,11 @@ class Matches(QAbstractItemModel):
         self.sort_col = 2
         self.sort_order = Qt.SortOrder.AscendingOrder
 
-    def closing(self):
+    def closing(self) -> None:
         self.cover_pool.abort()
         self.details_pool.abort()
 
-    def clear_results(self):
+    def clear_results(self) -> None:
         self.all_matches = []
         self.matches = []
         self.all_matches = []
@@ -94,7 +94,7 @@ class Matches(QAbstractItemModel):
         self.total_changed.emit(self.rowCount())
         self.beginResetModel(), self.endResetModel()
 
-    def add_result(self, result, store_plugin):
+    def add_result(self, result, store_plugin) -> None:
         if result not in self.all_matches:
             self.modelAboutToBeReset.emit()
             self.all_matches.append(result)
@@ -118,7 +118,7 @@ class Matches(QAbstractItemModel):
     def has_results(self):
         return len(self.matches) > 0
 
-    def _filter_results(self):
+    def _filter_results(self) -> None:
         # Only use the search filter's filtered results when there is a query
         # and it is a filterable query. This allows for the stores best guess
         # matches to come though.
@@ -129,12 +129,12 @@ class Matches(QAbstractItemModel):
         self.total_changed.emit(self.rowCount())
         self.sort(self.sort_col, self.sort_order, False)
 
-    def filter_results(self):
+    def filter_results(self) -> None:
         self.modelAboutToBeReset.emit()
         self._filter_results()
         self.modelReset.emit()
 
-    def got_result_details(self, result):
+    def got_result_details(self, result) -> None:
         if not result.cover_queued and result.cover_url:
             result.cover_queued = True
             self.cover_pool.add_task(result, self.filter_results_dispatcher)
@@ -145,7 +145,7 @@ class Matches(QAbstractItemModel):
             result.drm = SearchResult.DRM_UNKNOWN
         self.filter_results()
 
-    def set_query(self, query):
+    def set_query(self, query) -> None:
         self.query = query
         self.filterable_query = self.is_filterable_query(query)
 
@@ -316,7 +316,7 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True) -> None:
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -327,7 +327,7 @@ class Matches(QAbstractItemModel):
         if reset:
             self.beginResetModel(), self.endResetModel()
 
-    def reorder_matches(self):
+    def reorder_matches(self) -> None:
         def keygen(x):
             try:
                 return self.all_matches.index(x)
@@ -361,23 +361,23 @@ class SearchFilter(SearchQueryParser):
         'store',
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set()
         # remove joiner words surrounded by space or at string boundaries
         self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
         self.punctuation_table = {ord(x): ' ' for x in string.punctuation}
 
-    def add_search_result(self, search_result):
+    def add_search_result(self, search_result) -> None:
         self.srs.add(search_result)
 
-    def clear_search_results(self):
+    def clear_search_results(self) -> None:
         self.srs = set()
 
     def universal_set(self):
         return self.srs
 
-    def _match(self, query, value, matchkind):
+    def _match(self, query, value, matchkind) -> bool:
         for t in value:
             try:  # ignore regexp exceptions, required because search-ahead tries before typing is finished
                 t = icu_lower(t)

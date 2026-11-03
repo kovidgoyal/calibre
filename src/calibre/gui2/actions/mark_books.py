@@ -21,7 +21,7 @@ class MyHistoryComboBox(HistoryComboBox):
 
 
 class MarkWithTextDialog(QDialog):
-    def __init__(self, gui):
+    def __init__(self, gui) -> None:
         QDialog.__init__(self, parent=gui)
         self.gui = gui
         self.setWindowTitle(_('Mark books with text label'))
@@ -59,12 +59,12 @@ class MarkWithTextDialog(QDialog):
     def text(self):
         return self.text_box.text().strip()
 
-    def button_pushed(self, checked, text=''):
+    def button_pushed(self, checked, text='') -> None:
         self.text_box.setText(text)
         self.text_box.save_history()
         self.accept()
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.text_box.text().strip():
             d = error_dialog(self.gui, _('Value cannot be empty'), _('You must provide a value'))
             d.exec_()
@@ -83,13 +83,13 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
     dont_add_to = frozenset(['context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
     action_menu_clone_qaction = _('Toggle mark for selected books')
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
             self.toggle_ids(book_ids)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.search_icon = QIcon.ic('search.png')
         self.qaction.triggered.connect(self.toggle_selected)
         self.menu = m = self.qaction.menu()
@@ -122,7 +122,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         self.unmark_series_action = a = ma('unmark-series', _('Clear all books in the selected series'), icon='minus.png')
         connect_lambda(a.triggered, self, lambda self: self.mark_field('series', False))
 
-    def gui_layout_complete(self):
+    def gui_layout_complete(self) -> None:
         for x in self.gui.bars_manager.bars:
             try:
                 w = x.widgetForAction(self.qaction)
@@ -130,7 +130,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             except Exception:
                 continue
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0, a1) -> bool:
         if a1.type() == QEvent.Type.MouseButtonPress and a1.button() == Qt.MouseButton.LeftButton:
             mods = QApplication.keyboardModifiers()
             if mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier:
@@ -138,7 +138,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
                 return True
         return False
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         db = self.gui.current_db
         marked_ids = db.data.marked_ids
         num = len(frozenset(marked_ids).intersection(db.new_api.all_book_ids()))
@@ -161,7 +161,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         else:
             self.show_marked_with_text.setEnabled(False)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -169,7 +169,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         for action in self.menu.actions():
             action.setEnabled(enabled)
 
-    def toggle_selected(self):
+    def toggle_selected(self) -> None:
         book_ids = self._get_selected_ids()
         if book_ids:
             self.toggle_ids(book_ids)
@@ -182,24 +182,24 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             return set()
         return set(map(self.gui.library_view.model().id, rows))
 
-    def toggle_ids(self, book_ids):
+    def toggle_ids(self, book_ids) -> None:
         self.gui.current_db.data.toggle_marked_ids(book_ids)
 
-    def add_ids(self, book_ids):
+    def add_ids(self, book_ids) -> None:
         self.gui.current_db.data.add_marked_ids(book_ids)
 
-    def show_marked(self):
+    def show_marked(self) -> None:
         self.gui.search.set_search_string('marked:true')
 
-    def show_marked_text(self, txt=None):
+    def show_marked_text(self, txt=None) -> None:
         self.gui.search.set_search_string(f'marked:"={txt}"')
 
-    def clear_all_marked(self):
+    def clear_all_marked(self) -> None:
         self.gui.current_db.data.set_marked_ids(())
         if str(self.gui.search.text()).startswith('marked:'):
             self.gui.search.set_search_string('')
 
-    def mark_field(self, field, add):
+    def mark_field(self, field, add) -> None:
         book_ids = self._get_selected_ids()
         if not book_ids:
             return
@@ -218,13 +218,13 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
                 mids.pop(book_id, None)
         db.data.set_marked_ids(mids)
 
-    def mark_all_selected(self):
+    def mark_all_selected(self) -> None:
         book_ids = self._get_selected_ids()
         if not book_ids:
             return
         self.gui.current_db.data.add_marked_ids(book_ids)
 
-    def mark_with_text(self, book_ids=None):
+    def mark_with_text(self, book_ids=None) -> None:
         if book_ids is None:
             book_ids = self._get_selected_ids()
         if not book_ids:
@@ -240,7 +240,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             mids[book_id] = txt
         db.data.set_marked_ids(mids)
 
-    def clear_marks_on_selected_books(self):
+    def clear_marks_on_selected_books(self) -> None:
         book_ids = self._get_selected_ids()
         if not book_ids:
             return

@@ -150,7 +150,7 @@ def get_current_db() -> Cache:
 
 
 class MetadataSettings(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         la = QLabel(_('Select which metadata fields to send to the AI from the selected books. Note that title and authors are always sent.'))
@@ -185,15 +185,15 @@ class MetadataSettings(QWidget):
         lw = self.list_widget
         return (lw.item(r) for r in range(lw.count()))
 
-    def select_all(self):
+    def select_all(self) -> None:
         for item in self:
             item.setCheckState(Qt.CheckState.Checked)
 
-    def select_none(self):
+    def select_none(self) -> None:
         for item in self:
             item.setCheckState(Qt.CheckState.Unchecked)
 
-    def toggle_item(self, item):
+    def toggle_item(self, item) -> None:
         item.setCheckState(Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
 
     def commit(self) -> bool:
@@ -213,7 +213,7 @@ class MetadataSettings(QWidget):
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(title=_('AI Settings'), name='llm-book-settings-dialog', prefs=gprefs, parent=parent)
 
     def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
@@ -224,7 +224,7 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
 class LLMPanel(ConverseWidget):
     NOTE_TITLE = _('AI Assistant Discussion')
 
-    def __init__(self, books: list[Metadata], parent: QWidget | None = None):
+    def __init__(self, books: list[Metadata], parent: QWidget | None = None) -> None:
         self.books = books
         super().__init__(parent, add_close_button=True)
 
@@ -277,7 +277,7 @@ class LLMPanel(ConverseWidget):
 
 
 class LLMBookDialog(Dialog):
-    def __init__(self, books: list[Metadata], parent: QWidget | None = None):
+    def __init__(self, books: list[Metadata], parent: QWidget | None = None) -> None:
         self.books = books
         super().__init__(
             name='llm-book-dialog',
@@ -286,7 +286,7 @@ class LLMBookDialog(Dialog):
             default_buttons=QDialogButtonBox.StandardButton.Close,
         )
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.llm = llm = LLMPanel(self.books, parent=self)
@@ -300,7 +300,7 @@ class LLMBookDialog(Dialog):
         return QSize(600, 750)
 
 
-def develop():
+def develop() -> None:
     from calibre.library import db
 
     setattr(get_current_db, 'ans', db())

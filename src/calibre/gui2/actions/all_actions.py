@@ -26,7 +26,7 @@ class AllGUIActions(InterfaceAction):
     action_add_menu = True
     dont_add_to = frozenset()
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.layout_icon = QIcon.ic('wizard.png')
         self.menu = m = self.qaction.menu()
         assert m is not None
@@ -51,21 +51,21 @@ class AllGUIActions(InterfaceAction):
     # If a shortcut is triggered and there isn't a toolbar button visible then
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
-    def show_menu(self):
+    def show_menu(self) -> None:
         show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
-    def gui_layout_complete(self):
+    def gui_layout_complete(self) -> None:
         m = self.qaction.menu()
         assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.populate_menu()
 
-    def about_to_show_menu(self):
+    def about_to_show_menu(self) -> None:
         self.populate_menu()
 
-    def populate_menu(self):
+    def populate_menu(self) -> None:
         # Need to do this on every invocation because shortcuts can change
         m = self.qaction.menu()
         assert m is not None
@@ -121,7 +121,7 @@ class AllGUIActions(InterfaceAction):
         # either a popup menu or a dialog. It adds the shortcuts to the menu
         # line. Happily, a tab causes the shortcuts to be right-aligned. The tab
         # is added when the shortcut map is built.
-        def add_action(menu, display_name):
+        def add_action(menu, display_name) -> None:
             shortcuts = shortcut_map.get(display_name.lower(), '')
             act = name_data[display_name]['action']
             menu_text = f'{display_name}{shortcuts}'
@@ -142,8 +142,8 @@ class AllGUIActions(InterfaceAction):
 
         # Finally the real work, building the action menu. Partition long lists
         # of actions by first letter ranges into mostly-equal-length sublists.
-        def partition(names):
-            def add_range(start_letter, end_letter, action_names):
+        def partition(names) -> None:
+            def add_range(start_letter, end_letter, action_names) -> None:
                 # Add a N - M range. If N == M then show only N
                 sm = m.addMenu(QIcon.ic('wizard.png'), f'{start_letter}{"" if start_letter == end_letter else " - " + end_letter}')
                 for n in action_names:
@@ -184,16 +184,16 @@ class AllGUIActions(InterfaceAction):
         m.addAction(QIcon.ic('wizard.png'), _('Toolbars'), self._do_pref_toolbar)
         m.addAction(QIcon.ic('keyboard-prefs.png'), _('Keyboard shortcuts'), self._do_pref_shortcuts)
 
-    def _do_pref_toolbar(self):
+    def _do_pref_toolbar(self) -> None:
         self.gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Toolbar'), close_after_initial=True)
 
-    def _do_pref_shortcuts(self):
+    def _do_pref_shortcuts(self) -> None:
         self.gui.iactions['Preferences'].do_config(initial_plugin=('Advanced', 'Keyboard'), close_after_initial=True)
 
-    def _do_action(self, action):
+    def _do_action(self, action) -> None:
         action.qaction.trigger()
 
-    def _do_menu(self, name, action):
+    def _do_menu(self, name, action) -> None:
         # This method clones and shows the action's menu. If the action is in a
         # context menu, the action menu is displayed there without using this
         # method. If not it is displayed underneath a toolbar or menu button. If

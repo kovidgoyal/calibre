@@ -94,11 +94,11 @@ class BasicMetadataWidget(Protocol):
     allow_undo: bool
 
     def initialize(self, db, id_) -> None: ...
-    def commit(self, db, id_) -> bool: ...
+    def commit(self, db, id_) -> bool | None: ...
     @property
     def current_val(self): ...
     @current_val.setter
-    def current_val(self, val): ...
+    def current_val(self, val) -> None: ...
 
 
 class ToMetadataProtocolLineEdit(Protocol):
@@ -112,10 +112,10 @@ class ToMetadataProtocolLineEdit(Protocol):
 class ToMetadataMixinBase:
     allow_undo: bool = False
 
-    def apply_to_metadata(self: BasicMetadataWidget, mi):
+    def apply_to_metadata(self: BasicMetadataWidget, mi) -> None:
         mi.set(self.FIELD_NAME, self.current_val)
 
-    def set_value(self: BasicMetadataWidget, val, allow_undo=True):
+    def set_value(self: BasicMetadataWidget, val, allow_undo=True) -> None:
         self.allow_undo = allow_undo
         try:
             self.current_val = val
@@ -124,7 +124,7 @@ class ToMetadataMixinBase:
 
 
 class ToMetadataMixinLineEdit(ToMetadataMixinBase):
-    def set_text(self: ToMetadataProtocolLineEdit, text):
+    def set_text(self: ToMetadataProtocolLineEdit, text) -> None:
         if self.allow_undo:
             self.selectAll(), self.insert(text)
         else:
@@ -140,7 +140,7 @@ class ToMetadataProtocolComboBox(Protocol):
 
 
 class ToMetadataMixinComboBox(ToMetadataMixinBase):
-    def set_edit_text(self: ToMetadataProtocolComboBox, text):
+    def set_edit_text(self: ToMetadataProtocolComboBox, text) -> None:
         if self.allow_undo:
             orig, self.disable_popup = self.disable_popup, True
             le = self.lineEdit()
@@ -157,7 +157,7 @@ def make_undoable(spinbox):
     "Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox"
 
     class UndoCommand(QUndoCommand):
-        def __init__(self, widget, val):
+        def __init__(self, widget, val) -> None:
             QUndoCommand.__init__(self)
             self.widget = weakref.ref(widget)
             if hasattr(widget, 'dateTime'):
@@ -170,14 +170,14 @@ def make_undoable(spinbox):
                 val = qt_from_dt(val)
             self.redo_val = val
 
-        def undo(self):
+        def undo(self) -> None:
             w = self.widget()
             if hasattr(w, 'setDateTime'):
                 w.setDateTime(self.undo_val)
             elif hasattr(w, 'setValue'):
                 w.setValue(self.undo_val)
 
-        def redo(self):
+        def redo(self) -> None:
             w = self.widget()
             if hasattr(w, 'setDateTime'):
                 w.setDateTime(self.redo_val)
@@ -185,7 +185,7 @@ def make_undoable(spinbox):
                 w.setValue(self.redo_val)
 
     class UndoableSpinbox(spinbox):
-        def __init__(self, parent=None):
+        def __init__(self, parent=None) -> None:
             spinbox.__init__(self, parent)
             self.undo_stack = QUndoStack(self)
             self.undo, self.redo = self.undo_stack.undo, self.undo_stack.redo
@@ -199,7 +199,7 @@ def make_undoable(spinbox):
                 return ev.accept()
             return spinbox.keyPressEvent(self, ev)
 
-        def contextMenuEvent(self, ev):
+        def contextMenuEvent(self, ev) -> None:
             m = QMenu(self)
             if hasattr(self, 'setDateTime'):
                 m.addAction(
@@ -220,7 +220,7 @@ def make_undoable(spinbox):
             populate_standard_spinbox_context_menu(self, m)
             m.popup(ev.globalPos())
 
-        def set_spinbox_value(self, val):
+        def set_spinbox_value(self, val) -> None:
             if self.allow_undo:
                 cmd = UndoCommand(self, val)
                 self.undo_stack.push(cmd)
@@ -247,7 +247,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
     LABEL = _('&Title:')
     data_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         self.dialog = parent
         EnLineEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
@@ -257,7 +257,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
     def get_default(self):
         return _('Unknown')
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         title = getattr(db, self.TITLE_ATTR)(id_, index_is_id=True)
         self.current_val = title
         self.original_val = self.current_val
@@ -266,7 +266,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
     def changed(self):
         return self.original_val != self.current_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         title = self.current_val
         if self.changed:
             # Only try to commit if changed. This allow setting of other fields
@@ -281,7 +281,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
         return title.strip()
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if hasattr(val, 'strip'):
             val = val.strip()
         if not val:
@@ -289,7 +289,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
         self.set_text(val)
         self.setCursorPosition(0)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.dialog = None
 
 
@@ -298,7 +298,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixinLineEdit, LineEditIndicators):
     TOOLTIP = _('Specify how this book should be sorted when by title. For example, The Exorcist might be sorted as Exorcist, The.')
     LABEL = _('Title &sort:')
 
-    def __init__(self, parent, title_edit, autogen_button, languages_edit):
+    def __init__(self, parent, title_edit, autogen_button, languages_edit) -> None:
         TitleEdit.__init__(self, parent)
         self.setup_status_actions()
         self.title_edit = title_edit
@@ -334,14 +334,14 @@ class TitleSortEdit(TitleEdit, ToMetadataMixinLineEdit, LineEditIndicators):
             book_lang = None
         return book_lang
 
-    def update_state_and_val(self):
+    def update_state_and_val(self) -> None:
         # Handle case change if the title's case and nothing else was changed
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         if strcmp(ts, self.current_val) == 0:
             self.current_val = ts
         self.update_state()
 
-    def update_state(self, *args):
+    def update_state(self, *args) -> None:
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
         tt = self.tooltips[0 if normal else 1]
@@ -349,10 +349,10 @@ class TitleSortEdit(TitleEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         self.setToolTip(tt)
         self.setWhatsThis(tt)
 
-    def auto_generate(self, *args):
+    def auto_generate(self, *args) -> None:
         self.set_value(title_sort(self.title_edit.current_val, lang=self.book_lang))
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         try:
             self.title_edit.textChanged.disconnect()
         except Exception:
@@ -378,7 +378,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
     FIELD_NAME = 'authors'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent, manage_authors):
+    def __init__(self, parent, manage_authors) -> None:
         self.dialog = parent
         self.books_to_refresh = set()
         EditWithComplete.__init__(self, parent)
@@ -397,7 +397,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
         menu.addSeparator()
         menu.addAction(_('&Edit authors'), self.edit_authors)
 
-    def edit_authors(self):
+    def edit_authors(self) -> None:
         le = self._line_edit()
         all_authors = le.all_items
         current_authors = self.current_val
@@ -407,7 +407,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.set_value(d.authors)
 
-    def manage_authors(self):
+    def manage_authors(self) -> None:
         db = self.db
         assert db is not None
         if self.original_val != self.current_val:
@@ -448,7 +448,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
     def changed(self):
         return self.original_val != self.current_val
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.books_to_refresh = set()
         self.set_separator('&')
         self.set_space_before_sep(True)
@@ -463,7 +463,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
         self.id_ = id_
         self.db = db
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         authors = self.current_val
         if authors != self.original_val:
             # Only try to commit if changed. This allow setting of other fields
@@ -479,7 +479,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
         return string_to_authors(au)
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = [self.get_default()]
         self.set_edit_text(' & '.join([x.strip() for x in val]))
@@ -487,7 +487,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixinComboBox):
         assert le is not None
         le.setCursorPosition(0)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.db = self.dialog = None
         try:
             self.manage_authors_signal.triggered.disconnect()
@@ -507,7 +507,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
     FIELD_NAME = 'author_sort'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent, authors_edit, autogen_button, db, copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
+    def __init__(self, parent, authors_edit, autogen_button, db, copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a) -> None:
         EnLineEdit.__init__(self, parent)
         self.setup_status_actions()
         self.authors_edit = authors_edit
@@ -545,13 +545,13 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         return clean_text(str(self.text()))
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = ''
         self.set_text(val.strip())
         self.setCursorPosition(0)
 
-    def update_state_and_val(self):
+    def update_state_and_val(self) -> None:
         # Handle case change if the authors box changed
         authors_edit = self.authors_edit
         assert authors_edit is not None
@@ -566,7 +566,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         assert db is not None
         return db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
 
-    def update_state(self, *args):
+    def update_state(self, *args) -> None:
         authors_edit = self.authors_edit
         assert authors_edit is not None
         au = str(authors_edit.text())
@@ -579,7 +579,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         self.setToolTip(tt)
         self.setWhatsThis(tt)
 
-    def copy_to_authors(self):
+    def copy_to_authors(self) -> None:
         aus = self.current_val
         meth = tweaks['author_sort_copy_method']
         if aus:
@@ -596,7 +596,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
             assert authors_edit is not None
             authors_edit.set_value(ans)
 
-    def auto_generate(self, *args):
+    def auto_generate(self, *args) -> None:
         authors_edit = self.authors_edit
         assert authors_edit is not None
         au = str(authors_edit.text())
@@ -604,7 +604,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         authors = string_to_authors(au)
         self.set_value(self.author_sort_from_authors(authors))
 
-    def author_to_sort(self, *args):
+    def author_to_sort(self, *args) -> None:
         authors_edit = self.authors_edit
         assert authors_edit is not None
         au = str(authors_edit.text())
@@ -612,19 +612,19 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         if au:
             self.set_value(au)
 
-    def sort_to_author(self, *args):
+    def sort_to_author(self, *args) -> None:
         aus = self.current_val
         if aus:
             authors_edit = self.authors_edit
             assert authors_edit is not None
             authors_edit.set_value([aus])
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.current_val = db.author_sort(id_, index_is_id=True)
         self.original_val = self.current_val
         self.first_time = True
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> bool:
         aus = self.current_val
         authors_edit = self.authors_edit
         assert authors_edit is not None
@@ -632,7 +632,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
             db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.db = None
         try:
             authors_edit = self.authors_edit
@@ -671,7 +671,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixinComboBox):
     data_changed = pyqtSignal()
     editor_requested = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         EditWithComplete.__init__(self, parent, sort_func=title_sort)
         self.set_clear_button_enabled(False)
         self.set_separator(None)
@@ -691,7 +691,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixinComboBox):
         return clean_text(str(self.currentText()))
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = ''
         self.set_edit_text(val.strip())
@@ -699,7 +699,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixinComboBox):
         assert le is not None
         le.setCursorPosition(0)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.books_to_refresh = set()
         if 'series' in db.new_api.pref('categories_using_hierarchy', default=()):
             self.set_hierarchy_separator('.')
@@ -707,7 +707,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixinComboBox):
         series = db.new_api.field_for('series', id_)
         self.current_val = self.original_val = series or ''
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         series = self.current_val
         if series != self.original_val:
             self.books_to_refresh |= db.set_series(id_, series, notify=False, commit=True, allow_case_change=True)
@@ -716,10 +716,10 @@ class SeriesEdit(EditWithComplete, ToMetadataMixinComboBox):
     def changed(self):
         return self.current_val != self.original_val
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.dialog = None
 
-    def edit(self, db, id_):
+    def edit(self, db, id_) -> None:
         if self.changed:
             d = save_dialog(
                 self,
@@ -755,7 +755,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
     FIELD_NAME = 'series_index'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent, series_edit):
+    def __init__(self, parent, series_edit) -> None:
         super().__init__(parent)
         self.valueChanged.connect(self.data_changed)
         self.dialog = parent
@@ -767,7 +767,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
         series_edit.lineEdit().editingFinished.connect(self.increment)
         self.enable()
 
-    def enable(self, *args):
+    def enable(self, *args) -> None:
         self.setEnabled(bool(self.series_edit.current_val))
 
     @property
@@ -775,13 +775,13 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
         return self.value()
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if val is None:
             val = 1.0
         val = float(val)
         self.set_spinbox_value(val)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.db = db
         if self.series_edit.current_val:
             val = db.series_index(id_, index_is_id=True)
@@ -791,11 +791,11 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
         self.original_val = self.current_val
         self.original_series_name = self.series_edit.original_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         if self.series_edit.original_val != self.series_edit.current_val or self.current_val != self.original_val:
             db.set_series_index(id_, self.current_val, notify=False, commit=False)
 
-    def increment(self):
+    def increment(self) -> None:
         if tweaks['series_index_auto_increment'] != 'no_change' and self.db is not None:
             try:
                 series = self.series_edit.current_val
@@ -810,10 +810,10 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
 
                 traceback.print_exc()
 
-    def reset_original(self):
+    def reset_original(self) -> None:
         self.original_series_name = self.series_edit.current_val
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         try:
             self.series_edit.currentIndexChanged.disconnect()
         except Exception:
@@ -833,7 +833,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixinLineEdit):
 
 
 class BuddyLabel(QLabel):  # {{{
-    def __init__(self, buddy):
+    def __init__(self, buddy) -> None:
         QLabel.__init__(self, buddy.LABEL)
         self.setBuddy(buddy)
         self.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -845,7 +845,7 @@ class BuddyLabel(QLabel):  # {{{
 
 
 class Format(QListWidgetItem):
-    def __init__(self, parent, ext, size, path=None, timestamp=None):
+    def __init__(self, parent, ext, size, path=None, timestamp=None) -> None:
         self.path = path
         self.ext = ext
         self.size = float(size) / (1024 * 1024)
@@ -862,39 +862,39 @@ class Format(QListWidgetItem):
 class OrigAction(QAction):
     restore_fmt = pyqtSignal(object)
 
-    def __init__(self, fmt, parent):
+    def __init__(self, fmt, parent) -> None:
         self.fmt = fmt.replace('ORIGINAL_', '')
         QAction.__init__(self, _('Restore %s from the original') % self.fmt, parent)
         self.setIcon(QIcon.ic('edit-undo.png'))
         self.triggered.connect(self._triggered)
 
-    def _triggered(self):
+    def _triggered(self) -> None:
         self.restore_fmt.emit(self.fmt)
 
 
 class ViewAction(QAction):
     view_fmt = pyqtSignal(object)
 
-    def __init__(self, item, parent):
+    def __init__(self, item, parent) -> None:
         self.item = item
         QAction.__init__(self, _('&View {} format').format(item.ext.upper()), parent)
         self.setIcon(QIcon.ic('view.png'))
         self.triggered.connect(self._triggered)
 
-    def _triggered(self):
+    def _triggered(self) -> None:
         self.view_fmt.emit(self.item)
 
 
 class EditAction(QAction):
     edit_fmt = pyqtSignal(object)
 
-    def __init__(self, item, parent):
+    def __init__(self, item, parent) -> None:
         self.item = item
         QAction.__init__(self, _('&Edit') + ' ' + item.ext.upper(), parent)
         self.setIcon(QIcon.ic('edit_book.png'))
         self.triggered.connect(self._triggered)
 
-    def _triggered(self):
+    def _triggered(self) -> None:
         self.edit_fmt.emit(self.item)
 
 
@@ -904,7 +904,7 @@ class FormatList(_FormatList):
     edit_fmt = pyqtSignal(object)
     open_book_folder = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         _FormatList.__init__(self, parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
 
@@ -912,7 +912,7 @@ class FormatList(_FormatList):
         sz = self.iconSize()
         return QSize(sz.width() * 7, sz.height() * 3)
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
 
         item = self.itemFromIndex(self.currentIndex())
@@ -952,7 +952,7 @@ class FormatList(_FormatList):
         cm.popup(a0.globalPos())
         a0.accept()
 
-    def remove_cm_fmt(self):
+    def remove_cm_fmt(self) -> None:
         sender = self.sender()
         assert sender is not None
         fmt = sender.objectName()
@@ -963,7 +963,7 @@ class FormatList(_FormatList):
                 self.delete_format.emit()
                 break
 
-    def remove_format(self, fmt):
+    def remove_format(self, fmt) -> None:
         for i in range(self.count()):
             f = self.item(i)
             assert isinstance(f, Format)
@@ -981,12 +981,12 @@ class FormatsManager(QWidget):
         return self._changed
 
     @changed.setter
-    def changed(self, val):
+    def changed(self, val) -> None:
         self._changed = val
         if val:
             self.data_changed.emit()
 
-    def __init__(self, parent, copy_fmt):
+    def __init__(self, parent, copy_fmt) -> None:
         QWidget.__init__(self, parent)
         self.dialog = parent
         self.copy_fmt = copy_fmt
@@ -1037,7 +1037,7 @@ class FormatsManager(QWidget):
 
         self.temp_files = []
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.changed = False
         self.formats.clear()
         exts = db.formats(id_, index_is_id=True)
@@ -1054,10 +1054,10 @@ class FormatsManager(QWidget):
                 Format(self.formats, ext, size, timestamp=timestamp)
                 self.original_val.add(ext.lower())
 
-    def apply_to_metadata(self, mi):
+    def apply_to_metadata(self, mi) -> None:
         pass
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         if not self.changed:
             return
         old_extensions, new_extensions, paths = set(), set(), {}
@@ -1087,7 +1087,7 @@ class FormatsManager(QWidget):
 
         self.changed = False
 
-    def add_format(self, *args):
+    def add_format(self, *args) -> None:
         dialog = self.dialog
         assert dialog is not None
         files = choose_files_and_remember_all_files(
@@ -1098,7 +1098,7 @@ class FormatsManager(QWidget):
         )
         self._add_formats(files)
 
-    def restore_fmt(self, fmt):
+    def restore_fmt(self, fmt) -> None:
         pt = PersistentTemporaryFile(suffix='_restore_fmt.' + fmt.lower())
         ofmt = 'ORIGINAL_' + fmt
         with pt:
@@ -1153,11 +1153,11 @@ class FormatsManager(QWidget):
 
         return added
 
-    def formats_dropped(self, event, paths):
+    def formats_dropped(self, event, paths) -> None:
         if self._add_formats(paths):
             event.accept()
 
-    def remove_format(self, *args):
+    def remove_format(self, *args) -> None:
         selection_model = self.formats.selectionModel()
         assert selection_model is not None
         rows = selection_model.selectedRows(0)
@@ -1165,17 +1165,17 @@ class FormatsManager(QWidget):
             self.formats.takeItem(row.row())
             self.changed = True
 
-    def show_format(self, item, *args):
+    def show_format(self, item, *args) -> None:
         dialog = self.dialog
         assert dialog is not None
         dialog.do_view_format(item.path, item.ext)
 
-    def open_book_folder(self, *a):
+    def open_book_folder(self, *a) -> None:
         dialog = self.dialog
         assert dialog is not None
         dialog.do_open_book_folder()
 
-    def edit_format(self, item, *args):
+    def edit_format(self, item, *args) -> None:
         from calibre.gui2.widgets import BusyCursor
 
         dialog = self.dialog
@@ -1243,7 +1243,7 @@ class FormatsManager(QWidget):
             if old != prefs['read_file_metadata']:
                 prefs['read_file_metadata'] = old
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         self.dialog = None
         self.copy_fmt = None
         for name in self.temp_files:
@@ -1261,7 +1261,7 @@ class Cover(ImageView):  # {{{
     download_cover = pyqtSignal()
     data_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         ImageView.__init__(self, parent, show_size_pref_name='edit_metadata_cover_widget', default_show_size=True)
         self.dialog = parent
         self._cdata = None
@@ -1272,7 +1272,7 @@ class Cover(ImageView):  # {{{
         class CB(RightClickButton):
             m: QMenu
 
-            def __init__(self, text, icon=None, action=None):
+            def __init__(self, text, icon=None, action=None) -> None:
                 RightClickButton.__init__(self, parent)
                 self.setText(text)
                 if icon is not None:
@@ -1324,14 +1324,14 @@ class Cover(ImageView):  # {{{
         create_open_cover_with_menu(self, m, _('Edit cover with...'))
         return m
 
-    def mouseDoubleClickEvent(self, a0):
+    def mouseDoubleClickEvent(self, a0) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             a0.accept()
             self.view_image()
         else:
             super().mouseDoubleClickEvent(a0)
 
-    def view_image(self):
+    def view_image(self) -> None:
         from calibre.gui2.image_popup import ImageView
 
         d = ImageView(self, self.pixmap(), 'cover.jpg')
@@ -1341,7 +1341,7 @@ class Cover(ImageView):  # {{{
 
             self.current_val = image_to_data(d.current_img.toImage(), fmt='png')
 
-    def open_with(self, entry):
+    def open_with(self, entry) -> None:
         from calibre.gui2 import info_dialog
         from calibre.gui2.open_with import run_program
         from calibre.utils.img import image_from_data, save_image
@@ -1367,24 +1367,24 @@ class Cover(ImageView):  # {{{
             if ncdata and ncdata != cdata:
                 self.current_val = ncdata
 
-    def choose_open_with(self):
+    def choose_open_with(self) -> None:
         from calibre.gui2.open_with import choose_program
 
         entry = choose_program('cover_image', self)
         if entry is not None:
             self.open_with(entry)
 
-    def undo_trim(self):
+    def undo_trim(self) -> None:
         if self.cdata_before_trim:
             self.current_val = self.cdata_before_trim
             self.cdata_before_trim = None
 
-    def undo_generate(self):
+    def undo_generate(self) -> None:
         if self.cdata_before_generate:
             self.current_val = self.cdata_before_generate
             self.cdata_before_generate = None
 
-    def frame_resized(self, ev):
+    def frame_resized(self, ev) -> None:
         sz = ev.size()
         self.frame_size = (sz.width() // 3, sz.height())
 
@@ -1392,7 +1392,7 @@ class Cover(ImageView):  # {{{
         sz = QSize(self.frame_size[0], self.frame_size[1])
         return sz
 
-    def select_cover(self, *args):
+    def select_cover(self, *args) -> None:
         dialog = self.dialog
         assert dialog is not None
         files = choose_images(self, 'change cover dialog', _('Choose cover for ') + dialog.title.current_val)
@@ -1423,10 +1423,10 @@ class Cover(ImageView):  # {{{
                     self.current_val = orig
                     error_dialog(self, _('Not a valid picture'), _file + _(' is not a valid picture'), show=True)
 
-    def remove_cover(self, *args):
+    def remove_cover(self, *args) -> None:
         self.current_val = None
 
-    def trim_cover(self, *args):
+    def trim_cover(self, *args) -> None:
         cdata = self.current_val
         if not cdata:
             return
@@ -1438,7 +1438,7 @@ class Cover(ImageView):  # {{{
             self.current_val = image_to_data(nimg, fmt='png')
             self.cdata_before_trim = cdata
 
-    def manual_trim_cover(self):
+    def manual_trim_cover(self) -> None:
         cdata = self.current_val
         from calibre.gui2.dialogs.trim_image import TrimImage
 
@@ -1447,7 +1447,7 @@ class Cover(ImageView):  # {{{
             self.current_val = d.image_data
             self.cdata_before_trim = cdata
 
-    def generate_cover(self, *args):
+    def generate_cover(self, *args) -> None:
         from calibre.ebooks.covers import generate_cover
 
         dialog = self.dialog
@@ -1456,7 +1456,7 @@ class Cover(ImageView):  # {{{
         self.cdata_before_generate = self.current_val
         self.current_val = generate_cover(mi)
 
-    def generate_cover_with_ai(self):
+    def generate_cover_with_ai(self) -> None:
         from calibre.gui2.dialogs.llm_cover import CoverCreateDialog
 
         dialog = self.dialog
@@ -1467,7 +1467,7 @@ class Cover(ImageView):  # {{{
             self.cdata_before_generate = self.current_val
             self.current_val = d.cover_data
 
-    def custom_cover(self):
+    def custom_cover(self) -> None:
         from calibre.ebooks.covers import generate_cover
         from calibre.gui2.covers import CoverSettingsDialog
 
@@ -1478,7 +1478,7 @@ class Cover(ImageView):  # {{{
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_val = generate_cover(mi, prefs=d.prefs_for_rendering)
 
-    def set_pixmap_from_data(self, data):
+    def set_pixmap_from_data(self, data) -> None:
         if not data:
             self.current_val = None
             return
@@ -1488,7 +1488,7 @@ class Cover(ImageView):  # {{{
             error_dialog(self, _('Invalid cover'), _('Could not change cover as the image is invalid.'), show=True)
             self.current_val = orig
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self._cdata = None
         self.cdata_before_trim = None
         self.current_val = db.cover(id_, index_is_id=True)
@@ -1503,7 +1503,7 @@ class Cover(ImageView):  # {{{
         return self._cdata
 
     @current_val.setter
-    def current_val(self, cdata):
+    def current_val(self, cdata) -> None:
         self._cdata = None
         self.cdata_before_trim = None
         pm = QPixmap()
@@ -1521,21 +1521,21 @@ class Cover(ImageView):  # {{{
         self.setToolTip(tt)
         self.data_changed.emit()
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         if self.changed:
             if self.current_val:
                 db.set_cover(id_, self.current_val, notify=False, commit=False)
             else:
                 db.remove_cover(id_, notify=False, commit=False)
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         try:
             self.cover_changed.disconnect()
         except Exception:
             pass
         self.dialog = self._cdata = self.current_val = self.original_val = None
 
-    def apply_to_metadata(self, mi):
+    def apply_to_metadata(self, mi) -> None:
         from calibre.utils.imghdr import what
 
         cdata = self.current_val
@@ -1556,7 +1556,7 @@ class CommentsEdit(Editor, ToMetadataMixinLineEdit):  # {{{
         return self.html
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val or not val.strip():
             val = ''
         else:
@@ -1565,14 +1565,14 @@ class CommentsEdit(Editor, ToMetadataMixinLineEdit):  # {{{
         self.wyswyg_dirtied()
         self.data_changed.emit()
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         path = db.abspath(id_, index_is_id=True)
         if path:
             self.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         self.current_val = db.comments(id_, index_is_id=True)
         self.original_val = self.current_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         val = self.current_val
         if val != self.original_val:
             db.set_comment(id_, self.current_val, notify=False, commit=False)
@@ -1587,7 +1587,7 @@ class RatingEdit(RatingEditor, ToMetadataMixinLineEdit):  # {{{
     FIELD_NAME = 'rating'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -1598,20 +1598,20 @@ class RatingEdit(RatingEditor, ToMetadataMixinLineEdit):  # {{{
         return self.rating_value
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         self.rating_value = val
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         val = db.rating(id_, index_is_id=True)
         self.current_val = val
         self.original_val = self.current_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> bool:
         if self.current_val != self.original_val:
             db.set_rating(id_, self.current_val, notify=False, commit=False)
         return True
 
-    def zero(self):
+    def zero(self) -> None:
         self.setCurrentIndex(0)
 
 
@@ -1625,7 +1625,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
     data_changed = pyqtSignal()
     tag_editor_requested = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         EditWithComplete.__init__(self, parent)
         self.set_clear_button_enabled(False)
         self.set_elide_mode(Qt.TextElideMode.ElideMiddle)
@@ -1642,13 +1642,13 @@ class TagsEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
         return [clean_text(x) for x in str(self.text()).split(',')]
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = []
         self.set_edit_text(', '.join([x.strip() for x in val]))
         self.setCursorPosition(0)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.books_to_refresh = set()
         if 'tags' in db.new_api.pref('categories_using_hierarchy', default=()):
             self.set_hierarchy_separator('.')
@@ -1663,7 +1663,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
     def changed(self):
         return self.current_val != self.original_val
 
-    def edit(self, db, id_):
+    def edit(self, db, id_) -> None:
         ctrl_or_shift_pressed = QApplication.keyboardModifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier)
         if self.changed:
             d = save_dialog(
@@ -1691,7 +1691,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
                 self.current_val = d.tags
                 self.update_items_cache(db.new_api.all_field_names('tags'))
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> bool:
         if self.changed:
             self.books_to_refresh |= db.set_tags(id_, self.current_val, notify=False, commit=False, allow_case_change=True)
         return True
@@ -1713,7 +1713,7 @@ class LanguagesEdit(LE, ToMetadataMixinLineEdit):  # {{{
     FIELD_NAME = 'languages'
     data_changed = pyqtSignal()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         LE.__init__(self, *args, **kwargs)
         self.set_clear_button_enabled(False)
         self.textChanged.connect(self.data_changed)
@@ -1724,10 +1724,10 @@ class LanguagesEdit(LE, ToMetadataMixinLineEdit):  # {{{
         return self.lang_codes
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         self.set_lang_codes(val, self.allow_undo)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.init_langs(db)
         lc = []
         langs = db.languages(id_, index_is_id=True)
@@ -1743,7 +1743,7 @@ class LanguagesEdit(LE, ToMetadataMixinLineEdit):  # {{{
             return _('Unknown language'), msg, ''
         return None, None, None
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         cv = self.current_val
         if cv != self.original_val:
             db.set_languages(id_, cv)
@@ -1756,11 +1756,11 @@ class LanguagesEdit(LE, ToMetadataMixinLineEdit):  # {{{
 
 
 class Identifiers(Dialog):
-    def __init__(self, identifiers, parent=None):
+    def __init__(self, identifiers, parent=None) -> None:
         Dialog.__init__(self, _('Edit Identifiers'), 'edit-identifiers-dialog', parent=parent)
         self.text.setPlainText('\n'.join(f'{k}:{identifiers[k]}' for k in sorted(identifiers, key=sort_key)))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
 
         self.la = la = QLabel(_("Edit the book's identifiers. Every identifier must be on a separate line, and have the form type:value"))
@@ -1802,7 +1802,7 @@ class Identifiers(Dialog):
     def sizeHint(self):
         return QSize(500, 400)
 
-    def accept(self):
+    def accept(self) -> None:
         if self.get_identifiers(validate=True) is None:
             return
         Dialog.accept(self)
@@ -1816,14 +1816,14 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
     FIELD_NAME = 'identifiers'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QLineEdit.__init__(self, parent)
         self.setup_status_actions()
         self.pat = re.compile(r'[^0-9a-zA-Z]')
         self.textChanged.connect(self.validate)
         self.textChanged.connect(self.data_changed)
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         m = self.createStandardContextMenu()
         assert m is not None
         first = m.actions()[0]
@@ -1832,7 +1832,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         m.insertSeparator(first)
         m.exec(a0.globalPos())
 
-    def edit_identifiers(self):
+    def edit_identifiers(self) -> None:
         d = Identifiers(self.current_val, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_val = d.get_identifiers()
@@ -1855,7 +1855,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         return ans
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = {}
 
@@ -1878,15 +1878,15 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
             self.setText(txt.strip())
         self.setCursorPosition(0)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.original_val = db.get_identifiers(id_, index_is_id=True)
         self.current_val = self.original_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> None:
         if self.original_val != self.current_val:
             db.set_identifiers(id_, self.current_val, notify=False, commit=False)
 
-    def validate(self, *args):
+    def validate(self, *args) -> None:
         identifiers = self.current_val
         isbn = identifiers.get('isbn', '')
         tt = self.BASE_TT
@@ -1918,7 +1918,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
             prefix = 'isbn'
         self.paste_prefix(prefix)
 
-    def paste_prefix(self, prefix):
+    def paste_prefix(self, prefix) -> None:
         if prefix == 'isbn':
             self.paste_isbn()
         else:
@@ -1930,7 +1930,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
                 vals[prefix] = text
                 self.current_val = vals
 
-    def paste_isbn(self):
+    def paste_isbn(self) -> None:
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         text = str(clipboard.text()).strip()
@@ -1950,7 +1950,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
         if not text:
             return
 
-    def parse_clipboard_for_identifier(self):
+    def parse_clipboard_for_identifier(self) -> bool:
         from calibre.ebooks.metadata.sources.prefs import msprefs
         from calibre.utils.formatter import EvalFormatter
 
@@ -2021,7 +2021,7 @@ class IndicatorLineEdit(QLineEdit, LineEditIndicators):
 
 
 class ISBNDialog(QDialog):  # {{{
-    def __init__(self, parent, txt):
+    def __init__(self, parent, txt) -> None:
         QDialog.__init__(self, parent)
         l = QGridLayout()
         self.setLayout(l)
@@ -2051,7 +2051,7 @@ class ISBNDialog(QDialog):  # {{{
             return error_dialog(self, _('Invalid ISBN'), _('The ISBN you entered is not valid. Try again.'), show=True)
         QDialog.accept(self)
 
-    def checkText(self, txt):
+    def checkText(self, txt) -> None:
         isbn = str(txt)
         ok = None
         if not isbn:
@@ -2078,7 +2078,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
     data_changed = pyqtSignal()
     editor_requested = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         EditWithComplete.__init__(self, parent)
         self.set_clear_button_enabled(False)
         self.currentTextChanged.connect(self.data_changed)
@@ -2095,7 +2095,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
         return clean_text(str(self.currentText()))
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if not val:
             val = ''
         self.set_edit_text(val.strip())
@@ -2103,14 +2103,14 @@ class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
         assert le is not None
         le.setCursorPosition(0)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.books_to_refresh = set()
         self.update_items_cache(db.new_api.all_field_names('publisher'))
         self.current_val = db.new_api.field_for('publisher', id_)
         # having this as a separate assignment ensures that original_val is not None
         self.original_val = self.current_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> bool:
         self.books_to_refresh |= db.set_publisher(id_, self.current_val, notify=False, commit=False, allow_case_change=True)
         return True
 
@@ -2118,7 +2118,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
     def changed(self):
         return self.original_val != self.current_val
 
-    def edit(self, db, id_):
+    def edit(self, db, id_) -> None:
         if self.changed:
             d = save_dialog(
                 self,
@@ -2161,7 +2161,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixinLineEdit):
     TWEAK = 'gui_timestamp_display_format'
     data_changed = pyqtSignal()
 
-    def __init__(self, parent, create_clear_button=True):
+    def __init__(self, parent, create_clear_button=True) -> None:
         super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -2178,7 +2178,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixinLineEdit):
             self.clear_button.setToolTip(_('Clear date'))
             self.clear_button.clicked.connect(self.reset_date)
 
-    def reset_date(self, *args):
+    def reset_date(self, *args) -> None:
         self.current_val = None
 
     @property
@@ -2186,7 +2186,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixinLineEdit):
         return qt_to_dt(self.dateTime(), as_utc=False)
 
     @current_val.setter
-    def current_val(self, val):
+    def current_val(self, val) -> None:
         if val is None or is_date_undefined(val):
             val = UNDEFINED_DATE
             self.setToolTip(self.TOOLTIP)
@@ -2195,11 +2195,11 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixinLineEdit):
             self.setToolTip(self.TOOLTIP + ' ' + _('Exact time: {}').format(val))
         self.set_spinbox_value(val)
 
-    def initialize(self, db, id_):
+    def initialize(self, db, id_) -> None:
         self.current_val = getattr(db, self.ATTR)(id_, index_is_id=True)
         self.original_val = self.current_val
 
-    def commit(self, db, id_):
+    def commit(self, db, id_) -> bool:
         if self.changed:
             getattr(db, 'set_' + self.ATTR)(id_, self.current_val, commit=False, notify=False)
         return True

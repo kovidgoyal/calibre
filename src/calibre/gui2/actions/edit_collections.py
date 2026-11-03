@@ -12,10 +12,10 @@ class EditCollectionsAction(InterfaceAction):
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.edit_collections)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)

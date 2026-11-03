@@ -24,10 +24,10 @@ class GenerateCatalogAction(InterfaceAction):
     )
     dont_add_to = frozenset(('context-menu-device',))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.generate_catalog)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)

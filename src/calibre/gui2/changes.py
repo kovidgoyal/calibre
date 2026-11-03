@@ -4,7 +4,7 @@
 from calibre.srv.changes import BooksAdded, BooksDeleted, FormatsAdded, FormatsRemoved, MetadataChanged, SavedSearchesChanged, VirtualLibrariesChanged
 
 
-def handle_changes(changes, gui=None):
+def handle_changes(changes, gui=None) -> None:
     if not changes:
         return
     if gui is None:

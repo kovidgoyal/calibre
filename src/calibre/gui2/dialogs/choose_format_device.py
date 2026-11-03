@@ -7,7 +7,7 @@ from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDi
 
 
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
-    def __init__(self, window, msg, formats):
+    def __init__(self, window, msg, formats) -> None:
         """
         formats is a list of tuples: [(format, exists, convertible)].
             format: Lower case format identifier. E.G. mobi
@@ -41,7 +41,7 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
         fmt_header.resizeSection(0, fmt_header.sectionSize(0) * 2)
         self._format = None
 
-    def activated_slot(self, *args):
+    def activated_slot(self, *args) -> None:
         self.accept()
 
     def format(self):

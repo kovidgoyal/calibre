@@ -13,7 +13,7 @@ from calibre.utils.localization import _
 from calibre.utils.smtp import config as email_config
 
 
-def local_url_for_content_server():
+def local_url_for_content_server() -> str:
     from calibre.srv.opts import server_config
     from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
 
@@ -26,7 +26,7 @@ def local_url_for_content_server():
     return f'{protocol}://{format_addr_for_url(addr)}:{port}{prefix}'
 
 
-def open_in_browser():
+def open_in_browser() -> None:
     open_url(QUrl(local_url_for_content_server()))
 
 
@@ -42,7 +42,7 @@ class ShareConnMenu(QMenu):  # {{{
 
     DEVICE_MSGS = [_('Start wireless device connection'), _('Stop wireless device connection')]
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QMenu.__init__(self, parent)
         self.ip_text = ''
         mitem = self.addAction(QIcon.ic('devices/folder.png'), _('Connect to folder'))
@@ -89,7 +89,7 @@ class ShareConnMenu(QMenu):  # {{{
                 group=gr,
             )
 
-    def server_state_changed(self, running):
+    def server_state_changed(self, running) -> None:
         from calibre.utils.mdns import get_external_ip, verify_ip_address
 
         text = _('Start Content server')
@@ -115,12 +115,12 @@ class ShareConnMenu(QMenu):  # {{{
         toggle_server_action.setText(text)
         open_server_in_browser_action.setVisible(running)
 
-    def hide_smartdevice_menus(self):
+    def hide_smartdevice_menus(self) -> None:
         control_smartdevice_action = self.control_smartdevice_action
         assert control_smartdevice_action is not None
         control_smartdevice_action.setVisible(False)
 
-    def build_email_entries(self, sync_menu):
+    def build_email_entries(self, sync_menu) -> None:
         from calibre.gui2.device import DeviceAction
 
         for ac in self.email_actions:
@@ -177,10 +177,10 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_actions.append(ac)
             ac.triggered.connect(self.setup_email)
 
-    def setup_email(self, *args):
+    def setup_email(self, *args) -> None:
         self.config_email.emit()
 
-    def set_state(self, device_connected, device):
+    def set_state(self, device_connected, device) -> None:
         connect_to_folder_action = self.connect_to_folder_action
         assert connect_to_folder_action is not None
         connect_to_folder_action.setEnabled(not device_connected)
@@ -194,16 +194,16 @@ class SendToDeviceAction(InterfaceAction):
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.do_sync)
         self.gui.create_device_menu()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def do_sync(self, *args):
+    def do_sync(self, *args) -> None:
         self.gui._sync_action_triggered()
 
 
@@ -217,7 +217,7 @@ class ConnectShareAction(InterfaceAction):
     )
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.content_server_is_running = False
         self.share_conn_menu = ShareConnMenu(self.gui)
         self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
@@ -232,24 +232,24 @@ class ConnectShareAction(InterfaceAction):
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
         self.share_conn_menu.share_airdrop.connect(self.share_via_airdrop)
 
-    def share_via_airdrop(self):
+    def share_via_airdrop(self) -> None:
         ac = self.gui.iactions.get('AirDrop books')
         if ac is not None:
             ac.airdrop_books()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def set_state(self, device_connected, device):
+    def set_state(self, device_connected, device) -> None:
         self.share_conn_menu.set_state(device_connected, device)
 
-    def build_email_entries(self):
+    def build_email_entries(self) -> None:
         m = self.gui.iactions['Send To Device'].qaction.menu()
         self.share_conn_menu.build_email_entries(m)
 
-    def content_server_state_changed(self, running):
+    def content_server_state_changed(self, running) -> None:
         self.share_conn_menu.server_state_changed(running)
         if running:
             self.content_server_is_running = True
@@ -258,7 +258,7 @@ class ConnectShareAction(InterfaceAction):
             self.content_server_is_running = False
             self.qaction.setIcon(QIcon.ic('connect_share.png'))
 
-    def toggle_content_server(self):
+    def toggle_content_server(self) -> None:
         if self.gui.content_server is None:
             self.gui.start_content_server()
         else:
@@ -272,14 +272,14 @@ class ConnectShareAction(InterfaceAction):
             QTimer.singleShot(1000, self.check_exited)
             self.stopping_msg.exec()
 
-    def check_exited(self):
+    def check_exited(self) -> None:
         if getattr(self.gui.content_server, 'is_running', False):
             QTimer.singleShot(50, self.check_exited)
             return
         self.gui.content_server = None
         self.stopping_msg.accept()
 
-    def control_smartdevice(self):
+    def control_smartdevice(self) -> None:
         dm = self.gui.device_manager
         running = dm.is_running('smartdevice')
         if running:
@@ -296,11 +296,11 @@ class ConnectShareAction(InterfaceAction):
             sd_dialog.exec()
         self.set_smartdevice_action_state()
 
-    def check_smartdevice_menus(self):
+    def check_smartdevice_menus(self) -> None:
         if not self.gui.device_manager.is_enabled('smartdevice'):
             self.share_conn_menu.hide_smartdevice_menus()
 
-    def set_smartdevice_action_state(self):
+    def set_smartdevice_action_state(self) -> None:
         from calibre.gui2.dialogs.smartdevice import get_all_ip_addresses
 
         dm = self.gui.device_manager

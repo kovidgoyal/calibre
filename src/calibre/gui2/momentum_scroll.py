@@ -69,7 +69,7 @@ class MomentumScroller:
     - Mouse wheel (all platforms): No phases, we synthesize momentum if enabled in settings
     """
 
-    def __init__(self, scroll_area: QAbstractScrollArea, settings: MomentumSettings = MomentumSettings()):
+    def __init__(self, scroll_area: QAbstractScrollArea, settings: MomentumSettings = MomentumSettings()) -> None:
         self.settings = settings
         self.scroll_area = scroll_area
         self.seen_momentum_event = False
@@ -163,7 +163,7 @@ class MomentumScroller:
 
         return True
 
-    def _start_synthetic_momentum(self):
+    def _start_synthetic_momentum(self) -> None:
         """
         Called after ScrollEnd if no system momentum arrived.
         Start our own momentum animation.
@@ -173,7 +173,7 @@ class MomentumScroller:
             self.start_momentum_timer()
             self._update_momentum()
 
-    def start_momentum_timer(self):
+    def start_momentum_timer(self) -> None:
         self.momentum_timer.start(self.settings.timer_interval_ms)
 
     def _get_delta(self, event: QWheelEvent) -> tuple[float, float]:
@@ -189,7 +189,7 @@ class MomentumScroller:
         v_bar = self.scroll_area.verticalScrollBar()
         return angle_delta.x() / 120.0 * (h_bar.singleStep() if h_bar else 1), angle_delta.y() / 120.0 * (v_bar.singleStep() if v_bar else 1)
 
-    def _trim_old_samples(self, current_time: int, window_ms: int = 150):
+    def _trim_old_samples(self, current_time: int, window_ms: int = 150) -> None:
         """Remove samples older than the window."""
         cutoff = current_time - window_ms
         while self.samples and self.samples[0].timestamp < cutoff:
@@ -258,7 +258,7 @@ class MomentumScroller:
         else:
             self.velocity_y = new_vy
 
-    def _update_momentum(self):
+    def _update_momentum(self) -> None:
         """Called by timer to apply synthetic momentum scrolling."""
         self._accumulate_velocity_from_samples()
 
@@ -275,7 +275,7 @@ class MomentumScroller:
         # Apply the scroll
         self._do_scroll(self.velocity_x, self.velocity_y)
 
-    def _do_scroll(self, dx: float, dy: float):
+    def _do_scroll(self, dx: float, dy: float) -> None:
         """Apply scroll delta to the scroll area."""
         # Accumulate sub-pixel amounts
         self.accumulated_x += dx
@@ -299,7 +299,7 @@ class MomentumScroller:
         if scroll_y != 0 and v_bar:
             v_bar.setValue(v_bar.value() - int(scroll_y * self.settings.y_multiplier))
 
-    def _stop_momentum(self):
+    def _stop_momentum(self) -> None:
         """Stop momentum and reset state."""
         self.velocity_x = 0
         self.velocity_y = 0
@@ -308,7 +308,7 @@ class MomentumScroller:
         self.samples.clear()
         self.momentum_timer.stop()
 
-    def stop(self):
+    def stop(self) -> None:
         """Public method to stop any ongoing momentum scrolling."""
         self.momentum_detection_timer.stop()
         self._stop_momentum()
@@ -329,11 +329,11 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
     _momentum_scroller: MomentumScroller | None = None
     _momentum_settings: MomentumSettings | None = None
 
-    def _ensure_momentum_scroller(self):
+    def _ensure_momentum_scroller(self) -> None:
         if self._momentum_scroller is None:
             self._momentum_scroller = MomentumScroller(self, self._momentum_settings or MomentumSettings())
 
-    def default_wheel_event_handler(self, event: QWheelEvent):
+    def default_wheel_event_handler(self, event: QWheelEvent) -> None:
         super().wheelEvent(event)
 
     def wheelEvent(self, a0: QWheelEvent | None):
@@ -348,7 +348,7 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
             return self.default_wheel_event_handler(event)
         event.accept()
 
-    def stopMomentumScroll(self):
+    def stopMomentumScroll(self) -> None:
         """Stop any ongoing momentum scrolling."""
         if self._momentum_scroller:
             self._momentum_scroller.stop()
@@ -367,11 +367,11 @@ if __name__ == '__main__':
     class MomentumListView(QListView, MomentumScrollMixin):
         """QListView with momentum scrolling enabled."""
 
-        def wheelEvent(self, e):  # ty: ignore[invalid-method-override]
+        def wheelEvent(self, e) -> None:  # ty: ignore[invalid-method-override]
             MomentumScrollMixin.wheelEvent(self, e)
 
     class DemoWindow(QMainWindow):
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
             self.setWindowTitle('Momentum Scrolling Demo')
             self.setMinimumSize(400, 600)
@@ -431,13 +431,13 @@ if __name__ == '__main__':
 
             layout.addWidget(tuning_box)
 
-        def _update_friction(self, value):
+        def _update_friction(self, value) -> None:
             friction = value / 100
             self.friction_label.setText(f'{friction:value}%')
             if self.list_view._momentum_scroller:
                 self.list_view._momentum_scroller.settings = self.list_view._momentum_scroller.settings._replace(friction=friction)
 
-        def _update_velocity(self, value):
+        def _update_velocity(self, value) -> None:
             velocity = value / 100.0
             self.velocity_label.setText(f'{velocity:.2f}')
             if self.list_view._momentum_scroller:

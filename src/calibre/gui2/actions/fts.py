@@ -16,7 +16,7 @@ class FullTextSearchAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_fts)
         self._dialog = None
 
@@ -28,17 +28,17 @@ class FullTextSearchAction(InterfaceAction):
             self._dialog = FTSDialog(self.gui)
         return self._dialog
 
-    def show_fts(self):
+    def show_fts(self) -> None:
         text = self.gui.search.text()
         if text and ':' not in text:
             self.dialog.set_search_text(text)
         self.dialog.show()
         self.dialog.raise_and_focus()
 
-    def library_changed(self, db):
+    def library_changed(self, db) -> None:
         if self._dialog is not None:
             self._dialog.library_changed()
 
-    def clear_search_history(self):
+    def clear_search_history(self) -> None:
         if self._dialog is not None:
             self._dialog.clear_search_history()

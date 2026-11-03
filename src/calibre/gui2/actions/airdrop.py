@@ -19,16 +19,16 @@ class AirdropAction(InterfaceActionWithLibraryDrop):
     action_type = 'current'
     dont_add_to = frozenset(('context-menu-device',))
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.airdrop_books)
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
             self.airdrop_book_ids(book_ids)
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         self.qaction.setEnabled(loc == 'library')
 
     def airdrop_books(self):

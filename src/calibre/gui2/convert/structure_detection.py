@@ -14,7 +14,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
     HELP = _('Fine tune the detection of chapter headings and other document structure.')
     COMMIT_NAME = 'structure_detection'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['structure_detection'])
         self.db, self.book_id = db, book_id
         for x in ('pagebreak', 'rule', 'both', 'none'):
@@ -24,10 +24,10 @@ class StructureDetectionWidget(Widget, Ui_Form):
         self.opt_page_breaks_before.set_msg(_('Insert &page breaks before (XPath expression):'))
         self.opt_start_reading_at.set_msg(_('Start &reading at (XPath expression):'))
 
-    def break_cycles(self):
+    def break_cycles(self) -> None:
         Widget.break_cycles(self)
 
-    def pre_commit_check(self):
+    def pre_commit_check(self) -> bool:
         for x in ('chapter', 'page_breaks_before', 'start_reading_at'):
             x = getattr(self, 'opt_' + x)
             if not x.check():

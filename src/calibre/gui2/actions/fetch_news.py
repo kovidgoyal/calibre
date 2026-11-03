@@ -21,15 +21,15 @@ class FetchNewsAction(InterfaceAction):
         _('F'),
     )
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.conversion_jobs = {}
 
-    def init_scheduler(self):
+    def init_scheduler(self) -> None:
         from calibre.gui2.dialogs.scheduler import Scheduler
 
         self.scheduler = Scheduler(self.gui)
@@ -37,13 +37,13 @@ class FetchNewsAction(InterfaceAction):
         self.qaction.setMenu(self.scheduler.news_menu)
         self.qaction.triggered.connect(self.scheduler.show_dialog)
 
-    def initialization_complete(self):
+    def initialization_complete(self) -> None:
         self.connect_scheduler()
 
-    def connect_scheduler(self):
+    def connect_scheduler(self) -> None:
         self.scheduler.delete_old_news.connect(self.gui.library_view.model().delete_books_by_id, type=Qt.ConnectionType.QueuedConnection)
 
-    def download_custom_recipe(self, title, urn):
+    def download_custom_recipe(self, title, urn) -> None:
         arg = {'title': title, 'urn': urn, 'username': None, 'password': None}
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(Dispatcher(self.custom_recipe_fetched), func, args=args, description=desc)
@@ -57,7 +57,7 @@ class FetchNewsAction(InterfaceAction):
             return self.gui.job_exception(job)
         self.gui.library_view.model().add_news(fname, arg)
 
-    def download_scheduled_recipe(self, arg):
+    def download_scheduled_recipe(self, arg) -> None:
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(Dispatcher(self.scheduled_recipe_fetched), func, args=args, description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)

@@ -11,7 +11,7 @@ from calibre.utils.localization import _
 
 
 class ProfileModel(QAbstractListModel):
-    def __init__(self, profiles):
+    def __init__(self, profiles) -> None:
         QAbstractListModel.__init__(self)
         self.profiles = list(profiles)
 
@@ -39,7 +39,7 @@ class PageSetupWidget(Widget, Ui_Form):
     TITLE = _('Page setup')
     COMMIT_NAME = 'page_setup'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         self.__connections = []
         Widget.__init__(self, parent, OPTIONS['pipe']['page_setup'])
 
@@ -59,16 +59,16 @@ class PageSetupWidget(Widget, Ui_Form):
         self.opt_input_profile.setToolTip('')
         self.opt_output_profile.setToolTip('')
 
-    def show_desc(self, index):
+    def show_desc(self, index) -> None:
         desc = str(index.model().data(index, Qt.ItemDataRole.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
-    def connect_gui_obj_handler(self, gui_obj, slot):
+    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
         if gui_obj not in (self.opt_input_profile, self.opt_output_profile):
             raise NotImplementedError()
         self.__connections.append((gui_obj, slot))
 
-    def set_value_handler(self, g, val):
+    def set_value_handler(self, g, val) -> bool:
         if g in (self.opt_input_profile, self.opt_output_profile):
             g.clearSelection()
             for idx, p in enumerate(g.model().profiles):

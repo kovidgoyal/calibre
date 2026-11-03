@@ -12,22 +12,22 @@ from calibre.gui2.preferences.look_feel_tabs.quickview_ui import Ui_Form
 
 
 class QVDisplayedFields(DisplayedFields):
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None) -> None:
         DisplayedFields.__init__(self, db, parent)
 
-    def initialize(self, use_defaults=False):
+    def initialize(self, use_defaults=False) -> None:
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
         self.endResetModel()
         self.changed = True
 
-    def commit(self):
+    def commit(self) -> None:
         if self.changed:
             self.db.new_api.set_pref('qv_display_fields', self.fields)
 
 
 class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         r = self.register
 
@@ -46,14 +46,14 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
         self.qv_up_button.clicked.connect(partial(mu, use_kbd_modifiers=True))
         self.qv_down_button.clicked.connect(partial(md, use_kbd_modifiers=True))
 
-    def lazy_initialize(self):
+    def lazy_initialize(self) -> None:
         self.qv_display_model.initialize()
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.qv_display_model.restore_defaults()
 
-    def refresh_gui(self, gui):
+    def refresh_gui(self, gui) -> None:
         qv = get_quickview_action_plugin()
         if qv:
             qv.refill_quickview()

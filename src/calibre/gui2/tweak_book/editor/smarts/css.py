@@ -42,13 +42,13 @@ class Smarts(NullSmarts):
     regexps_compiled: bool
     complete_attr_pat: re.Pattern[str]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         if not hasattr(Smarts, 'regexps_compiled'):
             Smarts.regexps_compiled = True
             Smarts.complete_attr_pat = re.compile(r'''url\s*\(\s*['"]{0,1}([^)]*)$''')
         NullSmarts.__init__(self, *args, **kwargs)
 
-    def handle_key_press(self, ev, editor):
+    def handle_key_press(self, ev, editor) -> bool:
         key = ev.key()
 
         if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and no_modifiers(ev, Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.AltModifier):

@@ -43,7 +43,7 @@ class Abort(Exception):
     pass
 
 
-def customize_remove_unused_css(name, parent, ans):
+def customize_remove_unused_css(name, parent, ans) -> None:
     d = QDialog(parent)
     l = QVBoxLayout()
     d.setLayout(l)
@@ -133,7 +133,7 @@ def format_report(title, report):
     return markdown(f'# {force_unicode(title)}\n\n' + '\n\n'.join(report), output_format='html4')
 
 
-def show_report(changed, title, report, parent, show_current_diff):
+def show_report(changed, title, report, parent, show_current_diff) -> None:
     report = format_report(title, report)
     d = QDialog(parent)
     d.setWindowTitle(_('Action report'))
@@ -153,7 +153,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     assert copy_btn is not None
     copy_btn.setIcon(QIcon.ic('edit-copy.png')), copy_btn.setAutoDefault(False)
 
-    def copy_report():
+    def copy_report() -> None:
         text = re.sub(r'</.+?>', '\n', report)
         text = re.sub(r'<.+?>', '', text)
         cp = qapplication_or_fail().clipboard()
@@ -181,7 +181,7 @@ class ImageItemDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         return QSize(300, 100)
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         name = index.data(Qt.ItemDataRole.DisplayRole)
         sz = human_readable(index.data(Qt.ItemDataRole.UserRole))
         pmap = index.data(Qt.ItemDataRole.UserRole + 1)
@@ -207,7 +207,7 @@ class ImageItemDelegate(QStyledItemDelegate):
 
 
 class LossyCompression(QWidget):
-    def __init__(self, image_type, default_compression=80, parent=None):
+    def __init__(self, image_type, default_compression=80, parent=None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         image_type = image_type.upper()
@@ -234,15 +234,15 @@ class LossyCompression(QWidget):
         la.setBuddy(jq)
         h.addWidget(la), h.addWidget(jq)
 
-    def save_compression_quality(self):
+    def save_compression_quality(self) -> None:
         tprefs.set(self.quality_pref_name, self.jq.value())
 
 
 class CompressImages(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         Dialog.__init__(self, _('Compress images'), 'compress-images', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         from calibre.ebooks.oeb.polish.images import get_compressible_images
 
         self.setWindowIcon(QIcon.ic('compress-image.png'))
@@ -336,13 +336,13 @@ class CompressImages(Dialog):
         l.addStretch(10)
         l.addWidget(self.bb)
 
-    def save_disable_png(self):
+    def save_disable_png(self) -> None:
         tprefs.set('compress_images_disable_png', self.disable_png.isChecked())
 
-    def save_png_to_format(self):
+    def save_png_to_format(self) -> None:
         tprefs.set('compress_images_png_to_format', self.png_conv.currentData())
 
-    def save_gif_to_format(self):
+    def save_gif_to_format(self) -> None:
         tprefs.set('compress_images_gif_to_format', self.gif_conv.currentData())
 
     @property
@@ -362,7 +362,7 @@ class CompressImages(Dialog):
         return self.webp.jq.value()
 
     @property
-    def compress_png(self):
+    def compress_png(self) -> bool:
         return not self.disable_png.isChecked()
 
     @property
@@ -378,7 +378,7 @@ class CompressImagesProgress(Dialog):
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None) -> None:
         self.names, self.jpeg_quality = names, jpeg_quality
         self.webp_quality = webp_quality
         self.compress_png = compress_png
@@ -393,7 +393,7 @@ class CompressImagesProgress(Dialog):
         t.daemon = True
         t.start()
 
-    def run_compress(self):
+    def run_compress(self) -> None:
         from calibre.ebooks.oeb.polish.images import compress_images
         from calibre.gui2.tweak_book import current_container
 
@@ -419,7 +419,7 @@ class CompressImagesProgress(Dialog):
             self.compress_result = (None, traceback.format_exc())
         self.cidone.emit()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setWindowIcon(QIcon.ic('compress-image.png'))
         self.setCursor(Qt.CursorShape.BusyCursor)
         self.setMinimumWidth(350)
@@ -441,7 +441,7 @@ class CompressImagesProgress(Dialog):
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(self.bb)
 
-    def reject(self):
+    def reject(self) -> None:
         self.keep_going = False
         cancel_btn = self.bb.button(QDialogButtonBox.StandardButton.Cancel)
         assert cancel_btn is not None
@@ -452,7 +452,7 @@ class CompressImagesProgress(Dialog):
         self.gui_loop.emit(num, total, name)
         return self.keep_going
 
-    def update_progress(self, num, total, name):
+    def update_progress(self, num, total, name) -> None:
         self.progress.setMaximum(total), self.progress.setValue(num)
         self.msg.setText(name)
 

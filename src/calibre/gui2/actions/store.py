@@ -21,7 +21,7 @@ class StoreAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = _('Search for e-books')
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.do_search)
         self.store_menu = self.qaction.menu()
         assert self.store_menu is not None
@@ -36,7 +36,7 @@ class StoreAction(InterfaceAction):
         self.store_menu.addSeparator()
         cm('choose stores', _('Choose stores'), triggered=self.choose)
 
-    def load_menu(self):
+    def load_menu(self) -> None:
         self.store_list_menu.clear()
         icon = QIcon.ic('donate.png')
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
@@ -48,7 +48,7 @@ class StoreAction(InterfaceAction):
     def do_search(self):
         return self.search()
 
-    def search(self, query=''):
+    def search(self, query='') -> None:
         self.gui.istores.check_for_updates()
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
@@ -81,7 +81,7 @@ class StoreAction(InterfaceAction):
 
         return ' & '.join(corrected_authors).strip()
 
-    def search_author(self):
+    def search_author(self) -> None:
         row = self._get_selected_row()
         if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
@@ -98,21 +98,21 @@ class StoreAction(InterfaceAction):
 
         return title.strip()
 
-    def search_title(self):
+    def search_title(self) -> None:
         row = self._get_selected_row()
         if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
         self.search({'title': self._get_title(row)})
 
-    def search_author_title(self):
+    def search_author_title(self) -> None:
         row = self._get_selected_row()
         if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
         self.search({'author': self._get_author(row), 'title': self._get_title(row)})
 
-    def choose(self):
+    def choose(self) -> None:
         from calibre.gui2.store.config.chooser.chooser_dialog import StoreChooserDialog
 
         d = StoreChooserDialog(self.gui)
@@ -120,7 +120,7 @@ class StoreAction(InterfaceAction):
         self.gui.load_store_plugins()
         self.load_menu()
 
-    def open_store(self, store_plugin_name):
+    def open_store(self, store_plugin_name) -> None:
         self.gui.istores.check_for_updates()
         # self.show_disclaimer()
         # It's not too important that the updated plugin have finished loading
@@ -128,7 +128,7 @@ class StoreAction(InterfaceAction):
         self.gui.istores.join(1.0)
         self.gui.istores[store_plugin_name].open(self.gui)
 
-    def show_disclaimer(self):
+    def show_disclaimer(self) -> None:
         confirm(
             (
                 '<p>'

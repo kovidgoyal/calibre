@@ -94,7 +94,7 @@ vprefs.defaults['llm_lookup_tab_index'] = 0
 
 
 class SourceEditor(Dialog):
-    def __init__(self, parent, source_to_edit=None):
+    def __init__(self, parent, source_to_edit=None) -> None:
         self.all_names = {x['name'] for x in parent.all_entries}
         self.initial_name = self.initial_url = None
         self.langs = []
@@ -105,7 +105,7 @@ class SourceEditor(Dialog):
         Dialog.__init__(self, _('Edit lookup source'), 'viewer-edit-lookup-location', parent=parent)
         self.resize(self.sizeHint())
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         self.name_edit = n = QLineEdit(self)
         n.setPlaceholderText(_('The name of the source'))
@@ -160,10 +160,10 @@ class SourceEditor(Dialog):
 
 
 class SourcesEditor(Dialog):
-    def __init__(self, parent, viewer=None):
+    def __init__(self, parent, viewer=None) -> None:
         Dialog.__init__(self, _('Edit lookup sources'), 'viewer-edit-lookup-locations', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Double-click to edit an entry'))
         la.setWordWrap(True)
@@ -193,30 +193,30 @@ class SourcesEditor(Dialog):
         assert b is not None
         b.clicked.connect(self.restore_defaults)
 
-    def add_entry(self, entry, prepend=False):
+    def add_entry(self, entry, prepend=False) -> None:
         i = QListWidgetItem(entry['name'])
         i.setData(Qt.ItemDataRole.UserRole, entry.copy())
         self.entries.insertItem(0, i) if prepend else self.entries.addItem(i)
 
-    def build_entries(self, entries):
+    def build_entries(self, entries) -> None:
         self.entries.clear()
         for entry in entries:
             self.add_entry(entry)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.build_entries(vprefs.defaults['lookup_locations'])
 
-    def add_source(self):
+    def add_source(self) -> None:
         d = SourceEditor(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.add_entry(d.entry, prepend=True)
 
-    def remove_source(self):
+    def remove_source(self) -> None:
         idx = self.entries.currentRow()
         if idx > -1:
             self.entries.takeItem(idx)
 
-    def edit_source(self, source_item):
+    def edit_source(self, source_item) -> None:
         d = SourceEditor(self, source_item.data(Qt.ItemDataRole.UserRole))
         if d.exec() == QDialog.DialogCode.Accepted:
             source_item.setData(Qt.ItemDataRole.UserRole, d.entry)
@@ -270,7 +270,7 @@ def create_profile():
 
 
 class Page(QWebEnginePage):
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING',
@@ -279,21 +279,21 @@ class Page(QWebEnginePage):
             prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
             sys.stderr.flush()
 
-    def zoom_in(self):
+    def zoom_in(self) -> None:
         factor = min(self.zoomFactor() + 0.2, 5)
         vprefs['lookup_zoom_factor'] = factor
         self.setZoomFactor(factor)
 
-    def zoom_out(self):
+    def zoom_out(self) -> None:
         factor = max(0.25, self.zoomFactor() - 0.2)
         vprefs['lookup_zoom_factor'] = factor
         self.setZoomFactor(factor)
 
-    def default_zoom(self):
+    def default_zoom(self) -> None:
         vprefs['lookup_zoom_factor'] = 1
         self.setZoomFactor(1)
 
-    def set_initial_zoom_factor(self):
+    def set_initial_zoom_factor(self) -> None:
         try:
             self.setZoomFactor(float(vprefs.get('lookup_zoom_factor', 1)))
         except Exception:
@@ -303,7 +303,7 @@ class Page(QWebEnginePage):
 class View(QWebEngineView):
     inspect_element = pyqtSignal()
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.addSeparator()
@@ -316,11 +316,11 @@ class View(QWebEngineView):
         menu.addAction(_('Inspect'), self.do_inspect_element)
         menu.exec(a0.globalPos())
 
-    def do_inspect_element(self):
+    def do_inspect_element(self) -> None:
         self.inspect_element.emit()
 
 
-def set_sync_override(allowed):
+def set_sync_override(allowed) -> None:
     li = getattr(set_sync_override, 'instance', None)
     if li is not None:
         li.set_sync_override(allowed)
@@ -341,7 +341,7 @@ def blank_html():
 class Lookup(QTabWidget):
     add_note_requested = pyqtSignal(str, str)
 
-    def __init__(self, parent, viewer=None):
+    def __init__(self, parent, viewer=None) -> None:
         QTabWidget.__init__(self, parent)
         self.viewer_parent = parent
         self.viewer = viewer
@@ -371,7 +371,7 @@ class Lookup(QTabWidget):
         self.currentChanged.connect(self._tab_changed)
         setattr(set_sync_override, 'instance', self)
 
-    def book_loaded(self, book_data):
+    def book_loaded(self, book_data) -> None:
         self.current_book_metadata = book_data.get('metadata', {})
         if self.llm_panel:
             self.llm_panel.update_book_metadata(self.current_book_metadata)
@@ -424,7 +424,7 @@ class Lookup(QTabWidget):
         self.update_refresh_button_status()
         return panel
 
-    def _activate_llm_panel(self):
+    def _activate_llm_panel(self) -> None:
         "Only load LLM code when actually requested by the user"
         if self.llm_panel is not None:
             return
@@ -442,22 +442,22 @@ class Lookup(QTabWidget):
         self.llm_panel.add_note_requested.connect(self.add_note_requested)
         self.llm_panel.update_with_text(self.selected_text)
 
-    def _tab_changed(self, index):
+    def _tab_changed(self, index) -> None:
         vprefs.set('llm_lookup_tab_index', index)
         if index == self.llm_tab_index:
             self._activate_llm_panel()
         self.update_query()
 
-    def set_sync_override(self, allowed):
+    def set_sync_override(self, allowed) -> None:
         self.disallow_auto_update = not allowed
         if self.auto_update_query.isChecked() and allowed:
             self.update_query()
 
-    def auto_update_state_changed(self, state):
+    def auto_update_state_changed(self, state) -> None:
         vprefs['auto_update_lookup'] = self.auto_update_query.isChecked()
         self.update_refresh_button_status()
 
-    def show_devtools(self):
+    def show_devtools(self) -> None:
         if not hasattr(self, '_devtools_page'):
             self._devtools_page = QWebEnginePage()
             self._devtools_view = QWebEngineView(self)
@@ -476,19 +476,19 @@ class Lookup(QTabWidget):
         self._devtools_dialog.show()
         self._page.triggerAction(QWebEnginePage.WebAction.InspectElement)
 
-    def add_sources(self):
+    def add_sources(self) -> None:
         if SourcesEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.populate_sources()
             self.source_box.setCurrentIndex(0)
             self.update_query()
 
-    def source_changed(self):
+    def source_changed(self) -> None:
         s = self.source
         if s is not None:
             vprefs['lookup_location'] = s['name']
             self.update_query()
 
-    def populate_sources(self):
+    def populate_sources(self) -> None:
         sb = self.source_box
         sb.clear()
         sb.blockSignals(True)
@@ -499,7 +499,7 @@ class Lookup(QTabWidget):
             sb.setCurrentIndex(idx)
         sb.blockSignals(False)
 
-    def visibility_changed(self, is_visible):
+    def visibility_changed(self, is_visible) -> None:
         self.is_visible = is_visible
         if is_visible:
             last_idx = vprefs.get('llm_lookup_tab_index', 0)
@@ -534,12 +534,12 @@ class Lookup(QTabWidget):
         query = self.selected_text or self.current_query
         return self.current_query == query and self.current_source == self.url_template
 
-    def update_refresh_button_status(self):
+    def update_refresh_button_status(self) -> None:
         b = self.refresh_button
         b.setVisible(not self.auto_update_query.isChecked())
         b.setEnabled(not self.query_is_up_to_date)
 
-    def update_query(self):
+    def update_query(self) -> None:
         self.debounce_timer.stop()
         if not self.is_visible:
             return
@@ -573,7 +573,7 @@ class Lookup(QTabWidget):
                     return h
         return None
 
-    def selected_text_changed(self, text, annot_data):
+    def selected_text_changed(self, text, annot_data) -> None:
         text = text.replace('\u00ad', '')  # remove soft hyphens
         processed_annot_data = None
         uuid_from_signal = None
@@ -612,5 +612,5 @@ class Lookup(QTabWidget):
         if self.llm_panel:
             self.llm_panel.update_with_text(self.selected_text)
 
-    def on_forced_show(self):
+    def on_forced_show(self) -> None:
         self.update_query()

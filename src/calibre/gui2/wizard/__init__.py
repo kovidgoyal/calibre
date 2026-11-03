@@ -37,7 +37,7 @@ class Device:
     supports_color = False
 
     @classmethod
-    def set_output_profile(cls):
+    def set_output_profile(cls) -> None:
         if cls.output_profile:
             from calibre.ebooks.conversion.config import load_defaults, save_defaults
 
@@ -46,12 +46,12 @@ class Device:
             save_defaults('page_setup', recs)
 
     @classmethod
-    def set_output_format(cls):
+    def set_output_format(cls) -> None:
         if cls.output_format:
             prefs.set('output_format', cls.output_format.lower())
 
     @classmethod
-    def commit(cls):
+    def commit(cls) -> None:
         cls.set_output_profile()
         cls.set_output_format()
         if cls.supports_color:
@@ -331,7 +331,7 @@ class Android(Device):
     supports_color = True
 
     @classmethod
-    def commit(cls):
+    def commit(cls) -> None:
         from calibre.customize.ui import device_plugins
 
         super().commit()
@@ -353,7 +353,7 @@ class AndroidPhoneWithKindle(Android):
     output_profile = 'kindle'
 
     @classmethod
-    def commit(cls):
+    def commit(cls) -> None:
         from calibre.customize.ui import device_plugins
 
         super(Android, cls).commit()
@@ -429,14 +429,14 @@ def get_devices_of(manufacturer):
 
 
 class ManufacturerModel(QAbstractListModel):
-    def __init__(self):
+    def __init__(self) -> None:
         QAbstractListModel.__init__(self)
         self.manufacturers = get_manufacturers()
 
     def rowCount(self, parent=...):
         return len(self.manufacturers)
 
-    def columnCount(self, parent=...):
+    def columnCount(self, parent=...) -> int:
         return 1
 
     def data(self, index, role=...):
@@ -456,14 +456,14 @@ class ManufacturerModel(QAbstractListModel):
 
 
 class DeviceModel(QAbstractListModel):
-    def __init__(self, manufacturer):
+    def __init__(self, manufacturer) -> None:
         QAbstractListModel.__init__(self)
         self.devices = get_devices_of(manufacturer)
 
     def rowCount(self, parent=...):
         return len(self.devices)
 
-    def columnCount(self, parent=...):
+    def columnCount(self, parent=...) -> int:
         return 1
 
     def data(self, index, role=...):
@@ -482,13 +482,13 @@ class DeviceModel(QAbstractListModel):
 class KindlePage(QWizardPage, KindleUI):
     ID = 3
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
         self.setupUi(self)
         with suppress(Exception):
             self.email_title_label.setText(self.email_title_label.text().format('https://gmx.com'))
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
@@ -510,7 +510,7 @@ class KindlePage(QWizardPage, KindleUI):
 
         self.send_email_widget.initialize(x)
 
-    def commit(self):
+    def commit(self) -> None:
         x = str(self.to_address.text()).strip()
         parts = x.split('@')
 
@@ -527,7 +527,7 @@ class KindlePage(QWizardPage, KindleUI):
     def nextId(self):
         return FinishPage.ID
 
-    def retranslateUi(self, WizardPage):
+    def retranslateUi(self, WizardPage) -> None:
         KindleUI.retranslateUi(self, WizardPage)
         if hasattr(self, 'send_email_widget'):
             self.send_email_widget.retranslateUi(self.send_email_widget)
@@ -536,7 +536,7 @@ class KindlePage(QWizardPage, KindleUI):
 class StanzaPage(QWizardPage, StanzaUI):
     ID = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
         self.setupUi(self)
         try:
@@ -549,7 +549,7 @@ class StanzaPage(QWizardPage, StanzaUI):
         self.instructions.setOpenExternalLinks(True)
         self.content_server.stateChanged[(int)].connect(self.set_port)
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         from calibre.gui2 import config
 
         yes = config['autolaunch_server']
@@ -559,7 +559,7 @@ class StanzaPage(QWizardPage, StanzaUI):
     def nextId(self):
         return FinishPage.ID
 
-    def commit(self):
+    def commit(self) -> None:
         p = self.set_port()
         if p is not None:
             from calibre.srv.opts import change_settings
@@ -587,13 +587,13 @@ class StanzaPage(QWizardPage, StanzaUI):
 class DevicePage(QWizardPage, DeviceUI):
     ID = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
         self.setupUi(self)
         self.registerField('manufacturer', self.manufacturer_view)
         self.registerField('device', self.device_view)
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         self.label.setText(_('Choose your e-book device. If your device is not in the list, choose a "Generic" device.'))
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
@@ -620,7 +620,7 @@ class DevicePage(QWizardPage, DeviceUI):
         dev_sel_model.select(idx, QItemSelectionModel.SelectionFlag.Select)
         man_sel_model.selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
-    def manufacturer_changed(self, current, previous):
+    def manufacturer_changed(self, current, previous) -> None:
         new = list(current.indexes())[0]
         man = self.man_model.data(new, Qt.ItemDataRole.UserRole)
         self.dev_model = DeviceModel(man)
@@ -629,7 +629,7 @@ class DevicePage(QWizardPage, DeviceUI):
         assert dev_sel_model is not None
         dev_sel_model.select(self.dev_model.index(0), QItemSelectionModel.SelectionFlag.Select)
 
-    def commit(self):
+    def commit(self) -> None:
         dev_sel_model = self.device_view.selectionModel()
         assert dev_sel_model is not None
         idx = list(dev_sel_model.selectedIndexes())[0]
@@ -653,7 +653,7 @@ class LibraryPage(QWizardPage, LibraryUI):
     ID = 1
     retranslate = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
         self.made_dirs = []
         self.initial_library_location = None
@@ -665,25 +665,25 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.location.textChanged.connect(self.location_text_changed)
         self.set_move_lib_label_text()
 
-    def makedirs(self, x):
+    def makedirs(self, x) -> None:
         self.made_dirs.append(x)
         os.makedirs(x)
 
-    def location_text_changed(self, newtext):
+    def location_text_changed(self, newtext) -> None:
         self.completeChanged.emit()
 
-    def set_move_lib_label_text(self):
+    def set_move_lib_label_text(self) -> None:
         self.move_lib_label.setText(
             _('If you are moving calibre from an old computer to a new one, please read <a href="{0}">the instructions</a>.').format(
                 localize_user_manual_link('https://manual.calibre-ebook.com/faq.html#how-do-i-move-my-calibre-data-from-one-computer-to-another')
             )
         )
 
-    def retranslateUi(self, WizardPage):
+    def retranslateUi(self, WizardPage) -> None:
         LibraryUI.retranslateUi(self, WizardPage)
         self.set_move_lib_label_text()
 
-    def init_languages(self):
+    def init_languages(self) -> None:
         self.language.blockSignals(True)
         self.language.clear()
         from calibre.utils.localization import available_translations, get_lang, get_language, get_lc_messages_path
@@ -708,7 +708,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.blockSignals(False)
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
 
-    def change_language(self, idx):
+    def change_language(self, idx) -> None:
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
         import builtins
 
@@ -750,7 +750,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         except Exception:
             return False
 
-    def validatePage(self):
+    def validatePage(self) -> bool:
         newloc = str(self.location.text())
         if not self.is_library_dir_suitable(newloc):
             self.show_library_dir_error(newloc)
@@ -786,7 +786,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             else:
                 self.show_library_dir_error(x)
 
-    def show_library_dir_error(self, x):
+    def show_library_dir_error(self, x) -> None:
         if not isinstance(x, str):
             try:
                 x = x.decode(filesystem_encoding)
@@ -799,7 +799,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             show=True,
         )
 
-    def set_initial_library_location(self):
+    def set_initial_library_location(self) -> None:
         lp = prefs['library_path']
         self.default_library_name = None
         if not lp:
@@ -823,7 +823,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.location.setText(lp)
         self.initial_library_location = lp
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         self.set_initial_library_location()
         # Hide the library location settings if we are a portable install
         for x in ('location', 'button_change', 'libloc_label1', 'libloc_label2'):
@@ -837,7 +837,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             ans = False
         return ans
 
-    def commit(self):
+    def commit(self) -> None:
         newloc = str(self.location.text())
         try:
             dln = self.default_library_name
@@ -860,17 +860,17 @@ class LibraryPage(QWizardPage, LibraryUI):
 class FinishPage(QWizardPage, FinishUI):
     ID = 4
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
         self.setupUi(self)
         with suppress(Exception):  # link already localized
             self.demo_label.setText(self.demo_label.text().format(localize_website_link('https://calibre-ebook.com/demo')))
             self.um_label.setText(self.um_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com'))
 
-    def nextId(self):
+    def nextId(self) -> int:
         return -1
 
-    def commit(self):
+    def commit(self) -> None:
         pass
 
 
@@ -890,7 +890,7 @@ class Wizard(QWizard):
         _('&Finish')
         _('Commit')
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__ + ' ' + _('Welcome wizard'))
         self.setPixmap(QWizard.WizardPixmap.LogoPixmap, QIcon.ic('library.png').pixmap(48, 48))
@@ -912,11 +912,11 @@ class Wizard(QWizard):
         self.set_button_texts()
         self.resize(600, 520)
 
-    def set_button_texts(self):
+    def set_button_texts(self) -> None:
         for but, text in self.BUTTON_TEXTS.items():
             self.setButtonText(getattr(QWizard.WizardButton, but + 'Button'), _(text))
 
-    def retranslate(self):
+    def retranslate(self) -> None:
         for pid in self.pageIds():
             page = self.page(pid)
             assert page is not None
@@ -925,7 +925,7 @@ class Wizard(QWizard):
         self.set_button_texts()
         self.set_finish_text()
 
-    def accept(self):
+    def accept(self) -> None:
         pages = map(self.page, self.visitedIds())
         for page in pages:
             assert page is not None
@@ -933,7 +933,7 @@ class Wizard(QWizard):
             page.commit()
         QWizard.accept(self)
 
-    def set_finish_text(self, *args):
+    def set_finish_text(self, *args) -> None:
         bt = str('<em>' + self.buttonText(QWizard.WizardButton.FinishButton) + '</em>').replace('&', '')
         t = str(self.finish_page.finish_text.text())
         if '%s' in t:

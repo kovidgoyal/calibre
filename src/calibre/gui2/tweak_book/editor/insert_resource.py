@@ -55,12 +55,12 @@ from calibre_extensions.progress_indicator import set_no_activate_on_click
 class ChooseName(Dialog):  # {{{
     """Chooses the filename for a newly imported file, with error checking"""
 
-    def __init__(self, candidate, parent=None):
+    def __init__(self, candidate, parent=None) -> None:
         self.candidate = candidate
         self.filename = None
         Dialog.__init__(self, _('Choose file name'), 'choose-file-name', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
@@ -75,7 +75,7 @@ class ChooseName(Dialog):  # {{{
         l.addRow(self.err_label)
         l.addRow(self.bb)
 
-    def show_error(self, msg):
+    def show_error(self, msg) -> bool:
         self.err_label.setText('<p style="color:red">' + msg)
         return False
 
@@ -104,12 +104,12 @@ class ChooseName(Dialog):  # {{{
 class ImageDelegate(QStyledItemDelegate):
     MARGIN = 4
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.current_basic_size = tprefs.get('image-thumbnail-preview-size', [120, 160])
         self.set_dimensions()
 
-    def change_size(self, increase=True):
+    def change_size(self, increase=True) -> None:
         percent = 10 if increase else -10
         frac = (100 + percent) / 100.0
         self.current_basic_size[0] = min(1200, max(40, int(frac * self.current_basic_size[0])))
@@ -117,7 +117,7 @@ class ImageDelegate(QStyledItemDelegate):
         tprefs.set('image-thumbnail-preview-size', self.current_basic_size)
         self.set_dimensions()
 
-    def set_dimensions(self):
+    def set_dimensions(self) -> None:
         width, height = self.current_basic_size
         self.cover_size = QSize(width, height)
         p = self.parent()
@@ -131,13 +131,13 @@ class ImageDelegate(QStyledItemDelegate):
         self.calculate_spacing()
         self.cover_cache = {}
 
-    def calculate_spacing(self):
+    def calculate_spacing(self) -> None:
         self.spacing = max(10, min(50, int(0.1 * self.item_size.width())))
 
     def sizeHint(self, option, index):
         return self.item_size
 
-    def paint(self, painter, option, index):
+    def paint(self, painter, option, index) -> None:
         QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         cover = self.cover_cache.get(name, None)
@@ -188,12 +188,12 @@ class ImageDelegate(QStyledItemDelegate):
 
 
 class Images(QAbstractListModel):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QAbstractListModel.__init__(self, parent)
         self.icon_size = parent.iconSize()
         self.build()
 
-    def build(self):
+    def build(self) -> None:
         c = current_container()
         self.image_names = []
         self.image_cache = {}
@@ -202,7 +202,7 @@ class Images(QAbstractListModel):
                 if c.mime_map[name].startswith('image/'):
                     self.image_names.append(name)
 
-    def refresh(self):
+    def refresh(self) -> None:
         from calibre.gui2.tweak_book.boss import get_boss
 
         boss = get_boss()
@@ -227,7 +227,7 @@ class Images(QAbstractListModel):
 class InsertImage(Dialog):
     image_activated = pyqtSignal(object)
 
-    def __init__(self, parent=None, for_browsing=False):
+    def __init__(self, parent=None, for_browsing=False) -> None:
         self.for_browsing = for_browsing
         Dialog.__init__(
             self,
@@ -241,7 +241,7 @@ class InsertImage(Dialog):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
@@ -323,18 +323,18 @@ class InsertImage(Dialog):
         b.setIcon(QIcon.ic('minus.png'))
         l.addWidget(self.bb, 4, 0, 1, 2)
 
-    def full_page_image_toggled(self):
+    def full_page_image_toggled(self) -> None:
         tprefs.set('insert_full_screen_image', self.fullpage.isChecked())
         self.preserve_aspect_ratio.setVisible(self.fullpage.isChecked())
 
-    def par_toggled(self):
+    def par_toggled(self) -> None:
         tprefs.set('preserve_aspect_ratio_when_inserting_image', self.preserve_aspect_ratio.isChecked())
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.d.cover_cache.clear()
         self.model.refresh()
 
-    def import_image(self):
+    def import_image(self) -> None:
         path = choose_files(
             self,
             'tweak-book-choose-image-for-import',
@@ -353,11 +353,11 @@ class InsertImage(Dialog):
                 self.accept()
                 self.chosen_image_is_external = (d.filename, path)
 
-    def zoom_in(self):
+    def zoom_in(self) -> None:
         self.d.change_size(increase=True)
         self.model.beginResetModel(), self.model.endResetModel()
 
-    def zoom_out(self):
+    def zoom_out(self) -> None:
         self.d.change_size(increase=False)
         self.model.beginResetModel(), self.model.endResetModel()
 
@@ -385,7 +385,7 @@ class InsertImage(Dialog):
             self.chosen_image_is_external = (d.filename, t.name)
             self.accept()
 
-    def pressed(self, index):
+    def pressed(self, index) -> None:
         if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             self.activated(index)
 
@@ -395,11 +395,11 @@ class InsertImage(Dialog):
         self.chosen_image_is_external = False
         self.accept()
 
-    def accept(self):
+    def accept(self) -> None:
         self.chosen_image = str(self.view.currentIndex().data() or '')
         super().accept()
 
-    def filter_changed(self, *args):
+    def filter_changed(self, *args) -> None:
         f = str(self.filter.text())
         self.fm.setFilterFixedString(f)
 
@@ -433,11 +433,11 @@ def create_folder_tree(container):
 
 
 class ChooseFolder(Dialog):  # {{{
-    def __init__(self, msg=None, parent=None):
+    def __init__(self, msg=None, parent=None) -> None:
         self.msg = msg
         Dialog.__init__(self, _('Choose folder'), 'choose-folder', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -453,7 +453,7 @@ class ChooseFolder(Dialog):  # {{{
         f.customContextMenuRequested.connect(self.show_context_menu)
         self.root = QTreeWidgetItem(f, ('/',))
 
-        def process(node, parent):
+        def process(node, parent) -> None:
             parent.setIcon(0, QIcon.ic('mimetypes/dir.png'))
             for child in sorted(node, key=numeric_sort_key):
                 c = QTreeWidgetItem(parent, (child,))
@@ -465,7 +465,7 @@ class ChooseFolder(Dialog):  # {{{
 
         l.addWidget(self.bb)
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> None:
         item = self.folders.itemAt(point)
         if item is None:
             return
@@ -473,7 +473,7 @@ class ChooseFolder(Dialog):  # {{{
         m.addAction(QIcon.ic('mimetypes/dir.png'), _('Create new folder'), partial(self.create_folder, item))
         m.popup(self.folders.mapToGlobal(point))
 
-    def create_folder(self, item):
+    def create_folder(self, item) -> None:
         text, ok = QInputDialog.getText(self, _('Folder name'), _('Enter a name for the new folder'))
         if ok and str(text):
             c = QTreeWidgetItem(item, (str(text),))
@@ -502,11 +502,11 @@ class ChooseFolder(Dialog):  # {{{
 
 
 class NewBook(Dialog):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         self.fmt = 'epub'
         Dialog.__init__(self, _('Create new book'), 'create-new-book', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
@@ -533,10 +533,10 @@ class NewBook(Dialog):  # {{{
         assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.set_fmt('azw3'))
 
-    def set_fmt(self, fmt):
+    def set_fmt(self, fmt) -> None:
         self.fmt = fmt
 
-    def accept(self):
+    def accept(self) -> None:
         with tprefs:
             tprefs.set('previous_new_book_authors', str(self.authors.text()))
             tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])

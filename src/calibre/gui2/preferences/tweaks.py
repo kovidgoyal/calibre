@@ -69,12 +69,12 @@ def format_doc(doc):
 
 
 class AdaptSQP(SearchQueryParser):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         pass
 
 
 class Tweak:  # {{{
-    def __init__(self, name, doc, var_names, defaults, custom):
+    def __init__(self, name, doc, var_names, defaults, custom) -> None:
         translate = _
         self.name = translate(name)
         self.doc = doc.strip()
@@ -90,7 +90,7 @@ class Tweak:  # {{{
             if x in custom:
                 self.custom_values[x] = custom[x]
 
-    def __str__(self):
+    def __str__(self) -> str:
         ans = ['#: ' + self.name]
         for line in self.doc.splitlines():
             if line:
@@ -102,11 +102,11 @@ class Tweak:  # {{{
         return ans
 
     @property
-    def sort_key(self):
+    def sort_key(self) -> int:
         return 0 if self.is_customized else 1
 
     @property
-    def is_customized(self):
+    def is_customized(self) -> bool:
         for x, val in self.default_values.items():
             cval = self.custom_values.get(x, val)
             if normalize_tweak(cval) != normalize_tweak(val):
@@ -126,10 +126,10 @@ class Tweak:  # {{{
                 ans.append(f'{x} = {val!r}')
         return '\n\n'.join(ans)
 
-    def restore_to_default(self):
+    def restore_to_default(self) -> None:
         self.custom_values.clear()
 
-    def update(self, varmap):
+    def update(self, varmap) -> None:
         self.custom_values.update(varmap)
 
 
@@ -137,7 +137,7 @@ class Tweak:  # {{{
 
 
 class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QAbstractListModel.__init__(self, parent)
         SearchQueryParser.__init__(self, ['all'])
         self.parse_tweaks()
@@ -172,7 +172,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             return tweak
         return None
 
-    def parse_tweaks(self):
+    def parse_tweaks(self) -> None:
         try:
             custom_tweaks = read_custom_tweaks()
         except Exception:
@@ -239,18 +239,18 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
         return pos
 
-    def restore_to_default(self, idx):
+    def restore_to_default(self, idx) -> None:
         tweak = self.data(idx, Qt.ItemDataRole.UserRole)
         if tweak is not None:
             tweak.restore_to_default()
             self.dataChanged.emit(idx, idx)
 
-    def restore_to_defaults(self):
+    def restore_to_defaults(self) -> None:
         for r in range(self.rowCount()):
             self.restore_to_default(self.index(r))
         self.plugin_tweaks = {}
 
-    def update_tweak(self, idx, varmap):
+    def update_tweak(self, idx, varmap) -> None:
         tweak = self.data(idx, Qt.ItemDataRole.UserRole)
         if tweak is not None:
             tweak.update(varmap)
@@ -283,7 +283,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             ans = ans.decode('utf-8')
         return ans
 
-    def set_plugin_tweaks(self, d):
+    def set_plugin_tweaks(self, d) -> None:
         self.plugin_tweaks = d
 
     def universal_set(self):
@@ -340,7 +340,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
 
 class PluginTweaks(QDialog):  # {{{
-    def __init__(self, raw, parent=None):
+    def __init__(self, raw, parent=None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Plugin tweaks'))
         self.edit = QPlainTextEdit(self)
@@ -371,7 +371,7 @@ class PluginTweaks(QDialog):  # {{{
 class TweaksView(QListView):
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QListView.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setAlternatingRowColors(True)
@@ -380,13 +380,13 @@ class TweaksView(QListView):
         self.setStyleSheet('QListView::item { padding-top: 0.75ex; padding-bottom: 0.75ex; }')
         self.setWordWrap(True)
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current, previous) -> None:
         QListView.currentChanged(self, current, previous)
         self.current_changed.emit(current, previous)
 
 
 class ConfigWidget(ConfigWidgetBase):
-    def setupUi(self, x):
+    def setupUi(self, x) -> None:
         self.l = l = QVBoxLayout(self)
         self.la1 = la = QLabel(
             _(
@@ -449,7 +449,7 @@ class ConfigWidget(ConfigWidgetBase):
         b.setText(_('&Reset this tweak'))
         hl.addWidget(b)
 
-    def genesis(self, gui):
+    def genesis(self, gui) -> None:
         self.gui = gui
         self.tweaks_view.current_changed.connect(self.current_changed)
         self.view = self.tweaks_view
@@ -466,7 +466,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.view.customContextMenuRequested.connect(self.show_context_menu)
         self.copy_icon = QIcon.ic('edit-copy.png')
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> bool:
         idx = self.tweaks_view.currentIndex()
         if not idx.isValid():
             return True
@@ -480,7 +480,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
-    def copy_item_to_clipboard(self, val):
+    def copy_item_to_clipboard(self, val) -> None:
         cb = QApplication.clipboard()
         assert cb is not None
         cb.clear()
@@ -505,13 +505,13 @@ class ConfigWidget(ConfigWidgetBase):
             self.tweaks.set_plugin_tweaks(l)
             self.changed()
 
-    def set_edit_text(self, text, ignore_tweak_changed=True):
+    def set_edit_text(self, text, ignore_tweak_changed=True) -> None:
         orig = self.ignore_tweak_changed
         self.ignore_tweak_changed = ignore_tweak_changed
         self.edit_tweak.setPlainText(text)
         self.ignore_tweak_changed = orig
 
-    def current_changed(self, *a):
+    def current_changed(self, *a) -> None:
         current = self.tweaks_view.currentIndex()
         if current.isValid():
             self.tweaks_view.scrollTo(current)
@@ -519,17 +519,17 @@ class ConfigWidget(ConfigWidgetBase):
             self.help.setPlainText(_('Help for this tweak') + '\n\n' + tweak.doc)
             self.set_edit_text(tweak.edit_text)
 
-    def changed(self, *args):
+    def changed(self, *args) -> None:
         self.changed_signal.emit()
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.tweaks = self._model = Tweaks()
         self.tweaks_view.setModel(self.tweaks)
         tweaks_model = self.tweaks_view.model()
         assert tweaks_model is not None
         self.tweaks_view.setCurrentIndex(tweaks_model.index(0, 0))
 
-    def restore_to_default(self, *args):
+    def restore_to_default(self, *args) -> None:
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
             self.tweaks.restore_to_default(idx)
@@ -537,7 +537,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.set_edit_text(tweak.edit_text)
             self.changed()
 
-    def restore_defaults(self, *args):
+    def restore_defaults(self, *args) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.tweaks.restore_to_defaults()
         idx = self.tweaks_view.currentIndex()
@@ -546,7 +546,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.set_edit_text(tweak.edit_text)
         self.changed()
 
-    def validate_and_apply_current_tweak(self):
+    def validate_and_apply_current_tweak(self) -> None:
         if not (idx := self.tweaks_view.currentIndex()).isValid():
             self.edit_tweak.setStyleSheet('')
             return
@@ -561,7 +561,7 @@ class ConfigWidget(ConfigWidgetBase):
                 self.changed()
         self.edit_tweak.setStyleSheet(stylesheet_for_lineedit(ok, 'QPlainTextEdit'))
 
-    def commit(self, *args):
+    def commit(self, *args) -> bool:
         raw = self.tweaks.to_string()
         try:
             custom_tweaks = parse_python_tweaks(raw)
@@ -580,7 +580,7 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.commit(self)
         return True
 
-    def find(self, a0):
+    def find(self, a0) -> None:
         if not a0:
             return
         try:
@@ -600,7 +600,7 @@ class ConfigWidget(ConfigWidgetBase):
             return
         self.highlight_index(idx)
 
-    def highlight_index(self, idx):
+    def highlight_index(self, idx) -> None:
         if not idx.isValid():
             return
         self.view.scrollTo(idx)
@@ -609,14 +609,14 @@ class ConfigWidget(ConfigWidgetBase):
         sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
 
-    def find_next(self, *args):
+    def find_next(self, *args) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx, str(self.search.currentText()))
         self.highlight_index(idx)
 
-    def find_previous(self, *args):
+    def find_previous(self, *args) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0)

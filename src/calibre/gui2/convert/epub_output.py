@@ -13,7 +13,7 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'epub_output'
     ICON = 'mimetypes/epub.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None):
+    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['epub'])
         for i in range(2):
             self.opt_no_svg_cover.toggle()

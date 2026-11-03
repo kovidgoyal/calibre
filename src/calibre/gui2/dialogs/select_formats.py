@@ -8,7 +8,7 @@ from calibre.utils.localization import _
 
 
 class Formats(QAbstractListModel):
-    def __init__(self, fmt_count):
+    def __init__(self, fmt_count) -> None:
         QAbstractListModel.__init__(self)
         self.fmts = sorted(set(fmt_count))
         self.counts = fmt_count
@@ -54,7 +54,7 @@ class Formats(QAbstractListModel):
 
 
 class SelectFormats(QDialog):
-    def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False):
+    def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False) -> None:
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
         self.single_fmt = single
@@ -81,12 +81,12 @@ class SelectFormats(QDialog):
         self.resize(350, 500)
         self.selected_formats = set()
 
-    def accept(self, *args):
+    def accept(self, *args) -> None:
         for idx in self.fview.selectedIndexes():
             self.selected_formats.add(self.formats.fmt(idx))
         QDialog.accept(self, *args)
 
-    def double_clicked(self, index):
+    def double_clicked(self, index) -> None:
         if self.single_fmt:
             self.accept()
 

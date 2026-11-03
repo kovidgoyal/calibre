@@ -61,7 +61,7 @@ def syntax_text_char_format(*args):
 class StoreLocale:
     __slots__ = ('enabled',)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.enabled = False
 
     def __enter__(self):

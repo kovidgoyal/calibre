@@ -33,7 +33,7 @@ file_cache = {}
 
 
 @control
-def clear_caches(cache_type, data_conn):
+def clear_caches(cache_type, data_conn) -> None:
     global names_cache, file_cache
     if cache_type is None:
         names_cache.clear()
@@ -162,12 +162,12 @@ class HandleDataRequest(QObject):
 
     call = pyqtSignal(object, object)
 
-    def __init__(self):
+    def __init__(self) -> None:
         QObject.__init__(self)
         self.called = Event()
         self.call.connect(self.run_func, Qt.ConnectionType.QueuedConnection)
 
-    def run_func(self, func, data):
+    def run_func(self, func, data) -> None:
         try:
             self.result, self.tb = func(data), None
         except Exception:

@@ -27,7 +27,7 @@ def get_all_ip_addresses():
 
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QDialog.__init__(self, parent)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
@@ -114,13 +114,13 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
 
         self.resize(self.sizeHint())
 
-    def use_fixed_port_changed(self, state):
+    def use_fixed_port_changed(self, state) -> None:
         self.fixed_port.setEnabled(Qt.CheckState(state) == Qt.CheckState.Checked)
 
-    def toggle_password(self, state):
+    def toggle_password(self, state) -> None:
         self.password_box.setEchoMode(QLineEdit.EchoMode.Password if state == Qt.CheckState.Unchecked else QLineEdit.EchoMode.Normal)
 
-    def accept(self):
+    def accept(self) -> None:
         port = str(self.fixed_port.text())
         if not port:
             error_dialog(self, _('Invalid port number'), _('You must provide a port number.'), show=True)

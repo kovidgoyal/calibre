@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class BasicStoreConfigWidget(QWidget, Ui_Form):
-    def __init__(self, store):
+    def __init__(self, store) -> None:
         QWidget.__init__(self)
         self.setupUi(self)
 
@@ -19,7 +19,7 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
 
         self.load_setings()
 
-    def load_setings(self):
+    def load_setings(self) -> None:
         config = self.store.config
 
         self.open_external.setChecked(config.get('open_external', False))
@@ -29,13 +29,13 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
 class BasicStoreConfig:
     config: JSONConfig
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui=False) -> str:
         return 'Customize the behavior of this store.'
 
     def config_widget(self):
         return BasicStoreConfigWidget(self)
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget) -> None:
         self.config['open_external'] = config_widget.open_external.isChecked()
         tags = str(config_widget.tags.text())
         self.config['tags'] = tags

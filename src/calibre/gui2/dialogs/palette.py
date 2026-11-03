@@ -41,7 +41,7 @@ class Color(QWidget):
         default_palette: QPalette,
         mode_name: str,
         group='',
-    ):
+    ) -> None:
         super().__init__(parent)
         self.key = key
         self.setting_key = (key + '-' + group) if group else key
@@ -62,13 +62,13 @@ class Color(QWidget):
         la.setBuddy(b)
         l.addWidget(la)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.button.color = self.default_palette.color(*self.color_key).name()
 
-    def apply_from_palette(self, p):
+    def apply_from_palette(self, p) -> None:
         self.button.color = p.color(*self.color_key).name()
 
-    def color_changed(self):
+    def color_changed(self) -> None:
         self.changed.emit()
         self.la.setStyleSheet('QLabel { font-style: italic }')
 
@@ -79,7 +79,7 @@ class Color(QWidget):
             return ans
 
     @value.setter
-    def value(self, val):
+    def value(self, val) -> None:
         if val is None:
             self.restore_defaults()
         else:
@@ -87,7 +87,7 @@ class Color(QWidget):
 
 
 class PaletteColors(QWidget):
-    def __init__(self, palette: QPalette, default_palette: QPalette, mode_name: str, parent=None):
+    def __init__(self, palette: QPalette, default_palette: QPalette, mode_name: str, parent=None) -> None:
         super().__init__(parent)
         self.link_colors = {}
         self.mode_name = mode_name
@@ -113,7 +113,7 @@ class PaletteColors(QWidget):
             ans.setFont(f)
             return ans
 
-        def c(x, desc, group=''):
+        def c(x, desc, group='') -> None:
             w = Color(x, desc, self, palette, default_palette, mode_name, group=group)
             l.addWidget(w)
             self.colors.append(w)
@@ -134,7 +134,7 @@ class PaletteColors(QWidget):
         for x, desc in self.link_colors.items():
             c(x, desc)
 
-    def apply_settings_from_palette(self, p):
+    def apply_settings_from_palette(self, p) -> None:
         for w in self.colors:
             w.apply_from_palette(p)
 
@@ -148,17 +148,17 @@ class PaletteColors(QWidget):
         return ans
 
     @value.setter
-    def value(self, serialized):
+    def value(self, serialized) -> None:
         for w in self.colors:
             w.value = serialized.get(w.setting_key)
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         for w in self.colors:
             w.restore_defaults()
 
 
 class PaletteWidget(QWidget):
-    def __init__(self, mode_name='light', parent=None):
+    def __init__(self, mode_name='light', parent=None) -> None:
         super().__init__(parent)
         self.mode_name = mode_name
         self.mode_title = {'dark': _('dark'), 'light': _('light')}[mode_name]
@@ -198,7 +198,7 @@ class PaletteWidget(QWidget):
         sa.setWidget(pc)
         self.use_custom_toggled()
 
-    def import_system_colors(self):
+    def import_system_colors(self) -> None:
         import subprocess
 
         from calibre.gui2.palette import unserialize_palette
@@ -221,7 +221,7 @@ class PaletteWidget(QWidget):
     def sizeHint(self):
         return QSize(800, 600)
 
-    def use_custom_toggled(self):
+    def use_custom_toggled(self) -> None:
         enabled = self.use_custom.isChecked()
         for w in (self.palette_colors, self.import_system_button):
             w.setEnabled(enabled)
@@ -229,30 +229,30 @@ class PaletteWidget(QWidget):
     def serialized_colors(self):
         return self.palette_colors.value
 
-    def apply_settings(self):
+    def apply_settings(self) -> None:
         val = self.palette_colors.value
         v = gprefs[f'{self.mode_name}_palettes']
         v['__current__'] = val
         gprefs[f'{self.mode_name}_palettes'] = v
         gprefs[f'{self.mode_name}_palette_name'] = '__current__' if self.use_custom.isChecked() else ''
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.use_custom.setChecked(False)
         self.palette_colors.restore_defaults()
 
     def serialize(self):
         return {'use_custom': self.use_custom.isChecked(), 'palette': self.palette_colors.value}
 
-    def unserialize(self, val):
+    def unserialize(self, val) -> None:
         self.use_custom.setChecked(bool(val['use_custom']))
         self.palette_colors.value = val['palette']
 
 
 class PaletteConfig(Dialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(_('Customize the colors used by calibre'), 'customize-palette', parent=parent)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
         app = Application.instance()
         assert isinstance(app, Application)
@@ -306,7 +306,7 @@ class PaletteConfig(Dialog):
         h.addStretch(10), h.addWidget(self.bb)
         l.addLayout(h)
 
-    def import_colors(self):
+    def import_colors(self) -> None:
         files = choose_files(
             self,
             'import-calibre-palette',
@@ -321,7 +321,7 @@ class PaletteConfig(Dialog):
             self.dark_tab.unserialize(data['dark'])
             self.light_tab.unserialize(data['light'])
 
-    def export_colors(self):
+    def export_colors(self) -> None:
         data = {'dark': self.dark_tab.serialize(), 'light': self.light_tab.serialize()}
         dest = choose_save_file(
             self,
@@ -335,7 +335,7 @@ class PaletteConfig(Dialog):
             with open(dest, 'wb') as f:
                 f.write(json.dumps(data, indent=2, sort_keys=True).encode('utf-8'))
 
-    def apply_settings(self):
+    def apply_settings(self) -> None:
         with gprefs:
             gprefs['color_palette'] = str(self.palette_combo.currentData())
             self.light_tab.apply_settings()
@@ -344,7 +344,7 @@ class PaletteConfig(Dialog):
         assert isinstance(app, Application)
         app.palette_manager.refresh_palette()
 
-    def restore_defaults(self):
+    def restore_defaults(self) -> None:
         self.light_tab.restore_defaults()
         self.dark_tab.restore_defaults()
 

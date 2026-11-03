@@ -8,6 +8,7 @@ import textwrap
 from functools import partial
 from threading import Thread
 from time import monotonic
+from typing import Never
 
 from qt.core import (
     QAbstractItemView,
@@ -59,7 +60,7 @@ ICON_SIZE = 24
 
 
 class XPathDialog(QDialog):  # {{{
-    def __init__(self, parent, prefs):
+    def __init__(self, parent, prefs) -> None:
         QDialog.__init__(self, parent)
         self.prefs = prefs
         self.setWindowTitle(_('Create ToC from XPath'))
@@ -116,7 +117,7 @@ class XPathDialog(QDialog):  # {{{
                 self.prefs.set('xpath_toc_settings', saved)
                 self.setup_load_button()
 
-    def setup_load_button(self):
+    def setup_load_button(self) -> None:
         saved = self.prefs.get('xpath_toc_settings', {})
         m = self.load_menu
         m.clear()
@@ -130,24 +131,24 @@ class XPathDialog(QDialog):  # {{{
         assert load_button is not None
         load_button.setEnabled(bool(saved))
 
-    def clear_settings(self):
+    def clear_settings(self) -> None:
         self.prefs.set('xpath_toc_settings', {})
         self.setup_load_button()
 
-    def load_settings(self, name):
+    def load_settings(self, name) -> None:
         saved = self.prefs.get('xpath_toc_settings', {}).get(name, {})
         for i, w in enumerate(self.widgets):
             txt = saved.get(str(i), '')
             w.edit.setText(txt)
 
-    def check(self):
+    def check(self) -> bool:
         for w in self.widgets:
             if not w.check():
                 error_dialog(self, _('Invalid XPath'), _('The XPath expression %s is not valid.') % w.xpath, show=True)
                 return False
         return True
 
-    def accept(self):
+    def accept(self) -> None:
         if self.check():
             self.prefs.set('xpath_toc_remove_duplicates', self.remove_duplicates_cb.isChecked())
             super().accept()
@@ -175,7 +176,7 @@ class ItemView(QStackedWidget):  # {{{
     flatten_toc = pyqtSignal()
     sort_toc = pyqtSignal()
 
-    def __init__(self, parent, prefs):
+    def __init__(self, parent, prefs) -> None:
         QStackedWidget.__init__(self, parent)
         self.prefs = prefs
         self.setMinimumWidth(250)
@@ -373,14 +374,14 @@ class ItemView(QStackedWidget):  # {{{
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
 
-    def headings_question(self, xpaths):
+    def headings_question(self, xpaths) -> None:
         from calibre.gui2.widgets2 import Dialog
 
         class D(Dialog):
-            def __init__(self, parent):
+            def __init__(self, parent) -> None:
                 super().__init__(_('Configure ToC generation'), 'configure-toc-from-headings', parent=parent)
 
-            def setup_ui(s):
+            def setup_ui(s) -> None:
                 s.l = l = QVBoxLayout(s)
                 s.remove_duplicates_cb = rd = QCheckBox(_('Remove &duplicated headings at the same ToC level'))
                 l.addWidget(rd)
@@ -404,27 +405,27 @@ class ItemView(QStackedWidget):  # {{{
         self.prefs.set('toc_from_headings_remove_duplicates', d.remove_duplicates_cb.isChecked())
         self.prefs.set('toc_from_headings_prefer_title', d.prefer_title_cb.isChecked())
 
-    def create_from_major_headings(self):
+    def create_from_major_headings(self) -> None:
         self.headings_question([f'//h:h{i}' for i in range(1, 4)])
 
-    def create_from_all_headings(self):
+    def create_from_all_headings(self) -> None:
         self.headings_question([f'//h:h{i}' for i in range(1, 7)])
 
-    def create_from_user_xpath(self):
+    def create_from_user_xpath(self) -> None:
         d = XPathDialog(self, self.prefs)
         if d.exec() == QDialog.DialogCode.Accepted and d.xpaths:
             self.create_from_xpath.emit(d.xpaths, d.remove_duplicates_cb.isChecked(), False)
 
-    def hide_azw3_warning(self):
+    def hide_azw3_warning(self) -> None:
         self.w1.setVisible(False), self.w2.setVisible(False)
 
-    def add_new_to_root(self):
+    def add_new_to_root(self) -> None:
         self.add_new_item.emit(None, None)
 
-    def add_new(self, where):
+    def add_new(self, where) -> None:
         self.add_new_item.emit(self.current_item, where)
 
-    def edit_item(self):
+    def edit_item(self) -> None:
         self.add_new_item.emit(self.current_item, None)
 
     def __call__(self, item):
@@ -436,7 +437,7 @@ class ItemView(QStackedWidget):  # {{{
             self.setCurrentIndex(1)
             self.populate_item_pane()
 
-    def populate_item_pane(self):
+    def populate_item_pane(self) -> None:
         item = self.current_item
         assert item is not None
         name = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
@@ -450,7 +451,7 @@ class ItemView(QStackedWidget):  # {{{
             tt = ''
         self.status_label.setText(tt)
 
-    def data_changed(self, item):
+    def data_changed(self, item) -> None:
         if item is self.current_item:
             self.populate_item_pane()
 
@@ -466,7 +467,7 @@ class TreeWidget(QTreeWidget):  # {{{
     edit_item = pyqtSignal()
     history_state_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QTreeWidget.__init__(self, parent)
         self.history = []
         self.setHeaderLabel(_('Table of Contents'))
@@ -489,11 +490,11 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
-    def push_history(self):
+    def push_history(self) -> None:
         self.history.append(self.serialize_tree())
         self.history_state_changed.emit()
 
-    def pop_history(self):
+    def pop_history(self) -> None:
         if self.history:
             self.unserialize_tree(self.history.pop())
             self.history_state_changed.emit()
@@ -511,7 +512,7 @@ class TreeWidget(QTreeWidget):  # {{{
             yield child
             yield from self.iter_items(parent=child)
 
-    def update_status_tip(self, item):
+    def update_status_tip(self, item) -> None:
         c = item.data(0, Qt.ItemDataRole.UserRole)
         if c is not None:
             frag = c.frag or ''
@@ -536,9 +537,9 @@ class TreeWidget(QTreeWidget):  # {{{
         assert node is not None
         return {'children': list(map(serialize_node, (node.child(i) for i in range(node.childCount()))))}
 
-    def unserialize_tree(self, serialized):
+    def unserialize_tree(self, serialized) -> None:
 
-        def unserialize_node(dict_node, parent):
+        def unserialize_node(dict_node, parent) -> None:
             n = QTreeWidgetItem(parent)
             n.setData(0, Qt.ItemDataRole.DisplayRole, dict_node['title'])
             n.setData(0, Qt.ItemDataRole.UserRole, dict_node['toc_node'])
@@ -557,7 +558,7 @@ class TreeWidget(QTreeWidget):  # {{{
         for child in serialized['children']:
             unserialize_node(child, i)
 
-    def dropEvent(self, event):
+    def dropEvent(self, event) -> None:
         self.in_drop_event = True
         self.push_history()
         try:
@@ -575,11 +576,11 @@ class TreeWidget(QTreeWidget):  # {{{
             ans = sorted(ans, key=lambda x: sort_map.get(x, -1))
         return ans
 
-    def highlight_item(self, item):
+    def highlight_item(self, item) -> None:
         self.setCurrentItem(item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.scrollToItem(item)
 
-    def _sort_items_by_index(self, items, reverse=False):
+    def _sort_items_by_index(self, items, reverse=False) -> None:
         def get_index(item):
             result = []
 
@@ -608,7 +609,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         return items_
 
-    def _move_indent_left(self, items):
+    def _move_indent_left(self, items) -> None:
         self._sort_items_by_index(items)
 
         for item in items:
@@ -639,7 +640,7 @@ class TreeWidget(QTreeWidget):  # {{{
             if was_expanded:
                 self.expandItem(item)
 
-    def _move_indent_right(self, items):
+    def _move_indent_right(self, items) -> None:
         self._sort_items_by_index(items)
 
         failed_parent = None
@@ -670,7 +671,7 @@ class TreeWidget(QTreeWidget):  # {{{
             if was_expanded:
                 self.expandItem(item)
 
-    def _move_indent(self, items, indent):
+    def _move_indent(self, items, indent) -> None:
         if not items or indent == 0:
             return
 
@@ -698,21 +699,21 @@ class TreeWidget(QTreeWidget):  # {{{
         for item in items:
             item.setSelected(True)
 
-    def move_left(self):
+    def move_left(self) -> None:
         selected_items = self.selectedItems()
         if len(selected_items) <= 0:
             return
 
         self._move_indent(selected_items, -1)
 
-    def move_right(self):
+    def move_right(self) -> None:
         selected_items = self.selectedItems()
         if len(selected_items) <= 0:
             return
 
         self._move_indent(selected_items, 1)
 
-    def move_down(self):
+    def move_down(self) -> None:
         selected_items = self.selectedItems()
         if len(selected_items) <= 0:
             return
@@ -754,7 +755,7 @@ class TreeWidget(QTreeWidget):  # {{{
         for item in selected_items:
             item.setSelected(True)
 
-    def move_up(self):
+    def move_up(self) -> None:
         selected_items = self.selectedItems()
         if len(selected_items) <= 0:
             return
@@ -796,14 +797,14 @@ class TreeWidget(QTreeWidget):  # {{{
         for item in selected_items:
             item.setSelected(True)
 
-    def del_items(self):
+    def del_items(self) -> None:
         self.push_history()
         for item in self.selectedItems():
             p = item.parent() or self.root
             assert p is not None
             p.removeChild(item)
 
-    def title_case(self):
+    def title_case(self) -> None:
         self.push_history()
         from calibre.utils.titlecase import titlecase
 
@@ -811,19 +812,19 @@ class TreeWidget(QTreeWidget):  # {{{
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, titlecase(t))
 
-    def upper_case(self):
+    def upper_case(self) -> None:
         self.push_history()
         for item in self.selectedItems():
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, icu_upper(t))
 
-    def lower_case(self):
+    def lower_case(self) -> None:
         self.push_history()
         for item in self.selectedItems():
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, icu_lower(t))
 
-    def swap_case(self):
+    def swap_case(self) -> None:
         self.push_history()
         from calibre.utils.icu import swapcase
 
@@ -831,7 +832,7 @@ class TreeWidget(QTreeWidget):  # {{{
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, swapcase(t))
 
-    def capitalize(self):
+    def capitalize(self) -> None:
         self.push_history()
         from calibre.utils.icu import capitalize
 
@@ -839,7 +840,7 @@ class TreeWidget(QTreeWidget):  # {{{
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, capitalize(t))
 
-    def bulk_rename(self):
+    def bulk_rename(self) -> None:
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
 
         sort_map = {id(item): i for i, item in enumerate(self.iter_items())}
@@ -879,10 +880,10 @@ class TreeWidget(QTreeWidget):  # {{{
         else:
             return super().keyPressEvent(event)
 
-    def show_context_menu(self, point):
+    def show_context_menu(self, point) -> None:
         item = self.currentItem()
 
-        def key(k):
+        def key(k) -> str:
             sc = str(QKeySequence(k | Qt.KeyboardModifier.ControlModifier).toString(QKeySequence.SequenceFormat.NativeText))
             return f' [{sc}]'
 
@@ -923,7 +924,7 @@ class TreeWidget(QTreeWidget):  # {{{
 class TOCView(QWidget):  # {{{
     add_new_item = pyqtSignal(object, object)
 
-    def __init__(self, parent, prefs):
+    def __init__(self, parent, prefs) -> None:
         QWidget.__init__(self, parent)
         self.toc_title = None
         self.prefs = prefs
@@ -991,7 +992,7 @@ class TOCView(QWidget):  # {{{
 
         l.setColumnStretch(2, 10)
 
-    def edit_item(self):
+    def edit_item(self) -> None:
         self.item_view.edit_item()
 
     def event(self, a0):
@@ -1003,10 +1004,10 @@ class TOCView(QWidget):  # {{{
     def item_title(self, item):
         return str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
 
-    def del_items(self):
+    def del_items(self) -> None:
         self.tocw.del_items()
 
-    def delete_current_item(self):
+    def delete_current_item(self) -> None:
         item = self.tocw.currentItem()
         if item is not None:
             self.tocw.push_history()
@@ -1017,7 +1018,7 @@ class TOCView(QWidget):  # {{{
     def iter_items(self, parent=None):
         yield from self.tocw.iter_items(parent=parent)
 
-    def flatten_toc(self):
+    def flatten_toc(self) -> None:
         self.tocw.push_history()
         found = True
         while found:
@@ -1028,11 +1029,11 @@ class TOCView(QWidget):  # {{{
                     found = True
                     break
 
-    def flatten_item(self):
+    def flatten_item(self) -> None:
         self.tocw.push_history()
         self._flatten_item(self.tocw.currentItem())
 
-    def sort_toc(self):
+    def sort_toc(self) -> None:
         self.tocw.push_history()
         ebook = self.ebook
 
@@ -1076,7 +1077,7 @@ class TOCView(QWidget):  # {{{
             frag_pos = frag_positions.get((dest, frag), float('inf')) if frag else -1
             return (spine_idx, frag_pos)
 
-        def sort_node(parent):
+        def sort_node(parent) -> None:
             count = parent.childCount()
             if count > 1:
                 children = [parent.child(i) for i in range(count)]
@@ -1090,7 +1091,7 @@ class TOCView(QWidget):  # {{{
 
         sort_node(self.tocw.invisibleRootItem())
 
-    def _flatten_item(self, item):
+    def _flatten_item(self, item) -> None:
         if item is not None:
             p = item.parent() or self.root
             assert p is not None
@@ -1100,19 +1101,19 @@ class TOCView(QWidget):  # {{{
                 item.removeChild(child)
                 p.insertChild(idx + 1, child)
 
-    def go_to_root(self):
+    def go_to_root(self) -> None:
         self.tocw.setCurrentItem(None)
 
-    def highlight_item(self, item):
+    def highlight_item(self, item) -> None:
         self.tocw.highlight_item(item)
 
-    def move_up(self):
+    def move_up(self) -> None:
         self.tocw.move_up()
 
-    def move_down(self):
+    def move_down(self) -> None:
         self.tocw.move_down()
 
-    def data_changed(self, top_left, bottom_right):
+    def data_changed(self, top_left, bottom_right) -> None:
         model = self.tocw.model()
         assert model is not None
         for r in range(top_left.row(), bottom_right.row() + 1):
@@ -1134,7 +1135,7 @@ class TOCView(QWidget):  # {{{
         self.populate_item(c, child)
         return c
 
-    def populate_item(self, c, child):
+    def populate_item(self, c, child) -> None:
         c.setData(0, Qt.ItemDataRole.DisplayRole, child.title or _('(Untitled)'))
         c.setData(0, Qt.ItemDataRole.UserRole, child)
         c.setFlags(NODE_FLAGS)
@@ -1162,7 +1163,7 @@ class TOCView(QWidget):  # {{{
         self.err = QIcon.ic('dot_red.png')
         self.icon_map = {None: self.blank, True: self.ok, False: self.err}
 
-        def process_item(toc_node, parent):
+        def process_item(toc_node, parent) -> None:
             for child in toc_node:
                 c = self.create_item(parent, child)
                 process_item(child, c)
@@ -1177,10 +1178,10 @@ class TOCView(QWidget):  # {{{
         self.tocw.currentItemChanged.connect(self.current_item_changed)
         self.tocw.setCurrentItem(None)
 
-    def current_item_changed(self, current, previous):
+    def current_item_changed(self, current, previous) -> None:
         self.item_view(current)
 
-    def update_item(self, item, where, name, frag, title):
+    def update_item(self, item, where, name, frag, title) -> None:
         if isinstance(frag, tuple):
             frag = add_id(self.ebook, name, *frag)
         child = TOC(title, name, frag)
@@ -1211,7 +1212,7 @@ class TOCView(QWidget):  # {{{
     def create_toc(self):
         root = TOC()
 
-        def process_node(parent, toc_parent):
+        def process_node(parent, toc_parent) -> None:
             for i in range(parent.childCount()):
                 item = parent.child(i)
                 title = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '').strip()
@@ -1223,9 +1224,9 @@ class TOCView(QWidget):  # {{{
         process_node(self.tocw.invisibleRootItem(), root)
         return root
 
-    def insert_toc_fragment(self, toc):
+    def insert_toc_fragment(self, toc) -> None:
 
-        def process_node(root, tocparent, added):
+        def process_node(root, tocparent, added) -> None:
             for child in tocparent:
                 item = self.create_item(root, child)
                 added.append(item)
@@ -1271,7 +1272,7 @@ class TOCView(QWidget):  # {{{
             )
         self.insert_toc_fragment(toc)
 
-    def undo(self):
+    def undo(self) -> None:
         self.tocw.pop_history()
 
 
@@ -1284,7 +1285,7 @@ class TOCEditor(QDialog):  # {{{
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
-    def __init__(self, pathtobook, title=None, parent=None, prefs=None, write_result_to=None):
+    def __init__(self, pathtobook, title=None, parent=None, prefs=None, write_result_to=None) -> None:
         QDialog.__init__(self, parent)
         self.last_reject_at = self.last_accept_at = -1000
         self.write_result_to = write_result_to
@@ -1341,26 +1342,26 @@ class TOCEditor(QDialog):  # {{{
     def sizeHint(self):
         return QSize(900, 600)
 
-    def update_history_buttons(self):
+    def update_history_buttons(self) -> None:
         undo_button = self.undo_button
         assert undo_button is not None
         undo_button.setVisible(self.stacks.currentIndex() == 1)
         undo_button.setEnabled(bool(self.toc_view.tocw.history))
 
-    def add_new_item(self, item, where):
+    def add_new_item(self, item, where) -> None:
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(2)
         if ismacos:
             QTimer.singleShot(0, self.workaround_macos_mouse_with_webview_bug)
 
-    def workaround_macos_mouse_with_webview_bug(self):
+    def workaround_macos_mouse_with_webview_bug(self) -> None:
         # macOS is weird: https://bugs.launchpad.net/calibre/+bug/2004639
         # needed as of Qt 6.4.2
         d = info_dialog(self, _('Loading...'), _('Loading table of contents view, please wait...'), show_copy_button=False)
         QTimer.singleShot(0, d.reject)
         d.exec()
 
-    def accept(self):
+    def accept(self) -> None:
         if monotonic() - self.last_accept_at < 1:
             return
         self.last_accept_at = monotonic()
@@ -1376,7 +1377,7 @@ class TOCEditor(QDialog):  # {{{
             self.stacks.setCurrentIndex(0)
             self.bb.setEnabled(False)
 
-    def really_accept(self, tb):
+    def really_accept(self, tb) -> None:
         self.save_geometry(self.prefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(
@@ -1391,7 +1392,7 @@ class TOCEditor(QDialog):  # {{{
         self.write_result(0)
         super().accept()
 
-    def reject(self):
+    def reject(self) -> None:
         if not self.bb.isEnabled():
             return
         if monotonic() - self.last_reject_at < 1:
@@ -1406,7 +1407,7 @@ class TOCEditor(QDialog):  # {{{
             self.write_result(1)
             super().reject()
 
-    def write_result(self, res):
+    def write_result(self, res) -> None:
         if self.write_result_to:
             with tempfile.NamedTemporaryFile(dir=os.path.dirname(self.write_result_to), delete=False) as f:
                 src = f.name
@@ -1414,13 +1415,13 @@ class TOCEditor(QDialog):  # {{{
                 f.flush()
             atomic_rename(src, self.write_result_to)
 
-    def start(self):
+    def start(self) -> None:
         t = Thread(target=self.explode)
         t.daemon = True
         self.log = GUILog()
         t.start()
 
-    def explode(self):
+    def explode(self) -> None:
         tb = None
         try:
             self.ebook = get_container(self.pathtobook, log=self.log)
@@ -1432,7 +1433,7 @@ class TOCEditor(QDialog):  # {{{
             self.working = False
             self.explode_done.emit(tb)
 
-    def read_toc(self, tb):
+    def read_toc(self, tb) -> None:
         if tb:
             error_dialog(
                 self,
@@ -1448,7 +1449,7 @@ class TOCEditor(QDialog):  # {{{
         self.item_edit.load(self.ebook)
         self.stacks.setCurrentIndex(1)
 
-    def write_toc(self):
+    def write_toc(self) -> None:
         tb = None
         try:
             toc = self.toc_view.create_toc()
@@ -1465,7 +1466,7 @@ class TOCEditor(QDialog):  # {{{
 # }}}
 
 
-def develop():
+def develop() -> None:
     from calibre.gui2 import Application
 
     app = Application([])
@@ -1480,7 +1481,7 @@ def develop():
     del app
 
 
-def main(shm_name=None):
+def main(shm_name=None) -> Never:
     import json
     import struct
 

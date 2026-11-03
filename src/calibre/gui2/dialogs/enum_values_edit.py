@@ -25,13 +25,13 @@ from calibre.utils.localization import _, ngettext
 
 
 class CountTableWidgetItem(QTableWidgetItem):
-    def __init__(self, count):
+    def __init__(self, count) -> None:
         QTableWidgetItem.__init__(self, str(count) if count is not None else '0')
         self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable))
         self._count = count
 
-    def set_count(self, count):
+    def set_count(self, count) -> None:
         self.setText(str(count) if count is not None else '0')
 
 
@@ -41,7 +41,7 @@ class EnumValuesEdit(QDialog):
     COLOR_COLUMN = 2
     COUNT_COLUMN = 3
 
-    def __init__(self, parent, db, key):
+    def __init__(self, parent, db, key) -> None:
         QDialog.__init__(self, parent)
 
         self.setWindowTitle(_('Edit permissible values for {0}').format(key))
@@ -119,7 +119,7 @@ class EnumValuesEdit(QDialog):
         self.move_up_button.clicked.connect(self.move_up_clicked)
         self.restore_geometry(gprefs, 'enum-values-edit-geometry')
 
-    def cell_changed(self, row, col):
+    def cell_changed(self, row, col) -> None:
         if col == 0:
             val_item = self.table.item(row, self.VALUE_COLUMN)
             if val_item is None:
@@ -143,7 +143,7 @@ class EnumValuesEdit(QDialog):
         sz.setHeight(max(sz.height(), 400))
         return sz
 
-    def make_name_item(self, row, txt):
+    def make_name_item(self, row, txt) -> None:
         it = QTableWidgetItem(txt)
         it.setData(Qt.ItemDataRole.UserRole, txt)
         it.setToolTip(_('Changing the value will rename it in all books'))
@@ -161,15 +161,15 @@ class EnumValuesEdit(QDialog):
             c.setCurrentIndex(dex)
         return c
 
-    def make_was_item(self, row):
+    def make_was_item(self, row) -> None:
         it = QTableWidgetItem('')
         self.table.setItem(row, self.WAS_COLUMN, it)
 
-    def make_count_item(self, row, txt):
+    def make_count_item(self, row, txt) -> None:
         it = CountTableWidgetItem(self.name_to_count.get(lower(txt)))
         self.table.setItem(row, self.COUNT_COLUMN, it)
 
-    def move_up_clicked(self):
+    def move_up_clicked(self) -> None:
         row = self.table.currentRow()
         if row < 0:
             error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
@@ -178,7 +178,7 @@ class EnumValuesEdit(QDialog):
             return
         self.move_row(row, -1)
 
-    def move_row(self, row, direction):
+    def move_row(self, row, direction) -> None:
         t = self.table.takeItem(row, self.VALUE_COLUMN)
         cw = self.table.cellWidget(row, self.COLOR_COLUMN)
         assert isinstance(cw, QComboBox)
@@ -194,7 +194,7 @@ class EnumValuesEdit(QDialog):
         self.table.setItem(row, self.COUNT_COLUMN, count)
         self.table.setCurrentCell(row, 0)
 
-    def move_down_clicked(self):
+    def move_down_clicked(self) -> None:
         row = self.table.currentRow()
         if row < 0:
             error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
@@ -203,7 +203,7 @@ class EnumValuesEdit(QDialog):
             return
         self.move_row(row, 1)
 
-    def del_line(self):
+    def del_line(self) -> None:
         row = self.table.currentRow()
         if row >= 0:
             _item = self.table.item(row, self.VALUE_COLUMN)
@@ -225,7 +225,7 @@ class EnumValuesEdit(QDialog):
             self.deleted_values[lower(txt)] = txt
             self.table.removeRow(self.table.currentRow())
 
-    def ins_button_clicked(self):
+    def ins_button_clicked(self) -> None:
         row = self.table.currentRow()
         if row < 0:
             error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
@@ -236,7 +236,7 @@ class EnumValuesEdit(QDialog):
         self.make_was_item(row)
         self.make_count_item(row, '')
 
-    def save_geometry(self, prefs=None, name=None):
+    def save_geometry(self, prefs=None, name=None) -> None:
         super().save_geometry(gprefs, 'enum-values-edit-geometry')
 
     def accept(self):

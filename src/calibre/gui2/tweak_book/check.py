@@ -56,7 +56,7 @@ def prefix_for_level(level):
     return text
 
 
-def build_error_message(error, with_level=False, with_line_numbers=False):
+def build_error_message(error, with_level=False, with_line_numbers=False) -> str:
     prefix = ''
     filename = error.name
     if with_level:
@@ -80,7 +80,7 @@ def set_skipped_rules(rules: dict[str, str]) -> None:
 
 
 class Delegate(QStyledItemDelegate):
-    def initStyleOption(self, option, index):
+    def initStyleOption(self, option, index) -> None:
         super().initStyleOption(option, index)
         p = self.parent()
         assert isinstance(p, QListWidget)
@@ -94,7 +94,7 @@ class Check(QSplitter):
     check_requested = pyqtSignal()
     fix_requested = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QSplitter.__init__(self, parent)
         self.setChildrenCollapsible(False)
 
@@ -139,7 +139,7 @@ class Check(QSplitter):
         tprefs['check_book_accessibility'] = checked
         self.check_requested.emit()
 
-    def clear_at_startup(self):
+    def clear_at_startup(self) -> None:
         self.clear_help(_('Check has not been run'))
         self.items.clear()
 
@@ -186,14 +186,14 @@ class Check(QSplitter):
         item.setText(ngettext('One type of problem is being skipped', '{} types of problems are being skipped', num).format(num))
         item.setToolTip(_('Click to see the list of skipped problem types'))
 
-    def context_menu(self, pos):
+    def context_menu(self, pos) -> None:
         m = QMenu(self)
         if self.num_errors > 0:
             m.addAction(QIcon.ic('edit-copy.png'), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
         if list(m.actions()):
             m.exec(self.mapToGlobal(pos))
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         items = []
         for err in self.errors_in_list():
             msg = build_error_message(err, with_level=True, with_line_numbers=True)
@@ -203,10 +203,10 @@ class Check(QSplitter):
             assert cb is not None
             cb.setText('\n'.join(items))
 
-    def save_state(self):
+    def save_state(self) -> None:
         tprefs.set('check-book-splitter-state', bytearray(self.saveState()))
 
-    def clear_help(self, msg=None):
+    def clear_help(self, msg=None) -> None:
         if msg is None:
             msg = _('No problems found')
         self.help.setText(
@@ -215,7 +215,7 @@ class Check(QSplitter):
             )
         )
 
-    def link_clicked(self, url):
+    def link_clicked(self, url) -> None:
         url = str(url.toString(NO_URL_FORMATTING))
         if url == 'activate:item':
             self.current_item_activated()
@@ -240,7 +240,7 @@ class Check(QSplitter):
         elif url.startswith('https://'):
             safe_open_url(url)
 
-    def next_error(self, delta=1):
+    def next_error(self, delta=1) -> None:
         row = self.items.currentRow()
         # errors are always before the skipped rules entry in the list
         num = self.num_errors
@@ -249,7 +249,7 @@ class Check(QSplitter):
             self.items.setCurrentRow(row)
             self.current_item_activated()
 
-    def current_item_activated(self, *args):
+    def current_item_activated(self, *args) -> None:
         err = self.error_for_item(self.items.currentItem())
         if err is not None:
             if err.has_multiple_locations:
@@ -257,7 +257,7 @@ class Check(QSplitter):
             else:
                 self.item_activated.emit(err)
 
-    def location_activated(self, index):
+    def location_activated(self, index) -> None:
         err = self.error_for_item(self.items.currentItem())
         if err is not None:
             err.current_location_index = index
@@ -334,7 +334,7 @@ class Check(QSplitter):
             )
         )
 
-    def current_item_changed(self, *args):
+    def current_item_changed(self, *args) -> None:
         i = self.items.currentItem()
         self.help.setText('')
         if i is not None and isinstance(i.data(Qt.ItemDataRole.UserRole), SkippedRules):
@@ -392,7 +392,7 @@ class Check(QSplitter):
                 template = header + activate + msg + footer
             self.help.setText(template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
 
-    def run_checks(self, container):
+    def run_checks(self, container) -> None:
         with BusyCursor():
             self.show_busy()
             QApplication.processEvents()
@@ -419,11 +419,11 @@ class Check(QSplitter):
         self.run_checks(container)
         return changed
 
-    def show_busy(self, msg=_('Running checks, please wait...')):
+    def show_busy(self, msg=_('Running checks, please wait...')) -> None:
         self.help.setText(msg)
         self.items.clear()
 
-    def hide_busy(self):
+    def hide_busy(self) -> None:
         self.help.setText('')
         self.items.clear()
 
@@ -432,12 +432,12 @@ class Check(QSplitter):
             self.current_item_activated()
         return super().keyPressEvent(a0)
 
-    def clear(self):
+    def clear(self) -> None:
         self.items.clear()
         self.clear_help()
 
 
-def main():
+def main() -> None:
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
 

@@ -13,11 +13,11 @@ class PluginUpdaterAction(InterfaceAction):
     action_spec = (_('Plugin updater'), None, _('Update any plugins you have installed in calibre'), ())
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.setIcon(QIcon.ic('plugins/plugin_updater.png'))
         self.qaction.triggered.connect(self.check_for_plugin_updates)
 
-    def check_for_plugin_updates(self):
+    def check_for_plugin_updates(self) -> None:
         # Get the user to choose a plugin to install
         initial_filter = FILTER_UPDATE_AVAILABLE
         mods = QApplication.keyboardModifiers()

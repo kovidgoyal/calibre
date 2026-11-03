@@ -23,7 +23,7 @@ from calibre.utils.localization import _
 class Display(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
-    def __init__(self, parent: ShowNoteDialog | NoteDisplay):
+    def __init__(self, parent: ShowNoteDialog | NoteDisplay) -> None:
         super().__init__(parent)
         self._parent = parent
         doc = self.document()
@@ -32,7 +32,7 @@ class Display(HTMLDisplay):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.anchor_clicked.connect(self.handle_link_click)
 
-    def handle_link_click(self, qurl):
+    def handle_link_click(self, qurl) -> None:
         safe_open_url(qurl)
 
     def loadResource(self, type, name):
@@ -46,7 +46,7 @@ class Display(HTMLDisplay):
 
 
 class ShowNoteDialog(Dialog):
-    def __init__(self, field, item_id, db, parent=None):
+    def __init__(self, field, item_id, db, parent=None) -> None:
         self.db = db.new_api
         self.item_val = self.db.get_item_name(field, item_id)
         self.has_links = self.db.has_link_map(field)
@@ -61,10 +61,10 @@ class ShowNoteDialog(Dialog):
         self.setWindowIcon(QIcon.ic('notes.png'))
         self.refresh()
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.display.setHtml(self.db.notes_for(self.field, self.item_id))
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.l = l = QVBoxLayout(self)
 
         x = prepare_string_for_xml
@@ -118,10 +118,10 @@ class ShowNoteDialog(Dialog):
     def sizeHint(self):
         return QSize(800, 620)
 
-    def open_item_link(self, url):
+    def open_item_link(self, url) -> None:
         safe_open_url(url)
 
-    def copy_url(self):
+    def copy_url(self) -> None:
         f = self.field
         if f.startswith('#'):
             f = '_' + f[1:]
@@ -133,7 +133,7 @@ class ShowNoteDialog(Dialog):
         md.setUrls([QUrl(url)])
         cb.setMimeData(md)
 
-    def edit(self):
+    def edit(self) -> None:
         d = EditNoteDialog(self.field, self.item_id, self.db, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             # Tell the rest of calibre that the note has changed
@@ -143,7 +143,7 @@ class ShowNoteDialog(Dialog):
             self.refresh()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def find_books(self):
+    def find_books(self) -> None:
         q = self.item_val.replace('"', r'\"')
         search_string = f'{self.field}:"={q}"'
         gui = get_gui()
@@ -152,7 +152,7 @@ class ShowNoteDialog(Dialog):
             gui.search.set_search_string(search_string)
 
 
-def develop_show_note():
+def develop_show_note() -> None:
     from calibre.library import db as dbc
 
     app = Application([])

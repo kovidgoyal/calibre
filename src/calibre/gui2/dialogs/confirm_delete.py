@@ -22,7 +22,7 @@ class Dialog(QDialog):
         show_cancel_button=True,
         extra_button=None,
         extra_button_choices=None,
-    ):
+    ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(title or _('Are you sure?'))
         self.setWindowIcon(QIcon.ic(icon))
@@ -79,16 +79,16 @@ class Dialog(QDialog):
         assert standard_btn is not None
         standard_btn.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def on_extra_button_click(self):
+    def on_extra_button_click(self) -> None:
         self.extra_button_clicked = True
 
-    def on_extra_choice_click(self):
+    def on_extra_choice_click(self) -> None:
         ac = self.sender()
         assert ac is not None
         self.extra_button_choice = ac.objectName()
         self.accept()
 
-    def toggle(self, *args):
+    def toggle(self, *args) -> None:
         self.config_set[confirm_config_name(self.name)] = self.again.isChecked()
 
 

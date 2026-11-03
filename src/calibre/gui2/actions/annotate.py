@@ -14,7 +14,7 @@ class Updater(QThread):  # {{{
     update_progress = pyqtSignal(int)
     update_done = pyqtSignal()
 
-    def __init__(self, parent, db, device, annotation_map, done_callback):
+    def __init__(self, parent, db, device, annotation_map, done_callback) -> None:
         QThread.__init__(self, parent)
         self.errors = {}
         self.db = db
@@ -30,11 +30,11 @@ class Updater(QThread):  # {{{
         self.update_progress.connect(self.pd.set_value, type=Qt.ConnectionType.QueuedConnection)
         self.update_done.connect(self.pd.hide, type=Qt.ConnectionType.QueuedConnection)
 
-    def canceled(self):
+    def canceled(self) -> None:
         self.keep_going = False
         self.pd.hide()
 
-    def run(self):
+    def run(self) -> None:
         for i, id_ in enumerate(self.annotation_map):
             if not self.keep_going:
                 break
@@ -59,7 +59,7 @@ class FetchAnnotationsAction(InterfaceAction):
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
     action_type = 'current'
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.fetch_annotations)
 
     def fetch_annotations(self, *args):
@@ -129,7 +129,7 @@ class FetchAnnotationsAction(InterfaceAction):
         self.__annotation_updater = Updater(self.gui, db, device, job.result, self.Dispatcher(self.annotations_updated))
         self.__annotation_updater.start()
 
-    def annotations_updated(self, ids, errors):
+    def annotations_updated(self, ids, errors) -> None:
         self.gui.library_view.model().refresh_ids(ids)
         if errors:
             db = self.gui.library_view.model().db

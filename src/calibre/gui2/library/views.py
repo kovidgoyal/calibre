@@ -62,7 +62,7 @@ def max_permitted_column_width(self, col):
     return max(200, self.width() - (sw + hw + 10))
 
 
-def restrict_column_width(self, col, old_size, new_size):
+def restrict_column_width(self, col, old_size, new_size) -> None:
     max_width = max_permitted_column_width(self, col)
     if new_size > max_width:
         self.column_header.blockSignals(True)
@@ -71,7 +71,7 @@ def restrict_column_width(self, col, old_size, new_size):
 
 
 class HeaderView(QHeaderView):  # {{{
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         QHeaderView.__init__(self, *args)
         if self.orientation() == Qt.Orientation.Horizontal:
             self.setSectionsMovable(kwargs.get('allow_mouse_movement', True))
@@ -117,7 +117,7 @@ class HeaderView(QHeaderView):  # {{{
         assert style is not None
         return style.sizeFromContents(QStyle.ContentsType.CT_HeaderSection, opt, QSize(), self)
 
-    def paintSection(self, painter, rect, logicalIndex):
+    def paintSection(self, painter, rect, logicalIndex) -> None:
         opt = QStyleOptionHeader()
         self.initStyleOption(opt)
         opt.rect = rect
@@ -182,14 +182,14 @@ class PreserveViewState:  # {{{
     and don't affect the scroll position.
     """
 
-    def __init__(self, view, preserve_hpos=True, preserve_vpos=True, require_selected_ids=True):
+    def __init__(self, view, preserve_hpos=True, preserve_vpos=True, require_selected_ids=True) -> None:
         self.view = view
         self.require_selected_ids = require_selected_ids
         self.preserve_hpos = preserve_hpos
         self.preserve_vpos = preserve_vpos
         self.init_vals()
 
-    def init_vals(self):
+    def init_vals(self) -> None:
         self.selected_ids = set()
         self.current_id = None
         self.vscroll = self.hscroll = 0
@@ -240,7 +240,7 @@ class PreserveViewState:  # {{{
         return {x: getattr(self, x) for x in ('selected_ids', 'current_id', 'vscroll', 'hscroll', 'row', 'col')}
 
     @state.setter
-    def state(self, state):
+    def state(self, state) -> None:
         for k, v in state.items():
             setattr(self, k, v)
         self.__exit__()
@@ -250,14 +250,14 @@ class PreserveViewState:  # {{{
 
 
 class AdjustColumnSize(QDialog):  # {{{
-    def __init__(self, view, column, name):
+    def __init__(self, view, column, name) -> None:
         QDialog.__init__(self)
         self.setWindowTitle(_('Adjust width of {0}').format(name))
         self.view = view
         self.column = column
         l = QGridLayout(self)
 
-        def add_row(a, b=None):
+        def add_row(a, b=None) -> None:
             r = l.rowCount()
             if b is None:
                 l.addWidget(a, r, 0, 1, 2)
@@ -316,34 +316,34 @@ class AdjustColumnSize(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
 
-    def reject(self):
+    def reject(self) -> None:
         self.view.setColumnWidth(self.column, self.original_size)
         QDialog.reject(self)
 
-    def resize_to_fit_button_clicked(self):
+    def resize_to_fit_button_clicked(self) -> None:
         self.view.resizeColumnToContents(self.column)
         w = self.view.horizontalHeader().sectionSize(self.column)
         w = min(w, self.maximum_size)
         self.spin_box.setValue(w)
 
-    def set_maximum_button_clicked(self):
+    def set_maximum_button_clicked(self) -> None:
         # Do this dance in case the current width exceeds the maximum, which can
         # happen if the user is playing across multiple monitors
         self.spin_box.setValue(self.maximum_size - 1)
         self.spin_box.setValue(self.maximum_size)
 
-    def set_minimum_button_clicked(self):
+    def set_minimum_button_clicked(self) -> None:
         self.spin_box.setValue(self.minimum_size)
 
-    def shrink_button_clicked(self):
+    def shrink_button_clicked(self) -> None:
         w = int(self.view.horizontalHeader().sectionSize(self.column) * 0.9)
         self.spin_box.setValue(w)
 
-    def expand_button_clicked(self):
+    def expand_button_clicked(self) -> None:
         w = int(self.view.horizontalHeader().sectionSize(self.column) * 1.1)
         self.spin_box.setValue(w)
 
-    def spin_box_changed(self, val):
+    def spin_box_changed(self, val) -> None:
         self.view.setColumnWidth(self.column, val)
 
 
@@ -368,7 +368,7 @@ class BooksView(TableView):  # {{{
                 return ret
         return super().viewportEvent(e)
 
-    def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
+    def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True) -> None:
         QTableView.__init__(self, parent)
         self.pin_view = PinTableView(self, parent)
         self.gesture_manager = GestureManager(self)
@@ -487,12 +487,12 @@ class BooksView(TableView):  # {{{
         return ans
 
     # Pin view {{{
-    def set_pin_view_visibility(self, visible=False):
+    def set_pin_view_visibility(self, visible=False) -> None:
         self.pin_view.setVisible(visible)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff if visible else Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mirror_selection_between_views(self)
 
-    def mirror_selection_between_views(self, src):
+    def mirror_selection_between_views(self, src) -> None:
         if self.allow_mirroring:
             dest = self.pin_view if src is self else self
             if dest is self.pin_view and not dest.isVisible():
@@ -517,7 +517,7 @@ class BooksView(TableView):  # {{{
             dest_hsb.setValue(hpos)
             self.allow_mirroring = True
 
-    def mirror_vscroll(self, src, *a):
+    def mirror_vscroll(self, src, *a) -> None:
         if self.allow_mirroring:
             dest = self.pin_view if src is self else self
             if dest is self.pin_view and not dest.isVisible():
@@ -570,7 +570,7 @@ class BooksView(TableView):  # {{{
             self.add_column_signal.emit()
         elif action == 'editcustcol':
 
-            def show_restart_dialog():
+            def show_restart_dialog() -> None:
                 from calibre.gui2.preferences.main import must_restart_message
 
                 if show_restart_warning(must_restart_message):
@@ -759,7 +759,7 @@ class BooksView(TableView):  # {{{
             act.setEnabled(not col_manager.must_restart())
         return ans
 
-    def show_row_header_context_menu(self, pos):
+    def show_row_header_context_menu(self, pos) -> None:
         menu = QMenu(self)
         # Even when hidden, row numbers show if any marks show, which is why it makes
         # sense to offer "show row numbers" here. Saves having to go to Preferences
@@ -800,11 +800,11 @@ class BooksView(TableView):  # {{{
         menu.popup(self.mapToGlobal(pos))
 
     # Probably should change the method name, but leave it for compatibility
-    def hide_row_numbers(self, show=False):
+    def hide_row_numbers(self, show=False) -> None:
         gprefs['row_numbers_in_book_list'] = show
         self.set_row_header_visibility()
 
-    def show_column_header_context_menu_from_action(self):
+    def show_column_header_context_menu_from_action(self) -> None:
         if self.is_library_view:
             if self.hasFocus():
                 p = QPoint(self.column_header.sectionViewportPosition(self.currentIndex().column()), 10)
@@ -816,7 +816,7 @@ class BooksView(TableView):  # {{{
                 self.show_column_header_context_menu(p, view=self.pin_view)
             # else some other widget has the focus, such as the tag browser or quickview
 
-    def show_column_header_context_menu(self, pos, view: TableView | None = None):
+    def show_column_header_context_menu(self, pos, view: TableView | None = None) -> None:
         if view is None:
             view = self
         idx = view.column_header.logicalIndexAt(pos)
@@ -858,7 +858,7 @@ class BooksView(TableView):  # {{{
 
     # Sorting {{{
 
-    def set_sort_indicator(self, logical_idx, ascending):
+    def set_sort_indicator(self, logical_idx, ascending) -> None:
         views = [self, self.pin_view] if self.is_library_view else [self]
         for v in views:
             ch = v.column_header
@@ -866,7 +866,7 @@ class BooksView(TableView):  # {{{
             ch.setSortIndicator(logical_idx, Qt.SortOrder.AscendingOrder if ascending else Qt.SortOrder.DescendingOrder)
             ch.blockSignals(False)
 
-    def sort_by_column_and_order(self, col, ascending):
+    def sort_by_column_and_order(self, col, ascending) -> None:
         order = Qt.SortOrder.AscendingOrder if ascending else Qt.SortOrder.DescendingOrder
         self.column_header.blockSignals(True)
         self.column_header.setSortIndicator(col, order)
@@ -878,17 +878,17 @@ class BooksView(TableView):  # {{{
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
-    def user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder):
+    def user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder) -> None:
         if 0 <= col < len(self.column_map):
             field = self.column_map[col]
             self.intelligent_sort(field, order == Qt.SortOrder.AscendingOrder)
 
-    def pin_view_user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder):
+    def pin_view_user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder) -> None:
         if col < len(self.column_map) and col >= 0:
             field = self.column_map[col]
             self.intelligent_sort(field, order == Qt.SortOrder.AscendingOrder)
 
-    def intelligent_sort(self, field, ascending):
+    def intelligent_sort(self, field, ascending) -> None:
         if isinstance(ascending, Qt.SortOrder):
             ascending = ascending == Qt.SortOrder.AscendingOrder
         m = self._model
@@ -903,11 +903,11 @@ class BooksView(TableView):  # {{{
         gprefs[pname] = previous
         self.sort_by_named_field(field, previous[field])
 
-    def keyboardSearch(self, search):
+    def keyboardSearch(self, search) -> None:
         if gprefs.get('allow_keyboard_search_in_library_views', True):
             super().keyboardSearch(search)
 
-    def sort_by_named_field(self, field, order, reset=True):
+    def sort_by_named_field(self, field, order, reset=True) -> None:
         if isinstance(order, Qt.SortOrder):
             order = order == Qt.SortOrder.AscendingOrder
         if field in self.column_map:
@@ -918,7 +918,7 @@ class BooksView(TableView):  # {{{
                 self._model.sort_by_named_field(field, order, reset)
             self.set_sort_indicator(-1, True)
 
-    def multisort(self, fields, reset=True, only_if_different=False):
+    def multisort(self, fields, reset=True, only_if_different=False) -> None:
         if len(fields) == 0:
             return
         sh = self.cleanup_sort_history(self._model.sort_history, ignore_column_map=True)
@@ -948,11 +948,11 @@ class BooksView(TableView):  # {{{
             idx = -1
         self.set_sort_indicator(idx, ascending)
 
-    def resort(self):
+    def resort(self) -> None:
         with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
             self._model.resort(reset=True)
 
-    def reverse_sort(self):
+    def reverse_sort(self) -> None:
         m = self._model
         try:
             sort_col, order = m.sorted_on
@@ -963,7 +963,7 @@ class BooksView(TableView):  # {{{
     # }}}
 
     # Ondevice column {{{
-    def set_ondevice_column_visibility(self):
+    def set_ondevice_column_visibility(self) -> None:
         col = self._model.column_map.index('ondevice')
         self.column_header.setSectionHidden(col, not self._model.device_connected)
         w = gprefs.get('ondevice_column_width', 0)
@@ -972,7 +972,7 @@ class BooksView(TableView):  # {{{
         if self.is_library_view:
             self.pin_view.column_header.setSectionHidden(col, True)
 
-    def set_device_connected(self, is_connected):
+    def set_device_connected(self, is_connected) -> None:
         self._model.set_device_connected(is_connected)
         self.set_ondevice_column_visibility()
 
@@ -997,13 +997,13 @@ class BooksView(TableView):  # {{{
                 state['column_sizes'][name] = h.sectionSize(i)
         return state
 
-    def write_state(self, state):
+    def write_state(self, state) -> None:
         db = getattr(self.model(), 'db', None)
         name = str(self.objectName())
         if name and db is not None:
             db.new_api.set_pref(name + ' books view state', state)
 
-    def save_state(self):
+    def save_state(self) -> None:
         # Only save if we have been initialized (set_database called)
         if len(self.column_map) > 0 and self.was_restored and self.allow_save_state:
             state = self.get_state()
@@ -1023,7 +1023,7 @@ class BooksView(TableView):  # {{{
                     history.append([col, order])
         return history
 
-    def apply_sort_history(self, saved_history, max_sort_levels=3):
+    def apply_sort_history(self, saved_history, max_sort_levels=3) -> None:
         if not saved_history:
             return
         if self.is_library_view:
@@ -1035,7 +1035,7 @@ class BooksView(TableView):  # {{{
             for col, order in reversed(self.cleanup_sort_history(saved_history)[:max_sort_levels]):
                 self.sort_by_column_and_order(self.column_map.index(col), order)
 
-    def apply_state(self, state, max_sort_levels=3, save_state=True):
+    def apply_state(self, state, max_sort_levels=3, save_state=True) -> None:
         # set save_state=False if you will save the state yourself after calling
         # this method.
         h = self.column_header
@@ -1151,7 +1151,7 @@ class BooksView(TableView):  # {{{
                         db.new_api.set_pref(name, ans)
         return ans
 
-    def restore_state(self):
+    def restore_state(self) -> None:
         old_state = self.get_old_state()
         if old_state is None:
             old_state = self.get_default_state()
@@ -1185,15 +1185,15 @@ class BooksView(TableView):  # {{{
 
         self.was_restored = True
 
-    def refresh_row_sizing(self):
+    def refresh_row_sizing(self) -> None:
         self.row_sizing_done = False
         self.do_row_sizing()
 
-    def refresh_grid(self):
+    def refresh_grid(self) -> None:
         for wv in self, self.pin_view:
             wv.setShowGrid(bool(gprefs['booklist_grid']))
 
-    def do_row_sizing(self):
+    def do_row_sizing(self) -> None:
         # Resize all rows to have the correct height
         _drs_model = self.model()
         assert _drs_model is not None
@@ -1209,27 +1209,27 @@ class BooksView(TableView):  # {{{
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
-    def manually_adjust_column_size(self, view, column, name):
+    def manually_adjust_column_size(self, view, column, name) -> None:
         col = self.column_map.index(column)
         AdjustColumnSize(view, col, name).exec()
 
-    def column_resized(self, col, old_size, new_size):
+    def column_resized(self, col, old_size, new_size) -> None:
         restrict_column_width(self, col, old_size, new_size)
 
-    def pin_view_column_resized(self, col, old_size, new_size):
+    def pin_view_column_resized(self, col, old_size, new_size) -> None:
         restrict_column_width(self.pin_view, col, old_size, new_size)
 
     # }}}
 
     # Initialization/Delegate Setup {{{
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.alternate_views.set_database(db)
         self.save_state()
         self._model.set_database(db)
         self.alternate_views.set_database(db, stage=1)
 
-    def marked_changed(self, old_marked, current_marked):
+    def marked_changed(self, old_marked, current_marked) -> None:
         self.alternate_views.marked_changed(old_marked, current_marked)
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
@@ -1262,11 +1262,11 @@ class BooksView(TableView):  # {{{
             # refresh rows for the ids because there might be a composite that uses marked_books()
             self._model.refresh_ids(current_marked)
 
-    def set_row_header_visibility(self):
+    def set_row_header_visibility(self) -> None:
         visible = self._model.row_decoration is not None or gprefs['row_numbers_in_book_list']
         self.row_header.setVisible(visible)
 
-    def database_changed(self, db):
+    def database_changed(self, db) -> None:
         db.data.add_marked_listener(self.marked_changed_listener)
         _dc_model = self.model()
         assert _dc_model is not None
@@ -1293,20 +1293,20 @@ class BooksView(TableView):  # {{{
         # }}}
 
     # Context Menu {{{
-    def set_context_menu(self, menu, edit_collections_action):
+    def set_context_menu(self, menu, edit_collections_action) -> None:
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         self.context_menu = menu
         self.alternate_views.set_context_menu(menu)
         self.edit_collections_action = edit_collections_action
 
-    def show_context_menu(self, menu, event):
+    def show_context_menu(self, menu, event) -> None:
         from calibre.gui2.main_window import clone_menu
 
         m = clone_menu(menu) if islinux else menu
         m.popup(event.globalPos())
         event.accept()
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         self.show_context_menu(self.context_menu, a0)
 
     # }}}
@@ -1379,7 +1379,7 @@ class BooksView(TableView):  # {{{
         else:
             QTableView.mousePressEvent(self, ev)
 
-    def handle_mouse_release_event(self, ev):
+    def handle_mouse_release_event(self, ev) -> None:
         if (
             ev.modifiers() == Qt.KeyboardModifier.NoModifier
             and ev.button() == Qt.MouseButton.LeftButton
@@ -1407,7 +1407,7 @@ class BooksView(TableView):  # {{{
         assert h is not None
         return (key for lidx, key in enumerate(self.column_map) if not h.isSectionHidden(lidx))
 
-    def refresh_book_details(self, force=False):
+    def refresh_book_details(self, force=False) -> bool:
         idx = self.currentIndex()
         if not idx.isValid() and force:
             _rbd_model = self.model()
@@ -1432,13 +1432,13 @@ class BooksView(TableView):  # {{{
                 ans.append(row)
         return ans
 
-    def scrollContentsBy(self, dx, dy):
+    def scrollContentsBy(self, dx, dy) -> None:
         # Needed as Qt bug causes headerview to not always update when scrolling
         QTableView.scrollContentsBy(self, dx, dy)
         if dy != 0:
             self.column_header.update()
 
-    def scroll_to_row(self, row):
+    def scroll_to_row(self, row) -> None:
         _str_model = self.model()
         assert _str_model is not None
         row = min(row, _str_model.rowCount(QModelIndex()) - 1)
@@ -1499,7 +1499,7 @@ class BooksView(TableView):  # {{{
         assert _cbs_pv_hsb is not None
         return self.current_book, _cbs_hsb.value(), _cbs_pv_hsb.value()
 
-    def restore_current_book_state(self, state):
+    def restore_current_book_state(self, state) -> None:
         book_id, hpos, pv_hpos = state
         try:
             row = getattr(self._model, 'db').data.id_to_index(book_id)
@@ -1515,7 +1515,7 @@ class BooksView(TableView):  # {{{
             assert _rcbs_pv_hsb is not None
             _rcbs_pv_hsb.setValue(pv_hpos)
 
-    def set_current_row(self, row=0, select=True, for_sync=False, book_id=None):
+    def set_current_row(self, row=0, select=True, for_sync=False, book_id=None) -> None:
         if book_id is not None:
             assert self._model is not None and self._model.db is not None
             row = self._model.db.data.id_to_index(book_id)
@@ -1550,7 +1550,7 @@ class BooksView(TableView):  # {{{
                     sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
             _scr_hsb.setValue(hpos)
 
-    def select_cell(self, row_number=0, logical_column=0):
+    def select_cell(self, row_number=0, logical_column=0) -> None:
         _sc_model = self.model()
         assert _sc_model is not None
         if row_number > -1 and row_number < _sc_model.rowCount(QModelIndex()):
@@ -1694,7 +1694,7 @@ class BooksView(TableView):  # {{{
         return None
 
     @current_id.setter
-    def current_id(self, val):
+    def current_id(self, val) -> None:
         if val is None:
             return
         m = self.model()
@@ -1704,7 +1704,7 @@ class BooksView(TableView):  # {{{
                 self.set_current_row(row, select=False)
                 break
 
-    def show_next_book(self):
+    def show_next_book(self) -> None:
         ci = self.currentIndex()
         if not ci.isValid():
             self.set_current_row()
@@ -1749,13 +1749,13 @@ class BooksView(TableView):  # {{{
     def close(self):
         self._model.close()
 
-    def on_current_row_change(self, current, previous):
+    def on_current_row_change(self, current, previous) -> None:
         self._model.current_changed(current, previous)
 
-    def set_editable(self, editable, supports_backloading):
+    def set_editable(self, editable, supports_backloading) -> None:
         getattr(self._model, 'set_editable')(editable)
 
-    def move_highlighted_row(self, forward):
+    def move_highlighted_row(self, forward) -> None:
         _mhr_sm = self.selectionModel()
         assert _mhr_sm is not None
         rows = _mhr_sm.selectedRows()
@@ -1767,7 +1767,7 @@ class BooksView(TableView):  # {{{
         if id_to_select is not None:
             self.select_rows([id_to_select], using_ids=True)
 
-    def search_proxy(self, txt):
+    def search_proxy(self, txt) -> None:
         if self.is_library_view:
             # Save the current book before doing the search, after the search
             # is completed, this book will become the current book and be
@@ -1782,14 +1782,14 @@ class BooksView(TableView):  # {{{
         if self.isVisible() and getattr(txt, 'as_you_type', False) is not True:
             self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def connect_to_search_box(self, sb, search_done):
+    def connect_to_search_box(self, sb, search_done) -> None:
         sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
         if self.is_library_view:
             self._model.search_done.connect(self.alternate_views.restore_current_book_state)
 
-    def connect_to_book_display(self, bd):
+    def connect_to_book_display(self, bd) -> None:
         self.book_display_callback = bd
         self.connect_to_book_display_timer = t = QTimer(self)
         t.setSingleShot(True)
@@ -1797,15 +1797,15 @@ class BooksView(TableView):  # {{{
         t.setInterval(BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY)
         self._model.new_bookdisplay_data.connect(self._timed_connect_to_book_display)
 
-    def _timed_connect_to_book_display(self, data):
+    def _timed_connect_to_book_display(self, data) -> None:
         self._book_display_data = data
         self.connect_to_book_display_timer.start()
 
-    def _debounce_book_display(self):
+    def _debounce_book_display(self) -> None:
         data, self._book_display_data = self._book_display_data, None
         self.book_display_callback(data)
 
-    def search_done(self, ok):
+    def search_done(self, ok) -> None:
         self._search_done(self, ok)
 
     def row_count(self):
@@ -1825,7 +1825,7 @@ class DeviceBooksView(BooksView):  # {{{
     def device_model(self) -> DeviceBooksModel:
         return cast('DeviceBooksModel', self._model)
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         BooksView.__init__(self, parent, DeviceBooksModel, use_edit_metadata_dialog=False)
         self.device_model.resize_rows.connect(self.do_row_sizing, type=Qt.ConnectionType.QueuedConnection)
         self.can_add_columns = False
@@ -1838,7 +1838,7 @@ class DeviceBooksView(BooksView):  # {{{
         self.setAcceptDrops(False)
         self.set_row_header_visibility()
 
-    def set_row_header_visibility(self):
+    def set_row_header_visibility(self) -> None:
         self.row_header.setVisible(gprefs['row_numbers_in_book_list'])
 
     def drag_data(self):
@@ -1861,7 +1861,7 @@ class DeviceBooksView(BooksView):  # {{{
         drag.setPixmap(cover)
         return drag
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         _cme_db = self.device_model.db
         assert _cme_db is not None
         _cme_sc = getattr(_cme_db, 'supports_collections', None)
@@ -1879,41 +1879,41 @@ class DeviceBooksView(BooksView):  # {{{
             ans = gprefs.get(name, None)
         return ans
 
-    def write_state(self, state):
+    def write_state(self, state) -> None:
         name = str(self.objectName())
         if name:
             gprefs.set(name + ' books view state', state)
 
-    def set_database(self, db):
+    def set_database(self, db) -> None:
         self.device_model.set_database(db)
         self.restore_state()
 
-    def connect_dirtied_signal(self, slot):
+    def connect_dirtied_signal(self, slot) -> None:
         self.device_model.booklist_dirtied.connect(slot)
 
-    def connect_upload_collections_signal(self, func=None, oncard=None):
+    def connect_upload_collections_signal(self, func=None, oncard=None) -> None:
         assert func is not None
         self.device_model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
-    def dropEvent(self, event=...):
+    def dropEvent(self, event=...) -> None:
         error_dialog(
             self,
             _('Not allowed'),
             _('Dropping onto a device is not supported. First add the book to the calibre library.'),
         ).exec()
 
-    def set_editable(self, editable, supports_backloading):
+    def set_editable(self, editable, supports_backloading) -> None:
         self.device_model.set_editable(editable)
         self.drag_allowed = supports_backloading
 
-    def resort(self):
+    def resort(self) -> None:
         h = self.horizontalHeader()
         assert h is not None
         _rs_model = self.model()
         assert _rs_model is not None
         _rs_model.sort(h.sortIndicatorSection(), h.sortIndicatorOrder())
 
-    def reverse_sort(self):
+    def reverse_sort(self) -> None:
         h = self.horizontalHeader()
         assert h is not None
         h.setSortIndicator(

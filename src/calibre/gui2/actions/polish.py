@@ -39,7 +39,7 @@ from calibre.utils.localization import _, ngettext
 
 
 class Polish(QDialog):  # {{{
-    def __init__(self, db, book_id_map, parent=None):
+    def __init__(self, db, book_id_map, parent=None) -> None:
         from calibre.ebooks.oeb.polish.main import HELP
 
         QDialog.__init__(self, parent)
@@ -167,7 +167,7 @@ class Polish(QDialog):  # {{{
         sz = super().sizeHint()
         return QSize(max(950, sz.width()), max(600, sz.height()))
 
-    def select_all(self, enable):
+    def select_all(self, enable) -> None:
         for action in self.all_actions:
             x = getattr(self, 'opt_' + action)
             x.blockSignals(True)
@@ -187,7 +187,7 @@ class Polish(QDialog):  # {{{
                 gprefs.set('polish_settings', saved)
                 self.setup_load_button()
 
-    def setup_load_button(self):
+    def setup_load_button(self) -> None:
         saved = gprefs.get('polish_settings', {})
         m = self.load_menu
         m.clear()
@@ -201,11 +201,11 @@ class Polish(QDialog):  # {{{
         assert load_button is not None
         load_button.setEnabled(bool(saved))
 
-    def clear_settings(self):
+    def clear_settings(self) -> None:
         gprefs.set('polish_settings', {})
         self.setup_load_button()
 
-    def load_settings(self, name):
+    def load_settings(self, name) -> None:
         saved = gprefs.get('polish_settings', {}).get(name, {})
         for action in self.all_actions:
             checked = saved.get(action, False)
@@ -214,16 +214,16 @@ class Polish(QDialog):  # {{{
             x.setChecked(checked)
             x.blockSignals(False)
 
-    def option_toggled(self, name, state):
+    def option_toggled(self, name, state) -> None:
         if state == Qt.CheckState.Checked:
             self.help_label.setText(self.help_text[name])
 
-    def help_link_activated(self, link):
+    def help_link_activated(self, link) -> None:
         link = str(link)[1:]
         self.help_label.setText(self.help_text[link])
 
     @property
-    def something_selected(self):
+    def something_selected(self) -> bool:
         # ruff: ignore[reimplemented-builtin]
         for action in self.all_actions:
             if getattr(self, 'opt_' + action).isChecked():
@@ -268,7 +268,7 @@ class Polish(QDialog):  # {{{
         self.queue_files()
         return super().accept()
 
-    def queue_files(self):
+    def queue_files(self) -> None:
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
         self.jobs = []
         if len(self.book_id_map) <= 5:
@@ -280,7 +280,7 @@ class Polish(QDialog):  # {{{
             QTimer.singleShot(0, self.do_one)
             self.pd.exec()
 
-    def do_one(self):
+    def do_one(self) -> None:
         if not self.queue:
             self.pd.accept()
             return
@@ -298,7 +298,7 @@ class Polish(QDialog):  # {{{
             self.pd.set_value(num)
             QTimer.singleShot(0, self.do_one)
 
-    def do_book(self, num, book_id, formats):
+    def do_book(self, num, book_id, formats) -> None:
         base = os.path.join(self.tdir, str(book_id))
         os.mkdir(base)
         db = self.db()
@@ -339,7 +339,7 @@ class Polish(QDialog):  # {{{
 
 
 class Report(QDialog):  # {{{
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QDialog.__init__(self, parent)
         self.gui = parent
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
@@ -375,7 +375,7 @@ class Report(QDialog):  # {{{
 
         self.resize(QSize(800, 600))
 
-    def setup_ign(self):
+    def setup_ign(self) -> None:
         self.ign.setText(ngettext('Ignore remaining report', 'Ignore remaining {} reports', len(self.reports)).format(len(self.reports)))
         self.ign.setVisible(bool(self.reports))
         self.ign.setChecked(False)
@@ -386,7 +386,7 @@ class Report(QDialog):  # {{{
         if not self.isVisible():
             self.show_next()
 
-    def show_report(self, book_title, book_id, fmts, job, report):
+    def show_report(self, book_title, book_id, fmts, job, report) -> None:
         from markdown import markdown
 
         self.current_log = job.details
@@ -402,13 +402,13 @@ class Report(QDialog):  # {{{
             )
             self.backup_msg.setText(m + ' ' + _('If you polish again, the polishing will run on the originals.') % ())
 
-    def view_log(self):
+    def view_log(self) -> None:
         self.view.setPlainText(self.current_log)
         vsb = self.view.verticalScrollBar()
         assert vsb is not None
         vsb.setValue(0)
 
-    def show_next(self, *args):
+    def show_next(self, *args) -> None:
         if not self.reports:
             return
         if not self.isVisible():
@@ -416,7 +416,7 @@ class Report(QDialog):  # {{{
         self.show_report(*self.reports.pop(0))
         self.setup_ign()
 
-    def accept(self):
+    def accept(self) -> None:
         if self.ign.isChecked():
             self.reports = []
         if self.reports:
@@ -424,7 +424,7 @@ class Report(QDialog):  # {{{
             return
         super().accept()
 
-    def reject(self):
+    def reject(self) -> None:
         if self.ign.isChecked():
             self.reports = []
         if self.reports:
@@ -442,13 +442,13 @@ class PolishAction(InterfaceActionWithLibraryDrop):
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_id_map = self.get_supported_books(self.dropped_ids)
         del self.dropped_ids
         if book_id_map:
             self.do_polish(book_id_map)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.qaction.triggered.connect(self.polish_books)
         self.report = Report(self.gui)
         self.to_be_refreshed = set()
@@ -457,10 +457,10 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         t.setInterval(1000)
         t.timeout.connect(self.refresh_after_polish)
 
-    def shutting_down(self):
+    def shutting_down(self) -> None:
         self.refresh_debounce_timer.stop()
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -517,13 +517,13 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                     fmts.discard(x)
         return ans
 
-    def polish_books(self):
+    def polish_books(self) -> None:
         book_id_map = self.get_books_for_polishing()
         if not book_id_map:
             return
         self.do_polish(book_id_map)
 
-    def do_polish(self, book_id_map):
+    def do_polish(self, book_id_map) -> None:
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
         if d.exec() == QDialog.DialogCode.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
@@ -537,7 +537,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                     2000,
                 )
 
-    def book_polished(self, job):
+    def book_polished(self, job) -> None:
         if job.failed:
             self.gui.job_exception(job)
             return
@@ -563,7 +563,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         if show_reports:
             self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, job.result)
 
-    def refresh_after_polish(self):
+    def refresh_after_polish(self) -> None:
         self.refresh_debounce_timer.stop()
         book_ids = tuple(self.to_be_refreshed)
         self.to_be_refreshed = set()

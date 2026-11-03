@@ -38,7 +38,7 @@ class Heading(QWidget):  # {{{
     toggled = pyqtSignal(object)
     context_menu_requested = pyqtSignal(object, object)
 
-    def __init__(self, text, expanded=True, parent=None):
+    def __init__(self, text, expanded=True, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -51,7 +51,7 @@ class Heading(QWidget):  # {{{
     def lines_for_copy(self):
         return [self.text]
 
-    def do_layout(self):
+    def do_layout(self) -> None:
         try:
             p = self.parent()
             assert isinstance(p, QWidget)
@@ -79,7 +79,7 @@ class Heading(QWidget):  # {{{
         sz = fm.boundingRect(self.rendered_text).size()
         return sz
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QPainter(self)
         p.setClipRect(a0.rect())
         bg = self.palette().color(QPalette.ColorRole.AlternateBase)
@@ -105,7 +105,7 @@ class Heading(QWidget):  # {{{
         self.update()
         return QWidget.leaveEvent(self, a0)
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         self.context_menu_requested.emit(self, a0)
 
 
@@ -118,7 +118,7 @@ class Cell:  # {{{
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine | Qt.TextFlag.TextIncludeTrailingSpaces
 
-    def __init__(self, text, rect, right_align=False, color_role=QPalette.ColorRole.WindowText, swatch=None, is_overriden=False):
+    def __init__(self, text, rect, right_align=False, color_role=QPalette.ColorRole.WindowText, swatch=None, is_overriden=False) -> None:
         self.rect, self.text = rect, text
         self.right_align = right_align
         self.is_overriden = is_overriden
@@ -128,7 +128,7 @@ class Cell:  # {{{
         if swatch is not None:
             self.swatch = QColor(swatch[0], swatch[1], swatch[2], int(255 * swatch[3]))
 
-    def draw(self, painter, width, palette):
+    def draw(self, painter, width, palette) -> None:
         flags = self.FLAGS | (Qt.AlignmentFlag.AlignRight if self.right_align else Qt.AlignmentFlag.AlignLeft)
         rect = QRect(self.rect)
         if self.right_align:
@@ -151,7 +151,7 @@ class Declaration(QWidget):
     hyperlink_activated = pyqtSignal(object)
     context_menu_requested = pyqtSignal(object, object)
 
-    def __init__(self, html_name, data, is_first=False, parent=None):
+    def __init__(self, html_name, data, is_first=False, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         self.data = data
@@ -161,7 +161,7 @@ class Declaration(QWidget):
         self.do_layout()
         self.setMouseTracking(True)
 
-    def do_layout(self):
+    def do_layout(self) -> None:
         fm = self.fontMetrics()
 
         def bounding_rect(text):
@@ -219,7 +219,7 @@ class Declaration(QWidget):
     def sizeHint(self):
         return QSize(self.width_hint, self.height_hint)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         p = QPainter(self)
         p.setClipRect(a0.rect())
         palette = self.palette()
@@ -268,7 +268,7 @@ class Declaration(QWidget):
                 self.emit_hyperlink_activated()
         return QWidget.mousePressEvent(self, a0)
 
-    def emit_hyperlink_activated(self):
+    def emit_hyperlink_activated(self) -> None:
         dt = self.data['type']
         data = {'type': dt, 'name': self.html_name, 'syntax': 'html'}
         if dt == 'inline':  # style attribute
@@ -287,27 +287,27 @@ class Declaration(QWidget):
         self.setCursor(Qt.CursorShape.ArrowCursor)
         return QWidget.leaveEvent(self, a0)
 
-    def update_hover(self, hovering):
+    def update_hover(self, hovering) -> None:
         cell = self.rows[0][0]
         if (hovering and cell.override_color is None) or (not hovering and cell.override_color is not None):
             cell.override_color = QColor(Qt.GlobalColor.red) if hovering else None
             self.update()
 
-    def contextMenuEvent(self, a0):
+    def contextMenuEvent(self, a0) -> None:
         self.context_menu_requested.emit(self, a0)
 
 
 class Box(QWidget):
     hyperlink_activated = pyqtSignal(object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         l.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(l)
         self.widgets = []
 
-    def show_data(self, data):
+    def show_data(self, data) -> None:
         layout = self.layout()
         assert layout is not None
         for w in self.widgets:
@@ -344,7 +344,7 @@ class Box(QWidget):
         for w in self.widgets:
             w.context_menu_requested.connect(self.context_menu_requested)
 
-    def heading_toggled(self, heading):
+    def heading_toggled(self, heading) -> None:
         for i, w in enumerate(self.widgets):
             if w is heading:
                 for b in self.widgets[i + 1 :]:
@@ -353,7 +353,7 @@ class Box(QWidget):
                     b.setVisible(heading.expanded)
                 break
 
-    def relayout(self):
+    def relayout(self) -> None:
         for w in self.widgets:
             w.do_layout()
             w.updateGeometry()
@@ -365,7 +365,7 @@ class Box(QWidget):
             ans += w.lines_for_copy
         return ans
 
-    def context_menu_requested(self, widget, ev):
+    def context_menu_requested(self, widget, ev) -> None:
         if isinstance(widget, Heading):
             start = widget
         else:
@@ -392,7 +392,7 @@ class Box(QWidget):
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
 
-        def _copy_to_clipboard(text):
+        def _copy_to_clipboard(text) -> None:
             cb = qapplication_or_fail().clipboard()
             assert cb is not None
             cb.setText(text)
@@ -410,12 +410,12 @@ class Box(QWidget):
 class Property:
     __slots__ = ('color', 'important', 'is_overriden', 'name', 'specificity', 'value')
 
-    def __init__(self, prop, specificity=()):
+    def __init__(self, prop, specificity=()) -> None:
         self.name, self.value, self.important, self.color = prop
         self.specificity = tuple(specificity)
         self.is_overriden = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f'<Property name={self.name} value={self.value} important={self.important} '
             f'color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>'
@@ -425,7 +425,7 @@ class Property:
 class LiveCSS(QWidget):
     goto_declaration = pyqtSignal(object)
 
-    def __init__(self, preview, parent=None):
+    def __init__(self, preview, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.preview = preview
         preview.live_css_data.connect(self.got_live_css_data)
@@ -458,15 +458,15 @@ class LiveCSS(QWidget):
         sc.setWidgetResizable(True)
         s.addWidget(sc)
 
-    def preview_refresh_starting(self):
+    def preview_refresh_starting(self) -> None:
         self.preview_is_refreshing = True
 
-    def preview_refreshed(self):
+    def preview_refreshed(self) -> None:
         self.preview_is_refreshing = False
         self.refresh_needed = True
         self.start_update_timer()
 
-    def apply_theme(self):
+    def apply_theme(self) -> None:
         f = self.font()
         f.setFamily(tprefs['editor_font_family'] or default_font_family())
         f.setPointSizeF(tprefs['editor_font_size'])
@@ -483,10 +483,10 @@ class LiveCSS(QWidget):
             self.box.relayout()
         self.update()
 
-    def clear(self):
+    def clear(self) -> None:
         self.stack.setCurrentIndex(0)
 
-    def show_data(self, editor_name, sourceline, tags):
+    def show_data(self, editor_name, sourceline, tags) -> None:
         if self.preview_is_refreshing:
             return
         if sourceline is None:
@@ -494,7 +494,7 @@ class LiveCSS(QWidget):
         else:
             self.preview.request_live_css_data(editor_name, sourceline, tags)
 
-    def got_live_css_data(self, result):
+    def got_live_css_data(self, result) -> None:
         maximum_specificities = {}
         for node in result['nodes']:
             for rule in node['css']:
@@ -506,7 +506,7 @@ class LiveCSS(QWidget):
                         prop.is_overriden = True
         self.display_received_live_css_data(result)
 
-    def display_received_live_css_data(self, data):
+    def display_received_live_css_data(self, data) -> None:
         editor_name = data['editor_name']
         sourceline = data['sourceline']
         tags = data['tags']
@@ -524,7 +524,7 @@ class LiveCSS(QWidget):
         self.refresh_needed = False
         self.stack.setCurrentIndex(1)
 
-    def process_rule(self, rule, ancestor_specificity, maximum_specificities):
+    def process_rule(self, rule, ancestor_specificity, maximum_specificities) -> None:
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
@@ -566,7 +566,7 @@ class LiveCSS(QWidget):
         actions['auto-reload-preview'].setEnabled(True)
         return QWidget.showEvent(self, a0)
 
-    def sync_to_editor(self):
+    def sync_to_editor(self) -> None:
         self.update_data()
 
     def update_data(self):
@@ -581,14 +581,14 @@ class LiveCSS(QWidget):
             if self.refresh_needed or self.now_showing != (editor_name, sourceline, tags):
                 self.show_data(editor_name, sourceline, tags)
 
-    def start_update_timer(self):
+    def start_update_timer(self) -> None:
         if self.is_visible:
             self.update_timer.start()
 
-    def stop_update_timer(self):
+    def stop_update_timer(self) -> None:
         self.update_timer.stop()
 
-    def navigate_to_declaration(self, data, editor):
+    def navigate_to_declaration(self, data, editor) -> None:
         if data['type'] == 'inline':
             sourceline, tags = data['sourceline_address']
             editor.goto_sourceline(sourceline, tags, attribute='style')

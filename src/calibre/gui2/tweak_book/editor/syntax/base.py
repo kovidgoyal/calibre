@@ -37,7 +37,7 @@ def run_loop(user_data, state_map, formats, text):
 class SimpleState:
     __slots__ = ('parse',)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parse = 0
 
     def copy(self):
@@ -47,12 +47,12 @@ class SimpleState:
 
 
 class SimpleUserData(QTextBlockUserData):
-    def __init__(self):
+    def __init__(self) -> None:
         QTextBlockUserData.__init__(self)
         self.state = SimpleState()
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None):
+    def clear(self, state=None, doc_name=None) -> None:
         self.state = SimpleState() if state is None else state
         self.doc_name = doc_name
 
@@ -63,13 +63,13 @@ class SyntaxHighlighter:
 
     spell_attributes = ()
 
-    def tag_ok_for_spell(x):
+    def tag_ok_for_spell(x) -> bool:
         return False
 
     user_data_factory = SimpleUserData
     state_map: dict
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.doc = None
         self.doc_name = None
         self.requests = deque()
@@ -79,15 +79,15 @@ class SyntaxHighlighter:
     def has_requests(self):
         return bool(self.requests)
 
-    def apply_theme(self, theme):
+    def apply_theme(self, theme) -> None:
         self.theme = {k: highlight_to_char_format(v) for k, v in theme.items()}
         self.create_formats()
         self.rehighlight()
 
-    def create_formats(self):
+    def create_formats(self) -> None:
         self.formats = self.create_formats_func()
 
-    def set_document(self, doc, doc_name=None):
+    def set_document(self, doc, doc_name=None) -> None:
         old_doc = self.doc
         if old_doc is not None:
             old_doc.contentsChange.disconnect(self.reformat_blocks)
@@ -105,7 +105,7 @@ class SyntaxHighlighter:
             doc.contentsChange.connect(self.reformat_blocks)
             self.rehighlight()
 
-    def rehighlight(self):
+    def rehighlight(self) -> None:
         doc = self.doc
         if doc is None:
             return
@@ -122,7 +122,7 @@ class SyntaxHighlighter:
             new_data = True
         return ud, new_data
 
-    def reformat_blocks(self, position, removed, added):
+    def reformat_blocks(self, position, removed, added) -> None:
         doc = self.doc
         if doc is None or self.ignore_requests or not hasattr(self, 'state_map'):
             return
@@ -139,7 +139,7 @@ class SyntaxHighlighter:
         self.requests.append((start_cursor, end_cursor))
         QTimer.singleShot(0, self.do_one_block)
 
-    def do_one_block(self):
+    def do_one_block(self) -> None:
         try:
             start_cursor, end_cursor = self.requests[0]
         except IndexError:
@@ -174,7 +174,7 @@ class SyntaxHighlighter:
             self.ignore_requests = False
             QTimer.singleShot(0, self.do_one_block)
 
-    def join(self):
+    def join(self) -> None:
         """Blocks until all pending highlighting requests are handled"""
         doc = self.doc
         if doc is None:
@@ -224,11 +224,11 @@ class SyntaxHighlighter:
         force_next_highlight = is_new_ud or ud.state != orig_state
         return formats, force_next_highlight
 
-    def reformat_block(self, block):
+    def reformat_block(self, block) -> None:
         if block.isValid():
             self.reformat_blocks(block.position(), 0, 1)
 
-    def apply_format_changes(self, block, formats):
+    def apply_format_changes(self, block, formats) -> None:
         layout = block.layout()
         preedit_start = layout.preeditAreaPosition()
         preedit_length = len(layout.preeditAreaText())

@@ -8,7 +8,7 @@ from calibre.utils.localization import _
 
 
 class ListWidgetItem(QListWidgetItem):
-    def __init__(self, txt):
+    def __init__(self, txt) -> None:
         QListWidgetItem.__init__(self, txt)
         self.initial_value = txt
         self.current_value = txt
@@ -25,7 +25,7 @@ class ListWidgetItem(QListWidgetItem):
         else:
             return QListWidgetItem.data(self, role)
 
-    def setData(self, role, value):
+    def setData(self, role, value) -> None:
         if role == Qt.ItemDataRole.EditRole:
             self.previous_value = self.current_value
             self.current_value = value
@@ -40,13 +40,13 @@ class ListWidgetItem(QListWidgetItem):
     def previous_text(self):
         return self.previous_value
 
-    def setText(self, atext):
+    def setText(self, atext) -> None:
         self.current_value = atext
         QListWidgetItem.setText(self, atext)
 
 
 class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
-    def __init__(self, window, tag_to_match, data, key):
+    def __init__(self, window, tag_to_match, data, key) -> None:
         QDialog.__init__(self, window)
         Ui_DeviceCategoryEditor.__init__(self)
         self.setupUi(self)
@@ -79,7 +79,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         self.available_tags.itemDoubleClicked.connect(self._rename_tag)
         self.available_tags.itemChanged.connect(self.finish_editing)
 
-    def finish_editing(self, item):
+    def finish_editing(self, item) -> None:
         if not item.text():
             error_dialog(self, _('Item is blank'), _('An item cannot be set to nothing. Delete it instead.')).exec()
             item.setText(item.previous_text())
@@ -88,17 +88,17 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
             id_ = int(item.data(Qt.ItemDataRole.UserRole))
             self.to_rename[id_] = str(item.text())
 
-    def rename_tag(self):
+    def rename_tag(self) -> None:
         item = self.available_tags.currentItem()
         self._rename_tag(item)
 
-    def _rename_tag(self, item):
+    def _rename_tag(self, item) -> None:
         if item is None:
             error_dialog(self, _('No item selected'), _('You must select one item from the list of available items.')).exec()
             return
         self.available_tags.editItem(item)
 
-    def delete_tags(self):
+    def delete_tags(self) -> None:
         deletes = self.available_tags.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'), _('You must select at least one item from the list.')).exec()

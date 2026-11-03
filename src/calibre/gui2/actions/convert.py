@@ -21,12 +21,12 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
     action_type = 'current'
     action_add_menu = True
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         book_ids = self.dropped_ids
         del self.dropped_ids
         self.do_convert(book_ids)
 
-    def genesis(self):
+    def genesis(self) -> None:
         self.convert_menu = self.qaction.menu()
         assert self.convert_menu is not None
         m = self.convert_menu
@@ -49,7 +49,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         self.qaction.triggered.connect(self.convert_ebook)
         self.conversion_jobs = {}
 
-    def location_selected(self, loc):
+    def location_selected(self, loc) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -57,7 +57,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         for action in list(self.convert_menu.actions()):
             action.setEnabled(enabled)
 
-    def auto_convert(self, book_ids, on_card, format):
+    def auto_convert(self, book_ids, on_card, format) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
@@ -65,7 +65,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_auto_converted, extra_job_args=[on_card])
 
-    def auto_convert_auto_add(self, book_ids):
+    def auto_convert_auto_add(self, book_ids) -> None:
         previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
         needed = set()
@@ -81,7 +81,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 return
             self.queue_convert_jobs(jobs, changed, bad, list(needed), previous, self.book_converted, rows_are_ids=True)
 
-    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject):
+    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
@@ -97,7 +97,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             extra_job_args=[delete_from_library, to, fmts, subject],
         )
 
-    def auto_convert_multiple_mail(self, book_ids, data, ofmt, delete_from_library):
+    def auto_convert_multiple_mail(self, book_ids, data, ofmt, delete_from_library) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, ofmt)
@@ -113,7 +113,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             extra_job_args=[delete_from_library, data],
         )
 
-    def auto_convert_news(self, book_ids, format):
+    def auto_convert_news(self, book_ids, format) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
@@ -121,7 +121,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_auto_converted_news)
 
-    def auto_convert_catalogs(self, book_ids, format):
+    def auto_convert_catalogs(self, book_ids, format) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
@@ -137,7 +137,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             return None
         return [self.gui.library_view.model().db.id(r) for r in rows]
 
-    def convert_ebook(self, checked, bulk=None):
+    def convert_ebook(self, checked, bulk=None) -> None:
         book_ids = self.get_books_for_conversion()
         if book_ids is None:
             return
@@ -156,7 +156,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             )
         self.do_convert(book_ids, output_fmt=to_fmt, auto_conversion=True)
 
-    def do_convert(self, book_ids, bulk=None, auto_conversion=False, output_fmt=None):
+    def do_convert(self, book_ids, bulk=None, auto_conversion=False, output_fmt=None) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         num = 0
@@ -187,7 +187,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             self.gui.jobs_pointer.start()
             self.gui.status_bar.show_message(ngettext('Starting conversion of the book', 'Starting conversion of {} books', num).format(num), 2000)
 
-    def queue_convert_jobs(self, jobs, changed, bad, rows, previous, converted_func, extra_job_args=None, rows_are_ids=False):
+    def queue_convert_jobs(self, jobs, changed, bad, rows, previous, converted_func, extra_job_args=None, rows_are_ids=False) -> None:
         if extra_job_args is None:
             extra_job_args = []
         for func, args, desc, fmt, id, temp_files in jobs:
@@ -218,12 +218,12 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             current = self.gui.library_view.currentIndex()
             self.gui.library_view.model().current_changed(current, previous)
 
-    def book_auto_converted(self, job):
+    def book_auto_converted(self, job) -> None:
         temp_files, fmt, book_id, on_card = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
-    def book_auto_converted_mail(self, job):
+    def book_auto_converted_mail(self, job) -> None:
         temp_files, fmt, book_id, delete_from_library, to, fmts, subject = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.send_by_mail(
@@ -236,7 +236,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             do_auto_convert=False,
         )
 
-    def book_auto_converted_multiple_mail(self, job):
+    def book_auto_converted_multiple_mail(self, job) -> None:
         temp_files, fmt, book_id, delete_from_library, data = self.conversion_jobs[job]
         self.book_converted(job)
         for to, subject in data:
@@ -250,12 +250,12 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 do_auto_convert=False,
             )
 
-    def book_auto_converted_news(self, job):
+    def book_auto_converted_news(self, job) -> None:
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_news(send_ids=[book_id], do_auto_convert=False)
 
-    def book_auto_converted_catalogs(self, job):
+    def book_auto_converted_catalogs(self, job) -> None:
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_catalogs(send_ids=[book_id], do_auto_convert=False)

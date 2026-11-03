@@ -33,20 +33,20 @@ from calibre.utils.localization import _, ngettext
 
 
 class Icon(QWidget):
-    def __init__(self, parent=None, size=None):
+    def __init__(self, parent=None, size=None) -> None:
         QWidget.__init__(self, parent)
         self.pixmap = None
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.icon_size = size or 64
 
-    def set_icon(self, qicon):
+    def set_icon(self, qicon) -> None:
         self.pixmap = qicon.pixmap(self.icon_size, self.icon_size)
         self.update()
 
     def sizeHint(self):
         return QSize(self.icon_size, self.icon_size)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0) -> None:
         if self.pixmap is not None:
             x = (self.width() - self.icon_size) // 2
             y = (self.height() - self.icon_size) // 2
@@ -83,7 +83,7 @@ class MessageBox(QDialog):  # {{{
 
     resize_needed = pyqtSignal()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         self.setObjectName('Dialog')
         self.resize(497, 235)
         self.gridLayout = l = QGridLayout(self)
@@ -125,7 +125,7 @@ class MessageBox(QDialog):  # {{{
         no_icon=None,
         add_abort_button=False,
         only_copy_details=False,
-    ):
+    ) -> None:
         super().__init__(parent)
         self.only_copy_details = only_copy_details
         self.aborted = False
@@ -210,10 +210,10 @@ class MessageBox(QDialog):  # {{{
         self.resize_needed.connect(self.do_resize)
         self.do_resize()
 
-    def on_abort(self):
+    def on_abort(self) -> None:
         self.aborted = True
 
-    def toggle_det_msg(self, *args):
+    def toggle_det_msg(self, *args) -> None:
         vis = self.det_msg.isVisible()
         self.det_msg.setVisible(not vis)
         det_msg_toggle = self.det_msg_toggle
@@ -221,14 +221,14 @@ class MessageBox(QDialog):  # {{{
         det_msg_toggle.setText(self.show_det_msg if vis else self.hide_det_msg)
         self.resize_needed.emit()
 
-    def do_resize(self):
+    def do_resize(self) -> None:
         sz = self.sizeHint()
         sz.setWidth(max(min(sz.width(), 500), self.bb.sizeHint().width() + 100))
         sz.setHeight(min(sz.height(), 500))
         self.setMaximumSize(sz)
         self.resize(self.sizeHint())
 
-    def copy_to_clipboard(self, *args):
+    def copy_to_clipboard(self, *args) -> None:
         text = self.det_msg.toPlainText()
         if not self.only_copy_details:
             text = f'calibre, version {__version__}\n{self.windowTitle()}: {self.msg.text()}\n\n{text}'
@@ -253,7 +253,7 @@ class MessageBox(QDialog):  # {{{
             ok_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
-    def set_details(self, msg):
+    def set_details(self, msg) -> None:
         if not msg:
             msg = ''
         if might_be_rich_text(msg):
@@ -272,7 +272,7 @@ class MessageBox(QDialog):  # {{{
 
 
 class ViewLog(QDialog):  # {{{
-    def __init__(self, title, html, parent=None, unique_name=None):
+    def __init__(self, title, html, parent=None, unique_name=None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -302,13 +302,13 @@ class ViewLog(QDialog):  # {{{
     def sizeHint(self):
         return QSize(700, 500)
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         txt = self.tb.toPlainText()
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(txt)
 
-    def dialog_closing(self, result):
+    def dialog_closing(self, result) -> None:
         self.save_geometry(gprefs, self.unique_name)
 
 
@@ -338,7 +338,7 @@ class ProceedNotification(MessageBox):  # {{{
         parent=None,
         cancel_callback=None,
         log_is_file=False,
-    ):
+    ) -> None:
         """
         A non modal popup that notifies the user that a background task has
         been completed.
@@ -373,14 +373,14 @@ class ProceedNotification(MessageBox):  # {{{
         self.callback, self.cancel_callback = callback, cancel_callback
         _proceed_memory.append(self)
 
-    def show_log(self):
+    def show_log(self) -> None:
         log = self.html_log
         if self.log_is_file:
             with open(log, 'rb') as f:
                 log = f.read().decode('utf-8')
         self.log_viewer = ViewLog(self.log_viewer_title, log, parent=self)
 
-    def do_proceed(self, result):
+    def do_proceed(self, result) -> None:
         from calibre.gui2.ui import get_gui
 
         func = self.callback if result == QDialog.DialogCode.Accepted else self.cancel_callback
@@ -403,7 +403,7 @@ class ProceedNotification(MessageBox):  # {{{
 
 
 class ErrorNotification(MessageBox):  # {{{
-    def __init__(self, html_log, log_viewer_title, title, msg, det_msg='', show_copy_button=False, parent=None):
+    def __init__(self, html_log, log_viewer_title, title, msg, det_msg='', show_copy_button=False, parent=None) -> None:
         """
         A non modal popup that notifies the user that a background task has
         errored.
@@ -429,10 +429,10 @@ class ErrorNotification(MessageBox):  # {{{
         self.setModal(False)
         _proceed_memory.append(self)
 
-    def show_log(self):
+    def show_log(self) -> None:
         self.log_viewer = ViewLog(self.log_viewer_title, self.html_log, parent=self)
 
-    def do_close(self, result):
+    def do_close(self, result) -> None:
         # Ensure this notification is garbage collected
         self.setParent(None)
         self.finished.disconnect()
@@ -446,7 +446,7 @@ class ErrorNotification(MessageBox):  # {{{
 
 
 class AutoCloseNotification(MessageBox):  # {{{
-    def __init__(self, timeout=30, parent=None):
+    def __init__(self, timeout=30, parent=None) -> None:
         super().__init__(
             MessageBox.QUESTION,
             _('calibre is about to quit'),
@@ -481,7 +481,7 @@ class AutoCloseNotification(MessageBox):  # {{{
         self.updater.stop()
         return super().accept()
 
-    def update_texts(self):
+    def update_texts(self) -> None:
         time = self.timer.remainingTime() // 1000
         yes_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes)
         assert yes_btn is not None
@@ -495,7 +495,7 @@ class JobError(QDialog):  # {{{
     WIDTH = 600
     do_pop = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         QDialog.__init__(self, parent)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.queue = []
@@ -544,17 +544,17 @@ class JobError(QDialog):  # {{{
         self.suppress.setVisible(False)
         self.do_resize()
 
-    def retry(self):
+    def retry(self) -> None:
         if self.retry_func is not None:
             self.accept()
             self.retry_func()
 
-    def update_suppress_state(self):
+    def update_suppress_state(self) -> None:
         self.suppress.setText(ngettext('Hide the remaining error message', 'Hide the {} remaining error messages', len(self.queue)).format(len(self.queue)))
         self.suppress.setVisible(len(self.queue) > 3)
         self.do_resize()
 
-    def copy_to_clipboard(self, *args):
+    def copy_to_clipboard(self, *args) -> None:
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         clipboard = QApplication.clipboard()
@@ -568,7 +568,7 @@ class JobError(QDialog):  # {{{
             assert ctc_button is not None
             ctc_button.setText(_('Copied'))
 
-    def toggle_det_msg(self, *args):
+    def toggle_det_msg(self, *args) -> None:
         det_msg_toggle = self.det_msg_toggle
         assert det_msg_toggle is not None
         vis = str(det_msg_toggle.text()) == self.hide_det_msg
@@ -576,7 +576,7 @@ class JobError(QDialog):  # {{{
         self.det_msg.setVisible(not vis)
         self.do_resize()
 
-    def do_resize(self):
+    def do_resize(self) -> None:
         h = self.sizeHint().height()
         self.setMinimumHeight(0)  # Needed as this gets set if det_msg is shown
         # Needed otherwise re-showing the box after showing det_msg causes the box
@@ -591,12 +591,12 @@ class JobError(QDialog):  # {{{
         close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
-    def show_error(self, title, msg, det_msg='', retry_func=None):
+    def show_error(self, title, msg, det_msg='', retry_func=None) -> None:
         self.queue.append((title, msg, det_msg, retry_func))
         self.update_suppress_state()
         self.pop()
 
-    def pop(self):
+    def pop(self) -> None:
         if not self.queue or self.isVisible():
             return
         title, msg, det_msg, retry_func = self.queue.pop(0)
@@ -619,7 +619,7 @@ class JobError(QDialog):  # {{{
         self.do_resize()
         self.show()
 
-    def done(self, a0):
+    def done(self, a0) -> None:
         if self.suppress.isChecked():
             self.queue = []
         QDialog.done(self, a0)
@@ -645,7 +645,7 @@ if __name__ == '__main__':
     w = QMainWindow()
     w.show()
 
-    def doit():
+    def doit() -> None:
         print(question_dialog(w, 'title', 'msg <a href="http://google.com">goog</a> ', det_msg='\n'.join(lines), show_copy_button=True))
         w.close()
 

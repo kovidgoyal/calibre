@@ -18,7 +18,7 @@ from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.localization import _
 
 
-def save_dir_container(container, path):
+def save_dir_container(container, path) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
     if not os.path.isdir(path):
@@ -77,7 +77,7 @@ def save_container(container, path):
             os.remove(temp)
 
 
-def send_message(msg=''):
+def send_message(msg='') -> None:
     if msg:
         from calibre.gui2.listener import send_message_in_process
 
@@ -94,7 +94,7 @@ def find_first_existing_ancestor(path):
 
 
 class SaveWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
@@ -106,13 +106,13 @@ class SaveWidget(QWidget):
         self.pi.setVisible(False)
         self.stop()
 
-    def start(self):
+    def start(self) -> None:
         self.pi.setDisplaySize(QSize(self.label.height(), self.label.height()))
         self.pi.setVisible(True)
         self.pi.startAnimation()
         self.label.setText(_('Saving...'))
 
-    def stop(self):
+    def stop(self) -> None:
         self.pi.setVisible(False)
         self.pi.stopAnimation()
         self.label.setText('')
@@ -124,7 +124,7 @@ class SaveManager(QObject):
     save_done = pyqtSignal()
     check_for_completion = pyqtSignal()
 
-    def __init__(self, parent, notify=None):
+    def __init__(self, parent, notify=None) -> None:
         QObject.__init__(self, parent)
         self.count = 0
         self.last_saved = -1
@@ -141,11 +141,11 @@ class SaveManager(QObject):
         self.start_save.connect(w.start, type=Qt.ConnectionType.QueuedConnection)
         self.save_done.connect(w.stop, type=Qt.ConnectionType.QueuedConnection)
 
-    def schedule(self, tdir, container):
+    def schedule(self, tdir, container) -> None:
         self.count += 1
         self.requests.put((self.count, tdir, container))
 
-    def run(self):
+    def run(self) -> None:
         while True:
             x = self.requests.get()
             if x is None:
@@ -165,7 +165,7 @@ class SaveManager(QObject):
             if not error_occurred:
                 self.check_for_completion.emit()
 
-    def notify_calibre(self):
+    def notify_calibre(self) -> None:
         while True:
             if not self.notify_requests.get():
                 break
@@ -178,10 +178,10 @@ class SaveManager(QObject):
 
                 traceback.print_exc()
 
-    def clear_notify_data(self):
+    def clear_notify_data(self) -> None:
         self.notify_data = None
 
-    def __empty_queue(self):
+    def __empty_queue(self) -> None:
         "Only to be used during shutdown"
         while True:
             try:
@@ -210,7 +210,7 @@ class SaveManager(QObject):
             self.notify_requests.put(True)
         return error_occurred
 
-    def do_save(self, tdir, container):
+    def do_save(self, tdir, container) -> None:
         try:
             save_container(container, container.path_to_ebook)
         finally:
@@ -220,7 +220,7 @@ class SaveManager(QObject):
     def has_tasks(self):
         return bool(self.requests.unfinished_tasks)
 
-    def wait(self, timeout=30):
+    def wait(self, timeout=30) -> bool:
         if timeout is None:
             self.requests.join()
         else:
@@ -230,6 +230,6 @@ class SaveManager(QObject):
                 return False
         return True
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         self.requests.put(None)
         self.notify_requests.put(None)
