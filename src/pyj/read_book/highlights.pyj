@@ -751,7 +751,8 @@ add_extra_css(def ():
     ans += build_rule(qsel, margin_top='1ex', border_top='solid 1px', padding_top='1ex', cursor='pointer')
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
     ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between', flex_wrap='wrap', gap='0.65rem')
-    ans += build_rule(qsel + ' .title', display='flex', align_items='center')
+    # Leave room after the text for the focus ring drawn around the title
+    ans += build_rule(qsel + ' .title', display='flex', align_items='center', padding_inline_end='0.3em')
     ans += build_rule(qsel + ' .title > button', display='flex', flex_shrink='0')
     # The disclosure button only wraps the swatch, so that the highlighted
     # text stays selectable, show its focus ring around the whole title instead
