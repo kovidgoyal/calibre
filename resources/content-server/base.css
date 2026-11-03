@@ -77,7 +77,7 @@ a {
 
 button:focus-visible { outline: none; box-shadow: var(--calibre-focus-ring); }
 
-a.calibre-icon-button {
+:is(a, button).calibre-icon-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -102,6 +102,14 @@ a.calibre-icon-button {
         opacity: 0.5;
         pointer-events: none;
     }
+}
+
+button.calibre-icon-button {
+    margin: 0; padding: 0;
+    background: none;
+    font: inherit; line-height: inherit;
+    box-sizing: content-box;
+    cursor: pointer;
 }
 
 a.calibre-push-button {

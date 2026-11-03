@@ -586,7 +586,7 @@ def run_rapydscript_tests() -> NoReturn:
             profile = QWebEngineProfile(QApplication.instance())
             profile.setHttpUserAgent('calibre-tester')
             setup_profile(profile)
-            insert_scripts(profile, create_script('test-rapydscript.js', result['code'], on_subframes=False))
+            insert_scripts(profile, create_script('test-rapydscript.js', set_data(result['code'], 'test-rapydscript.js'), on_subframes=False))
             url_handler = UrlSchemeHandler(profile)
             profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
             QWebEnginePage.__init__(self, profile, None)

@@ -11,6 +11,7 @@ import test_book_storage  # noqa: unused-import
 import test_bookmarks  # noqa: unused-import
 import test_date  # noqa: unused-import
 import test_fts  # noqa: unused-import
+import test_highlights  # noqa: unused-import
 import test_image_popup  # noqa: unused-import
 import test_item_list  # noqa: unused-import
 import test_library_data  # noqa: unused-import
