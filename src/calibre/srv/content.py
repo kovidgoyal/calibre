@@ -14,6 +14,8 @@ from threading import Lock
 from typing import IO, TYPE_CHECKING, cast
 from urllib.parse import quote
 
+import apsw
+
 from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.customize.ui import apply_null_metadata
@@ -25,6 +27,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound
+from calibre.srv.kosync import partial_md5
 from calibre.srv.metadata import encode_stat_result
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, header_as_str, http_date
@@ -291,8 +294,12 @@ def book_fmt(ctx: Context, rd: RequestData, library_id: str, db: Cache, book_id:
     else:
         mi = db.get_proxy_metadata(book_id)
 
+    source_document: str | None = None
+
     def copy_func(dest: IO[bytes]) -> None:
+        nonlocal source_document
         db.copy_format_to(book_id, fmt, dest)
+        source_document = partial_md5(dest)
         if update_metadata:
             if not mi.cover_data[-1]:
                 cdata = db.cover(book_id)
@@ -310,7 +317,17 @@ def book_fmt(ctx: Context, rd: RequestData, library_id: str, db: Cache, book_id:
         f'''{cd}; filename="{book_filename(rd, book_id, mi, fmt)}"; filename*=utf-8''{book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True)}'''
     )
 
-    return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
+    ans = create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
+    try:
+        document = partial_md5(ans.output)
+        # UUIDs survive metadata edits and distinguish books in different libraries.
+        # All formats share progress, while clients keep using their own checksum.
+        book = f'calibre:{db.library_id}:{db.field_for("uuid", book_id)}'
+        ctx.user_manager.register_kosync_documents(book, document, *((source_document,) if source_document else ()))
+    except (OSError, apsw.Error) as err:
+        if ctx.log is not None:
+            ctx.log.warn(f'Failed to register KOReader checksums for book {book_id}: {err}')
+    return ans
 
 
 # }}}
