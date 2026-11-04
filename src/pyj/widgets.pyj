@@ -325,9 +325,11 @@ class Breadcrumbs:
 
 
 def set_tree_node_expanded(item, expanded):
+    button = item.querySelector(':scope > .tree-item-header > .tree-item-toggle')
+    if not button:
+        return  # leaf items have no children to show or hide
     item.dataset.treeState = 'open' if expanded else 'closed'
     item.lastChild.style.display = 'block' if expanded else 'none'
-    button = item.firstChild.firstChild
     button.setAttribute('aria-expanded', 'true' if expanded else 'false')
     change_icon_image(button.firstChild, 'caret-down' if expanded else 'caret-right')
 
@@ -338,7 +340,7 @@ def create_tree(root, populate_data, onclick):
 
     def toggle_node(event):
         event.stopPropagation()
-        item = event.currentTarget.parentNode.parentNode
+        item = event.currentTarget.closest('[data-tree-state]')
         set_tree_node_expanded(item, item.dataset.treeState is 'closed')
 
     def bullet(icon):
@@ -355,7 +357,7 @@ def create_tree(root, populate_data, onclick):
             for child in node.children:
                 icon = 'caret-right' if child.children?.length else None
                 li = E.div(style='display:flex; flex-direction:column; margin: 1ex 1em; margin-left: {}em'.format(level + 1),
-                    E.div(style='display:flex; align-items: center',
+                    E.div(class_='tree-item-header', style='display:flex; align-items: center',
                         bullet(icon),
                         E.span('\xa0'),
                         E.a(
@@ -449,6 +451,12 @@ add_extra_css(def ():
         .simple-tree button.tree-item-toggle {
             display: flex;
             flex-shrink: 0;
+        }
+        /* Leave room before the title for the focus ring drawn around the
+        disclosure button. Applied to every title so that leaf and branch
+        titles stay aligned. */
+        .simple-tree .tree-item-header > a.tree-item-title {
+            margin-inline-start: 0.3em;
         }
         a.tree-item-title {
             color: currentColor;

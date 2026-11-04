@@ -6,7 +6,7 @@ from elementmaker import E
 
 from dom import get_widget_css
 from testing import assert_equal, assert_false, assert_true, test
-from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
+from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view, set_tree_node_expanded
 
 
 def tree_data():
@@ -124,3 +124,20 @@ def tree_disclosures_for_untitled_sections_have_a_fallback_name():
         assert_false(button.hasAttribute('aria-labelledby'))
 
     with_tree(run, {'children': [{'title': '', 'children': [{'title': 'Child'}]}]})
+
+
+@test
+def tree_leaf_rows_ignore_expansion_and_titles_stay_aligned():
+    def run(tree):
+        links = tree.querySelectorAll('a.tree-item-title')
+        leaf = links[3].closest('[data-tree-state]')
+        set_tree_node_expanded(leaf, True)
+        assert_equal(leaf.dataset.treeState, 'closed')
+        assert_equal(leaf.lastChild.style.display, 'none')
+        # Room before every title for the focus ring around the disclosure
+        # button, the same for branch and leaf rows so titles stay aligned
+        gap = window.getComputedStyle(links[1]).marginInlineStart
+        assert_true(parseFloat(gap) > 0)
+        assert_equal(window.getComputedStyle(links[3]).marginInlineStart, gap)
+
+    with_tree(run)
