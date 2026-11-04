@@ -42,6 +42,9 @@ add_extra_css(def ():
         font_size=get_font_size('item-list-title'), font_weight='700')
     style += build_rule(sel + ' .item-subtitle',
         font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
+    style += build_rule(sel + 'a.item-primary-action', color='inherit', text_decoration='none', user_select='text')
+    style += build_rule(sel + '.item-primary-action:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='-2px')
     style += build_rule(sel + 'button.item-side-action',
         display='block', margin='0', padding='0.5rem', border='0', background='none',
         color='inherit', font='inherit', text_align='inherit')
@@ -88,6 +91,23 @@ def side_action(action, ev):
         action(li, ev.currentTarget)
 
 
+def primary_action_key_event(ev):
+    target = ev.currentTarget
+    modified = ev.ctrlKey or ev.altKey or ev.metaKey
+    if ev.key is ' ':
+        if ev.type is 'keydown' and not modified:
+            ev.preventDefault(), ev.stopPropagation()
+            target.item_space_pressed = True
+        elif ev.type is 'keyup':
+            pressed, target.item_space_pressed = target.item_space_pressed, False
+            if pressed and not modified:
+                ev.preventDefault(), ev.stopPropagation()
+                target.click()
+    elif ev.key is 'Enter' and ev.type is 'keydown' and target.tagName is not 'A' and not modified:
+        ev.preventDefault(), ev.stopPropagation()
+        target.click()
+
+
 def is_visible(elem):
     return bool(elem and elem.isConnected and elem.getClientRects().length)
 
@@ -97,7 +117,11 @@ def side_action_buttons(row):
 
 
 def focus_side_action_near(container, row_index, action_index=0, fallback=None):
-    # Move focus to a side action in the row at row_index, or the nearest
+    return focus_item_action_near(container, row_index, action_index, fallback)
+
+
+def focus_item_action_near(container, row_index, action_index=0, fallback=None, primary=False):
+    # Move focus to a primary or side action in the row at row_index, or the nearest
     # visible row after or before it, then to fallback. Does nothing if focus
     # is still on a visible element, so it never steals focus from the user.
     active = document.activeElement
@@ -111,7 +135,13 @@ def focus_side_action_near(container, row_index, action_index=0, fallback=None):
     for i in candidates:
         row = rows[i]
         if is_visible(row):
-            buttons = side_action_buttons(row)
+            buttons = []
+            if primary:
+                button = row.querySelector('.item-primary-action')
+                if button:
+                    buttons.push(button)
+            else:
+                buttons = side_action_buttons(row)
             if buttons.length:
                 buttons[min(action_index, buttons.length - 1)].focus()
                 return True
@@ -121,33 +151,36 @@ def focus_side_action_near(container, row_index, action_index=0, fallback=None):
     return False
 
 
-def focused_side_action(container):
-    # Return the position of the focused side action in container, if any
+def focused_item_action(container):
+    # Return the position of the focused primary or side action, if any
     active = document.activeElement
-    if not active or not active.classList or not active.classList.contains('item-side-action') or not container.contains(active):
+    if not active or not active.classList or not container.contains(active):
+        return None
+    primary = active.classList.contains('item-primary-action')
+    if not primary and not active.classList.contains('item-side-action'):
         return None
     li = active.closest('li')
-    title = li.querySelector('.item-title')
+    title = li.querySelector('.item-title') or li.querySelector('.item-primary-action')
     return {
         'row': Array.prototype.indexOf.call(li.parentNode.children, li),
         'action': Array.prototype.indexOf.call(active.parentNode.children, active),
         'title': title.textContent if title else None,
+        'primary': primary,
     }
 
 
-def restore_side_action_focus(container, state):
-    # Put focus back on the side action of the same row (matched by title)
-    # after the list has been rebuilt, or on the nearest one if that row has
-    # gone or no longer has side actions
+def restore_item_action_focus(container, state):
+    # Restore the same primary or side action after rebuilding the list,
+    # matching the row by title, or use the nearest row with that kind of action
     ul = container.querySelector('ul')
     row_index = state.row
     if state.title is not None:
         for i, row in enumerate(ul.children):
-            title = row.querySelector('.item-title')
+            title = row.querySelector('.item-title') or row.querySelector('.item-primary-action')
             if title and title.textContent is state.title:
                 row_index = i
                 break
-    focus_side_action_near(ul, row_index, state.action)
+    focus_item_action_near(ul, row_index, state.action, primary=state.primary)
 
 
 def add_classes(elem, class_names):
@@ -158,7 +191,7 @@ def add_classes(elem, class_names):
 
 def build_list(container, items, subtitle):
     c = container
-    focus_state = focused_side_action(c)
+    focus_state = focused_item_action(c)
     clear(c)
     c.classList.add(CLASS_NAME)
     if subtitle:
@@ -180,9 +213,17 @@ def build_list(container, items, subtitle):
             title_body.appendChild(E.span(ic, '\xa0'))
         tit = item.title
         if jstype(tit) is 'string':
-            title_body.appendChild(E.span((tit or '') + '', class_='item-title'))
-        else:
-            title_body.appendChild(tit)
+            tit = E.a(tit or '', href='javascript:void(0)', draggable='false', class_='item-title') if item.action else E.span(tit or '', class_='item-title')
+        if item.action:
+            tit.classList.add('item-primary-action')
+            tit.setAttribute('role', 'button')
+            tit.setAttribute('tabindex', '0')
+            # Let the click bubble to the row, preserving the callback's currentTarget
+            tit.addEventListener('click', def (ev): ev.preventDefault();)
+            tit.addEventListener('keydown', primary_action_key_event)
+            tit.addEventListener('keyup', primary_action_key_event)
+            tit.addEventListener('blur', def (ev): ev.currentTarget.item_space_pressed=False;)
+        title_body.appendChild(tit)
         row = E.div(class_='item-first-row')
         add_classes(row, item.row_class)
         row.appendChild(title_body)
@@ -222,7 +263,7 @@ def build_list(container, items, subtitle):
                     svgicon(x.icon)
                 ))
     if focus_state:
-        restore_side_action_focus(c, focus_state)
+        restore_item_action_focus(c, focus_state)
 
 
 def create_side_action(icon, action=None, tooltip=None):
