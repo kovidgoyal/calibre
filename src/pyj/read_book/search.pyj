@@ -72,6 +72,7 @@ class SearchOverlay:
         self._worker = None
         self.request_counter = 0
         self.result_map = {}
+        self.status_update_count = 0
         c = self.container
         c.style.backgroundColor = get_color('window-background')
         c.style.maxHeight = '100vh'
@@ -122,6 +123,9 @@ Regex: Interpret the entered text as a regular expression'''),
             create_button(_('Return'), 'chevron-left', action=self.return_to_original_position, tooltip=_('Go back to where you were before searching'))
         ))
 
+        # Keep the live region outside the results, which are cleared for each search
+        self.search_status = E.div(role='status', aria_atomic='true', class_='book-search-status')
+        c.appendChild(self.search_status)
         c.appendChild(E.hr())
         c.appendChild(E.div(
             style='display: none; overflow: auto', tabindex='0',
@@ -160,11 +164,26 @@ Regex: Interpret the entered text as a regular expression'''),
     def results_container(self):
         return self.bottom_container.lastChild
 
+    def set_search_status(self, msg):
+        self.status_update_count += 1
+        count, status = self.status_update_count, self.search_status
+        if not msg or not self.is_visible:
+            if status.textContent:
+                status.textContent = ''
+            return
+        # Let a newly inserted live region be registered before updating it.
+        # A newer update, clearing the search or closing the panel cancels this one.
+        window.setTimeout(def ():
+            if count is self.status_update_count and status.isConnected and self.is_visible and status.textContent is not msg:
+                status.textContent = msg
+        , 100)
+
     def show_wait(self):
         c = self.bottom_container
         c.style.display = 'block'
         c.firstChild.style.display = 'block'
         c.lastChild.style.display = 'none'
+        self.set_search_status(_('Searching, please wait…'))
 
     def show_results(self):
         c = self.bottom_container
@@ -179,6 +198,7 @@ Regex: Interpret the entered text as a regular expression'''),
     def clear_results(self):
         clear(self.results_container)
         self.result_map = {}
+        self.set_search_status('')
 
     @property
     def worker(self):
@@ -189,6 +209,7 @@ Regex: Interpret the entered text as a regular expression'''),
         return self._worker
 
     def do_initial_search(self, text, query):
+        self.set_search_status('')
         q = {'mode': 'contains', 'case_sensitive': True, 'text': text, 'only_first_match': True}
         self.request_counter += 1
         self.initial_search_result_counter = 0
@@ -227,6 +248,7 @@ Regex: Interpret the entered text as a regular expression'''),
 
     def queue_search(self, query, book, current_name):
         self.request_counter += 1
+        self.result_handler = None
         self.original_position = self.view.currently_showing.bookpos
         self.view.get_current_cfi('search-original-pos', self.set_original_pos)
         self.search_in_flight.id = self.request_counter
@@ -246,18 +268,25 @@ Regex: Interpret the entered text as a regular expression'''),
 
     def on_worker_message(self, evt):
         msg = evt.data
+        if msg.id is not self.search_in_flight.id:
+            return
         if self.result_handler:
             return self.result_handler(msg)
         if msg.type is 'error':
+            self.search_in_flight.id = None
+            self.set_search_status('')
             emsg, details = parse_error_msg(msg)
             error_dialog(_('Could not search'), emsg, details)
-        elif msg.id is self.search_in_flight.id:
-            if msg.type is 'search_complete':
-                self.search_in_flight.id = None
-                if Object.keys(self.result_map).length is 0:
-                    self.no_result_received()
-            elif msg.type is 'search_result':
-                self.result_received(msg.result)
+        elif msg.type is 'search_complete':
+            self.search_in_flight.id = None
+            count = Object.keys(self.result_map).length
+            if count:
+                self.set_search_status(ngettext('{} match found', '{} matches found', count).format(count))
+            else:
+                self.no_result_received()
+                self.set_search_status(_('No matching results found'))
+        elif msg.type is 'search_result':
+            self.result_received(msg.result)
 
     def no_result_received(self):
         self.show_results()
@@ -425,6 +454,7 @@ Regex: Interpret the entered text as a regular expression'''),
 
     def hide(self):
         self.container.style.display = 'none'
+        self.set_search_status('')
         ui_operations.focus_iframe()
 
     def show(self):
@@ -436,6 +466,8 @@ Regex: Interpret the entered text as a regular expression'''),
     def run_search(self):
         q = self.current_query
         if not q.text:
+            self.search_in_flight.id = None
+            self.result_handler = None
             self.clear_results()
             self.show_results()
         else:
@@ -445,6 +477,8 @@ Regex: Interpret the entered text as a regular expression'''),
 add_extra_css(def ():
     css = ''
     sel = f'#{SearchOverlay.CONTAINER_ID} '
+    css += build_rule(sel + '.book-search-status',
+        position='absolute', width='1px', height='1px', overflow='hidden', clip_path='inset(50%)', white_space='nowrap')
     css += build_rule(sel + '.book-search-button', display='block', width='100%', white_space='normal')
     css += build_rule(sel + '.book-search-button:focus-visible',
         outline='2px solid ' + get_color('link-foreground'), outline_offset='2px')
