@@ -3,6 +3,7 @@
 from __python__ import hash_literals, bound_methods
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.theme import get_color
 from dom import set_css, ensure_id, clear, build_rule, add_extra_css
@@ -67,10 +68,12 @@ def show_popup(popup_id, associated_widget_ids=None):
 
 
 def hide_popup(popup_id):
+    shown_popups.discard(popup_id)
+    v'delete associated_widgets[popup_id]'
     elem = document.getElementById(popup_id)
     if elem:
         elem.style.display = 'none'
-    v'delete associated_widgets[popup_id]'
+        elem.dispatchEvent(new Event('popup-hidden'))
 
 
 class CompletionPopup:
@@ -78,15 +81,18 @@ class CompletionPopup:
     CURRENT_ITEM_CLASS = 'popup-completion-current-item'
     UPWARDS_CLASS = 'popup-completion-upwards'
 
-    def __init__(self, parent=None, max_items=25, onselect=None):
+    def __init__(self, parent=None, max_items=25, onselect=None, input_id=None):
         self.max_items = max_items
         c = create_popup(parent)
         set_css(c, user_select='none')
         self.container_id = c.getAttribute('id')
         self.onselect = onselect
+        self.input_id = input_id
         self.items = []
         self.matches = []
-        c.appendChild(E.div(class_=self.CLASS))
+        c.appendChild(E.div(class_=self.CLASS, role='listbox', aria_label=_('Suggestions')))
+        self.listbox_id = ensure_id(c.firstChild, 'completion-list')
+        c.addEventListener('popup-hidden', self.on_hidden)
         self.associated_widget_ids = set()
         self.current_query, self.is_upwards = '', False
         self.applied_query = self.current_query
@@ -97,12 +103,14 @@ class CompletionPopup:
 
     @property
     def is_visible(self):
-        return self.container.style.display is not 'none'
+        c = self.container
+        return bool(c and c.style.display is not 'none')
 
     def set_all_items(self, items):
         self.items = list(items)
         self.matches = []
         self.applied_query = None
+        self.set_query(self.current_query)
 
     def add_associated_widget(self, widget_or_id):
         if jstype(widget_or_id) is not 'string':
@@ -132,10 +140,30 @@ class CompletionPopup:
                 self.hide()
 
     def hide(self):
-        self.container.style.display = 'none'
-        c = self.current_item
-        if c:
-            c.classList.remove(self.CURRENT_ITEM_CLASS)
+        hide_popup(self.container_id)
+
+    def on_hidden(self):
+        self.set_current_item(None)
+
+    def update_input_state(self):
+        input = document.getElementById(self.input_id) if self.input_id else None
+        if input:
+            input.setAttribute('aria-expanded', 'true' if self.is_visible else 'false')
+            current = self.current_item if self.is_visible else None
+            if current:
+                input.setAttribute('aria-activedescendant', current.id)
+            else:
+                input.removeAttribute('aria-activedescendant')
+
+    def set_current_item(self, item):
+        current = self.current_item
+        if current:
+            current.classList.remove(self.CURRENT_ITEM_CLASS)
+            current.setAttribute('aria-selected', 'false')
+        if item:
+            item.classList.add(self.CURRENT_ITEM_CLASS)
+            item.setAttribute('aria-selected', 'true')
+        self.update_input_state()
 
     def handle_keydown(self, event):
         key = event.key
@@ -165,13 +193,11 @@ class CompletionPopup:
         ans = None
         div = self.current_item
         if div:
-            div.classList.remove(self.CURRENT_ITEM_CLASS)
             ans = div.previousSibling if up else div.nextSibling
         if not ans:
             c = self.container.firstChild
             ans = c.lastChild if up else c.firstChild
-        if ans:
-            ans.classList.add(self.CURRENT_ITEM_CLASS)
+        self.set_current_item(ans)
 
     def _show_at(self, x, y, width, upwards):
         self.is_upwards = upwards
@@ -184,6 +210,7 @@ class CompletionPopup:
         cs.width = width + 'px'
         cs.maxHeight = ((y if upwards else window.innerHeight - y) - 10) + 'px'
         show_popup(self.container_id, self.associated_widget_ids)
+        self.update_input_state()
 
     def _apply_query(self):
         q = self.current_query.toLowerCase()
@@ -206,13 +233,13 @@ class CompletionPopup:
         if self.is_upwards:
             items = reversed(items)
         for m in items:
-            c.firstChild.appendChild(E.div(m, onmouseenter=self.onmouseenter, onclick=self.onclick))
+            option = E.div(m, role='option', aria_selected='false', onmouseenter=self.onmouseenter, onclick=self.onclick)
+            ensure_id(option, 'completion-item')
+            c.firstChild.appendChild(option)
+        self.update_input_state()
 
     def onmouseenter(self, event):
-        div = self.current_item
-        if div:
-            div.classList.remove(self.CURRENT_ITEM_CLASS)
-        event.currentTarget.classList.add(self.CURRENT_ITEM_CLASS)
+        self.set_current_item(event.currentTarget)
 
     def onclick(self, event):
         self.onmouseenter(event)

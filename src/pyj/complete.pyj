@@ -15,11 +15,13 @@ class EditWithComplete:
     def __init__(self, name, placeholder=None, tooltip=None, parent=None, input_type='text', onenterkey=None):
         inpt = E.input(
             type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '', autocomplete='off',
+            role='combobox', aria_autocomplete='list', aria_expanded='false',
             style='width: 0; flex-grow: 1; min-width: 6em',
         )
         self.input_id = ensure_id(inpt)
         self.onenterkey = onenterkey
-        self.completion_popup = CompletionPopup(parent=parent, onselect=self.apply_completion)
+        self.completion_popup = CompletionPopup(parent=parent, onselect=self.apply_completion, input_id=self.input_id)
+        inpt.setAttribute('aria-controls', self.completion_popup.listbox_id)
         inpt.addEventListener('keydown', self.onkeydown)
         inpt.addEventListener('input', self.oninput)
         self.completion_popup.add_associated_widget(inpt)
