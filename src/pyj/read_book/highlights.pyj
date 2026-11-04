@@ -10,7 +10,7 @@ from book_list.globals import get_current_query, get_session_data
 from book_list.item_list import is_visible
 from book_list.theme import get_color
 from complete import create_search_bar
-from dom import add_extra_css, build_rule, clear, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, create_live_region, set_live_region_text, svgicon, unique_id
 from modals import (
     create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
     warning_dialog
@@ -699,12 +699,26 @@ def focus_search():
     c.querySelector('input').focus()
 
 
+def clear_highlight_search_status():
+    c = get_container()
+    status = c and c.querySelector('[data-component=highlight-search-status]')
+    if status:
+        set_live_region_text(status, '')
+
+
 def find(backwards):
     c = get_container()
+    clear_highlight_search_status()
     text = c.querySelector('input').value
     if not text:
         return False
     all_highlights = list(c.querySelectorAll('.highlight')).as_array()
+    q = text.toLowerCase()
+
+    def matches_query(h):
+        return h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1
+
+    matches = all_highlights.filter(matches_query)
     current = c.querySelector('.highlight.current')
     if current:
         start = all_highlights.indexOf(current)
@@ -714,15 +728,23 @@ def find(backwards):
             all_highlights = all_highlights[start + 1:].concat(all_highlights[:start + 1])
     elif backwards:
         all_highlights.reverse()
-    q = text.toLowerCase()
     for h in all_highlights:
-        if h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1:
+        if matches_query(h):
             set_current_highlight_entry(h)
             # The match must be visible, so open its chapter if it was collapsed
             set_highlight_group_expanded(h.closest('.toc-group'), True)
             h.scrollIntoView()
             if h is current:
                 warning_dialog(_('Not found'), _('No other matches found for: {}').format(text), on_close=focus_search)
+            else:
+                still_wanted = def ():
+                    modal = document.getElementById('modal-container')
+                    return (is_visible(c) and h.isConnected and h.classList.contains('current')
+                        and c.querySelector('input[type=search]').value is text
+                        and (not modal or modal.style.display is 'none'))
+
+                status = c.querySelector('[data-component=highlight-search-status]')
+                set_live_region_text(status, _('Match {0} of {1}').format(matches.indexOf(h) + 1, matches.length), True, still_wanted)
             return True
     warning_dialog(_('Not found'), _('No matches found for: {}').format(text), on_close=focus_search)
     return False
@@ -851,6 +873,7 @@ def toggle_highlight_entry(ev):
 
 def remove_highlight_entries(entries, view):
     c = get_container()
+    clear_highlight_search_status()
     all_entries = list(c.querySelectorAll('.highlight')).as_array()
     first = all_entries.indexOf(entries[0])
     following = [e for e in all_entries[first + 1:] if entries.indexOf(e) < 0]
@@ -1033,6 +1056,10 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
             sb, next_button, prev_button, clear_button, all_button, delete_button, export_button
         ),
     )
+    status = create_live_region()
+    status.dataset.component = 'highlight-search-status'
+    c.appendChild(status)
+    sb.querySelector('input').addEventListener('input', clear_highlight_search_status)
     container.appendChild(c)
     toc_groups = {}
     toc_tt = {}
