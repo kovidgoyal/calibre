@@ -1,0 +1,126 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, S Y <softwaregames at protonmail.com>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from dom import get_widget_css
+from testing import assert_equal, assert_false, assert_true, test
+from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
+
+
+def tree_data():
+    return {'children': [
+        {'title': 'Part one', 'children': [
+            {'title': 'Chapter', 'children': [{'title': 'Section'}]}, {'title': 'Appendix'}
+        ]},
+        {'title': 'Part two', 'children': [{'title': 'Chapter'}]}, {'title': 'Final chapter'}
+    ]}
+
+
+def with_tree(proceed, root=None):
+    calls = {'navigation': [], 'bubbled': 0}
+
+    def populate(node, row, link):
+        link.appendChild(E.b(node.title or ''))
+
+    def activate(event, row):
+        calls.navigation.push(row.firstChild.lastChild.textContent)
+
+    def bubbled():
+        calls.bubbled += 1
+
+    tree = create_tree(root or tree_data(), populate, activate)
+    tree.addEventListener('click', bubbled)
+    style = E.style(get_widget_css())
+    document.head.appendChild(style)
+    document.body.appendChild(tree)
+    try:
+        proceed(tree, calls)
+    finally:
+        tree.remove()
+        style.remove()
+
+
+@test
+def tree_disclosures_are_named_buttons_and_leaves_have_no_button():
+    def run(tree):
+        buttons = tree.querySelectorAll('button.tree-item-toggle')
+        assert_equal(buttons.length, 3)
+        ids = []
+        for button in buttons:
+            assert_equal(button.type, 'button')
+            assert_equal(button.getAttribute('aria-expanded'), 'false')
+            label = document.getElementById(button.getAttribute('aria-labelledby'))
+            row = button.parentNode.parentNode
+            assert_equal(label, row.firstChild.lastChild)
+            assert_false(button.contains(label))
+            assert_equal(document.getElementById(button.getAttribute('aria-controls')), row.lastChild)
+            ids.push(row.lastChild.id)
+        assert_equal(new Set(ids).size, 3)
+        links = tree.querySelectorAll('a.tree-item-title')
+        assert_equal(links.length, 7)
+        for index in [2, 3, 5, 6]:
+            assert_equal(links[index].parentNode.querySelectorAll('button').length, 0)
+            assert_equal(links[index].parentNode.firstChild.getAttribute('aria-hidden'), 'true')
+
+    with_tree(run)
+
+
+@test
+def tree_disclosure_activation_does_not_navigate_or_bubble():
+    def run(tree, calls):
+        button = tree.querySelector('button.tree-item-toggle')
+        row = button.parentNode.parentNode
+        button.focus()
+        button.firstChild.dispatchEvent(new window.MouseEvent('click', {'bubbles': True, 'cancelable': True}))
+        assert_equal(calls, {'navigation': [], 'bubbled': 0})
+        assert_equal(row.dataset.treeState, 'open')
+        assert_equal(button.getAttribute('aria-expanded'), 'true')
+        assert_equal(row.lastChild.style.display, 'block')
+        assert_equal(button.querySelector('use').getAttribute('xlink:href'), '#icon-caret-down')
+        assert_equal(document.activeElement, button)
+        button.click()
+        assert_equal(row.dataset.treeState, 'closed')
+        assert_equal(button.getAttribute('aria-expanded'), 'false')
+        assert_equal(row.lastChild.style.display, 'none')
+        assert_equal(button.querySelector('use').getAttribute('xlink:href'), '#icon-caret-right')
+        row.firstChild.lastChild.firstChild.click()
+        assert_equal(calls.navigation, ['Part one'])
+        assert_equal(row.dataset.treeState, 'closed')
+
+    with_tree(run)
+
+
+@test
+def tree_search_expands_all_ancestors_and_keeps_disclosures_in_sync():
+    def run(tree, calls):
+        buttons = tree.querySelectorAll('button.tree-item-toggle')
+        buttons[0].focus()
+        row = find_text_in_tree(tree, 'Section')
+        scroll_tree_item_into_view(row)
+        assert_equal(calls.navigation, [])
+        assert_true(row.getClientRects().length)
+        assert_equal(document.activeElement, buttons[0])
+        for button in [buttons[0], buttons[1]]:
+            assert_equal(button.getAttribute('aria-expanded'), 'true')
+            assert_equal(button.parentNode.parentNode.dataset.treeState, 'open')
+            assert_equal(button.querySelector('use').getAttribute('xlink:href'), '#icon-caret-down')
+        buttons[0].click()
+        assert_false(row.getClientRects().length)
+        assert_equal(buttons[0].getAttribute('aria-expanded'), 'false')
+        buttons[0].click()
+        assert_true(row.getClientRects().length)
+        assert_equal(buttons[1].getAttribute('aria-expanded'), 'true')
+
+    with_tree(run)
+
+
+@test
+def tree_disclosures_for_untitled_sections_have_a_fallback_name():
+    def run(tree):
+        button = tree.querySelector('button.tree-item-toggle')
+        assert_true(button.getAttribute('aria-label'))
+        assert_false(button.hasAttribute('aria-labelledby'))
+
+    with_tree(run, {'children': [{'title': '', 'children': [{'title': 'Child'}]}]})
