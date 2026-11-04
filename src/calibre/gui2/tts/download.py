@@ -77,7 +77,7 @@ class ProgressBar(QWidget):
     def on_error(self, ec: QNetworkReply.NetworkError) -> None:
         reply = self.reply
         assert reply is not None
-        self.on_over(_('Failed to write downloaded data with error: {}').format(reply.errorString()))
+        self.on_over(_('Failed to download data with error: {}').format(reply.errorString()))
 
     def on_over(self, err_msg: str = '') -> None:
         if self.over_reported:
@@ -103,10 +103,13 @@ class ProgressBar(QWidget):
                     os.remove(self.file_obj.name)
                 if code != 304:  # 304 is Not modified
                     err_msg = _('Server replied with unknown HTTP status code: {}').format(code)
+        self.pb.setMaximum(100)
+        self.pb.setValue(0 if err_msg else 100)
+        self.pb.setFormat(_('Download failed') if err_msg else _('Download finished'))
         self.done.emit(err_msg)
 
     def on_download(self, received: int, total: int) -> None:
-        if total > 0:
+        if not self.over_reported and total > 0:
             self.pb.setMaximum(total)
             self.pb.setValue(received)
             t = human_readable(total)
@@ -114,9 +117,6 @@ class ProgressBar(QWidget):
             self.pb.setFormat(f'%p% {r} of {t}')
 
     def finished(self) -> None:
-        self.pb.setMaximum(100)
-        self.pb.setValue(100)
-        self.pb.setFormat(_('Download finished'))
         self.on_over()
 
 
@@ -146,6 +146,8 @@ class DownloadResources(QDialog):
         self.bars = []
         self.failures = []
         self.nam = nam = QNetworkAccessManager(self)
+        # An inactivity timeout allows large models to take as long as needed.
+        nam.setTransferTimeout(60_000)
         for url, (path, desc) in urls.items():
             qurl = QUrl(url)
             self.todo.add(qurl)
