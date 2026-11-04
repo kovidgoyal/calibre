@@ -4,13 +4,7 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from book_list.item_list import create_item, create_item_list, create_side_action, focus_side_action_near
-from dom import unique_id
-from read_book.bookmarks import create_bookmarks_list
-from read_book.globals import ui_operations
-from read_book.goto import create_page_list_overlay
-from read_book.profiles import got_all_profiles
-from test_book_list_helpers import with_empty_session
+from book_list.item_list import create_item, create_item_list, create_side_action, focus_item_action_near
 from testing import assert_equal, assert_false, assert_true, test
 
 
@@ -88,18 +82,18 @@ def item_list_focus_moves_to_the_nearest_side_action():
     rows = container.querySelectorAll('li')
     # Focus on a visible element is never stolen
     fallback.focus()
-    assert_false(focus_side_action_near(container, 1, 1))
+    assert_false(focus_item_action_near(container, 1, 1))
     assert_equal(document.activeElement, fallback)
     fallback.blur()
     rows[1].style.display = 'none'
-    assert_true(focus_side_action_near(container, 1, 1, fallback))
+    assert_true(focus_item_action_near(container, 1, 1, fallback))
     assert_equal(focused_label(), 'Edit C')
     # Focus on an element that has been hidden counts as lost
     rows[2].style.display = 'none'
-    assert_true(focus_side_action_near(container, 2, 0, fallback))
+    assert_true(focus_item_action_near(container, 2, 0, fallback))
     assert_equal(focused_label(), 'Delete A')
     rows[0].style.display = 'none'
-    assert_true(focus_side_action_near(container, 0, 0, fallback))
+    assert_true(focus_item_action_near(container, 0, 0, fallback))
     assert_equal(document.activeElement, fallback)
 
 
@@ -138,7 +132,7 @@ def with_primary_actions(proceed):
         calls.side.push(row.dataset.userData)
 
     def build(titles):
-        create_item_list(container, [create_item(title, action=primary, data=title, side_actions=[
+        create_item_list(container, [create_item(title, action=primary, data=title, subtitle='About ' + title, side_actions=[
             create_side_action('edit', side, 'Edit ' + title)]) for title in titles])
 
     try:
@@ -150,14 +144,15 @@ def with_primary_actions(proceed):
 
 @test
 def item_list_primary_actions_are_separate_named_controls():
-    def run(container, calls):
+    def run(container, calls, build):
         row = container.querySelector('li')
         primary = row.querySelector('.item-primary-action')
         side = row.querySelector('.item-side-action')
         assert_equal(primary.getAttribute('role'), 'button')
         assert_equal(primary.tabIndex, 0)
         assert_equal(primary.textContent, 'A')
-        assert_equal(primary.tagName, 'A')
+        assert_equal(primary.tagName, 'SPAN')
+        assert_equal(document.getElementById(primary.getAttribute('aria-describedby')).textContent, 'About A')
         assert_false(primary.contains(side))
         primary.focus()
         assert_equal(document.activeElement, primary)
@@ -173,7 +168,7 @@ def item_list_primary_actions_are_separate_named_controls():
 
 @test
 def item_list_primary_space_activation_waits_for_release_and_is_cancelled_on_blur():
-    def run(container, calls):
+    def run(container, calls, build):
         actions = container.querySelectorAll('.item-primary-action')
         first, second = actions[0], actions[1]
         first.focus()
@@ -194,7 +189,43 @@ def item_list_primary_space_activation_waits_for_release_and_is_cancelled_on_blu
         assert_false(primary_key(first, 'keydown', ' ', ctrlKey=True).defaultPrevented)
         primary_key(first, 'keyup', ' ', ctrlKey=True)
         assert_equal(calls.primary, ['A'])
-        assert_false(primary_key(first, 'keydown', 'Enter').defaultPrevented)
+
+    with_primary_actions(run)
+
+
+@test
+def item_list_primary_enter_activates_on_press_without_modifiers():
+    def run(container, calls, build):
+        first = container.querySelector('.item-primary-action')
+        first.focus()
+        assert_true(primary_key(first, 'keydown', 'Enter').defaultPrevented)
+        assert_equal(calls.primary, ['A'])
+        primary_key(first, 'keyup', 'Enter')
+        assert_equal(calls.primary, ['A'])
+        for mod in ('ctrlKey', 'altKey', 'metaKey'):
+            kw = {}
+            kw[mod] = True
+            assert_false(primary_key(first, 'keydown', 'Enter', **kw).defaultPrevented)
+        assert_equal(calls.primary, ['A'])
+
+    with_primary_actions(run)
+
+
+@test
+def item_list_primary_focus_from_the_mouse_is_not_restored():
+    def run(container, calls, build):
+        second = container.querySelectorAll('.item-primary-action')[1]
+        second.dispatchEvent(new window.PointerEvent('pointerdown', {'bubbles': True}))
+        second.focus()
+        build(['A', 'B', 'C'])
+        assert_true(document.activeElement is document.body)
+        # Using the keyboard after a click makes the focus restorable again
+        second = container.querySelectorAll('.item-primary-action')[1]
+        second.dispatchEvent(new window.PointerEvent('pointerdown', {'bubbles': True}))
+        second.focus()
+        primary_key(second, 'keydown', 'Shift')
+        build(['A', 'B', 'C'])
+        assert_equal(document.activeElement.textContent, 'B')
 
     with_primary_actions(run)
 
@@ -240,61 +271,3 @@ def item_list_preserves_custom_title_markup_and_non_action_rows():
         assert_equal(document.activeElement.textContent, 'Custom title')
     finally:
         container.remove()
-
-
-@test
-def item_list_primary_actions_open_bookmarks_profiles_and_page_destinations():
-    def run(sd):
-        calls = {'bookmarks': [], 'profiles': [], 'pages': [], 'closed': 0}
-        parent = E.div(id=unique_id(), E.div(class_='profiles_list_container'))
-        document.body.appendChild(parent)
-        previous = ui_operations.apply_profile
-
-        def goto_cfi(cfi, force):
-            calls.bookmarks.push([cfi, force])
-
-        def activate_bookmark(action):
-            action({'goto_cfi': goto_cfi})
-
-        def all_bookmarks():
-            return [{'title': 'Bookmark', 'pos': '/6/2'}]
-
-        def set_bulk(changes):
-            for key in Object.keys(changes):
-                sd.set(key, changes[key])
-
-        def apply_profile(profile):
-            calls.profiles.push(profile)
-
-        def closed():
-            calls.closed += 1
-
-        def goto_page(page):
-            calls.pages.push(page.pagenum)
-
-        sd.set_bulk = set_bulk
-        ui_operations.apply_profile = apply_profile
-        parent.addEventListener('close_panel', closed)
-        try:
-            bookmarks = create_bookmarks_list({'all_bookmarks': all_bookmarks}, activate_bookmark)
-            parent.appendChild(bookmarks)
-            bookmarks.querySelector('.item-primary-action').click()
-            assert_equal(calls.bookmarks, [['/6/2', True]])
-            profile = {'font_size': 18}
-            got_all_profiles(parent.id, None, {'Profile': profile})
-            parent.querySelectorAll('.profiles_list_container .item-primary-action')[1].click()
-            assert_equal(calls.profiles, [profile])
-            assert_equal(calls.closed, 1)
-            page_container = E.div()
-            parent.appendChild(page_container)
-            create_page_list_overlay({'manifest': {'page_list': [{'pagenum': '12'}]}}, {
-                'view': {'current_pagelist_items': [], 'goto_pagelist_item': goto_page}, 'hide': closed
-            }, page_container)
-            page_container.querySelector('.item-primary-action').click()
-            assert_equal(calls.pages, ['12'])
-            assert_equal(calls.closed, 2)
-        finally:
-            ui_operations.apply_profile = previous
-            parent.remove()
-
-    with_empty_session(run)

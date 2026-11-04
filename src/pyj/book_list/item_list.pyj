@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
-from dom import build_rule, svgicon, add_extra_css, clear
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 
 CLASS_NAME = 'generic-items-list'
 
@@ -42,9 +42,10 @@ add_extra_css(def ():
         font_size=get_font_size('item-list-title'), font_weight='700')
     style += build_rule(sel + ' .item-subtitle',
         font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
-    style += build_rule(sel + 'a.item-primary-action', color='inherit', text_decoration='none', user_select='text')
+    # Unlike the padded side action buttons, the title has no padding, so
+    # draw the outline outside it rather than over the text
     style += build_rule(sel + '.item-primary-action:focus-visible',
-        outline='2px solid ' + get_color('link-foreground'), outline_offset='-2px')
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='3px', border_radius='4px')
     style += build_rule(sel + 'button.item-side-action',
         display='block', margin='0', padding='0.5rem', border='0', background='none',
         color='inherit', font='inherit', text_align='inherit')
@@ -92,7 +93,9 @@ def side_action(action, ev):
 
 
 def primary_action_key_event(ev):
+    # Activate like a native button: Enter on press, Space on release
     target = ev.currentTarget
+    target.item_pointer_focus = False
     modified = ev.ctrlKey or ev.altKey or ev.metaKey
     if ev.key is ' ':
         if ev.type is 'keydown' and not modified:
@@ -103,9 +106,34 @@ def primary_action_key_event(ev):
             if pressed and not modified:
                 ev.preventDefault(), ev.stopPropagation()
                 target.click()
-    elif ev.key is 'Enter' and ev.type is 'keydown' and target.tagName is not 'A' and not modified:
+    elif ev.key is 'Enter' and ev.type is 'keydown' and not modified:
         ev.preventDefault(), ev.stopPropagation()
         target.click()
+
+
+def primary_action_pointer_down(ev):
+    # Focus that came from the mouse is not restored after a rebuild, so that
+    # clicking a row never scrolls the list to wherever focus ends up
+    ev.currentTarget.item_pointer_focus = True
+
+
+def primary_action_blur(ev):
+    ev.currentTarget.item_space_pressed = ev.currentTarget.item_pointer_focus = False
+
+
+def make_primary_action(elem, description):
+    elem.classList.add('item-primary-action')
+    elem.setAttribute('role', 'button')
+    elem.setAttribute('tabindex', '0')
+    if description:
+        elem.setAttribute('aria-describedby', ensure_id(description, 'item-desc'))
+    # The listeners are module level functions so that adding them again to
+    # a title element reused across rebuilds does not duplicate them. The click
+    # bubbles to the row, preserving the callback's currentTarget.
+    elem.addEventListener('keydown', primary_action_key_event)
+    elem.addEventListener('keyup', primary_action_key_event)
+    elem.addEventListener('pointerdown', primary_action_pointer_down)
+    elem.addEventListener('blur', primary_action_blur)
 
 
 def is_visible(elem):
@@ -114,10 +142,6 @@ def is_visible(elem):
 
 def side_action_buttons(row):
     return [b for b in row.querySelectorAll('button.item-side-action') if b.getAttribute('aria-disabled') is not 'true']
-
-
-def focus_side_action_near(container, row_index, action_index=0, fallback=None):
-    return focus_item_action_near(container, row_index, action_index, fallback)
 
 
 def focus_item_action_near(container, row_index, action_index=0, fallback=None, primary=False):
@@ -135,11 +159,8 @@ def focus_item_action_near(container, row_index, action_index=0, fallback=None, 
     for i in candidates:
         row = rows[i]
         if is_visible(row):
-            buttons = []
             if primary:
-                button = row.querySelector('.item-primary-action')
-                if button:
-                    buttons.push(button)
+                buttons = [x for x in [row.querySelector('.item-primary-action')] if x]
             else:
                 buttons = side_action_buttons(row)
             if buttons.length:
@@ -157,13 +178,16 @@ def focused_item_action(container):
     if not active or not active.classList or not container.contains(active):
         return None
     primary = active.classList.contains('item-primary-action')
-    if not primary and not active.classList.contains('item-side-action'):
+    if primary:
+        if active.item_pointer_focus:
+            return None
+    elif not active.classList.contains('item-side-action'):
         return None
     li = active.closest('li')
     title = li.querySelector('.item-title') or li.querySelector('.item-primary-action')
     return {
         'row': Array.prototype.indexOf.call(li.parentNode.children, li),
-        'action': Array.prototype.indexOf.call(active.parentNode.children, active),
+        'action': 0 if primary else Array.prototype.indexOf.call(active.parentNode.children, active),
         'title': title.textContent if title else None,
         'primary': primary,
     }
@@ -213,30 +237,25 @@ def build_list(container, items, subtitle):
             title_body.appendChild(E.span(ic, '\xa0'))
         tit = item.title
         if jstype(tit) is 'string':
-            tit = E.a(tit or '', href='javascript:void(0)', draggable='false', class_='item-title') if item.action else E.span(tit or '', class_='item-title')
-        if item.action:
-            tit.classList.add('item-primary-action')
-            tit.setAttribute('role', 'button')
-            tit.setAttribute('tabindex', '0')
-            # Let the click bubble to the row, preserving the callback's currentTarget
-            tit.addEventListener('click', def (ev): ev.preventDefault();)
-            tit.addEventListener('keydown', primary_action_key_event)
-            tit.addEventListener('keyup', primary_action_key_event)
-            tit.addEventListener('blur', def (ev): ev.currentTarget.item_space_pressed=False;)
+            tit = E.span(tit or '', class_='item-title')
         title_body.appendChild(tit)
         row = E.div(class_='item-first-row')
         add_classes(row, item.row_class)
         row.appendChild(title_body)
         nm = item.nav_list_meta
+        description = None
         if nm and (nm.rating or nm.count):
-            stack = E.div(class_='item-subtitle item-subtitle-nav')
+            description = E.div(class_='item-subtitle item-subtitle-nav')
             if nm.rating:
-                stack.appendChild(E.div(nm.rating, class_='item-subtitle-rating'))
+                description.appendChild(E.div(nm.rating, class_='item-subtitle-rating'))
             if nm.count:
-                stack.appendChild(E.div(nm.count, class_='item-subtitle-count'))
-            row.appendChild(stack)
+                description.appendChild(E.div(nm.count, class_='item-subtitle-count'))
+            row.appendChild(description)
         elif item.subtitle:
-            row.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
+            description = E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex')
+            row.appendChild(description)
+        if item.action:
+            make_primary_action(tit, description)
         li = E.li(row)
         add_classes(li, item.li_class)
         ul.appendChild(li)
@@ -270,6 +289,9 @@ def create_side_action(icon, action=None, tooltip=None):
     return {'icon': icon, 'action': action, 'tooltip': tooltip}
 
 
+# title can be a string or a DOM element. If action is set, the title becomes
+# the keyboard accessible control for the row, so an element passed as the
+# title is given the button role, a tabindex and key handlers.
 def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None, li_class=None, row_class=None):
     return {
         'title': title, 'action': action, 'subtitle': subtitle, 'icon': icon, 'data': data,

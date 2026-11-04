@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.item_list import create_item, create_item_list, create_side_action, focus_side_action_near
+from book_list.item_list import create_item, create_item_list, create_side_action, focus_item_action_near
 from book_list.top_bar import create_top_bar
 from dom import clear, unique_id
 from modals import question_dialog
@@ -81,7 +81,7 @@ def got_all_profiles(container_id, focus_row, all_profiles):
     create_item_list(pl.lastChild, items)
     if focus_row is not None:
         # Keep keyboard focus near the deleted profile
-        focus_side_action_near(pl.lastChild, focus_row, 0, container.querySelector('input[name=profile_name]'))
+        focus_item_action_near(pl.lastChild, focus_row, 0, container.querySelector('input[name=profile_name]'))
 
 
 def load_profiles(container_id, focus_row=None):

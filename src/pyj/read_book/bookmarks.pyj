@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.item_list import build_list, create_item, create_side_action, focus_side_action_near
+from book_list.item_list import build_list, create_item, create_side_action, focus_item_action_near
 from dom import ensure_id, set_css
 from modals import error_dialog, question_dialog
 from read_book.toc import get_book_mark_title
@@ -22,7 +22,7 @@ def remove_bookmark(annotations_manager, state, fallback, list_dom_node, button)
             annotations_manager.remove_bookmark(state.title)
             # Hide the row even if no bookmark matched, as it no longer exists either way
             list_dom_node.style.display = 'none'
-            focus_side_action_near(
+            focus_item_action_near(
                 list_dom_node.parentNode, Array.prototype.indexOf.call(list_dom_node.parentNode.children, list_dom_node),
                 Array.prototype.indexOf.call(button.parentNode.children, button), fallback)
     )

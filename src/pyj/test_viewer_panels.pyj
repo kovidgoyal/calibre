@@ -1,0 +1,71 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from dom import unique_id
+from read_book.bookmarks import create_bookmarks_list
+from read_book.globals import ui_operations
+from read_book.goto import create_page_list_overlay
+from read_book.profiles import got_all_profiles
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, test
+
+
+@test
+def viewer_panel_primary_actions_open_bookmarks_profiles_and_page_destinations():
+    def run(sd):
+        calls = {'bookmarks': [], 'profiles': [], 'pages': [], 'closed': 0}
+        parent = E.div(id=unique_id(), E.div(class_='profiles_list_container'))
+        document.body.appendChild(parent)
+        previous = ui_operations.apply_profile
+
+        def goto_cfi(cfi, force):
+            calls.bookmarks.push([cfi, force])
+
+        def activate_bookmark(action):
+            action({'goto_cfi': goto_cfi})
+
+        def all_bookmarks():
+            return [{'title': 'Bookmark', 'pos': '/6/2'}]
+
+        def set_bulk(changes):
+            for key in Object.keys(changes):
+                sd.set(key, changes[key])
+
+        def apply_profile(profile):
+            calls.profiles.push(profile)
+
+        def closed():
+            calls.closed += 1
+
+        def goto_page(page):
+            calls.pages.push(page.pagenum)
+
+        sd.set_bulk = set_bulk
+        ui_operations.apply_profile = apply_profile
+        parent.addEventListener('close_panel', closed)
+        try:
+            bookmarks = create_bookmarks_list({'all_bookmarks': all_bookmarks}, activate_bookmark)
+            parent.appendChild(bookmarks)
+            bookmarks.querySelector('.item-primary-action').click()
+            assert_equal(calls.bookmarks, [['/6/2', True]])
+            profile = {'font_size': 18}
+            got_all_profiles(parent.id, None, {'Profile': profile})
+            parent.querySelectorAll('.profiles_list_container .item-primary-action')[1].click()
+            assert_equal(calls.profiles, [profile])
+            assert_equal(calls.closed, 1)
+            page_container = E.div()
+            parent.appendChild(page_container)
+            create_page_list_overlay({'manifest': {'page_list': [{'pagenum': '12'}]}}, {
+                'view': {'current_pagelist_items': [], 'goto_pagelist_item': goto_page}, 'hide': closed
+            }, page_container)
+            page_container.querySelector('.item-primary-action').click()
+            assert_equal(calls.pages, ['12'])
+            assert_equal(calls.closed, 2)
+        finally:
+            ui_operations.apply_profile = previous
+            parent.remove()
+
+    with_empty_session(run)
