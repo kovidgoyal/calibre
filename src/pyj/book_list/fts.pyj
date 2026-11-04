@@ -14,7 +14,7 @@ from book_list.top_bar import create_top_bar
 from book_list.ui import panel_is_shown, query_as_href, set_panel_handler
 from book_list.views import create_image
 from complete import create_search_bar
-from dom import add_extra_css, clear, set_css, svgicon
+from dom import add_extra_css, clear, create_live_region, set_css, set_live_region_text, svgicon
 from modals import create_custom_dialog, error_dialog, info_dialog, question_dialog
 from widgets import create_spinner
 
@@ -23,7 +23,6 @@ current_fts_query = {}
 current_search_xhr = None
 query_id_counter = 0
 status_region_is_new = False
-status_update_count = 0
 
 add_extra_css(def ():
     sel = '.fts-help-display '
@@ -36,8 +35,6 @@ add_extra_css(def ():
     # The cover button must look exactly like a bare cover image
     style += '.fts-result-cover { display: block; margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer }\n'
     style += '.fts-result-cover:focus-visible { outline: 2px solid var(--calibre-color-link-foreground); outline-offset: 2px }\n'
-    # Hidden visually but still read by screen readers
-    style += '.fts-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap }\n'
     return style
 )
 
@@ -191,27 +188,17 @@ def build_search_page():
     container.appendChild(E.div(style='padding-top: 1ex; display: flex; width: 100%; align-items: center', svgicon('search'), E.span('\xa0'), restrict_bar))
 
     # Keep the live region outside results, which is cleared while searching
-    container.appendChild(E.div(data_component='status', role='status', aria_atomic='true', class_='fts-visually-hidden'))
+    status = create_live_region()
+    status.dataset.component = 'status'
+    container.appendChild(status)
     container.appendChild(E.div(style='border-top: var(--calibre-border-style); margin-top: 1ex', data_component='results'))
 
 
 def set_search_status(msg):
-    nonlocal status_update_count
     status = component('status')
-    if not status or not search_page_is_shown(overall_container_id):
-        return
-    status_update_count += 1
-    if status_region_is_new:
-        # Screen readers ignore changes made to a live region in the same task
-        # that inserted it, so delay updates made while the panel is built.
-        # Skip the delayed update if a newer one has happened since.
-        count = status_update_count
-        window.setTimeout(def ():
-            if count is status_update_count and status.isConnected and status.textContent is not msg:
-                status.textContent = msg
-        , 100)
-    elif status.textContent is not msg:
-        status.textContent = msg
+    if status and search_page_is_shown(overall_container_id):
+        # Delay updates made while the panel is being built
+        set_live_region_text(status, msg, status_region_is_new)
 
 
 def clear_to_message(msg, show_spinner=False):

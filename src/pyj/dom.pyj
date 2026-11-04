@@ -169,6 +169,44 @@ def ensure_id(w, prefix):
 
 extra_css = []
 add_extra_css = extra_css.push.bind(extra_css)
+add_extra_css(def ():
+    # Hidden visually but still read by screen readers
+    return build_rule('.calibre-visually-hidden',
+        position='absolute', width='1px', height='1px', overflow='hidden', clip_path='inset(50%)', white_space='nowrap')
+)
+
+
+def create_live_region():
+    # A polite, visually hidden region whose text changes are read out by
+    # screen readers. It must persist, so keep it outside containers that are
+    # cleared, and change its text with set_live_region_text().
+    ans = document.createElement('div')
+    ans.setAttribute('role', 'status')
+    ans.setAttribute('aria-atomic', 'true')
+    ans.className = 'calibre-visually-hidden'
+    return ans
+
+
+def set_live_region_text(region, msg, delayed, still_wanted):
+    # Clearing is immediate. Screen readers ignore changes made to a live
+    # region in the same task that inserted or revealed it, so with delayed
+    # the text is set shortly afterwards. The delay also means a burst of
+    # updates announces only the last one: any later call cancels a pending
+    # update, as does still_wanted() returning False when it fires. Setting
+    # the text it already has is a no-op, so nothing is announced twice.
+    region.calibre_live_region_updates = count = (region.calibre_live_region_updates or 0) + 1
+
+    def apply():
+        if region.textContent is not msg:
+            region.textContent = msg
+
+    if not msg or not delayed:
+        apply()
+        return
+    window.setTimeout(def ():
+        if count is region.calibre_live_region_updates and region.isConnected and (not still_wanted or still_wanted()):
+            apply()
+    , 100)
 
 
 def get_widget_css():

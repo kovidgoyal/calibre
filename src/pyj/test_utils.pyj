@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from dom import create_live_region, set_live_region_text
 from session import deep_eq
 from testing import assert_equal, test
 from utils import fmt_sidx, human_readable, rating_to_stars
@@ -16,3 +17,43 @@ def misc_utils():
     assert_equal(False, deep_eq({'portrait': 0, 'landscape': 0}, {'landscape': 3, 'portrait': 0}))
     assert_equal(False, deep_eq(1, 2))
     assert_equal(True, deep_eq(1, 1))
+
+
+@test
+def live_region_updates_are_delayed_cancellable_and_not_repeated():
+    region = create_live_region()
+    assert_equal(region.getAttribute('role'), 'status')
+    assert_equal(region.getAttribute('aria-atomic'), 'true')
+    timers = []
+    previous = window.setTimeout
+    window.setTimeout = def (callback):
+        timers.push(callback)
+
+    def flush():
+        while timers.length:
+            timers.shift()()
+
+    document.body.appendChild(region)
+    try:
+        set_live_region_text(region, 'now')
+        assert_equal(region.textContent, 'now')
+        set_live_region_text(region, 'first', True)
+        set_live_region_text(region, 'second', True)
+        assert_equal(region.textContent, 'now')
+        flush()
+        assert_equal(region.textContent, 'second')
+        set_live_region_text(region, 'pending', True)
+        set_live_region_text(region, '', True)
+        assert_equal(region.textContent, '')
+        flush()
+        assert_equal(region.textContent, '')
+        set_live_region_text(region, 'unwanted', True, def (): return False;)
+        flush()
+        assert_equal(region.textContent, '')
+        set_live_region_text(region, 'detached', True)
+        region.remove()
+        flush()
+        assert_equal(region.textContent, '')
+    finally:
+        window.setTimeout = previous
+        region.remove()

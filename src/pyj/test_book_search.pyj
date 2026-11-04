@@ -267,7 +267,7 @@ def with_search_status(proceed):
         create_modal_container()
         window.setTimeout = set_timeout
         try:
-            proceed(overlay, search, message, flush, calls)
+            proceed(overlay, search, message, flush)
         finally:
             window.setTimeout = previous
             close_all_modals()
