@@ -7,7 +7,7 @@ from elementmaker import E
 from book_list.item_list import is_visible
 from dom import get_widget_css
 from modals import close_all_modals, create_modal_container
-from read_book.highlights import all_selected_entries, create_highlights_panel, get_container
+from read_book.highlights import all_selected_entries, create_highlights_panel, find_next, get_container
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
 
@@ -17,7 +17,7 @@ def with_highlights(proceed):
         document.head.appendChild(E.style(get_widget_css()))
         parent = E.div()
         document.body.appendChild(parent)
-        calls = {'actions': []}
+        calls = {'actions': [], 'notes': []}
 
         def highlight_action(uuid, action):
             calls.actions.push([uuid, action])
@@ -27,7 +27,11 @@ def with_highlights(proceed):
             {'uuid': 'second', 'highlighted_text': 'Match second', 'notes': '', 'toc_family_titles': ['Chapter one']},
             {'uuid': 'third', 'highlighted_text': 'Match third', 'notes': '', 'toc_family_titles': ['Chapter two']},
         ]
-        view = {'highlight_action': highlight_action}
+
+        def set_notes(uuid, text):
+            calls.notes.push([uuid, text])
+
+        view = {'highlight_action': highlight_action, 'set_notes_for_highlight': set_notes}
         manager = {'view': view, 'all_highlights': def (): return highlights;}
         create_modal_container()
         try:
@@ -193,5 +197,77 @@ def highlight_deletion_does_not_steal_focus_moved_elsewhere():
         container.querySelector('input[type=search]').value = 'Match'
         container.querySelector('a.calibre-icon-button').click()
         assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'second')
+
+    with_highlights(run)
+
+
+def open_notes(row):
+    if not row.classList.contains('current'):
+        toggle(row).click()
+    row.querySelectorAll('.actions a')[1].click()
+    return document.querySelector('#modal-container textarea')
+
+
+def finish_notes(text, ok=True):
+    document.querySelector('#modal-container textarea').value = text
+    answer_question(ok)
+
+
+@test
+def highlight_notes_editor_reopens_with_the_latest_saved_text():
+    def run(container, calls):
+        row = entry(container, 'first')
+        assert_equal(open_notes(row).value, 'First note')
+        text = 'Updated note: café 日本語\nSecond line'
+        finish_notes(text)
+        assert_equal(open_notes(row).value, text)
+        finish_notes('Final note')
+        assert_equal(open_notes(row).value, 'Final note')
+        assert_equal(row.dataset.notes, 'Final note')
+        assert_equal(row.querySelector('.notes').textContent, 'Final note')
+        assert_equal(calls.notes, [['first', text], ['first', 'Final note']])
+
+    with_highlights(run)
+
+
+@test
+def highlight_notes_cancellation_and_clearing_keep_editor_and_search_text_in_sync():
+    def run(container, calls):
+        row = entry(container, 'first')
+        open_notes(row)
+        finish_notes('Saved note')
+        assert_equal(open_notes(row).value, 'Saved note')
+        finish_notes('Unsaved note', False)
+        assert_equal(row.dataset.notes, 'Saved note')
+        assert_equal(row.querySelector('.notes').textContent, 'Saved note')
+        assert_equal(calls.notes, [['first', 'Saved note']])
+        assert_equal(open_notes(row).value, 'Saved note')
+        finish_notes('')
+        assert_equal(row.dataset.notes, '')
+        assert_equal(row.querySelector('.notes').textContent, '')
+        assert_equal(open_notes(row).value, '')
+        assert_equal(calls.notes, [['first', 'Saved note'], ['first', '']])
+
+    with_highlights(run)
+
+
+@test
+def highlight_search_uses_edited_notes_and_stops_matching_removed_text():
+    def run(container, calls):
+        row = entry(container, 'first')
+        search = container.querySelector('input[type=search]')
+        open_notes(row)
+        finish_notes('New searchable phrase')
+        search.value = 'searchable phrase'
+        assert_true(find_next())
+        assert_true(container.querySelector('.highlight.current') is row)
+        search.value = 'First note'
+        assert_false(find_next())
+        close_all_modals()
+        open_notes(row)
+        finish_notes('')
+        search.value = 'searchable phrase'
+        assert_false(find_next())
+        assert_equal(calls.notes, [['first', 'New searchable phrase'], ['first', '']])
 
     with_highlights(run)
