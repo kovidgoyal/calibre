@@ -1,21 +1,74 @@
 #!/usr/bin/env python
-import random
+import json
+import re
+from html import escape
+from urllib.error import URLError
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+BASE = 'https://www.thetimes.com'
+# Logging in goes through an Auth0 single sign on service on
+# account.thetimes.co.uk, whose form is built with JavaScript and so has to be
+# typed into. It hands the browser back to the site once the password has been
+# accepted, and leaves it on the form, showing an error, otherwise.
+LOGIN_URL = 'https://login.thetimes.com/?gotoUrl=https%3A%2F%2Fwww.thetimes.com%2F'
+LOGIN_FIELDS = ('input[name=email]', 'input[name=password]')
+LOGGED_IN_URL = BASE + '/'
+LOGIN_TIMEOUT = 120  # seconds, typing like a person takes a while
 
 
-def resize(x):
-    if 'resize' in x:
-        return x.split('&resize')[0] + '&resize=600'
-    elif '?crop=' in x:
-        return x + '&resize=600'
+def resize(url):
+    # The image server scales to the width in the resize parameter
+    if 'resize=' in url:
+        return re.sub(r'resize=\d+', 'resize=600', url)
+    if '?' in url:
+        return url + '&resize=600'
+    return url
 
 
 def absurl(url):
     if url.startswith('/'):
-        url = 'https://www.thetimes.com' + url
+        url = BASE + url
     return url
+
+
+def normalize_url(url):
+    return url.split('?')[0].split('#')[0].rstrip('/')
+
+
+def rich_text_to_html(nodes):
+    # Renders the rich text tree The Times uses for article summaries in the
+    # state embedded in its pages
+    tags = {'paragraph': 'p', 'bold': 'b', 'italic': 'i'}
+    out = []
+    for node in nodes or ():
+        name = node.get('name')
+        attrs = node.get('attributes') or {}
+        inner = rich_text_to_html(node.get('children'))
+        if name == 'text':
+            out.append(escape(attrs.get('value', '')))
+        elif name == 'break':
+            out.append('<br>')
+        elif name == 'link' and attrs.get('href'):
+            out.append('<a href="{}">{}</a>'.format(escape(attrs['href'], quote=True), inner))
+        elif name in tags:
+            out.append('<{0}>{1}</{0}>'.format(tags[name], inner))
+        else:
+            out.append(inner)
+    return ''.join(out)
+
+
+def articles_in(node):
+    if isinstance(node, dict):
+        if node.get('__typename') == 'Article':
+            yield node
+            return
+        for v in node.values():
+            yield from articles_in(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from articles_in(v)
 
 
 class times(BasicNewsRecipe):
@@ -24,115 +77,152 @@ class times(BasicNewsRecipe):
     description = (
         'The Times, founded in 1785 as the Daily Universal Register, is the oldest national daily newspaper '
         'in the UK and holds an important place as the “paper of record” on public life, from politics and world '
-        'affairs to business and sport.'
+        'affairs to business and sport. Needs an account with The Times, and articles behind the paywall contain '
+        'only their opening paragraphs unless it has a subscription. Uses the camoufox browser, which is '
+        'downloaded on first use, as thetimes.com blocks every lighter way of fetching its articles.'
     )
+    needs_subscription = True
     language = 'en_GB'
     encoding = 'utf-8'
     no_stylesheets = True
     remove_javascript = True
-    remove_attributes = ['width', 'height', 'style']
+    remove_attributes = ['width', 'height', 'style', 'srcset', 'sizes']
     masthead_url = 'https://www.thetimes.com/d/img/logos/times-black-ee1e0ce4ed.png'
 
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     resolve_internal_links = True
-    simultaneous_downloads = 1
-    browser_type = 'webengine'
+    # thetimes.com answers anything but a real browser with a device
+    # verification interstitial, see calibre.web.automate.bot_check
+    browser_type = 'camoufox'
+    # No delay between requests, deliberately: any delay at all makes calibre
+    # download on a single thread, and a browser that navigates to every
+    # article is slow enough that that would take a very long time.
+    delay = 0
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/uk-newspapers/')
-        for img in soup.findAll('img', src=True):
-            if 'the-times' in img['src']:
-                return 'https://www.frontpages.com' + img['src']
+    def warmup_excluded_domains(self):
+        return {'www.thetimes.com', 'thetimes.com', 'login.thetimes.com', 'account.thetimes.co.uk'}
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        self.times_login(br)
+        return br
+
+    def times_login(self, br):
+        """Log br in, failing if the username or password is not accepted.
+
+        The cookies a login sets are shared by every tab of the browser, so the
+        download threads, whose browsers are clones of this one, are logged in
+        as well.
+        """
+        # An ordinary page first, so that the device verification, which the
+        # form submission does not wait out, has been passed by the time of the
+        # login
+        br.open(LOGGED_IN_URL).close()
+        try:
+            br.submit_form(
+                LOGIN_URL,
+                dict(zip(LOGIN_FIELDS, (self.username, self.password))),
+                wait_for_url=LOGGED_IN_URL,
+                timeout=LOGIN_TIMEOUT,
+            ).close()
+        except URLError as err:
+            raise ValueError(f'Failed to log in to thetimes.com, check your username and password. The error was: {err}') from err
+        self.log('Logged in to thetimes.com')
 
     extra_css = '''
-        .tc-view__TcView-nuazoi-0, [class^="keylines__KeylineItem-"], .sub { font-size:small; }
-        [class^="responsive__StandfirstContainer-"] { font-style:italic; }
+        .article--title-container--label, .article-meta-container, figure, .teaser-note { font-size:small; }
+        .article--title-container--standfirst { font-style:italic; }
     '''
 
     keep_only_tags = [
-        prefixed_classes(
-            'responsive__HeadlineContainer- keylines__KeylineItem- responsive__StandfirstContainer- responsive__LeadAsset- responsive__ArticleContent-'
+        classes(
+            'article--title-container--label article--title-container--title article--title-container--standfirst'
+            ' article-meta-container wp-block-tnl-wp-lead-asset-lead-asset entry-content'
         )
     ]
 
     remove_tags = [
-        dict(name=['svg', 'times-datawrapper']),
-        dict(attrs={'id': 'iframe-wrapper'}),
-        dict(attrs={'old-position': 'sticky'}),
-        prefixed_classes('responsive__InlineAdWrapper-'),
+        dict(name=['svg', 'button', 'times-datawrapper', 'video-js']),
+        classes('most-commented newsuk-key-moments inline-article-ad article__puzzle-sidebar share-buttons audio-player tm-related-articles times-brightcove'),
     ]
 
-    remove_tags_after = [dict(name='div', attrs={'id': 'paywall-portal-article-footer'})]
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        # The opening paragraphs of each article, from the home page, used
+        # for articles that are behind the paywall
+        self.teasers = {}
 
     def preprocess_html(self, soup):
-        h2 = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
+        h2 = soup.find(**classes('article--title-container--standfirst'))
         if h2:
             h2.name = 'p'
-        for h2 in soup.findAll('h2'):
-            if h2.text == 'Advertisement':
-                div = h2.findParent('div')
-                if div:
-                    div.extract()
         for img in soup.findAll('img', src=True):
             img['src'] = resize(img['src'])
-        for img in soup.findAll('img', attrs={'old-src': True}):
-            img['src'] = resize(img['old-src'])
-        for a in soup.findAll('a', href=True):
-            a['href'] = 'http' + a['href'].split('http')[-1]
-        div = soup.findAll(attrs={'style': lambda x: x and x.startswith('color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular')})
-        for p in div:
-            p.name = 'p'
-        for d in soup.findAll(attrs={'id': lambda x: x and '.' in x}):
-            d['class'] = 'sub'
-        for fig in soup.findAll('figure'):
-            fig['class'] = 'sub'
         return soup
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.thetimes.com/')
-        main = soup.find('div', attrs={'id': 'main-container', 'data-edition-date': True})
-        self.timefmt = ' [%s]' % main['data-edition-date']
+        raw = self.index_to_soup(BASE + '/', raw=True)
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8', 'replace')
+        m = re.search(r'data-testid="date-time"[^>]*>([^<]+)<', raw)
+        if m:
+            self.timefmt = ' [%s]' % m.group(1).strip()
+        m = re.search(r'window\.__TIMES_STATE__\s*=\s*(\{"preloadedData")', raw)
+        if m is None:
+            raise ValueError('Could not find the list of articles in the thetimes.com home page')
+        state = json.JSONDecoder().raw_decode(raw, m.start(1))[0]
+        body = state['preloadedData']['tpaData']['page']['body']
 
-        feeds = []
-
-        for sec in main.findAll('section', attrs={'id': lambda x: x and x.startswith('section-')}, recursive=False):
-            section = sec['id'].replace('section-', '').capitalize()
+        feeds = {}
+        for collection in body:
+            section = (collection.get('title') or '').strip() or 'Top Stories'
+            if section in ('Watch', "Today's puzzles"):
+                continue
             self.log(section)
-
-            articles = []
-
-            for a in sec.findAll(**prefixed_classes('Item-headline')):
-                if not a.find('a'):
+            articles = feeds.setdefault(section, [])
+            for art in articles_in(collection):
+                url = art.get('url')
+                if not url or '/video/' in url:
                     continue
-                url = absurl(a.a['href']).split('?')[0]
-                title = self.tag_to_string(a)
-                self.log('          ', title, '\n\t', url)
-                articles.append({'title': title, 'url': url})
-            feeds.append((section, articles))
-        return feeds
+                url = absurl(url).split('?')[0]
+                title = art.get('headline') or art.get('shortHeadline')
+                if not title:
+                    continue
+                desc = art.get('standfirst') or art.get('strapline') or ''
+                self.log('          ', title, '\n\t', desc, '\n\t', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+                teaser = rich_text_to_html(art.get('summary'))
+                if teaser:
+                    self.teasers[normalize_url(url)] = teaser
+        return [(section, articles) for section, articles in feeds.items() if articles]
 
     def preprocess_raw_html(self, raw, url):
-        access = '"userState":{"isLoggedIn":false,"isMetered":false,"hasAccess":true}'
-        if access not in raw and 'comment/cartoons' not in url:
-            dom = random.choice(('fo', 'is', 'li', 'md', 'ph', 'vn'))
-            raw_ar = self.index_to_soup('https://archive.' + dom + '/latest/' + url)
-            archive = BeautifulSoup(str(raw_ar))
-            if archive.find('div', attrs={'id': 'top'}):
-                content = archive.find('article', attrs={'id': False})
-                soup = BeautifulSoup(raw)
-                article = soup.find(**prefixed_classes('responsive__ArticleContent-'))
-                if article and content:
-                    self.log('**fetching archive content')
-                    article.clear()
-                    article.append(content)
-                    return str(soup)
-                return raw
+        soup = BeautifulSoup(raw)
+        content = soup.find(**classes('entry-content'))
+        if content is not None and self.tag_to_string(content).strip():
             return raw
-        return raw
-
-    def populate_article_metadata(self, article, soup, first):
-        desc = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
-        if desc:
-            article.summary = self.tag_to_string(desc)
-            article.text_summary = article.summary
+        # The article is behind the paywall, so its body is missing from the
+        # page, use the opening paragraphs from the home page instead
+        teaser = self.teasers.get(normalize_url(url))
+        wrapper = soup.find(**classes('article-content-wrapper'))
+        if not teaser or wrapper is None:
+            self.abort_article('No article text available, it is behind the paywall')
+        self.log('**using the opening paragraphs for paywalled article:', url)
+        image = ''
+        lead = soup.find(**classes('wp-block-tnl-wp-lead-asset-lead-asset'))
+        if lead is None or lead.find('img') is None:
+            # Paywalled pages often omit the lead image, which for cartoons is
+            # the whole article, the social media preview has it, cropped
+            og = soup.find('meta', attrs={'property': 'og:image', 'content': True})
+            if og is not None:
+                src = re.sub(r'crop=[^&]*&?', '', og['content'])
+                image = '<figure><img src="{}"></figure>'.format(escape(src, quote=True))
+        wrapper.clear()
+        wrapper.append(
+            BeautifulSoup(
+                '<div class="entry-content">' + image + teaser + '<p class="teaser-note"><i>'
+                'The rest of this article is available only to subscribers.</i></p></div>'
+            ).find('div')
+        )
+        return str(soup)
