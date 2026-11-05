@@ -904,6 +904,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(find_tests())
     if ok('misc'):
+        from calibre.gui2.tts.test_download import find_tests
+
+        a(find_tests())
         from calibre.ebooks.html.input import find_tests
 
         a(find_tests())
