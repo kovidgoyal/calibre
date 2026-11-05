@@ -3,12 +3,13 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.item_list import is_visible
 from dom import get_widget_css
 from modals import close_all_modals, create_modal_container
 from read_book.globals import ui_operations
-from read_book.highlights import all_selected_entries, create_highlights_panel, find_next, get_container
+from read_book.highlights import all_selected_entries, create_highlights_panel, find_next, find_previous, get_container
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
 
@@ -323,3 +324,167 @@ def highlight_notes_links_stay_clickable_after_editing():
             ui_operations.open_url = previous
 
     with_highlights(run)
+
+
+def with_highlight_search_status(proceed):
+    def run(container, calls):
+        pending = []
+        previous = window.setTimeout
+
+        def set_timeout(callback):
+            pending.push(callback)
+            return pending.length
+
+        def flush():
+            while pending.length:
+                pending.shift()()
+
+        status = container.querySelector('[data-component=highlight-search-status]')
+        search = container.querySelector('input[type=search]')
+        window.setTimeout = set_timeout
+        try:
+            proceed(container, status, search, flush)
+        finally:
+            window.setTimeout = previous
+
+    with_highlights(run)
+
+
+def match_status(index, total):
+    return _('Match {0} of {1}').format(index, total)
+
+
+@test
+def highlight_search_announces_match_positions_without_moving_focus():
+    def run(container, status, search, flush):
+        assert_equal(status.getAttribute('role'), 'status')
+        assert_equal(status.getAttribute('aria-atomic'), 'true')
+        assert_equal(status.textContent, '')
+        search.value = 'Match'
+        search.focus()
+        next_button, prev_button = container.querySelectorAll('a.calibre-icon-button')
+        next_button.click()
+        assert_equal(status.textContent, '')
+        flush()
+        assert_equal(status.textContent, match_status(1, 3))
+        assert_equal(document.activeElement, search)
+        next_button.click()
+        flush()
+        assert_equal(status.textContent, match_status(2, 3))
+        prev_button.click()
+        flush()
+        assert_equal(status.textContent, match_status(1, 3))
+        assert_true(find_previous())
+        flush()
+        assert_equal(status.textContent, match_status(3, 3))
+        assert_true(find_next())
+        flush()
+        assert_equal(status.textContent, match_status(1, 3))
+        assert_equal(document.activeElement, search)
+        assert_true(container.contains(status))
+
+    with_highlight_search_status(run)
+
+
+@test
+def highlight_search_status_counts_notes_matches_and_keeps_existing_warnings():
+    def run(container, status, search, flush):
+        search.value = 'First note'
+        assert_true(find_next())
+        flush()
+        assert_equal(status.textContent, match_status(1, 1))
+        assert_true(find_next())
+        flush()
+        assert_equal(status.textContent, '')
+        assert_equal(document.getElementById('modal-container').style.display, 'flex')
+        close_all_modals()
+        search.value = 'not present'
+        assert_false(find_next())
+        flush()
+        assert_equal(status.textContent, '')
+        assert_equal(document.getElementById('modal-container').style.display, 'flex')
+        close_all_modals()
+        search.value = ''
+        assert_false(find_next())
+        flush()
+        assert_equal(status.textContent, '')
+        assert_equal(document.getElementById('modal-container').style.display, 'none')
+
+    with_highlight_search_status(run)
+
+
+@test
+def highlight_search_status_coalesces_navigation_and_cancels_changed_queries():
+    def run(container, status, search, flush):
+        search.value = 'Match'
+        find_next()
+        find_next()
+        observer = new window.MutationObserver(def (): pass;)
+        observer.observe(status, {'childList': True, 'subtree': True, 'characterData': True})
+        try:
+            flush()
+            assert_equal(status.textContent, match_status(2, 3))
+            assert_equal(observer.takeRecords().length, 1)
+        finally:
+            observer.disconnect()
+        search.value = 'new query'
+        search.dispatchEvent(new Event('input', {'bubbles': True}))
+        assert_equal(status.textContent, '')
+        search.value = 'Match'
+        find_next()
+        search.value = 'changed before the update'
+        flush()
+        assert_equal(status.textContent, '')
+        search.value = 'Match'
+        find_next()
+        search.value = ''
+        search.dispatchEvent(new Event('input', {'bubbles': True}))
+        flush()
+        assert_equal(status.textContent, '')
+
+    with_highlight_search_status(run)
+
+
+@test
+def highlight_search_status_does_not_announce_under_dialogs_or_for_hidden_panels():
+    def run(container, status, search, flush):
+        search.value = 'Match'
+        find_next()
+        entry(container, 'first').querySelectorAll('.actions a')[1].click()
+        flush()
+        assert_equal(status.textContent, '')
+        close_all_modals()
+        find_next()
+        container.style.display = 'none'
+        flush()
+        assert_equal(status.textContent, '')
+        container.style.display = 'block'
+        find_next()
+        container.remove()
+        flush()
+        assert_equal(status.textContent, '')
+
+    with_highlight_search_status(run)
+
+
+@test
+def highlight_search_status_is_cancelled_by_selection_changes_and_deletion():
+    def run(container, status, search, flush):
+        search.value = 'Match'
+        find_next()
+        toggle(entry(container, 'third')).click()
+        flush()
+        assert_equal(status.textContent, '')
+        find_next()
+        flush()
+        assert_equal(status.textContent, match_status(1, 3))
+        entry(container, 'first').querySelectorAll('.actions a')[2].click()
+        answer_question(True)
+        flush()
+        assert_equal(status.textContent, '')
+        assert_true(status.isConnected)
+        find_next()
+        flush()
+        assert_equal(status.textContent, match_status(1, 2))
+
+    with_highlight_search_status(run)
