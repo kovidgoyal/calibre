@@ -356,6 +356,15 @@ class TestCamoufoxTransport(unittest.TestCase):
             process.kill()
             camoufox.close_fd(process.read_fd)
 
+    def test_write_user_js(self) -> None:
+        """Startup preferences are written to user.js in the format Firefox expects."""
+        base = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, base)
+        camoufox.write_user_js(base, {'a.bool': True, 'a.int': 3, 'a.str': 'x"y'})
+        with open(os.path.join(base, 'user.js'), encoding='utf-8') as f:
+            self.assertEqual(f.read(), 'user_pref("a.bool", true);\nuser_pref("a.int", 3);\nuser_pref("a.str", "x\\"y");\n')
+        self.assertIs(camoufox.STARTUP_USER_PREFS['browser.privacySegmentation.createdShortcut'], True)
+
     def test_remove_profile_dir(self) -> None:
         """The profile directory is deleted even if it is briefly undeletable."""
         base = tempfile.mkdtemp()
