@@ -33,7 +33,6 @@ from calibre.utils.localization import _, ngettext
 
 class ProgressBar(QWidget):
     done = pyqtSignal(str)
-    CHUNK_SIZE = 1024 * 1024
     MAX_RETRIES = 3
     RETRY_DELAY_MS = 500
 
@@ -60,11 +59,12 @@ class ProgressBar(QWidget):
         self.response_end: int | None = None
         self.response_checked = False
         self.use_ranges = bool(sha256)
-        self.request_start = self.request_end = 0
+        self.request_start = 0
         self.request_ranged = False
         self.validator = b''
         self.retries = self.retry_progress = 0
         self.not_modified = False
+        self.restarted_after_corruption = False
         self.retry_timer = QTimer(self)
         self.retry_timer.setSingleShot(True)
         self.retry_timer.timeout.connect(self.start_request)
@@ -86,13 +86,12 @@ class ProgressBar(QWidget):
         self.response_end = None
         req = QNetworkRequest(self.qurl)
         req.setRawHeader(b'Accept-Encoding', b'identity')
-        self.request_ranged = self.use_ranges
+        # Ranges are only used to resume an interrupted transfer, the rest of
+        # the resource is requested at once to avoid a request per chunk.
+        self.request_ranged = self.use_ranges and self.request_start > 0
         if self.request_ranged:
-            self.request_end = self.request_start + self.CHUNK_SIZE - 1
-            if self.total_size is not None:
-                self.request_end = min(self.request_end, self.total_size - 1)
-            req.setRawHeader(b'Range', f'bytes={self.request_start}-{self.request_end}'.encode('ascii'))
-            if self.request_start and self.validator:
+            req.setRawHeader(b'Range', f'bytes={self.request_start}-'.encode('ascii'))
+            if self.validator:
                 req.setRawHeader(b'If-Range', self.validator)
         fi = QFileInfo(self.path)
         if not self.request_start and fi.exists():
@@ -142,7 +141,6 @@ class ProgressBar(QWidget):
             if (
                 start != self.request_start
                 or end < start
-                or end > self.request_end
                 or end >= total
                 or (self.total_size is not None and self.total_size != total)
                 or (size is not None and size != end - start + 1)
@@ -152,6 +150,8 @@ class ProgressBar(QWidget):
             self.total_size, self.response_end = total, end + 1
         else:
             # A server may ignore Range, or return a changed representation after If-Range.
+            # The response then starts from the beginning, so request_start is
+            # reset to 0 which also disables the validator check below.
             if self.request_start:
                 self.reset_partial_file()
                 self.request_start = 0
@@ -187,7 +187,9 @@ class ProgressBar(QWidget):
     def retry(self, err_msg: str) -> None:
         position = self.file_obj.tell()
         # Bound failures at the same offset while allowing interrupted transfers to make progress.
-        if position > self.retry_progress:
+        # Progress only counts when it is kept, transfers that restart from
+        # the beginning have a fixed number of retries.
+        if self.use_ranges and position > self.retry_progress:
             self.retries = 0
             self.retry_progress = position
         if self.retries >= self.MAX_RETRIES:
@@ -198,7 +200,6 @@ class ProgressBar(QWidget):
             self.reset_partial_file()
             self.total_size = None
         self.pb.setFormat(_('Retrying download...'))
-        self.nam.clearConnectionCache()
         self.retry_timer.start(self.RETRY_DELAY_MS * 2 ** (self.retries - 1))
 
     def on_over(self, err_msg: str = '') -> None:
@@ -242,6 +243,30 @@ class ProgressBar(QWidget):
             r = human_readable(position)
             self.pb.setFormat(f'%p% {r} of {t}')
 
+    def response_is_complete(self, code: object, ok: bool) -> bool:
+        if code not in (200, 206) or not self.response_checked:
+            return False
+        if self.total_size is not None:
+            return self.total_size == self.file_obj.tell()
+        if self.expected_sha256 and self.hasher.hexdigest() == self.expected_sha256:
+            # The data is complete even if the server does not end the response
+            return True
+        return code == 200 and ok
+
+    def restart_after_corruption(self) -> bool:
+        # Data assembled from several responses can be corrupted by any of
+        # them, so download it again from the beginning once before giving up.
+        if not self.expected_sha256 or self.restarted_after_corruption or self.hasher.hexdigest() == self.expected_sha256:
+            return False
+        self.restarted_after_corruption = True
+        self.reset_partial_file()
+        self.total_size = None
+        self.validator = b''
+        self.retries = self.retry_progress = 0
+        self.pb.setFormat(_('Retrying download...'))
+        self.retry_timer.start(0)
+        return True
+
     def finished(self) -> None:
         if self.over_reported:
             return
@@ -252,38 +277,34 @@ class ProgressBar(QWidget):
         assert reply is not None
         code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
         error = reply.error()
+        ok = error == QNetworkReply.NetworkError.NoError
         message = _('Failed to download data with error: {}').format(reply.errorString())
         self.release_reply()
-        if code == 304 and not self.request_start and os.path.exists(self.path):
-            self.not_modified = True
-            self.on_over()
-        elif (
-            code in (200, 206)
-            and self.response_checked
-            and (
-                self.total_size == self.file_obj.tell()
-                or (self.expected_sha256 and self.hasher.hexdigest() == self.expected_sha256)
-                or (code == 200 and error == QNetworkReply.NetworkError.NoError and self.total_size is None)
-            )
-        ):
-            self.on_over()
-        elif code == 206 and error == QNetworkReply.NetworkError.NoError and self.response_end == self.file_obj.tell():
+        if code == 304 and not self.request_start:
+            if os.path.exists(self.path):
+                self.not_modified = True
+                self.on_over()
+            else:
+                self.on_over(_('Server reported that the data is unchanged but there is no previously downloaded copy'))
+        elif self.response_is_complete(code, ok):
+            if not self.restart_after_corruption():
+                self.on_over()
+        elif code == 206 and ok and self.response_end == self.file_obj.tell():
+            # The server returned less of the resource than requested, ask for the rest
             self.retries = 0
             self.retry_progress = self.file_obj.tell()
             self.retry_timer.start(0)
-        elif (
-            code in (408, 429, 500, 502, 503, 504)
-            or error
-            in {
-                QNetworkReply.NetworkError.TimeoutError,
-                QNetworkReply.NetworkError.RemoteHostClosedError,
-                QNetworkReply.NetworkError.TemporaryNetworkFailureError,
-                QNetworkReply.NetworkError.ProxyConnectionClosedError,
-                QNetworkReply.NetworkError.ProxyTimeoutError,
-                QNetworkReply.NetworkError.UnknownNetworkError,
-            }
-            or (code in (200, 206) and error == QNetworkReply.NetworkError.NoError)
-        ):
+        elif code in (200, 206) and ok:
+            # The response ended early without an error, treat it as interrupted
+            self.retry(message)
+        elif code in (408, 429, 500, 502, 503, 504) or error in {
+            QNetworkReply.NetworkError.TimeoutError,
+            QNetworkReply.NetworkError.RemoteHostClosedError,
+            QNetworkReply.NetworkError.TemporaryNetworkFailureError,
+            QNetworkReply.NetworkError.ProxyConnectionClosedError,
+            QNetworkReply.NetworkError.ProxyTimeoutError,
+            QNetworkReply.NetworkError.UnknownNetworkError,
+        }:
             self.retry(message)
         else:
             self.on_over(message)

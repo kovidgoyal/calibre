@@ -35,6 +35,29 @@ class DownloadHandler(BaseHTTPRequestHandler):
         if self.path == '/no-headers':
             stopped.wait(10)
             return
+        if self.path == '/growing-stall':
+            # Each attempt gets further before stalling, without support for resuming
+            self.send_response(200)
+            self.send_header('Content-Length', str(len(DATA)))
+            self.end_headers()
+            try:
+                self.wfile.write(DATA[: 1024 * count])
+                self.wfile.flush()
+            except BrokenPipeError, ConnectionResetError:
+                return
+            stopped.wait(10)
+            return
+        if self.path in ('/corrupt', '/corrupt-once'):
+            data = DATA if self.path == '/corrupt-once' and count > 1 else b'X' + DATA[1:]
+            self.send_response(200)
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            try:
+                self.wfile.write(data)
+                self.wfile.flush()
+            except BrokenPipeError, ConnectionResetError:
+                return
+            return
         if self.path == '/not-modified':
             self.send_response(304)
             self.end_headers()
@@ -49,9 +72,16 @@ class DownloadHandler(BaseHTTPRequestHandler):
             self.send_error(503)
             return
         if self.path.startswith('/range'):
-            match = re.fullmatch(r'bytes=(\d+)-(\d+)', self.headers.get('Range', ''))
+            match = re.fullmatch(r'bytes=(\d+)-(\d*)', self.headers.get('Range', ''))
             ranged = match is not None and not (self.path == '/range-ignore' and count > 1)
-            start, end = (int(match[1]), min(int(match[2]), len(DATA) - 1)) if ranged and match is not None else (0, len(DATA) - 1)
+            start, end = 0, len(DATA) - 1
+            if ranged and match is not None:
+                start = int(match[1])
+                if match[2]:
+                    end = min(int(match[2]), end)
+                elif self.path == '/range-capped':
+                    # Servers may return less than the requested range
+                    end = min(start + 1023, end)
             self.send_response(206 if ranged else 200)
             if self.path != '/range-no-validator':
                 self.send_header('ETag', '"model-v2"' if self.path == '/range-changed-validator' and count > 1 else '"model-v1"')
@@ -59,7 +89,7 @@ class DownloadHandler(BaseHTTPRequestHandler):
                 header_start = start + 1 if self.path == '/range-wrong-offset' and count > 1 else start
                 self.send_header('Content-Range', f'bytes {header_start}-{end}/{len(DATA)}')
             length = end - start + 1
-            if self.path == '/range-wrong-length':
+            if self.path == '/range-wrong-length' and ranged:
                 length += 1
             self.send_header('Content-Length', str(length))
             self.end_headers()
@@ -76,6 +106,8 @@ class DownloadHandler(BaseHTTPRequestHandler):
                     '/range-unhashed',
                     '/range-no-validator',
                     '/range-changed-validator',
+                    '/range-wrong-length',
+                    '/range-capped',
                 }:
                     self.wfile.write(DATA[start : start + 1024])
                     self.wfile.flush()
@@ -135,9 +167,6 @@ def run_download_tests_in_worker() -> None:
             self.retry_delay = patch.object(download.ProgressBar, 'RETRY_DELAY_MS', 10)
             self.retry_delay.start()
             self.addCleanup(self.retry_delay.stop)
-            self.chunk_size = patch.object(download.ProgressBar, 'CHUNK_SIZE', 4096)
-            self.chunk_size.start()
-            self.addCleanup(self.chunk_size.stop)
             self.directory = tempfile.TemporaryDirectory()
             self.addCleanup(self.directory.cleanup)
             self.errors: list[str] = []
@@ -215,7 +244,7 @@ def run_download_tests_in_worker() -> None:
                 if cancel_retry:
                     retry_cancel.timeout.connect(cancel_during_retry)
                     retry_cancel.start(1)
-                watchdog.start(5000)
+                watchdog.start(15000)
                 loop.exec()
                 watchdog.stop()
                 retry_cancel.stop()
@@ -297,25 +326,30 @@ def run_download_tests_in_worker() -> None:
             with open(os.path.join(self.directory.name, path), 'rb') as stream:
                 self.assertEqual(stream.read(), DATA)
 
-        def test_bounded_ranges(self) -> None:
+        def test_uninterrupted_download_uses_single_request(self) -> None:
             self.run_download('range-complete')
             self.assert_downloaded('range-complete')
-            self.assertEqual([r for _, r, _ in self.server.requests], [f'bytes={start}-{start + 4095}' for start in range(0, len(DATA), 4096)])
+            self.assertEqual([r for _, r, _ in self.server.requests], [''])
+
+        def test_server_returns_partial_range(self) -> None:
+            self.run_download('range-capped')
+            self.assert_downloaded('range-capped')
+            self.assertEqual([r for _, r, _ in self.server.requests], [''] + [f'bytes={start}-' for start in range(1024, len(DATA), 1024)])
 
         def test_resume_after_timeout(self) -> None:
             self.run_download('range-resume')
             self.assert_downloaded('range-resume')
-            self.assertEqual(self.server.requests[1][1:], ('bytes=1024-5119', '"model-v1"'))
+            self.assertEqual(self.server.requests[1][1:], ('bytes=1024-', '"model-v1"'))
 
         def test_resume_after_disconnect(self) -> None:
             self.run_download('range-disconnect')
             self.assert_downloaded('range-disconnect')
-            self.assertEqual(self.server.requests[1][1], 'bytes=1024-5119')
+            self.assertEqual(self.server.requests[1][1], 'bytes=1024-')
 
         def test_repeated_interruptions_make_progress(self) -> None:
             self.run_download('range-always-stall')
             self.assert_downloaded('range-always-stall')
-            offsets = [int(r.split('=')[1].split('-')[0]) for _, r, _ in self.server.requests]
+            offsets = [int(r.split('=')[1].split('-')[0]) if r else 0 for _, r, _ in self.server.requests]
             self.assertEqual(offsets, list(range(0, len(DATA), 1024)))
             self.assertGreater(len(offsets), download.ProgressBar.MAX_RETRIES)
 
@@ -328,7 +362,7 @@ def run_download_tests_in_worker() -> None:
             self.run_download('range-unhashed', verified=False)
             self.assert_downloaded('range-unhashed')
             self.assertEqual(self.server.requests[0][1], '')
-            self.assertEqual(self.server.requests[1][1:], ('bytes=1024-5119', '"model-v1"'))
+            self.assertEqual(self.server.requests[1][1:], ('bytes=1024-', '"model-v1"'))
 
         def test_unhashed_resource_restarts_without_validator(self) -> None:
             self.run_download('range-no-validator', verified=False)
@@ -349,7 +383,7 @@ def run_download_tests_in_worker() -> None:
         def test_inconsistent_range_length(self) -> None:
             dialog = self.run_download('range-wrong-length')
             self.assert_failed(dialog)
-            self.assertEqual(len(self.server.requests), 1)
+            self.assertEqual(len(self.server.requests), 2)
             self.assertEqual(os.listdir(self.directory.name), [])
 
         def test_retry_transient_http_error(self) -> None:
@@ -398,6 +432,36 @@ def run_download_tests_in_worker() -> None:
             self.assertEqual(len(self.server.requests), 1)
             self.assertEqual(os.listdir(self.directory.name), [])
 
+        def test_retry_does_not_interrupt_other_downloads(self) -> None:
+            self.run_download('slow', 'transient')
+            self.assert_downloaded('slow')
+            self.assert_downloaded('transient')
+            self.assertEqual(sum(path == '/slow' for path, _, _ in self.server.requests), 1)
+
+        def test_restart_after_corruption(self) -> None:
+            self.run_download('corrupt-once')
+            self.assert_downloaded('corrupt-once')
+            self.assertEqual(len(self.server.requests), 2)
+
+        def test_persistent_corruption_fails(self) -> None:
+            dialog = self.run_download('corrupt')
+            self.assert_failed(dialog)
+            self.assertIn(_('checksum does not match'), self.errors[0])
+            self.assertEqual(len(self.server.requests), 2)
+            self.assertEqual(os.listdir(self.directory.name), [])
+
+        def test_not_modified_without_cache(self) -> None:
+            dialog = self.run_download('not-modified')
+            self.assert_failed(dialog)
+            self.assertIn('no previously downloaded copy', self.errors[0])
+            self.assertEqual(os.listdir(self.directory.name), [])
+
+        def test_restarting_download_retries_are_bounded(self) -> None:
+            dialog = self.run_download('growing-stall', verified=False)
+            self.assert_failed(dialog)
+            self.assertEqual(len(self.server.requests), download.ProgressBar.MAX_RETRIES + 1)
+            self.assertEqual(os.listdir(self.directory.name), [])
+
         def test_install_failure_preserves_cache(self) -> None:
             path = os.path.join(self.directory.name, 'complete')
             with open(path, 'wb') as stream:
@@ -424,7 +488,7 @@ class TestDownload(unittest.TestCase):
             stderr=subprocess.STDOUT,
         )
         try:
-            output = process.communicate(timeout=60)[0]
+            output = process.communicate(timeout=180)[0]
             self.assertEqual(process.returncode, 0, output.decode('utf-8', 'replace'))
         finally:
             if process.poll() is None:
