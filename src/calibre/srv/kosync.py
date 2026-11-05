@@ -13,7 +13,7 @@ import math
 import re
 import time
 from hashlib import md5
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING
 
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.routes import endpoint
@@ -39,6 +39,22 @@ document_pat = re.compile(r'[A-Za-z0-9_]+')
 # Limit the size of the strings stored per document, KOReader sends MD5
 # hashes and short XPointers
 MAX_FIELD_LENGTH = 4096
+
+
+def partial_md5(stream: IO[bytes]) -> str:
+    """KOReader's util.partialMD5: sample up to twelve 1 KiB blocks, preserving the file position."""
+    position = stream.tell()
+    digest = md5()
+    try:
+        for i in range(-1, 11):
+            stream.seek(0 if i == -1 else 1024 << (2 * i))
+            sample = stream.read(1024)
+            if not sample:
+                break
+            digest.update(sample)
+    finally:
+        stream.seek(position)
+    return digest.hexdigest()
 
 
 def error(rd: RequestData, err: ErrorSpec) -> JSONResponse:

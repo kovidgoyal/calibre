@@ -184,6 +184,16 @@ class UserManager:
 
                         PRAGMA user_version=2;
                         ''')
+                        uv = 2
+                    if uv == 2:
+                        c.execute('''
+                        CREATE TABLE kosync_documents (
+                            document TEXT NOT NULL,
+                            book TEXT NOT NULL,
+                            PRIMARY KEY (document, book)
+                        );
+                        PRAGMA user_version=3;
+                        ''')
                     c.close()
         return self._conn
 
@@ -340,6 +350,34 @@ class UserManager:
             md['allow_change_password_via_http'] = allow
             self.conn.cursor().execute('UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
 
+    def _kosync_document(self, document: str) -> str:
+        # The caller holds self.lock. Identical files can belong to different books;
+        # do not guess which book a client means when a checksum is ambiguous.
+        books = tuple(self.conn.cursor().execute('SELECT book FROM kosync_documents WHERE document=? LIMIT 2', (document,)))
+        return books[0][0] if len(books) == 1 else document
+
+    def register_kosync_documents(self, book: str, *documents: str) -> None:
+        """Remember checksums of library files and their exported copies, including old versions."""
+        with self.lock, self.conn:
+            c = self.conn.cursor()
+            for document in documents:
+                c.execute('INSERT OR IGNORE INTO kosync_documents (document, book) VALUES (?, ?)', (document, book))
+                if not self.conn.changes() or self._kosync_document(document) != book:
+                    continue
+                # Adopt progress saved before this checksum was known. Keep the
+                # newer position if another checksum already has progress for the book.
+                for table, user in (('kosync_progress', 'user_id'), ('kosync_anonymous_progress', 'user')):
+                    c.execute(
+                        f'INSERT INTO {table} ({user}, document, progress, percentage, device, device_id, timestamp)'
+                        f' SELECT {user}, ?, progress, percentage, device, device_id, timestamp FROM {table} WHERE document=?'
+                        f' ON CONFLICT ({user}, document) DO UPDATE SET'
+                        ' progress=excluded.progress, percentage=excluded.percentage, device=excluded.device,'
+                        ' device_id=excluded.device_id, timestamp=excluded.timestamp'
+                        f' WHERE excluded.timestamp > {table}.timestamp',
+                        (book, document),
+                    )
+                    c.execute(f'DELETE FROM {table} WHERE document=?', (document,))
+
     def kosync_progress(self, username: str, document: str, anonymous: bool = False) -> dict | None:
         """
         Return the reading position synced by KOReader for the specified document or None. Positions
@@ -353,7 +391,7 @@ class UserManager:
                 ' JOIN users u ON p.user_id=u.id WHERE u.name=? AND p.document=?'
             )
         with self.lock:
-            for progress, percentage, device, device_id, timestamp in self.conn.cursor().execute(sql, (username, document)):
+            for progress, percentage, device, device_id, timestamp in self.conn.cursor().execute(sql, (username, self._kosync_document(document))):
                 ans = {'document': document, 'progress': progress, 'percentage': percentage, 'device': device, 'timestamp': timestamp}
                 if device_id is not None:
                     ans['device_id'] = device_id
@@ -376,8 +414,8 @@ class UserManager:
         the user does not exist. Only the kosync_max_documents most recently synced documents are
         kept per user and in total for anonymous=True.
         """
-        values = (document, progress, percentage, device, device_id, timestamp)
         with self.lock, self.conn:
+            values = (self._kosync_document(document), progress, percentage, device, device_id, timestamp)
             c = self.conn.cursor()
             if anonymous:
                 table, where, key = 'kosync_anonymous_progress', '', ()
