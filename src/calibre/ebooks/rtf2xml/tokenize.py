@@ -41,6 +41,7 @@ class Tokenize:
         self.__uc_char = 0
         self.__uc_bin = False
         self.__uc_value = [1]
+        self.__high_surrogate: int | None = None
 
     def __reini_utf8_counters(self) -> None:
         self.__uc_char = 0
@@ -55,24 +56,49 @@ class Tokenize:
         # if only char to skip
         return ''
 
+    def __combine_surrogates(self, code: int) -> str:
+        # Characters outside the BMP are written as two \\u control words
+        # forming a UTF-16 surrogate pair. Unpaired surrogates are replaced with
+        # U+FFFD as they cannot be represented in the output.
+        prefix = ''
+        if self.__high_surrogate is not None:
+            high, self.__high_surrogate = self.__high_surrogate, None
+            if 0xDC00 <= code <= 0xDFFF:
+                return chr(0x10000 + ((high - 0xD800) << 10) + (code - 0xDC00))
+            prefix = '\ufffd'
+        if 0xD800 <= code <= 0xDBFF:
+            self.__high_surrogate = code
+            return prefix
+        if 0xDC00 <= code <= 0xDFFF:
+            return prefix + '\ufffd'
+        return prefix + chr(code)
+
+    def __flush_high_surrogate(self) -> str:
+        # A high surrogate followed by anything other than a low surrogate is
+        # unpaired, emit a replacement character for it as a separate token
+        if self.__high_surrogate is None:
+            return ''
+        self.__high_surrogate = None
+        return '&#65533;\n'
+
     def __unicode_process(self, token: str) -> str:
         # change scope in
         if token == r'\{':
             self.__uc_value.append(self.__uc_value[-1])
             # basic error handling
             self.__reini_utf8_counters()
-            return token
+            return self.__flush_high_surrogate() + token
         # change scope out
         elif token == r'\}':
             if self.__uc_value:
                 self.__uc_value.pop()
             self.__reini_utf8_counters()
-            return token
+            return self.__flush_high_surrogate() + token
         # add a uc control
         elif token[:3] == '\\uc':
             self.__uc_value[-1] = int(token[3:])
             self.__reini_utf8_counters()
-            return token
+            return self.__flush_high_surrogate() + token
         # bin data to slip
         elif self.__uc_bin:
             self.__uc_bin = False
@@ -88,7 +114,8 @@ class Tokenize:
                 self.__uc_char -= 1
                 return ''
             else:
-                return self.__remove_uc_chars(0, token)
+                rest = self.__remove_uc_chars(0, token)
+                return self.__flush_high_surrogate() + rest if rest else rest
         # go for real \u token
         match_obj = self.__utf_exp.match(token)
         if match_obj is not None:
@@ -98,21 +125,24 @@ class Tokenize:
             uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
-            uni_char = chr(uni_char).encode('ascii', 'xmlcharrefreplace').decode('ascii')
+            uni_char = self.__combine_surrogates(uni_char).encode('ascii', 'xmlcharrefreplace').decode('ascii')
             self.__uc_char = self.__uc_value[-1]
             # there is only an unicode char
             if len(token) <= uni_len:
-                return uni_char
+                rest = ''
             # an unicode char and something else
             # must be after as it is splited on \
             # necessary? maybe for \bin?
             elif not self.__uc_char:
-                return uni_char + token[uni_len:]
+                rest = token[uni_len:]
             # if not uc0 and chars
             else:
-                return uni_char + self.__remove_uc_chars(uni_len, token)
+                rest = self.__remove_uc_chars(uni_len, token)
+            if rest:
+                uni_char += self.__flush_high_surrogate()
+            return uni_char + rest
         # default
-        return token
+        return self.__flush_high_surrogate() + token
 
     def __sub_reg_split(self, input_file: str) -> list[str]:
         input_file = self.__replace_spchar.mreplace(input_file)

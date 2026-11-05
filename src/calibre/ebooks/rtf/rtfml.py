@@ -75,25 +75,22 @@ TODO:
 
 
 def txt2rtf(text: str) -> str:
-    # Escape { and } in the text.
-    text = text.replace('{', r'\'7b')
-    text = text.replace('}', r'\'7d')
-    text = text.replace('\\', r'\'5c')
-
-    if not isinstance(text, str):
-        return text
-
     buf = io.StringIO()
     for x in text:
         val = ord(x)
-        if val == 160:
+        if x in '\\{}':
+            buf.write('\\' + x)
+        elif val == 160:
             buf.write(r'\~')
         elif val <= 127:
             buf.write(x)
+        elif val <= 0xFFFF:
+            # \u takes a signed 16-bit value, ? is the single (\uc1) fallback character
+            buf.write(f'\\u{val - 0x10000 if val > 0x7FFF else val}?')
         else:
-            # python2 and ur'\u' does not work
-            c = f'\\u{val:d}?'
-            buf.write(c)
+            # Characters outside the BMP are written as a UTF-16 surrogate pair
+            val -= 0x10000
+            buf.write(f'\\u{(0xD800 | (val >> 10)) - 0x10000}?\\u{(0xDC00 | (val & 0x3FF)) - 0x10000}?')
     return buf.getvalue()
 
 
@@ -162,16 +159,18 @@ class RTFMLizer:
         return text
 
     def header(self) -> str:
-        header = f'{{\\rtf1\\ansi\\ansicpg1252\\uc1\\deff0\\deflang1033{{\\info{{\\title {self.oeb_book.metadata.title[0].value}}}{{\\author {authors_to_string([x.value for x in self.oeb_book.metadata.creator])}}}}}\n'  # ruff: ignore[line-too-long]
+        title = txt2rtf(self.oeb_book.metadata.title[0].value)
+        author = txt2rtf(authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
+        header = f'{{\\rtf1\\ansi\\ansicpg1252\\uc1\\deff0\\deflang1033{{\\info{{\\title {title}}}{{\\author {author}}}}}\n'
         return header + (
-            '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset0 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset0 Times New Roman;}}\n'  # ruff: ignore[line-too-long]
-            '{\\stylesheet{\\ql \\li0\\ri0\\nowidctlpar\\wrapdefault\\faauto\\rin0\\lin0\\itap0 \\fcs0 \\fs24\\lang1033\\langfe255\\cgrid\\langnp1033\\langfenp255 \\snext0 Normal;}\n'  # ruff: ignore[line-too-long]
-            '{\\s1\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel0\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs32\\alang1033 \\ltrch\\fcs0 \\b\\fs32\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink21 heading 1;}\n'  # ruff: ignore[line-too-long]
-            '{\\s2\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel1\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\i\\fs28\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink22 heading 2;}\n'  # ruff: ignore[line-too-long]
-            '{\\s3\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel2\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\fs28\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink23 heading 3;}\n'  # ruff: ignore[line-too-long]
-            '{\\s4\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel3\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs23\\alang1033 \\ltrch\\fcs0\\b\\i\\fs23\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink24 heading 4;}\n'  # ruff: ignore[line-too-long]
-            '{\\s5\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel4\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs23\\alang1033 \\ltrch\\fcs0 \\b\\fs23\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink25 heading 5;}\n'  # ruff: ignore[line-too-long]
-            '{\\s6\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel5\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs21\\alang1033 \\ltrch\\fcs0 \\b\\fs21\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink26 heading 6;}}\n'  # ruff: ignore[line-too-long]
+            '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset0 Times New Roman;}}\n'
+            '{\\stylesheet{\\ql \\li0\\ri0\\nowidctlpar\\wrapdefault\\faauto\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\af0\\afs24\\alang1033 \\ltrch\\fcs0 \\fs24\\lang1033\\cgrid\\langnp1033 \\snext0 Normal;}\n'  # ruff: ignore[line-too-long]
+            '{\\s1\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel0\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs32\\alang1033 \\ltrch\\fcs0 \\b\\fs32\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 1;}\n'  # ruff: ignore[line-too-long]
+            '{\\s2\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel1\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\i\\fs28\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 2;}\n'  # ruff: ignore[line-too-long]
+            '{\\s3\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel2\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\fs28\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 3;}\n'  # ruff: ignore[line-too-long]
+            '{\\s4\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel3\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs23\\alang1033 \\ltrch\\fcs0 \\b\\i\\fs23\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 4;}\n'  # ruff: ignore[line-too-long]
+            '{\\s5\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel4\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs23\\alang1033 \\ltrch\\fcs0 \\b\\fs23\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 5;}\n'  # ruff: ignore[line-too-long]
+            '{\\s6\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel5\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs21\\alang1033 \\ltrch\\fcs0 \\b\\fs21\\lang1033\\cgrid\\langnp1033 \\sbasedon0 \\snext0 heading 6;}}\n'  # ruff: ignore[line-too-long]
         )
 
     def footer(self) -> str:
@@ -232,7 +231,7 @@ class RTFMLizer:
         if not isinstance(elem.tag, str) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
             if p is not None and isinstance(p.tag, str) and namespace(p.tag) == XHTML_NS and elem.tail:
-                return elem.tail
+                return txt2rtf(elem.tail)
             return ''
 
         text = ''
@@ -240,7 +239,7 @@ class RTFMLizer:
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
-                return elem.tail
+                return txt2rtf(elem.tail)
             return ''
 
         tag = barename(elem.tag)
