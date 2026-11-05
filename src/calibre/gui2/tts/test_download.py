@@ -16,7 +16,9 @@ if TYPE_CHECKING:
     from qt.core import QObject
 
 
-DATA = b'voice model data' * 1024
+# Keep this small, the download is served in 1 KiB chunks and many tests
+# time out once per chunk. Five chunks is enough to exceed MAX_RETRIES.
+DATA = b'voice model data' * 64 * 5
 
 
 class DownloadServer(ThreadingHTTPServer):
@@ -132,7 +134,7 @@ class DownloadHandler(BaseHTTPRequestHandler):
                 for start in range(0, len(DATA), 1024):
                     self.wfile.write(DATA[start : start + 1024])
                     self.wfile.flush()
-                    if stopped.wait(0.1):
+                    if stopped.wait(0.03):
                         break
             else:
                 self.wfile.write(DATA)
@@ -160,13 +162,17 @@ def run_download_tests_in_worker() -> None:
     class NetworkAccessManager(QNetworkAccessManager):
         def setTransferTimeout(self, timeout: int = 30_000) -> None:
             # Exercise real network timeouts without waiting a minute per test.
-            super().setTransferTimeout(min(timeout, 200))
+            super().setTransferTimeout(min(timeout, 100))
 
     class DownloadTests(unittest.TestCase):
         def setUp(self) -> None:
             self.retry_delay = patch.object(download.ProgressBar, 'RETRY_DELAY_MS', 10)
             self.retry_delay.start()
             self.addCleanup(self.retry_delay.stop)
+            # Fewer retries keep the tests that wait for timeouts fast
+            self.max_retries = patch.object(download.ProgressBar, 'MAX_RETRIES', 2)
+            self.max_retries.start()
+            self.addCleanup(self.max_retries.stop)
             self.directory = tempfile.TemporaryDirectory()
             self.addCleanup(self.directory.cleanup)
             self.errors: list[str] = []
