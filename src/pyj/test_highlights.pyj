@@ -7,6 +7,7 @@ from elementmaker import E
 from book_list.item_list import is_visible
 from dom import get_widget_css
 from modals import close_all_modals, create_modal_container
+from read_book.globals import ui_operations
 from read_book.highlights import all_selected_entries, create_highlights_panel, find_next, get_container
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
@@ -17,7 +18,7 @@ def with_highlights(proceed):
         document.head.appendChild(E.style(get_widget_css()))
         parent = E.div()
         document.body.appendChild(parent)
-        calls = {'actions': [], 'notes': []}
+        calls = {'actions': [], 'notes': [], 'notes_saved': True}
 
         def highlight_action(uuid, action):
             calls.actions.push([uuid, action])
@@ -30,6 +31,7 @@ def with_highlights(proceed):
 
         def set_notes(uuid, text):
             calls.notes.push([uuid, text])
+            return calls.notes_saved
 
         view = {'highlight_action': highlight_action, 'set_notes_for_highlight': set_notes}
         manager = {'view': view, 'all_highlights': def (): return highlights;}
@@ -56,9 +58,15 @@ def answer_question(yes):
     buttons[1 if yes else 0].click()
 
 
+def action_button(row, label):
+    for button in row.querySelectorAll('.actions a'):
+        if button.textContent.trim() is label:
+            return button
+
+
 def click_remove_action(row):
     toggle(row).click()
-    button = row.querySelectorAll('.actions a')[2]
+    button = action_button(row, 'Remove highlight')
     button.focus()
     button.click()
     return button
@@ -204,7 +212,7 @@ def highlight_deletion_does_not_steal_focus_moved_elsewhere():
 def open_notes(row):
     if not row.classList.contains('current'):
         toggle(row).click()
-    row.querySelectorAll('.actions a')[1].click()
+    action_button(row, 'Edit notes').click()
     return document.querySelector('#modal-container textarea')
 
 
@@ -258,16 +266,60 @@ def highlight_search_uses_edited_notes_and_stops_matching_removed_text():
         search = container.querySelector('input[type=search]')
         open_notes(row)
         finish_notes('New searchable phrase')
+        # Start from a different entry so that the search has to move to the
+        # edited one rather than wrapping around to the current entry
+        toggle(entry(container, 'second')).click()
+        assert_true(container.querySelector('.highlight.current') is not row)
         search.value = 'searchable phrase'
         assert_true(find_next())
         assert_true(container.querySelector('.highlight.current') is row)
+        assert_false(document.querySelector('#modal-container textarea'))
         search.value = 'First note'
         assert_false(find_next())
+        # Dismiss the "No matches" warning before editing again
         close_all_modals()
         open_notes(row)
         finish_notes('')
         search.value = 'searchable phrase'
         assert_false(find_next())
         assert_equal(calls.notes, [['first', 'New searchable phrase'], ['first', '']])
+
+    with_highlights(run)
+
+
+@test
+def highlight_notes_are_unchanged_when_saving_fails():
+    def run(container, calls):
+        row = entry(container, 'first')
+        calls.notes_saved = False
+        open_notes(row)
+        finish_notes('Lost note')
+        assert_equal(calls.notes, [['first', 'Lost note']])
+        assert_equal(row.dataset.notes, 'First note')
+        assert_equal(row.querySelector('.notes').textContent, 'First note')
+        close_all_modals()
+        assert_equal(open_notes(row).value, 'First note')
+
+    with_highlights(run)
+
+
+@test
+def highlight_notes_links_stay_clickable_after_editing():
+    def run(container, calls):
+        opened = []
+        previous = ui_operations.open_url
+        ui_operations.open_url = def (url):
+            opened.push(url)
+        try:
+            row = entry(container, 'first')
+            open_notes(row)
+            finish_notes('See https://calibre-ebook.com for details')
+            link = row.querySelector('.notes a')
+            assert_true(link)
+            assert_equal(link.textContent, 'https://calibre-ebook.com')
+            link.click()
+            assert_equal(opened, ['https://calibre-ebook.com'])
+        finally:
+            ui_operations.open_url = previous
 
     with_highlights(run)
