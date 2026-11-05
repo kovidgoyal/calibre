@@ -290,7 +290,15 @@ class ContentTest(LibraryBaseTest):
             r = conn.getresponse()
             self.ae(r.status, http.client.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
             raw = r.read()
-            self.ae(zlib.decompress(raw, 16 + zlib.MAX_WBITS), data)
+
+            # The pages field is filled in asynchronously by the background
+            # page counting thread, so it can change between requests
+            def without_pages(x: bytes) -> dict[str, object]:
+                ans = json.loads(x)
+                ans.pop('pages', None)
+                return ans
+
+            self.ae(without_pages(zlib.decompress(raw, 16 + zlib.MAX_WBITS)), without_pages(data))
 
     # }}}
 
