@@ -23,6 +23,106 @@
 # - title by author
 # }}}
 
+{{{ 9.18.0 2026-11-06
+
+:: new features
+
+- [major] Edit book: Add a tool to make books accessible and checks for accessibility problems
+
+  Tools->Accessibility in the editor allows setting the languages of the book and its HTML files, editing the
+  alternative text of every image (including inline SVG images) in one place and editing the EPUB Accessibility
+  metadata. Check book now reports images without alternative text, HTML files without a language, headings that
+  skip levels, elements with an epub:type but no matching ARIA role and missing accessibility metadata, many
+  of which can be fixed automatically.
+
+- Edit book: Show a preview of colors as an underline and allow Ctrl clicking on colors to change them using a color wheel
+
+- Content server: Act as a progress sync server for KOReader
+
+  In KOReader, set the custom sync server to http://server:port/kosync and log in with the username and password
+  of a Content server user. Reading positions are shared across different copies and formats of the same book.
+
+- Content server: Serve OPDS 2.0 feeds, with support for streaming CBZ comics, honoring the manga reading direction and searching book contents using the full text index
+
+- calibredb: Add commands to manage notes, annotations, data files, Virtual libraries, the trash bin and to rename and remove items such as tags and series
+
+- Content server: Many accessibility improvements for keyboard and screen reader users
+
+- E-book viewer: Allow searching only the current chapter
+
+- Content server viewer: Offer to rate the book and remove it from downloaded books when reaching the end
+
+- Searching: Add lastmonth, thisyear, lastyear, monthsago and yearsago for dates
+
+- EPUB Output: Set the language of HTML files and use the book title and language in generated cover pages
+
+- Get books: Add the Standard Ebooks, DOAB and DOAJ stores
+
+- calibre-debug: Allow verifying exported calibre data without restoring it
+
+- Read aloud: Resume interrupted voice downloads and time out stalled ones
+
+:: bug fixes
+
+- [2172155] PDF Input: Improve page number detection and handling of large images
+
+- [2172711] PDF Output: Fail with an error instead of hanging forever if the render process crashes or stops responding
+
+- [2172704] TXT Output: Fix block elements nested after inline text not starting on a new line
+
+- RTF Output: Various minor bug fixes and hardening when generating RTF headers
+
+- RTF Input: Handle non-BMP Unicode characters correctly
+
+- TXT Input: Use UTF-8 instead of ASCII when the detected encoding is ASCII
+
+- EPUB Input: Prefer EPUB 3 landmarks over the legacy guide
+
+- KF8 Input: Fix invalid CSS when rewriting internal links
+
+- DOCX Input: Fix index sub-entries being merged under the wrong entry and keep multiple references to the same index entry on one line
+
+- Fix errors when reading some damaged EPUB files
+
+- Fix a crash when converting very small PDF files
+
+- Fix date searches using dots, spaces or month names comparing only the year
+
+- Fix searching for a number without a field matching truncated values in ratings and integer columns
+
+- [2172163] Fix an error on every search after the Quickview panel has been closed
+
+- [2172160] Saved searches: Do not allow invalid characters in the name
+
+- Trash bin: Mark removed formats of deleted books as not restorable
+
+- Fix sorting of merged highlights by position in the book
+
+- [2172181] Windows: Fix an error opening EPUB files for the first time when antivirus software locks files
+
+- Windows: Prevent camoufox from creating a private browsing shortcut in the start menu on every launch
+
+- [2172371] Create your own Adventure: Fix world generation failing with Gemini
+
+- Content server: Enforce per library restrictions in more places, including notes
+
+- Content server: Fix repeated highlight note editing, bookmark renames not syncing and data file deletion status
+
+- Notes: Fix importing some base64 encoded images
+
+- Fix a startup error when two store plugins have the same name
+
+- Fix a rare error during shutdown because of the thumbnail cache
+
+- calibredb restore_database: Exit with non-zero status on failure
+
+:: improved recipes
+- The Times and Sunday Times
+- Financial Times
+- The Boston Globe
+- Hacker News
+}}}
+
 {{{ 9.17.0 2026-10-23
 
 :: new features

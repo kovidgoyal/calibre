@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     import apsw
 
 __appname__ = 'calibre'
-numeric_version = (9, 17, 100)
+numeric_version = (9, 18, 0)
 __version__ = '.'.join(map(str, numeric_version))
 git_version = None
 __author__ = 'Kovid Goyal <kovid@kovidgoyal.net>'
