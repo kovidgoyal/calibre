@@ -10,9 +10,9 @@ from popups import filter_clicks, hide_popup, shown_popups
 from testing import assert_equal, assert_false, assert_true, test
 
 
-def keydown(input, key):
+def keydown(inpt, key):
     event = new window.KeyboardEvent('keydown', {'key': key, 'bubbles': True, 'cancelable': True})
-    input.dispatchEvent(event)
+    inpt.dispatchEvent(event)
     return event
 
 
@@ -42,12 +42,12 @@ def options(editor):
 
 
 def assert_current(editor, option):
-    input = editor.text_input
-    assert_equal(input.getAttribute('aria-activedescendant'), option.id)
+    inpt = editor.text_input
+    assert_equal(inpt.getAttribute('aria-activedescendant'), option.id)
     assert_equal(option.getAttribute('aria-selected'), 'true')
     assert_equal(editor.completion_popup.current_item, option)
     assert_equal(editor.completion_popup.container.querySelectorAll('[aria-selected=true]').length, 1)
-    assert_equal(document.activeElement, input)
+    assert_equal(document.activeElement, inpt)
 
 
 def assert_closed(editor):
@@ -62,16 +62,16 @@ def assert_closed(editor):
 @test
 def completion_input_controls_a_persistent_listbox_with_named_options():
     def run(editor, submitted, parent):
-        input = editor.text_input
-        assert_equal(input.getAttribute('role'), 'combobox')
-        assert_equal(input.getAttribute('aria-autocomplete'), 'list')
-        listbox = document.getElementById(input.getAttribute('aria-controls'))
+        inpt = editor.text_input
+        assert_equal(inpt.getAttribute('role'), 'combobox')
+        assert_equal(inpt.getAttribute('aria-autocomplete'), 'list')
+        listbox = document.getElementById(inpt.getAttribute('aria-controls'))
         assert_equal(listbox.getAttribute('role'), 'listbox')
         assert_true(listbox.getAttribute('aria-label'))
         assert_closed(editor)
-        input.focus()
-        keydown(input, 'ArrowDown')
-        assert_equal(input.getAttribute('aria-expanded'), 'true')
+        inpt.focus()
+        keydown(inpt, 'ArrowDown')
+        assert_equal(inpt.getAttribute('aria-expanded'), 'true')
         assert_equal(options(editor).length, 3)
         ids = []
         for option in options(editor):
@@ -80,8 +80,8 @@ def completion_input_controls_a_persistent_listbox_with_named_options():
             assert_equal(option.getAttribute('aria-selected'), 'false')
             ids.push(option.id)
         assert_equal(new Set(ids).size, 3)
-        assert_false(input.hasAttribute('aria-activedescendant'))
-        assert_equal(document.activeElement, input)
+        assert_false(inpt.hasAttribute('aria-activedescendant'))
+        assert_equal(document.activeElement, inpt)
         assert_equal(submitted, [])
 
     with_complete(run)
@@ -90,22 +90,22 @@ def completion_input_controls_a_persistent_listbox_with_named_options():
 @test
 def completion_keyboard_navigation_updates_the_active_option_without_moving_focus():
     def run(editor):
-        input = editor.text_input
-        input.focus()
-        keydown(input, 'ArrowDown')
+        inpt = editor.text_input
+        inpt.focus()
+        keydown(inpt, 'ArrowDown')
         entries = options(editor)
-        keydown(input, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
         assert_current(editor, entries[0])
-        keydown(input, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
         assert_current(editor, entries[1])
         assert_equal(entries[0].getAttribute('aria-selected'), 'false')
-        keydown(input, 'ArrowUp')
+        keydown(inpt, 'ArrowUp')
         assert_current(editor, entries[0])
-        keydown(input, 'ArrowUp')
+        keydown(inpt, 'ArrowUp')
         assert_current(editor, entries[2])
-        assert_true(keydown(input, 'Escape').defaultPrevented)
+        assert_true(keydown(inpt, 'Escape').defaultPrevented)
         assert_closed(editor)
-        assert_equal(document.activeElement, input)
+        assert_equal(document.activeElement, inpt)
 
     with_complete(run)
 
@@ -113,27 +113,27 @@ def completion_keyboard_navigation_updates_the_active_option_without_moving_focu
 @test
 def completion_enter_and_tab_keep_existing_acceptance_and_submit_behavior():
     def run(editor, submitted):
-        input = editor.text_input
-        input.focus()
-        keydown(input, 'ArrowDown')
-        keydown(input, 'ArrowDown')
+        inpt = editor.text_input
+        inpt.focus()
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
         text = editor.completion_popup.current_text
-        keydown(input, 'Enter')
-        assert_equal(input.value, text)
+        keydown(inpt, 'Enter')
+        assert_equal(inpt.value, text)
         assert_equal(submitted, [])
         assert_closed(editor)
-        keydown(input, 'Enter')
+        keydown(inpt, 'Enter')
         assert_equal(submitted, [text])
-        input.value = ''
-        keydown(input, 'ArrowDown')
-        assert_true(keydown(input, 'Tab').defaultPrevented)
+        inpt.value = ''
+        keydown(inpt, 'ArrowDown')
+        assert_true(keydown(inpt, 'Tab').defaultPrevented)
         assert_current(editor, editor.completion_popup.current_item)
         text = editor.completion_popup.current_text
-        assert_true(keydown(input, 'Tab').defaultPrevented)
-        assert_equal(input.value, text)
+        assert_true(keydown(inpt, 'Tab').defaultPrevented)
+        assert_equal(inpt.value, text)
         assert_closed(editor)
-        assert_equal(document.activeElement, input)
-        assert_false(keydown(input, 'Tab').defaultPrevented)
+        assert_equal(document.activeElement, inpt)
+        assert_false(keydown(inpt, 'Tab').defaultPrevented)
 
     with_complete(run)
 
@@ -141,30 +141,30 @@ def completion_enter_and_tab_keep_existing_acceptance_and_submit_behavior():
 @test
 def completion_filtering_and_history_replacement_remove_stale_option_references():
     def run(editor):
-        input = editor.text_input
-        input.focus()
-        keydown(input, 'ArrowDown')
-        keydown(input, 'ArrowDown')
-        old_id = input.getAttribute('aria-activedescendant')
-        input.value = 'Al'
-        input.dispatchEvent(new Event('input', {'bubbles': True}))
+        inpt = editor.text_input
+        inpt.focus()
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
+        old_id = inpt.getAttribute('aria-activedescendant')
+        inpt.value = 'Al'
+        inpt.dispatchEvent(new Event('input', {'bubbles': True}))
         assert_equal(options(editor).length, 2)
         assert_false(document.getElementById(old_id))
-        assert_false(input.hasAttribute('aria-activedescendant'))
-        assert_equal(input.getAttribute('aria-expanded'), 'true')
-        keydown(input, 'ArrowDown')
+        assert_false(inpt.hasAttribute('aria-activedescendant'))
+        assert_equal(inpt.getAttribute('aria-expanded'), 'true')
+        keydown(inpt, 'ArrowDown')
         assert_current(editor, editor.completion_popup.current_item)
-        input.value = 'No match'
-        input.dispatchEvent(new Event('input', {'bubbles': True}))
+        inpt.value = 'No match'
+        inpt.dispatchEvent(new Event('input', {'bubbles': True}))
         assert_closed(editor)
         assert_equal(options(editor).length, 0)
-        input.value = ''
-        keydown(input, 'ArrowDown')
-        keydown(input, 'ArrowDown')
+        inpt.value = ''
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
         editor.set_all_items(['Gamma'])
         assert_equal(options(editor).length, 1)
         assert_equal(options(editor)[0].textContent, 'Gamma')
-        assert_false(input.hasAttribute('aria-activedescendant'))
+        assert_false(inpt.hasAttribute('aria-activedescendant'))
         editor.set_all_items([])
         assert_closed(editor)
         assert_equal(options(editor).length, 0)
@@ -175,25 +175,25 @@ def completion_filtering_and_history_replacement_remove_stale_option_references(
 @test
 def completion_pointer_selection_and_outside_dismissal_keep_states_in_sync():
     def run(editor, submitted):
-        input = editor.text_input
-        input.focus()
-        keydown(input, 'ArrowDown')
+        inpt = editor.text_input
+        inpt.focus()
+        keydown(inpt, 'ArrowDown')
         option = options(editor)[1]
         option.dispatchEvent(new window.MouseEvent('mouseenter'))
         assert_current(editor, option)
         text = option.textContent
         option.click()
-        assert_equal(input.value, text)
+        assert_equal(inpt.value, text)
         assert_equal(submitted, [])
         assert_closed(editor)
-        input.value = ''
-        keydown(input, 'ArrowDown')
-        keydown(input, 'ArrowDown')
+        inpt.value = ''
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
         event = new window.MouseEvent('click', {'clientX': 100000, 'clientY': 100000, 'cancelable': True})
         filter_clicks(event)
         assert_true(event.defaultPrevented)
         assert_closed(editor)
-        assert_equal(document.activeElement, input)
+        assert_equal(document.activeElement, inpt)
 
     with_complete(run)
 
@@ -222,5 +222,29 @@ def completion_controls_have_independent_ids_and_global_dismissal_clears_both():
         finally:
             other.hide_completion_popup()
             other_parent.remove()
+
+    with_complete(run)
+
+
+@test
+def completion_outside_click_after_keyboard_close_is_not_swallowed():
+    def run(editor):
+        inpt = editor.text_input
+        inpt.focus()
+
+        def outside_click():
+            event = new window.MouseEvent('click', {'clientX': 100000, 'clientY': 100000, 'cancelable': True})
+            filter_clicks(event)
+            return event
+
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'Escape')
+        assert_closed(editor)
+        assert_false(outside_click().defaultPrevented)
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'ArrowDown')
+        keydown(inpt, 'Enter')
+        assert_closed(editor)
+        assert_false(outside_click().defaultPrevented)
 
     with_complete(run)

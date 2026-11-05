@@ -38,9 +38,9 @@ def click_in_popup(event):
 def filter_clicks(event):
     if shown_popups.length:
         if not click_in_popup(event):
-            for popup_id in shown_popups:
+            # hide_popup() removes the id from shown_popups so iterate over a copy
+            for popup_id in list(shown_popups):
                 hide_popup(popup_id)
-            shown_popups.clear()
             event.stopPropagation(), event.preventDefault()
 
 
@@ -104,6 +104,9 @@ class CompletionPopup:
     @property
     def is_visible(self):
         c = self.container
+        # The container is None when the popup's parent is not yet attached
+        # to the document, for example when set_all_items() is called while
+        # building a search bar
         return bool(c and c.style.display is not 'none')
 
     def set_all_items(self, items):
@@ -146,14 +149,14 @@ class CompletionPopup:
         self.set_current_item(None)
 
     def update_input_state(self):
-        input = document.getElementById(self.input_id) if self.input_id else None
-        if input:
-            input.setAttribute('aria-expanded', 'true' if self.is_visible else 'false')
+        inpt = document.getElementById(self.input_id) if self.input_id else None
+        if inpt:
+            inpt.setAttribute('aria-expanded', 'true' if self.is_visible else 'false')
             current = self.current_item if self.is_visible else None
             if current:
-                input.setAttribute('aria-activedescendant', current.id)
+                inpt.setAttribute('aria-activedescendant', current.id)
             else:
-                input.removeAttribute('aria-activedescendant')
+                inpt.removeAttribute('aria-activedescendant')
 
     def set_current_item(self, item):
         current = self.current_item
