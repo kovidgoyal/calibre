@@ -324,9 +324,9 @@ def mobi2iana(langcode: int, sublangcode: int) -> str:
             cc, cl = t
             if cc == langcode:
                 prefix = code
-            if cl == sublangcode:
-                suffix = subcode.lower() if subcode else None
-                break
+                if cl == sublangcode:
+                    suffix = subcode.lower() if subcode else None
+                    break
         if prefix is not None:
             break
     if prefix is None:
