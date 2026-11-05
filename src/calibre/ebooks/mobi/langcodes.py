@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-from struct import pack
+from struct import pack, unpack
+from typing import TYPE_CHECKING
 
 from calibre.utils.localization import lang_as_iso639_1
+
+if TYPE_CHECKING:
+    import unittest
 
 lang_codes = {}
 
@@ -318,19 +322,64 @@ def iana2mobi(icode: str | None) -> bytes:
 
 
 def mobi2iana(langcode: int, sublangcode: int) -> str:
-    prefix = suffix = None
+    # sublangcode is in the units stored in IANA_MOBI, i.e. the Windows sub
+    # language id shifted left by two bits. Several languages can share a
+    # langcode (for example hr and sr), so prefer an exact match and fall back
+    # to the first language with a matching langcode.
+    prefix = None
     for code, d in IANA_MOBI.items():
-        for subcode, t in d.items():
-            cc, cl = t
+        if code is None:
+            continue
+        for subcode, (cc, cl) in d.items():
             if cc == langcode:
-                prefix = code
                 if cl == sublangcode:
-                    suffix = subcode.lower() if subcode else None
-                    break
-        if prefix is not None:
-            break
-    if prefix is None:
-        return 'und'
-    if suffix is None:
-        return prefix
-    return prefix + '-' + suffix
+                    return f'{code}-{subcode.lower()}' if subcode else code
+                if prefix is None:
+                    prefix = code
+    return prefix or 'und'
+
+
+def locale_to_iana(locale: int) -> str:
+    """Convert the 32 bit locale field of the MOBI header, as written by iana2mobi()"""
+    return mobi2iana(locale & 0xFF, (locale >> 8) & 0xFC)
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    class TestLangCodes(unittest.TestCase):
+        def test_mobi2iana(self) -> None:
+            for (lang, sublang), expected in {
+                (0, 0): 'und',
+                (255, 0): 'und',
+                (9, 0): 'en',
+                (9, 4): 'en-us',
+                (7, 0): 'de',
+                (7, 8): 'de-ch',
+                # German has no sub language 4, the region of another language
+                # (Arabic: Saudi Arabia) must not be used
+                (7, 4): 'de',
+                (25, 8): 'ru',
+                # hr and sr share a langcode
+                (26, 0): 'hr',
+                (26, 4): 'hr',
+                (26, 12): 'sr',
+            }.items():
+                self.assertEqual(mobi2iana(lang, sublang), expected, f'Failed for: {lang}, {sublang}')
+
+        def test_locale_round_trip(self) -> None:
+            for code, expected in {
+                'en': 'en',
+                'en-US': 'en-us',
+                'en-CA': 'en-ca',
+                'de-CH': 'de-ch',
+                'zh-TW': 'zh-tw',
+                'sr': 'sr',
+                'hr': 'hr',
+                'fr-BE': 'fr-be',
+                None: 'und',
+            }.items():
+                (locale,) = unpack('>L', iana2mobi(code))
+                self.assertEqual(locale_to_iana(locale), expected, f'Failed for: {code}')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLangCodes)

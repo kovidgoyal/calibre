@@ -9,7 +9,7 @@ from typing import IO, TYPE_CHECKING
 from calibre import replace_entities
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.langcodes import main_language, mobi2iana, sub_language
+from calibre.ebooks.mobi.langcodes import locale_to_iana, main_language, sub_language
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_date
@@ -257,7 +257,7 @@ class BookHeader:
                     self.exth.mi.uid = self.unique_id
                     if self.exth.mi.is_null('language'):
                         try:
-                            self.exth.mi.language = mobi2iana(langid, sublangid)
+                            self.exth.mi.language = locale_to_iana(langcode)
                         except Exception:
                             self.log.exception('Unknown language code')
                 except Exception:

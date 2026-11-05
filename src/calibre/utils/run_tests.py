@@ -820,6 +820,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.mobi.reader.markup import find_tests
 
         a(find_tests())
+        from calibre.ebooks.mobi.langcodes import find_tests
+
+        a(find_tests())
         from calibre.ebooks.conversion.plugins.archive_input import find_tests
 
         a(find_tests())

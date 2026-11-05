@@ -3,7 +3,6 @@
 
 import unittest
 
-from calibre.ebooks.mobi.langcodes import mobi2iana
 from calibre.utils.localization import bcp47_locale_name, locale_fallbacks, sanitize_lang
 
 
@@ -45,19 +44,6 @@ class TestLocaleNames(unittest.TestCase):
             'ca@valencia': 'ca',
         }.items():
             self.ae(bcp47_locale_name(raw), expected, f'Failed for: {raw!r}')
-
-    def test_mobi2iana(self) -> None:
-        for (lang, sublang), expected in {
-            (9, 0): 'en',
-            (9, 4): 'en-us',
-            (7, 0): 'de',
-            (7, 8): 'de-ch',
-            # German has no sub language 4, the region of another language
-            # (Arabic: Saudi Arabia) must not be used
-            (7, 4): 'de',
-            (25, 8): 'ru',
-        }.items():
-            self.ae(mobi2iana(lang, sublang), expected, f'Failed for: {lang}, {sublang}')
 
     def test_qt_understands_script_variants(self) -> None:
         # Qt truncates a locale name at the @, so it must be given the script
