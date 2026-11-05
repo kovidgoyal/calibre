@@ -235,7 +235,7 @@ class KOSyncTest(LibraryBaseTest):
             stream = BytesIO(raw)
             stream.seek(7)
             # Explicit offsets also catch accidentally omitting the 1 KiB sample.
-            expected = md5(b''.join(raw[offset:offset + 1024] for offset in (0, 1024, 4096, 16384, 65536))).hexdigest()
+            expected = md5(b''.join(raw[offset : offset + 1024] for offset in (0, 1024, 4096, 16384, 65536))).hexdigest()
             self.ae(partial_md5(stream), expected)
             self.ae(stream.tell(), 7)
 
@@ -245,37 +245,60 @@ class KOSyncTest(LibraryBaseTest):
         with tempfile.TemporaryDirectory() as tdir:
             path = os.path.join(tdir, 'users.sqlite')
             um = UserManager(path)
+            self.assertFalse(um.kosync_in_use)
             um.add_user('alice', 'secret')
             um.add_user('bob', 'secret')
             # Positions can arrive before the corresponding file is downloaded.
-            um.set_kosync_progress('alice', 'epub_old', 'old', 0.1, 'dev', None, 1)
-            um.set_kosync_progress('alice', 'pdf', '123', 0.4, 'dev', None, 2)
-            um.set_kosync_progress('alice', 'epub_old', 'anon', 0.2, 'dev', None, 1, anonymous=True)
-            um.set_kosync_progress('bob', 'epub_old', 'bob', 0.3, 'dev', None, 1)
-            book = 'calibre:library:book'
-            um.register_kosync_documents(book, 'pdf', 'epub_old', 'epub_new')
+            um.set_kosync_progress('alice', 'copy_old', 'old', 0.1, 'dev', None, 1)
+            self.assertTrue(um.kosync_in_use)
+            um.set_kosync_progress('alice', 'source', '123', 0.4, 'dev', None, 2)
+            um.set_kosync_progress('alice', 'copy_old', 'anon', 0.2, 'dev', None, 1, anonymous=True)
+            um.set_kosync_progress('bob', 'copy_old', 'bob', 0.3, 'dev', None, 1)
+            book = 'calibre:library:book:EPUB'
+            um.register_kosync_documents(book, 'source', 'copy_old', 'copy_new')
             # Older positions must not overwrite newer ones while adopting aliases.
-            for document in ('epub_old', 'epub_new', 'pdf'):
+            for document in ('copy_old', 'copy_new', 'source'):
                 p = um.kosync_progress('alice', document)
                 assert p is not None
                 self.ae((p['document'], p['progress'], p['percentage']), (document, '123', 0.4))
                 self.ae(um.kosync_progress('alice', document, anonymous=True)['progress'], 'anon')
                 self.ae(um.kosync_progress('bob', document)['progress'], 'bob')
-            # Writing through any format replaces the one shared position.
-            um.set_kosync_progress('alice', 'epub_new', 'new', 0.5, 'dev', 'id', 3)
-            um.register_kosync_documents(book, 'epub_new')
-            um.conn.close()
-            um = UserManager(path)
-            self.ae(um.kosync_progress('alice', 'pdf')['progress'], 'new')
-            self.ae(um.kosync_progress('alice', 'pdf')['device_id'], 'id')
-            self.assertIsNone(um.kosync_progress('alice', 'unknown'))
-            # Identical checksums in distinct books/libraries must not merge those books.
-            um.register_kosync_documents('calibre:other_library:book', 'epub_new', 'other')
-            self.assertIsNone(um.kosync_progress('alice', 'other'))
-            self.assertIsNone(um.kosync_progress('alice', 'epub_new'))
-            self.ae(um.kosync_progress('alice', 'pdf')['progress'], 'new')
+            # Writing through any copy replaces the one shared position.
+            um.set_kosync_progress('alice', 'copy_new', 'new', 0.5, 'dev', 'id', 3)
+            um.register_kosync_documents(book, 'copy_new')
             # Quotas count a book once, regardless of the number of file versions.
             self.ae(next(um.conn.cursor().execute('SELECT count(*) FROM kosync_progress WHERE user_id=1'))[0], 1)
+            um.conn.close()
+            um = UserManager(path)
+            self.assertTrue(um.kosync_in_use)
+            self.ae(um.kosync_progress('alice', 'source')['progress'], 'new')
+            self.ae(um.kosync_progress('alice', 'source')['device_id'], 'id')
+            self.assertIsNone(um.kosync_progress('alice', 'unknown'))
+            # Identical checksums in distinct books/libraries must not merge those books,
+            # but must not lose the positions already synced via the checksum either.
+            um.register_kosync_documents('calibre:other_library:book:EPUB', 'copy_new', 'other')
+            self.assertIsNone(um.kosync_progress('alice', 'other'))
+            self.ae(um.kosync_progress('alice', 'copy_new')['progress'], 'new')
+            self.ae(um.kosync_progress('bob', 'copy_new')['progress'], 'bob')
+            self.ae(um.kosync_progress('alice', 'copy_new', anonymous=True)['progress'], 'anon')
+            self.ae(um.kosync_progress('alice', 'source')['progress'], 'new')
+            # The ambiguous checksum now syncs independently of both books
+            um.set_kosync_progress('alice', 'copy_new', 'ambiguous', 0.6, 'dev', None, 4)
+            um.register_kosync_documents('calibre:third_library:book:EPUB', 'copy_new')
+            self.ae(um.kosync_progress('alice', 'copy_new')['progress'], 'ambiguous')
+            self.ae(um.kosync_progress('alice', 'source')['progress'], 'new')
+            # Already registered checksums do not cause database writes
+            um.register_kosync_documents(book, 'source')
+            um.conn.cursor().execute("DELETE FROM kosync_documents WHERE document='source'")
+            um.register_kosync_documents(book, 'source', 'source')
+            self.ae(next(um.conn.cursor().execute("SELECT count(*) FROM kosync_documents WHERE document='source'"))[0], 0)
+            # The oldest checksums are forgotten, keeping the positions of the book
+            um.kosync_max_checksums = 3
+            um.register_kosync_documents(book, 'newest')
+            self.ae(next(um.conn.cursor().execute('SELECT count(*) FROM kosync_documents'))[0], 2)
+            self.ae(um.kosync_progress('alice', 'newest')['progress'], 'new')
+            um.register_kosync_documents(book, 'copy_old')
+            self.ae(um.kosync_progress('alice', 'copy_old')['progress'], 'new')
             um.conn.close()
 
     def test_kosync_download_aliases(self) -> None:
@@ -284,6 +307,7 @@ class KOSyncTest(LibraryBaseTest):
         with self.create_server(local_write=True) as server:
             conn = server.connect()
             db = server.handler.ctx.library_broker.get()
+            um = server.handler.ctx.user_manager
             assert db is not None
 
             def download(fmt: str) -> str:
@@ -293,23 +317,35 @@ class KOSyncTest(LibraryBaseTest):
                 self.ae(response.status, 200)
                 return partial_md5(BytesIO(raw))
 
+            def documents() -> int:
+                return next(um.conn.cursor().execute('SELECT count(*) FROM kosync_documents'))[0]
+
+            # Downloads do not write to the user database until KOReader syncing is used
+            download('epub')
+            self.ae(documents(), 0)
+            credentials = {'user': 'alice', 'key': key_for('secret')}
+            self.ae(self.request(conn, '/users/auth', **credentials)[0], 200)
+            db.set_field('title', {1: 'A title for syncing'})
+
             original = partial_md5(BytesIO(db.format(1, 'EPUB')))
             first = download('epub')
+            self.assertGreater(documents(), 0)
             progress = {'document': first, 'progress': '123', 'percentage': 0.42, 'device': 'reader'}
-            credentials = {'user': 'alice', 'key': key_for('secret')}
             self.ae(self.request(conn, '/syncs/progress', 'PUT', data=progress, **credentials)[0], 200)
             db.set_field('title', {1: 'A changed title'})
             second = download('epub')
             self.assertNotEqual(first, second)
             self.ae(download('epub'), second)  # Cached exports also retain their mapping.
-            other_format = download('fmt1')
-            for document in (original, first, second, other_format):
+            for document in (original, first, second):
                 status, data = self.request(conn, '/syncs/progress/' + document, **credentials)
                 self.ae(status, 200)
                 self.ae((data['document'], data['progress'], data['percentage']), (document, '123', 0.42))
-            # Numeric PDF positions are returned unchanged through another format's hash.
+            # Positions cannot be used across formats, so each format syncs separately
+            other_format = download('fmt1')
+            self.ae(self.request(conn, '/syncs/progress/' + other_format, **credentials), (200, {}))
             self.ae(self.request(conn, '/syncs/progress', 'PUT', data=dict(progress, document=other_format, progress=17), **credentials)[0], 200)
-            self.ae(self.request(conn, '/syncs/progress/' + second, **credentials)[1]['progress'], '17')
+            self.ae(self.request(conn, '/syncs/progress/' + other_format, **credentials)[1]['progress'], '17')
+            self.ae(self.request(conn, '/syncs/progress/' + second, **credentials)[1]['progress'], '123')
 
     def test_kosync_schema_upgrade(self) -> None:
         import apsw
@@ -337,7 +373,9 @@ class KOSyncTest(LibraryBaseTest):
             self.ae(next(um.conn.cursor().execute('PRAGMA user_version'))[0], 3)
             self.ae(next(um.conn.cursor().execute('PRAGMA foreign_keys'))[0], 1)
             # Upgrade a database that already contains checksum-keyed KoSync positions.
-            um.conn.cursor().execute('DROP TABLE kosync_documents; PRAGMA user_version=2;')
+            um.conn.cursor().execute(
+                'DROP TABLE kosync_documents; DROP INDEX kosync_progress_document; DROP INDEX kosync_anonymous_progress_document; PRAGMA user_version=2;'
+            )
             um.conn.close()
             um = UserManager(path)
             um.register_kosync_documents('calibre:library:book', 'doc', 'export')

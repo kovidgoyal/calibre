@@ -321,19 +321,19 @@ options. Reading positions synced while user accounts are not enabled are kept
 separate from those of user accounts. The reading positions of each user are
 stored separately in the user database of the server.
 
-By default, KOReader identifies books by a checksum of the book file. When a
-book is downloaded, the Content server remembers the checksums of both the
-library file and the downloaded copy, whose embedded metadata may be updated.
-Known copies and formats of the same library book share reading progress, even
-when their checksums differ. This mapping is kept in the server's user database
-across restarts. Unknown checksums continue to sync independently; copies
-exported before their checksums were recorded cannot be matched automatically.
-
-Positions are shared as supplied by the reader, without conversion between
-formats. For example, a PDF page number cannot be used as an EPUB text position.
-For copies the server cannot match, set :guilabel:`Document matching method` in
-the KOReader progress sync settings to :guilabel:`Filename` on all devices and
-keep the file names of books the same.
+By default, KOReader identifies books by a checksum of the book file. The
+Content server can change the metadata embedded in books when they are
+downloaded, so copies of a book downloaded at different times can have
+different checksums. Once KOReader has synced with the server, it remembers the
+checksums of downloaded books and of the library files they were created from,
+so that all copies of the same format of a book share one reading position.
+Different formats of a book have separate reading positions, as positions in
+one format cannot be used in another. Copies downloaded before KOReader first
+synced with the server, or obtained other than by downloading them from the
+server, are not recognized. If reading positions do not sync for such copies,
+set :guilabel:`Document matching method` in the KOReader progress sync settings
+to :guilabel:`Filename` on all devices and keep the file names of books the
+same.
 
 
 Integrating the calibre Content server into other servers

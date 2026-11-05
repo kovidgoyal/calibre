@@ -112,6 +112,8 @@ class UserManager:
     lock = RLock()
     # The maximum number of documents for which KOReader reading positions are kept per user
     kosync_max_documents = 10000
+    # The maximum number of checksums of downloaded files remembered for KOReader syncing
+    kosync_max_checksums = 50000
 
     @property
     def conn(self) -> apsw.Connection:
@@ -186,12 +188,18 @@ class UserManager:
                         ''')
                         uv = 2
                     if uv == 2:
+                        # Maps the KOReader checksums of files downloaded from
+                        # the server to the book and format they came from, see
+                        # register_kosync_documents(). The indices are used when
+                        # moving positions between checksums and book keys.
                         c.execute('''
                         CREATE TABLE kosync_documents (
                             document TEXT NOT NULL,
                             book TEXT NOT NULL,
                             PRIMARY KEY (document, book)
                         );
+                        CREATE INDEX kosync_progress_document ON kosync_progress(document);
+                        CREATE INDEX kosync_anonymous_progress_document ON kosync_anonymous_progress(document);
                         PRAGMA user_version=3;
                         ''')
                     c.close()
@@ -200,6 +208,10 @@ class UserManager:
     def __init__(self, path: str | None = None) -> None:
         self.path = os.path.join(config_dir, 'server-users.sqlite') if path is None else path
         self._conn: apsw.Connection | None = None
+        self._kosync_in_use: bool | None = None
+        # (document, book) pairs known to be in kosync_documents, so that
+        # repeated downloads of the same file do not write to the database
+        self._kosync_registered: set[tuple[str, str]] = set()
 
     def get_session_data(self, username: str | None) -> dict:
         with self.lock:
@@ -350,33 +362,89 @@ class UserManager:
             md['allow_change_password_via_http'] = allow
             self.conn.cursor().execute('UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
 
+    @property
+    def kosync_in_use(self) -> bool:
+        """
+        True once KOReader progress sync has been used with this server. Until then the checksums of
+        downloaded files are not recorded, so that servers not used for syncing do not pay for it.
+        """
+        with self.lock:
+            if self._kosync_in_use is None:
+                c = self.conn.cursor()
+                self._kosync_in_use = any(
+                    next(c.execute(f'SELECT EXISTS (SELECT 1 FROM {table})'))[0]
+                    for table in ('kosync_progress', 'kosync_anonymous_progress', 'kosync_documents')
+                )
+            return self._kosync_in_use
+
+    def mark_kosync_in_use(self) -> None:
+        with self.lock:
+            self._kosync_in_use = True
+
     def _kosync_document(self, document: str) -> str:
         # The caller holds self.lock. Identical files can belong to different books;
         # do not guess which book a client means when a checksum is ambiguous.
         books = tuple(self.conn.cursor().execute('SELECT book FROM kosync_documents WHERE document=? LIMIT 2', (document,)))
         return books[0][0] if len(books) == 1 else document
 
+    def _copy_kosync_progress(self, c: apsw.Cursor, src: str, dest: str, move: bool) -> None:
+        # The caller holds self.lock in a transaction. Copy the positions of all users from the
+        # src key to the dest key, keeping the newer position when both exist.
+        for table, user in (('kosync_progress', 'user_id'), ('kosync_anonymous_progress', 'user')):
+            c.execute(
+                f'INSERT INTO {table} ({user}, document, progress, percentage, device, device_id, timestamp)'
+                f' SELECT {user}, ?, progress, percentage, device, device_id, timestamp FROM {table} WHERE document=?'
+                f' ON CONFLICT ({user}, document) DO UPDATE SET'
+                ' progress=excluded.progress, percentage=excluded.percentage, device=excluded.device,'
+                ' device_id=excluded.device_id, timestamp=excluded.timestamp'
+                f' WHERE excluded.timestamp > {table}.timestamp',
+                (dest, src),
+            )
+            if move:
+                c.execute(f'DELETE FROM {table} WHERE document=?', (src,))
+
     def register_kosync_documents(self, book: str, *documents: str) -> None:
-        """Remember checksums of library files and their exported copies, including old versions."""
-        with self.lock, self.conn:
-            c = self.conn.cursor()
-            for document in documents:
-                c.execute('INSERT OR IGNORE INTO kosync_documents (document, book) VALUES (?, ?)', (document, book))
-                if not self.conn.changes() or self._kosync_document(document) != book:
-                    continue
-                # Adopt progress saved before this checksum was known. Keep the
-                # newer position if another checksum already has progress for the book.
-                for table, user in (('kosync_progress', 'user_id'), ('kosync_anonymous_progress', 'user')):
-                    c.execute(
-                        f'INSERT INTO {table} ({user}, document, progress, percentage, device, device_id, timestamp)'
-                        f' SELECT {user}, ?, progress, percentage, device, device_id, timestamp FROM {table} WHERE document=?'
-                        f' ON CONFLICT ({user}, document) DO UPDATE SET'
-                        ' progress=excluded.progress, percentage=excluded.percentage, device=excluded.device,'
-                        ' device_id=excluded.device_id, timestamp=excluded.timestamp'
-                        f' WHERE excluded.timestamp > {table}.timestamp',
-                        (book, document),
-                    )
-                    c.execute(f'DELETE FROM {table} WHERE document=?', (document,))
+        """
+        Remember checksums of library files and their exported copies, including old versions, so
+        that KOReader positions synced via any of them are shared by the book.
+        """
+        with self.lock:
+            pending = tuple(d for d in dict.fromkeys(documents) if (d, book) not in self._kosync_registered)
+            if not pending:
+                return
+            with self.conn:
+                c = self.conn.cursor()
+                inserted = False
+                for document in pending:
+                    c.execute('INSERT OR IGNORE INTO kosync_documents (document, book) VALUES (?, ?)', (document, book))
+                    if not self.conn.changes():
+                        continue
+                    inserted = True
+                    books = tuple(b for (b,) in c.execute('SELECT book FROM kosync_documents WHERE document=? LIMIT 3', (document,)))
+                    if len(books) == 1:
+                        # Adopt progress saved before this checksum was known
+                        self._copy_kosync_progress(c, document, book, move=True)
+                    elif len(books) == 2:
+                        # The checksum has just become ambiguous, so it no longer resolves to the
+                        # book it belonged to. Keep the positions of that book reachable via it.
+                        other = books[0] if books[1] == book else books[1]
+                        self._copy_kosync_progress(c, other, document, move=False)
+                pruned = False
+                if inserted:
+                    (count,) = next(c.execute('SELECT count(*) FROM kosync_documents'))
+                    if count > self.kosync_max_checksums:
+                        # Forget the oldest checksums. All mappings of a checksum are removed
+                        # together, so that pruning cannot make an ambiguous checksum resolve
+                        # to a book while its positions are stored under the checksum.
+                        c.execute(
+                            'DELETE FROM kosync_documents WHERE document IN (SELECT document FROM kosync_documents ORDER BY rowid LIMIT ?)',
+                            (count - self.kosync_max_checksums,),
+                        )
+                        pruned = True
+            if pruned:
+                self._kosync_registered.clear()
+            else:
+                self._kosync_registered.update((d, book) for d in pending)
 
     def kosync_progress(self, username: str, document: str, anonymous: bool = False) -> dict | None:
         """
@@ -415,6 +483,7 @@ class UserManager:
         kept per user and in total for anonymous=True.
         """
         with self.lock, self.conn:
+            self._kosync_in_use = True
             values = (self._kosync_document(document), progress, percentage, device, device_id, timestamp)
             c = self.conn.cursor()
             if anonymous:
