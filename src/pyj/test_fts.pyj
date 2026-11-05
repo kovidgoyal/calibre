@@ -7,7 +7,7 @@ from gettext import gettext as _, ngettext
 
 from book_list.fts import apply_search_panel_state, component, init, restore_result_focus, set_search_status, show_index_panel
 from book_list.globals import get_current_query
-from modals import close_all_modals, create_modal_container
+from modals import close_all_modals, create_modal_container, show_modal
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
 from utils import parse_url_params
@@ -119,11 +119,15 @@ def fts_result_focus_is_restored_only_for_current_visible_results():
         restore_result_focus(button, 'test-fts')
         assert_equal(document.activeElement, button)
         input.focus()
-        modal = E.div(id='modal-container', style='display: flex')
-        document.body.appendChild(modal)
+        create_modal_container()
+        show_modal(def (container, close_modal):
+            container.textContent = 'dialog'
+        )
+        input.focus()
         restore_result_focus(button, 'test-fts')
         assert_equal(document.activeElement, input)
-        modal.remove()
+        close_all_modals()
+        input.focus()
         get_current_query().mode = 'read_book'
         restore_result_focus(button, 'test-fts')
         assert_equal(document.activeElement, input)

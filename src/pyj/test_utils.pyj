@@ -2,9 +2,11 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from complete import EditWithComplete
 from dom import create_live_region, set_live_region_text
+from modals import close_all_modals, create_modal_container, is_modal_visible, show_modal
 from session import deep_eq
-from testing import assert_equal, test
+from testing import assert_equal, assert_false, assert_true, test
 from utils import fmt_sidx, human_readable, rating_to_stars
 
 
@@ -57,3 +59,40 @@ def live_region_updates_are_delayed_cancellable_and_not_repeated():
     finally:
         window.setTimeout = previous
         region.remove()
+
+
+@test
+def completion_announces_replaced_text_with_a_change_event():
+    parent = document.createElement('div')
+    document.body.appendChild(parent)
+    ewc = EditWithComplete('test-completion', parent=parent)
+    try:
+        changes = []
+        ewc.text_input.addEventListener('change', def (ev):
+            changes.push(ev.currentTarget.value)
+        )
+        assert_true(ewc.apply_completion('first'))
+        assert_equal(changes, ['first'])
+        # Applying the text the input already has changes nothing
+        ewc.apply_completion('first')
+        assert_equal(changes, ['first'])
+        assert_false(ewc.apply_completion(''))
+        assert_equal(changes, ['first'])
+    finally:
+        ewc.hide_completion_popup()
+        parent.remove()
+
+
+@test
+def modal_visibility_follows_shown_dialogs():
+    create_modal_container()
+    assert_false(is_modal_visible())
+    try:
+        show_modal(def (container, close_modal):
+            container.textContent = 'dialog'
+        )
+        assert_true(is_modal_visible())
+        close_all_modals()
+        assert_false(is_modal_visible())
+    finally:
+        close_all_modals()

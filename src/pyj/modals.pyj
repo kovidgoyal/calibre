@@ -476,6 +476,11 @@ def create_modal_container():
     return modal_container
 
 
+def is_modal_visible():
+    # True while a dialog is shown in the current document
+    return bool(modal_container and modal_container.current_modal and modal_container.container.isConnected)
+
+
 def show_modal(create_func, on_close=None, show_close=True, onkeydown=None):
     return modal_container.show_modal(create_func, on_close, show_close, onkeydown)
 

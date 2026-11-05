@@ -12,8 +12,8 @@ from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, create_live_region, set_live_region_text, svgicon, unique_id
 from modals import (
-    create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
-    warning_dialog
+    create_custom_dialog, error_dialog, get_text_dialog, is_modal_visible,
+    question_dialog, warning_dialog
 )
 from read_book.globals import current_book, is_dark_theme, runtime, ui_operations
 from widgets import create_button
@@ -694,60 +694,80 @@ def show_export_dialog(annotations_manager, book_metadata):
     )
 
 
+def search_input(c):
+    return c.querySelector('input[type=search]')
+
+
+def search_status(c):
+    return c.querySelector('[data-component=highlight-search-status]')
+
+
 def focus_search():
-    c = get_container()
-    c.querySelector('input').focus()
+    search_input(get_container()).focus()
 
 
-def clear_highlight_search_status():
-    c = get_container()
-    status = c and c.querySelector('[data-component=highlight-search-status]')
-    if status:
-        set_live_region_text(status, '')
+def clear_highlight_search_status(status):
+    status.dataset.query = ''
+    set_live_region_text(status, '')
+
+
+def clear_stale_highlight_search_status(status, ev):
+    # The status describes the matches for the query it was announced for
+    if ev.currentTarget.value is not status.dataset.query:
+        clear_highlight_search_status(status)
 
 
 def find(backwards):
     c = get_container()
-    clear_highlight_search_status()
-    text = c.querySelector('input').value
+    status, inp = search_status(c), search_input(c)
+    clear_highlight_search_status(status)
+    text = inp.value
     if not text:
         return False
-    all_highlights = list(c.querySelectorAll('.highlight')).as_array()
     q = text.toLowerCase()
-
-    def matches_query(h):
-        return h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1
-
-    matches = all_highlights.filter(matches_query)
     current = c.querySelector('.highlight.current')
-    if current:
-        start = all_highlights.indexOf(current)
-        if backwards:
-            all_highlights = all_highlights[:start].reverse().concat(all_highlights[start:].reverse())
-        else:
-            all_highlights = all_highlights[start + 1:].concat(all_highlights[:start + 1])
-    elif backwards:
-        all_highlights.reverse()
-    for h in all_highlights:
-        if matches_query(h):
-            set_current_highlight_entry(h)
-            # The match must be visible, so open its chapter if it was collapsed
-            set_highlight_group_expanded(h.closest('.toc-group'), True)
-            h.scrollIntoView()
-            if h is current:
-                warning_dialog(_('Not found'), _('No other matches found for: {}').format(text), on_close=focus_search)
-            else:
-                still_wanted = def ():
-                    modal = document.getElementById('modal-container')
-                    return (is_visible(c) and h.isConnected and h.classList.contains('current')
-                        and c.querySelector('input[type=search]').value is text
-                        and (not modal or modal.style.display is 'none'))
+    # Matches in document order, and how many of them come before current
+    # and at or before current
+    matches, num_before, num_upto = [], 0, 0
+    seen_current = False
+    for h in c.querySelectorAll('.highlight'):
+        if h is current:
+            seen_current = True
+        if h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1:
+            matches.push(h)
+            if not seen_current:
+                num_before += 1
+        if not seen_current or h is current:
+            num_upto = matches.length
+    if not matches.length:
+        warning_dialog(_('Not found'), _('No matches found for: {}').format(text), on_close=focus_search)
+        return False
+    # Pick the nearest match strictly after (or before) current, wrapping
+    # around, which yields current itself if it is the only match. With no
+    # current entry both counts are the total, giving the first (or last) match.
+    if backwards:
+        idx = num_before - 1
+        if idx < 0:
+            idx = matches.length - 1
+    else:
+        idx = num_upto
+        if idx >= matches.length:
+            idx = 0
+    h = matches[idx]
+    set_current_highlight_entry(h)
+    # The match must be visible, so open its chapter if it was collapsed
+    set_highlight_group_expanded(h.closest('.toc-group'), True)
+    h.scrollIntoView()
+    if h is current:
+        warning_dialog(_('Not found'), _('No other matches found for: {}').format(text), on_close=focus_search)
+    else:
+        still_wanted = def ():
+            return (is_visible(c) and h.isConnected and h.classList.contains('current')
+                and inp.value is text and not is_modal_visible())
 
-                status = c.querySelector('[data-component=highlight-search-status]')
-                set_live_region_text(status, _('Match {0} of {1}').format(matches.indexOf(h) + 1, matches.length), True, still_wanted)
-            return True
-    warning_dialog(_('Not found'), _('No matches found for: {}').format(text), on_close=focus_search)
-    return False
+        status.dataset.query = text
+        set_live_region_text(status, _('Match {0} of {1}').format(idx + 1, matches.length), True, still_wanted)
+    return True
 
 
 def find_previous():
@@ -873,7 +893,7 @@ def toggle_highlight_entry(ev):
 
 def remove_highlight_entries(entries, view):
     c = get_container()
-    clear_highlight_search_status()
+    clear_highlight_search_status(search_status(c))
     all_entries = list(c.querySelectorAll('.highlight')).as_array()
     first = all_entries.indexOf(entries[0])
     following = [e for e in all_entries[first + 1:] if entries.indexOf(e) < 0]
@@ -892,7 +912,7 @@ def remove_highlight_entries(entries, view):
     active = document.activeElement
     if active and active is not document.body and is_visible(active):
         return
-    candidates = [c.querySelector('input[type=search]')]
+    candidates = [search_input(c)]
     if neighbor:
         candidates = [neighbor.querySelector('.title > button'), neighbor.closest('.toc-group').querySelector('h3 > button')].concat(candidates)
     for w in candidates:
@@ -1062,7 +1082,10 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
     status = create_live_region()
     status.dataset.component = 'highlight-search-status'
     c.appendChild(status)
-    sb.querySelector('input').addEventListener('input', clear_highlight_search_status)
+    inp = search_input(sb)
+    inp.addEventListener('input', clear_stale_highlight_search_status.bind(None, status))
+    # Picking an entry from the search history replaces the text without an input event
+    inp.addEventListener('change', clear_stale_highlight_search_status.bind(None, status))
     container.appendChild(c)
     toc_groups = {}
     toc_tt = {}

@@ -15,7 +15,7 @@ from book_list.ui import panel_is_shown, query_as_href, set_panel_handler
 from book_list.views import create_image
 from complete import create_search_bar
 from dom import add_extra_css, clear, create_live_region, set_css, set_live_region_text, svgicon
-from modals import create_custom_dialog, error_dialog, info_dialog, question_dialog
+from modals import create_custom_dialog, error_dialog, info_dialog, is_modal_visible, question_dialog
 from widgets import create_spinner
 
 overall_container_id = ''
@@ -385,10 +385,8 @@ def disable_fts():
 
 
 def restore_result_focus(button, container_id):
-    if button.isConnected and search_page_is_shown(container_id):
-        modal = document.getElementById('modal-container')
-        if not modal or modal.style.display is 'none':
-            button.focus()
+    if button.isConnected and search_page_is_shown(container_id) and not is_modal_visible():
+        button.focus()
 
 
 def book_result_tile_clicked(ev):

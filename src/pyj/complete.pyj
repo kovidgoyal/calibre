@@ -33,8 +33,13 @@ class EditWithComplete:
     def apply_completion(self, text):
         if text:
             ti = self.text_input
+            changed = ti.value is not text
             ti.value = text
             ti.focus()
+            if changed:
+                # Setting value does not fire any events, so tell listeners
+                # that the text was replaced
+                ti.dispatchEvent(new Event('change', {'bubbles': True}))
             return True
 
     def onkeydown(self, event):

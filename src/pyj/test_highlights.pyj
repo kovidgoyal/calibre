@@ -488,3 +488,35 @@ def highlight_search_status_is_cancelled_by_selection_changes_and_deletion():
         assert_equal(status.textContent, match_status(1, 2))
 
     with_highlight_search_status(run)
+
+
+@test
+def highlight_search_status_is_cleared_when_history_replaces_the_query():
+    def run(container, status, search, flush):
+        search.value = 'Match'
+        assert_true(find_next())
+        flush()
+        assert_equal(status.textContent, match_status(1, 3))
+        # A change event for the query that was announced, for example when
+        # the search box loses focus, keeps the status
+        search.dispatchEvent(new Event('change', {'bubbles': True}))
+        assert_equal(status.textContent, match_status(1, 3))
+        # Picking a different query from the search history fires change
+        search.value = 'First note'
+        search.dispatchEvent(new Event('change', {'bubbles': True}))
+        assert_equal(status.textContent, '')
+
+    with_highlight_search_status(run)
+
+
+@test
+def highlight_search_without_a_current_entry_starts_from_either_end():
+    def run(container, status, search, flush):
+        assert_false(container.querySelector('.highlight.current'))
+        search.value = 'Match'
+        assert_true(find_previous())
+        flush()
+        assert_equal(status.textContent, match_status(3, 3))
+        assert_equal(container.querySelector('.highlight.current').dataset.uuid, 'third')
+
+    with_highlight_search_status(run)
