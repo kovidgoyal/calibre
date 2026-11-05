@@ -891,7 +891,7 @@ def remove_highlight(annot_id, view, ev):
     )
 
 
-def edit_notes(annot_id, notes, view, ev):
+def edit_notes(annot_id, view, ev):
     entry = ev.currentTarget.closest('.highlight')
     get_text_dialog(_('Notes'), def (ok, text):
         if not ok:
@@ -900,8 +900,9 @@ def edit_notes(annot_id, notes, view, ev):
         nc = entry.querySelector('.notes')
         clear(nc)
         view.set_notes_for_highlight(annot_id, text)
+        entry.dataset.notes = text
         render_notes(text, nc)
-    , initial_text = notes or None)
+    , initial_text = entry.dataset.notes or None)
 
 
 def all_selected_entries():
@@ -973,7 +974,7 @@ def highlight_entry(h, onclick, view, hide_panel):
             class_='actions', id=actions_id,
             create_button(_('Show in book'), 'book', action.bind(None, show_in_text.bind(None, h.uuid))),
             E.span('\xa0'),
-            create_button(_('Edit notes'), 'edit', edit_notes.bind(None, h.uuid, h.notes, view)),
+            create_button(_('Edit notes'), 'edit', edit_notes.bind(None, h.uuid, view)),
             E.span('\xa0'),
             create_button(_('Remove highlight'), 'trash', remove_highlight.bind(None, h.uuid, view)),
         ),
