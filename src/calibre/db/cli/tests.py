@@ -179,7 +179,7 @@ class FTSSearchTest(BaseTest):
         db = self.init_cache()
         self.addCleanup(db.close)
         # the cache fts jobs will index formats, changing the numbers, so disable it
-        db.queue_next_fts_job = lambda *a: None  # ty: ignore[invalid-assignment]
+        db.queue_next_fts_job = lambda *a: None
         db.enable_fts(start_pool=False)
         with self.assertRaisesRegex(SystemExit, '3 files out of 3'):
             self.run_fts_search(db, 'test')

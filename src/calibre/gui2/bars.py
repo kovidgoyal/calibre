@@ -646,7 +646,7 @@ class SearchToolBar(QHBoxLayout):
 
     def __init__(self, gui) -> None:
         QHBoxLayout.__init__(self)
-        self.search_tool_bar_widgets = []
+        self.search_tool_bar_widgets: list[QFrame | RightClickButton] = []
         self.gui = gui
         self.has_sort_by_button = False
         self.donate_button = None

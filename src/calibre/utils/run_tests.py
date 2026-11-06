@@ -98,7 +98,7 @@ class TestResult(unittest.TextTestResult):
             elapsed -= self.start_time.get(test, elapsed)
             self.times[test] = elapsed
         finally:
-            self.stream.writeln = orig  # type: ignore
+            self.stream.writeln = orig
             self.stream.writeln(f' [{elapsed:.1f} s]')
 
     def stopTestRun(self) -> None:

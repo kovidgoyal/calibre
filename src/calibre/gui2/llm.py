@@ -841,7 +841,7 @@ class StreamingDemoWidget(ConverseWidget):
         self.settings_button.setVisible(False)
         self.result_display.input.setEnabled(False)
         self.original_re_render = self.result_display.re_render
-        self.result_display.re_render = self.counted_re_render  # type: ignore
+        self.result_display.re_render = self.counted_re_render
         self.update_render_count(True)
 
     def counted_re_render(self) -> None:
