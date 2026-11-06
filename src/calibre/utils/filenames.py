@@ -62,7 +62,7 @@ def limit_component[T: (str, bytes)](x: T, limit: int = 254) -> T:
 
     while encoded_length() > limit:
         delta = encoded_length() - limit
-        x = shorten_component(x, max(2, delta // 2))  # ty: ignore[invalid-argument-type]
+        x = shorten_component(x, max(2, delta // 2))
 
     return x
 

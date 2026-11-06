@@ -72,7 +72,8 @@ def format_books_for_query(books: list[Metadata]) -> str:
 
 def get_allowed_fields() -> set[str]:
     db = get_current_db()
-    ans: set[str] = set(db.pref('llm-book-allowed-custom-fields') or ())  # ty: ignore[invalid-argument-type]
+    default: tuple[str, ...] = ()
+    ans: set[str] = set(db.pref('llm-book-allowed-custom-fields', default) or default)
     standard: set[str] = set(gprefs.get('llm-book-allowed-standard-fields') or ())
     return standard | ans
 
