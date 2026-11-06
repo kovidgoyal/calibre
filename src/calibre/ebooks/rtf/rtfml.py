@@ -17,6 +17,7 @@ from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
 
 if TYPE_CHECKING:
+    import unittest
     from optparse import Values
 
     from lxml.etree import _Element
@@ -97,6 +98,25 @@ def txt2rtf(text: str) -> str:
 class RTFMLizer:
     def __init__(self, log: Log) -> None:
         self.log = log
+        # True if text has been output in the current paragraph
+        self.para_has_content = False
+        # True if the current paragraph was ended by a break for a nested block
+        # element, with no content written since
+        self.nested_break_pending = False
+
+    def note_content(self, text: str) -> None:
+        if text.strip():
+            self.para_has_content = True
+            self.nested_break_pending = False
+
+    def nested_block_break(self) -> str:
+        # End the current paragraph, used for block elements nested inside
+        # other block elements, such as nested lists or paragraphs in list items
+        if self.para_has_content:
+            self.para_has_content = False
+            self.nested_break_pending = True
+            return '\\par '
+        return ''
 
     def extract_content(self, oeb_book: OEBBook, opts: Values) -> str:
         self.log.info('Converting XHTML to RTF markup...')
@@ -246,10 +266,15 @@ class RTFMLizer:
         tag_count = 0
 
         # Are we in a paragraph block?
+        is_nested_block = False
         if tag in BLOCK_TAGS or style['display'] in BLOCK_STYLES:
-            if 'block' not in tag_stack:
+            if 'block' in tag_stack:
+                is_nested_block = True
+                text += self.nested_block_break()
+            else:
                 tag_count += 1
                 tag_stack.append('block')
+                self.para_has_content = self.nested_break_pending = False
 
         # Process tags that need special processing and that do not have inner
         # text. Usually these require an argument
@@ -263,6 +288,7 @@ class RTFMLizer:
                     block_start = r'{\par\pard\hyphpar '
                     block_end = '}'
                 text += f'{block_start} SPECIAL_IMAGE-{src}-REPLACE_ME {block_end}'
+                self.note_content(src)
 
         single_tag = SINGLE_TAGS.get(tag, None)
         if single_tag:
@@ -285,6 +311,7 @@ class RTFMLizer:
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             text += txt2rtf(elem.text)
+            self.note_content(elem.text)
 
         for item in elem:
             text += self.dump_text(item, stylizer, tag_stack)
@@ -293,14 +320,52 @@ class RTFMLizer:
             end_tag = tag_stack.pop()
             if end_tag != 'block':
                 if tag in BLOCK_TAGS:
-                    text += r'\par\pard\plain\hyphpar}'
+                    # Avoid an empty paragraph if the paragraph was already
+                    # ended by a nested block element
+                    text += r'\pard\plain\hyphpar}' if self.nested_break_pending else r'\par\pard\plain\hyphpar}'
+                    self.para_has_content = False
                 else:
                     text += '}'
+
+        if is_nested_block:
+            text += self.nested_block_break()
 
         if hasattr(elem, 'tail') and elem.tail:
             if 'block' in tag_stack:
                 text += f'{txt2rtf(elem.tail)}'
+                self.note_content(elem.tail)
             else:
                 text += rf'{{\par\pard\hyphpar {txt2rtf(elem.tail)}}}'
 
         return text
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    from calibre.ebooks.conversion.plumber import Plumber
+    from calibre.utils.logging import DevNull
+
+    def convert(html: str) -> str:
+        with TemporaryDirectory() as tdir:
+            src, dest = Path(tdir) / 'input.html', Path(tdir) / 'output.rtf'
+            src.write_text(html, encoding='utf-8')
+            Plumber(str(src), str(dest), DevNull()).run()
+            return dest.read_text(encoding='ascii')
+
+    def paragraphs(rtf: str) -> list[str]:
+        body = rtf.rpartition('heading 6;}}')[2]
+        body = re.sub(r'\\[a-z]+-?\d* ?|[{}\t]', lambda m: '\n' if m.group().startswith('\\par') else '', body)
+        return [x.strip() for x in body.splitlines() if x.strip()]
+
+    class RTFOutputTest(unittest.TestCase):
+        def test_rtf_nested_blocks(self) -> None:
+            html = '<html><body><ul><li>foo<ul><li>bar</li></ul></li><li>baz</li></ul><ul><li><p>a</p><ul><li><p>b</p></li></ul></li></ul></body></html>'
+            rtf = convert(html)
+            self.assertEqual(paragraphs(rtf), ['foo', 'bar', 'baz', 'a', 'b'])
+            # no empty paragraphs
+            self.assertIsNone(re.search(r'\\par(?![a-z])\s*\\par(?![a-z])', rtf))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(RTFOutputTest)
