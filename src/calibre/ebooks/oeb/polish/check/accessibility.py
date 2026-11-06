@@ -85,7 +85,11 @@ def headings_skipping_levels(container: Container) -> dict[str, list[int | None]
     return ans
 
 
-class MissingAltText(BaseError):
+class AccessibilityError(BaseError):
+    is_accessibility_problem = True
+
+
+class MissingAltText(AccessibilityError):
     level = WARN
     has_multiple_locations = True
     RULE_NAME = _('Image without alternative text')
@@ -106,7 +110,7 @@ class MissingAltText(BaseError):
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
 
-class MissingLanguage(BaseError):
+class MissingLanguage(AccessibilityError):
     level = WARN
     has_multiple_locations = True
     RULE_NAME = _('HTML file without a language')
@@ -132,7 +136,7 @@ class MissingLanguage(BaseError):
         return bool(set_html_language(container, self.names, self.lang))
 
 
-class SkippedHeadingLevel(BaseError):
+class SkippedHeadingLevel(AccessibilityError):
     level = INFO
     has_multiple_locations = True
     RULE_NAME = _('Heading levels skipped')
@@ -149,7 +153,7 @@ class SkippedHeadingLevel(BaseError):
         self.all_locations = [(name, lnum, None) for lnum in lines]
 
 
-class MissingRole(BaseError):
+class MissingRole(AccessibilityError):
     level = INFO
     has_multiple_locations = True
     RULE_NAME = _('Structural semantics without ARIA roles')
@@ -188,7 +192,7 @@ def existing_properties(container: Container) -> set[str | None]:
     return {m.get('property') for m in container.opf_xpath('//opf:metadata/opf:meta[@property]') if (m.text or '').strip() and not m.get('refines')}
 
 
-class MissingAccessibilityMetadata(BaseError):
+class MissingAccessibilityMetadata(AccessibilityError):
     # There is no automatic fix as this metadata makes claims about the book
     # that cannot be reliably determined from its contents, for example,
     # whether the images are adequately described by text
@@ -207,7 +211,7 @@ class MissingAccessibilityMetadata(BaseError):
         )
 
 
-class MissingAccessibilitySummary(BaseError):
+class MissingAccessibilitySummary(AccessibilityError):
     level = INFO
     RULE_NAME = _('Missing accessibility summary')
 

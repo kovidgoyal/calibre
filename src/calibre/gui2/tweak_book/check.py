@@ -6,7 +6,6 @@ import sys
 from qt.core import (
     QAbstractItemView,
     QApplication,
-    QCheckBox,
     QIcon,
     QListWidget,
     QListWidgetItem,
@@ -16,8 +15,6 @@ from qt.core import (
     QStyledItemDelegate,
     Qt,
     QTextBrowser,
-    QVBoxLayout,
-    QWidget,
     pyqtSignal,
 )
 
@@ -70,6 +67,18 @@ class SkippedRules:
     """Marker stored in the list item that shows the skipped rules"""
 
 
+class HiddenAccessibilityProblems:
+    """Marker stored in the list item that shows the number of hidden accessibility problems"""
+
+
+def show_accessibility_problems() -> bool:
+    return bool(tprefs['check_book_accessibility'])
+
+
+def sort_key(err: BaseError) -> tuple[int, str]:
+    return 100 - err.level, err.name
+
+
 def skipped_rules() -> dict[str, str]:
     """Map of rule_id to human readable rule name for all skipped rules"""
     return dict(tprefs['check_book_skipped_rules'])
@@ -98,10 +107,10 @@ class Check(QSplitter):
         QSplitter.__init__(self, parent)
         self.setChildrenCollapsible(False)
 
-        self.list_container = lc = QWidget(self)
-        ll = QVBoxLayout(lc)
-        ll.setContentsMargins(0, 0, 0, 0)
-        self.items = i = QListWidget(lc)
+        # Accessibility problems found by the last check that are not shown
+        # because the user has turned off showing them
+        self.hidden_accessibility_problems: list[BaseError] = []
+        self.items = i = QListWidget(self)
         i.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         i.customContextMenuRequested.connect(self.context_menu)
         self.items.setSpacing(3)
@@ -110,19 +119,7 @@ class Check(QSplitter):
         self.items.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.delegate = Delegate(self.items)
         self.items.setItemDelegate(self.delegate)
-        ll.addWidget(i)
-        self.check_accessibility = ca = QCheckBox(_('Check for &accessibility problems'), lc)
-        ca.setToolTip(
-            '<p>'
-            + _(
-                'Also check for accessibility problems, such as images without alternative text, HTML files that do'
-                ' not specify their language and missing accessibility metadata.'
-            )
-        )
-        ca.setChecked(tprefs['check_book_accessibility'])
-        ca.toggled.connect(self.check_accessibility_toggled)
-        ll.addWidget(ca)
-        self.addWidget(lc)
+        self.addWidget(i)
         self.help = h = QTextBrowser(self)
         h.anchorClicked.connect(self.link_clicked)
         h.setOpenLinks(False)
@@ -135,13 +132,13 @@ class Check(QSplitter):
         if state is not None:
             self.restoreState(state)
 
-    def check_accessibility_toggled(self, checked: bool) -> None:
-        tprefs['check_book_accessibility'] = checked
-        self.check_requested.emit()
-
     def clear_at_startup(self) -> None:
         self.clear_help(_('Check has not been run'))
+        self.clear_items()
+
+    def clear_items(self) -> None:
         self.items.clear()
+        self.hidden_accessibility_problems = []
 
     def error_for_item(self, item: QListWidgetItem | None) -> BaseError | None:
         if item is None:
@@ -168,6 +165,89 @@ class Check(QSplitter):
                 return item
         return None
 
+    def hidden_accessibility_item(self) -> QListWidgetItem | None:
+        for i in range(self.items.count()):
+            item = self.items.item(i)
+            if item is not None and isinstance(item.data(Qt.ItemDataRole.UserRole), HiddenAccessibilityProblems):
+                return item
+        return None
+
+    def populate(self, errors: list[BaseError]) -> None:
+        """Fill the list with the specified errors, followed by the entries for hidden accessibility problems and skipped rules"""
+        self.items.clear()
+        if show_accessibility_problems():
+            self.hidden_accessibility_problems = []
+        else:
+            self.hidden_accessibility_problems = [e for e in errors if e.is_accessibility_problem]
+            errors = [e for e in errors if not e.is_accessibility_problem]
+        for err in sorted(errors, key=sort_key):
+            i = QListWidgetItem(build_error_message(err), self.items)
+            i.setData(Qt.ItemDataRole.UserRole, err)
+            i.setIcon(icon_for_level(err.level))
+        if num := len(self.hidden_accessibility_problems):
+            item = QListWidgetItem(self.items)
+            item.setData(Qt.ItemDataRole.UserRole, HiddenAccessibilityProblems())
+            item.setIcon(QIcon.ic('accessibility.png'))
+            f = item.font()
+            f.setItalic(True)
+            item.setFont(f)
+            item.setText(ngettext('One accessibility problem is not shown', '{} accessibility problems are not shown', num).format(num))
+            item.setToolTip(_('Click to see how to show accessibility problems'))
+        self.update_skipped_rules_item()
+
+    def show_initial_item(self) -> None:
+        if self.num_errors > 0:
+            self.items.setCurrentRow(0)
+            self.current_item_changed()
+        elif (item := self.hidden_accessibility_item()) is not None:
+            self.items.setCurrentItem(item)
+            self.current_item_changed()
+        else:
+            self.items.setCurrentRow(-1)
+            self.clear_help()
+
+    def set_show_accessibility_problems(self, show: bool) -> None:
+        """Show or hide accessibility problems, without re-running the check"""
+        tprefs['check_book_accessibility'] = show
+        if self.items.count() == 0:
+            # check has not been run or found nothing
+            return
+        current = self.error_for_item(self.items.currentItem())
+        errors = self.errors_in_list() + self.hidden_accessibility_problems
+        self.items.blockSignals(True)
+        try:
+            self.populate(errors)
+        finally:
+            self.items.blockSignals(False)
+        if show:
+            # Go to the first of the newly shown accessibility problems
+            current = next((e for e in self.errors_in_list() if e.is_accessibility_problem), current)
+        for i in range(self.items.count()):
+            if current is not None and self.error_for_item(self.items.item(i)) is current:
+                self.items.setCurrentRow(i)
+                self.current_item_changed()
+                break
+        else:
+            self.show_initial_item()
+
+    def show_hidden_accessibility_help(self) -> None:
+        num = len(self.hidden_accessibility_problems)
+        self.help.setText(
+            '<style>a {{text-decoration: none}}</style><h2>{}</h2><p>{}</p>'
+            '<div><a href="show:accessibility" title="{}">{}</a><br><br><a href="run:check" title="{}">{}</a></div>'.format(
+                ngettext('One accessibility problem is not shown', '{} accessibility problems are not shown', num).format(num),
+                _(
+                    'Accessibility problems, such as images without alternative text, HTML files that do'
+                    ' not specify their language and missing accessibility metadata, are not being shown.'
+                    ' Fixing them makes the book usable by more people, for example, people using screen readers.'
+                ),
+                _('Add accessibility problems to the list of problems'),
+                _('Show accessibility problems'),
+                _('Re-run the check'),
+                _('Re-run check'),
+            )
+        )
+
     def update_skipped_rules_item(self) -> None:
         """Create, update or remove the list entry that shows the skipped rules"""
         num = len(skipped_rules())
@@ -190,8 +270,12 @@ class Check(QSplitter):
         m = QMenu(self)
         if self.num_errors > 0:
             m.addAction(QIcon.ic('edit-copy.png'), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
-        if list(m.actions()):
-            m.exec(self.mapToGlobal(pos))
+        ac = m.addAction(_('Show &accessibility problems'))
+        assert ac is not None
+        ac.setCheckable(True)
+        ac.setChecked(show_accessibility_problems())
+        ac.toggled.connect(self.set_show_accessibility_problems)
+        m.exec(self.items.mapToGlobal(pos))
 
     def copy_to_clipboard(self) -> None:
         items = []
@@ -234,6 +318,10 @@ class Check(QSplitter):
             self.unskip_rule(int(url.rpartition(',')[-1]))
         elif url == 'unskip:all':
             self.unskip_all_rules()
+        elif url == 'show:accessibility':
+            self.set_show_accessibility_problems(True)
+        elif url == 'hide:accessibility':
+            self.set_show_accessibility_problems(False)
         elif url.startswith('activate:item:'):
             index = int(url.rpartition(':')[-1])
             self.location_activated(index)
@@ -284,8 +372,7 @@ class Check(QSplitter):
             self.items.setCurrentRow(min(row, num - 1))
             self.current_item_changed()
         else:
-            self.items.setCurrentRow(-1)
-            self.clear_help()
+            self.show_initial_item()
 
     def unskip_rule(self, idx: int) -> None:
         rules = skipped_rules()
@@ -340,6 +427,9 @@ class Check(QSplitter):
         if i is not None and isinstance(i.data(Qt.ItemDataRole.UserRole), SkippedRules):
             self.show_skipped_rules()
             return
+        if i is not None and isinstance(i.data(Qt.ItemDataRole.UserRole), HiddenAccessibilityProblems):
+            self.show_hidden_accessibility_help()
+            return
 
         def loc_to_string(line, col):
             loc = ''
@@ -373,6 +463,9 @@ class Check(QSplitter):
                 skip_tt = prepare_string_for_xml(_('Do not report problems of the type: {}').format(err.rule_name), True)
                 skip = f'<br><br><a href="skip:rule,{self.items.currentRow()}" title="{skip_tt}">{_("Skip problems of this type")}</a>'
                 skip = skip.replace('%', '%%')
+            if err.is_accessibility_problem:
+                hide_tt = _('Do not show any accessibility problems')
+                skip += f'<br><br><a href="hide:accessibility" title="{hide_tt}">{_("Hide accessibility problems")}</a>'.replace('%', '%%')
             header = f'<style>a {{text-decoration: none}}</style><h2>{header} [{self.items.currentRow() + 1} / {self.num_errors}]</h2>'
             msg = '<p>%s</p>'
             footer = '<div>%s<a href="fix:errors" title="%s">%s</a><br><br> <a href="run:check" title="%s">%s</a>' + skip + '</div>'
@@ -396,20 +489,19 @@ class Check(QSplitter):
         with BusyCursor():
             self.show_busy()
             QApplication.processEvents()
-            errors = run_checks(container, frozenset(skipped_rules()), tprefs['check_book_accessibility'])
+            # The accessibility checks are always run, as they are fast, so
+            # that the number of hidden accessibility problems can be shown
+            errors = run_checks(container, frozenset(skipped_rules()), accessibility=True)
             self.hide_busy()
 
-        for err in sorted(errors, key=lambda e: (100 - e.level, e.name)):
-            i = QListWidgetItem(build_error_message(err), self.items)
-            i.setData(Qt.ItemDataRole.UserRole, err)
-            i.setIcon(icon_for_level(err.level))
-        self.update_skipped_rules_item()
-        if errors:
-            self.items.setCurrentRow(0)
-            self.current_item_changed()
+        self.items.blockSignals(True)
+        try:
+            self.populate(errors)
+        finally:
+            self.items.blockSignals(False)
+        self.show_initial_item()
+        if self.items.count() > 0:
             self.items.setFocus(Qt.FocusReason.OtherFocusReason)
-        else:
-            self.clear_help()
 
     def fix_errors(self, container, errors):
         with BusyCursor():
@@ -421,11 +513,11 @@ class Check(QSplitter):
 
     def show_busy(self, msg=_('Running checks, please wait...')) -> None:
         self.help.setText(msg)
-        self.items.clear()
+        self.clear_items()
 
     def hide_busy(self) -> None:
         self.help.setText('')
-        self.items.clear()
+        self.clear_items()
 
     def keyPressEvent(self, a0):
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
@@ -433,7 +525,7 @@ class Check(QSplitter):
         return super().keyPressEvent(a0)
 
     def clear(self) -> None:
-        self.items.clear()
+        self.clear_items()
         self.clear_help()
 
 

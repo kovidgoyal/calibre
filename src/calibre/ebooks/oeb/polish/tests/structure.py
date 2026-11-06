@@ -860,6 +860,11 @@ class Structure(BaseTest):
         c = self.create_epub([cmi('a.html', html('<p>a</p>', lang=''))])
         self.assertFalse({type(e) for e in run_checks(c)} & set(found))
         self.assertIn(MissingLanguage, {type(e) for e in run_checks(c, accessibility=True)})
+        # The GUI uses is_accessibility_problem to show or hide accessibility problems
+        a11y = {type(e) for e in check_accessibility(c)}
+        self.assertTrue(a11y)
+        for e in run_checks(c, accessibility=True):
+            self.assertEqual(e.is_accessibility_problem, type(e) in a11y, str(e))
 
         # EPUB 2 books do not use the EPUB 3 accessibility metadata
         c = self.create_epub([cmi('a.html', html('<p>a</p>'))], ver=2)

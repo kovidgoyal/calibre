@@ -29,6 +29,8 @@ class BaseError:
     # Set by the GUI to the index into all_locations the user activated
     current_location_index: int | None = None
     is_parsing_error = False
+    # True for problems found by the optional accessibility checks
+    is_accessibility_problem = False
 
     def __init__(self, msg: str, name: str, line: int | None = None, col: int | None = None) -> None:
         self.msg, self.line, self.col = msg, line, col
