@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+import errno
 import io
 import json
 import os
@@ -11,13 +12,18 @@ import tempfile
 import time
 import types
 import unittest
+import unittest.mock
 import zipfile
 from contextlib import redirect_stderr
 from threading import Event, Thread
-from typing import Any
+from typing import TYPE_CHECKING, Any
+from urllib.error import URLError
 
 from calibre.constants import iswindows
 from calibre.web.automate import download_deps as dd
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class FakeInstaller(dd.Installer):
@@ -26,7 +32,8 @@ class FakeInstaller(dd.Installer):
         self.available = dd.Release('1.0', 'fake://1.0', '')
         self.num_of_release_queries = 0
         self.num_of_installs = 0
-        self.fail_downloads_of: set[str] = set()
+        self.fail_downloads_of: dict[str, Exception] = {}
+        self.progress_seen: list[dd.InstallProgress | None] = []
 
     def latest_release(self, **kw: Any) -> dd.Release:  # ruff: ignore[any-type]
         self.num_of_release_queries += 1
@@ -43,10 +50,14 @@ class FakeInstaller(dd.Installer):
     def is_complete(self, version_dir: str) -> bool:
         return os.path.exists(self.payload_path(version_dir))
 
-    def download_file(self, url: str, dest: str, expected_sha256: str = '') -> None:
+    def download_file(self, url: str, dest: str, expected_sha256: str = '', progress: Callable[[int, int], None] | None = None) -> None:
         version = url.rpartition('://')[2]
-        if version in self.fail_downloads_of:
-            raise ValueError(f'Failed to download {url} as required by the test')
+        self.progress_seen.append(self.install_progress)
+        if progress is not None:
+            progress(len(version), len(version))
+            self.progress_seen.append(self.install_progress)
+        if (err := self.fail_downloads_of.get(version)) is not None:
+            raise err
         with open(dest, 'w') as f:
             f.write(version)
 
@@ -236,7 +247,7 @@ class TestDownloadDeps(unittest.TestCase):
         i = self.installer
         i()
         i.available = dd.Release('2.0', 'fake://2.0', '')
-        i.fail_downloads_of.add('2.0')
+        i.fail_downloads_of['2.0'] = ValueError('Failed to download 2.0 as required by the test')
         self.make_update_check_due()
         i()
         self.wait_for_update_check()
@@ -257,6 +268,77 @@ class TestDownloadDeps(unittest.TestCase):
         metadata['update_available']['failed_at'] = time.time() - 2 * dd.UPDATE_CHECK_INTERVAL
         self.write_metadata(metadata)
         self.assertEqual(i().version, '2.0')
+
+    def test_download_deps_failed_install(self) -> None:
+        i = self.installer
+        i.fail_downloads_of['1.0'] = OSError(errno.ENOSPC, 'No space left on device')
+        with self.assertRaises(dd.InstallFailed) as cm:
+            i()
+        err = cm.exception
+        self.assertIn('Failed to install fake with error:', err.message)
+        self.assertIn('No space left on device', err.message)
+        self.assertIn('not enough free space', err.message)
+        self.assertIn('tried again after', err.message)
+        self.assertIn('OSError', err.details)
+        self.assertAlmostEqual(err.retry_at, time.time() + dd.INSTALL_RETRY_INTERVAL, delta=60)
+        self.assertIsInstance(err.__cause__, OSError)
+        failure = self.read_metadata()[dd.INSTALL_FAILURE_KEY]
+        self.assertEqual(failure['version'], '1.0')
+        # Progress is reported while installing, and only then
+        self.assertEqual(i.progress_seen, [dd.InstallProgress('downloading'), dd.InstallProgress('downloading', 3, 3)])
+        self.assertIsNone(i.install_progress)
+
+        # Not tried again, not even the check for the latest release, but
+        # reported the same way
+        del i.fail_downloads_of['1.0']
+        with self.assertRaises(dd.InstallFailed) as cm:
+            i.use()
+        self.assertIn('not enough free space', cm.exception.message)
+        self.assertEqual(cm.exception.details, err.details)
+        self.assertEqual(i.num_of_release_queries, 1)
+        self.assertFalse(self.installed_versions())
+
+        # Tried again once enough time has passed, and a success forgets
+        # about the failure
+        metadata = self.read_metadata()
+        metadata[dd.INSTALL_FAILURE_KEY]['failed_at'] = time.time() - 2 * dd.INSTALL_RETRY_INTERVAL
+        self.write_metadata(metadata)
+        self.assertEqual(i().version, '1.0')
+        self.assertNotIn(dd.INSTALL_FAILURE_KEY, self.read_metadata())
+
+        # Failures can be forgotten on demand
+        shutil.rmtree(i.version_dir('1.0'))
+        i.fail_downloads_of['1.0'] = ValueError('broken')
+        self.assertRaises(dd.InstallFailed, i)
+        self.assertRaises(dd.InstallFailed, i)
+        self.assertEqual(i.num_of_release_queries, 3)
+        i.forget_install_failure()
+        self.assertNotIn(dd.INSTALL_FAILURE_KEY, self.read_metadata())
+        del i.fail_downloads_of['1.0']
+        self.assertEqual(i().version, '1.0')
+
+        # A failure to find the latest release is not recorded, as it is cheap
+        # to try again
+        shutil.rmtree(i.version_dir('1.0'))
+        with unittest.mock.patch.object(i, 'latest_release', side_effect=OSError('offline')):
+            self.assertRaisesRegex(OSError, 'offline', i)
+        self.assertNotIn(dd.INSTALL_FAILURE_KEY, self.read_metadata())
+
+    def test_download_deps_install_failure_advice(self) -> None:
+        d = self.tdir
+        self.assertIn('not enough free space', dd.install_failure_advice(OSError(errno.ENOSPC, 'full'), d))
+        self.assertIn('needed, there is', dd.install_failure_advice(OSError(errno.ENOSPC, 'full'), os.path.join(d, 'not', 'yet'), 1024))
+        self.assertIn('too long', dd.install_failure_advice(OSError(errno.ENAMETOOLONG, 'long'), d))
+        self.assertIn('denied', dd.install_failure_advice(PermissionError(errno.EACCES, 'no'), d))
+        self.assertIn('internet connection', dd.install_failure_advice(URLError('no network'), d))
+        self.assertIn('internet connection', dd.install_failure_advice(TimeoutError(), d))
+        self.assertEqual(dd.install_failure_advice(ValueError('checksum mismatch'), d), '')
+        if iswindows:
+            winerr = OSError(None, 'Access is denied', None, dd.ERROR_ACCESS_DENIED)
+            self.assertIn('antivirus', dd.install_failure_advice(winerr, d))
+            winerr = OSError(None, 'Disk full', None, dd.ERROR_DISK_FULL)
+            self.assertIn('not enough free space', dd.install_failure_advice(winerr, d))
+        self.assertEqual(dd.explain_install_failure('X', ValueError('bad'), d), 'Failed to install X with error: bad')
 
     def test_download_deps_simultaneous_use(self) -> None:
         i, num = self.installer, 8

@@ -9,7 +9,7 @@ browser, for the sources whose websites block anything that is not a browser.
 # These two are read by calibre.live, which updates the server half of this
 # module from the calibre website, so that changes to the websites it drives
 # can be kept up with without needing a new calibre release
-module_version = 2
+module_version = 3
 minimum_calibre_version = (9, 17, 0)
 
 import asyncio
@@ -21,7 +21,9 @@ from threading import Lock, Thread
 from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple
 from urllib.parse import urljoin, urlparse
 
+from calibre import human_readable
 from calibre.constants import ismacos
+from calibre.web.automate import download_deps
 from calibre.web.automate.camoufox import Element, Error, Page, TimeoutExceeded, debug, wait_for
 from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
@@ -33,6 +35,7 @@ if TYPE_CHECKING:
     from lxml.etree import _Element
 
     from calibre.web.automate.camoufox import Browser
+    from calibre.web.automate.download_deps import VersionLock
 
 # How it fits together
 # ====================
@@ -79,6 +82,18 @@ FIELD_TIMEOUT = 20.0  # seconds
 # before clicking on anything in it, see SourceHandler.settle()
 SETTLE_TIMEOUT = 10.0  # seconds
 SCROLL_TIMEOUT = 3.0  # seconds
+# How long a request waits for the browser to be installed before being told
+# it is unavailable, long enough to find an existing install, even if another
+# process is checking it at the same time, not long enough to wait for a
+# download. Downloads by this process are spotted straight away.
+INSTALL_WAIT = 10.0  # seconds
+READY_POLL_INTERVAL = 0.25  # seconds
+# How long a failure to launch the browser is reported to every request,
+# before launching is tried again
+LAUNCH_RETRY_INTERVAL = 300.0  # seconds
+# Likewise for a failure to install it, used only with calibre < 9.19, which
+# does not record failed installs itself
+INSTALL_RETRY_INTERVAL = 3600.0  # seconds
 NEW_TAB_MODIFIER = 'meta' if ismacos else 'control'
 
 
@@ -794,7 +809,7 @@ HANDLERS: tuple[type[SourceHandler], ...] = (AmazonHandler, GoogleImagesHandler)
 
 
 class State:
-    """Everything the worker process owns, created once, on the first request."""
+    """Everything the worker process owns, created once the browser has been launched, see Launcher."""
 
     def __init__(self, browser: Browser, handlers: Iterable[type[SourceHandler]] = HANDLERS, max_detail_tabs: int = MAX_DETAIL_TABS) -> None:
         self.browser = browser
@@ -845,38 +860,201 @@ class State:
 state: State | None = None
 
 
-async def impl_setup_browser(input_data: Mapping[str, Any]) -> None:
-    global state
-    from calibre.web.automate.browser import Browser, Warmup
+class BrowserUnavailable(Exception):
+    """The browser cannot be used, at least for now. The sources manage
+    without it when told so. The message says all there is to say, so the
+    worker does not send the traceback of where this was raised to the client."""
 
-    warmup = None
-    if input_data.get('warmup', True):
-        warmup = Warmup()
-        debug(f'Warming up camoufox on: {", ".join(warmup.urls)}')
-    install = None
-    if (install_data := input_data.get('install')) is not None:
-        install = Install(*install_data)
-    browser = Browser(headless=bool(input_data.get('headless', True)), warmup=warmup, install=install)
-    started = time.monotonic()
-    await browser.launch()
-    debug(f'Camoufox ready for metadata downloads in {time.monotonic() - started:.1f} seconds')
-    state = State(browser, max_detail_tabs=int(input_data.get('max_detail_tabs') or MAX_DETAIL_TABS))
-    state.start_reaper()
+    omit_traceback = True
+
+    def __init__(self, message: str, details: str = '') -> None:
+        super().__init__(f'{message}\n\n{details}'.rstrip() if details else message)
+        self.message = message
+
+
+def installing_message() -> str:
+    msg = 'The browser used to download from this website is being installed, which can take a while. Until that is done, this website cannot be used.'
+    # install_progress is not present in calibre < 9.19
+    p = getattr(download_deps.camoufox_installer, 'install_progress', None)
+    if p is not None:
+        if p.stage == 'downloading' and p.total:
+            msg += f' {human_readable(p.done)} of {human_readable(p.total)} downloaded so far.'
+        elif p.stage == 'unpacking':
+            msg += ' It has been downloaded and is being unpacked.'
+    return msg
+
+
+def is_installing() -> bool:
+    """Whether this process is downloading or unpacking the browser."""
+    return getattr(download_deps.camoufox_installer, 'install_progress', None) is not None
+
+
+class Launcher:
+    """Installs and launches the browser in the background.
+
+    Installing the browser means downloading over a gigabyte, so rather than
+    have requests wait for it, they are told the browser is unavailable,
+    letting the sources fall back to doing without it. A failure is reported
+    to every request until it is time to try again, instead of being retried
+    by every request, which would mean downloading the browser over and over.
+    """
+
+    def __init__(self, input_data: Mapping[str, Any]) -> None:
+        self.input_data = input_data
+        self.task: asyncio.Task[None] | None = None
+        self.stage = ''
+        self.stage_started = 0.0
+        self.failure: BrowserUnavailable | None = None
+        self.retry_at = 0.0
+        self.browser: Browser | None = None
+
+    def set_stage(self, stage: str) -> None:
+        self.stage, self.stage_started = stage, time.monotonic()
+
+    def start(self) -> asyncio.Task[None]:
+        """Start launching, unless that is already being done, has been done,
+        or has failed too recently to try again."""
+        if self.task is None or (self.task.done() and state is None and (self.failure is None or time.time() >= self.retry_at)):
+            self.failure = None
+            self.task = asyncio.create_task(self.run())
+        return self.task
+
+    async def run(self) -> None:
+        global state
+        try:
+            state = await self.launch()
+        except Exception as err:
+            self.failure, self.retry_at = self.failure_for(err)
+            debug(str(self.failure))
+        finally:
+            self.set_stage('')
+
+    async def install(self) -> tuple[Install, VersionLock | None]:
+        if (install_data := self.input_data.get('install')) is not None:
+            return Install(*install_data), None  # the browser locks it itself
+        self.set_stage('installing')
+        return await asyncio.get_running_loop().run_in_executor(None, download_deps.use_camoufox)
+
+    async def launch(self) -> State:
+        from calibre.web.automate.browser import Browser, Warmup
+
+        install, install_lock = await self.install()
+        try:
+            self.set_stage('launching')
+            warmup = None
+            if self.input_data.get('warmup', True):
+                warmup = Warmup()
+                debug(f'Warming up camoufox on: {", ".join(warmup.urls)}')
+            self.browser = browser = Browser(headless=bool(self.input_data.get('headless', True)), warmup=warmup, install=install)
+            started = time.monotonic()
+            await browser.launch()
+        finally:
+            # The browser holds a lock of its own on the install once launched
+            if install_lock is not None:
+                install_lock.release()
+        debug(f'Camoufox ready for metadata downloads in {time.monotonic() - started:.1f} seconds')
+        ans = State(browser, max_detail_tabs=int(self.input_data.get('max_detail_tabs') or MAX_DETAIL_TABS))
+        ans.start_reaper()
+        return ans
+
+    def failure_for(self, err: Exception) -> tuple[BrowserUnavailable, float]:
+        import traceback
+
+        now = time.time()
+        if self.stage != 'installing':
+            message = f'Failed to start the browser used to download from this website with error: {err}'
+            return BrowserUnavailable(message, ''.join(traceback.format_exception(err))), now + LAUNCH_RETRY_INTERVAL
+        if isinstance(err, getattr(download_deps, 'InstallFailed', ())):
+            # A failure recorded by calibre >= 9.19, with an explanation of it
+            return BrowserUnavailable(err.message, err.details), (err.retry_at or now + LAUNCH_RETRY_INTERVAL)
+        display_name = 'the browser used to download from this website'
+        if (explain := getattr(download_deps, 'explain_install_failure', None)) is not None:
+            message = explain(display_name, err, download_deps.camoufox_installer.install_dir)
+        else:
+            message = f'Failed to install {display_name} with error: {err}'
+        details = ''.join(traceback.format_exception(err))
+        if hasattr(download_deps, 'InstallFailed'):
+            # Not a failure to install, which would have been InstallFailed, so
+            # something cheap to retry, such as not being able to find out what
+            # the latest release is
+            return BrowserUnavailable(message, details), now + LAUNCH_RETRY_INTERVAL
+        # Older calibre does not record failures, so do not try downloading
+        # over a gigabyte again for a while
+        return BrowserUnavailable(message, details), now + INSTALL_RETRY_INTERVAL
+
+    async def wait_until_ready(self, deadline: Deadline) -> State:
+        """Wait for the browser to be launched, but not for it to be installed."""
+        while True:
+            if state is not None:
+                return state
+            task = self.start()
+            if self.failure is not None:
+                raise self.failure
+            if self.stage == 'installing' and (is_installing() or time.monotonic() - self.stage_started > INSTALL_WAIT):
+                raise BrowserUnavailable(installing_message())
+            if (remaining := deadline.remaining()) <= 0:
+                raise BrowserUnavailable('Timed out waiting for the browser used to download from this website to start')
+            await asyncio.wait((task,), timeout=min(remaining, READY_POLL_INTERVAL))
+
+    async def wait_until_launched(self) -> State:
+        """Wait for the browser to be launched, installing it first if needed."""
+        while True:
+            if state is not None:
+                return state
+            task = self.start()
+            if self.failure is not None:
+                raise self.failure
+            await asyncio.wait((task,))
+
+    def close(self) -> None:
+        """Abandon launching, closing the browser, if it was started."""
+        task, self.task = self.task, None
+        if task is not None and not task.done():
+            task.cancel()
+        browser, self.browser = self.browser, None
+        if browser is not None and (state is None or state.browser is not browser):
+            from calibre.web.automate.browser import close_browser_from_loop
+
+            close_browser_from_loop(browser)
+
+
+launcher: Launcher | None = None
+
+
+def get_launcher(input_data: Mapping[str, Any]) -> Launcher:
+    global launcher
+    if launcher is None:
+        launcher = Launcher(input_data)
+    return launcher
+
+
+async def impl_setup_browser(input_data: Mapping[str, Any]) -> None:
+    # Not waited for, so that the setup does not fail, which would have the
+    # worker try it again for every request, see Launcher
+    get_launcher(input_data).start()
 
 
 async def impl_handle_request(input_data: Mapping[str, Any], request: Mapping[str, Any]) -> dict[str, Any]:
-    assert state is not None
     if not request.get('source'):
         if request.get('action') == 'launch':
-            # Only there to get the browser launched, which has been done by
-            # the time any request is handled
+            # Waits for everything, including any install, so that the client
+            # gets to know if the browser cannot be used
+            if state is None:
+                await get_launcher(input_data).wait_until_launched()
             return {'module_version': module_version}
         raise KeyError(f'Unknown action for the camoufox metadata worker: {request.get("action")}')
-    return await state.handle(request)
+    current = state
+    if current is None:
+        deadline = Deadline(float(request.get('deadline') or 0) or time.time() + DEFAULT_REQUEST_TIMEOUT)
+        current = await get_launcher(input_data).wait_until_ready(deadline)
+    return await current.handle(request)
 
 
 def impl_finalize(input_data: Mapping[str, Any]) -> None:
-    global state
+    global state, launcher
+    current_launcher, launcher = launcher, None
+    if current_launcher is not None:
+        current_launcher.close()
     current, state = state, None
     if current is not None:
         from calibre.web.automate.browser import close_browser_from_loop
@@ -949,6 +1127,9 @@ class SessionWorker:
         self.path = ''
         self.close_worker: Callable[[], int] | None = None
         self.launch_requested = False
+        # Called, in a background thread, with the error message when the
+        # browser cannot be launched, for example, because installing it failed
+        self.on_launch_failure: Callable[[str], None] | None = None
 
     def ensure_started(self) -> str:
         with self.lock:
@@ -986,6 +1167,14 @@ class SessionWorker:
                     debug(f'Launching camoufox for metadata downloads failed: {response.exception}')
                     with self.lock:
                         self.launch_requested = False
+                    if (callback := self.on_launch_failure) is not None:
+                        try:
+                            callback(response.exception)
+                        except Exception:
+                            import traceback
+
+                            debug('Reporting the failure to launch camoufox for metadata downloads failed with error:')
+                            traceback.print_exc()
 
         Thread(target=launch, name='LaunchMetadataBrowser', daemon=True).start()
 

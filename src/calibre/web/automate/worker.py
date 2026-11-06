@@ -105,7 +105,10 @@ class SingleObjectProtocol(asyncio.Protocol):
         except Exception as e:
             import traceback
 
-            payload = {'exception': str(e), 'traceback': traceback.format_exc()}
+            # Exceptions whose message says all there is to say set
+            # omit_traceback, so that the client does not show their traceback
+            tb = '' if getattr(e, 'omit_traceback', False) else traceback.format_exc()
+            payload = {'exception': str(e), 'traceback': tb}
         finally:
             # payload is bound before the try so that cancellation, which is
             # not an Exception, still leaves the client with something to read

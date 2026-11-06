@@ -28,6 +28,7 @@ from qt.core import (
     QListView,
     QMenu,
     QModelIndex,
+    QObject,
     QPalette,
     QPixmap,
     QPushButton,
@@ -69,9 +70,46 @@ from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
 
 
-def metadata_job_env() -> dict[str, str]:
-    from calibre.web.automate.metadata import env_for_metadata_jobs
+class BrowserFailureNotifier(QObject):
+    """Tells the user, once per session, when the browser used by some
+    metadata sources cannot be used, for example because installing it failed.
+    The sources manage without it, so this is not worth interrupting the user
+    over, the details are in the logs of the downloads."""
 
+    failed = pyqtSignal(str)
+
+    def __init__(self, parent: QObject | None = None) -> None:
+        super().__init__(parent)
+        self.reported = False
+        self.failed.connect(self.report, type=Qt.ConnectionType.QueuedConnection)
+
+    def report(self, message: str) -> None:
+        from calibre.gui2.ui import get_gui
+
+        if self.reported or (gui := get_gui()) is None:
+            return
+        self.reported = True
+        # The first paragraph is the explanation, the rest is the traceback
+        summary = message.strip().partition('\n\n')[0]
+        gui.status_bar.show_message(_('Some metadata sources cannot be used. {}').format(summary), 30_000)
+
+
+browser_failure_notifier: BrowserFailureNotifier | None = None
+
+
+def watch_for_browser_failures() -> None:
+    """Have failures to launch the browser used by metadata sources reported to
+    the user. Must be called in the GUI thread, before metadata_job_env()."""
+    global browser_failure_notifier
+    if browser_failure_notifier is None:
+        browser_failure_notifier = BrowserFailureNotifier(qapplication_or_fail())
+
+
+def metadata_job_env() -> dict[str, str]:
+    from calibre.web.automate.metadata import env_for_metadata_jobs, session_worker
+
+    if (notifier := browser_failure_notifier) is not None:
+        session_worker.on_launch_failure = notifier.failed.emit
     return env_for_metadata_jobs()
 
 
@@ -1171,6 +1209,7 @@ class LogViewer(QDialog):  # {{{
 class FullFetch(QDialog):  # {{{
     def __init__(self, current_cover=None, parent=None) -> None:
         QDialog.__init__(self, parent)
+        watch_for_browser_failures()
         self.current_cover = current_cover
         self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()
@@ -1294,6 +1333,7 @@ class FullFetch(QDialog):  # {{{
 class CoverFetch(QDialog):  # {{{
     def __init__(self, current_cover=None, parent=None) -> None:
         QDialog.__init__(self, parent)
+        watch_for_browser_failures()
         self.current_cover = current_cover
         self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()

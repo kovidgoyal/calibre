@@ -129,6 +129,9 @@ def split_jobs(ids, batch_size=100):
 
 
 def start_download(gui, ids, callback, ensure_fields=None) -> None:
+    from calibre.gui2.metadata.single_download import watch_for_browser_failures
+
+    watch_for_browser_failures()
     d = ConfirmDialog(ids, gui)
     ret = d.exec()
     d_b = d.b
@@ -239,9 +242,9 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields, log=None, abor
     assert abort is not None
     assert log is not None
 
-    from calibre.web.automate.metadata import env_for_metadata_jobs
+    from calibre.gui2.metadata.single_download import metadata_job_env
 
-    env = env_for_metadata_jobs()
+    env = metadata_job_env()
     try:
         for ids in batches:
             if abort.is_set():
