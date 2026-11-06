@@ -16,7 +16,7 @@ from calibre.ebooks.oeb.polish.opf import get_book_language_tag
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Sequence
 
     from lxml.etree import _Element
 
@@ -51,6 +51,38 @@ def elements_without_role(root: _Element) -> Iterator[tuple[_Element, str]]:
     for elem in WITH_EPUB_TYPE(root):
         if not (elem.get('role') or '').strip() and (role := role_for(elem)):
             yield elem, role
+
+
+def headings_skipping_levels(container: Container) -> dict[str, list[int | None]]:
+    # The heading structure of the book spans files, for example, a part
+    # heading in one file followed by its chapters in the next files, so the
+    # files in the linear spine are checked together, in reading order. Other
+    # files are checked on their own. The first heading checked is never
+    # reported, as there is nothing before it to compare with.
+    names = html_names(container)
+    html = frozenset(names)
+    linear = [name for name, is_linear in container.spine_names if is_linear and name in html]
+    in_linear = frozenset(linear)
+    ans: dict[str, list[int | None]] = {}
+
+    def check(names: Iterable[str]) -> None:
+        prev: int | None = None
+        for name in names:
+            root = container.parsed(name)
+            assert isinstance(root, etree._Element)
+            for heading in root.iter(*HEADINGS):
+                tag = heading.tag
+                assert isinstance(tag, str)  # iter() with tag names yields only elements
+                level = HEADINGS[tag]
+                if prev is not None and level > prev + 1:
+                    ans.setdefault(name, []).append(heading.sourceline)
+                prev = level
+
+    check(linear)
+    for name in names:
+        if name not in in_linear:
+            check((name,))
+    return ans
 
 
 class MissingAltText(BaseError):
@@ -194,6 +226,7 @@ def check_accessibility(container: Container) -> list[BaseError]:
     errors: list[BaseError] = []
     missing_lang: list[tuple[str, int | None]] = []
     is_epub3 = container.opf_version_parsed.major > 2
+    skipped_headings = headings_skipping_levels(container)
     for name in html_names(container):
         root = container.parsed(name)
         assert isinstance(root, etree._Element)
@@ -202,15 +235,7 @@ def check_accessibility(container: Container) -> list[BaseError]:
         lines = [img.sourceline for img in images_without_alt(root)]
         if lines:
             errors.append(MissingAltText(name, lines))
-        skipped, prev = [], None
-        for heading in root.iter(*HEADINGS):
-            tag = heading.tag
-            assert isinstance(tag, str)  # iter() with tag names yields only elements
-            level = HEADINGS[tag]
-            if prev is not None and level > prev + 1:
-                skipped.append(heading.sourceline)
-            prev = level
-        if skipped:
+        if skipped := skipped_headings.get(name):
             errors.append(SkippedHeadingLevel(name, skipped))
         # The role attribute is not valid in the XHTML 1.1 used by EPUB 2
         if is_epub3:

@@ -816,6 +816,21 @@ class Structure(BaseTest):
         self.assertFalse(c.opf_xpath('//opf:meta[@property]'))
         self.assertEqual(set(errors(c)), {MissingAltText, SkippedHeadingLevel, MissingAccessibilityMetadata, MissingAccessibilitySummary})
 
+        # Heading levels are checked across files in spine order, files not in
+        # the spine are checked on their own
+        c = self.create_epub(
+            [
+                cmi('part.html', html('<h2>part</h2>')),
+                cmi('cover.html', html('<p>no headings</p>')),
+                cmi('chapter.html', html('<h4>chapter</h4>\n<h2>next part</h2>')),
+                cmi('other.html', html('<h3>other</h3>')),
+                cmi('extra.html', html('<h4>not in spine</h4>')),
+            ],
+            spine=('part.html', 'cover.html', 'chapter.html', 'other.html'),
+        )
+        found = errors(c)
+        self.assertEqual([(e.name, [loc[1] for loc in e.all_locations]) for e in found[SkippedHeadingLevel]], [('chapter.html', [1])])
+
         # Only missing properties are reported
         c = self.create_epub([cmi('a.html', html('<p>a</p><img src="i.png" alt="x"/>')), cmi('i.png', b'\x89PNG\r\n\x1a\n')])
         metadata = c.opf_xpath('//opf:metadata')[0]
