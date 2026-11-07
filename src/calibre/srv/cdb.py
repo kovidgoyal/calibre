@@ -6,15 +6,19 @@ import shutil
 import time
 from functools import partial
 from io import BytesIO
+from threading import Event
 from typing import TYPE_CHECKING
 
 from calibre import as_unicode, sanitize_file_name
 from calibre.db.cli import module_for_cmd
+from calibre.ebooks.metadata.book.serialize import metadata_as_dict
 from calibre.db.errors import BooksNotRemoved
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.sources.identify import identify
+from calibre.srv.handler import Context
 from calibre.srv.changes import books_added, books_deleted, metadata
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden, HTTPNotFound
-from calibre.srv.metadata import book_as_json
+from calibre.srv.metadata import book_as_json, encode_datetime
 from calibre.srv.routes import endpoint, json, msgpack_or_json
 from calibre.srv.utils import get_db, get_library_data, header_as_str, is_recipe_fmt
 from calibre.utils.imghdr import what
@@ -314,3 +318,30 @@ def cdb_copy_to_library(ctx: Context, rd: RequestData, target_library_id: str, l
         db_src.remove_books(to_remove, permanent=True)
 
     return response
+
+@endpoint('/cdb/download-metadata/{book_id}/{library_id=None}',
+    types={'book_id': int},
+    postprocess=json,
+    cache_control='no-cache'
+)
+def cdb_download_metadata(ctx: Context, rd: RequestData, book_id: int, library_id: str | None) ->dict[str, list[dict[str, object]]]:
+    db = get_db(ctx, rd, library_id)
+    metadata = db.get_metadata(book_id)
+
+    _results = identify(
+        log=ctx.log,
+        title=metadata.title,
+        authors=metadata.authors,
+        identifiers=metadata.identifiers,
+        abort=Event(), # unused, but required. Can we check for aborted requests?
+    )
+    results = []
+    for r in _results:
+        t = metadata_as_dict(r, True)
+        if t['pubdate']:
+            t['pubdate'] = encode_datetime(t['pubdate'])
+        results.append(t)
+
+    return {
+        'results': results,
+    }
