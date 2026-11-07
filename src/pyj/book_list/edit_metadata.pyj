@@ -6,9 +6,9 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax_send
+from ajax import ajax, ajax_send
 from book_list.book_details import (
-    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book
+    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book, adjusting_sandboxed_html
 )
 from book_list.comments_editor import (
     create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
@@ -55,6 +55,7 @@ value_to_json = identity
 changes = {}
 draft_changes = {}
 has_changes = False
+selected_online_metadata = None
 
 add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
@@ -183,6 +184,58 @@ add_extra_css(def ():
         pointer_events='none',
         filter='blur(1px)'
     )
+    style += build_rule(sel + 'div[data-ctype="edit"] .loading-spinner',
+        position='absolute',
+        top='0',
+        bottom='0',
+        left='0',
+        right='0',
+        background_color='var(--calibre-color-window-background)',
+        display= 'flex',
+        flex_direction='column',
+        align_items='center',
+        justify_content='center',
+    )
+
+    style += r'''
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
+'''
+    style += build_rule(sel + 'div[data-ctype="edit"] .loading-spinner .loading-icon',
+        animation='spin linear 1.5s infinite',
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] table.metadata.downloaded',
+        min_height='4em',
+        border_collapse='collapse',
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] table.metadata.downloaded tr.selected td',
+        background_color='var(--calibre-color-primary)',
+        color='var(--calibre-color-button-text)',
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] table.metadata.downloaded th, .metadata.downloaded td',
+        border_left='var(--calibre-border-style-subtle)'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] table.metadata.downloaded th',
+        border_bottom='var(--calibre-border-style-subtle)'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] table.metadata.downloaded th:first-of-type, .metadata.downloaded td:first-of-type',
+        border_left='0'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .metadata-preview',
+        height='22em',
+        margin_top='1em',
+        overflow='scroll',
+        border='var(--calibre-border-style-subtle)',
+        border_radius='var(--calibre-radius-small)',
+        padding='var(--calibre-radius-small)',
+        text_align='center',
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .metadata-preview div',
+        margin_bottom='1rem',
+    )
+
     style += r'''
 edit-metadata-panel[data-modal="1"]::before{
   content:"";
@@ -1379,6 +1432,169 @@ def submit_changes(container_id, book_id):
         on_progress.bind(None, container_id, book_id)
     )
 
+def choose_online_metadata(container, row, data):
+    nonlocal selected_online_metadata
+    selected_online_metadata = data
+    clear(container)
+
+    for r in row.parentNode.children:
+        r.className = r.className.replace('selected', '').trim()
+
+    row.className += ' selected'
+    container.appendChild(E.h3(data.title))
+    container.appendChild(E.div(E.em(", ".join(data.authors))))
+
+    if data.series:
+        container.appendChild(E.div(_("Series") + ": " + data.series + " [" + data.series_index + "]"))
+
+    if data.rating:
+        stars = E.div()
+        add_stars_to(stars, data.rating, True)
+        container.appendChild(stars)
+
+    if data.identifiers:
+        container.appendChild(E.div("Identifiers: " + ", ".join([(k + ": " + v) for k,v in Object.entries(data.identifiers)])))
+
+    if data.tags:
+        container.appendChild(E.div("Tags: " + ", ".join([t for t in data.tags])))
+
+    if data.comments:
+        container.appendChild(adjusting_sandboxed_html(data.comments, None))
+
+def download_metadata(download_container, loading_spinner, table, book_id):
+    library_id = current_library_id()
+    req = ajax('cdb/download-metadata/' + book_id + '/' + library_id, def(end_type, xhr, event):
+        loading_spinner.style.display = 'none'
+        if end_type is 'load':
+            try:
+                data = JSON.parse(xhr.responseText)
+                interface_data = get_interface_data()
+                fm = library_data.field_metadata
+                tbody = E.tbody()
+                for i, d in enumerate(data.results):
+                    pudate_fmt = interface_data['gui_pubdate_display_format'] or fm['pubdate']['display'].date_format
+                    pubdate = format_date(d.pubdate, pudate_fmt)
+                    row = E.tr(
+                        E.td((i + 1).toString()),
+                        E.td(d.title),
+                        E.td(pubdate),
+                        E.td(svgicon('check') if d.comments else '')
+                    )
+                    row.onclick=choose_online_metadata.bind(None, download_container, row, d)
+                    tbody.appendChild(row)
+
+                table.appendChild(tbody)
+            except:
+                return
+        else:
+            download_container.appendChild(E.div(xhr.error_html))
+    )
+    req.send()
+
+    return req
+
+def update_field_from_online_metadata(book_id, field, value):
+    nonlocal has_changes, draft_changes, value_to_json
+
+    value_to_json = identity
+    is_series = value.series_index is not undefined
+    if is_series:
+        unchanged = value.series_name is book_metadata(book_id)[field] and value.series_index is book_metadata(book_id)[field + '_index']
+    else:
+        unchanged = value is book_metadata(book_id)[field]
+
+    if unchanged:
+        return
+
+    if is_series:
+        draft_changes[field] = value_to_json(value.series_name)
+        draft_changes[field + '_index'] = float(value.series_index)
+    else:
+        draft_changes[field] = value_to_json(value)
+    has_changes = True
+
+
+def save_online_metadata(container_id, book_id):
+    nonlocal selected_online_metadata
+
+    if selected_online_metadata is None:
+        on_close(container_id)
+        return
+
+    fields = [
+        'tags',
+        'title',
+        'rating',
+        'publisher',
+        'series_index',
+        'authors',
+        'languages',
+        'series',
+        'comments',
+        'pubdate',
+        'identifiers',
+    ]
+
+    for field in fields:
+        if selected_online_metadata[field] is not undefined:
+            update_field_from_online_metadata(book_id, field, selected_online_metadata[field])
+
+    selected_online_metadata = None
+    on_close(container_id)
+
+def begin_metadata_download(container_id, book_id):
+    c = document.getElementById(container_id)
+    edit_panel = switch_to_edit_panel(c)
+
+    preview_div = E.div(
+        class_="metadata-preview",
+    )
+
+    ok_button = create_button(_('OK'), icon='check', highlight=True)
+    cancel_button = create_button(_('Cancel'), icon='close')
+    form_buttons = E.div(class_='edit-form-button-container', cancel_button, '\xa0', ok_button)
+    loading_spinner = E.div(class_="loading-spinner",
+        E.div(class_='loading-icon', svgicon('refresh', '3em', '3em'))
+        E.div(style='margin-top: 1em;', _('Downloading data from server, please wait...'))
+    )
+    table = E.table(class_='metadata downloaded',
+        E.thead(
+            E.tr(
+                E.th('#'),
+                E.th(_('Title'), style='width: 50%'),
+                E.th(_('Published'), style='width: 25%'),
+                E.th(_("Has summary"), style='width: 20%')
+            )
+        )
+    )
+    edit_panel.appendChild(
+        E.div(style='position: relative',
+            loading_spinner,
+            table,
+            preview_div,
+        )
+    )
+    edit_panel.appendChild(form_buttons)
+    req = download_metadata(preview_div, loading_spinner, table, book_id)
+
+    def cancel(ev):
+        nonlocal selected_online_metadata
+        ev.preventDefault();
+        if req.readyState is not 4: # 4 is DONE
+            req.abort()
+
+        selected_online_metadata = None
+
+        on_close(container_id);
+    def ok(event):
+        event.preventDefault();
+        if req.readyState is not 4: # 4 is DONE
+            req.abort()
+
+        save_online_metadata(container_id, book_id);
+
+    ok_button.addEventListener('click', ok)
+    cancel_button.addEventListener('click', cancel)
 
 def show_book(container_id, book_id):
     container = document.getElementById(container_id)
@@ -1406,6 +1622,10 @@ def show_book(container_id, book_id):
                 style='display:' + ('none' if cq.from_read_book else 'block'),
             ),
         ))
+    download_button = create_button(_('Download metadata'),
+        action=begin_metadata_download.bind(None, container_id, book_id),
+        title=_('Download metadata using installed metadata plugins'))
+    div.appendChild(E.div(style='margin: 1ex 1rem', download_button))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
 
