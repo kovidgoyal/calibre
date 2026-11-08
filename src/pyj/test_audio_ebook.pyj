@@ -77,6 +77,9 @@ def audio_ebook_bar_controls_are_usable_from_the_keyboard():
         # The slider seeks with the arrow keys, Page Up/Down, Home and End,
         # and says where in the audio it is
         slider.focus()
+        # Focus events are not sent while the window does not have focus, as
+        # when the tests are run, so send the one that focusing would cause
+        slider.dispatchEvent(new window.FocusEvent('focus'))
         assert_equal(slider.getAttribute('aria-valuetext'), '0:50 of 1:40')
         assert_true(press(slider, 'ArrowRight').defaultPrevented)
         assert_equal(player.currentTime, 55)
