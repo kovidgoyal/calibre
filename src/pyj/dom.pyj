@@ -209,6 +209,30 @@ def set_live_region_text(region, msg, delayed, still_wanted):
     , 100)
 
 
+def button_space_key_event(ev):
+    # Listen to keydown, keyup and blur with this, so that Space activates
+    # an element that acts as a button the way it does a native button: on
+    # release, without scrolling the page. Returns True for Space key events and
+    # blur.
+    target = ev.currentTarget
+    if ev.type is 'blur':
+        target.button_space_pressed = False
+        return True
+    if ev.key is not ' ':
+        return False
+    modified = ev.ctrlKey or ev.altKey or ev.metaKey
+    if ev.type is 'keydown':
+        if not modified:
+            ev.preventDefault(), ev.stopPropagation()
+            target.button_space_pressed = True
+    elif ev.type is 'keyup':
+        pressed, target.button_space_pressed = target.button_space_pressed, False
+        if pressed and not modified:
+            ev.preventDefault(), ev.stopPropagation()
+            target.click()
+    return True
+
+
 def get_widget_css():
     ans = []
     for func in extra_css:

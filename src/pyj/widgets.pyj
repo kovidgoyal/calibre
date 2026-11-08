@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.theme import get_color
-from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
+from dom import build_rule, button_space_key_event, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
 
 # Button {{{
 
@@ -21,6 +21,10 @@ def create_button(text, icon=None, action=None, tooltip=None, highlight=False, d
     if highlight:
         cls = (cls + ' calibre-primary-button').strip()
     ans = E.a(ic, E.span(text), class_=cls, href='javascript: void(0)', role='button', title=tooltip or '')
+    # It is a link, which Enter activates but Space does not, unlike the
+    # button it says it is
+    for name in ('keydown', 'keyup', 'blur'):
+        ans.addEventListener(name, button_space_key_event)
     if download_filename and v'"download" in ans':
         ans.setAttribute('download', download_filename)
     if action is not None:
