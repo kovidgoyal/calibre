@@ -136,3 +136,56 @@ def end_of_book_rating_stars_are_named_toggle_buttons():
             container.remove()
 
     with_empty_session(run)
+
+
+@test
+def end_of_book_rating_half_stars_with_the_keyboard():
+    def press(button, key, kw):
+        ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+        button.dispatchEvent(ev)
+        return ev
+
+    def run(sd):
+        for allow_half_stars in [True, False]:
+            container = E.div(id=unique_id())
+            document.body.appendChild(container)
+            overlay = {'view': {'book': {'key': ['library', 1], 'metadata': {'title': 'Title', 'rating': 6}}}}
+            eob = EndOfBook(overlay)
+            eob.allow_half_stars = allow_half_stars
+            # Do not contact the server
+            eob.refresh_request = {'abort': def (): pass;}
+            ratings = []
+            eob.set_rating = def (rating):
+                ratings.push(rating)
+            try:
+                eob.show(container)
+                buttons = container.querySelectorAll('.end-of-book-rating > button')
+                star3 = buttons[2]
+                assert_equal(star3.getAttribute('aria-label'), 'Rate this book 3 stars')
+                ev = press(star3, 'Enter', {'shiftKey': True})
+                if allow_half_stars:
+                    # The tooltip says how to give half a star, the name stays short
+                    assert_equal(star3.title, 'Rate this book 3 stars\nClick the left half of the star or press Shift+Enter for 2.5 stars')
+                    assert_true(ev.defaultPrevented)
+                    press(star3, ' ', {'shiftKey': True})
+                    press(buttons[0], 'Enter', {'shiftKey': True})
+                    # Choosing the current rating clears it
+                    press(buttons[3], 'Enter', {'shiftKey': True})
+                    eob.rating = 7
+                    press(buttons[3], 'Enter', {'shiftKey': True})
+                    assert_equal(ratings, [5, 5, 1, 7, 0])
+                    # Held keys, other modifiers and other keys are left alone
+                    ratings.length = 0
+                    for key, kw in [['Enter', {'shiftKey': True, 'repeat': True}], ['Enter', {'shiftKey': True, 'ctrlKey': True}], ['Enter', {}], ['a', {'shiftKey': True}]]:
+                        ev = press(star3, key, kw)
+                        assert_equal(ev.defaultPrevented, bool(kw.repeat), key)
+                    assert_equal(ratings, [])
+                else:
+                    assert_equal(star3.title, 'Rate this book 3 stars')
+                    # Shift+Enter activates the star as usual
+                    assert_equal(ev.defaultPrevented, False)
+                    assert_equal(ratings, [])
+            finally:
+                container.remove()
+
+    with_empty_session(run)

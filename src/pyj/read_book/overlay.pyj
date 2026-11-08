@@ -190,11 +190,14 @@ class EndOfBook:  # {{{
                 half = svgicon('star-half')
                 half.style.position = 'absolute'
                 half.style.left = '0'
-                tooltip = ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i)
+                name = ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i)
+                tooltip = name
+                if self.allow_half_stars:
+                    tooltip += '\n' + _('Click the left half of the star or press Shift+Enter for {} stars').format(i - 0.5)
                 stars.appendChild(E.button(
-                    svgicon('star'), half, type='button', data_stars=str(i), title=tooltip, aria_label=tooltip,
+                    svgicon('star'), half, type='button', data_stars=str(i), title=tooltip, aria_label=name,
                     style='position: relative; margin: 0 0.2em; padding: 0; border: none; background: none; font: inherit; color: currentColor; cursor: pointer',
-                    onclick=self.star_clicked.bind(None, i)))
+                    onclick=self.star_clicked.bind(None, i), onkeydown=self.star_keydown.bind(None, i)))
             rating_area.appendChild(label)
             rating_area.appendChild(stars)
             rating_area.appendChild(current)
@@ -286,15 +289,30 @@ class EndOfBook:  # {{{
             c.querySelector('.end-of-book-status').textContent = text
 
     def star_clicked(self, stars, ev):
-        rating = stars * 2
+        half = False
         if self.allow_half_stars and ev.detail > 0:
             # Clicking the left half of a star gives a half star rating,
             # ev.detail is zero when the star is activated with the keyboard
             r = ev.currentTarget.getBoundingClientRect()
-            if ev.clientX < r.left + r.width / 2:
-                rating -= 1
+            half = ev.clientX < r.left + r.width / 2
+        self.rate_with_star(stars, half)
+
+    def star_keydown(self, stars, ev):
+        # Shift+Enter and Shift+Space give a half star rating, as clicking the
+        # left half of the star does. Preventing the default stops the button
+        # from also being activated for a whole star rating.
+        if (
+            self.allow_half_stars and ev.shiftKey and not ev.ctrlKey and not ev.altKey and not ev.metaKey
+            and (ev.key is 'Enter' or ev.key is ' ')
+        ):
+            ev.preventDefault(), ev.stopPropagation()
+            if not ev.repeat:
+                self.rate_with_star(stars, True)
+
+    def rate_with_star(self, stars, half):
+        rating = stars * 2 - (1 if half else 0)
         if rating is self.rating:
-            rating = 0  # Clicking the current rating clears it
+            rating = 0  # Choosing the current rating clears it
         self.set_rating(rating)
 
     def set_rating(self, rating):
