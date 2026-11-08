@@ -51,7 +51,9 @@ def footnote_popup_is_a_named_dialog_that_keeps_focus():
 
         # Tab wraps around within the popup: past the footnote, which is
         # last, to the first button, and back from the first button
-        container.lastChild.focus()
+        # Focus events are not sent while the window does not have focus, as
+        # when the tests are run, so send the one that tabbing would cause
+        container.lastChild.dispatchEvent(new window.FocusEvent('focus'))
         assert_equal(document.activeElement, buttons[0])
         assert_true(press(buttons[0], 'Tab', {'shiftKey': True}).defaultPrevented)
         assert_equal(document.activeElement, iframe)
