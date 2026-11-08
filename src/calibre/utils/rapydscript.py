@@ -554,6 +554,10 @@ def run_rapydscript_tests() -> NoReturn:
     with open(fname, 'rb') as f:
         # Tests are registered via decorators, which tree shaking would remove
         result = compile_fast(f.read(), fname, tree_shaking=False)
+    # Without tree shaking, rapydscript-ng leaves the @no_prune hint for the
+    # tree shaker in its output as a call, so make it a no-op. It is on the
+    # first line so that line numbers in tracebacks are unchanged.
+    code = 'window.no_prune = function(f) { return f; }; ' + substitute_placeholders(result['code'])
 
     class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         def __init__(self, parent: QObject | None = None) -> None:
@@ -586,7 +590,7 @@ def run_rapydscript_tests() -> NoReturn:
             profile = QWebEngineProfile(QApplication.instance())
             profile.setHttpUserAgent('calibre-tester')
             setup_profile(profile)
-            insert_scripts(profile, create_script('test-rapydscript.js', substitute_placeholders(result['code']), on_subframes=False))
+            insert_scripts(profile, create_script('test-rapydscript.js', code, on_subframes=False))
             url_handler = UrlSchemeHandler(profile)
             profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
             QWebEnginePage.__init__(self, profile, None)
