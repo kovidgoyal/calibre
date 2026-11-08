@@ -1,0 +1,108 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.globals import ui_operations
+from read_book.read_aloud import PAUSED, PLAYING, WAITING_FOR_PLAY_TO_START, ReadAloud
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def press(elem, key, kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    elem.dispatchEvent(ev)
+    return ev
+
+
+@test
+def read_aloud_bar_controls_are_buttons_usable_from_the_keyboard():
+    def run(sd):
+        sd.set('tts_bar_position', 'float')
+        sd.set('read_mode', 'paged')
+        container = E.div(id='book-read-aloud-overlay', style='display: none')
+        document.body.appendChild(container)
+        calls = []
+        iframe_focused = []
+        previous_tts, previous_state_changed = ui_operations.tts, ui_operations.read_aloud_state_changed
+        ui_operations.tts = def (which):
+            calls.push(which)
+        ui_operations.read_aloud_state_changed = None
+        view = {'focus_iframe': def (): iframe_focused.push(True);, 'keyboard_shortcut_map': {}}
+
+        def controls():
+            return container.querySelectorAll('button')
+
+        def names():
+            return [b.getAttribute('aria-label') for b in controls()]
+
+        def focused():
+            return document.activeElement.getAttribute('aria-label')
+
+        try:
+            ra = ReadAloud(view)
+            ra.send_message = def (which):
+                calls.push('send:' + which)
+            ra.show()
+            assert_equal(names(), ['Start reading', 'Slow down speech', 'Speed up speech', 'Configure Read aloud', 'Close Read aloud'])
+            for b in controls():
+                assert_equal(b.type, 'button')
+                assert_equal(b.title, b.getAttribute('aria-label'))
+            assert_equal(document.activeElement, container)
+
+            # Tab moves between the controls, wrapping around, and stays in Read aloud
+            assert_true(press(container, 'Tab').defaultPrevented)
+            assert_equal(focused(), 'Start reading')
+            press(document.activeElement, 'Tab', {'shiftKey': True})
+            assert_equal(focused(), 'Close Read aloud')
+            press(document.activeElement, 'Tab')
+            assert_equal(focused(), 'Start reading')
+
+            # Enter and Space on a control are left to activate it, rather
+            # than toggling reading
+            assert_false(press(document.activeElement, 'Enter').defaultPrevented)
+            assert_false(press(document.activeElement, ' ').defaultPrevented)
+            assert_equal(calls, [])
+
+            # Activating a control from the keyboard keeps focus on the bar,
+            # on the control in the same place after it is rebuilt
+            document.activeElement.click()
+            assert_equal(calls, ['send:play'])
+            assert_equal(ra.state, WAITING_FOR_PLAY_TO_START)
+            assert_equal(focused(), 'Pause reading')
+            assert_equal(document.activeElement.getAttribute('aria-disabled'), 'true')
+            # The control has no action while reading starts
+            document.activeElement.click()
+            assert_equal(calls, ['send:play'])
+            ra.handle_tts_event('begin')
+            assert_equal(ra.state, PLAYING)
+            assert_equal(focused(), 'Pause reading')
+            assert_equal(document.activeElement.getAttribute('aria-disabled'), None)
+            document.activeElement.click()
+            assert_equal(ra.state, PAUSED)
+            assert_equal(focused(), 'Resume reading')
+            slower = controls()[1]
+            slower.focus()
+            slower.click()
+            assert_equal(calls[-1], 'slower')
+            assert_equal(document.activeElement, slower)
+            assert_equal(iframe_focused, [])
+
+            # Clicks with the mouse still hand focus back to the book
+            slower.dispatchEvent(new MouseEvent('click', {'bubbles': True, 'cancelable': True, 'detail': 1}))
+            assert_equal(calls[-1], 'slower')
+            assert_equal(iframe_focused, [True])
+
+            # The shortcuts still work when Read aloud itself has focus
+            container.focus()
+            assert_true(press(container, ' ').defaultPrevented)
+            assert_equal(ra.state, PLAYING)
+            assert_true(press(container, 'Escape').defaultPrevented)
+            assert_equal(container.style.display, 'none')
+            assert_equal(calls[-1], 'stop')
+        finally:
+            ui_operations.tts, ui_operations.read_aloud_state_changed = previous_tts, previous_state_changed
+            container.remove()
+
+    with_empty_session(run)

@@ -6,7 +6,6 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from read_book.globals import ui_operations
@@ -52,6 +51,9 @@ class ReadAloud:
             f'#{self.bar_id}.docked' + '{ border-radius: 1em; height: 2em; padding:0.5em; display: flex; justify-content: center; align-items: center; }\n\n',
             f'#{self.bar_id}.speaking ' + '{ opacity: 0.5 }\n\n',
             f'#{self.bar_id}.speaking:hover ' + '{ opacity: 1.0 }\n\n',
+            f'#{self.bar_id}.speaking:focus-within ' + '{ opacity: 1.0 }\n\n',
+            f'#{self.bar_id} button' + '{ padding: 0; border: none; background: none; color: inherit; font: inherit; line-height: 0 }\n\n',
+            f'#{self.bar_id} button:focus-visible' + '{ outline: 2px solid ' + get_color('link-foreground') + '; outline-offset: 2px }\n\n',
         ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
@@ -107,14 +109,22 @@ class ReadAloud:
 
     def create_buttons(self, bar):
         def cb(name, icon, text):
-            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+            ans = E.button(svgicon(icon, ICON_SIZE, ICON_SIZE), type='button', title=text, aria_label=text, class_='simple-link')
             if name:
                 ans.addEventListener('click', def (ev):
                     ev.stopPropagation(), ev.preventDefault()
                     self[name](ev)
-                    self.view.focus_iframe()
+                    # Clicks hand focus back to the book, but keyboard users
+                    # (ev.detail is zero) keep it on the bar, so that they can
+                    # use the other controls
+                    if ev.detail > 0:
+                        self.view.focus_iframe()
                 )
-            ans.classList.add('simple-link')
+            else:
+                # Keep the place of the control, so that focus can stay on
+                # it while reading starts
+                ans.setAttribute('aria-disabled', 'true')
+                ans.addEventListener('click', def (ev): ev.stopPropagation(), ev.preventDefault();)
             ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
             return ans
 
@@ -143,8 +153,24 @@ class ReadAloud:
             bar_container.classList.add('speaking')
         else:
             bar_container.classList.remove('speaking')
+        # The bar is rebuilt, so put focus back on the control in the same
+        # place, such as Pause after Play was pressed
+        focused = self.focused_control()
         clear(bar_container)
+        self.build_bar_contents(bar_container, iclass, bp)
+        if focused is not None:
+            controls = self.controls()
+            if controls.length:
+                controls[min(focused, controls.length - 1)].focus()
 
+    def controls(self):
+        return self.bar.querySelectorAll('button')
+
+    def focused_control(self):
+        ans = Array.prototype.indexOf.call(self.controls(), document.activeElement)
+        return None if ans < 0 else ans
+
+    def build_bar_contents(self, bar_container, iclass, bp):
         if iclass is not 'floating':
             return self.build_docked_bar(bar_container, bp)
 
@@ -219,6 +245,23 @@ class ReadAloud:
         self.send_message('play', pos=pos)
 
     def on_keydown(self, ev):
+        if ev.key is 'Tab' and not ev.ctrlKey and not ev.altKey and not ev.metaKey:
+            # Move between the controls, wrapping around, so that focus stays
+            # in Read aloud, which covers the book
+            ev.stopPropagation(), ev.preventDefault()
+            controls = self.controls()
+            if controls.length:
+                idx = self.focused_control()
+                if idx is None:
+                    idx = controls.length - 1 if ev.shiftKey else 0
+                else:
+                    idx = (idx + (-1 if ev.shiftKey else 1) + controls.length) % controls.length
+                controls[idx].focus()
+            return
+        if (ev.key is 'Enter' or ev.key is ' ') and self.focused_control() is not None:
+            # Let the focused control be activated as a button
+            ev.stopPropagation()
+            return
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Escape':
             self.hide()
