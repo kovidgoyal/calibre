@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from ajax import ajax_send
 from book_list.book_details import (
@@ -88,7 +88,9 @@ add_extra_css(def ():
         margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem',
         border='var(--calibre-border-style-control)', border_radius='1ex', cursor='pointer'
     )
-    style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
+    style += build_rule(sel + '.rating-edit-container > li[aria-checked=true]', color=get_color('window-background'), background=get_color('window-foreground'))
+    style += build_rule(sel + '.rating-edit-container > li:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='2px')
     # Floating editor modal (field editing)
     style += build_rule(sel + 'div[data-ctype="edit"]',
         position='fixed',
@@ -686,62 +688,136 @@ def identifiers_edit(container_id, book_id, field, fm, div, mi):
     value_to_json = identity
 # }}}
 
+# Choice lists {{{
+# Rating, enum and bool fields are edited by picking one of a few choices,
+# presented as a radio group so they work with the keyboard and screen readers
+
+
+def choice_list_items(ul):
+    return ul.querySelectorAll('[role=radio]')
+
+
+def current_choice(container):
+    return container.querySelector('[role=radio][aria-checked=true]')
+
+
+def set_current_choice(li, focus):
+    # Only the current choice is in the tab order, as for native radio buttons
+    for x in choice_list_items(li.closest('ul')):
+        is_current = x is li
+        x.setAttribute('aria-checked', 'true' if is_current else 'false')
+        x.setAttribute('tabindex', '0' if is_current else '-1')
+    if focus:
+        li.focus()
+
+
+def choice_clicked(ev):
+    set_current_choice(ev.currentTarget)
+
+
+def choice_keydown(ev):
+    if ev.altKey or ev.ctrlKey or ev.metaKey:
+        return
+    li = ev.currentTarget
+    if ev.key is 'Enter':
+        # Like native radio buttons, Enter submits the form
+        ev.preventDefault(), ev.stopPropagation()
+        li.closest('form').requestSubmit()
+        return
+    items = choice_list_items(li.closest('ul'))
+    idx = Array.prototype.indexOf.call(items, li)
+    if ev.key is 'ArrowRight' or ev.key is 'ArrowDown':
+        target = items[(idx + 1) % items.length]
+    elif ev.key is 'ArrowLeft' or ev.key is 'ArrowUp':
+        target = items[(idx - 1 + items.length) % items.length]
+    elif ev.key is 'Home':
+        target = items[0]
+    elif ev.key is 'End':
+        target = items[items.length - 1]
+    elif ev.key is ' ':
+        target = li
+    else:
+        return
+    ev.preventDefault(), ev.stopPropagation()
+    set_current_choice(target, True)
+
+
+def create_choice_list(name, values, current, render_choice):
+    # render_choice(li, value) fills in the visible label of each choice
+    c = E.ul(class_='rating-edit-container', role='radiogroup', aria_label=name)
+    checked = None
+    for value in values:
+        li = E.li(role='radio', aria_checked='false', tabindex='-1', data_rating=value + '', onclick=choice_clicked, onkeydown=choice_keydown)
+        render_choice(li, value)
+        c.appendChild(li)
+        if value is current:
+            checked = li
+    if checked:
+        set_current_choice(checked)
+    elif c.firstChild:
+        # The current value is not one of the choices, keep the list reachable
+        c.firstChild.setAttribute('tabindex', '0')
+    return c
+
+
+def focus_choice_list(c):
+    li = c.querySelector('[role=radio][tabindex="0"]')
+    if li:
+        li.focus()
+
+
+def show_choice_list(c, get_value, container_id, book_id, field, name, div):
+    form = create_form(c, get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    focus_choice_list(c)
+
+
+def choice_get_value(container):
+    return True, current_choice(container).getAttribute('data-rating')
+# }}}
+
 # Rating edit {{{
 
 
 def rating_get_value(container):
-    return True, parseInt(container.querySelector('.current-rating[data-rating]').getAttribute('data-rating'))
-
-
-def set_rating(evt):
-    li = evt.currentTarget
-    for nli in li.closest('ul').childNodes:
-        nli.classList.remove('current-rating')
-    li.classList.add('current-rating')
+    return True, parseInt(current_choice(container).getAttribute('data-rating'))
 
 
 def rating_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
     val = resolved_metadata(mi, field) or 0
-    numbers = list(range(11)) if fm.display?.allow_half_stars else list(range(0, 11, 2))
+    allow_half_stars = bool(fm.display?.allow_half_stars)
+    numbers = list(range(11)) if allow_half_stars else list(range(0, 11, 2))
     name = fm.name or field
-    c = E.ul(class_='rating-edit-container')
-    for n in numbers:
-        s = E.li(data_rating=n + '', onclick=set_rating)
-        c.appendChild(s)
-        if n is val:
-            s.classList.add('current-rating')
+
+    def render_choice(li, n):
         if n:
-            add_stars_to(s, n, numbers.length > 6)
+            add_stars_to(li, n, allow_half_stars)
+            # The stars are icons, so give the choice a name screen readers can read
+            stars = n / 2
+            li.setAttribute('aria-label', ngettext('{} star', '{} stars', stars).format(stars))
         else:
-            s.appendChild(document.createTextNode(_('Unrated')))
-    form = create_form(c, rating_get_value, container_id, book_id, field)
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+            li.appendChild(document.createTextNode(_('Unrated')))
+
+    c = create_choice_list(name, numbers, val, render_choice)
+    show_choice_list(c, rating_get_value, container_id, book_id, field, name, div)
     value_to_json = identity
 # }}}
 
 # Enum edit {{{
 
 
-def enum_get_value(container):
-    return True, container.querySelector('.current-rating[data-rating]').getAttribute('data-rating')
-
-
 def enum_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
     val = resolved_metadata(mi, field) or ''
     name = fm.name or field
-    c = E.ul(class_='rating-edit-container')
-    for n in [''].concat(fm.display.enum_values):
-        s = E.li(data_rating=n + '', onclick=set_rating)
-        c.appendChild(s)
-        if n is val:
-            s.classList.add('current-rating')
-        s.appendChild(document.createTextNode(n or _('Blank')))
-    form = create_form(c, enum_get_value, container_id, book_id, field)
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+
+    def render_choice(li, n):
+        li.appendChild(document.createTextNode(n or _('Blank')))
+
+    c = create_choice_list(name, [''].concat(fm.display.enum_values), val, render_choice)
+    show_choice_list(c, choice_get_value, container_id, book_id, field, name, div)
     value_to_json = identity
 # }}}
 
@@ -759,17 +835,13 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
         else:
             val = ''
     name = fm.name or field
-    c = E.ul(class_='rating-edit-container')
     names = {'': _('Blank'), 'y': _('Yes'), 'n': _('No')}
-    for n in ['', 'y', 'n']:
-        s = E.li(data_rating=n + '', onclick=set_rating)
-        c.appendChild(s)
-        if n is val:
-            s.classList.add('current-rating')
-        s.appendChild(document.createTextNode(names[n]))
-    form = create_form(c, enum_get_value, container_id, book_id, field)
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
-    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+
+    def render_choice(li, n):
+        li.appendChild(document.createTextNode(names[n]))
+
+    c = create_choice_list(name, ['', 'y', 'n'], val, render_choice)
+    show_choice_list(c, choice_get_value, container_id, book_id, field, name, div)
     val_map = {'': None, 'y': True, 'n': False}
     value_to_json = def (x):
         return val_map[x]

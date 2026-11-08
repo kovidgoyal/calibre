@@ -1,0 +1,143 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from book_list.edit_metadata import create_choice_list, current_choice, rating_edit
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def render_text(li, value):
+    li.appendChild(document.createTextNode(value or 'Blank'))
+
+
+def press(elem, key, kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    elem.dispatchEvent(ev)
+    return ev
+
+
+def checked_values(c):
+    return [li.dataset.rating for li in c.querySelectorAll('[role=radio][aria-checked=true]')]
+
+
+def tab_stops(c):
+    return [li.dataset.rating for li in c.querySelectorAll('[role=radio][tabindex="0"]')]
+
+
+@test
+def choice_list_is_a_named_radio_group_with_one_tab_stop():
+    c = create_choice_list('Read', ['', 'y', 'n'], 'y', render_text)
+    document.body.appendChild(c)
+    try:
+        assert_equal(c.getAttribute('role'), 'radiogroup')
+        assert_equal(c.getAttribute('aria-label'), 'Read')
+        items = c.querySelectorAll('li')
+        assert_equal(items.length, 3)
+        for li in items:
+            assert_equal(li.getAttribute('role'), 'radio')
+        assert_equal(checked_values(c), ['y'])
+        assert_equal(tab_stops(c), ['y'])
+        assert_equal(current_choice(c), items[1])
+        # Clicking a choice makes it the current one and the only tab stop
+        items[2].click()
+        assert_equal(checked_values(c), ['n'])
+        assert_equal(tab_stops(c), ['n'])
+    finally:
+        c.remove()
+
+
+@test
+def choice_list_without_a_matching_value_stays_reachable():
+    c = create_choice_list('Genre', ['', 'Fantasy', 'Horror'], 'Removed value', render_text)
+    document.body.appendChild(c)
+    try:
+        assert_equal(checked_values(c), [])
+        assert_equal(current_choice(c), None)
+        assert_equal(tab_stops(c), [''])
+    finally:
+        c.remove()
+
+
+@test
+def choice_list_keyboard_moves_and_selects_like_radio_buttons():
+    c = create_choice_list('Genre', ['', 'Fantasy', 'Horror'], 'Fantasy', render_text)
+    items = c.querySelectorAll('li')
+
+    def check(key, expected, target):
+        ev = press(target or document.activeElement, key)
+        assert_true(ev.defaultPrevented, key)
+        assert_equal(checked_values(c), [expected], key)
+        assert_equal(tab_stops(c), [expected], key)
+        assert_equal(document.activeElement.dataset.rating, expected, key)
+
+    document.body.appendChild(c)
+    try:
+        check('ArrowRight', 'Horror', items[1])
+        # Moving past either end wraps around
+        check('ArrowDown', '')
+        check('ArrowLeft', 'Horror')
+        check('ArrowUp', 'Fantasy')
+        check('Home', '')
+        check('End', 'Horror')
+        # Space selects a choice that has focus without being current
+        items[0].focus()
+        check(' ', '')
+        # Modified keys and keys the list does not use are left alone, so
+        # that, for example, Escape still closes the editor
+        for key, kw in [['ArrowRight', {'ctrlKey': True}], ['ArrowRight', {'altKey': True}], ['Escape', {}], ['a', {}]]:
+            ev = press(items[0], key, kw)
+            assert_false(ev.defaultPrevented, key)
+            assert_equal(checked_values(c), [''], key)
+    finally:
+        c.remove()
+
+
+@test
+def choice_list_enter_submits_the_form():
+    submitted = []
+    c = create_choice_list('Read', ['', 'y', 'n'], 'n', render_text)
+    form = E.form(action='javascript: void(0)', c, onsubmit=def (ev):
+        ev.preventDefault()
+        submitted.push(current_choice(c).dataset.rating)
+    )
+    document.body.appendChild(form)
+    try:
+        ev = press(c.querySelector('[aria-checked=true]'), 'Enter')
+        assert_true(ev.defaultPrevented)
+        assert_equal(submitted, ['n'])
+    finally:
+        form.remove()
+
+
+@test
+def rating_choices_have_names_and_the_current_rating_has_focus():
+    div = E.div()
+    document.body.appendChild(div)
+    try:
+        rating_edit('test-container', 1, 'rating', {'name': 'Rating', 'display': {'allow_half_stars': True}}, div, {'rating': 5})
+        c = div.querySelector('[role=radiogroup]')
+        assert_equal(c.getAttribute('aria-label'), 'Rating')
+        items = c.querySelectorAll('[role=radio]')
+        assert_equal(items.length, 11)
+        # Unrated has visible text, the star choices are icons with a name
+        assert_equal(items[0].getAttribute('aria-label'), None)
+        assert_equal(items[0].textContent, 'Unrated')
+        assert_equal(items[2].getAttribute('aria-label'), '1 star')
+        assert_equal(items[5].getAttribute('aria-label'), '2.5 stars')
+        assert_equal(items[10].getAttribute('aria-label'), '5 stars')
+        assert_equal(checked_values(c), ['5'])
+        assert_equal(document.activeElement, items[5])
+    finally:
+        div.remove()
+
+    div = E.div()
+    document.body.appendChild(div)
+    try:
+        # Without half stars only whole star ratings are offered
+        rating_edit('test-container', 1, 'rating', {'name': 'Rating'}, div, {'rating': 4})
+        assert_equal([li.dataset.rating for li in div.querySelectorAll('[role=radio]')], ['0', '2', '4', '6', '8', '10'])
+        assert_equal(checked_values(div), ['4'])
+    finally:
+        div.remove()
