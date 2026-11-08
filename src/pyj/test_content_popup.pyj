@@ -1,0 +1,81 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.content_popup import ContentPopupOverlay
+from read_book.globals import ui_operations
+from testing import assert_equal, assert_true, test
+
+
+def press(elem, key, kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    elem.dispatchEvent(ev)
+    return ev
+
+
+@test
+def footnote_popup_is_a_named_dialog_that_keeps_focus():
+    container = E.div(id='book-content-popup-overlay', style='display: none')
+    document.body.appendChild(container)
+    calls = []
+    previous = ui_operations.focus_iframe
+    ui_operations.focus_iframe = def ():
+        calls.push('focus_book')
+    view = {'goto_named_destination': def (name, frag): calls.push(f'goto:{name}#{frag}');}
+    try:
+        popup = ContentPopupOverlay(view)
+        box = container.firstChild
+        iframe = E.iframe()
+        box.appendChild(iframe)
+        # Stand in for the wrapped iframe that loads the footnote
+        popup.iframe_wrapper = {'iframe': iframe}
+        popup.current_footnote_data = {'title': 'Note 3', 'name': 'notes.html', 'frag': 'n3'}
+        popup.create_footnote_header(box.firstChild)
+        popup.show()
+
+        assert_equal(box.getAttribute('role'), 'dialog')
+        assert_equal(box.getAttribute('aria-modal'), 'true')
+        assert_equal(document.getElementById(box.getAttribute('aria-labelledby')).textContent, 'Note 3')
+        buttons = popup.buttons()
+        assert_equal([b.getAttribute('aria-label') for b in buttons], [
+            'Go to this footnote in the main view', 'Close the footnotes window'])
+        for b in buttons:
+            assert_equal(b.type, 'button')
+            assert_equal(b.title, b.getAttribute('aria-label'))
+
+        # When the footnote has loaded, focus moves to it
+        popup.on_content_loaded({'height': 100})
+        assert_equal(document.activeElement, iframe)
+
+        # Tab wraps around within the popup: past the footnote, which is
+        # last, to the first button, and back from the first button
+        container.lastChild.focus()
+        assert_equal(document.activeElement, buttons[0])
+        assert_true(press(buttons[0], 'Tab', {'shiftKey': True}).defaultPrevented)
+        assert_equal(document.activeElement, iframe)
+
+        # Escape on a button closes the popup and returns focus to the book
+        buttons[1].focus()
+        assert_true(press(buttons[1], 'Escape').defaultPrevented)
+        assert_equal(popup.is_visible, False)
+        assert_equal(calls, ['focus_book'])
+
+        # A footnote that loads while the popup is hidden does not take focus
+        buttons[1].focus()
+        popup.on_content_loaded({'height': 100})
+        assert_equal(document.activeElement, buttons[1])
+
+        popup.show()
+        buttons[0].click()
+        assert_equal(popup.is_visible, False)
+        assert_equal(calls, ['focus_book', 'focus_book', 'goto:notes.html#n3'])
+
+        # Without a title, the dialog is named Footnote
+        popup.current_footnote_data = {'name': 'notes.html', 'frag': 'n4'}
+        popup.create_footnote_header(box.firstChild)
+        assert_equal(document.getElementById(box.getAttribute('aria-labelledby')).textContent, 'Footnote')
+    finally:
+        ui_operations.focus_iframe = previous
+        container.remove()
