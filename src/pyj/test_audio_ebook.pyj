@@ -1,0 +1,119 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.read_audio_ebook import ReadAudioEbook
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def press(elem, key, kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    elem.dispatchEvent(ev)
+    return ev
+
+
+@test
+def audio_ebook_bar_controls_are_usable_from_the_keyboard():
+    container = E.div(id='audio-ebooks-overlay')
+    document.body.appendChild(container)
+    iframe_focused = []
+    view = {'focus_iframe': def (): iframe_focused.push(True);, 'keyboard_shortcut_map': {}, 'currently_showing': {}}
+    player = {'duration': 100, 'currentTime': 50, 'playbackRate': 1, 'getAttribute': def (): return None;}
+
+    def controls():
+        return container.querySelectorAll('button, [role=slider]')
+
+    def label():
+        return document.activeElement.getAttribute('aria-label')
+
+    try:
+        ra = ReadAudioEbook(view)
+        ra.initialize()
+        # Stand in for the audio element, whose duration cannot be set
+        Object.defineProperty(ra, 'audio_player', {'value': player})
+        ra.pause()
+        slider = ra.progress_bar
+        assert_equal([b.getAttribute('aria-label') for b in controls()], [
+            'Play audio', 'Audio position', 'Slow down audio', 'Speed up audio', 'Close Read aloud'])
+        for b in container.querySelectorAll('button'):
+            assert_equal(b.type, 'button')
+            assert_equal(b.title, b.getAttribute('aria-label'))
+        assert_equal(slider.getAttribute('role'), 'slider')
+        assert_equal(slider.tabIndex, 0)
+
+        # The play/pause button is renamed with its icon
+        ra.play()
+        assert_equal(ra.play_pause_button.getAttribute('aria-label'), 'Pause audio')
+        assert_equal(ra.play_pause_button.title, 'Pause audio')
+        ra.pause()
+        assert_equal(ra.play_pause_button.getAttribute('aria-label'), 'Play audio')
+
+        # Tab moves between the controls, wrapping around
+        container.focus()
+        assert_true(press(container, 'Tab').defaultPrevented)
+        assert_equal(label(), 'Play audio')
+        press(document.activeElement, 'Tab', {'shiftKey': True})
+        assert_equal(label(), 'Close Read aloud')
+        press(document.activeElement, 'Tab')
+        assert_equal(label(), 'Play audio')
+
+        # Enter and Space are left to activate a focused button, and keyboard
+        # activation keeps focus on the bar
+        assert_false(press(document.activeElement, 'Enter').defaultPrevented)
+        assert_false(press(document.activeElement, ' ').defaultPrevented)
+        document.activeElement.click()
+        assert_equal(label(), 'Pause audio')
+        faster = controls()[3]
+        faster.focus()
+        faster.click()
+        assert_equal(Math.round(player.playbackRate * 10), 11)
+        assert_equal(document.activeElement, faster)
+        assert_equal(iframe_focused, [])
+        faster.dispatchEvent(new MouseEvent('click', {'bubbles': True, 'cancelable': True, 'detail': 1}))
+        assert_equal(iframe_focused, [True])
+
+        # The slider seeks with the arrow keys, Page Up/Down, Home and End,
+        # and says where in the audio it is
+        slider.focus()
+        assert_equal(slider.getAttribute('aria-valuetext'), '0:50 of 1:40')
+        assert_true(press(slider, 'ArrowRight').defaultPrevented)
+        assert_equal(player.currentTime, 55)
+        assert_equal(slider.getAttribute('aria-valuenow'), '55')
+        assert_equal(slider.getAttribute('aria-valuemax'), '100')
+        assert_equal(slider.getAttribute('aria-valuetext'), '0:55 of 1:40')
+        press(slider, 'ArrowDown')
+        assert_equal(player.currentTime, 50)
+        press(slider, 'PageDown')
+        assert_equal(player.currentTime, 20)
+        press(slider, 'PageDown')
+        assert_equal(player.currentTime, 0)
+        press(slider, 'End')
+        assert_equal(player.currentTime, 100)
+        press(slider, 'ArrowUp')
+        assert_equal(player.currentTime, 100)
+        press(slider, 'Home')
+        assert_equal(player.currentTime, 0)
+        press(slider, 'ArrowRight', {'ctrlKey': True})
+        assert_equal(player.currentTime, 0)
+        # Space on the slider still plays and pauses
+        state = ra.state
+        assert_true(press(slider, ' ').defaultPrevented)
+        assert_true(ra.state is not state)
+
+        # Playback does not change the value of the focused slider, so that
+        # screen readers do not keep reading it out, but does otherwise
+        player.currentTime = 30
+        container.querySelector('audio').dispatchEvent(new Event('timeupdate'))
+        assert_equal(slider.getAttribute('aria-valuenow'), '0')
+        controls()[0].focus()
+        container.querySelector('audio').dispatchEvent(new Event('timeupdate'))
+        assert_equal(slider.getAttribute('aria-valuenow'), '30')
+
+        # Without audio, the keys do not seek
+        player.duration = 0
+        press(slider, 'ArrowRight')
+        assert_equal(player.currentTime, 30)
+    finally:
+        container.remove()

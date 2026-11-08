@@ -25,6 +25,8 @@ from read_book.smil import (
 )
 
 HIDDEN, PLAYING, PAUSED = 'HIDDEN', 'PLAYING', 'PAUSED'
+# How far the arrow keys and Page Up/Down move in the audio, in seconds
+SMALL_SEEK, LARGE_SEEK = 5, 30
 
 
 def seconds_to_ms(seconds):
@@ -64,18 +66,26 @@ class ReadAudioEbook:
         container.appendChild(E.style(
             f'#{container.id} .speaking ' + '{ opacity: 0.5 }\n\n',
             f'#{container.id} .speaking:hover ' + '{ opacity: 1.0 }\n\n',
+            f'#{container.id} .speaking:focus-within ' + '{ opacity: 1.0 }\n\n',
+            f'#{container.id} button' + '{ padding: 0; border: none; background: none; color: inherit; font: inherit; line-height: 0 }\n\n',
+            f'#{container.id} button:focus-visible, #{container.id} [role=slider]:focus-visible'
+            + '{ outline: 2px solid ' + get_color('link-foreground') + '; outline-offset: 2px }\n\n',
         ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.on_container_clicked, {'passive': False})
         container.addEventListener('contextmenu', self.toggle, {'passive': False})
 
         def create_button(name, icon, text):
-            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+            ans = E.button(svgicon(icon, ICON_SIZE, ICON_SIZE), type='button', title=text, aria_label=text)
             if name:
                 ans.addEventListener('click', def (ev):
                     ev.stopPropagation(), ev.preventDefault()
                     self[name](ev)
-                    self.view.focus_iframe()
+                    # Clicks hand focus back to the book, but keyboard users
+                    # (ev.detail is zero) keep it on the bar, so that they can
+                    # use the other controls
+                    if ev.detail > 0:
+                        self.view.focus_iframe()
                 )
             ans.dataset.button = name
             ans.classList.add('simple-link')
@@ -86,7 +96,8 @@ class ReadAudioEbook:
             E.div(style='height: 3ex; display: flex; align-items: center; justify-content: center', create_button('toggle', 'pause', _('Pause audio')),),
             E.div(data_component='time_display', E.text('')),
             E.div(
-                data_component='progress_bar',
+                data_component='progress_bar', role='slider', tabindex='0', aria_label=_('Audio position'),
+                aria_valuemin='0', aria_valuemax='0', aria_valuenow='0',
                 style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block;'
                 + f' background-color:{get_color("window-background2")}; margin:1em; cursor: pointer',
                 E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),
@@ -116,6 +127,11 @@ class ReadAudioEbook:
                 else:
                     self.time_display.textContent = '00:00'
                     self.progress_bar.firstChild.style.width = '0%'
+                # While the slider has focus, its value changes only when the
+                # user seeks, as screen readers would otherwise read out the
+                # time several times a second during playback
+                if document.activeElement is not self.progress_bar:
+                    self.update_slider_value()
         )
 
         ap.addEventListener('ended', def ():
@@ -132,6 +148,41 @@ class ReadAudioEbook:
                     skip_time = (x / total_width) * ap.duration
                     ap.currentTime = skip_time
         )
+        self.progress_bar.addEventListener('keydown', self.on_slider_keydown, {'passive': False})
+        self.progress_bar.addEventListener('focus', self.update_slider_value)
+
+    def update_slider_value(self):
+        ap, slider = self.audio_player, self.progress_bar
+        duration = ap.duration or 0
+        current = min(ap.currentTime or 0, duration)
+        slider.setAttribute('aria-valuemax', str(Math.round(duration)))
+        slider.setAttribute('aria-valuenow', str(Math.round(current)))
+        slider.setAttribute('aria-valuetext', _('{0} of {1}').format(seconds_to_ms(current), seconds_to_ms(duration)))
+
+    def on_slider_keydown(self, ev):
+        ap = self.audio_player
+        if not ap.duration or ev.altKey or ev.ctrlKey or ev.metaKey:
+            return
+        deltas = {'ArrowRight': SMALL_SEEK, 'ArrowUp': SMALL_SEEK, 'ArrowLeft': -SMALL_SEEK, 'ArrowDown': -SMALL_SEEK,
+                  'PageUp': LARGE_SEEK, 'PageDown': -LARGE_SEEK}
+        if ev.key is 'Home':
+            t = 0
+        elif ev.key is 'End':
+            t = ap.duration
+        elif deltas[ev.key]:
+            t = ap.currentTime + deltas[ev.key]
+        else:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        ap.currentTime = max(0, min(t, ap.duration))
+        self.update_slider_value()
+
+    def controls(self):
+        return self.bar.querySelectorAll('button, [role=slider]')
+
+    def focused_control(self):
+        ans = Array.prototype.indexOf.call(self.controls(), document.activeElement)
+        return None if ans < 0 else ans
 
     @property
     def bar(self):
@@ -260,11 +311,17 @@ class ReadAudioEbook:
     def play_pause_button(self):
         return self.container.querySelector('[data-button="toggle"]')
 
+    def set_play_pause_button(self, icon, text):
+        b = self.play_pause_button
+        change_icon_image(b.firstChild, icon)
+        b.title = text
+        b.setAttribute('aria-label', text)
+
     def show(self):
         if self.state is HIDDEN:
             self.initialize()
             self.state = PLAYING
-            change_icon_image(self.play_pause_button, 'pause', _('Pause audio'))
+            self.set_play_pause_button('pause', _('Pause audio'))
             self.start_playback()
             self.container.style.display = self.CONTAINER_DISPLAY
             self.focus()
@@ -282,14 +339,14 @@ class ReadAudioEbook:
 
     def play(self):
         self.state = PLAYING
-        change_icon_image(self.play_pause_button, 'pause', _('Pause audio'))
+        self.set_play_pause_button('pause', _('Pause audio'))
         ap = self.audio_player
         if ap.getAttribute('src'):
             ap.play()
 
     def pause(self):
         self.state = PAUSED
-        change_icon_image(self.play_pause_button, 'play', _('Play audio'))
+        self.set_play_pause_button('play', _('Play audio'))
         ap = self.audio_player
         if ap.getAttribute('src'):
             ap.pause()
@@ -314,6 +371,22 @@ class ReadAudioEbook:
         self.send_message('play', pos=pos)
 
     def on_keydown(self, ev):
+        if ev.key is 'Tab' and not ev.ctrlKey and not ev.altKey and not ev.metaKey:
+            # Move between the controls, wrapping around, so that focus stays
+            # in the audio bar, which covers the book
+            ev.stopPropagation(), ev.preventDefault()
+            controls = self.controls()
+            idx = self.focused_control()
+            if idx is None:
+                idx = controls.length - 1 if ev.shiftKey else 0
+            else:
+                idx = (idx + (-1 if ev.shiftKey else 1) + controls.length) % controls.length
+            controls[idx].focus()
+            return
+        if (ev.key is 'Enter' or ev.key is ' ') and document.activeElement.tagName is 'BUTTON' and self.bar.contains(document.activeElement):
+            # Let the focused button be activated
+            ev.stopPropagation()
+            return
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Escape':
             self.hide()
