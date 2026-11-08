@@ -13,7 +13,21 @@ import weakref
 from threading import Event, Thread
 from typing import TYPE_CHECKING, cast
 
-from qt.core import QAction, QActionGroup, QCoreApplication, QDialog, QDialogButtonBox, QEventLoop, QIcon, QMenu, QObject, QTimer, QVBoxLayout, pyqtSignal
+from qt.core import (
+    QAction,
+    QActionGroup,
+    QCoreApplication,
+    QDialog,
+    QDialogButtonBox,
+    QEventLoop,
+    QIcon,
+    QMenu,
+    QObject,
+    QTimer,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import as_unicode, force_unicode, preferred_encoding, prints, sanitize_file_name
 from calibre.constants import DEBUG
@@ -139,6 +153,39 @@ class DeviceJob(BaseJob):  # {{{
         return io.BytesIO(self._details.encode('utf-8'))
 
     # }}}
+
+
+def show_device_stopped_responding_error(parent: QWidget | None, exc: BaseException | None, details: str) -> bool:
+    """
+    If the specified exception means that the device stopped responding in the
+    middle of an operation, typically because its firmware crashed, show the
+    user an error message explaining that and return True.
+    """
+    # These errors are reported by Windows when the MTP session with the device
+    # has been closed from the device end
+    if exc is None or exc.__class__.__name__ != 'WPDError':
+        return False
+    text = str(exc)
+    if 'E_WPD_DEVICE_NOT_OPEN' not in text and 'E_WPD_DEVICE_IS_HUNG' not in text:
+        return False
+    error_dialog(
+        parent,
+        _('Device stopped responding'),
+        '<p>'
+        + _(
+            'The device stopped responding while calibre was communicating with it and Windows closed the connection to it.'
+            ' This usually means that the software on the device that handles USB file transfers crashed.'
+        )
+        + '<p>'
+        + _(
+            'Try restarting the device and reconnecting it. If this keeps happening, check whether copying files'
+            ' to the device with Windows Explorer also fails. If it does, the problem is in the device firmware'
+            ' and should be reported to the device manufacturer.'
+        ),
+        det_msg=details,
+        show=True,
+    )
+    return True
 
 
 def device_name_for_plugboards(device_class):
@@ -1180,6 +1227,8 @@ class DeviceMixin:  # {{{
                 return
         except Exception:
             pass
+        if show_device_stopped_responding_error(self, getattr(job, 'exception', None), job.details):
+            return
         if getattr(job, 'exception', None).__class__.__name__ == 'MTPInvalidSendPathError':
             try:
                 from calibre.gui2.device_drivers.mtp_config import SendError

@@ -237,6 +237,13 @@ class MainWindow(QMainWindow):
                     return
             except Exception:
                 traceback.print_exc()
+            try:
+                from calibre.gui2.device import show_device_stopped_responding_error
+
+                if show_device_stopped_responding_error(self, value, fe):
+                    return
+            except Exception:
+                traceback.print_exc()
             msg = f'<b>{exc_type.__name__}</b>:' + prepare_string_for_xml(as_unicode(value))
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe, show=True)
         except BaseException:
