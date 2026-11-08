@@ -293,6 +293,7 @@ def create_colors_panel(container, apply_func, cancel_func):
                 ), '\xa0' + _('Foreground')),
             )
         )
+
     def labelled_row(title, control):
         return E.tr(E.td(E.label(title, for_=ensure_id(control, 'color-scheme-field'))), E.td(control))
 
