@@ -4,7 +4,9 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from book_list.edit_metadata import create_choice_list, current_choice, rating_edit
+from book_list.edit_metadata import (
+    choice_get_value, create_choice_list, current_choice, rating_edit, rating_get_value
+)
 from testing import assert_equal, assert_false, assert_true, test
 
 
@@ -56,6 +58,21 @@ def choice_list_without_a_matching_value_stays_reachable():
         assert_equal(checked_values(c), [])
         assert_equal(current_choice(c), None)
         assert_equal(tab_stops(c), [''])
+        # OK must leave the field unchanged rather than fail
+        assert_equal(choice_get_value('Removed value', c), [True, 'Removed value'])
+        c.querySelectorAll('li')[1].click()
+        assert_equal(choice_get_value('Removed value', c), [True, 'Fantasy'])
+    finally:
+        c.remove()
+
+    # A rating that is not offered, such as a half star rating after half
+    # stars were turned off for the column
+    c = create_choice_list('Rating', [0, 2, 4], 3, render_text)
+    try:
+        assert_equal(current_choice(c), None)
+        assert_equal(rating_get_value(3, c), [True, 3])
+        c.querySelectorAll('li')[2].click()
+        assert_equal(rating_get_value(3, c), [True, 4])
     finally:
         c.remove()
 

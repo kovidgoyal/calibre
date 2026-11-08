@@ -773,15 +773,22 @@ def show_choice_list(c, get_value, container_id, book_id, field, name, div):
     focus_choice_list(c)
 
 
-def choice_get_value(container):
-    return True, current_choice(container).getAttribute('data-rating')
+# No choice is current when the field has a value that is not one of the
+# choices, for example an enumeration value that has since been removed. The
+# getters then return unchanged_value, so that OK leaves the field as it is.
+
+
+def choice_get_value(unchanged_value, container):
+    li = current_choice(container)
+    return True, (li.getAttribute('data-rating') if li else unchanged_value)
 # }}}
 
 # Rating edit {{{
 
 
-def rating_get_value(container):
-    return True, parseInt(current_choice(container).getAttribute('data-rating'))
+def rating_get_value(unchanged_value, container):
+    li = current_choice(container)
+    return True, (parseInt(li.getAttribute('data-rating')) if li else unchanged_value)
 
 
 def rating_edit(container_id, book_id, field, fm, div, mi):
@@ -801,7 +808,7 @@ def rating_edit(container_id, book_id, field, fm, div, mi):
             li.appendChild(document.createTextNode(_('Unrated')))
 
     c = create_choice_list(name, numbers, val, render_choice)
-    show_choice_list(c, rating_get_value, container_id, book_id, field, name, div)
+    show_choice_list(c, rating_get_value.bind(None, val), container_id, book_id, field, name, div)
     value_to_json = identity
 # }}}
 
@@ -817,7 +824,7 @@ def enum_edit(container_id, book_id, field, fm, div, mi):
         li.appendChild(document.createTextNode(n or _('Blank')))
 
     c = create_choice_list(name, [''].concat(fm.display.enum_values), val, render_choice)
-    show_choice_list(c, choice_get_value, container_id, book_id, field, name, div)
+    show_choice_list(c, choice_get_value.bind(None, val), container_id, book_id, field, name, div)
     value_to_json = identity
 # }}}
 
@@ -841,7 +848,7 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
         li.appendChild(document.createTextNode(names[n]))
 
     c = create_choice_list(name, ['', 'y', 'n'], val, render_choice)
-    show_choice_list(c, choice_get_value, container_id, book_id, field, name, div)
+    show_choice_list(c, choice_get_value.bind(None, val), container_id, book_id, field, name, div)
     val_map = {'': None, 'y': True, 'n': False}
     value_to_json = def (x):
         return val_map[x]
