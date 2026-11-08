@@ -1,0 +1,82 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.prefs.selection import create_selection_panel
+from read_book.selection_bar import all_actions
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_true, test
+
+
+@test
+def selection_bar_actions_are_edited_with_named_buttons_that_keep_focus():
+    adef = all_actions()
+
+    def run(sd):
+        sd.set('selection_bar_actions', ['copy', 'lookup', 'highlight'])
+        sd.set('selection_bar_quick_highlights', [])
+        sd.set('custom_highlight_styles', [])
+        parent = E.div()
+        document.body.appendChild(parent)
+
+        def actions(which):
+            return JSON.parse(parent.querySelector(f'.{which}-actions').dataset.actions)
+
+        def button(which, op, name):
+            return parent.querySelector(f'.{which}-actions button[data-op={op}][data-action="{name}"]')
+
+        def activate(b):
+            b.focus()
+            b.click()
+
+        try:
+            create_selection_panel(parent, def (): pass;, def (): pass;)
+            up = button('current', 'up', 'lookup')
+            assert_equal(up.type, 'button')
+            assert_equal(up.textContent, 'Up')
+            assert_equal(up.getAttribute('aria-label'), f'Move {adef.lookup.text} up')
+            assert_equal(button('current', 'down', 'lookup').getAttribute('aria-label'), f'Move {adef.lookup.text} down')
+            assert_equal(button('current', 'remove', 'copy').getAttribute('aria-label'), f'Remove {adef.copy.text}')
+            available = actions('available')
+            assert_true(available.length > 0)
+            assert_equal(button('available', 'add', available[0]).getAttribute('aria-label'), f'Add {adef[available[0]].text}')
+
+            # Moving follows the action, so it can be moved again
+            activate(up)
+            assert_equal(actions('current'), ['lookup', 'copy', 'highlight'])
+            assert_equal(document.activeElement, button('current', 'up', 'lookup'))
+            activate(button('current', 'down', 'lookup'))
+            activate(button('current', 'down', 'lookup'))
+            assert_equal(actions('current'), ['copy', 'highlight', 'lookup'])
+            assert_equal(document.activeElement, button('current', 'down', 'lookup'))
+
+            # Removing keeps focus at the same position in the list, or the
+            # last one when the removed action was last
+            activate(button('current', 'remove', 'copy'))
+            assert_equal(actions('current'), ['highlight', 'lookup'])
+            assert_equal(document.activeElement, button('current', 'remove', 'highlight'))
+            activate(button('current', 'remove', 'lookup'))
+            assert_equal(actions('current'), ['highlight'])
+            assert_equal(document.activeElement, button('current', 'remove', 'highlight'))
+            # When the list becomes empty, focus follows the action
+            activate(button('current', 'remove', 'highlight'))
+            assert_equal(actions('current'), [])
+            assert_equal(document.activeElement, button('available', 'add', 'highlight'))
+
+            # Adding works the same way
+            available = actions('available')
+            activate(button('available', 'add', available[0]))
+            assert_equal(actions('current'), [available[0]])
+            assert_equal(document.activeElement, button('available', 'add', available[1]))
+
+            # A click that did not focus the button does not move focus
+            document.activeElement.blur()
+            button('current', 'remove', available[0]).click()
+            assert_equal(actions('current'), [])
+            assert_equal(document.activeElement, document.body)
+        finally:
+            parent.remove()
+
+    with_empty_session(run)

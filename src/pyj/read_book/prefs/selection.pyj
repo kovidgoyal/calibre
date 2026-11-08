@@ -6,8 +6,9 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from book_list.theme import get_color
 from complete import create_simple_input_with_history
-from dom import clear, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, svgicon, unique_id
 from read_book.globals import is_dark_theme
 from read_book.highlights import all_styles
 from read_book.prefs.utils import create_button_box
@@ -15,6 +16,17 @@ from read_book.selection_bar import all_actions
 from session import session_defaults
 
 CONTAINER = unique_id('selection-settings')
+
+
+add_extra_css(def ():
+    # Buttons that look like the links they replaced
+    sel = f'#{CONTAINER} button.simple-link'
+    ans = build_rule(sel, padding='0', border='none', background='none', font='inherit', color='inherit')
+    # They have no padding, so draw the focus ring outside the text
+    ans += build_rule(sel + ':focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='3px', border_radius='4px')
+    return ans
+)
 
 
 def set_actions(use_defaults):
@@ -56,6 +68,7 @@ def get_container():
 
 
 def transfer(name, frm, to_):
+    # Returns the index the action had in the list it left
     c = get_container().querySelector('.' + frm)
     actions = JSON.parse(c.dataset.actions)
     idx = actions.indexOf(name)
@@ -69,17 +82,39 @@ def transfer(name, frm, to_):
         actions.push(name)
     c.dataset.actions = JSON.stringify(actions)
     update_action_tables()
+    return idx
 
 
-def add_action(name):
-    transfer(name, 'available-actions', 'current-actions')
+def action_button(table_class, op, name):
+    return get_container().querySelector(f'.{table_class} button[data-op={op}][data-action="{name}"]')
 
 
-def remove_action(name):
-    transfer(name, 'current-actions', 'available-actions')
+def focus_after_transfer(frm, op, idx, to_, to_op, name):
+    # The tables are rebuilt, so put focus back. Keep it in the list the action
+    # left, at the same position, so that several actions can be moved in a
+    # row, or follow the action when that list is now empty.
+    buttons = get_container().querySelectorAll(f'.{frm} button[data-op={op}]')
+    b = buttons[min(idx, buttons.length - 1)] if buttons.length else action_button(to_, to_op, name)
+    if b:
+        b.focus()
 
 
-def move_action(name, up):
+def add_action(name, ev):
+    had_focus = document.activeElement is ev.currentTarget
+    idx = transfer(name, 'available-actions', 'current-actions')
+    if had_focus:
+        focus_after_transfer('available-actions', 'add', idx, 'current-actions', 'remove', name)
+
+
+def remove_action(name, ev):
+    had_focus = document.activeElement is ev.currentTarget
+    idx = transfer(name, 'current-actions', 'available-actions')
+    if had_focus:
+        focus_after_transfer('current-actions', 'remove', idx, 'available-actions', 'add', name)
+
+
+def move_action(name, up, ev):
+    had_focus = document.activeElement is ev.currentTarget
     c = get_container().querySelector('.current-actions')
     actions = JSON.parse(c.dataset.actions)
     idx = actions.indexOf(name)
@@ -89,6 +124,15 @@ def move_action(name, up):
     actions[new_idx], actions[idx] = a, b
     c.dataset.actions = JSON.stringify(actions)
     update_action_tables()
+    if had_focus:
+        # Follow the action, so that it can be moved again
+        action_button('current-actions', 'up' if up else 'down', name).focus()
+
+
+def action_link(text, label, op, name, action):
+    # A button that looks like a link, named after the action it changes,
+    # since the visible text alone, such as "Up", does not say which
+    return E.button(text, type='button', class_='simple-link', aria_label=label, data_op=op, data_action=name, onclick=action)
 
 
 def build_action_table(container, is_current):
@@ -100,15 +144,15 @@ def build_action_table(container, is_current):
         ac = adef[action_name]
         if is_current:
             buttons = E.td(
-                E.span(_('Remove'), class_='simple-link', onclick=remove_action.bind(None, action_name)),
+                action_link(_('Remove'), _('Remove {}').format(ac.text), 'remove', action_name, remove_action.bind(None, action_name)),
                 E.span('\xa0', style='min-width: 2rem; display: inline-block'),
-                E.span(_('Up'), class_='simple-link', onclick=move_action.bind(None, action_name, True)),
+                action_link(_('Up'), _('Move {} up').format(ac.text), 'up', action_name, move_action.bind(None, action_name, True)),
                 E.span('\xa0', style='min-width: 2rem; display: inline-block'),
-                E.span(_('Down'), class_='simple-link', onclick=move_action.bind(None, action_name, False)),
+                action_link(_('Down'), _('Move {} down').format(ac.text), 'down', action_name, move_action.bind(None, action_name, False)),
             )
         else:
             buttons = E.td(
-                E.span(_('Add'), class_='simple-link', onclick=add_action.bind(None, action_name)),
+                action_link(_('Add'), _('Add {}').format(ac.text), 'add', action_name, add_action.bind(None, action_name)),
             )
         buttons.style.paddingLeft = '2rem'
         if ac.icon_function:
