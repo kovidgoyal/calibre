@@ -176,7 +176,12 @@ def end_of_book_rating_half_stars_with_the_keyboard():
                     assert_equal(ratings, [5, 5, 1, 7, 0])
                     # Held keys, other modifiers and other keys are left alone
                     ratings.length = 0
-                    for key, kw in [['Enter', {'shiftKey': True, 'repeat': True}], ['Enter', {'shiftKey': True, 'ctrlKey': True}], ['Enter', {}], ['a', {'shiftKey': True}]]:
+                    for key, kw in [
+                        ['Enter', {'shiftKey': True, 'repeat': True}],
+                        ['Enter', {'shiftKey': True, 'ctrlKey': True}],
+                        ['Enter', {}],
+                        ['a', {'shiftKey': True}],
+                    ]:
                         ev = press(star3, key, kw)
                         assert_equal(ev.defaultPrevented, bool(kw.repeat), key)
                     assert_equal(ratings, [])
