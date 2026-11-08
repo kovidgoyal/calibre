@@ -104,3 +104,68 @@ def viewer_color_schemes_are_a_keyboard_accessible_radio_group():
             parent.remove()
 
     with_empty_session(run)
+
+
+@test
+def viewer_color_scheme_form_is_labelled_and_keeps_focus():
+    def run(sd):
+        sd.set('user_color_schemes', {'*Mine': {'name': 'Mine', 'foreground': '#111111', 'background': '#eeeeee'}})
+        sd.set('current_color_scheme', '*Mine')
+        parent = E.div()
+        document.body.appendChild(parent)
+
+        def button(text):
+            for b in parent.querySelectorAll('.calibre-push-button'):
+                if b.textContent.trim() is text:
+                    return b
+
+        def activate(text):
+            b = button(text)
+            b.focus()
+            b.click()
+
+        def label_of(name):
+            return parent.querySelector(f'input[name={name}]').labels[0].textContent
+
+        def group_label(name):
+            group = parent.querySelector(f'input[name={name}]').closest('[role=group]')
+            return document.getElementById(group.getAttribute('aria-labelledby')).textContent
+
+        try:
+            create_colors_panel(parent, def (): pass;, def (): pass;)
+            form = parent.querySelector('input[name=name]').closest('div')
+            # Each field is named, and the controls of the link and of each
+            # margin are grouped under their row title
+            assert_equal(label_of('name'), 'Name:')
+            assert_equal(label_of('bg'), 'Background:')
+            assert_equal(label_of('fg'), 'Foreground:')
+            assert_equal(parent.querySelector('input[name=link]').getAttribute('aria-label'), 'Custom link color')
+            assert_equal(group_label('link_color_type'), 'Link:')
+            assert_equal(group_label('margin_top_bg'), 'Top margin:')
+            assert_equal(group_label('margin_right_color_type'), 'Right margin:')
+
+            # Discarding returns focus to the button that opened the form
+            activate('Edit scheme')
+            assert_equal(form.style.display, 'block')
+            assert_equal(document.activeElement, parent.querySelector('input[name=name]'))
+            activate('Discard')
+            assert_equal(form.style.display, 'none')
+            assert_equal(document.activeElement, button('Edit scheme'))
+
+            # Applying moves focus to the saved scheme
+            activate('New scheme')
+            parent.querySelector('input[name=name]').value = 'Other'
+            activate('Apply')
+            assert_equal(form.style.display, 'none')
+            assert_equal(current_color_scheme(), '*Other')
+            assert_equal(document.activeElement, parent.querySelector('[role=radio][data-value="*Other"]'))
+
+            # Removing moves focus to the scheme chosen instead
+            activate('Remove scheme')
+            assert_equal(parent.querySelector('[role=radio][data-value="*Other"]'), None)
+            assert_equal(document.activeElement, parent.querySelector('[role=radio][aria-checked=true]'))
+            assert_equal(document.activeElement.dataset.value, current_color_scheme())
+        finally:
+            parent.remove()
+
+    with_empty_session(run)
