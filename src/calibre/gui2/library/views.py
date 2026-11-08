@@ -1180,8 +1180,12 @@ class BooksView(TableView):  # {{{
             self.pin_view.restore_state()
 
         self.column_header.blockSignals(True)
-        self.apply_state(old_state, max_sort_levels=max_levels)
-        self.column_header.blockSignals(False)
+        try:
+            self.apply_state(old_state, max_sort_levels=max_levels)
+        finally:
+            # Do not leave the header with its signals blocked if restoring
+            # the state fails
+            self.column_header.blockSignals(False)
 
         self.do_row_sizing()
 

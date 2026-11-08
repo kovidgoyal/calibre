@@ -15,7 +15,7 @@ from calibre.utils.config_base import prefs, tweaks
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Container, Iterable, Iterator, Mapping, Sequence
 
-    from calibre.db.cache import Cache
+    from calibre.db.cache import Cache, SortableVirtualField
     from calibre.db.lazy import ProxyMetadata
     from calibre.library.field_metadata import FieldMetadata
 
@@ -316,22 +316,22 @@ class View:
         )
 
     def _do_sort(self, ids_to_sort: Iterable[int], fields: Iterable[tuple[str, bool]] = (), subsort: bool = False) -> list[int]:
+        virtual_fields: dict[str, SortableVirtualField] = {
+            'marked': MarkedVirtualField(self.marked_ids),
+            'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids),
+        }
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
-        fields = [x for x in fields if x[0] in keys]
+        # Some fields such as series_sort are in field_metadata but cannot
+        # actually be sorted on, ignore them, they can end up in the saved sort
+        # history, for example via the sort_columns_at_startup tweak
+        fields = [x for x in fields if x[0] in keys and (x[0] in self.cache.fields or x[0] == 'id' or x[0] in virtual_fields)]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
         if not fields:
             fields = [('timestamp', False)]
 
-        return self.cache.multisort(
-            fields,
-            ids_to_sort=ids_to_sort,
-            virtual_fields={
-                'marked': MarkedVirtualField(self.marked_ids),
-                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids),
-            },
-        )
+        return self.cache.multisort(fields, ids_to_sort=ids_to_sort, virtual_fields=virtual_fields)
 
     def multisort(self, fields: Sequence[tuple[str, bool]] | None = None, subsort: bool = False, only_ids: list[int] | None = None) -> None:
         if fields is None:

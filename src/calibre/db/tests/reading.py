@@ -1342,6 +1342,16 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_unsortable_fields_in_sort_history(self) -> None:  # {{{
+        "Test that fields in field_metadata that cannot be sorted on are ignored when sorting"
+        db = self.init_legacy()
+        expected = db.data.cache.multisort([('title', True), ('id', False)])
+        for field in ('series_sort', 'au_map'):
+            db.data.multisort([(field, True), ('title', True), ('id', False)])
+            self.assertListEqual(expected, list(db.data._map), f'Sorting with {field} failed')
+
+    # }}}
+
     def test_composites(self) -> None:  # {{{
         "Test sorting and searching in composite columns"
         cache = self.init_cache()
