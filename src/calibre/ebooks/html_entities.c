@@ -39,6 +39,10 @@ encode_utf8(uint32_t ch, char *dest) {
     return 0;
 }
 
+// Numbers larger than this are clamped to it while parsing, so that they
+// cannot wrap around to a valid code point
+#define CODEPOINT_LIMIT 0x110000
+
 static uint32_t
 parse_base10_integer(const char *input, size_t sz, bool *ok) {
     uint32_t ans = 0;
@@ -51,6 +55,7 @@ parse_base10_integer(const char *input, size_t sz, bool *ok) {
         }
         uint32_t digit = ch - '0';
         ans = ans * 10 + digit;
+        if (ans > CODEPOINT_LIMIT) ans = CODEPOINT_LIMIT;
     }
     return ans;
 }
@@ -72,6 +77,7 @@ parse_base16_integer(const char *input, size_t sz, bool *ok) {
             digit = ch - '0';
         }
         ans = ans * 16 + digit;
+        if (ans > CODEPOINT_LIMIT) ans = CODEPOINT_LIMIT;
     }
     return ans;
 }
@@ -96,8 +102,13 @@ convert_entity(const char *entity, const size_t elen, char *output, bool keep_xm
         } else {
             codepoint = parse_base10_integer(entity + 1, elen - 1, &ok);
         }
-        if (!ok || (keep_xml_entities && is_xml_unsafe(codepoint))) return -1;
-        return codepoint ? encode_utf8(codepoint, output) : 0;
+        if (!ok) return -1;
+        if (!codepoint) return 0;
+        // As HTML5 does, decode surrogates and numbers beyond the last code
+        // point to U+FFFD, as they cannot be encoded in UTF-8
+        if (codepoint >= CODEPOINT_LIMIT || (0xD800 <= codepoint && codepoint <= 0xDFFF)) codepoint = 0xFFFD;
+        if (keep_xml_entities && is_xml_unsafe(codepoint)) return -1;
+        return encode_utf8(codepoint, output);
     }
     const struct html_entity *s = in_word_set(entity, elen);
     if (!s) return -1;
@@ -213,7 +224,8 @@ replace_all_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     Py_BEGIN_ALLOW_THREADS ok = replace(input, input_sz, &o, keep_xml_entities);
     Py_END_ALLOW_THREADS PyObject *retval;
     if (!ok) retval = PyErr_NoMemory();
-    else if (!o.pos) retval = Py_NewRef(args[0]);
+    // The output can be empty for non-empty input, such as &#0;
+    else if (!input_sz) retval = Py_NewRef(args[0]);
     else if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(o.data, o.pos);
     else retval = PyBytes_FromStringAndSize(o.data, o.pos);
     free(o.data);
