@@ -186,14 +186,15 @@ class EndOfBook:  # {{{
                 aria_labelledby=ensure_id(label, 'end-of-book-rating-label'),
                 aria_describedby=ensure_id(current, 'end-of-book-current-rating'),
                 style='display: flex; justify-content: center; margin: 1rem 0; font-size: 2rem')
+            # The stars are buttons that look like plain icons
+            star_style = 'position: relative; margin: 0 0.2em; padding: 0; border: none; background: none; font: inherit; color: currentColor; cursor: pointer'
             for i in range(1, 6):
                 half = svgicon('star-half')
                 half.style.position = 'absolute'
                 half.style.left = '0'
                 tooltip = ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i)
                 stars.appendChild(E.button(
-                    svgicon('star'), half, type='button', data_stars=str(i), title=tooltip, aria_label=tooltip,
-                    style='position: relative; margin: 0 0.2em; padding: 0; border: none; background: none; font: inherit; color: currentColor; cursor: pointer',
+                    svgicon('star'), half, type='button', data_stars=str(i), title=tooltip, aria_label=tooltip, style=star_style,
                     onclick=self.star_clicked.bind(None, i)))
             rating_area.appendChild(label)
             rating_area.appendChild(stars)
