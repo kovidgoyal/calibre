@@ -9,7 +9,7 @@ from book_list.constants import book_list_container_id, cs_top_bar_host_id
 from book_list.router import back
 from book_list.router import home
 from book_list.theme import get_color, get_font_size
-from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css, button_space_key_event
+from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css, make_link_a_button
 from session import get_interface_data
 from utils import parse_url_params
 
@@ -93,17 +93,8 @@ def bar_icon(name):
     return ans
 
 
-def make_button(elem):
-    # Make elem, an <a>, reachable with Tab and usable like a push button
-    elem.setAttribute('href', 'javascript: void(0)')
-    elem.setAttribute('role', 'button')
-    for name in ('keydown', 'keyup', 'blur'):
-        elem.addEventListener(name, button_space_key_event)
-    return elem
-
-
 def icon_button(tooltip, icon_name, style):
-    return make_button(E.a(title=tooltip, aria_label=tooltip, style=style or '', bar_icon(icon_name)))
+    return make_link_a_button(E.a(title=tooltip, aria_label=tooltip, style=style or '', bar_icon(icon_name)))
 
 
 def create_markup(container):
@@ -218,7 +209,7 @@ def set_left_data(
         title_el = E(title_elem, title, title=title_tooltip, class_='top-bar-title',
             style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING))
         if title_elem is 'a':
-            make_button(title_el)
+            make_link_a_button(title_el)
         left.appendChild(title_el)
         if i is 0:
             a = left.firstChild

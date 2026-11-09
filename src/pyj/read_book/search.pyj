@@ -418,9 +418,10 @@ Regex: Interpret the entered text as a regular expression'''),
             event.stopPropagation(), event.preventDefault()
 
     def onkeydown(self, event):
-        if (event.key is 'Enter' or event.key is ' ') and event.target.closest('.book-search-button') and not (
+        if (event.key is 'Enter' or event.key is ' ') and event.target.closest('.book-search-button, [role=button]') and not (
                 event.ctrlKey or event.altKey or event.metaKey or event.shiftKey):
-            # Native activation takes precedence over the next/previous match shortcuts
+            # Activating a button, such as a result, Close in the top bar or
+            # Search, takes precedence over the next/previous match shortcuts
             event.stopPropagation()
             return
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)

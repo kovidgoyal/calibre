@@ -252,6 +252,16 @@ def button_space_key_event(ev):
     return True
 
 
+def make_link_a_button(a):
+    # Make a, an <a>, reachable with Tab and usable like a push button. A link
+    # is activated by Enter but not by Space, unlike the button it says it is.
+    a.setAttribute('href', 'javascript: void(0)')
+    a.setAttribute('role', 'button')
+    for name in ('keydown', 'keyup', 'blur'):
+        a.addEventListener(name, button_space_key_event)
+    return a
+
+
 def get_widget_css():
     ans = []
     for func in extra_css:

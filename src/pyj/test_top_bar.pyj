@@ -27,11 +27,12 @@ def top_bar_icons_are_named_buttons_that_work_with_the_keyboard():
     container = E.div()
     document.body.appendChild(container)
     calls = []
-    try:
-        def record(name):
-            return def ():
-                calls.push(name)
 
+    def record(name):
+        return def ():
+            calls.push(name)
+
+    try:
         create_top_bar(container, title='Some book', icon='close', action=record('close'), title_action=record('title'))
         add_button(container, 'plus', record('plus'), 'Add books')
         left, right = container.querySelector('.main-top-bar-left'), container.querySelector('.main-top-bar-right')

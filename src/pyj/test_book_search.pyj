@@ -157,6 +157,25 @@ def book_search_buttons_keep_native_activation_and_find_shortcuts():
     with_search_overlay(run)
 
 
+@test
+def book_search_enter_activates_the_close_and_search_buttons():
+    def run(overlay, calls):
+        overlay.result_received(search_result(1))
+        close = overlay.container.querySelector('.main-top-bar [role=button]')
+        assert_equal(close.getAttribute('aria-label'), _('Close'))
+        search = overlay.container.querySelector('.calibre-push-button[role=button]')
+        for control in [close, search]:
+            assert_false(keydown(control, 'Enter').defaultPrevented)
+        # Enter did not find the next match, so the link's native activation
+        # is left to happen
+        assert_equal(calls.selected, [])
+        assert_true(overlay.is_visible)
+        close.click()
+        assert_false(overlay.is_visible)
+
+    with_search_overlay(run)
+
+
 def mouse_click(target):
     target.dispatchEvent(new window.MouseEvent('click', {'bubbles': True, 'cancelable': True, 'detail': 1}))
 
