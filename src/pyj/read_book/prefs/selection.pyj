@@ -8,7 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from complete import create_simple_input_with_history
-from dom import add_extra_css, build_rule, clear, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, create_live_region, set_live_region_text, svgicon, unique_id
 from read_book.globals import is_dark_theme
 from read_book.highlights import all_styles
 from read_book.prefs.utils import create_button_box
@@ -127,6 +127,13 @@ def move_action(name, up, ev):
     if had_focus:
         # Follow the action, so that it can be moved again
         action_button('current-actions', 'up' if up else 'down', name).focus()
+    # Focus stays on the same button, so say where the action is now. Clear
+    # first so that the same position is announced again, for example after
+    # moving an action back and forth. A burst of moves announces only the last.
+    status = get_container().querySelector('.actions-status')
+    set_live_region_text(status, '')
+    set_live_region_text(status, _('{0} moved to position {1} of {2}').format(
+        all_actions()[name].text, new_idx + 1, actions.length), True)
 
 
 def action_link(text, label, op, name, action):
@@ -238,6 +245,9 @@ def create_selection_panel(container, apply_func, cancel_func):
         E.h3(_('Available actions')),
         E.div(class_='available-actions')
     ))
+    status = create_live_region()
+    status.classList.add('actions-status')
+    container.appendChild(status)
     container.appendChild(E.div(style='padding: 1ex; border-bottom: solid 1px; margin-bottom: 1ex',
         E.h3(_('Quick highlight actions')),
         E.div(_('Choose highlight styles that will have dedicated buttons in the selection bar to create highlights with a single click')),

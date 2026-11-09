@@ -7,7 +7,7 @@ from elementmaker import E
 from read_book.prefs.selection import create_selection_panel
 from read_book.selection_bar import all_actions
 from test_book_list_helpers import with_empty_session
-from testing import assert_equal, assert_true, test
+from testing import assert_equal, assert_false, assert_true, test
 
 
 @test
@@ -77,6 +77,59 @@ def selection_bar_actions_are_edited_with_named_buttons_that_keep_focus():
             assert_equal(actions('current'), [])
             assert_equal(document.activeElement, document.body)
         finally:
+            parent.remove()
+
+    with_empty_session(run)
+
+
+@test
+def selection_bar_action_moves_announce_the_new_position():
+    adef = all_actions()
+
+    def run(sd):
+        sd.set('selection_bar_actions', ['copy', 'lookup', 'highlight'])
+        sd.set('selection_bar_quick_highlights', [])
+        sd.set('custom_highlight_styles', [])
+        parent = E.div()
+        document.body.appendChild(parent)
+        timers = []
+        previous = window.setTimeout
+        window.setTimeout = def (callback):
+            timers.push(callback)
+
+        def flush():
+            while timers.length:
+                timers.shift()()
+
+        def move(op, name):
+            b = parent.querySelector(f'.current-actions button[data-op={op}][data-action="{name}"]')
+            b.focus()
+            b.click()
+
+        try:
+            create_selection_panel(parent, def (): pass;, def (): pass;)
+            status = parent.querySelector('.actions-status')
+            assert_equal(status.getAttribute('role'), 'status')
+            # The status is outside the tables that are rebuilt, so it persists
+            assert_false(status.closest('.current-actions'))
+            move('down', 'copy')
+            flush()
+            assert_equal(status.textContent, f'{adef.copy.text} moved to position 2 of 3')
+            # Moving the first action up swaps it with the last, which the
+            # position makes clear
+            move('up', 'lookup')
+            flush()
+            assert_equal(status.textContent, f'{adef.lookup.text} moved to position 3 of 3')
+            # Only the last of a burst of moves is announced, and it is
+            # announced even when it is where the action was before the burst
+            move('up', 'lookup')
+            move('down', 'lookup')
+            assert_equal(timers.length, 2)
+            assert_equal(status.textContent, '')
+            flush()
+            assert_equal(status.textContent, f'{adef.lookup.text} moved to position 3 of 3')
+        finally:
+            window.setTimeout = previous
             parent.remove()
 
     with_empty_session(run)
