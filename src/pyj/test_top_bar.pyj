@@ -1,0 +1,73 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from book_list.top_bar import add_button, create_top_bar
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def key(elem, kind, key):
+    ev = new window.KeyboardEvent(kind, {'key': key, 'bubbles': True, 'cancelable': True})
+    elem.dispatchEvent(ev)
+    return ev
+
+
+def is_button(elem, name):
+    assert_equal(elem.getAttribute('role'), 'button')
+    assert_true(elem.hasAttribute('href'))
+    if name:
+        assert_equal(elem.getAttribute('aria-label'), name)
+    assert_equal(elem.querySelector('svg').getAttribute('aria-hidden'), 'true')
+
+
+@test
+def top_bar_icons_are_named_buttons_that_work_with_the_keyboard():
+    container = E.div()
+    document.body.appendChild(container)
+    calls = []
+    try:
+        def record(name):
+            return def ():
+                calls.push(name)
+
+        create_top_bar(container, title='Some book', icon='close', action=record('close'), title_action=record('title'))
+        add_button(container, 'plus', record('plus'), 'Add books')
+        left, right = container.querySelector('.main-top-bar-left'), container.querySelector('.main-top-bar-right')
+
+        close = left.firstChild
+        is_button(close, 'Close')
+        plus = right.firstChild
+        is_button(plus, 'Add books')
+        title = left.querySelector('.top-bar-title')
+        assert_equal(title.getAttribute('role'), 'button')
+        assert_true(title.hasAttribute('href'))
+        assert_false(title.hasAttribute('aria-label'))
+
+        # Enter activates links natively; Space activates on release, like a
+        # native button
+        close.click()
+        assert_equal(calls, ['close'])
+        for elem in (plus, title):
+            assert_true(key(elem, 'keydown', ' ').defaultPrevented)
+            key(elem, 'keyup', ' ')
+        assert_equal(calls, ['close', 'plus', 'title'])
+    finally:
+        container.remove()
+
+
+@test
+def top_bar_donate_link_is_named_and_title_without_action_is_not_a_button():
+    container = E.div()
+    document.body.appendChild(container)
+    try:
+        create_top_bar(container, title='calibre')
+        heart = container.querySelector('.main-top-bar-left').firstChild
+        assert_equal(heart.getAttribute('aria-label'), 'Donate to support calibre development')
+        assert_false(heart.hasAttribute('role'))
+        title = container.querySelector('.top-bar-title')
+        assert_equal(title.tagName.toLowerCase(), 'span')
+        assert_false(title.hasAttribute('role'))
+    finally:
+        container.remove()

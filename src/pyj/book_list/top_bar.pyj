@@ -9,7 +9,7 @@ from book_list.constants import book_list_container_id, cs_top_bar_host_id
 from book_list.router import back
 from book_list.router import home
 from book_list.theme import get_color, get_font_size
-from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
+from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css, button_space_key_event
 from session import get_interface_data
 from utils import parse_url_params
 
@@ -55,6 +55,7 @@ add_extra_css(def ():
     style += build_rule(sel + 'a:hover', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'a:active', background_color='var(--calibre-color-primary-light-2)')
     style += build_rule(sel + 'a:focus', outline='none')
+    style += build_rule(sel + 'a:focus-visible', box_shadow='var(--calibre-focus-ring)')
     style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
     style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
     # Left/right slots: single row; title ellipsis handles narrow width.
@@ -84,6 +85,25 @@ def top_bar_target_container(container):
     if bl and host and bl.contains(container):
         return host
     return container
+
+
+def bar_icon(name):
+    ans = svgicon(name)
+    ans.setAttribute('aria-hidden', 'true')
+    return ans
+
+
+def make_button(elem):
+    # Make elem, an <a>, reachable with Tab and usable like a push button
+    elem.setAttribute('href', 'javascript: void(0)')
+    elem.setAttribute('role', 'button')
+    for name in ('keydown', 'keyup', 'blur'):
+        elem.addEventListener(name, button_space_key_event)
+    return elem
+
+
+def icon_button(tooltip, icon_name, style):
+    return make_button(E.a(title=tooltip, aria_label=tooltip, style=style or '', bar_icon(icon_name)))
 
 
 def create_markup(container):
@@ -188,15 +208,18 @@ def set_left_data(
         # Keep the special donate heart behavior intact.
         # Use a plain close button when icon='close' (e.g. viewer overlay panels).
         if icon is 'heart':
-            left.appendChild(E.a(title=tooltip, svgicon(icon)))
+            left.appendChild(E.a(title=tooltip, aria_label=tooltip, bar_icon(icon)))
         elif icon is 'close':
-            left.appendChild(E.a(title=tooltip or _('Close'), svgicon('close')))
+            left.appendChild(icon_button(tooltip or _('Close'), 'close'))
         else:
             if not is_home:
-                left.appendChild(E.a(title=_('Back'), svgicon('arrow-left')))
-            left.appendChild(E.a(title=_('Go to the home page'), svgicon('home')))
-        left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
-            style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
+                left.appendChild(icon_button(_('Back'), 'arrow-left'))
+            left.appendChild(icon_button(_('Go to the home page'), 'home'))
+        title_el = E(title_elem, title, title=title_tooltip, class_='top-bar-title',
+            style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING))
+        if title_elem is 'a':
+            make_button(title_el)
+        left.appendChild(title_el)
         if i is 0:
             a = left.firstChild
             if icon is 'heart':
@@ -267,10 +290,7 @@ def add_button(container, icon, action=None, tooltip=''):
     bars = get_bars(container)
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
-        right.appendChild(E.a(
-            style='margin-left: ' + SPACING,
-            title=tooltip, svgicon(icon),
-        ))
+        right.appendChild(icon_button(tooltip, icon, 'margin-left: ' + SPACING))
         right.lastChild.dataset.buttonIcon = icon
         if i is 0:
             if action is not None:

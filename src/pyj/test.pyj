@@ -27,6 +27,7 @@ import test_read_aloud  # noqa: unused-import
 import test_saved_virtual_libraries  # noqa: unused-import
 import test_sidebar  # noqa: unused-import
 import test_theme  # noqa: unused-import
+import test_top_bar  # noqa: unused-import
 import test_tree  # noqa: unused-import
 import test_utils  # noqa: unused-import
 import test_viewer_appearance  # noqa: unused-import
