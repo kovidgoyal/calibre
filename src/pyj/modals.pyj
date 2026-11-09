@@ -8,7 +8,7 @@ from gettext import gettext as _
 from ajax import ajax, ajax_send
 from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
-from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
 from widgets import create_button
@@ -137,7 +137,11 @@ class ModalContainer:
         div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
                 E.div(class_='modal_height_container'),  # content area
-                E.a(svgicon('close'), title=_('Close'), onclick=self.close_current_modal.bind(self))
+                E.a(svgicon('close'), title=_('Close'), aria_label=_('Close'), href='javascript: void(0)', role='button',
+                    onclick=self.close_current_modal.bind(self)),
+                # The popup is a dialog, named by its title, that gets focus
+                # when shown, so that screen readers announce it
+                role='dialog', aria_modal='true', tabindex='-1', style='outline: none',
             )
         )
         div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
@@ -197,8 +201,62 @@ class ModalContainer:
         self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
-        window.setTimeout(def (): self.modal_container.focus();, 0)
+        window.setTimeout(def ():
+            # Leave focus alone if the dialog has already moved it to one of
+            # its controls
+            if not self.dialog.contains(document.activeElement):
+                self.dialog.focus()
+        , 0)
         return modal_id
+
+    @property
+    def dialog(self):
+        return self.container.firstChild
+
+    def label_dialog(self):
+        # Name the dialog by its title and describe it by its message, if any
+        content = self.dialog.firstChild
+
+        def refer_to(attr, q, prefix):
+            if q:
+                self.dialog.setAttribute(attr, ensure_id(q, prefix))
+            else:
+                self.dialog.removeAttribute(attr)
+
+        refer_to('aria-labelledby', content.querySelector('h1, h2, h3, [data-dialog-title]'), 'modal-title')
+        refer_to('aria-describedby', content.querySelector('[data-dialog-description]'), 'modal-description')
+
+    def focusable_elements(self):
+        ans = []
+        for el in self.dialog.querySelectorAll('a[href], button, input, select, textarea, iframe, [tabindex]'):
+            if el is self.dialog or el.disabled or el.getAttribute('tabindex') is '-1' or el.type is 'hidden':
+                continue
+            # Skip controls that are not shown, such as collapsed details
+            # or the close button of dialogs that cannot be closed
+            if not el.getClientRects().length or window.getComputedStyle(el).visibility is 'hidden':
+                continue
+            ans.push(el)
+        return ans
+
+    def keep_tab_in_dialog(self, event):
+        # Tab and Shift+Tab wrap around within the dialog instead of moving
+        # focus to the page behind it
+        els = self.focusable_elements()
+        active = document.activeElement
+        inside = self.dialog.contains(active) and active is not self.dialog
+        target = None
+        if not els.length:
+            target = self.dialog
+        else:
+            first, last = els[0], els[els.length - 1]
+            if event.shiftKey:
+                if not inside or active is first:
+                    target = last
+            elif (not inside and active is not self.dialog) or active is last:
+                target = first
+        if target:
+            event.preventDefault(), event.stopPropagation()
+            target.focus()
 
     def hide_modal(self, modal_id):
         if self.current_modal is not None and self.current_modal.id is modal_id:
@@ -221,6 +279,7 @@ class ModalContainer:
             except:
                 self.current_modal = None
                 raise
+            self.label_dialog()
             if c.style.display is 'none':
                 c.style.display = 'flex'
             c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
@@ -254,6 +313,10 @@ class ModalContainer:
             self.close_current_modal()
 
     def onkeydown(self, event):
+        if event.key is 'Tab' and not event.altKey and not event.ctrlKey and not event.metaKey:
+            if self.current_modal is not None:
+                self.keep_tab_in_dialog(event)
+            return
         if self.current_modal is not None and self.current_modal.onkeydown:
             return self.current_modal.onkeydown(event, self.clear_current_modal.bind(self))
         if (event.key is 'Escape' or event.key is 'Esc') and not event.altKey and not event.ctrlKey and not event.metaKey and not event.shiftKey:
@@ -264,10 +327,16 @@ class ModalContainer:
 def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, parent):
     details = details or ''
     icon_color = icon_color or get_color('window-error-foreground')
-    show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
-    show_details.addEventListener('click', def ():
+    show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'),
+                       href='javascript: void(0)', role='button')
+    show_details.addEventListener('click', def (ev):
+        ev.preventDefault()
         show_details.style.display = 'none'
-        show_details.nextSibling.style.display = 'block'
+        details_div = show_details.nextSibling
+        details_div.style.display = 'block'
+        # The link is hidden once clicked, so move focus to the details,
+        # rather than losing it, so that they are read out
+        details_div.focus()
     )
     is_html_msg = /<[a-zA-Z]/.test(msg)
     html_container = E.div()
@@ -289,13 +358,13 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
             style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word',
         ),
         E.div(
-            (html_container if is_html_msg else msg),
+            (html_container if is_html_msg else msg), data_dialog_description='1',
             class_=SEPARATOR_CLASS, style='min-width:0; overflow-wrap:anywhere; word-break:break-word',
         ),
         E.div(
             style='display: ' + ('block' if details else 'none'),
             show_details,
-            E.div(details_container, class_=SEPARATOR_CLASS, style='display:none; white-space:pre-wrap; font-size: smaller'),
+            E.div(details_container, class_=SEPARATOR_CLASS, tabindex='-1', style='display:none; white-space:pre-wrap; font-size: smaller; outline: none'),
         ),
     ))
 
@@ -384,6 +453,9 @@ def question_dialog(
             event.preventDefault(), event.stopPropagation()
             keyaction(False, close_modal)
         if event.key is 'Enter' or event.key is 'Return' or event.key is 'Space':
+            if event.target and event.target.closest and event.target.closest('a[href], button, [role=button]'):
+                # Let the focused button, which can be No, handle it
+                return
             event.preventDefault(), event.stopPropagation()
             keyaction(True, close_modal)
 
@@ -403,7 +475,7 @@ def question_dialog(
     create_custom_dialog(
         title, def (parent, close_modal):
             parent.appendChild(E.div(
-                E.div(msg),
+                E.div(msg, data_dialog_description='1'),
                 skip_box,
                 E.div(class_='button-box',
                     create_button(no_text, 'close', keyaction.bind(None, False, close_modal)),
@@ -418,7 +490,8 @@ def question_dialog(
 
 def create_progress_dialog(msg, on_close):
     msg = msg or _('Loading, please wait...')
-    pbar, msg_div = E.progress(style='display:inline-block'), E.div(msg, style='text-align:center; padding-top:1ex')
+    msg_div = E.div(msg, style='text-align:center; padding-top:1ex', data_dialog_title='1')
+    pbar = E.progress(style='display:inline-block', aria_labelledby=ensure_id(msg_div, 'progress-dialog-msg'))
 
     def create_func(parent):
         parent.appendChild(E.div(style='text-align: center; max-width:100%; min-width:0; box-sizing:border-box', pbar, msg_div))

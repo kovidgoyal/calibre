@@ -1,0 +1,97 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from modals import close_all_modals, create_modal_container, error_dialog, progress_dialog, question_dialog
+from testing import assert_equal, assert_false, assert_true, test
+
+
+def press(elem, key, kw):
+    ev = new window.KeyboardEvent('keydown', Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+    elem.dispatchEvent(ev)
+    return ev
+
+
+def labelled_text(elem, attr):
+    return document.getElementById(elem.getAttribute(attr)).textContent
+
+
+@test
+def dialogs_are_named_and_their_controls_are_buttons():
+    mc = create_modal_container()
+    dialog = mc.dialog
+    try:
+        error_dialog('Could not save', 'The disk is full', 'Traceback: details')
+        assert_equal(dialog.getAttribute('role'), 'dialog')
+        assert_equal(dialog.getAttribute('aria-modal'), 'true')
+        assert_true('Could not save' in labelled_text(dialog, 'aria-labelledby'))
+        assert_equal(labelled_text(dialog, 'aria-describedby'), 'The disk is full')
+
+        close = dialog.lastChild
+        assert_equal(close.getAttribute('role'), 'button')
+        assert_equal(close.getAttribute('aria-label'), 'Close')
+        assert_true(close.hasAttribute('href'))
+
+        # Show details can be reached with the keyboard, and moves focus to
+        # the details it reveals, since it is then hidden
+        show_details = [a for a in dialog.querySelectorAll('a.blue-link') if a.textContent is 'Show details'][0]
+        assert_equal(show_details.getAttribute('role'), 'button')
+        assert_true(show_details.hasAttribute('href'))
+        show_details.click()
+        assert_equal(show_details.style.display, 'none')
+        assert_equal(document.activeElement, show_details.nextSibling)
+        assert_true('Traceback: details' in document.activeElement.textContent)
+        close_all_modals()
+
+        # A progress dialog is named by its message, which also labels its bar
+        pd = progress_dialog('Loading books')
+        assert_equal(labelled_text(dialog, 'aria-labelledby'), 'Loading books')
+        assert_false(dialog.hasAttribute('aria-describedby'))
+        assert_equal(labelled_text(dialog.querySelector('progress'), 'aria-labelledby'), 'Loading books')
+        pd.close()
+    finally:
+        close_all_modals()
+
+
+@test
+def tab_stays_in_dialogs_and_enter_activates_the_focused_button():
+    mc = create_modal_container()
+    dialog = mc.dialog
+    outside = E.button('outside')
+    document.body.appendChild(outside)
+    answers = []
+    try:
+        question_dialog('Delete book', 'Really delete?', def (yes): answers.push(yes);)
+        no, yes = dialog.querySelectorAll('.button-box a')
+        close = dialog.lastChild
+        assert_equal(mc.focusable_elements(), [no, yes, close])
+
+        # Tab past the last control wraps to the first, and back
+        close.focus()
+        assert_true(press(close, 'Tab').defaultPrevented)
+        assert_equal(document.activeElement, no)
+        assert_true(press(no, 'Tab', {'shiftKey': True}).defaultPrevented)
+        assert_equal(document.activeElement, close)
+        # Tab within the dialog is left to the browser
+        no.focus()
+        assert_false(press(no, 'Tab').defaultPrevented)
+        # Shift+Tab from the dialog itself goes to its last control
+        dialog.focus()
+        assert_true(press(dialog, 'Tab', {'shiftKey': True}).defaultPrevented)
+        assert_equal(document.activeElement, close)
+        # Focus that escaped the dialog is brought back into it
+        outside.focus()
+        assert_true(press(mc.container, 'Tab').defaultPrevented)
+        assert_equal(document.activeElement, no)
+
+        # Enter on the No button is left to it, rather than answering Yes
+        assert_false(press(no, 'Enter').defaultPrevented)
+        assert_equal(answers, [])
+        # Elsewhere in the dialog, Enter still answers Yes
+        assert_true(press(dialog, 'Enter').defaultPrevented)
+        assert_equal(answers, [True])
+    finally:
+        close_all_modals()
+        outside.remove()
