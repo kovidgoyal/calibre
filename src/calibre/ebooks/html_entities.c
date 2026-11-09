@@ -87,6 +87,27 @@ is_xml_unsafe(uint32_t codepoint) {
     return codepoint == '<' || codepoint == '>' || codepoint == '&' || codepoint == '"' || codepoint == '\'';
 }
 
+// Map the value of a numeric character reference to the code point it decodes
+// to, as specified by the HTML5 numeric character reference end state:
+// https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
+static uint32_t
+html5_numeric_entity_codepoint(uint32_t codepoint) {
+    // NUL, surrogates and numbers beyond the last code point decode to U+FFFD
+    if (!codepoint || codepoint >= CODEPOINT_LIMIT || (0xD800 <= codepoint && codepoint <= 0xDFFF)) return 0xFFFD;
+    // C1 controls are decoded as windows-1252, except for the five bytes that
+    // are undefined in windows-1252, which are left unchanged
+    if (0x80 <= codepoint && codepoint <= 0x9F) {
+        static const uint16_t windows_1252[32] = {
+            0x20AC, 0x0081, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, // 80-87
+            0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008D, 0x017D, 0x008F, // 88-8F
+            0x0090, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, // 90-97
+            0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x009D, 0x017E, 0x0178, // 98-9F
+        };
+        return windows_1252[codepoint - 0x80];
+    }
+    return codepoint;
+}
+
 // Largest number of bytes convert_entity() can write: four for a numeric
 // entity, or the UTF-8 length of the longest named entity value.
 #define MAX_ENTITY_OUTPUT 32
@@ -103,10 +124,7 @@ convert_entity(const char *entity, const size_t elen, char *output, bool keep_xm
             codepoint = parse_base10_integer(entity + 1, elen - 1, &ok);
         }
         if (!ok) return -1;
-        if (!codepoint) return 0;
-        // As HTML5 does, decode surrogates and numbers beyond the last code
-        // point to U+FFFD, as they cannot be encoded in UTF-8
-        if (codepoint >= CODEPOINT_LIMIT || (0xD800 <= codepoint && codepoint <= 0xDFFF)) codepoint = 0xFFFD;
+        codepoint = html5_numeric_entity_codepoint(codepoint);
         if (keep_xml_entities && is_xml_unsafe(codepoint)) return -1;
         return encode_utf8(codepoint, output);
     }
@@ -224,7 +242,6 @@ replace_all_entities(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     Py_BEGIN_ALLOW_THREADS ok = replace(input, input_sz, &o, keep_xml_entities);
     Py_END_ALLOW_THREADS PyObject *retval;
     if (!ok) retval = PyErr_NoMemory();
-    // The output can be empty for non-empty input, such as &#0;
     else if (!input_sz) retval = Py_NewRef(args[0]);
     else if (PyUnicode_Check(args[0])) retval = PyUnicode_FromStringAndSize(o.data, o.pos);
     else retval = PyBytes_FromStringAndSize(o.data, o.pos);
