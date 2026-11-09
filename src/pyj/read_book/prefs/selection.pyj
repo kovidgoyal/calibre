@@ -99,11 +99,23 @@ def focus_after_transfer(frm, op, idx, to_, to_op, name):
         b.focus()
 
 
+def announce(msg):
+    # Clear first so that a message is announced again even when it is the
+    # same as the previous one. A burst of changes announces only the last.
+    status = get_container().querySelector('.actions-status')
+    set_live_region_text(status, '')
+    set_live_region_text(status, msg, True)
+
+
 def add_action(name, ev):
     had_focus = document.activeElement is ev.currentTarget
     idx = transfer(name, 'available-actions', 'current-actions')
     if had_focus:
         focus_after_transfer('available-actions', 'add', idx, 'current-actions', 'remove', name)
+    # Focus stays in the available actions, so say where the action went,
+    # added actions go first
+    count = JSON.parse(get_container().querySelector('.current-actions').dataset.actions).length
+    announce(_('{0} added to the current actions at position 1 of {1}').format(all_actions()[name].text, count))
 
 
 def remove_action(name, ev):
@@ -111,6 +123,7 @@ def remove_action(name, ev):
     idx = transfer(name, 'current-actions', 'available-actions')
     if had_focus:
         focus_after_transfer('current-actions', 'remove', idx, 'available-actions', 'add', name)
+    announce(_('{} removed from the current actions').format(all_actions()[name].text))
 
 
 def move_action(name, up, ev):
@@ -127,13 +140,8 @@ def move_action(name, up, ev):
     if had_focus:
         # Follow the action, so that it can be moved again
         action_button('current-actions', 'up' if up else 'down', name).focus()
-    # Focus stays on the same button, so say where the action is now. Clear
-    # first so that the same position is announced again, for example after
-    # moving an action back and forth. A burst of moves announces only the last.
-    status = get_container().querySelector('.actions-status')
-    set_live_region_text(status, '')
-    set_live_region_text(status, _('{0} moved to position {1} of {2}').format(
-        all_actions()[name].text, new_idx + 1, actions.length), True)
+    # Focus stays on the same button, so say where the action is now
+    announce(_('{0} moved to position {1} of {2}').format(all_actions()[name].text, new_idx + 1, actions.length))
 
 
 def action_link(text, label, op, name, action):
