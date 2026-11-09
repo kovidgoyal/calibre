@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
-from dom import clear, svgicon, unique_id
+from dom import clear, cycle_focus, index_of_focused, svgicon, unique_id
 from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
 from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
@@ -167,8 +167,7 @@ class ReadAloud:
         return self.bar.querySelectorAll('button')
 
     def focused_control(self):
-        ans = Array.prototype.indexOf.call(self.controls(), document.activeElement)
-        return None if ans < 0 else ans
+        return index_of_focused(self.controls())
 
     def build_bar_contents(self, bar_container, iclass, bp):
         if iclass is not 'floating':
@@ -249,14 +248,7 @@ class ReadAloud:
             # Move between the controls, wrapping around, so that focus stays
             # in Read aloud, which covers the book
             ev.stopPropagation(), ev.preventDefault()
-            controls = self.controls()
-            if controls.length:
-                idx = self.focused_control()
-                if idx is None:
-                    idx = controls.length - 1 if ev.shiftKey else 0
-                else:
-                    idx = (idx + (-1 if ev.shiftKey else 1) + controls.length) % controls.length
-                controls[idx].focus()
+            cycle_focus(self.controls(), ev.shiftKey)
             return
         if (ev.key is 'Enter' or ev.key is ' ') and self.focused_control() is not None:
             # Let the focused control be activated as a button

@@ -209,6 +209,25 @@ def set_live_region_text(region, msg, delayed, still_wanted):
     , 100)
 
 
+def index_of_focused(elements):
+    # The index of the element that has focus among elements, or None
+    ans = Array.prototype.indexOf.call(elements, document.activeElement)
+    return None if ans < 0 else ans
+
+
+def cycle_focus(elements, backwards):
+    # Move focus to the next, or previous, of elements, wrapping around. When
+    # none of them has focus, focus the first, or the last when going backwards.
+    if not elements.length:
+        return
+    idx = index_of_focused(elements)
+    if idx is None:
+        idx = elements.length - 1 if backwards else 0
+    else:
+        idx = (idx + (-1 if backwards else 1) + elements.length) % elements.length
+    elements[idx].focus()
+
+
 def button_space_key_event(ev):
     # Listen to keydown, keyup and blur with this, so that Space activates
     # an element that acts as a button the way it does a native button: on

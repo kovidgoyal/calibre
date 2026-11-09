@@ -14,7 +14,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.theme import get_color
-from dom import change_icon_image, svgicon
+from dom import change_icon_image, cycle_focus, svgicon
 from modals import error_dialog
 from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
@@ -179,10 +179,6 @@ class ReadAudioEbook:
 
     def controls(self):
         return self.bar.querySelectorAll('button, [role=slider]')
-
-    def focused_control(self):
-        ans = Array.prototype.indexOf.call(self.controls(), document.activeElement)
-        return None if ans < 0 else ans
 
     @property
     def bar(self):
@@ -375,13 +371,7 @@ class ReadAudioEbook:
             # Move between the controls, wrapping around, so that focus stays
             # in the audio bar, which covers the book
             ev.stopPropagation(), ev.preventDefault()
-            controls = self.controls()
-            idx = self.focused_control()
-            if idx is None:
-                idx = controls.length - 1 if ev.shiftKey else 0
-            else:
-                idx = (idx + (-1 if ev.shiftKey else 1) + controls.length) % controls.length
-            controls[idx].focus()
+            cycle_focus(self.controls(), ev.shiftKey)
             return
         if (ev.key is 'Enter' or ev.key is ' ') and document.activeElement.tagName is 'BUTTON' and self.bar.contains(document.activeElement):
             # Let the focused button be activated
