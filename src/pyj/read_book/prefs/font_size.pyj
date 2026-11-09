@@ -17,8 +17,11 @@ MIN_FONT_SIZE = 8
 MAX_FONT_SIZE = 80
 
 add_extra_css(def ():
-    style = rule(CONTAINER, 'option.current', background_color='var(--calibre-color-primary-light)')
-    style += rule(CONTAINER, 'option:hover', background_color='var(--calibre-color-primary-light)')
+    style = rule(CONTAINER, 'button.quick-size',
+        padding='5px', margin='0 0.5rem', border='none', border_radius='4px', background='none',
+        color='inherit', font_family='inherit', line_height='inherit', cursor='pointer')
+    style += rule(CONTAINER, 'button.quick-size[aria-pressed=true]', background_color='var(--calibre-color-primary-light)')
+    style += rule(CONTAINER, 'button.quick-size:hover', background_color='var(--calibre-color-primary-light)')
     return style
 )
 
@@ -65,13 +68,10 @@ def display_changed_font_size(sz):
     sz += ''
     c = document.getElementById(CONTAINER)
     c.dataset.cfs = sz
-    for option in c.querySelectorAll('option'):
-        if option.value is sz:
-            option.classList.add('current')
-        else:
-            option.classList.remove('current')
-    for input in c.querySelectorAll('input'):
-        input.value = sz
+    for b in c.querySelectorAll('button.quick-size'):
+        b.setAttribute('aria-pressed', 'true' if b.value is sz else 'false')
+    for inp in c.querySelectorAll('input'):
+        inp.value = sz
     c.querySelector('.cfs_preview').style.fontSize = f'{sz}px'
 
 
@@ -88,16 +88,18 @@ def create_font_size_panel(container, close):
     container = container.lastChild.lastChild
     container.style.backgroundColor = get_color('window-background')
     container.dataset.cfs = cfs + ''
-    quick = E.datalist(style='display:flex; justify-content:space-around; flex-wrap: wrap; align-items: baseline;')
+    quick = E.div(
+        role='group', aria_label=_('Quick font sizes'),
+        style='display:flex; justify-content:space-around; flex-wrap: wrap; align-items: baseline;')
     container.appendChild(quick)
     for sz in (10, 12, 14, 16, 18, 20, 22):
-        quick.appendChild(E.option(
-            'Aa', title='{} px'.format(sz),
-            class_='current' if cfs is sz else '',
-            value=sz + '',
-            style=f'display: inline-block; font-size:{sz}px; padding: 5px; cursor: pointer; border-radius: 4px; margin: 0 0.5rem',
-            onclick=def (ev):
-                set_quick_size(ev)
+        # The visible text is a sample at that size, so name the button by
+        # the size, and mark the size in use as pressed
+        label = _('{} px').format(sz)
+        quick.appendChild(E.button(
+            'Aa', type='button', class_='quick-size', title=label, aria_label=label,
+            aria_pressed='true' if cfs is sz else 'false', value=sz + '',
+            style=f'font-size:{sz}px', onclick=set_quick_size,
         ))
 
     def set_size(ev):
@@ -113,11 +115,11 @@ def create_font_size_panel(container, close):
         style='display: flex; margin-top: 1rem',
         E.input(
             type='range', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '', value=cfs + '', style='flex-grow: 4',
-            oninput=set_quick_size,
+            aria_label=_('Font size'), oninput=set_quick_size,
         ),
         E.span('\xa0', E.input(
             value=f'{cfs}', oninput=set_size, type='number', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '',
-            step='1',
+            step='1', aria_label=_('Font size in pixels'),
         ), '\xa0px')
     ))
 

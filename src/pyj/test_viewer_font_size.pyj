@@ -1,0 +1,53 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+
+from read_book.prefs.font_size import create_font_size_panel
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, test
+
+
+@test
+def quick_font_sizes_are_named_toggle_buttons():
+    def run(sd):
+        sd.set('base_font_size', 16)
+        parent = E.div()
+        document.body.appendChild(parent)
+
+        def pressed():
+            return [b.value for b in group.querySelectorAll('button[aria-pressed=true]')]
+
+        try:
+            create_font_size_panel(parent, def (): pass;)
+            group = parent.querySelector('[role=group]')
+            assert_equal(group.getAttribute('aria-label'), 'Quick font sizes')
+            buttons = group.querySelectorAll('button')
+            assert_equal([b.value for b in buttons], ['10', '12', '14', '16', '18', '20', '22'])
+            for b in buttons:
+                assert_equal(b.type, 'button')
+                assert_equal(b.textContent, 'Aa')
+                assert_equal(b.getAttribute('aria-label'), f'{b.value} px')
+            assert_equal(pressed(), ['16'])
+            slider = parent.querySelector('input[type=range]')
+            number = parent.querySelector('input[type=number]')
+            assert_equal(slider.getAttribute('aria-label'), 'Font size')
+            assert_equal(number.getAttribute('aria-label'), 'Font size in pixels')
+
+            # Activating a quick size, as Enter or Space does, updates the
+            # other controls and the preview
+            buttons[5].click()
+            assert_equal(pressed(), ['20'])
+            assert_equal(slider.value, '20')
+            assert_equal(number.value, '20')
+            assert_equal(parent.querySelector('.cfs_preview').style.fontSize, '20px')
+            # A size without a quick size leaves none of them pressed
+            slider.value = '15'
+            slider.dispatchEvent(new Event('input'))
+            assert_equal(pressed(), [])
+            assert_equal(number.value, '15')
+        finally:
+            parent.remove()
+
+    with_empty_session(run)

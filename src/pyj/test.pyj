@@ -26,6 +26,7 @@ import test_theme  # noqa: unused-import
 import test_tree  # noqa: unused-import
 import test_utils  # noqa: unused-import
 import test_viewer_appearance  # noqa: unused-import
+import test_viewer_font_size  # noqa: unused-import
 import test_viewer_panels  # noqa: unused-import
 import test_viewer_selection_prefs  # noqa: unused-import
 from testing import registered_tests, reset_dom
