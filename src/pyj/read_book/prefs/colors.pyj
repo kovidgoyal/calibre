@@ -67,10 +67,6 @@ def resolve_color_scheme(current_color_scheme):
     return ans
 
 
-def change_current_color(li):
-    set_action_button_visibility()
-
-
 def new_color_scheme(ev):
     container = document.getElementById(EDIT_SCHEME)
     container.style.display = 'block'
@@ -247,7 +243,7 @@ def create_colors_panel(container, apply_func, cancel_func):
     container.dataset.link = cs.link or ''
     label = E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0')
     container.appendChild(label)
-    ul = create_choice_list(None, [], None, None, change_current_color)
+    ul = create_choice_list(None, [], None, None, set_action_button_visibility)
     ul.id = COLOR_LIST
     ul.setAttribute('aria-labelledby', ensure_id(label, 'color-scheme-label'))
     container.appendChild(ul)
