@@ -2,7 +2,10 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from book_list.library_data import book_metadata, refresh_sidebar_navigation, set_book_metadata, update_library_data
+from book_list.library_data import (
+    book_metadata, cover_url, refresh_sidebar_navigation, set_book_metadata,
+    thumbnail_url, update_library_data
+)
 from book_list.saved_virtual_libraries import save_saved_virtual_library, saved_virtual_library_item
 from book_list.sidebar import create_sidebar
 from test_book_list_helpers import with_empty_session
@@ -100,5 +103,33 @@ def sidebar_refreshes_saved_virtual_libraries_on_url_library_change():
             parse_url_params.cache = {}
             window.cs_update_sidebar_active = previous_update_active
             window.cs_refresh_sidebar_navigation = previous_refresh
+
+    with_empty_session(run)
+
+
+@test
+def cover_urls_change_when_the_book_changes():
+    # Browsers reuse images loaded from the same URL without asking the
+    # server, so changing a cover must change its URL
+    def run(sd):
+        previous_url = window.location.href
+        try:
+            window.history.replaceState(None, '', '#library_id=lib-a')
+            parse_url_params.cache = {}
+            update_library_data(empty_library_data('lib-a'))
+            assert_equal(cover_url(1).split('?')[1], undefined)
+            set_book_metadata(1, {'title': 'a', 'last_modified': '2026-01-01T00:00:00+00:00'}, 'lib-a')
+            before, thumb_before = cover_url(1), thumbnail_url(1, 10, 10, 'lib-a')
+            assert_true('v=' in before)
+            assert_true('v=' in thumb_before)
+            assert_equal(cover_url(1), before)
+            set_book_metadata(1, {'title': 'a', 'last_modified': '2026-01-02T00:00:00+00:00'}, 'lib-a')
+            assert_true(cover_url(1) != before)
+            assert_true(thumbnail_url(1, 10, 10, 'lib-a') != thumb_before)
+            # Books from other libraries are not in the cache
+            assert_false('v=' in thumbnail_url(1, 10, 10, 'lib-b'))
+        finally:
+            window.history.replaceState(None, '', previous_url)
+            parse_url_params.cache = {}
 
     with_empty_session(run)

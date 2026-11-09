@@ -326,6 +326,18 @@ def field_names_for(field, proceed):
         library_data.field_names[field].loading = True
 
 
+def cover_version(book_id, library_id):
+    # Browsers reuse an image they have loaded from a URL without asking the
+    # server, so the URL of a cover must change when the cover does, which
+    # changes the last modified time of the book. Only the metadata of the
+    # loaded library is available.
+    if library_id is library_data.for_library:
+        mi = library_data.metadata[book_id]
+        if mi and mi.last_modified:
+            return encodeURIComponent(mi.last_modified)
+    return ''
+
+
 def thumbnail_url(book_id, width, height, library_id=None, fill=False):
     # fill requests a thumbnail that covers the box rather than fitting inside
     # it, use it for images displayed with object-fit: cover
@@ -336,12 +348,19 @@ def thumbnail_url(book_id, width, height, library_id=None, fill=False):
     lid = library_id or loaded_books_query().library_id or current_library_id()
     if lid:
         prefix += f'/{lid}'
+    version = cover_version(book_id, lid)
+    if version:
+        query += f'&v={version}'
     return absolute_path(f'{prefix}?{query}')
 
 
 def cover_url(book_id):
     lid = current_library_id()
-    return absolute_path(f'get/cover/{book_id}/{lid}')
+    ans = absolute_path(f'get/cover/{book_id}/{lid}')
+    version = cover_version(book_id, lid)
+    if version:
+        ans += f'?v={version}'
+    return ans
 
 
 def download_url(book_id, fmt, content_disposition):
