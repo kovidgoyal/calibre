@@ -40,7 +40,7 @@
 - Content server: Act as a progress sync server for KOReader
 
   In KOReader, set the custom sync server to http://server:port/kosync and log in with the username and password
-  of a Content server user. Reading positions are shared across different copies and formats of the same book.
+  of a Content server user.
 
 - Content server: Serve OPDS 2.0 feeds, with support for streaming CBZ comics, honoring the manga reading direction and searching book contents using the full text index
 
