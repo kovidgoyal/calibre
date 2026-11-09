@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
-from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
+from dom import add_extra_css, build_rule, button_space_key_event, clear, ensure_id, svgicon
 
 CLASS_NAME = 'generic-items-list'
 
@@ -96,17 +96,9 @@ def primary_action_key_event(ev):
     # Activate like a native button: Enter on press, Space on release
     target = ev.currentTarget
     target.item_pointer_focus = False
-    modified = ev.ctrlKey or ev.altKey or ev.metaKey
-    if ev.key is ' ':
-        if ev.type is 'keydown' and not modified:
-            ev.preventDefault(), ev.stopPropagation()
-            target.item_space_pressed = True
-        elif ev.type is 'keyup':
-            pressed, target.item_space_pressed = target.item_space_pressed, False
-            if pressed and not modified:
-                ev.preventDefault(), ev.stopPropagation()
-                target.click()
-    elif ev.key is 'Enter' and ev.type is 'keydown' and not modified:
+    if button_space_key_event(ev):
+        return
+    if ev.key is 'Enter' and ev.type is 'keydown' and not ev.ctrlKey and not ev.altKey and not ev.metaKey:
         ev.preventDefault(), ev.stopPropagation()
         target.click()
 
@@ -118,7 +110,8 @@ def primary_action_pointer_down(ev):
 
 
 def primary_action_blur(ev):
-    ev.currentTarget.item_space_pressed = ev.currentTarget.item_pointer_focus = False
+    ev.currentTarget.item_pointer_focus = False
+    button_space_key_event(ev)
 
 
 def make_primary_action(elem, description):

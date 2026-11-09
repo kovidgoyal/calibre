@@ -8,6 +8,7 @@ from modals import close_all_modals, create_modal_container, is_modal_visible, s
 from session import deep_eq
 from testing import assert_equal, assert_false, assert_true, test
 from utils import fmt_sidx, human_readable, rating_to_stars
+from widgets import create_button
 
 
 @test
@@ -96,3 +97,45 @@ def modal_visibility_follows_shown_dialogs():
         assert_false(is_modal_visible())
     finally:
         close_all_modals()
+
+
+@test
+def push_buttons_are_activated_by_space_like_native_buttons():
+    clicks = []
+    b = create_button('Text', action=def (ev):
+        clicks.push(ev.type)
+    )
+    document.body.appendChild(b)
+
+    def key(kind, key, kw):
+        ev = new window.KeyboardEvent(kind, Object.assign({'key': key, 'bubbles': True, 'cancelable': True}, kw))
+        b.dispatchEvent(ev)
+        return ev
+
+    try:
+        assert_equal(b.getAttribute('role'), 'button')
+        # Space activates on release, and does not scroll the page
+        assert_true(key('keydown', ' ').defaultPrevented)
+        assert_equal(clicks, [])
+        assert_true(key('keyup', ' ').defaultPrevented)
+        assert_equal(clicks, ['click'])
+        # A release without a press, such as after Space was pressed
+        # elsewhere, does nothing
+        key('keyup', ' ')
+        assert_equal(clicks, ['click'])
+        # Losing focus between press and release cancels
+        key('keydown', ' ')
+        b.dispatchEvent(new Event('blur'))
+        key('keyup', ' ')
+        assert_equal(clicks, ['click'])
+        # Space with a modifier is left alone
+        assert_false(key('keydown', ' ', {'ctrlKey': True}).defaultPrevented)
+        key('keyup', ' ', {'ctrlKey': True})
+        assert_equal(clicks, ['click'])
+        # Other keys, including Enter, which activates the link natively,
+        # are left alone
+        assert_false(key('keydown', 'Enter').defaultPrevented)
+        assert_false(key('keydown', 'a').defaultPrevented)
+        assert_equal(clicks, ['click'])
+    finally:
+        b.remove()
