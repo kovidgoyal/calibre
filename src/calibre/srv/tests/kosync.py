@@ -4,6 +4,7 @@
 import json
 import os
 import tempfile
+import unicodedata
 from hashlib import md5
 from io import BytesIO
 from typing import TYPE_CHECKING
@@ -108,6 +109,11 @@ class KOSyncTest(LibraryBaseTest):
                 with self.subTest(body=body):
                     status, data = self.request(conn, '/syncs/progress', 'PUT', data=body, **alice)
                     self.ae((status, data['code']), (403, code))
+            # Non-ASCII passwords, stored NFC normalized
+            um.add_user('carol', unicodedata.normalize('NFD', 'l\xf6senord-\u66f8'))
+            self.ae(self.request(conn, '/users/auth', user='carol', key=key_for('l\xf6senord-\u66f8')), (200, {'authorized': 'OK'}))
+            self.ae(self.request(conn, '/users/auth', user='carol', key=key_for('losenord-\u66f8'))[0], 401)
+            um.remove_user('carol')
             # Non-ASCII keys are rejected, not a server error
             self.ae(self.request(conn, '/users/auth', user='alice', key='\xe9')[0], 401)
             self.ae(self.request(conn, '/users/auth', user='alice', key='\xe9'.encode('utf-8'))[0], 401)

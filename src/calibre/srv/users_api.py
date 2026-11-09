@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from calibre import as_unicode
 from calibre.srv.errors import HTTPBadRequest, HTTPForbidden
 from calibre.srv.routes import endpoint
-from calibre.srv.users import validate_password
+from calibre.srv.users import normalize_password, validate_password
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
@@ -27,7 +27,9 @@ def change_pw(ctx: Context, rd: RequestData) -> str:
         oldpw, newpw = pw['oldpw'], pw['newpw']
     except Exception:
         raise HTTPBadRequest('No decodable password found')
-    if oldpw != ctx.user_manager.get(user):
+    if not isinstance(oldpw, str) or not isinstance(newpw, str):
+        raise HTTPBadRequest('No decodable password found')
+    if normalize_password(oldpw) != ctx.user_manager.get(user):
         raise HTTPBadRequest(_('Existing password is incorrect'))
     err = validate_password(newpw)
     if err:

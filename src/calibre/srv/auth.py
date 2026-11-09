@@ -5,6 +5,7 @@ import http.client
 import os
 import random
 import struct
+from base64 import standard_b64decode
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
@@ -13,6 +14,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from calibre.srv.errors import HTTPAuthRequired, HTTPForbidden, HTTPSimpleResponse
 from calibre.srv.http_request import parse_uri
+from calibre.srv.users import normalize_password
 from calibre.srv.utils import encode_path, header_as_str, parse_http_dict
 from calibre.utils.monotonic import monotonic
 from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes, from_hex_unicode
@@ -95,6 +97,20 @@ def sha256_hex(s: str | bytes) -> str:
 
 def base64_decode(s: str | bytes) -> str:
     return from_base64_unicode(s)
+
+
+def decode_basic_credentials(s: str) -> str:
+    """Decode the base64 encoded credentials from a Basic Authorization
+    header. We ask clients to use UTF-8 (RFC 7617), which all modern browsers
+    do, but some HTTP client libraries, such as those used by Android apps,
+    encode credentials as ISO-8859-1, so fall back to that rather than
+    rejecting the request outright. Raises ValueError if s is not valid
+    base64."""
+    raw = standard_b64decode(s.encode('ascii'))  # raises ValueError for non-ASCII s
+    try:
+        return raw.decode('utf-8')
+    except UnicodeDecodeError:
+        return raw.decode('iso-8859-1')
 
 
 def synthesize_nonce(key_order: str, realm: str, secret: str, timestamp: str | None = None) -> str:
@@ -276,7 +292,7 @@ class AuthController:
     def check(self, un: str, pw: str) -> str | bool:
         uc = self.user_credentials
         assert uc is not None
-        return pw and uc.get(un) == pw
+        return pw and uc.get(un) == normalize_password(pw)
 
     def __call__(self, data: RequestData, endpoint: RouteFunction) -> None:
         path = encode_path(*data.path)
@@ -353,9 +369,9 @@ class AuthController:
                 self.ban_list.failed(ban_key)
             elif self.prefer_basic_auth and scheme == 'basic':
                 try:
-                    un, pw = base64_decode(rest.strip()).partition(':')[::2]
+                    un, pw = decode_basic_credentials(rest.strip()).partition(':')[::2]
                 except ValueError:
-                    raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
+                    raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The Basic authorization credentials were not valid base64')
                 if not un or not pw:
                     raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The username or password was empty')
                 if self.check(un, pw):
@@ -367,7 +383,7 @@ class AuthController:
                 raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Unsupported authentication method')
 
         if self.prefer_basic_auth:
-            raise HTTPAuthRequired(f'Basic realm="{self.realm}"', log=log_msg)
+            raise HTTPAuthRequired(f'Basic realm="{self.realm}", charset="UTF-8"', log=log_msg)
 
         s = f'Digest realm="{self.realm}", nonce="{synthesize_nonce(self.key_order, self.realm, self.secret)}", algorithm="MD5", qop="auth"'
         if nonce_is_stale:

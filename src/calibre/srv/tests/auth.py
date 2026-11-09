@@ -27,6 +27,9 @@ if TYPE_CHECKING:
     from calibre.srv.http_response import RequestData
 
 REALM = 'calibre-test'
+# Stored passwords are NFC normalized
+UNICODE_PW = 'Example-Server-2026\xe5 \u66f8\xe9'
+LATIN_PW = 'p\xe4ssw\xf6rd'
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
@@ -61,7 +64,7 @@ def router(prefer_basic_auth: bool = False, ban_for: float = 0, ban_after: int =
     return Router(
         globals().values(),
         auth_controller=AuthController(
-            {'testuser': 'testpw', '!@#$%^&*()-=_+': '!@#$%^&*()-=_+'},
+            {'testuser': 'testpw', '!@#$%^&*()-=_+': '!@#$%^&*()-=_+', 'unicode': UNICODE_PW, 'latin': LATIN_PW},
             ban_time_in_minutes=ban_for,
             ban_after=ban_after,
             prefer_basic_auth=prefer_basic_auth,
@@ -155,7 +158,7 @@ class TestAuth(BaseTest):
             conn.request('GET', '/closed')
             r = conn.getresponse()
             self.ae(r.status, http.client.UNAUTHORIZED)
-            self.ae(r.getheader('WWW-Authenticate'), f'Basic realm="{REALM}"')
+            self.ae(r.getheader('WWW-Authenticate'), f'Basic realm="{REALM}", charset="UTF-8"')
             self.assertFalse(r.read())
             conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(b'testuser:testpw')})
             r = conn.getresponse()
@@ -179,6 +182,101 @@ class TestAuth(BaseTest):
             self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
             self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request(''))
             self.ae((http.client.UNAUTHORIZED, b''), request('asf', 'testpw'))
+
+    # }}}
+
+    def test_non_ascii_passwords(self) -> None:  # {{{
+        "Test logging in with passwords containing non-ASCII characters"
+        import unicodedata
+        from hashlib import md5
+
+        from calibre.srv.utils import parse_http_dict
+
+        def basic(raw: bytes) -> dict[str, bytes]:
+            return {'Authorization': b'Basic ' + as_base64_bytes(raw)}
+
+        r = router(prefer_basic_auth=True)
+        with TestServer(r.dispatch) as server:
+            conn = server.connect()
+
+            def request(headers: dict[str, bytes]) -> tuple[int, bytes]:
+                conn.request('GET', '/closed', headers=headers)
+                r = conn.getresponse()
+                return r.status, r.read()
+
+            ok = (http.client.OK, b'closed')
+            self.ae(ok, request(basic(f'unicode:{UNICODE_PW}'.encode())))
+            self.ae(b'closed', urlopen(server, un='unicode', pw=UNICODE_PW, method='basic').read())
+            # Decomposed input matches the precomposed stored password
+            nfd = unicodedata.normalize('NFD', UNICODE_PW)
+            self.assertNotEqual(nfd, UNICODE_PW)
+            self.ae(ok, request(basic(f'unicode:{nfd}'.encode())))
+            # Clients that use ISO-8859-1 for Basic auth
+            self.ae(ok, request(basic(f'latin:{LATIN_PW}'.encode('iso-8859-1'))))
+            self.ae(ok, request(basic(f'latin:{LATIN_PW}'.encode())))
+            self.ae(http.client.UNAUTHORIZED, request(basic(f'unicode:{UNICODE_PW}'.encode('utf-16')))[0])
+            self.ae(http.client.UNAUTHORIZED, request(basic(b'unicode:' + UNICODE_PW[:-1].encode()))[0])
+            st, body = request({'Authorization': b'Basic not-base64!'})
+            self.ae((http.client.BAD_REQUEST, b'The Basic authorization credentials were not valid base64'), (st, body))
+            st, body = request({'Authorization': 'Basic \xe5'.encode()})
+            self.ae(http.client.BAD_REQUEST, st)
+
+        r = router()
+        with TestServer(r.dispatch) as server:
+            conn = server.connect()
+
+            def digest_request(un: str, pw: str) -> int:
+                # Compute the response independently of the server code, the
+                # way browsers do, using UTF-8
+                conn.request('GET', '/closed')
+                r = conn.getresponse()
+                r.read()
+                chal = parse_http_dict(r.getheader('WWW-Authenticate').partition(' ')[2])
+                nonce, cnonce, nc = chal['nonce'], 'abcdef', '00000001'
+
+                def h(x: str) -> str:
+                    return md5(x.encode('utf-8')).hexdigest()
+
+                response = h(f"{h(f'{un}:{REALM}:{pw}')}:{nonce}:{nc}:{cnonce}:auth:{h('GET:/closed')}")
+                auth = (
+                    f'Digest username="{un}", realm="{REALM}", nonce="{nonce}", uri="/closed", algorithm=MD5,'
+                    f' response="{response}", qop=auth, nc={nc}, cnonce="{cnonce}"'
+                )
+                conn.request('GET', '/closed', headers={'Authorization': auth.encode('ascii')})
+                r = conn.getresponse()
+                r.read()
+                return r.status
+
+            self.ae(http.client.OK, digest_request('unicode', UNICODE_PW))
+            self.ae(http.client.OK, digest_request('latin', LATIN_PW))
+            self.ae(http.client.UNAUTHORIZED, digest_request('unicode', UNICODE_PW[:-1]))
+
+    # }}}
+
+    def test_password_validation(self) -> None:  # {{{
+        "Test validation and normalization of stored passwords"
+        import unicodedata
+
+        from calibre.srv.users import UserManager, validate_password
+
+        for pw in ('testpw', UNICODE_PW, LATIN_PW, 'a b', 'emoji \U0001f600', '\u0627\u0644\u0639\u0631\u0628\u064a\u0629'):
+            self.assertIsNone(validate_password(pw), repr(pw))
+        for pw in ('', 'a\nb', 'a\tb', 'a\x00b', 'a\x7fb', 'a\u200bb', 'a\u2028b', 'a\ud800b'):
+            self.assertIsNotNone(validate_password(pw), repr(pw))
+
+        nfd = unicodedata.normalize('NFD', UNICODE_PW)
+        with TemporaryDirectory() as tdir:
+            m = UserManager(os.path.join(tdir, 'users.sqlite'))
+            m.add_user('a', nfd)
+            self.ae(m.get('a'), UNICODE_PW)
+            m.change_password('a', 'x' + nfd)
+            self.ae(m.get('a'), 'x' + UNICODE_PW)
+            self.assertRaises(ValueError, m.change_password, 'a', 'a\nb')
+            ud = m.user_data
+            ud['a']['pw'] = 'y' + nfd
+            m.user_data = ud
+            self.ae(m.get('a'), 'y' + UNICODE_PW)
+            m.conn.close()
 
     # }}}
 
