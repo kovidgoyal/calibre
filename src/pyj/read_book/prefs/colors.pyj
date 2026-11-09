@@ -8,14 +8,17 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.theme import cached_color_to_rgba
 from dom import (
-    add_extra_css, build_rule, clear, set_css, set_radio_group_value, svgicon,
-    unique_id
+    add_extra_css, build_rule, ensure_id, set_css, set_radio_group_value,
+    svgicon, unique_id
 )
 from modals import error_dialog
 from read_book.globals import default_color_schemes, ui_operations
 from read_book.prefs.utils import create_button_box
 from session import session_defaults
-from widgets import create_button
+from widgets import (
+    choice_list_items, create_button, create_choice_list, current_choice,
+    fill_choice_list, set_current_choice
+)
 
 CONTAINER = unique_id('reader-color-scheme')
 COLOR_LIST = unique_id()
@@ -30,7 +33,7 @@ add_extra_css(def ():
     sel += ' > li'
     style += build_rule(sel, padding='1ex 1rem', margin='1ex 0.5rem', border_radius='4px', cursor='pointer', border='var(--calibre-border-style-strong)')
     style += build_rule(sel + ' svg', visibility='hidden')
-    sel += '.current-color'
+    sel += '[aria-checked=true]'
     style += build_rule(sel + ' svg', visibility='visible')
     style += build_rule('#{} #{} td'.format(CONTAINER, EDIT_SCHEME), padding='1ex 1em')
     sel = '#' + ACTION_BUTTONS
@@ -64,11 +67,8 @@ def resolve_color_scheme(current_color_scheme):
     return ans
 
 
-def change_current_color(ev):
-    ul = ev.currentTarget.parentNode
-    for li in ul.childNodes:
-        li.setAttribute('class', 'current-color' if li is ev.currentTarget else '')
-    set_action_button_visibility(ul.parentNode)
+def change_current_color(li):
+    set_action_button_visibility()
 
 
 def new_color_scheme(ev):
@@ -122,23 +122,21 @@ def remove_color_scheme(ev):
 
 def current_color_scheme():
     try:
-        return get_container().querySelector('li.current-color').getAttribute('data-name')
+        return current_choice(get_container()).getAttribute('data-value')
     except Exception:
         return session_defaults().current_color_scheme
 
 
 def set_current_color_scheme(value):
     ul = document.getElementById(COLOR_LIST)
-    done = False
-    for li in ul.childNodes:
-        li.classList.remove('current-color')
-        if li.getAttribute('data-name') is value:
-            li.classList.add('current-color')
-            done = True
-    if not done:
-        for li in ul.childNodes:
-            li.classList.add('current-color')
+    li = None
+    for x in choice_list_items(ul):
+        if x.getAttribute('data-value') is value:
+            li = x
             break
+    li = li or ul.querySelector('[role=radio]')
+    if li:
+        set_current_choice(li)
     set_action_button_visibility()
 
 
@@ -196,20 +194,20 @@ def all_color_schemes():
 
 
 def create_color_buttons():
-    ul = document.getElementById(COLOR_LIST)
     sd = get_session_data()
-    clear(ul)
     all_schemes = all_color_schemes()
     ccs = sd.get('current_color_scheme')
     if not all_schemes[ccs]:
         ccs = session_defaults().current_color_scheme
-    for name in sorted(all_schemes, key=def (k): return all_schemes[k].name.toLowerCase();):
+
+    def render_scheme(li, name):
         scheme = all_schemes[name]
-        is_current = name is ccs
-        item = set_css(E.li(svgicon('check'), '\xa0' + scheme.name, data_name=name, onclick=change_current_color,
-                            class_='current-color' if is_current else ''),
-                       color=scheme.foreground, background_color=scheme.background)
-        ul.appendChild(item)
+        li.appendChild(svgicon('check'))
+        li.appendChild(document.createTextNode('\xa0' + scheme.name))
+        set_css(li, color=scheme.foreground, background_color=scheme.background)
+
+    names = sorted(all_schemes, key=def (k): return all_schemes[k].name.toLowerCase();)
+    fill_choice_list(document.getElementById(COLOR_LIST), names, ccs, render_scheme)
 
 
 def set_action_button_visibility():
@@ -232,8 +230,11 @@ def create_colors_panel(container, apply_func, cancel_func):
     container.dataset.bg = cs.background
     container.dataset.fg = cs.foreground
     container.dataset.link = cs.link or ''
-    container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
-    ul = E.ul(id=COLOR_LIST)
+    label = E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0')
+    container.appendChild(label)
+    ul = create_choice_list(None, [], None, None, change_current_color)
+    ul.id = COLOR_LIST
+    ul.setAttribute('aria-labelledby', ensure_id(label, 'color-scheme-label'))
     container.appendChild(ul)
     container.appendChild(E.div(
         E.span(_('Override all book colors:') + '\xa0'),

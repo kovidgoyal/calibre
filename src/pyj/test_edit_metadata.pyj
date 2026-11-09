@@ -4,10 +4,9 @@ from __python__ import hash_literals
 
 from elementmaker import E
 
-from book_list.edit_metadata import (
-    choice_get_value, create_choice_list, current_choice, rating_edit, rating_get_value
-)
+from book_list.edit_metadata import choice_get_value, rating_edit, rating_get_value
 from testing import assert_equal, assert_false, assert_true, test
+from widgets import create_choice_list, current_choice
 
 
 def render_text(li, value):
@@ -21,11 +20,11 @@ def press(elem, key, kw):
 
 
 def checked_values(c):
-    return [li.dataset.rating for li in c.querySelectorAll('[role=radio][aria-checked=true]')]
+    return [li.dataset.value for li in c.querySelectorAll('[role=radio][aria-checked=true]')]
 
 
 def tab_stops(c):
-    return [li.dataset.rating for li in c.querySelectorAll('[role=radio][tabindex="0"]')]
+    return [li.dataset.value for li in c.querySelectorAll('[role=radio][tabindex="0"]')]
 
 
 @test
@@ -87,7 +86,7 @@ def choice_list_keyboard_moves_and_selects_like_radio_buttons():
         assert_true(ev.defaultPrevented, key)
         assert_equal(checked_values(c), [expected], key)
         assert_equal(tab_stops(c), [expected], key)
-        assert_equal(document.activeElement.dataset.rating, expected, key)
+        assert_equal(document.activeElement.dataset.value, expected, key)
 
     document.body.appendChild(c)
     try:
@@ -117,7 +116,7 @@ def choice_list_enter_submits_the_form():
     c = create_choice_list('Read', ['', 'y', 'n'], 'n', render_text)
     form = E.form(action='javascript: void(0)', c, onsubmit=def (ev):
         ev.preventDefault()
-        submitted.push(current_choice(c).dataset.rating)
+        submitted.push(current_choice(c).dataset.value)
     )
     document.body.appendChild(form)
     try:
@@ -154,7 +153,7 @@ def rating_choices_have_names_and_the_current_rating_has_focus():
     try:
         # Without half stars only whole star ratings are offered
         rating_edit('test-container', 1, 'rating', {'name': 'Rating'}, div, {'rating': 4})
-        assert_equal([li.dataset.rating for li in div.querySelectorAll('[role=radio]')], ['0', '2', '4', '6', '8', '10'])
+        assert_equal([li.dataset.value for li in div.querySelectorAll('[role=radio]')], ['0', '2', '4', '6', '8', '10'])
         assert_equal(checked_values(div), ['4'])
     finally:
         div.remove()

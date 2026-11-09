@@ -441,8 +441,109 @@ def scroll_tree_item_into_view(item):
 
 # }}}
 
+# Choice list {{{
+# A list of choices that works as a radio group, with the keyboard and screen
+# readers. The value of each choice is in its data-value attribute.
+
+CHOICE_LIST_CLASS = 'calibre-choice-list'
+
+
+def choice_list_items(ul):
+    return ul.querySelectorAll('[role=radio]')
+
+
+def current_choice(container):
+    return container.querySelector('[role=radio][aria-checked=true]')
+
+
+def set_current_choice(li, focus):
+    # Only the current choice is in the tab order, as for native radio buttons
+    for x in choice_list_items(li.closest('ul')):
+        is_current = x is li
+        x.setAttribute('aria-checked', 'true' if is_current else 'false')
+        x.setAttribute('tabindex', '0' if is_current else '-1')
+    if focus:
+        li.focus()
+
+
+def choose(li, focus):
+    set_current_choice(li, focus)
+    ul = li.closest('ul')
+    if ul.on_choice_changed:
+        ul.on_choice_changed(li)
+
+
+def choice_clicked(ev):
+    choose(ev.currentTarget)
+
+
+def choice_keydown(ev):
+    if ev.altKey or ev.ctrlKey or ev.metaKey:
+        return
+    li = ev.currentTarget
+    if ev.key is 'Enter':
+        # Like native radio buttons, Enter submits the form, if there is one
+        form = li.closest('form')
+        if form:
+            ev.preventDefault(), ev.stopPropagation()
+            form.requestSubmit()
+        return
+    items = choice_list_items(li.closest('ul'))
+    idx = Array.prototype.indexOf.call(items, li)
+    if ev.key is 'ArrowRight' or ev.key is 'ArrowDown':
+        target = items[(idx + 1) % items.length]
+    elif ev.key is 'ArrowLeft' or ev.key is 'ArrowUp':
+        target = items[(idx - 1 + items.length) % items.length]
+    elif ev.key is 'Home':
+        target = items[0]
+    elif ev.key is 'End':
+        target = items[items.length - 1]
+    elif ev.key is ' ':
+        target = li
+    else:
+        return
+    ev.preventDefault(), ev.stopPropagation()
+    choose(target, True)
+
+
+def fill_choice_list(ul, values, current, render_choice):
+    # render_choice(li, value) fills in the visible label of each choice
+    clear(ul)
+    checked = None
+    for value in values:
+        li = E.li(role='radio', aria_checked='false', tabindex='-1', data_value=value + '', onclick=choice_clicked, onkeydown=choice_keydown)
+        render_choice(li, value)
+        ul.appendChild(li)
+        if value is current:
+            checked = li
+    if checked:
+        set_current_choice(checked)
+    elif ul.firstChild:
+        # The current value is not one of the choices, keep the list reachable
+        ul.firstChild.setAttribute('tabindex', '0')
+
+
+def create_choice_list(name, values, current, render_choice, on_change):
+    # on_change(li) is called when the user chooses a choice. Without a name,
+    # label the list with aria-labelledby instead.
+    ul = E.ul(class_=CHOICE_LIST_CLASS, role='radiogroup')
+    if name:
+        ul.setAttribute('aria-label', name)
+    ul.on_choice_changed = on_change
+    fill_choice_list(ul, values, current, render_choice)
+    return ul
+
+
+def focus_choice_list(ul):
+    li = ul.querySelector('[role=radio][tabindex="0"]')
+    if li:
+        li.focus()
+# }}}
+
 add_extra_css(def ():
     ans = 'a:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none } a::-moz-focus-inner, button::-moz-focus-inner { border: 0 }\n'
+    ans += build_rule(f'.{CHOICE_LIST_CLASS} > [role=radio]:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='2px')
     ans += (
         '.simple-link { cursor: pointer } .simple-link:hover { color: HC }'
         ' .simple-link:active { transform: scale(1.5) }\n'

@@ -2,10 +2,14 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from elementmaker import E
+
 from dom import get_widget_css
 from read_book.chrome import apply_viewer_chrome_colors
 from read_book.main_overlay_style import MAIN_OVERLAY_TS_CLASS, main_overlay_css
-from testing import assert_equal, assert_true, test
+from read_book.prefs.colors import create_colors_panel, current_color_scheme, set_current_color_scheme
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
 
 
 @test
@@ -27,3 +31,76 @@ def main_overlay_style_uses_viewer_chrome():
     assert_true(css.indexOf('background-color:var(--calibre-color-primary-light);') > -1)
     assert_true(css.indexOf('background-color:var(--calibre-color-primary-light-2);') > -1)
     assert_true(get_widget_css().indexOf('.' + MAIN_OVERLAY_TS_CLASS) > -1)
+
+
+@test
+def viewer_color_schemes_are_a_keyboard_accessible_radio_group():
+    def press(elem, key):
+        ev = new window.KeyboardEvent('keydown', {'key': key, 'bubbles': True, 'cancelable': True})
+        elem.dispatchEvent(ev)
+        return ev
+
+    def run(sd):
+        sd.set('user_color_schemes', {'*Mine': {'name': 'Mine', 'foreground': '#111111', 'background': '#eeeeee'}})
+        sd.set('current_color_scheme', 'white')
+        parent = E.div()
+        document.body.appendChild(parent)
+
+        def checked():
+            return [li.dataset.value for li in ul.querySelectorAll('[role=radio][aria-checked=true]')]
+
+        def tab_stops():
+            return [li.dataset.value for li in ul.querySelectorAll('[role=radio][tabindex="0"]')]
+
+        def scheme_actions():
+            # Editing and removing are only offered for user schemes
+            return [b.textContent.trim() for b in parent.querySelectorAll('span > .calibre-push-button')
+                    if b.parentNode.style.display is not 'none']
+
+        try:
+            create_colors_panel(parent, def (): pass;, def (): pass;)
+            ul = parent.querySelector('[role=radiogroup]')
+            assert_equal(document.getElementById(ul.getAttribute('aria-labelledby')).textContent, 'Choose a color scheme below')
+            items = ul.querySelectorAll('[role=radio]')
+            values = [li.dataset.value for li in items]
+            assert_true(values.length > 2)
+            assert_true(values.indexOf('*Mine') > -1)
+            # Each scheme is named by its visible name
+            mine = items[values.indexOf('*Mine')]
+            assert_equal(mine.textContent.trim(), 'Mine')
+            assert_equal(checked(), ['white'])
+            assert_equal(tab_stops(), ['white'])
+            assert_equal(current_color_scheme(), 'white')
+            assert_equal(scheme_actions(), ['New scheme'])
+
+            # Choosing a user scheme with the mouse or the keyboard offers editing it
+            mine.click()
+            assert_equal(checked(), ['*Mine'])
+            assert_equal(scheme_actions(), ['New scheme', 'Edit scheme', 'Remove scheme'])
+            mine.focus()
+            assert_true(press(mine, 'Home').defaultPrevented)
+            assert_equal(checked(), [values[0]])
+            assert_equal(document.activeElement, items[0])
+            assert_equal(scheme_actions(), ['New scheme'])
+            press(items[0], 'End')
+            press(items[items.length - 1], 'ArrowRight')
+            assert_equal(checked(), [values[0]])
+            mine.focus()
+            press(mine, ' ')
+            assert_equal(checked(), ['*Mine'])
+            assert_equal(current_color_scheme(), '*Mine')
+
+            # There is no form in the preferences, so Enter is left alone
+            assert_false(press(mine, 'Enter').defaultPrevented)
+            assert_equal(checked(), ['*Mine'])
+
+            # Selecting a scheme from code, falling back to the first scheme
+            set_current_color_scheme('white')
+            assert_equal(checked(), ['white'])
+            assert_equal(tab_stops(), ['white'])
+            set_current_color_scheme('*Removed')
+            assert_equal(checked(), [values[0]])
+        finally:
+            parent.remove()
+
+    with_empty_session(run)
