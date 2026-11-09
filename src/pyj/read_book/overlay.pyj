@@ -177,18 +177,29 @@ class EndOfBook:  # {{{
         title = self.book.metadata.title or _('Unknown')
         rating_area = E.div()
         if self.can_rate:
-            stars = E.div(class_='end-of-book-rating', style='display: flex; justify-content: center; margin: 1rem 0; font-size: 2rem')
+            label = E.div(_('Rate this book:'), style='margin-top: 1rem')
+            # The stars are icons, so describe the current rating for screen
+            # readers, it can be a half star rating that no star is pressed for
+            current = E.div(class_='end-of-book-current-rating calibre-visually-hidden')
+            stars = E.div(
+                class_='end-of-book-rating', role='group',
+                aria_labelledby=ensure_id(label, 'end-of-book-rating-label'),
+                aria_describedby=ensure_id(current, 'end-of-book-current-rating'),
+                style='display: flex; justify-content: center; margin: 1rem 0; font-size: 2rem')
+            # The stars are buttons that look like plain icons
+            star_style = 'position: relative; margin: 0 0.2em; padding: 0; border: none; background: none; font: inherit; color: currentColor; cursor: pointer'
             for i in range(1, 6):
                 half = svgicon('star-half')
                 half.style.position = 'absolute'
                 half.style.left = '0'
-                stars.appendChild(E.a(
-                    svgicon('star'), half, data_stars=str(i), href='javascript: void(0)',
-                    title=ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i),
-                    style='position: relative; margin: 0 0.2em; color: currentColor', onclick=self.star_clicked.bind(None, i)))
-            rating_area.appendChild(E.div(_('Rate this book:'), style='margin-top: 1rem'))
+                tooltip = ngettext('Rate this book {} star', 'Rate this book {} stars', i).format(i)
+                stars.appendChild(E.button(
+                    svgicon('star'), half, type='button', data_stars=str(i), title=tooltip, aria_label=tooltip, style=star_style,
+                    onclick=self.star_clicked.bind(None, i)))
+            rating_area.appendChild(label)
             rating_area.appendChild(stars)
-            rating_area.appendChild(E.div(class_='end-of-book-status', style='min-height: 1.5em'))
+            rating_area.appendChild(current)
+            rating_area.appendChild(E.div(class_='end-of-book-status', role='status', style='min-height: 1.5em'))
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             tabindex='0',
@@ -259,10 +270,16 @@ class EndOfBook:  # {{{
         c = document.getElementById(self.container_id)
         if not c:
             return
-        for a in c.querySelectorAll('.end-of-book-rating > a'):
-            full = int(a.dataset.stars) * 2
-            a.firstChild.style.opacity = '1' if full <= self.rating else '0.3'
-            a.lastChild.style.display = 'inline' if full - 1 is self.rating else 'none'
+        for b in c.querySelectorAll('.end-of-book-rating > button'):
+            full = int(b.dataset.stars) * 2
+            b.firstChild.style.opacity = '1' if full <= self.rating else '0.3'
+            b.lastChild.style.display = 'inline' if full - 1 is self.rating else 'none'
+            # Pressing the star for the current rating clears it, so it is a toggle
+            b.setAttribute('aria-pressed', 'true' if full is self.rating else 'false')
+        current = c.querySelector('.end-of-book-current-rating')
+        if current:
+            stars = self.rating / 2
+            current.textContent = ngettext('Current rating: {} star', 'Current rating: {} stars', stars).format(stars) if self.rating else _('Not rated')
 
     def set_status(self, text):
         c = document.getElementById(self.container_id)

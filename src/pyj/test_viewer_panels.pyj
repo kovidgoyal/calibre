@@ -8,9 +8,10 @@ from dom import unique_id
 from read_book.bookmarks import create_bookmarks_list
 from read_book.globals import ui_operations
 from read_book.goto import create_page_list_overlay
+from read_book.overlay import EndOfBook
 from read_book.profiles import got_all_profiles
 from test_book_list_helpers import with_empty_session
-from testing import assert_equal, test
+from testing import assert_equal, assert_true, test
 
 
 @test
@@ -67,5 +68,71 @@ def viewer_panel_primary_actions_open_bookmarks_profiles_and_page_destinations()
         finally:
             ui_operations.apply_profile = previous
             parent.remove()
+
+    with_empty_session(run)
+
+
+@test
+def end_of_book_rating_stars_are_named_toggle_buttons():
+    def run(sd):
+        container = E.div(id=unique_id())
+        document.body.appendChild(container)
+        overlay = {'view': {'book': {'key': ['library', 1], 'metadata': {'title': 'Title', 'rating': 6}}}}
+        eob = EndOfBook(overlay)
+        assert_true(eob.can_rate)
+        # Do not contact the server
+        eob.refresh_request = {'abort': def (): pass;}
+        ratings = []
+        eob.set_rating = def (rating):
+            ratings.push(rating)
+        eob.update_cached_metadata = def (mi):
+            eob.rating = mi.rating
+
+        def pressed():
+            return [b.getAttribute('aria-pressed') for b in buttons]
+
+        def current_rating():
+            return document.getElementById(group.getAttribute('aria-describedby')).textContent
+
+        try:
+            eob.show(container)
+            group = container.querySelector('.end-of-book-rating')
+            assert_equal(group.getAttribute('role'), 'group')
+            assert_equal(document.getElementById(group.getAttribute('aria-labelledby')).textContent, 'Rate this book:')
+            buttons = group.querySelectorAll('button')
+            assert_equal(buttons.length, 5)
+            for b in buttons:
+                assert_equal(b.type, 'button')
+            assert_equal(buttons[0].getAttribute('aria-label'), 'Rate this book 1 star')
+            assert_equal(buttons[4].getAttribute('aria-label'), 'Rate this book 5 stars')
+            assert_equal(pressed(), ['false', 'false', 'true', 'false', 'false'])
+            assert_equal(current_rating(), 'Current rating: 3 stars')
+
+            # Activating a star with the keyboard gives a whole star rating,
+            # and activating the current rating clears it
+            buttons[3].click()
+            buttons[2].click()
+            assert_equal(ratings, [8, 0])
+
+            # A half star rating has no star of its own, so only the
+            # description says what it is
+            eob.rating = 5
+            eob.update_stars()
+            assert_equal(pressed(), ['false', 'false', 'false', 'false', 'false'])
+            assert_equal(current_rating(), 'Current rating: 2.5 stars')
+
+            # The result of saving is announced to screen readers
+            status = container.querySelector('.end-of-book-status')
+            assert_equal(status.getAttribute('role'), 'status')
+            eob.rating_saved('load', {'responseText': JSON.stringify({'1': {'rating': 8}})})
+            assert_equal(status.textContent, 'Rating saved')
+            assert_equal(pressed(), ['false', 'false', 'false', 'true', 'false'])
+            assert_equal(current_rating(), 'Current rating: 4 stars')
+            eob.rating_saved('load', {'responseText': JSON.stringify({'1': {'rating': 0}})})
+            assert_equal(status.textContent, 'Rating removed')
+            assert_equal(pressed(), ['false', 'false', 'false', 'false', 'false'])
+            assert_equal(current_rating(), 'Not rated')
+        finally:
+            container.remove()
 
     with_empty_session(run)
