@@ -865,6 +865,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.gui2.tag_mapper import find_tests
 
         a(find_tests())
+        from calibre.gui2.auto_add import find_tests
+
+        a(find_tests())
         from calibre.ebooks.html_entities import find_tests
 
         a(find_tests())
