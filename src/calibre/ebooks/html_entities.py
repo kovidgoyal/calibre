@@ -2215,6 +2215,16 @@ def find_tests() -> unittest.TestSuite:
             t('a&#X1234;b', 'aሴb')
             t('a&#x1034fA;b', 'a\U001034fab')
             t('a&#0;b&#x000;c', 'abc')
+            t('&#0;', '')
+            # Surrogates and numbers beyond the last code point cannot be
+            # encoded in UTF-8, so they decode to U+FFFD, as in HTML5
+            t('a&#xD800;b&#55357;&#56832;c&#xDFFF;', 'a\ufffdb\ufffd\ufffdc\ufffd')
+            t('a&#x110000;b&#1114112;c&#x10FFFF;', 'a\ufffdb\ufffdc\U0010ffff')
+            self.assertEqual(b'a\xef\xbf\xbdb', replace_all_entities(b'a&#xD800;b'))
+            # Large numbers do not wrap around to a valid code point
+            t('&#4294967356;&#x10000003C;&#99999999999999999999;', '\ufffd\ufffd\ufffd')
+            x('&#4294967356;', '\ufffd')
+            x('&#60;&#x3c;', '&#60;&#x3c;')
             x('&amp;&lt;&gt;&apos;&quot;', '&amp;&lt;&gt;&apos;&quot;')
 
         def test_html_entity_replacement_expanding(self) -> None:
