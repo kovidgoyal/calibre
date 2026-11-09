@@ -10,7 +10,7 @@ from calibre.ebooks.metadata.opf3 import XPath
 from calibre.ebooks.metadata.opf_2_to_3 import upgrade_metadata
 from calibre.ebooks.oeb.base import DC, EPUB_NS, OEB_DOCS, XML, xpath
 from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
-from calibre.ebooks.oeb.polish.opf import get_book_language
+from calibre.ebooks.oeb.polish.opf import get_book_language, set_package_language
 from calibre.ebooks.oeb.polish.toc import commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.ebooks.oeb.transforms.guide import CUSTOM_GUIDE_TYPE_PREFIX, KNOWN_GUIDE_TYPES
@@ -198,7 +198,13 @@ def create_nav(container: Container, toc: TOC, landmarks: list[dict[str, str | N
     commit_nav_toc(container, toc, lang=lang, landmarks=landmarks, previous_nav=previous_nav)
 
 
-def epub_2_to_3(container: EpubContainer, report: Callable[[str], object], previous_nav: PreviousNav | None = None, remove_ncx: bool = True) -> None:
+def epub_2_to_3(
+    container: EpubContainer,
+    report: Callable[[str], object],
+    previous_nav: PreviousNav | None = None,
+    remove_ncx: bool = True,
+    set_package_lang: bool = True,
+) -> None:
     upgrade_metadata(container.opf)
     collect_properties(container)
     add_lang_attributes(container)
@@ -212,6 +218,9 @@ def epub_2_to_3(container: EpubContainer, report: Callable[[str], object], previ
         cast('_Element', guide.getparent()).remove(guide)  # <guide> is always inside <package>
     create_nav(container, toc, landmarks, previous_nav)
     container.opf.set('version', '3.0')
+    if set_package_lang:
+        # The default language of the OPF, only valid in EPUB 3
+        set_package_language(container)
     if fix_font_mime_types(container):
         container.refresh_mime_map()
     migrate_obfuscated_fonts(container)

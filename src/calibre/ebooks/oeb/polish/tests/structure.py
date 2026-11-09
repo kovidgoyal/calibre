@@ -373,8 +373,13 @@ class Structure(BaseTest):
         body = b'<html xmlns="http://www.w3.org/1999/xhtml"><body><p>x</p></body></html>'
         c = self.create_epub([cmi('xxx.html', body), cmi('a.html', body)], guide=[('xxx.html', 'cover', 'Cover'), ('a.html', 'text', 'Start')], ver=2)
         self.assertEqual(2, c.opf_version_parsed.major)
+        dc = c.opf_xpath('//opf:metadata')[0].makeelement('{http://purl.org/dc/elements/1.1/}language')
+        dc.text = 'eng'
+        c.opf_xpath('//opf:metadata')[0].append(dc)
         upgrade_book(c, lambda *a: None)
         self.assertEqual(3, c.opf_version_parsed.major)
+        # The default language of the OPF, which is only valid in EPUB 3
+        self.assertEqual(c.opf.get('{http://www.w3.org/XML/1998/namespace}lang'), 'en')
         self.assertFalse(c.opf_xpath('./opf:guide'))
         self.assertEqual(
             [
@@ -725,6 +730,8 @@ class Structure(BaseTest):
                 for name, linear in c.spine_names:
                     root = c.parsed(name)
                     langs[name] = root.get('lang'), root.get(XML('lang'))
+                # The default language of the OPF is only valid in EPUB 3
+                self.assertEqual(c.opf.get(XML('lang')), ('fr' if src == de_html else expected[0]) if ver == '3' else None)
                 # The generated title page is in the language of the book
                 self.assertEqual(langs.pop('titlepage.xhtml'), ('fr', 'fr') if src == de_html else expected)
                 self.assertTrue(langs)
@@ -749,6 +756,7 @@ class Structure(BaseTest):
             MissingAccessibilitySummary,
             MissingAltText,
             MissingLanguage,
+            MissingPackageLanguage,
             SkippedHeadingLevel,
             check_accessibility,
         )
@@ -778,7 +786,12 @@ class Structure(BaseTest):
             cmi('i.png', b'\x89PNG\r\n\x1a\n'),
         ])
         found = errors(c)
-        self.assertEqual(set(found), {MissingAltText, SkippedHeadingLevel, MissingLanguage, MissingAccessibilityMetadata, MissingAccessibilitySummary})
+        self.assertEqual(
+            set(found),
+            {MissingAltText, SkippedHeadingLevel, MissingLanguage, MissingPackageLanguage, MissingAccessibilityMetadata, MissingAccessibilitySummary},
+        )
+        self.assertEqual(found[MissingPackageLanguage][0].name, c.opf_name)
+        self.assertFalse(found[MissingPackageLanguage][0].INDIVIDUAL_FIX)
         alt = found[MissingAltText]
         self.assertEqual([(e.name, [loc[1] for loc in e.all_locations]) for e in alt], [('a.html', [5, 7])])
         self.assertEqual([[loc[1] for loc in e.all_locations] for e in found[SkippedHeadingLevel]], [[2, 5]])
@@ -807,12 +820,14 @@ class Structure(BaseTest):
         # Fix the language, accessibility metadata cannot be fixed automatically
         found = errors(c)
         self.assertTrue(found[MissingLanguage][0].INDIVIDUAL_FIX)
+        self.assertTrue(found[MissingPackageLanguage][0].INDIVIDUAL_FIX)
         self.assertFalse(found[MissingAccessibilityMetadata][0].INDIVIDUAL_FIX)
         self.assertTrue(fix_errors(c, [e for v in found.values() for e in v]))
         for name in ('a.html', 'd.html'):
             root = c.parsed(name)
             self.assertEqual((root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')), ('de-AT', 'de-AT'))
         self.assertEqual(c.parsed('b.html').get('{http://www.w3.org/XML/1998/namespace}lang'), None)
+        self.assertEqual(c.opf.get('{http://www.w3.org/XML/1998/namespace}lang'), 'de-AT')
         self.assertFalse(c.opf_xpath('//opf:meta[@property]'))
         self.assertEqual(set(errors(c)), {MissingAltText, SkippedHeadingLevel, MissingAccessibilityMetadata, MissingAccessibilitySummary})
 
@@ -838,6 +853,7 @@ class Structure(BaseTest):
             meta = metadata.makeelement('{http://www.idpf.org/2007/opf}meta', property=prop)
             meta.text = val
             metadata.append(meta)
+        c.opf.set('{http://www.w3.org/XML/1998/namespace}lang', 'en')
         found = errors(c)
         self.assertEqual(set(found), {MissingAccessibilityMetadata})
         self.assertEqual(found[MissingAccessibilityMetadata][0].missing, ['schema:accessMode', 'schema:accessModeSufficient', 'schema:accessibilityFeature'])
@@ -875,6 +891,7 @@ class Structure(BaseTest):
         self.assertTrue(fix_errors(c, errors(c)[MissingLanguage]))
         root = c.parsed('a.html')
         self.assertEqual((root.get('lang'), root.get('{http://www.w3.org/XML/1998/namespace}lang')), (None, 'en'))
+        self.assertIsNone(c.opf.get('{http://www.w3.org/XML/1998/namespace}lang'))
 
     def test_aria_roles(self) -> None:
         from calibre.ebooks.oeb.polish.check.accessibility import MissingRole, check_accessibility
@@ -1003,11 +1020,20 @@ class Structure(BaseTest):
         self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(html_language=HTML_LANGUAGE_ALL)))
         self.assertEqual(langs(c), [('de', 'de'), ('de', 'de')])
         self.assertFalse(apply_accessibility_changes(c, AccessibilityChanges(languages=['deu'], html_language=HTML_LANGUAGE_ALL)))
+        # The default language of the OPF follows the language of the book
+        package_lang = '{http://www.w3.org/XML/1998/namespace}lang'
+        self.assertEqual(c.opf.get(package_lang), 'de')
+        c.opf.set(package_lang, 'fr')
+        self.assertFalse(apply_accessibility_changes(c, AccessibilityChanges(html_language=HTML_LANGUAGE_MISSING)))
+        self.assertEqual(c.opf.get(package_lang), 'fr')
+        self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(languages=['eng'])))
+        self.assertEqual(c.opf.get(package_lang), 'en')
 
         # The lang attribute is not valid in the XHTML 1.1 used by EPUB 2
         c = self.create_epub([('a.html', html(), None), ('b.html', html(' xml:lang="fr"'), None)], ver=2)
         self.assertTrue(apply_accessibility_changes(c, AccessibilityChanges(languages=['eng'], html_language=HTML_LANGUAGE_MISSING)))
         self.assertEqual(langs(c), [(None, 'en'), (None, 'fr')])
+        self.assertIsNone(c.opf.get('{http://www.w3.org/XML/1998/namespace}lang'))
 
     def test_accessibility_tool_alt_text(self) -> None:
         from calibre.ebooks.oeb.polish.accessibility import image_uses, set_alt_text

@@ -398,13 +398,18 @@ class EPUBOutput(OutputFormatPlugin):
     def upgrade_to_epub3(self, tdir: str, opf: str, encryption: str | bytes | None = None) -> bytes | None:
         self.log.info('Upgrading to EPUB 3...')
         from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
+        from calibre.ebooks.oeb.polish.opf import set_package_language
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
 
         existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
         nav_href = getattr(self.opts, 'epub3_nav_href', None)
         previous_nav = (nav_href, existing_nav) if existing_nav is not None and nav_href else None
         container, cxpath, encpath = self.create_container(tdir, opf, encryption)
-        epub_2_to_3(container, self.log.info, previous_nav=previous_nav)
+        # The language of the book from the OPF may have been guessed from the
+        # interface language, which must not be used, see html_language()
+        epub_2_to_3(container, self.log.info, previous_nav=previous_nav, set_package_lang=False)
+        if lang := self.html_language():
+            set_package_language(container, lang)
         fix_conversion_titlepage_links_in_nav(container)
         container.commit()
         if cb := getattr(self, 'container_callback', None):

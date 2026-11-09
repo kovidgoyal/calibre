@@ -30,6 +30,31 @@ def get_book_language_tag(container: Container) -> str | None:
     return None
 
 
+PACKAGE_LANG = '{http://www.w3.org/XML/1998/namespace}lang'
+
+
+def has_package_language(container: Container) -> bool:
+    return bool((container.opf.get(PACKAGE_LANG) or '').strip())
+
+
+def set_package_language(container: Container, lang: str | None = None, replace: bool = False) -> bool:
+    """
+    Set the xml:lang attribute of the <package> element of an EPUB 3 OPF, which
+    is the default language of the OPF and is required by accessibility
+    checkers such as Ace. Defaults to the language of the book. Only set if
+    missing, unless ``replace`` is True. Returns True if the OPF was changed.
+    Not valid in the OPF of EPUB 2, so callers must check the OPF version.
+    """
+    if not (lang := lang or get_book_language_tag(container)):
+        return False
+    current = container.opf.get(PACKAGE_LANG)
+    if current == lang or (has_package_language(container) and not replace):
+        return False
+    container.opf.set(PACKAGE_LANG, lang)
+    container.dirty(container.opf_name)
+    return True
+
+
 def set_guide_item(container: Container, item_type: str, title: str, name: str | None, frag: str | None = None) -> None:
     ref_tag = '{{{}}}reference'.format(OPF_NAMESPACES['opf'])
     href = None

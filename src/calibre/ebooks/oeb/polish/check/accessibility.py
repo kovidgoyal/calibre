@@ -12,7 +12,7 @@ from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
 from calibre.ebooks.oeb.polish.accessibility import IMG, ElementsById, has_language, image_elements, is_decorative, role_for, set_html_language, svg_alt_text
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
-from calibre.ebooks.oeb.polish.opf import get_book_language_tag
+from calibre.ebooks.oeb.polish.opf import get_book_language_tag, has_package_language, set_package_language
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
@@ -136,6 +136,28 @@ class MissingLanguage(AccessibilityError):
         return bool(set_html_language(container, self.names, self.lang))
 
 
+class MissingPackageLanguage(AccessibilityError):
+    level = WARN
+    RULE_NAME = _('OPF without a language')
+
+    def __init__(self, name: str, line: int | None, lang: str | None) -> None:
+        BaseError.__init__(self, _('The OPF does not specify its language'), name, line)
+        self.lang = lang
+        help = _(
+            'In EPUB 3 books, the <package> element of the OPF should specify the default language of the book'
+            ' with the xml:lang attribute. Accessibility checkers such as Ace report books without it.'
+        )
+        if lang:
+            self.INDIVIDUAL_FIX = xml(_('Set the language of the OPF to the language of the book: {}').format(lang))
+        else:
+            help += ' ' + _('Set the language of the book with Tools->Accessibility so that this can be fixed automatically.')
+        self.HELP = xml(help)
+
+    def __call__(self, container: Container) -> bool:
+        assert self.lang  # only called when INDIVIDUAL_FIX is set, which requires lang
+        return set_package_language(container, self.lang)
+
+
 class SkippedHeadingLevel(AccessibilityError):
     level = INFO
     has_multiple_locations = True
@@ -250,6 +272,9 @@ def check_accessibility(container: Container) -> list[BaseError]:
         errors.append(MissingLanguage(missing_lang, get_book_language_tag(container)))
 
     if is_epub3:
+        # The xml:lang attribute is not valid on the <package> of EPUB 2
+        if not has_package_language(container):
+            errors.append(MissingPackageLanguage(container.opf_name, container.opf.sourceline, get_book_language_tag(container)))
         existing = existing_properties(container)
         missing = [p for p in ACCESSIBILITY_PROPERTIES if p not in existing]
         if missing:

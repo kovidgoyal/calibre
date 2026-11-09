@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.ebooks.oeb.base import DC, EPUB, OEB_DOCS, OPF, SVG, XHTML, XLINK, XML
-from calibre.ebooks.oeb.polish.opf import get_book_language_tag
+from calibre.ebooks.oeb.polish.opf import get_book_language_tag, set_package_language
 from calibre.utils.localization import canonicalize_lang
 
 if TYPE_CHECKING:
@@ -584,6 +584,11 @@ def apply_accessibility_changes(container: Container, changes: AccessibilityChan
         changed |= set_book_languages(container, changes.languages)
     if changes.html_language is not None and (lang := get_book_language_tag(container)):
         changed |= bool(set_html_language(container, html_names(container), lang, replace=changes.html_language == HTML_LANGUAGE_ALL))
+    # The default language of the OPF, the xml:lang attribute is only valid in
+    # EPUB 3. It is kept in sync with the main language of the book when that
+    # is changed.
+    if (changes.languages is not None or changes.html_language is not None) and container.opf_version_parsed.major > 2:
+        changed |= set_package_language(container, replace=changes.languages is not None or changes.html_language == HTML_LANGUAGE_ALL)
     if changes.alt_text:
         changed |= bool(set_alt_text(container, changes.alt_text))
     if changes.metadata:
