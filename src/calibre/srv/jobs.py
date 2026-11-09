@@ -127,6 +127,8 @@ class JobsManager:
         self.job_id = count()
         self.waiting_job_ids: set[int] = set()
         self.waiting_jobs: deque[StartEvent] = deque()
+        # Jobs that were aborted while waiting, they are never started
+        self.cancelled_job_ids: set[int] = set()
         self.max_block: float | None = None
         self.shutting_down = False
         self.event_loop: Thread | None = None
@@ -165,10 +167,19 @@ class JobsManager:
                     return 'waiting', None, None, None
         return None, None, None, None
 
-    def abort_job(self, job_id: int) -> None:
-        job = self.jobs.get(job_id)
-        if job is not None:
-            job.abort_event.set()
+    def abort_job(self, job_id: int) -> bool:
+        """Abort the job. Returns True if the job was waiting to be started,
+        in which case it is never started and its callback is never called."""
+        with self.lock:
+            job = self.jobs.get(job_id)
+            if job is not None:
+                job.abort_event.set()
+                return False
+            if job_id in self.waiting_job_ids:
+                self.waiting_job_ids.discard(job_id)
+                self.cancelled_job_ids.add(job_id)
+                return True
+        return False
 
     def wait_for_running_job(self, job_id: int, timeout: float | None = None) -> bool | None:
         job = self.jobs.get(job_id)
@@ -224,6 +235,9 @@ class JobsManager:
         with self.lock:
             while self.waiting_jobs and len(self.jobs) < self.max_jobs:
                 ev = self.waiting_jobs.popleft()
+                if ev.job_id in self.cancelled_job_ids:
+                    self.cancelled_job_ids.discard(ev.job_id)
+                    continue
                 self.jobs[ev.job_id] = Job(ev, self.events)
                 self.waiting_job_ids.discard(ev.job_id)
         self.update_max_block()

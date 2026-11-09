@@ -8,7 +8,8 @@ from gettext import gettext as _, ngettext
 
 from ajax import ajax_send
 from book_list.book_details import (
-    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book
+    add_stars_to, adjust_iframe_height, adjusting_sandboxed_html,
+    basic_table_rules, fetch_metadata, field_sorter, no_book
 )
 from book_list.comments_editor import (
     create_comments_editor, focus_comments_editor, get_comments_html, set_comments_html
@@ -27,8 +28,11 @@ from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
 from modals import error_dialog, question_dialog
 from session import get_interface_data
-from utils import fmt_sidx, parse_url_params, safe_set_inner_html
-from widgets import create_button, create_choice_list, current_choice, focus_choice_list
+from utils import debounce, fmt_sidx, parse_url_params, safe_set_inner_html
+from widgets import (
+    create_button, create_choice_list, create_spinner, current_choice,
+    focus_choice_list
+)
 
 CLASS_NAME = 'edit-metadata-panel'
 IGNORED_FIELDS = {
@@ -177,6 +181,53 @@ add_extra_css(def ():
     style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-layout .cs-upload-dropzone:hover',
         background_color='var(--calibre-color-primary-light-2)',
         border_color='var(--calibre-color-primary)',
+    )
+    # Download metadata
+    dsel = sel + 'div[data-ctype="edit"] '
+    style += build_rule(dsel + '.metadata-download-query', opacity='0.78', margin_bottom='0.75rem', overflow_wrap='anywhere')
+    style += build_rule(dsel + '.metadata-download-searching',
+        display='flex', align_items='center', justify_content='center', gap='0.75rem', padding='2rem 0', text_align='center'
+    )
+    style += build_rule(dsel + '.metadata-download-no-results', padding='1rem 0')
+    style += build_rule(dsel + '.metadata-download-results',
+        max_height='35vh', overflow='auto',
+        border='var(--calibre-border-style-subtle)', border_radius='12px'
+    )
+    style += build_rule(dsel + '.metadata-download-results table', width='100%', border_collapse='collapse')
+    style += build_rule(dsel + '.metadata-download-results th',
+        position='sticky', top='0', text_align='left', padding='0.5rem 0.75rem',
+        background_color=get_color('window-background'), border_bottom='var(--calibre-border-style-subtle)'
+    )
+    style += build_rule(dsel + '.metadata-download-results td',
+        padding='0.5rem 0.75rem', vertical_align='top', cursor='pointer', border_bottom='var(--calibre-border-style-subtle)'
+    )
+    style += build_rule(dsel + '.metadata-download-results tr:last-child td', border_bottom='none')
+    style += build_rule(dsel + '.metadata-download-results tr:hover td', background_color='var(--calibre-color-primary-light)')
+    style += build_rule(dsel + '.metadata-download-results tr[aria-selected="true"] td',
+        background_color=get_color('list-hover-background'), color=get_color('list-hover-foreground')
+    )
+    style += build_rule(dsel + '.metadata-download-results tr:focus', outline='none')
+    style += build_rule(dsel + '.metadata-download-results tr:focus-visible td', text_decoration='underline')
+    style += build_rule(dsel + '.metadata-download-results .secondary', font_size='smaller', opacity='0.78')
+    style += build_rule(dsel + '.metadata-download-preview', margin_top='1rem')
+    style += build_rule(dsel + '.metadata-download-fields', border_collapse='collapse', margin_bottom='0.75rem')
+    style += build_rule(dsel + '.metadata-download-fields td', padding='0.25rem 0', vertical_align='top', overflow_wrap='anywhere')
+    style += build_rule(dsel + '.metadata-download-fields td:first-child',
+        font_weight='600', padding_right='1rem', white_space='nowrap', overflow_wrap='normal'
+    )
+    style += build_rule(dsel + '.metadata-download-preview .ignored-note',
+        font_size='smaller', font_style='italic', color='var(--calibre-color-faded-text)'
+    )
+    style += build_rule(dsel + '.metadata-download-comments.ignored iframe', opacity='0.55')
+    style += build_rule(dsel + '.metadata-download-log', margin_top='0.75rem')
+    style += build_rule(dsel + '.metadata-download-log summary', cursor='pointer')
+    style += build_rule(dsel + '.metadata-download-log pre',
+        max_height='20em', overflow='auto', white_space='pre-wrap', font_size='smaller'
+    )
+    # Keep the buttons visible when the preview is taller than the dialog
+    style += build_rule(dsel + '.metadata-download-buttons',
+        position='sticky', bottom='-1rem', padding='0.75rem 0', margin_bottom='-0.75rem',
+        background_color=get_color('window-background')
     )
     style += build_rule(sel + '[data-modal="1"] div[data-ctype="show"]',
         opacity='0.5',
@@ -976,6 +1027,8 @@ def formats_edit(container_id, book_id, field, fm, div, mi):
 
 
 def switch_to_edit_panel(container):
+    # Whatever was in the edit panel is replaced
+    stop_metadata_download()
     d = container.querySelector('div[data-ctype="edit"]')
     d.style.display = 'block'
     container.dataset.modal = '1'
@@ -1385,6 +1438,370 @@ def submit_changes(container_id, book_id):
     )
 
 
+# Download metadata {{{
+
+# The download whose results are being waited for, if any
+metadata_download = None
+# Stop downloaded comments, which come from the internet, from loading anything
+# when they are previewed. Only the comments of the result the user chooses are
+# saved, so they must not be able to leak that a book is being looked at.
+DOWNLOADED_COMMENTS_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src data:"
+
+
+def metadata_download_url(action, job_or_book_id, library_id):
+    return f'metadata-download/{action}/{job_or_book_id}/{encodeURIComponent(library_id)}'
+
+
+def stop_metadata_download():
+    # Stop waiting for the current download, aborting it on the server if it
+    # has not finished
+    nonlocal metadata_download
+    state = metadata_download
+    metadata_download = None
+    if not state:
+        return
+    if state.timer is not None:
+        window.clearTimeout(state.timer)
+        state.timer = None
+    if state.xhr:
+        state.xhr.abort()
+        state.xhr = None
+    if state.job_id is not None:
+        ajax_send(metadata_download_url('status', state.job_id, state.library_id), {}, def (end_type, xhr, ev):
+            if end_type is not 'load' and end_type is not 'abort':
+                print('Failed to abort metadata download:', xhr.error_html)
+        , query = {'abort': '1'})
+
+
+def metadata_download_is_active(state):
+    if metadata_download is not state:
+        return False
+    c = document.getElementById(state.container_id)
+    if not c or not panel_is_shown(state.container_id) or not is_edit_panel_showing(c) or not c.querySelector(
+            'div[data-ctype="edit"] .metadata-download-body'):
+        # The dialog was closed some other way, such as with the back button
+        stop_metadata_download()
+        return False
+    return True
+
+
+def metadata_download_failed(state, msg, details):
+    nonlocal metadata_download
+    metadata_download = None
+    on_close(state.container_id)
+    error_dialog(_('Failed to download metadata'), msg, details)
+
+
+def parse_metadata_download_response(state, end_type, xhr):
+    # Returns the response, or None if the download has failed
+    state.xhr = None
+    if end_type is not 'load':
+        if xhr.status is 404 and state.job_id is not None:
+            msg = _('The server no longer has the download, probably because its results were not asked for in time. Try downloading again.')
+        elif xhr.status is 429:
+            msg = _('Too many metadata downloads are in progress. Wait for them to finish and try again.')
+        else:
+            msg = _('Could not communicate with the server.')
+        metadata_download_failed(state, msg, xhr.error_html)
+        return None
+    try:
+        return JSON.parse(xhr.responseText)
+    except Exception as err:
+        metadata_download_failed(state, _('The server returned an invalid response.'), err.toString())
+    return None
+
+
+def wait_for_metadata_download(state):
+    def check():
+        state.timer = None
+        if metadata_download_is_active(state):
+            state.xhr = ajax_send(
+                metadata_download_url('status', state.job_id, state.library_id), {},
+                on_metadata_download_status.bind(None, state))
+    state.timer = window.setTimeout(check, 1000)
+
+
+def on_metadata_download_started(state, end_type, xhr, ev):
+    if not metadata_download_is_active(state):
+        return
+    response = parse_metadata_download_response(state, end_type, xhr)
+    if response:
+        state.job_id = response.job_id
+        wait_for_metadata_download(state)
+
+
+def on_metadata_download_status(state, end_type, xhr, ev):
+    if not metadata_download_is_active(state):
+        return
+    response = parse_metadata_download_response(state, end_type, xhr)
+    if not response:
+        return
+    if response.running:
+        wait_for_metadata_download(state)
+        return
+    # The server has forgotten the download, so there is nothing to abort
+    state.job_id = None
+    if response.was_aborted:
+        metadata_download_failed(state, _('Downloading metadata took too long and was aborted.'))
+    elif not response.ok:
+        metadata_download_failed(state, _('Downloading metadata failed with an error.'), response.traceback)
+    else:
+        show_downloaded_metadata(state, response)
+
+
+def begin_metadata_download(container_id, book_id):
+    nonlocal metadata_download
+    stop_metadata_download()
+    c = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not c or not mi:
+        return
+    # Search for what is in the editor, which may not have been saved yet
+    title = resolved_metadata(mi, 'title') or ''
+    authors = list(resolved_metadata(mi, 'authors') or [])
+    d = switch_to_edit_panel(c)
+    d.appendChild(E.h3(_('Download metadata')))
+    d.appendChild(E.div(class_='metadata-download-query', title + (' — ' + ' & '.join(authors) if authors.length else '')))
+    d.appendChild(E.div(
+        class_='metadata-download-body',
+        E.div(
+            class_='metadata-download-searching', role='status',
+            create_spinner('2em', '2em'),
+            E.span(_('Searching for metadata online, this can take up to a minute…'))
+        )
+    ))
+    d.appendChild(E.div(
+        class_='edit-form-button-container metadata-download-buttons',
+        create_button(_('Cancel'), icon='close', action=on_close.bind(None, container_id)),
+    ))
+    state = {
+        'container_id': container_id, 'book_id': book_id, 'library_id': current_library_id(),
+        'job_id': None, 'timer': None, 'xhr': None,
+    }
+    metadata_download = state
+    query = {
+        'title': title,
+        'authors': authors,
+        'identifiers': resolved_metadata(mi, 'identifiers') or {},
+        # Used when downloaded comments are to be appended to the existing ones
+        'comments': resolved_metadata(mi, 'comments') or '',
+    }
+    state.xhr = ajax_send(
+        metadata_download_url('start', book_id, state.library_id), query,
+        on_metadata_download_started.bind(None, state))
+
+
+def format_downloaded_pubdate(pubdate):
+    fm = library_data.field_metadata.pubdate
+    fmt = get_interface_data().gui_pubdate_display_format or (fm.display or {}).date_format
+    return format_date(date_to_datetime(pubdate), fmt)
+
+
+def sandboxed_downloaded_comments(html):
+    ans = adjusting_sandboxed_html(html, None)
+    ans.srcdoc = ans.srcdoc.replace('<head>', f'<head><meta http-equiv="Content-Security-Policy" content="{DOWNLOADED_COMMENTS_CSP}">')
+    # Links in the comments must not navigate away from the editor, losing
+    # unsaved changes. allow-same-origin is needed for resizing.
+    ans.setAttribute('sandbox', 'allow-same-origin')
+    ans.classList.add('downloaded-comments')
+    return ans
+
+
+def adjust_downloaded_comments_iframes():
+    for iframe in document.querySelectorAll(f'.{CLASS_NAME} iframe.downloaded-comments'):
+        if parseInt(iframe.dataset.last_window_width) is not window.innerWidth:
+            adjust_iframe_height(iframe)
+
+
+if window?:
+    window.addEventListener('resize', debounce(adjust_downloaded_comments_iframes, 250))
+
+
+def downloaded_rating(result):
+    # As the Edit metadata dialog does, drop half stars when the rating does
+    # not allow them
+    fm = library_data.field_metadata.rating
+    ans = result.rating or 0
+    if not (fm and fm.display and fm.display.allow_half_stars):
+        ans -= ans % 2
+    return ans
+
+
+def render_downloaded_metadata(container, result, ignored):
+    field_metadata = library_data.field_metadata
+    clear(container)
+    table = E.table(class_='metadata-download-fields')
+    container.appendChild(table)
+
+    def mark_ignored(elem, field):
+        if field in ignored:
+            elem.classList.add('ignored')
+            elem.appendChild(E.div(class_='ignored-note', _('Will not be changed, because of your settings for downloading metadata')))
+
+    def add(field, val):
+        if not val:
+            return
+        fm = field_metadata[field]
+        td = E.td(val)
+        table.appendChild(E.tr(E.td((fm.name if fm else None) or field), td))
+        mark_ignored(td, field)
+
+    add('title', result.title)
+    add('authors', ' & '.join(result.authors or []))
+    if result.series:
+        sidx = fmt_sidx(result.series_index, use_roman=get_interface_data().use_roman_numerals_for_series_number)
+        add('series', _('{0} of {1}').format(sidx, result.series))
+    rating = downloaded_rating(result)
+    if rating:
+        stars = E.span()
+        add_stars_to(stars, rating, True)
+        add('rating', stars)
+    add('publisher', result.publisher)
+    if result.pubdate:
+        add('pubdate', format_downloaded_pubdate(result.pubdate))
+    add('languages', ', '.join(result.languages or []))
+    add('tags', ', '.join(result.tags or []))
+    if result.identifiers:
+        add('identifiers', ', '.join([f'{k}:{result.identifiers[k]}' for k in Object.keys(result.identifiers)]))
+    if result.comments:
+        comments = E.div(class_='metadata-download-comments', sandboxed_downloaded_comments(result.comments))
+        container.appendChild(comments)
+        mark_ignored(comments, 'comments')
+
+
+def show_downloaded_metadata(state, response):
+    nonlocal metadata_download
+    metadata_download = None
+    c = document.getElementById(state.container_id)
+    d = c.querySelector('div[data-ctype="edit"]') if c else None
+    body = d.querySelector('.metadata-download-body') if d else None
+    if not body:
+        return
+    clear(body)
+    results = response.results
+    log = E.details(class_='metadata-download-log', E('summary', _('Show log')), E.pre(response.log or ''))
+    if not results.length:
+        body.appendChild(E.div(
+            class_='metadata-download-no-results', role='status',
+            _('No matches were found. Try correcting the title and authors, or adding an identifier such as the ISBN, and downloading again.')))
+        body.appendChild(log)
+        # There is nothing to cancel
+        buttons = d.querySelector('.metadata-download-buttons')
+        clear(buttons)
+        buttons.appendChild(create_button(_('Close'), icon='close', action=on_close.bind(None, state.container_id)))
+        return
+    ignored = set(response.ignore_fields)
+    preview = E.div(class_='metadata-download-preview')
+    tbody = E.tbody()
+    body.appendChild(E.div(
+        class_='metadata-download-results',
+        E.table(
+            aria_label=_('Downloaded metadata'),
+            E.thead(E.tr(E.th(_('Title')), E.th(library_data.field_metadata.pubdate.name))),
+            tbody,
+        )
+    ))
+    body.appendChild(preview)
+    body.appendChild(log)
+    selected = 0
+
+    def select(idx, focus):
+        nonlocal selected
+        selected = idx
+        rows = tbody.querySelectorAll('tr')
+        for i in range(rows.length):
+            rows[i].setAttribute('aria-selected', 'true' if i is idx else 'false')
+            rows[i].setAttribute('tabindex', '0' if i is idx else '-1')
+        row = rows[idx]
+        if focus:
+            row.focus()
+        row.scrollIntoView({'block': 'nearest'})
+        render_downloaded_metadata(preview, results[idx], ignored)
+
+    def accept():
+        apply_downloaded_metadata(state.book_id, results[selected], ignored)
+        on_close(state.container_id)
+
+    def onkeydown(ev):
+        if ev.altKey or ev.ctrlKey or ev.metaKey or ev.shiftKey:
+            return
+        if ev.key is 'ArrowDown' or ev.key is 'ArrowUp':
+            ev.preventDefault(), ev.stopPropagation()
+            delta = 1 if ev.key is 'ArrowDown' else -1
+            select(max(0, min(results.length - 1, selected + delta)), True)
+        elif ev.key is 'Enter':
+            ev.preventDefault(), ev.stopPropagation()
+            accept()
+
+    for i, result in enumerate(results):
+        pubdate = format_downloaded_pubdate(result.pubdate) if result.pubdate else ''
+        row = E.tr(
+            E.td(E.div(result.title or ''), E.div(class_='secondary', ' & '.join(result.authors or []))),
+            E.td(E.div(pubdate), E.div(class_='secondary', result.publisher or '')),
+            onclick=select.bind(None, i, True), ondblclick=accept, onkeydown=onkeydown,
+        )
+        tbody.appendChild(row)
+    buttons = d.querySelector('.metadata-download-buttons')
+    buttons.appendChild(document.createTextNode('\xa0'))
+    buttons.appendChild(create_button(_('OK'), icon='check', action=accept, highlight=True))
+    select(0, True)
+
+
+def apply_downloaded_metadata(book_id, result, ignored):
+    # Change the fields in the editor in the same way as calibre does when
+    # metadata is downloaded in the Edit metadata dialog. The user can review
+    # the changes and save or discard them.
+    nonlocal has_changes
+    mi = book_metadata(book_id)
+    if not mi:
+        return
+    updates = {}
+
+    def update(field, val):
+        if field not in ignored and JSON.stringify(resolved_metadata(mi, field)) is not JSON.stringify(val):
+            updates[field] = val
+
+    if result.title:
+        update('title', result.title)
+    if result.authors and result.authors.length:
+        update('authors', result.authors)
+    if result.publisher:
+        update('publisher', result.publisher)
+    rating = downloaded_rating(result)
+    if rating:
+        update('rating', rating)
+    if result.pubdate and 'pubdate' not in ignored:
+        current = resolved_metadata(mi, 'pubdate')
+        if not current or format_date(current, 'yyyy-MM-dd') is not result.pubdate:
+            updates.pubdate = date_to_datetime(result.pubdate)
+    if result.series and 'series' not in ignored:
+        update('series', result.series)
+        update('series_index', float(result.series_index))
+    if result.languages and result.languages.length and 'languages' not in ignored:
+        # The editor uses language names, but book metadata has language codes
+        names = mi.lang_names or {}
+        current = [names[x] or x for x in (resolved_metadata(mi, 'languages') or [])]
+        if JSON.stringify(current) is not JSON.stringify(result.languages):
+            updates.languages = result.languages
+    if result.tags and result.tags.length:
+        # Keep the existing tags, adding the new ones before them
+        existing = list(resolved_metadata(mi, 'tags') or [])
+        lexisting = {t.toLowerCase() for t in existing}
+        update('tags', [t for t in result.tags if t.toLowerCase() not in lexisting].concat(existing))
+    if result.identifiers:
+        # Keep existing identifiers that were not downloaded
+        update('identifiers', Object.assign({}, resolved_metadata(mi, 'identifiers') or {}, result.identifiers))
+    if result.comments:
+        update('comments', result.merged_comments or result.comments)
+    fields = Object.keys(updates)
+    for field in fields:
+        draft_changes[field] = updates[field]
+    if fields.length:
+        has_changes = True
+
+# }}}
+
+
 def show_book(container_id, book_id):
     container = document.getElementById(container_id)
     mi = book_metadata(book_id)
@@ -1395,11 +1812,15 @@ def show_book(container_id, book_id):
         return
     clear(div)
     cq = get_current_query()
+    download_link = E.div(E.a(
+        svgicon('cloud-download'), '\xa0', _('Download metadata from the internet'),
+        href='javascript:void(0)', onclick=begin_metadata_download.bind(None, container_id, book_id), class_='blue-link'))
     if has_changes:
         div.appendChild(E.div(
             style='margin: 1ex 1rem',
             E.div(_('You have unsaved changes.')),
             E.div(_('Use Save/Cancel below to apply or discard them.')),
+            download_link,
         ))
     else:
         div.appendChild(E.div(
@@ -1410,6 +1831,7 @@ def show_book(container_id, book_id):
                     href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'),
                 style='display:' + ('none' if cq.from_read_book else 'block'),
             ),
+            download_link,
         ))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
@@ -1442,6 +1864,7 @@ def is_edit_panel_showing(container):
 
 
 def close_edit_panel(container):
+    stop_metadata_download()
     d = container.querySelector('div[data-ctype="edit"]')
     d.style.display = 'none'
     container.dataset.modal = ''

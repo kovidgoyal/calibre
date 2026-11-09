@@ -338,6 +338,23 @@ class LoopTest(BaseTest):
         self.assertFalse(was_aborted)
         self.assertTrue(tb)
         self.assertIn('a testing error', tb)
+        # A job aborted while waiting is never started, and the jobs after it are
+        done: list[int] = []
+        job_id4 = jm.start_job('t4', 'calibre.srv.jobs', 'sleep_test', args=(0.5,))
+        job_id5 = jm.start_job('t5', 'calibre.srv.jobs', 'sleep_test', args=(0.1,), job_done_callback=lambda job: done.append(job.job_id))
+        job_id6 = jm.start_job('t6', 'calibre.srv.jobs', 'sleep_test', args=(0.1,))
+        while job_status(job_id4) == 'waiting':
+            time.sleep(0.01)
+        self.assertEqual(job_status(job_id5), 'waiting')
+        self.assertTrue(jm.abort_job(job_id5))
+        self.assertIsNone(job_status(job_id5))
+        self.assertFalse(jm.abort_job(job_id5))
+        while job_status(job_id6) != 'finished':
+            time.sleep(0.01)
+        self.assertEqual(job_status(job_id4), 'finished')
+        self.assertIsNone(job_status(job_id5))
+        self.assertEqual(done, [])
+        self.assertFalse(jm.cancelled_job_ids)
         jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
         jm.shutdown(), jm.wait_for_shutdown(monotonic() + 1)
 

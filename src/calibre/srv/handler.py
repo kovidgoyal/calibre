@@ -79,7 +79,7 @@ class Context:
         assert self.jobs_manager is not None
         return self.jobs_manager.job_status(job_id)
 
-    def abort_job(self, job_id: int) -> None:
+    def abort_job(self, job_id: int) -> bool:
         assert self.jobs_manager is not None
         return self.jobs_manager.abort_job(job_id)
 
@@ -291,7 +291,7 @@ class Context:
             return old[1]
 
 
-SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert', 'fts', 'kosync', 'comic')
+SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert', 'fts', 'kosync', 'comic', 'metadata_download')
 
 
 class Handler:
