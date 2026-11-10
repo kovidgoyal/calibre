@@ -362,7 +362,7 @@ class Spine(ResourceCollection['Spine.Item']):  # {{{
         ResourceCollection.__init__(self)
         self.manifest = manifest
 
-    def replace(self, start: int, end: int, items: Iterable[str]) -> None:  # ty: ignore[invalid-method-override] takes ids rather than items
+    def replace(self, start: int, end: int, items: Iterable[str]) -> None:  # ty: ignore[incompatible-method-override] takes ids rather than items
         """
         Replace the items between start (inclusive) and end (not inclusive) with
         with the items identified by ids. ids can be a list of any length.
@@ -479,7 +479,7 @@ class MetadataField[T = str]:
         elem = obj.get_metadata_element(self.name)
         if val is None:
             if elem is not None:
-                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] elem is a descendant of the metadata element
+                elem.getparent().remove(elem)  # ty: ignore[missing-union-attribute] elem is a descendant of the metadata element
             return
         if elem is None:
             elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
@@ -505,11 +505,11 @@ class LinkMapsField:
     def __set__(self, obj: OPF, val: Mapping[str, object] | None) -> None:
         elem = obj.get_metadata_element('author_link_map')
         if elem is not None:
-            elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] elem is a descendant of the metadata element
+            elem.getparent().remove(elem)  # ty: ignore[missing-union-attribute] elem is a descendant of the metadata element
         elem = obj.get_metadata_element('link_maps')
         if not val:
             if elem is not None:
-                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] elem is a descendant of the metadata element
+                elem.getparent().remove(elem)  # ty: ignore[missing-union-attribute] elem is a descendant of the metadata element
             return
         if elem is None:
             elem = obj.create_metadata_element('link_maps', is_dc=False)
@@ -843,7 +843,7 @@ class OPF:  # {{{
         for i, item2 in enumerate(new_items):
             item2.set('id', item.get('id') + f'.{i + 1}')  # ty: ignore[unsupported-operator] items without an id are not supported
         manifest = item.getparent()
-        index = manifest.index(item)  # ty: ignore[unresolved-attribute] item must be in the manifest element
+        index = manifest.index(item)  # ty: ignore[missing-union-attribute] item must be in the manifest element
         manifest[index : index + 1] = new_items  # ty: ignore[invalid-assignment]
         return [i.get('id') for i in new_items]
 
@@ -1332,7 +1332,7 @@ class OPF:  # {{{
             self.guide.set_cover(path)
             for item in list(self.iterguide()):
                 if 'cover' in item.get('type', ''):
-                    item.getparent().remove(item)  # ty: ignore[unresolved-attribute] item is a descendant of the root element
+                    item.getparent().remove(item)  # ty: ignore[missing-union-attribute] item is a descendant of the root element
 
         else:
             g = self.create_guide_element()

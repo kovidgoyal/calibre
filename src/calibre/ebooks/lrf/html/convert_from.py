@@ -1151,9 +1151,9 @@ class HTMLConverter:
             tag_css.pop('page-break-after')
         if (
             # force_page_break_attr is [tag name pattern, attribute name, attribute value pattern]
-            self.force_page_break_attr[0].match(tagname)  # ty: ignore[unresolved-attribute]
+            self.force_page_break_attr[0].match(tagname)  # ty: ignore[missing-union-attribute]
             and tag.has_attr(self.force_page_break_attr[1])  # ty: ignore[invalid-argument-type]
-            and self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])  # ty: ignore[unresolved-attribute, invalid-argument-type, no-matching-overload]
+            and self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])  # ty: ignore[invalid-argument-type, no-matching-overload, missing-union-attribute]
         ) or self.force_page_break.match(tagname):
             self.end_page()
             self.page_break_found = True
@@ -1559,8 +1559,8 @@ class HTMLConverter:
             pass
         if not self.disable_chapter_detection and (
             # chapter_attr is [tag name pattern, attribute name, attribute value pattern]
-            self.chapter_attr[0].match(tagname)  # ty: ignore[unresolved-attribute]
-            and (self.chapter_attr[1].lower() == 'none' or (tag.has_attr(self.chapter_attr[1]) and self.chapter_attr[2].match(tag[self.chapter_attr[1]])))  # ty: ignore[unresolved-attribute, invalid-argument-type, no-matching-overload]
+            self.chapter_attr[0].match(tagname)  # ty: ignore[missing-union-attribute]
+            and (self.chapter_attr[1].lower() == 'none' or (tag.has_attr(self.chapter_attr[1]) and self.chapter_attr[2].match(tag[self.chapter_attr[1]])))  # ty: ignore[invalid-argument-type, no-matching-overload, missing-union-attribute]
         ):
             self.log.debug(f'Detected chapter {tagname}')
             self.end_page()

@@ -612,9 +612,9 @@ def human_readable(size: float, sep: str = ' ') -> str:
             divisor, suffix = (1 << (i * 10)), candidate
             break
     size = str(float(size) / divisor)  # ty: ignore[invalid-assignment]
-    if size.find('.') > -1:  # ty: ignore[unresolved-attribute]
-        size = size[: size.find('.') + 2]  # ty: ignore[not-subscriptable, unresolved-attribute]
-    size = size.removesuffix('.0')  # ty: ignore[unresolved-attribute]
+    if size.find('.') > -1:  # ty: ignore[missing-attribute]
+        size = size[: size.find('.') + 2]  # ty: ignore[not-subscriptable, missing-attribute]
+    size = size.removesuffix('.0')  # ty: ignore[missing-union-attribute]
     return size + sep + suffix
 
 

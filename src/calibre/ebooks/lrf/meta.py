@@ -78,7 +78,7 @@ class versioned_field(field):
     def enabled(self, obj: LRFMetaFile) -> bool:
         return self.vfield.__get__(obj) > self.version
 
-    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> int | None:  # ty: ignore[invalid-method-override] disabled fields are None
+    def __get__(self, obj: LRFMetaFile, typ: type | None = None) -> int | None:  # ty: ignore[incompatible-method-override] disabled fields are None
         if self.enabled(obj):
             return field.__get__(self, obj, typ=typ)
         else:

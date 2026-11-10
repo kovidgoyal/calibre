@@ -1389,7 +1389,7 @@ class _Interpreter:
                 return res
             if res is not None:
                 if isinstance(res, list):
-                    fm = self.parent_book.metadata_for_field(name)  # ty: ignore[unresolved-attribute]
+                    fm = self.parent_book.metadata_for_field(name)  # ty: ignore[missing-union-attribute]
                     if fm is None:
                         res = ', '.join(res)
                     else:

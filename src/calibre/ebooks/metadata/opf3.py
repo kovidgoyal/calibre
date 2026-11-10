@@ -75,13 +75,13 @@ def regex(r: str, flags: int = 0) -> re.Pattern[str]:
 
 def remove_refines(e: _Element, refines: Refines) -> None:
     for x in refines[e.get('id')]:
-        x.getparent().remove(x)  # ty: ignore[unresolved-attribute] refines are only read from/added to the metadata element
+        x.getparent().remove(x)  # ty: ignore[missing-union-attribute] refines are only read from/added to the metadata element
     refines.pop(e.get('id'), None)
 
 
 def remove_element(e: _Element, refines: Refines) -> None:
     remove_refines(e, refines)
-    e.getparent().remove(e)  # ty: ignore[unresolved-attribute] callers only pass elements that are in the OPF tree
+    e.getparent().remove(e)  # ty: ignore[missing-union-attribute] callers only pass elements that are in the OPF tree
 
 
 def properties_for_id(item_id: str | None, refines: Refines) -> dict[str, str]:
@@ -845,7 +845,7 @@ def read_series(root: _Element, prefixes: Prefixes, refines: Refines) -> tuple[s
             props = properties_for_id(meta.get('id'), refines)
             if props.get('collection-type') == 'series':
                 try:
-                    series_index = float(props.get('group-position').strip())  # ty: ignore[unresolved-attribute] the AttributeError when missing is suppressed
+                    series_index = float(props.get('group-position').strip())  # ty: ignore[missing-union-attribute] the AttributeError when missing is suppressed
                 except Exception:
                     pass
                 return normalize_whitespace(val), series_index

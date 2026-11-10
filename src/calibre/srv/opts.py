@@ -439,9 +439,10 @@ def change_settings(**kwds: Unpack[OptionsKwargs]) -> None:
     global _server_config_cache
     new_opts: dict[str, object] = {}
     opts = server_config()
+    changes = dict(kwds)
     for name in options:
-        if name in kwds:
-            new_opts[name] = kwds[name]  # ty: ignore[invalid-key]
+        if name in changes:
+            new_opts[name] = changes[name]
         else:
             new_opts[name] = getattr(opts, name)
     new_opts_obj = Options(**cast('OptionsKwargs', new_opts))

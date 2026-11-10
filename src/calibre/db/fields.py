@@ -185,7 +185,7 @@ class Field:
 
     def category_items(self, item_ids: Iterable[int | str] | None = None) -> Iterable[tuple[int | str, set[int]]]:
         """The (item id, book ids) pairs to build categories from: all of them, or only those of item_ids"""
-        cbm = self.table.col_book_map  # ty: ignore[unresolved-attribute]
+        cbm = self.table.col_book_map  # ty: ignore[missing-attribute]
         if item_ids is None:
             return cbm.items()
         return ((i, cbm[i]) for i in item_ids if i in cbm)
@@ -202,7 +202,7 @@ class Field:
         if not self.is_many:
             return ans
 
-        id_map = self.table.id_map  # ty: ignore[unresolved-attribute]
+        id_map = self.table.id_map  # ty: ignore[missing-attribute]
         sort_fn = getattr(self, 'category_sort_value', None)
         for item_id, item_book_ids in self.category_items(item_ids):
             if book_ids is not None:
@@ -678,7 +678,7 @@ class ManyToManyField(Field):
 
 
 class IdentifiersField(ManyToManyField):
-    table: IdentifiersTable  # ty: ignore[invalid-mutable-override]
+    table: IdentifiersTable  # ty: ignore[incompatible-mutable-override]
 
     def for_book(self, book_id: int, default_value: object = None) -> object:
         ids = self.table.book_col_map.get(book_id, None)
@@ -686,7 +686,7 @@ class IdentifiersField(ManyToManyField):
             ids = ids.copy()
         elif default_value is not None:
             try:
-                ids = default_value.copy()  # in case default_value is a mutable dict  # ty: ignore[unresolved-attribute]
+                ids = default_value.copy()  # in case default_value is a mutable dict  # ty: ignore[missing-attribute]
             except AttributeError:
                 ids = default_value
         else:
@@ -694,7 +694,7 @@ class IdentifiersField(ManyToManyField):
         return ids
 
     @property
-    def book_value_map(self) -> dict[int, dict[str, str]]:  # ty: ignore[invalid-property-type-override]
+    def book_value_map(self) -> dict[int, dict[str, str]]:  # ty: ignore[incompatible-property-override]
         # Identifiers are stored as maps of type to value, not as links to an id_map
         return {book_id: ids.copy() for book_id, ids in self.table.book_col_map.items()}
 
@@ -734,7 +734,7 @@ class IdentifiersField(ManyToManyField):
 
 class AuthorsField(ManyToManyField):
     author_sort_field: Field
-    table: AuthorsTable  # ty: ignore[invalid-mutable-override]
+    table: AuthorsTable  # ty: ignore[incompatible-mutable-override]
 
     def author_data(self, author_id: int) -> dict[str, str]:
         return {
@@ -754,7 +754,7 @@ class AuthorsField(ManyToManyField):
 
 
 class FormatsField(ManyToManyField):
-    table: FormatsTable  # ty: ignore[invalid-mutable-override]
+    table: FormatsTable  # ty: ignore[incompatible-mutable-override]
 
     def for_book(self, book_id: int, default_value: object = None) -> object:
         return self.table.book_col_map.get(book_id, default_value)

@@ -149,7 +149,7 @@ def convert_markdown_with_metadata(txt: str, title: str = '', extensions: Iterab
     md = create_markdown_object(extensions)
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
-    m = md.Meta  # ty: ignore[unresolved-attribute]  # set by the meta extension
+    m = md.Meta  # ty: ignore[missing-attribute]  # set by the meta extension
     for k, v in {'date': 'pubdate', 'summary': 'comments'}.items():
         if v not in m and k in m:
             m[v] = m.pop(k)

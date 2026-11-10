@@ -218,7 +218,7 @@ class Tester(SearchQueryParser):
         else:
             return {key for key, val in self.texts.items() if query and query in getattr(getter(val), 'lower', lambda: '')()}
 
-    def run_tests(self, ae: Callable[[object, object, str], None]) -> None:  # ty: ignore[invalid-method-override]
+    def run_tests(self, ae: Callable[[object, object, str], None]) -> None:  # ty: ignore[incompatible-method-override]
         for query in self.tests.keys():
             res = self.parse(query)
             ae(self.tests[query], res, f'Failed for query: {query}')
@@ -291,7 +291,7 @@ def find_tests() -> unittest.TestSuite:
 
 
 class TestRunner(unittest.main):
-    def createTests(self) -> None:  # ty: ignore[invalid-method-override]
+    def createTests(self) -> None:  # ty: ignore[incompatible-method-override]
         self.test = find_tests()
 
 

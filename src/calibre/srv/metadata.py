@@ -304,7 +304,7 @@ class GroupedSearchTerms:
 
     def __eq__(self, other: object) -> bool:
         try:
-            return self.keys == other.keys  # ty: ignore[unresolved-attribute]
+            return self.keys == other.keys  # ty: ignore[missing-attribute]
         except AttributeError:
             return False
 

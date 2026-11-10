@@ -241,7 +241,7 @@ class StoryView(TextDisplayMixin, MomentumScrollMixin, QTextBrowser):
         self.copy_turn_text_only_action: QAction | None = None
         self.setup_text_display()
 
-    def wheelEvent(self, a0: QWheelEvent | None) -> None:  # ty: ignore[invalid-method-override]
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
         if not self.zoom_wheel_event(a0):
             MomentumScrollMixin.wheelEvent(self, a0)
 

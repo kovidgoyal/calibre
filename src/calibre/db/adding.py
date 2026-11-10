@@ -117,7 +117,7 @@ else:
         root = root.encode(filesystem_encoding)  # ty: ignore[invalid-assignment]
         for x in os.listdir(root):
             try:
-                yield x.decode(filesystem_encoding)  # ty: ignore[unresolved-attribute]
+                yield x.decode(filesystem_encoding)  # ty: ignore[missing-attribute]
             except UnicodeDecodeError:
                 prints('Ignoring un-decodable file:', x)
 

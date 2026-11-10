@@ -80,7 +80,7 @@ def implementation(
                 return False, unsupported_field_error(db, field)
             items = {field: db.get_all_items_that_have_notes(field)} if field else db.get_all_items_that_have_notes()
             ans = []
-            for field_name, item_ids in items.items():  # ty: ignore[unresolved-attribute]
+            for field_name, item_ids in items.items():  # ty: ignore[missing-union-attribute]
                 id_map = db.get_id_map(field_name)
                 ans.extend((field_name, id_map[item_id]) for item_id in item_ids if item_id in id_map)
         return True, sorted(ans)

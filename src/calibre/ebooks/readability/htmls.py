@@ -45,7 +45,7 @@ def norm_title(title: str) -> str:
 
 def get_title(doc: HtmlElement) -> str:
     try:
-        title = doc.find('.//title').text  # ty: ignore[unresolved-attribute] a missing title is handled by the except clause
+        title = doc.find('.//title').text  # ty: ignore[missing-union-attribute] a missing title is handled by the except clause
     except AttributeError:
         title = None
     if not title:
@@ -62,7 +62,7 @@ def add_match(collection: set[str], text: str, orig: str) -> None:
 
 
 def shorten_title(doc: HtmlElement) -> str:
-    title = doc.find('.//title').text  # ty: ignore[unresolved-attribute] raises AttributeError if there is no <title>
+    title = doc.find('.//title').text  # ty: ignore[missing-union-attribute] raises AttributeError if there is no <title>
     if not title:
         return ''
 

@@ -367,7 +367,7 @@ if __name__ == '__main__':
     class MomentumListView(QListView, MomentumScrollMixin):
         """QListView with momentum scrolling enabled."""
 
-        def wheelEvent(self, e) -> None:  # ty: ignore[invalid-method-override]
+        def wheelEvent(self, e) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
             MomentumScrollMixin.wheelEvent(self, e)
 
     class DemoWindow(QMainWindow):

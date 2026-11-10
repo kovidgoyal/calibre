@@ -220,7 +220,7 @@ def main(opts: Values, args: list[str], dbctx: DBContext) -> int:
         if opts.output_format == 'json':
             for r in results:
                 m = metadata_cache[r['book_id']]
-                r['title'], r['authors'] = m['title'], m['authors']  # ty: ignore[invalid-key]
+                r['title'], r['authors'] = m['title'], m['authors']  # ty: ignore[invalid-typed-dict-key]
             import json
 
             print(json.dumps(results, sort_keys=True, indent='  '))

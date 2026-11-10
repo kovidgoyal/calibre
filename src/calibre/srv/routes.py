@@ -104,7 +104,7 @@ class RouteFunction:
 
     @property
     def __name__(self) -> str:
-        return self.f.__name__  # ty: ignore[unresolved-attribute]
+        return self.f.__name__  # ty: ignore[missing-attribute]
 
     def __call__(self, ctx: Context, rd: RequestData, *path_segments: object) -> object:
         return self.f(ctx, rd, *path_segments)

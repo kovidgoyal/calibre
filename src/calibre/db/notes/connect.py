@@ -786,7 +786,7 @@ class Notes:
         # If there are multiple backups for an item, as left behind by older versions of calibre, the newest one wins
         entries.sort(key=lambda entry: entry[3].st_mtime)
 
-        rmaps = {field: {v: k for k, v in tables[field].id_map.items()} for field in items}  # ty: ignore[unresolved-attribute]
+        rmaps = {field: {v: k for k, v in tables[field].id_map.items()} for field in items}  # ty: ignore[missing-union-attribute]
         for field, path, raw, st, doc, searchable_text, resources, old_item_val in entries:
             i += 1
             missing_resources = resources - known_resources

@@ -263,7 +263,7 @@ class RegexEdit(XPathEdit):
         self.db = self.doc_cache = None
 
     @property
-    def text(self):  # ty: ignore[invalid-property-type-override]
+    def text(self):  # ty: ignore[incompatible-property-override]
         return str(self.edit.text())
 
     @property

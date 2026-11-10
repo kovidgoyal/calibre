@@ -166,7 +166,7 @@ class LrsParser:
                 else:
                     page.append(self.parsed_objects[block_tag.get('objid')])
 
-        for tag in self.soup.find('objects').findAll('button'):  # ty: ignore[unresolved-attribute] required element of LRS files
+        for tag in self.soup.find('objects').findAll('button'):  # ty: ignore[missing-union-attribute] required element of LRS files
             jt = tag.find('jumpto')
             tb = self.parsed_objects[jt.get('refobj')]
             jb = JumpButton(tb)
@@ -257,12 +257,12 @@ class LrsParser:
         return ''.join(strings)
 
     def first_pass(self) -> None:
-        info = self.soup.find('bbebxylog').find('bookinformation').find('info')  # ty: ignore[unresolved-attribute] required element of LRS files
-        bookinfo = info.find('bookinfo')  # ty: ignore[unresolved-attribute] required element of LRS files
-        docinfo = info.find('docinfo')  # ty: ignore[unresolved-attribute] required element of LRS files
+        info = self.soup.find('bbebxylog').find('bookinformation').find('info')  # ty: ignore[missing-union-attribute] required element of LRS files
+        bookinfo = info.find('bookinfo')  # ty: ignore[missing-union-attribute] required element of LRS files
+        docinfo = info.find('docinfo')  # ty: ignore[missing-union-attribute] required element of LRS files
 
         def me(base: Tag | None, tagname: str) -> tuple[str, str | AttributeValueList | None] | tuple[str, str, str]:
-            tag = base.find(tagname.lower())  # ty: ignore[unresolved-attribute] required element of LRS files
+            tag = base.find(tagname.lower())  # ty: ignore[missing-union-attribute] required element of LRS files
             if tag is None:
                 return ('', '', '')
             tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_attr('reading') else '')

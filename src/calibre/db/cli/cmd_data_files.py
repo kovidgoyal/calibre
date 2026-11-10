@@ -162,7 +162,7 @@ def implementation(
                 if is_remote:
                     dest = BytesIO()
                 db._copy_extra_file_to(book_id, relpath, dest)  # ty: ignore[invalid-argument-type]
-                return True, dest.getvalue() if is_remote else None  # ty: ignore[unresolved-attribute]
+                return True, dest.getvalue() if is_remote else None  # ty: ignore[missing-union-attribute]
             if action == 'rename':
                 name, new_name, replace = cast('tuple[str, str, bool]', args)
                 relpath = existing_data_file(db, book_id, name)

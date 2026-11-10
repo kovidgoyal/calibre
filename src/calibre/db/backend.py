@@ -1099,7 +1099,7 @@ class DB:
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y, str) else y for y in x]
                 return [normalize_whitespace(y) for y in x]
             else:
-                return x if x is None or isinstance(x, str) else x.decode(preferred_encoding, 'replace')  # ty: ignore[unresolved-attribute]
+                return x if x is None or isinstance(x, str) else x.decode(preferred_encoding, 'replace')  # ty: ignore[missing-union-attribute]
 
         def adapt_datetime(x: str | bytes | datetime | None, d: CustomColumnData) -> datetime | None:
             if isinstance(x, (str, bytes)):
@@ -2228,7 +2228,7 @@ class DB:
 
             data = pixmap_to_data(data)
         elif callable(getattr(data, 'read', None)):
-            data = data.read()  # ty: ignore[unresolved-attribute]
+            data = data.read()  # ty: ignore[missing-union-attribute]
         if data is None:
             if os.path.exists(path):
                 try:

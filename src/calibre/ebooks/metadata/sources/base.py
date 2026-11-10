@@ -124,10 +124,10 @@ class InternalMetadataCompareKeyGen:
                 return -1 if delta < 0 else 1
         return cmp(self.extra, other.extra)
 
-    def __eq__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[invalid-method-override]
+    def __eq__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[incompatible-method-override]
         return self.compare_to_other(other) == 0
 
-    def __ne__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[invalid-method-override]
+    def __ne__(self, other: InternalMetadataCompareKeyGen) -> bool:  # ty: ignore[incompatible-method-override]
         return self.compare_to_other(other) != 0
 
     def __lt__(self, other: InternalMetadataCompareKeyGen) -> bool:

@@ -1630,7 +1630,7 @@ class KOBO(USBMS):
             else:
                 mi.comments = prettify(user_notes_soup)
             # Update library comments
-            db.set_comment(db_id, mi.comments)  # ty: ignore[unresolved-attribute] legacy setter added dynamically in calibre.db.legacy
+            db.set_comment(db_id, mi.comments)  # ty: ignore[missing-attribute] legacy setter added dynamically in calibre.db.legacy
 
             # Add bookmark file to db_id
             # NOTE: As it is, this copied the book from the device back to the library. That meant it replaced the
@@ -4957,7 +4957,7 @@ class KOBOTOUCH(KOBO):
         return self.fwversion[:2] > self.max_supported_fwversion
 
     @classmethod
-    def migrate_old_settings(cls, old_settings: OptionValues) -> OptionValues:  # ty: ignore[invalid-method-override] legacy API
+    def migrate_old_settings(cls, old_settings: OptionValues) -> OptionValues:  # ty: ignore[incompatible-method-override] legacy API
         debug_print('KoboTouch::migrate_old_settings - start')
         debug_print('KoboTouch::migrate_old_settings - old_settings.extra_customization=', old_settings.extra_customization)
         debug_print('KoboTouch::migrate_old_settings - For class=', cls.name)

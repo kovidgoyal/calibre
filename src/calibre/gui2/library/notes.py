@@ -225,7 +225,7 @@ class ResultsList(QTreeWidget):
         assert not isinstance(fields_with_notes, bool)
         field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in fields_with_notes}
         for result in results:
-            field_map[result['field']]['matches'].append(result)  # ty: ignore[unresolved-attribute]
+            field_map[result['field']]['matches'].append(result)  # ty: ignore[missing-union-attribute]
         for field, entry in field_map.items():
             if not entry['matches']:
                 continue

@@ -139,14 +139,16 @@ class Index:
         ans = ['*' * 10 + ' Index Header ' + '*' * 10]
         a = ans.append
         if self.header is not None:
+            index_header = dict(self.header)
             for field in INDEX_HEADER_FIELDS:
-                a(f'{FIELD_NAMES.get(field, field):<12}: {self.header[field]!r}')  # ty: ignore[invalid-key] field is a key of IndexHeader
+                a(f'{FIELD_NAMES.get(field, field):<12}: {index_header[field]!r}')
         ans.extend(['', ''])
         ans += ['*' * 10 + f' Index Record Headers ({len(self.index_headers)} records) ' + '*' * 10]
         for i, header in enumerate(self.index_headers):
             ans += ['*' * 10 + f' Index Record {i} ' + '*' * 10]
+            record_header = dict(header)
             for field in INDEX_HEADER_FIELDS:
-                a(f'{FIELD_NAMES.get(field, field):<12}: {header[field]!r}')  # ty: ignore[invalid-key] field is a key of IndexHeader
+                a(f'{FIELD_NAMES.get(field, field):<12}: {record_header[field]!r}')
 
         if self.cncx:
             a('*' * 10 + ' CNCX ' + '*' * 10)
@@ -249,14 +251,14 @@ class NCXIndex(Index):
 
                 for tag in tag_fieldname_map:
                     fieldname, i = tag_fieldname_map[tag]
-                    assert isinstance(fieldname, str)
                     if tag in tag_map:
-                        fieldvalue = tag_map[tag][i]
-                        if tag == 6:
+                        if fieldname == 'pos_fid':
                             # Appears to be an idx into the KF8 elems table with an
                             # offset
-                            fieldvalue = tuple(tag_map[tag])
-                        e[fieldname] = fieldvalue  # ty: ignore[invalid-key] fieldname is always a key of NCXEntryDict
+                            e['pos_fid'] = tuple(tag_map[tag])
+                            continue
+                        fieldvalue = tag_map[tag][i]
+                        e[fieldname] = fieldvalue
                         for which, name in {
                             3: 'text',
                             5: 'kind',
@@ -269,7 +271,7 @@ class NCXIndex(Index):
                                 cncx = self.cncx
                                 assert cncx is not None
                                 # fieldvalue is a CNCX offset for these tags, the result is a string or the default
-                                e[name] = cncx.get(fieldvalue, default_entry[name])  # ty: ignore[invalid-assignment, invalid-argument-type]
+                                e[name] = cncx.get(fieldvalue, default_entry[name])  # ty: ignore[invalid-assignment]
 
                 def refindx(e: NCXEntryDict, name: Literal['parent', 'child1', 'childn']) -> int | None:
                     ans = e[name]

@@ -838,7 +838,7 @@ def read_xmp_from_pil_image(im: PILImage) -> str | bytes:
     fmt = (im.format or '').lower()
     xml: str | bytes = ''
     if fmt == 'jpeg':
-        for segment, content in im.applist:  # ty: ignore[unresolved-attribute]
+        for segment, content in im.applist:  # ty: ignore[missing-attribute]
             if segment == 'APP1':
                 marker, xmp_tags = content.split(b'\x00')[:2]
                 if marker == b'http://ns.adobe.com/xap/1.0/':
@@ -849,7 +849,7 @@ def read_xmp_from_pil_image(im: PILImage) -> str | bytes:
     elif fmt == 'webp':
         xml = im.info.get('xmp', '')
     elif fmt == 'tiff':
-        xml = im.tag_v2.get(700, '')  # ty: ignore[unresolved-attribute]
+        xml = im.tag_v2.get(700, '')  # ty: ignore[missing-attribute]
     return xml
 
 

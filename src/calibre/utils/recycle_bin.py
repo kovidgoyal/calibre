@@ -37,7 +37,7 @@ if iswindows:
             if not path:
                 break
             try:
-                path = path.decode('utf-8').rstrip()  # ty: ignore[unresolved-attribute]
+                path = path.decode('utf-8').rstrip()  # ty: ignore[missing-union-attribute]
             except ValueError, TypeError:
                 break
             try:

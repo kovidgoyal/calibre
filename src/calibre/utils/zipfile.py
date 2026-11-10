@@ -1683,7 +1683,7 @@ def safe_replace(
             ZipFile(zipstream_or_path, 'r') as z,
             tempfile.NamedTemporaryFile(prefix=prefix, dir=parent_dir, delete=False) as temp,
         ):
-            clone_file_metadata(z.fp.fileno(), temp.fileno(), temp.name)  # ty: ignore[unresolved-attribute]
+            clone_file_metadata(z.fp.fileno(), temp.fileno(), temp.name)  # ty: ignore[missing-union-attribute]
             do_replace(z, temp, name, datastream, extra_replacements, add_missing)
         try:
             os.replace(temp.name, path)

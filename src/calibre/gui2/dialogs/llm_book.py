@@ -41,8 +41,8 @@ def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str
         m = book.metadata_for_field(field)
         if field == 'comments':
             comments.append(comments_as_markdown(book.comments))
-        elif m.get('datatype') == 'comments':  # ty: ignore[unresolved-attribute] allowed fields always have metadata
-            ctype = m.get('display', {}).get('interpret_as') or 'html'  # ty: ignore[unresolved-attribute]
+        elif m.get('datatype') == 'comments':  # ty: ignore[missing-union-attribute] allowed fields always have metadata
+            ctype = m.get('display', {}).get('interpret_as') or 'html'  # ty: ignore[missing-union-attribute]
             val = book.get(field)
             assert isinstance(val, str)  # the value of a non-null comments column
             match ctype:

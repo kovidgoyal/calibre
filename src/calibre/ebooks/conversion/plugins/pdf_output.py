@@ -309,7 +309,7 @@ class PDFOutput(OutputFormatPlugin):
                             continue
                         if nraw != raw:
                             ff.data = nraw
-                            self.oeb.container.write(path, nraw)  # ty: ignore[unresolved-attribute] the input plugins set a container with a write() method, such as DirContainer
+                            self.oeb.container.write(path, nraw)  # ty: ignore[missing-attribute] the input plugins set a container with a write() method, such as DirContainer
 
     def convert_text(self, oeb_book: OEBBook) -> None:
         import json

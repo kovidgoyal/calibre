@@ -547,7 +547,7 @@ def find_tests() -> unittest.TestSuite:
 
 
 class TestRunner(unittest.main):
-    def createTests(self) -> None:  # ty: ignore[invalid-method-override]
+    def createTests(self) -> None:  # ty: ignore[incompatible-method-override]
         self.test = find_tests()
 
 

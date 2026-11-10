@@ -385,7 +385,7 @@ class Mobi8Reader:
                 has_start = True
             guide.append(g)
 
-        so = self.header.exth.start_offset  # ty: ignore[unresolved-attribute] KF8 files always have an EXTH header
+        so = self.header.exth.start_offset  # ty: ignore[missing-union-attribute] KF8 files always have an EXTH header
         if so not in {None, NULL_INDEX} and not has_start:
             fi = self.get_file_info(so)
             if fi.filename is not None:
@@ -499,7 +499,7 @@ class Mobi8Reader:
         return expand_mobi8_markup(self, resource_map, self.log)
 
     def write_opf(self, guide: Guide, toc: TOC, spine: list[str], resource_map: list[str | None]) -> str:
-        mi = self.header.exth.mi  # ty: ignore[unresolved-attribute] KF8 files always have an EXTH header
+        mi = self.header.exth.mi  # ty: ignore[missing-union-attribute] KF8 files always have an EXTH header
         if self.cover_offset is not None and self.cover_offset < len(resource_map):
             mi.cover = resource_map[self.cover_offset]
 

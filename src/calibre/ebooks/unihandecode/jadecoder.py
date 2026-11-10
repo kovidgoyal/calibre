@@ -44,14 +44,14 @@ def jisyo_init(self: Jisyo, dictname: str) -> None:
 
 def itaiji_init(self: Itaiji) -> None:
     if self._itaijidict is None:
-        with self._lock:  # ty: ignore[unresolved-attribute] Borg pattern, _lock is in the shared __dict__
+        with self._lock:  # ty: ignore[missing-attribute] Borg pattern, _lock is in the shared __dict__
             if self._itaijidict is None:
                 self._itaijidict = pickle.loads(dictdata(Configurations.jisyo_itaiji))
 
 
 def kanwa_init(self: Kanwa) -> None:
     if self._jisyo_table is None:
-        with self._lock:  # ty: ignore[unresolved-attribute] Borg pattern, _lock is in the shared __dict__
+        with self._lock:  # ty: ignore[missing-attribute] Borg pattern, _lock is in the shared __dict__
             if self._jisyo_table is None:
                 self._jisyo_table = pickle.loads(dictdata(Configurations.jisyo_kanwa))
 

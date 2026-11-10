@@ -1407,7 +1407,7 @@ SYMBOL_FONT_NAMES = frozenset(n.lower() for n in SYMBOL_MAPS)
 
 def is_symbol_font(family: str | Inherit) -> bool:
     try:
-        return family.lower() in SYMBOL_FONT_NAMES  # ty: ignore[unresolved-attribute]  # AttributeError for inherit is handled below
+        return family.lower() in SYMBOL_FONT_NAMES  # ty: ignore[missing-union-attribute]  # AttributeError for inherit is handled below
     except AttributeError:
         return False
 

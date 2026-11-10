@@ -279,7 +279,7 @@ def get_component_metadata(template: str, mi: Metadata, book_id: object, timefmt
                 if key + '_index' in format_args:
                     format_args[key + '_index'] = fmt_sidx(cast('float', format_args[key + '_index']))
             elif cm['datatype'] == 'datetime':
-                format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())  # ty: ignore[unresolved-attribute]
+                format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())  # ty: ignore[missing-attribute]
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
             elif cm['datatype'] == 'rating':
@@ -512,7 +512,7 @@ def save_to_disk(
             failed, id, title = save_book_to_disk(x, db, root, opts, length)
             tb = _('Requested formats not available')
         except Exception:
-            failed, id, title = True, x, db.title(x, index_is_id=True)  # ty: ignore[unresolved-attribute] legacy getter added dynamically in calibre.db.legacy
+            failed, id, title = True, x, db.title(x, index_is_id=True)  # ty: ignore[missing-attribute] legacy getter added dynamically in calibre.db.legacy
             tb = traceback.format_exc()
         if failed:
             failures.append((id, title, tb))

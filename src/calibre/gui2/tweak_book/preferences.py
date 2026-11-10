@@ -727,7 +727,7 @@ class ToolbarSettings(QWidget):
         for x in ('gb1', 'gb2', 'lb', 'rb'):
             getattr(self, x).setVisible(visible)
 
-    def move(self, up=True) -> None:  # ty: ignore[invalid-method-override]
+    def move(self, up=True) -> None:  # ty: ignore[incompatible-method-override]
         r = self.current.currentRow()
         v = self.current
         if r < 0 or (r < 1 and up) or (r > v.count() - 2 and not up):

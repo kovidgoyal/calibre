@@ -61,7 +61,7 @@ class Canvas(etree.XSLTExtension):
                     td = table.makeelement('td')
                     self.text_block.render_block(obj, td)
                     tr.append(td)
-            output_parent.append(table)  # ty: ignore[unresolved-attribute] output_parent is not None, the templates call this inside an element
+            output_parent.append(table)  # ty: ignore[missing-union-attribute] output_parent is not None, the templates call this inside an element
 
     def image_page(self, input_node: etree._Element, block: etree._Element, output_parent: etree._Element) -> None:
         div = etree.Element('div')
@@ -113,7 +113,7 @@ class ImageBlock(etree.XSLTExtension):
 class RuledLine(etree.XSLTExtension):
     def execute(self, context: object, self_node: etree._Element, input_node: etree._Element, output_parent: etree._Element | None) -> None:
         hr = etree.Element('hr')
-        output_parent.append(hr)  # ty: ignore[unresolved-attribute] output_parent is not None, the templates call this inside an element
+        output_parent.append(hr)  # ty: ignore[missing-union-attribute] output_parent is not None, the templates call this inside an element
 
 
 class TextBlock(etree.XSLTExtension):
@@ -128,7 +128,7 @@ class TextBlock(etree.XSLTExtension):
         input_node = deepcopy(input_node)
         div = etree.Element('div')
         self.render_block(input_node, div)
-        output_parent.append(div)  # ty: ignore[unresolved-attribute] output_parent is not None, the templates call this inside an element
+        output_parent.append(div)  # ty: ignore[missing-union-attribute] output_parent is not None, the templates call this inside an element
 
     def render_block(self, node: etree._Element, root: etree._Element) -> None:
         ts = node.get('textstyle', None)

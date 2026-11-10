@@ -58,12 +58,12 @@ class MultiDict[V](dict[str, list[V]]):  # {{{
     # Assigning to a key appends a value and reading a key returns the last
     # value, so the item methods intentionally differ from those of dict
 
-    def __setitem__(self, key: str, val: V) -> None:  # ty: ignore[invalid-method-override]
+    def __setitem__(self, key: str, val: V) -> None:  # ty: ignore[incompatible-method-override]
         vals = dict.get(self, key, [])
         vals.append(val)
         dict.__setitem__(self, key, vals)
 
-    def __getitem__(self, key: str) -> V:  # ty: ignore[invalid-method-override]
+    def __getitem__(self, key: str) -> V:  # ty: ignore[incompatible-method-override]
         return dict.__getitem__(self, key)[-1]
 
     @staticmethod
@@ -79,7 +79,7 @@ class MultiDict[V](dict[str, list[V]]):  # {{{
             for val in values:
                 self[key] = val
 
-    def items(self, duplicates: bool = True) -> Iterator[tuple[str, V]]:  # ty: ignore[invalid-method-override]
+    def items(self, duplicates: bool = True) -> Iterator[tuple[str, V]]:  # ty: ignore[incompatible-method-override]
         f = dict.items
         for k, v in f(self):
             if duplicates:
@@ -90,7 +90,7 @@ class MultiDict[V](dict[str, list[V]]):  # {{{
 
     iteritems = items
 
-    def values(self, duplicates: bool = True) -> Iterator[V]:  # ty: ignore[invalid-method-override]
+    def values(self, duplicates: bool = True) -> Iterator[V]:  # ty: ignore[incompatible-method-override]
         f = dict.values
         for v in f(self):
             if duplicates:
@@ -114,7 +114,7 @@ class MultiDict[V](dict[str, list[V]]):  # {{{
     def get(self, key: str, default: object = None, *, all: Literal[True]) -> list[V]: ...
     @overload
     def get(self, key: str, default: object, all: Literal[True]) -> list[V]: ...
-    def get(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[invalid-method-override]
+    def get(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[incompatible-method-override]
         if all:
             try:
                 return dict.__getitem__(self, key)
@@ -133,7 +133,7 @@ class MultiDict[V](dict[str, list[V]]):  # {{{
     def pop(self, key: str, default: object = None, *, all: Literal[True]) -> list[V]: ...
     @overload
     def pop(self, key: str, default: object, all: Literal[True]) -> list[V]: ...
-    def pop(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[invalid-method-override]
+    def pop(self, key: str, default: object = None, all: bool = False) -> object:  # ty: ignore[incompatible-method-override]
         ans = dict.pop(self, key, default)
         if ans is default:
             return [] if all else default

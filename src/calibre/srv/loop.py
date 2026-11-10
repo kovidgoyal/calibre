@@ -253,13 +253,13 @@ class Connection:  # {{{
         self.wait_for = wait_for
         if args or kwargs:
             pfunc = partial(func, *args, **kwargs)
-            setattr(pfunc, '__name__', func.__name__)  # ty: ignore[unresolved-attribute]
+            setattr(pfunc, '__name__', func.__name__)  # ty: ignore[missing-attribute]
             func = pfunc
         self.handle_event = func
 
     def do_ssl_handshake(self, event: ConnectionEvent) -> None:
         try:
-            self.socket._sslobj.do_handshake()  # ty: ignore[unresolved-attribute]
+            self.socket._sslobj.do_handshake()  # ty: ignore[missing-attribute]
         except ssl.SSLWantReadError:
             self.set_state(READ, self.do_ssl_handshake)
         except ssl.SSLWantWriteError:

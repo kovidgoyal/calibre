@@ -68,7 +68,7 @@ class Dict(Index):
         Index.__init__(self)
         self.src, self.strings = src, strings
 
-    def compile(self) -> None:  # ty: ignore[invalid-method-override]
+    def compile(self) -> None:  # ty: ignore[incompatible-method-override]
         self[:] = [self.src.compile(self.strings)]
         Index.compile(self)
 

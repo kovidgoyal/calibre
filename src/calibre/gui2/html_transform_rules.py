@@ -372,8 +372,8 @@ class HtmlRulesWidget(RulesWidgetBase):  # {{{
     PREFS_NAME = 'html-transform-rules'
     INITIAL_FILE_NAME = 'html-rules.txt'
     DIR_SAVE_NAME = 'export-html-transform-rules'
-    export_func = export_rules  # ty: ignore[invalid-method-override] HTML rules have a different type than CSS rules
-    import_func = import_rules  # ty: ignore[invalid-method-override] HTML rules have a different type than CSS rules
+    export_func = export_rules  # ty: ignore[incompatible-method-override] HTML rules have a different type than CSS rules
+    import_func = import_rules  # ty: ignore[incompatible-method-override] HTML rules have a different type than CSS rules
     TesterClass = Tester
     RulesClass = Rules
 

@@ -62,7 +62,7 @@ class CheckLibrary:
 
         self.is_case_sensitive = db.is_case_sensitive
 
-        self.all_authors = frozenset(x[1] for x in db.all_authors())  # ty: ignore[unresolved-attribute] legacy getter added dynamically in calibre.db.legacy
+        self.all_authors = frozenset(x[1] for x in db.all_authors())  # ty: ignore[missing-attribute] legacy getter added dynamically in calibre.db.legacy
         self.all_ids = frozenset(id_ for id_ in db.all_ids())
         self.all_dbpaths = frozenset(self.dbpath(id_) for id_ in self.all_ids)
         self.all_lc_dbpaths = frozenset(f.lower() for f in self.all_dbpaths)

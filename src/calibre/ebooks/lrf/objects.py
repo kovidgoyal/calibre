@@ -439,7 +439,7 @@ class Page(LRFStream):
     def to_html(self) -> str:
         s = ''
         for i in self:
-            s += i.to_html()  # ty: ignore[unresolved-attribute] pre-existing, only Block has to_html()
+            s += i.to_html()  # ty: ignore[missing-attribute] pre-existing, only Block has to_html()
         return s
 
 

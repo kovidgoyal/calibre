@@ -103,7 +103,7 @@ class FOLDER_DEVICE(USBMS):
 
     # Returns itself rather than a detected USB device, the return value is
     # ignored by the device manager for folder devices
-    def is_usb_connected(  # ty: ignore[invalid-method-override]
+    def is_usb_connected(  # ty: ignore[incompatible-method-override]
         self, devices_on_system: Collection[DetectedDevice], debug: bool = False, only_presence: bool = False
     ) -> tuple[bool, FOLDER_DEVICE]:
         return self.is_connected, self

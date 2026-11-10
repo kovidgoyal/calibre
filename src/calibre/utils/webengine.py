@@ -25,13 +25,13 @@ def setup_fake_protocol() -> None:
 
 def setup_profile(profile: QWebEngineProfile | None) -> QWebEngineProfile:
     # Qt uses persistent storage path to store cached GPU data even for OTR profiles
-    base = os.path.abspath(os.path.join(cache_dir(), 'qwe', profile.storageName() or 'dp'))  # ty: ignore[unresolved-attribute]
+    base = os.path.abspath(os.path.join(cache_dir(), 'qwe', profile.storageName() or 'dp'))  # ty: ignore[missing-union-attribute]
     cp = os.path.join(base, 'c')
-    if profile.cachePath() != cp:  # ty: ignore[unresolved-attribute]
-        profile.setCachePath(cp)  # ty: ignore[unresolved-attribute]
+    if profile.cachePath() != cp:  # ty: ignore[missing-union-attribute]
+        profile.setCachePath(cp)  # ty: ignore[missing-union-attribute]
     sp = os.path.join(base, 'sp')
-    if profile.persistentStoragePath() != sp:  # ty: ignore[unresolved-attribute]
-        profile.setPersistentStoragePath(sp)  # ty: ignore[unresolved-attribute]
+    if profile.persistentStoragePath() != sp:  # ty: ignore[missing-union-attribute]
+        profile.setPersistentStoragePath(sp)  # ty: ignore[missing-union-attribute]
     return profile  # ty: ignore[invalid-return-type]
 
 

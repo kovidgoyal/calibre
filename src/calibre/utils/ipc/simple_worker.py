@@ -28,8 +28,8 @@ if TYPE_CHECKING:
 
     class PipeWorker(Popen[bytes]):
         # stdin and stdout are pipes unless the caller overrides them
-        stdin: IO[bytes]  # ty: ignore[invalid-mutable-override]
-        stdout: IO[bytes]  # ty: ignore[invalid-mutable-override]
+        stdin: IO[bytes]  # ty: ignore[incompatible-mutable-override]
+        stdout: IO[bytes]  # ty: ignore[incompatible-mutable-override]
 
 
 # Time to wait for the thread reading the worker's response to finish, once the

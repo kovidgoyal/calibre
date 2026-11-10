@@ -253,8 +253,8 @@ window.calibre_translations_data = {translations_json};
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
-        s.setDefaultTextEncoding('utf-8')  # ty: ignore[unresolved-attribute]
-        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)  # ty: ignore[unresolved-attribute]
+        s.setDefaultTextEncoding('utf-8')  # ty: ignore[missing-union-attribute]
+        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)  # ty: ignore[missing-union-attribute]
         setattr(create_profile, 'ans', ans)
     return ans
 

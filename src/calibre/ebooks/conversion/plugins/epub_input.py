@@ -67,7 +67,7 @@ class EPUBInput(InputFormatPlugin):
                     scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = item.text.rpartition(':')[-1]  # ty: ignore[unresolved-attribute] None is handled by the except clause
+                    key = item.text.rpartition(':')[-1]  # ty: ignore[missing-union-attribute] None is handled by the except clause
                     key = uuid.UUID(key).bytes
                 except Exception:
                     import traceback
@@ -101,7 +101,7 @@ class EPUBInput(InputFormatPlugin):
         # Set the specified guide entry
         for elem in list(opf.iterguide()):
             if elem.get('type', '').lower() == gtype:
-                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] OPF guide entries always have a parent
+                elem.getparent().remove(elem)  # ty: ignore[missing-union-attribute] OPF guide entries always have a parent
 
         if href is not None:
             t = opf.create_guide_item(gtype, title, href)
@@ -158,7 +158,7 @@ class EPUBInput(InputFormatPlugin):
                         if self.for_viewer:
                             item.attrib.pop('linear', None)
                         else:
-                            item.getparent().remove(item)  # ty: ignore[unresolved-attribute] spine items always have a parent
+                            item.getparent().remove(item)  # ty: ignore[missing-union-attribute] spine items always have a parent
                             removed = titlepage_href
                         return removed
 
@@ -187,8 +187,8 @@ class EPUBInput(InputFormatPlugin):
                 else:
                     g = guide_elem.getparent()
                 guide_cover = raster_cover
-                guide_elem = g.makeelement(OPF('reference'), attrib={'href': raster_cover, 'type': 'cover'})  # ty: ignore[unresolved-attribute] guide entries always have a parent
-                g.append(guide_elem)  # ty: ignore[unresolved-attribute] guide entries always have a parent
+                guide_elem = g.makeelement(OPF('reference'), attrib={'href': raster_cover, 'type': 'cover'})  # ty: ignore[missing-union-attribute] guide entries always have a parent
+                g.append(guide_elem)  # ty: ignore[missing-union-attribute] guide entries always have a parent
             return
         spine = list(opf.iterspine())
         if not spine:
@@ -211,10 +211,10 @@ class EPUBInput(InputFormatPlugin):
                 log.warn('There is only a single spine item and it is marked as the cover. Removing cover marking.')
                 for guide_elem in tuple(opf.iterguide()):
                     if guide_elem.get('type', '').lower() == 'cover':
-                        guide_elem.getparent().remove(guide_elem)  # ty: ignore[unresolved-attribute] guide entries always have a parent
+                        guide_elem.getparent().remove(guide_elem)  # ty: ignore[missing-union-attribute] guide entries always have a parent
                 return
             else:
-                spine[0].getparent().remove(spine[0])  # ty: ignore[unresolved-attribute] spine items always have a parent
+                spine[0].getparent().remove(spine[0])  # ty: ignore[missing-union-attribute] spine items always have a parent
                 removed = guide_cover
         else:
             # Ensure the cover is displayed as the first item in the book, some
@@ -365,7 +365,7 @@ class EPUBInput(InputFormatPlugin):
         for x in list(opf.iterspine()):
             ref = x.get('idref', None)
             if not ref or ref in not_for_spine or ref in seen:
-                x.getparent().remove(x)  # ty: ignore[unresolved-attribute] spine items always have a parent
+                x.getparent().remove(x)  # ty: ignore[missing-union-attribute] spine items always have a parent
                 continue
             seen.add(ref)
 
@@ -431,7 +431,7 @@ class EPUBInput(InputFormatPlugin):
         # Put the landmarks first, in their original order
         refs = sorted((r for r in opf.iterguide() if r.get('type') in seen), key=lambda r: seen[r.get('type')])  # ty: ignore[invalid-argument-type] only entries with a type in seen are sorted
         for i, r in enumerate(refs):
-            r.getparent().insert(i, r)  # ty: ignore[unresolved-attribute] guide entries always have a parent
+            r.getparent().insert(i, r)  # ty: ignore[missing-union-attribute] guide entries always have a parent
 
     def convert_epub3_nav(self, nav_path: str, opf: OPF, log: Log, opts: Values) -> None:
         from tempfile import NamedTemporaryFile

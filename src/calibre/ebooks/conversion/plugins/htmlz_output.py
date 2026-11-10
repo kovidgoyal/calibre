@@ -128,7 +128,7 @@ class HTMLZOutput(OutputFormatPlugin):
                 cover_data = None
                 if oeb_book.metadata.cover:
                     term = oeb_book.metadata.cover[0].term
-                    cover_data = oeb_book.guide[term].item.data  # ty: ignore[unresolved-attribute] a missing item raises, which is caught below
+                    cover_data = oeb_book.guide[term].item.data  # ty: ignore[missing-union-attribute] a missing item raises, which is caught below
                 if cover_data:
                     from calibre.utils.img import save_cover_data_to
 

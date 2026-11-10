@@ -374,7 +374,7 @@ def proxy[**P, R](fn: Callable[ConcatenateParams[ConnectionProxy, P], R]) -> Cal
         with global_lock:
             if self.proxy.unhandled_error[0] is not None:
                 raise DatabaseException(*self.proxy.unhandled_error)
-            self.proxy.requests.put((fn.__name__, args, kwargs))  # ty: ignore[unresolved-attribute] always a function
+            self.proxy.requests.put((fn.__name__, args, kwargs))  # ty: ignore[missing-attribute] always a function
             ok, res = self.proxy.results.get()
             if not ok:
                 failure = cast('tuple[BaseException, str]', res)

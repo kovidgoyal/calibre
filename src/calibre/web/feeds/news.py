@@ -1130,7 +1130,7 @@ class BasicNewsRecipe(Recipe):
         css = self.template_css + '\n\n' + (self.get_extra_css() or '')
         style = soup.new_tag('style', type='text/css', title='override_css')
         style.append(css)
-        head.append(style)  # ty: ignore[unresolved-attribute]
+        head.append(style)  # ty: ignore[missing-union-attribute]
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
@@ -1895,7 +1895,7 @@ class BasicNewsRecipe(Recipe):
                         hostname += f':{purl.port}'  # ty: ignore[unsupported-operator]
                     url = purl._replace(netloc=hostname).geturl()  # ty: ignore[invalid-argument-type]
                     if purl.username and purl.password:
-                        br.add_password(url, purl.username, purl.password)  # ty: ignore[unresolved-attribute]
+                        br.add_password(url, purl.username, purl.password)  # ty: ignore[missing-union-attribute]
                 with closing(br.open_novisit(url, timeout=self.timeout)) as f:
                     raw = f.read()
                 parsed_feeds.append(
@@ -1949,7 +1949,7 @@ class BasicNewsRecipe(Recipe):
             ans = tostring(tag, method='text', encoding='unicode', with_tail=False)
         else:
             strings = []
-            for item in tag.contents:  # ty: ignore[unresolved-attribute]
+            for item in tag.contents:  # ty: ignore[missing-union-attribute]
                 if isinstance(item, (NavigableString, CData)):
                     strings.append(item.string)
                 elif isinstance(item, Tag):
@@ -2074,7 +2074,7 @@ class CalibrePeriodical(BasicNewsRecipe):
     needs_subscription = True
     __author__ = 'calibre Periodicals'
 
-    def get_browser(self) -> MechanizeBrowser:  # ty: ignore[invalid-method-override]
+    def get_browser(self) -> MechanizeBrowser:  # ty: ignore[incompatible-method-override]
         br = cast('MechanizeBrowser', BasicNewsRecipe.get_browser(self))
         br.open(self.LOG_IN)
         br.select_form(name='login')
@@ -2113,7 +2113,7 @@ class CalibrePeriodical(BasicNewsRecipe):
         try:
             with open(glob('*.recipe')[0], 'rb') as f:
                 recipe = compile_recipe(f.read())
-            self.conversion_options = recipe.conversion_options  # ty: ignore[unresolved-attribute]
+            self.conversion_options = recipe.conversion_options  # ty: ignore[missing-union-attribute]
         except Exception:
             self.log.exception('Failed to compile downloaded recipe')
         return os.path.abspath('index.html')

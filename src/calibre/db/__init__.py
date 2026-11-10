@@ -142,10 +142,10 @@ def get_data_as_dict(
         x['isbn'] = isbn or ''
         if not x['authors']:
             x['authors'] = _('Unknown')
-        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]  # ty: ignore[unresolved-attribute]
+        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]  # ty: ignore[missing-union-attribute]
         if authors_as_string:
             x['authors'] = authors_to_string(x['authors'])
-        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []  # ty: ignore[unresolved-attribute]
+        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []  # ty: ignore[missing-attribute]
         path = os.path.join(prefix, self.path(record[self.FIELD_MAP['id']], index_is_id=True))  # ty: ignore[invalid-argument-type]
         x['cover'] = os.path.join(path, 'cover.jpg')
         if not record[self.FIELD_MAP['cover']]:

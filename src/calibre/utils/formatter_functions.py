@@ -3435,7 +3435,7 @@ This function can be used only in the GUI and the content server.
                 # the function work in content server icon rules.
                 ids = db.new_api.search(query, None)
             else:
-                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[unresolved-attribute]
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[missing-attribute]
             return str(len(ids))
         except Exception:
             traceback.print_exc()
@@ -3474,7 +3474,7 @@ can be used only in the GUI and the content server.
             if use_vl == '0':
                 ids = db.new_api.search(query, None)
             else:
-                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[unresolved-attribute]
+                ids = db.search_getting_ids(query, None, use_virtual_library=True)  # ty: ignore[missing-attribute]
             s = set()
             for id_ in ids:
                 f = db.new_api.get_proxy_metadata(id_).get(column, None)

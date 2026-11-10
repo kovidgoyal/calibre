@@ -860,12 +860,12 @@ def annotate_toc(toc: TOC, anchor_locations: dict[str, AnchorLocation], name_anc
             log.warn(f'Could not find anchor location for ToC entry: {child.title} with href: {frag}')
             loc = AnchorLocation(1, 0, 0, 0)
         # pdf_loc is a dynamic attribute used only by PDF output
-        child.pdf_loc = loc  # ty: ignore[unresolved-attribute]
+        child.pdf_loc = loc  # ty: ignore[missing-attribute]
 
 
 def add_toc(pdf_parent: PDFOutlineRoot | PDFOutlineItem, toc_parent: TOC, log: Log, pdf_doc: PDFDoc) -> None:
     for child in toc_parent:
-        title, loc = child.title or '', child.pdf_loc  # ty: ignore[unresolved-attribute] set in annotate_toc()
+        title, loc = child.title or '', child.pdf_loc  # ty: ignore[missing-attribute] set in annotate_toc()
         try:
             pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
         except ValueError:
@@ -947,7 +947,7 @@ def add_pagenum_toc(root: _Element, toc: TOC, opts: Values, page_number_display_
     for level, node in toc.iterdescendants(level=0):
         tr = E('tr', cls=f'level-{level}', parent=table)
         E('td', text=node.title or _('Unknown'), parent=tr)
-        num = node.pdf_loc.pagenum  # ty: ignore[unresolved-attribute] set in annotate_toc()
+        num = node.pdf_loc.pagenum  # ty: ignore[missing-attribute] set in annotate_toc()
         num = page_number_display_map.get(num, num)
         E('td', text=f'{num}', parent=tr)
 

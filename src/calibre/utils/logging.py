@@ -223,11 +223,11 @@ class ThreadSafeLog(Log):
         Log.__init__(self, level=level)
         self._lock = Lock()
 
-    def prints(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[invalid-method-override]
+    def prints(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[incompatible-method-override]
         with self._lock:
             Log.prints(self, *args, **kwargs)
 
-    def print_with_flush(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[invalid-method-override]
+    def print_with_flush(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[incompatible-method-override]
         with self._lock:
             Log.print_with_flush(self, *args, **kwargs)
 
@@ -244,11 +244,11 @@ class ThreadSafeWrapper(Log):
         self.outputs = list(other_log.outputs)
         self._lock = Lock()
 
-    def prints(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[invalid-method-override]
+    def prints(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[incompatible-method-override]
         with self._lock:
             Log.prints(self, *args, **kwargs)
 
-    def print_with_flush(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[invalid-method-override]
+    def print_with_flush(self, *args: *tuple[int, *tuple[object, ...]], **kwargs: Unpack[PrintKwargs]) -> None:  # ty: ignore[incompatible-method-override]
         with self._lock:
             Log.print_with_flush(self, *args, **kwargs)
 

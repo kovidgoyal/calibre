@@ -280,7 +280,7 @@ class Parser:
         if self.token_type() == self.QUOTED_WORD:
             return ['token', 'all', self.token(advance=True)]
 
-        words = self.token(advance=True).split(':')  # ty: ignore[unresolved-attribute]
+        words = self.token(advance=True).split(':')  # ty: ignore[missing-union-attribute]
 
         # The complexity here comes from having colon-separated search
         # values. That forces us to check that the first "word" in a colon-

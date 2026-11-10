@@ -1480,7 +1480,7 @@ class EpubContainer(Container):
                     scheme = item.get(xkey)
             if (scheme and scheme.lower() == 'uuid') or (item.text and item.text.startswith('urn:uuid:')):
                 try:
-                    key = item.text.rpartition(':')[-1]  # ty: ignore[unresolved-attribute] a None text is handled by the except clause
+                    key = item.text.rpartition(':')[-1]  # ty: ignore[missing-union-attribute] a None text is handled by the except clause
                     key = uuid.UUID(key).bytes
                 except Exception:
                     if self.log is not None:

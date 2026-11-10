@@ -74,7 +74,7 @@ class BookmarksMixin:
                 if isinstance(pos, numbers.Number):
                     pos = str(pos)
                 else:
-                    pos = pos.replace('^', BM_LEGACY_ESC)  # ty: ignore[unresolved-attribute] numbers are handled above
+                    pos = pos.replace('^', BM_LEGACY_ESC)  # ty: ignore[missing-union-attribute] numbers are handled above
                 rec = BM_FIELD_SEP.join([bm['title'], str(bm['spine']), pos])
             dat.append(rec)
         return '\n'.join(dat) + '\n'

@@ -355,7 +355,7 @@ class KINDLE(USBMS):
             else:
                 mi.comments = prettify(user_notes_soup)
             # Update library comments
-            db.set_comment(db_id, mi.comments)  # ty: ignore[unresolved-attribute] legacy setter added dynamically in calibre.db.legacy
+            db.set_comment(db_id, mi.comments)  # ty: ignore[missing-attribute] legacy setter added dynamically in calibre.db.legacy
 
             # Add bookmark file to db_id
             db.add_format_with_hooks(db_id, bm.value.bookmark_extension, bm.value.path, index_is_id=True)

@@ -135,7 +135,7 @@ class EbookIterator(BookmarksMixin):
                         }:
                             serialize(child)
                         elif getattr(child, 'tail', None):
-                            fragments.append(child.tail.lower())  # ruff: ignore[function-uses-loop-variable] # ty: ignore[unresolved-attribute] tail checked above
+                            fragments.append(child.tail.lower())  # ruff: ignore[function-uses-loop-variable] # ty: ignore[missing-union-attribute] tail checked above
 
                 for body in root.xpath('//*[local-name() = "body"]'):
                     body.tail = None

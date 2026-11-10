@@ -153,15 +153,15 @@ class Cell:
             if isinstance(token, Plot):
                 return self.pts_to_pixels(token.xsize)
             # token is text here so attrs is not None
-            ff = attrs.get('fontfacename', ts['fontfacename'])  # ty: ignore[unresolved-attribute]
-            fs = attrs.get('fontsize', ts['fontsize'])  # ty: ignore[unresolved-attribute]
+            ff = attrs.get('fontfacename', ts['fontfacename'])  # ty: ignore[missing-union-attribute]
+            fs = attrs.get('fontsize', ts['fontsize'])  # ty: ignore[missing-union-attribute]
             if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
                 font = get_font(cast('str', ff), self.pts_to_pixels(fs))
-            if not token.strip():  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
+            if not token.strip():  # ty: ignore[missing-union-attribute] ty does not treat int as Integral
                 continue
-            word = token.split()  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
+            word = token.split()  # ty: ignore[missing-union-attribute] ty does not treat int as Integral
             word = word[0] if word else ''
-            fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[unresolved-attribute] the fonts of text styles are known fonts
+            fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[missing-union-attribute] the fonts of text styles are known fonts
             width = fr - fl
             mwidth = max(mwidth, width)
         return parindent + mwidth + 2
@@ -207,8 +207,8 @@ class Cell:
             fs = attrs.get('fontsize', ts['fontsize'])
             if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
                 font = get_font(cast('str', ff), self.pts_to_pixels(fs))
-            for word in token.split():  # ty: ignore[unresolved-attribute] ty does not treat int as Integral
-                fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[unresolved-attribute] the fonts of text styles are known fonts
+            for word in token.split():  # ty: ignore[missing-union-attribute] ty does not treat int as Integral
+                fl, ft, fr, fb = font.getbbox(word)  # ty: ignore[missing-union-attribute] the fonts of text styles are known fonts
                 width, height = fr - fl, abs(fb - ft)
                 left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
         return right + 3 + max(parindent, 10), bottom

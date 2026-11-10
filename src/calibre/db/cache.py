@@ -603,8 +603,8 @@ class Cache:
             daemon=True,
         )
         self.fts_queue_thread.start()
-        self.backend.fts.pool.initialize()  # ty: ignore[unresolved-attribute]
-        self.backend.fts.pool.initialized.wait()  # ty: ignore[unresolved-attribute]
+        self.backend.fts.pool.initialize()  # ty: ignore[missing-union-attribute]
+        self.backend.fts.pool.initialized.wait()  # ty: ignore[missing-union-attribute]
         self.queue_next_fts_job()
 
     @read_api
@@ -623,7 +623,7 @@ class Cache:
     def _update_fts_indexing_numbers(self, job_time: float | None = None) -> None:
         # this is called when formats are added, removed or indexed and when
         # books are removed
-        nl = self.backend.fts.number_dirtied()  # ty: ignore[unresolved-attribute]
+        nl = self.backend.fts.number_dirtied()  # ty: ignore[missing-union-attribute]
         nt = self.backend.get('SELECT COUNT(*) FROM main.data')[0][0] or 0
         if not nl:
             self._fts_start_measuring_rate(measure=False)
@@ -686,7 +686,7 @@ class Cache:
                     self._update_fts_indexing_numbers()
                 return True
 
-            with self.read_lock, open(path, 'rb') as src, PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt:  # ty: ignore[unresolved-attribute]
+            with self.read_lock, open(path, 'rb') as src, PersistentTemporaryFile(suffix=f'.{fmt.lower()}') as pt:  # ty: ignore[missing-union-attribute]
                 sz = 0
                 h = hashlib.sha1()
                 while True:
@@ -763,7 +763,7 @@ class Cache:
         with self.write_lock:
             self.backend.reindex_fts()
             fts = self.initialize_fts()
-            fts.initialize(self.backend.conn)  # ensure fts is pre-initialized needed for the tests  # ty: ignore[unresolved-attribute]
+            fts.initialize(self.backend.conn)  # ensure fts is pre-initialized needed for the tests  # ty: ignore[missing-union-attribute]
             self._queue_next_fts_job()
         return fts
 
@@ -1077,7 +1077,7 @@ class Cache:
     def fast_field_for(self, field_obj: Field, book_id: int, default_value: object = None) -> object:
         "Same as field_for, except that it avoids the extra lookup to get the field object"
         if field_obj.is_composite:
-            return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)  # ty: ignore[unresolved-attribute]
+            return field_obj.get_value_with_cache(book_id, self._get_proxy_metadata)  # ty: ignore[missing-attribute]
         if field_obj.is_multiple:
             default_value = field_obj.default_value
         try:
@@ -2016,10 +2016,10 @@ class Cache:
                         return ans * order
                 return 0
 
-            def __eq__(self, other: SortKey) -> bool:  # ty: ignore[invalid-method-override]
+            def __eq__(self, other: SortKey) -> bool:  # ty: ignore[incompatible-method-override]
                 return self.compare_to_other(other) == 0
 
-            def __ne__(self, other: SortKey) -> bool:  # ty: ignore[invalid-method-override]
+            def __ne__(self, other: SortKey) -> bool:  # ty: ignore[incompatible-method-override]
                 return self.compare_to_other(other) != 0
 
             def __lt__(self, other: SortKey) -> bool:
@@ -2758,7 +2758,7 @@ class Cache:
 
             if name and not replace:
                 if needs_close:
-                    stream_or_path.close()  # ty: ignore[unresolved-attribute]
+                    stream_or_path.close()  # ty: ignore[missing-union-attribute]
                 return False
 
             if hasattr(stream_or_path, 'read'):
@@ -2770,7 +2770,7 @@ class Cache:
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
             finally:
                 if needs_close:
-                    stream.close()  # ty: ignore[unresolved-attribute]
+                    stream.close()  # ty: ignore[missing-union-attribute]
             del stream
 
             self._record_format_added(book_id, fmt, fname, size)
@@ -2782,7 +2782,7 @@ class Cache:
             # Run post import plugins, the write lock is released so the plugin
             # can call api without a locking violation.
             run_plugins_on_postimport(dbapi or self, book_id, fmt)
-            stream_or_path.close()  # ty: ignore[unresolved-attribute]
+            stream_or_path.close()  # ty: ignore[missing-union-attribute]
 
         self.queue_next_fts_job()
         return True

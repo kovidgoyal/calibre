@@ -219,7 +219,7 @@ class DeVendorLoader(Loader):
     def create_module(self, spec: ModuleSpec) -> ModuleType:
         return self.aliased_module
 
-    def exec_module(self, module: ModuleType) -> ModuleType:  # ty: ignore[invalid-method-override]
+    def exec_module(self, module: ModuleType) -> ModuleType:  # ty: ignore[incompatible-method-override]
         return module
 
     def __repr__(self) -> str:

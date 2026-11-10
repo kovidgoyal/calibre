@@ -373,7 +373,7 @@ def create_epub_cover(
     from calibre.ebooks.oeb.transforms.cover import CoverManager
 
     try:
-        ext = cover_path.rpartition('.')[-1].lower()  # ty: ignore[unresolved-attribute] callables are handled by the except clause
+        ext = cover_path.rpartition('.')[-1].lower()  # ty: ignore[missing-union-attribute] callables are handled by the except clause
     except Exception:
         ext = 'jpeg'
     cname, tname = 'cover.' + ext, 'titlepage.xhtml'

@@ -273,7 +273,7 @@ class Delegator:
 
     def toLrfDelegates(self, lrfWriter: LrfWriter) -> None:
         for d in self.delegates:
-            d.toLrf(lrfWriter)  # ty: ignore[unresolved-attribute] only Info has delegates without toLrf() and it overrides toLrf()
+            d.toLrf(lrfWriter)  # ty: ignore[missing-attribute] only Info has delegates without toLrf() and it overrides toLrf()
 
     def toLrf(self, lrfWriter: LrfWriter) -> None:
         self.toLrfDelegates(lrfWriter)
@@ -350,7 +350,7 @@ class LrsContainer:
 
         # convertText is never False for containers that accept str/bytes and
         # LrsSimpleChar1 is only used as a mixin for LrsContainer subclasses
-        content.setParent(self)  # ty: ignore[unresolved-attribute]
+        content.setParent(self)  # ty: ignore[missing-union-attribute]
 
         if isinstance(content, LrsObject):
             content.assignId()
@@ -501,13 +501,13 @@ class Book(Delegator):
 
     def set_title(self, title: str) -> None:
         # BookInformation -> Info -> BookInfo
-        bookInfo: BookInfo = self.delegates[0].delegates[0].delegates[0]  # ty: ignore[unresolved-attribute]
+        bookInfo: BookInfo = self.delegates[0].delegates[0].delegates[0]  # ty: ignore[missing-attribute]
         ot = bookInfo.title
         bookInfo.title = title if isinstance(ot, str) else (title, ot[1])
 
     def set_author(self, author: str) -> None:
         # BookInformation -> Info -> BookInfo
-        bookInfo: BookInfo = self.delegates[0].delegates[0].delegates[0]  # ty: ignore[unresolved-attribute]
+        bookInfo: BookInfo = self.delegates[0].delegates[0].delegates[0]  # ty: ignore[missing-attribute]
         ot = bookInfo.author
         bookInfo.author = author if isinstance(ot, str) else (author, ot[1])
 
@@ -607,17 +607,17 @@ class Book(Delegator):
             ancestor = text.parent
             while ancestor:
                 try:
-                    fs = int(ancestor.attrs['fontsize'])  # ty: ignore[unresolved-attribute] handled below
+                    fs = int(ancestor.attrs['fontsize'])  # ty: ignore[missing-attribute] handled below
                     break
                 except AttributeError, KeyError:
                     pass
                 try:
-                    fs = int(ancestor.textSettings['fontsize'])  # ty: ignore[unresolved-attribute] handled below
+                    fs = int(ancestor.textSettings['fontsize'])  # ty: ignore[missing-attribute] handled below
                     break
                 except AttributeError, KeyError:
                     pass
                 try:
-                    fs = int(ancestor.textStyle.attrs['fontsize'])  # ty: ignore[unresolved-attribute] handled below
+                    fs = int(ancestor.textStyle.attrs['fontsize'])  # ty: ignore[missing-attribute] handled below
                     break
                 except AttributeError, KeyError:
                     pass

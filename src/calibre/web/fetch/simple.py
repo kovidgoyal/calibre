@@ -226,9 +226,9 @@ class RecursiveFetcher:
                 if isinstance(self.keep_only_tags, dict):
                     self.keep_only_tags = [self.keep_only_tags]
                 for spec in self.keep_only_tags:
-                    for tag in soup.find('body').find_all(**spec):  # ty: ignore[unresolved-attribute] None is handled by the except below
+                    for tag in soup.find('body').find_all(**spec):  # ty: ignore[missing-union-attribute] None is handled by the except below
                         body.insert(len(body.contents), tag)
-                soup.find('body').replaceWith(body)  # ty: ignore[unresolved-attribute] None is handled by the except below
+                soup.find('body').replaceWith(body)  # ty: ignore[missing-union-attribute] None is handled by the except below
             except AttributeError:  # soup has no body element
                 pass
 
@@ -566,7 +566,7 @@ class RecursiveFetcher:
                 try:
                     self.current_dir = linkdiskpath
                     dsrc = self.fetch_url(iurl, as_document=True)
-                    newbaseurl: str = dsrc.newurl  # ty: ignore[unresolved-attribute]
+                    newbaseurl: str = dsrc.newurl  # ty: ignore[missing-attribute]
                     if len(dsrc) == 0 or len(re.compile(rb'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
                         raise ValueError(f'No content at URL {iurl!r}')
                     if callable(self.encoding):

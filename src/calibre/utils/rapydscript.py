@@ -565,7 +565,7 @@ def run_rapydscript_tests() -> NoReturn:
             self.allowed_hosts = (FAKE_HOST,)
             self.registered_data = {}
 
-        def requestStarted(self, a0: QWebEngineUrlRequestJob) -> None:  # ty: ignore[invalid-method-override]
+        def requestStarted(self, a0: QWebEngineUrlRequestJob) -> None:  # ty: ignore[incompatible-method-override]
             if bytes(a0.requestMethod()) != b'GET':
                 return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
             url = a0.requestUrl()

@@ -267,7 +267,7 @@ class CHMReader(CHMFile):
             if t[0].previousSibling is None or t[0].previousSibling.previousSibling is None:
                 try:
                     # failures are ignored by the except below
-                    alt = t[0].img['alt'].lower()  # ty: ignore[not-subscriptable, unresolved-attribute]
+                    alt = t[0].img['alt'].lower()  # ty: ignore[not-subscriptable, missing-union-attribute]
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[0].extract()
                 except Exception:
@@ -275,7 +275,7 @@ class CHMReader(CHMFile):
             if t[-1].nextSibling is None or t[-1].nextSibling.nextSibling is None:
                 try:
                     # failures are ignored by the except below
-                    alt = t[-1].img['alt'].lower()  # ty: ignore[not-subscriptable, unresolved-attribute]
+                    alt = t[-1].img['alt'].lower()  # ty: ignore[not-subscriptable, missing-union-attribute]
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[-1].extract()
                 except Exception:

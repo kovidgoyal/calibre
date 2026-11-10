@@ -23,9 +23,9 @@ def what(file: str | bytes | IO[bytes] | None, h: bytes | memoryview | None = No
             with open(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:
-            location = file.tell()  # ty: ignore[unresolved-attribute]
-            h = file.read(HSIZE)  # ty: ignore[unresolved-attribute]
-            file.seek(location)  # ty: ignore[unresolved-attribute]
+            location = file.tell()  # ty: ignore[missing-union-attribute]
+            h = file.read(HSIZE)  # ty: ignore[missing-union-attribute]
+            file.seek(location)  # ty: ignore[missing-union-attribute]
     if isinstance(h, bytes):
         h = memoryview(h)
     for tf in tests:

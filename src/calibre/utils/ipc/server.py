@@ -76,7 +76,7 @@ class ConnectedWorker(Thread):
             pass
 
     @property
-    def is_alive(self) -> bool:  # ty: ignore[invalid-property-type-override]
+    def is_alive(self) -> bool:  # ty: ignore[incompatible-property-override]
         return not self.killed and self.worker.is_alive
 
     @property

@@ -588,7 +588,7 @@ class ConfigProxy:
         return self.__config.set(key, val)
 
     def help(self, key: str) -> str | None:
-        return self.__config.get_option(key).help  # ty: ignore[unresolved-attribute]
+        return self.__config.get_option(key).help  # ty: ignore[missing-union-attribute]
 
 
 @overload

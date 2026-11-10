@@ -1115,7 +1115,7 @@ class CatalogBuilder:
                 self._save_template = save_template
                 self.SUPPORTS_SUB_DIRS = True
 
-            def save_template(self) -> str | None:  # ty: ignore[invalid-method-override]
+            def save_template(self) -> str | None:  # ty: ignore[incompatible-method-override]
                 return self._save_template
 
         def _resolve_bookmark_paths(storage: Iterable[str], path_map: dict[int, Any]) -> tuple[dict[int, Any], dict[int, str]]:

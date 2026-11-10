@@ -50,7 +50,7 @@ class Template:
         largs = list(args)
         for i in range(len(largs)):
             if isinstance(largs[i], bytes):
-                largs[i] = largs[i].decode('utf-8', 'replace')  # ty: ignore[unresolved-attribute]
+                largs[i] = largs[i].decode('utf-8', 'replace')  # ty: ignore[missing-attribute]
             if largs[i] is None:
                 largs[i] = ''
 

@@ -164,7 +164,7 @@ class ReBinary:
         self.anchors: list[tuple[str, int]] = []
         self.page_breaks: list[tuple[int, list[int]]] = []
         self.is_html = is_html = map is HTML_MAP
-        self.stylizer = Stylizer(root, item.href, oeb, opts) if is_html else None  # ty: ignore[unresolved-attribute] HTML ReBinary objects always have an item
+        self.stylizer = Stylizer(root, item.href, oeb, opts) if is_html else None  # ty: ignore[missing-union-attribute] HTML ReBinary objects always have an item
         self.tree_to_binary(root)
         self.content = self.buf.getvalue()
         self.ahc = self.build_ahc() if is_html else None
@@ -178,7 +178,7 @@ class ReBinary:
                 except OverflowError:
                     self.logger.warn('Unicode overflow for integer:', value)
                     value = '?'
-            self.buf.write(value.encode('utf-8'))  # ty: ignore[unresolved-attribute] int is a numbers.Integral
+            self.buf.write(value.encode('utf-8'))  # ty: ignore[missing-union-attribute] int is a numbers.Integral
 
     def is_block(self, style: Style) -> bool:
         return style['display'] not in ('inline', 'inline-block')
@@ -290,7 +290,7 @@ class ReBinary:
 
     def build_ahc(self) -> bytes:
         if len(self.anchors) > 6:
-            self.logger.warn(f'More than six anchors in file {self.item.href!r}. Some links may not work properly.')  # ty: ignore[unresolved-attribute] HTML ReBinary objects always have an item
+            self.logger.warn(f'More than six anchors in file {self.item.href!r}. Some links may not work properly.')  # ty: ignore[missing-union-attribute] HTML ReBinary objects always have an item
         data = io.BytesIO()
         data.write(chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -511,7 +511,7 @@ class LitWriter:
                 assert rebin.ahc is not None and rebin.aht is not None  # they are always built for HTML_MAP
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
-                item.page_breaks = rebin.page_breaks  # ty: ignore[unresolved-attribute] attribute used only by LitWriter
+                item.page_breaks = rebin.page_breaks  # ty: ignore[missing-attribute] attribute used only by LitWriter
                 data = rebin.content
                 name = name + '/content'
                 secnum = 1
@@ -521,7 +521,7 @@ class LitWriter:
                 data = item.bytes_representation
             assert data is not None  # len(None) in _add_file() would fail anyway
             self._add_file(name, data, secnum)
-            item.size = len(data)  # ty: ignore[unresolved-attribute] attribute used only by LitWriter
+            item.size = len(data)  # ty: ignore[missing-attribute] attribute used only by LitWriter
 
     def _build_manifest(self) -> None:
         states = ['linear', 'nonlinear', 'css', 'images']

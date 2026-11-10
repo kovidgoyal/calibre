@@ -549,6 +549,6 @@ class ProxyMetadata(Metadata):
     # Metadata declares _proxy_metadata as a plain attribute (it is assigned in
     # Cache.get_metadata()), here it is read-only as it is always self
     @property
-    def _proxy_metadata(self) -> ProxyMetadata:  # ty: ignore[invalid-property-type-override]
+    def _proxy_metadata(self) -> ProxyMetadata:  # ty: ignore[incompatible-property-override]
 
         return self

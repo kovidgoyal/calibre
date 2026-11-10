@@ -132,7 +132,7 @@ class SevenZip:
             def __init__(self) -> None:
                 self.buffers: dict[str, io.BytesIO] = {}
 
-            def create(self, filename: str) -> io.BytesIO:  # ty: ignore[invalid-method-override] BytesIO is duck type compatible with Py7zIO
+            def create(self, filename: str) -> io.BytesIO:  # ty: ignore[incompatible-method-override] BytesIO is duck type compatible with Py7zIO
                 # Create an in-memory BytesIO stream for the file
                 self.buffers[filename] = io.BytesIO()
                 return self.buffers[filename]

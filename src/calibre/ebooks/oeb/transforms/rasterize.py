@@ -248,7 +248,7 @@ class SVGRasterizer:
             manifest.add(svg_id, svg_href, SVG_MIME, data=svg_bytes)
             self.svg_originals[href] = svg_href
         img.tail = elem.tail
-        elem.getparent().replace(elem, img)  # ty: ignore[unresolved-attribute] inline <svg> is always inside <body>
+        elem.getparent().replace(elem, img)  # ty: ignore[missing-union-attribute] inline <svg> is always inside <body>
         for prop in ('width', 'height'):
             if prop in elem.attrib:
                 img.attrib[prop] = elem.attrib[prop]

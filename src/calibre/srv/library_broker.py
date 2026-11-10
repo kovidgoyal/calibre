@@ -209,7 +209,7 @@ def path_for_db(db: LoadedDB) -> str:
 
 class GuiLibraryBroker(LibraryBroker):
     # init_library() and gui_library_changed() only store LibraryDatabase objects
-    loaded_dbs: dict[str, LibraryDatabase | None]  # ty: ignore[invalid-attribute-override]
+    loaded_dbs: dict[str, LibraryDatabase | None]  # ty: ignore[incompatible-attribute-override]
 
     def __init__(self, db: LibraryDatabase) -> None:
         from calibre.gui2 import gprefs

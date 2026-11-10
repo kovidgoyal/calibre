@@ -551,10 +551,10 @@ class DescendantTextStyle:
         return self._hash
 
     def __eq__(self, other: object) -> bool:
-        return self.properties == other.properties  # ty: ignore[unresolved-attribute]  # only compared with other DescendantTextStyles
+        return self.properties == other.properties  # ty: ignore[missing-attribute]  # only compared with other DescendantTextStyles
 
     def __ne__(self, other: object) -> bool:
-        return self.properties != other.properties  # ty: ignore[unresolved-attribute]
+        return self.properties != other.properties  # ty: ignore[missing-attribute]
 
     def serialize(self, styles: _Element) -> _Element:
         makeelement = self.makeelement

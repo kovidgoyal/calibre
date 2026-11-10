@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
-from typing import TYPE_CHECKING, NotRequired, TypedDict, cast
+from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict
 
 from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
@@ -12,7 +12,24 @@ from calibre.ebooks.mobi.reader.index import read_index
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-tag_fieldname_map: dict[int, tuple[str, int]] = {
+type NCXTagField = Literal[
+    'pos',
+    'len',
+    'noffs',
+    'hlvl',
+    'koffs',
+    'pos_fid',
+    'parent',
+    'child1',
+    'childn',
+    'image_index',
+    'desc_offset',
+    'author_offset',
+    'image_caption_offset',
+    'image_attr_offset',
+]
+
+tag_fieldname_map: dict[int, tuple[NCXTagField, int]] = {
     1: ('pos', 0),
     2: ('len', 0),
     3: ('noffs', 0),
@@ -89,12 +106,13 @@ def read_ncx(sections: Sequence[tuple[bytes, object]], index: int, codec: str) -
 
             for tag, (fieldname, i) in tag_fieldname_map.items():
                 if tag in tag_map:
-                    fieldvalue = tag_map[tag][i]
-                    if tag == 6:
+                    if fieldname == 'pos_fid':
                         # Appears to be an idx into the KF8 elems table with an
                         # offset
-                        fieldvalue = tuple(tag_map[tag])
-                    entry[fieldname] = fieldvalue  # ty: ignore[invalid-key] fieldname is always a key of NCXEntry
+                        entry['pos_fid'] = tuple(tag_map[tag])
+                        continue
+                    fieldvalue = tag_map[tag][i]
+                    entry[fieldname] = fieldvalue
                     for which, name in {
                         3: 'text',
                         5: 'kind',
@@ -105,7 +123,7 @@ def read_ncx(sections: Sequence[tuple[bytes, object]], index: int, codec: str) -
                     }.items():
                         if tag == which:
                             # fieldvalue is a CNCX offset for these tags, the result is a string or the default
-                            entry[name] = cncx.get(cast('int', fieldvalue), default_entry[name])  # ty: ignore[invalid-assignment]
+                            entry[name] = cncx.get(fieldvalue, default_entry[name])  # ty: ignore[invalid-assignment]
             index_entries.append(entry)
 
     return index_entries

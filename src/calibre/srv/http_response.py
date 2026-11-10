@@ -55,7 +55,7 @@ class Range(NamedTuple):
 
 def file_metadata(fileobj: object) -> os.stat_result | None:
     try:
-        fd = fileobj.fileno()  # ty: ignore[unresolved-attribute]
+        fd = fileobj.fileno()  # ty: ignore[missing-attribute]
         return os.fstat(fd)
     except Exception:
         pass
@@ -438,15 +438,15 @@ class ReadableOutput:
 def filesystem_file_output(output: IO[bytes] | ETaggedFile, outheaders: MultiDict[str], stat_result: os.stat_result) -> ReadableOutput:
     etag = getattr(output, 'etag', None)
     if etag is None:
-        oname = output.name or ''  # ty: ignore[unresolved-attribute]
+        oname = output.name or ''  # ty: ignore[missing-union-attribute]
         if not isinstance(oname, (str, bytes)):
             oname = str(oname)
         etag = hashlib.sha1((str(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
-        output = output.output  # ty: ignore[unresolved-attribute]
+        output = output.output  # ty: ignore[missing-union-attribute]
     etag = f'"{etag}"'
     self = ReadableOutput(output, etag=etag, content_length=stat_result.st_size)  # ty: ignore[invalid-argument-type]
-    self.name = output.name  # ty: ignore[unresolved-attribute]
+    self.name = output.name  # ty: ignore[missing-union-attribute]
     self.use_sendfile = True
     return self
 

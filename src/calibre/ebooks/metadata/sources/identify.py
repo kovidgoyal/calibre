@@ -78,7 +78,7 @@ class Worker(Thread):
         self.plugin.dl_time_spent = time.time() - start
 
     @property
-    def name(self) -> str:  # ty: ignore[invalid-property-type-override]
+    def name(self) -> str:  # ty: ignore[incompatible-property-override]
         return self.plugin.name
 
 

@@ -416,13 +416,13 @@ class ImageView(QWidget, ImageDropMixin):
         if self.show_size_pref_name:
             self.show_size = gprefs.get(self.show_size_pref_name, default_show_size)
 
-    def dragEnterEvent(self, a0) -> None:  # ty: ignore[invalid-method-override]
+    def dragEnterEvent(self, a0) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
         ImageDropMixin.dragEnterEvent(self, a0)
 
-    def dragMoveEvent(self, a0) -> None:  # ty: ignore[invalid-method-override]
+    def dragMoveEvent(self, a0) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
         ImageDropMixin.dragMoveEvent(self, a0)
 
-    def dropEvent(self, a0) -> None:  # ty: ignore[invalid-method-override]
+    def dropEvent(self, a0) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
         ImageDropMixin.dropEvent(self, a0)
 
     def setPixmap(self, pixmap) -> None:
@@ -527,7 +527,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.set_background()
 
-    def contextMenuEvent(self, event):  # ty: ignore[invalid-method-override]
+    def contextMenuEvent(self, event):  # ty: ignore[lost-keyword-for-regular-parameter]
         return ImageDropMixin.contextMenuEvent(self, event)
 
     def get_pixmap(self) -> QPixmap:

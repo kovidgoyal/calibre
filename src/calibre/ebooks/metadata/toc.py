@@ -98,7 +98,7 @@ class TOC(list['TOC']):
                 lines.append('\t' + l)
         return '\n'.join(lines)
 
-    def count(self, type: str) -> int:  # ty: ignore[invalid-method-override] counts entries of the specified type
+    def count(self, type: str) -> int:  # ty: ignore[incompatible-method-override] counts entries of the specified type
         return len([i for i in self.flat() if i.type == type])
 
     def purge(self, types: Collection[str], max: int = 0) -> list[TOC]:

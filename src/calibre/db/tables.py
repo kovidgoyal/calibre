@@ -815,7 +815,7 @@ class IdentifiersTable(ManyToManyTable):
                 self.col_book_map[typ].add(book)
                 self.book_col_map[book][typ] = val
 
-    def remove_books(self, book_ids: Iterable[int], db: DB) -> set[str]:  # ty: ignore[invalid-method-override]
+    def remove_books(self, book_ids: Iterable[int], db: DB) -> set[str]:  # ty: ignore[incompatible-method-override]
         clean = set()
         for book_id in book_ids:
             item_map = self.book_col_map.pop(book_id, {})

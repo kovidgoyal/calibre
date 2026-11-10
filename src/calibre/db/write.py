@@ -243,14 +243,14 @@ def one_one_in_books(book_id_val_map: Mapping[int, SQLiteValue | datetime], db: 
 
 
 def set_uuid(book_id_val_map: Mapping[int, str], db: DB, field: OneToOneField, *args: object) -> set[int]:
-    field.table.update_uuid_cache(book_id_val_map)  # ty: ignore[unresolved-attribute]
+    field.table.update_uuid_cache(book_id_val_map)  # ty: ignore[missing-attribute]
     return one_one_in_books(book_id_val_map, db, field, *args)
 
 
 def set_title(book_id_val_map: Mapping[int, str], db: DB, field: OneToOneField, *args: object) -> set[int]:
     ans = one_one_in_books(book_id_val_map, db, field, *args)
     # Set the title sort field if the title changed
-    field.title_sort_field.writer.set_books({k: title_sort(v) for k, v in book_id_val_map.items() if k in ans}, db)  # ty: ignore[unresolved-attribute]
+    field.title_sort_field.writer.set_books({k: title_sort(v) for k, v in book_id_val_map.items() if k in ans}, db)  # ty: ignore[missing-attribute]
     return ans
 
 
@@ -278,7 +278,7 @@ def custom_series_index(book_id_val_map: Mapping[int, float | None], db: DB, fie
     series_field = field.series_field
     sequence = []
     for book_id, sidx in book_id_val_map.items():
-        ids = series_field.ids_for_book(book_id)  # ty: ignore[unresolved-attribute]
+        ids = series_field.ids_for_book(book_id)  # ty: ignore[missing-union-attribute]
         if sidx is None:
             sidx = 1.0
         if ids:
@@ -330,14 +330,14 @@ def get_db_id(
     if item_id is None:
         if is_authors:
             aus = author_to_author_sort(cast('str', val))  # author names are always str
-            db.execute('INSERT INTO authors(name,sort) VALUES (?,?)', (val.replace(',', '|'), aus))  # ty: ignore[unresolved-attribute]
+            db.execute('INSERT INTO authors(name,sort) VALUES (?,?)', (val.replace(',', '|'), aus))  # ty: ignore[missing-union-attribute]
         else:
             db.execute('INSERT INTO {}({}) VALUES (?)'.format(m['table'], m['column']), (val,))
         item_id = rid_map[kval] = db.last_insert_rowid()
         table.id_map[item_id] = val
         table.col_book_map[item_id] = set()
         if is_authors:
-            table.asort_map[item_id] = aus  # ty: ignore[unresolved-attribute]
+            table.asort_map[item_id] = aus  # ty: ignore[missing-attribute]
         if hasattr(table, 'link_map'):
             table.link_map[item_id] = ''
         if table.supports_notes:
@@ -351,7 +351,7 @@ def change_case(
     case_changes: Mapping[int, str | int], dirtied: set[int], db: DB, table: ManyToOneTable, m: FieldMetadataEntry, is_authors: bool = False
 ) -> None:
     if is_authors:
-        vals = ((val.replace(',', '|'), item_id) for item_id, val in case_changes.items())  # ty: ignore[unresolved-attribute]
+        vals = ((val.replace(',', '|'), item_id) for item_id, val in case_changes.items())  # ty: ignore[missing-union-attribute]
     else:
         vals = ((val, item_id) for item_id, val in case_changes.items())
     db.executemany('UPDATE {} SET {}=? WHERE id=?'.format(m['table'], m['column']), vals)
@@ -359,7 +359,7 @@ def change_case(
         table.id_map[item_id] = val
         dirtied.update(table.col_book_map[item_id])
         if is_authors:
-            table.asort_map[item_id] = author_to_author_sort(cast('str', val))  # ty: ignore[unresolved-attribute] author names are always str
+            table.asort_map[item_id] = author_to_author_sort(cast('str', val))  # ty: ignore[missing-attribute] author names are always str
 
 
 def many_one(book_id_val_map: Mapping[int, str | int | None], db: DB, field: ManyToOneField, allow_case_change: bool, *args: object) -> set[int]:
@@ -422,7 +422,7 @@ def many_one(book_id_val_map: Mapping[int, str | int | None], db: DB, field: Man
         if is_custom_series:
             # The rows were inserted with index 1.0, make the in-memory index agree. Otherwise custom_series_index() skips writing
             # the index when the new index equals the one the book had before the series was changed, leaving 1.0 in the database
-            index_map = field.index_field.table.book_col_map  # ty: ignore[unresolved-attribute]
+            index_map = field.index_field.table.book_col_map  # ty: ignore[missing-attribute]
             for book_id in updated:
                 index_map[book_id] = 1.0
 
@@ -480,12 +480,12 @@ def many_many(book_id_val_map: Mapping[int, Collection[str]], db: DB, field: Man
         if is_authors:
             for item_id, val in case_changes.items():
                 for book_id in table.col_book_map[item_id]:
-                    current_sort = field.db_author_sort_for_book(book_id)  # ty: ignore[unresolved-attribute]
-                    new_sort = field.author_sort_for_book(book_id)  # ty: ignore[unresolved-attribute]
+                    current_sort = field.db_author_sort_for_book(book_id)  # ty: ignore[missing-attribute]
+                    new_sort = field.author_sort_for_book(book_id)  # ty: ignore[missing-attribute]
                     if strcmp(current_sort, new_sort) == 0:
                         # The sort strings differ only by case, update the db
                         # sort
-                        field.author_sort_field.writer.set_books({book_id: new_sort}, db)  # ty: ignore[unresolved-attribute]
+                        field.author_sort_field.writer.set_books({book_id: new_sort}, db)  # ty: ignore[missing-attribute]
 
     book_id_item_id_map = {k: tuple(val_map[v] for v in vals) for k, vals in book_id_val_map.items()}
 
@@ -520,8 +520,8 @@ def many_many(book_id_val_map: Mapping[int, Collection[str]], db: DB, field: Man
         db.executemany(f'DELETE FROM {table.link_table} WHERE book=?', ((k,) for k in updated))
         db.executemany('INSERT INTO {}(book,{}) VALUES(?, ?)'.format(table.link_table, m['link_column']), vals)
         if is_authors:
-            aus_map = {book_id: field.author_sort_for_book(book_id) for book_id in updated}  # ty: ignore[unresolved-attribute]
-            field.author_sort_field.writer.set_books(aus_map, db)  # ty: ignore[unresolved-attribute]
+            aus_map = {book_id: field.author_sort_for_book(book_id) for book_id in updated}  # ty: ignore[missing-attribute]
+            field.author_sort_field.writer.set_books(aus_map, db)  # ty: ignore[missing-attribute]
 
     # Remove no longer used items
     remove = {item_id: item_val for item_id, item_val in table.id_map.items() if not table.col_book_map.get(item_id, False)}
@@ -533,7 +533,7 @@ def many_many(book_id_val_map: Mapping[int, Collection[str]], db: DB, field: Man
             del table.id_map[item_id]
             table.col_book_map.pop(item_id, None)
             if is_authors:
-                table.asort_map.pop(item_id, None)  # ty: ignore[unresolved-attribute]
+                table.asort_map.pop(item_id, None)  # ty: ignore[missing-attribute]
             if hasattr(table, 'link_map'):
                 table.link_map.pop(item_id, None)
     return dirtied

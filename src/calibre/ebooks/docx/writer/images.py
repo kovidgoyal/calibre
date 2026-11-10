@@ -113,7 +113,7 @@ class ImagesManager:
             return None
         href = self.abshref(src)
         try:
-            rid = self.read_image(href).rid  # ty: ignore[unresolved-attribute]  # AttributeError for None is handled below
+            rid = self.read_image(href).rid  # ty: ignore[missing-union-attribute]  # AttributeError for None is handled below
         except AttributeError:
             return None
         drawing, floating = self.create_image_markup(img, stylizer, href, as_block=as_block)

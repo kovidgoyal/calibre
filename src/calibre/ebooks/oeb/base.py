@@ -1205,7 +1205,7 @@ class Manifest:
             orig_data = data
             fname = urlunquote(self.href)
             self.oeb.log.debug('Parsing', fname, '...')
-            self.oeb.html_preprocessor.current_href = self.href  # ty: ignore[unresolved-attribute] HTMLPreProcessor attribute (or set on the default function)
+            self.oeb.html_preprocessor.current_href = self.href  # ty: ignore[missing-attribute] HTMLPreProcessor attribute (or set on the default function)
             try:
                 root = parse_html(
                     data,

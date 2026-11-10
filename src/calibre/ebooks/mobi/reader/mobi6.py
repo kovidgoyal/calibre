@@ -368,7 +368,7 @@ class MobiReader:
                             if reached and elem.tag == 'img':
                                 cover = elem.get('src', None)
                                 self.embedded_mi.cover = cover
-                                elem.getparent().remove(elem)  # ty: ignore[unresolved-attribute] elem is a descendant of root
+                                elem.getparent().remove(elem)  # ty: ignore[missing-union-attribute] elem is a descendant of root
                                 break
                     break
 
@@ -647,7 +647,7 @@ class MobiReader:
         for tag in forwardable_anchors:
             block = tag.getnext()
             assert block is not None  # forwardable anchors are always followed by a block tag
-            tag.getparent().remove(tag)  # ty: ignore[unresolved-attribute] tag was inserted into a parent above
+            tag.getparent().remove(tag)  # ty: ignore[missing-union-attribute] tag was inserted into a parent above
 
             if 'id' in block.attrib:
                 tag.tail = block.text
@@ -758,7 +758,7 @@ class MobiReader:
                             text = replace_entities(text)
                             item = tocobj.add_item(toc.partition('#')[0], href[1:], text)
                             # left_space is a dynamic attribute used only by structure_toc()
-                            item.left_space = int(self.get_left_whitespace(x))  # ty: ignore[unresolved-attribute]
+                            item.left_space = int(self.get_left_whitespace(x))  # ty: ignore[missing-attribute]
                             found = True
                     if reached and found and x.get('class', None) == 'mbp_pagebreak':
                         break
@@ -771,7 +771,7 @@ class MobiReader:
     def structure_toc(self, toc: TOC) -> TOC:
         indent_vals = set()
         for item in toc:
-            indent_vals.add(item.left_space)  # ty: ignore[unresolved-attribute] set in create_opf()
+            indent_vals.add(item.left_space)  # ty: ignore[missing-attribute] set in create_opf()
         if len(indent_vals) > 6 or len(indent_vals) < 2:
             # Too many or too few levels, give up
             return toc
@@ -789,7 +789,7 @@ class MobiReader:
             return newtoc
 
         for item in toc:
-            level = indent_vals.index(item.left_space)  # ty: ignore[unresolved-attribute] set in create_opf()
+            level = indent_vals.index(item.left_space)  # ty: ignore[missing-attribute] set in create_opf()
             parent = find_parent(level)
             last_found[level] = parent.add_item(item.href, item.fragment, item.text)
 

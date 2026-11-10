@@ -35,7 +35,7 @@ class FormatsAdded(ChangeEvent):
         self.formats_map = formats_map
 
     @property
-    def book_ids(self) -> frozenset[int]:  # ty: ignore[invalid-property-type-override]
+    def book_ids(self) -> frozenset[int]:  # ty: ignore[incompatible-property-override]
         return frozenset(self.formats_map)
 
 
@@ -45,7 +45,7 @@ class FormatsRemoved(ChangeEvent):
         self.formats_map = formats_map
 
     @property
-    def book_ids(self) -> frozenset[int]:  # ty: ignore[invalid-property-type-override]
+    def book_ids(self) -> frozenset[int]:  # ty: ignore[incompatible-property-override]
         return frozenset(self.formats_map)
 
 

@@ -535,7 +535,7 @@ class TextEdit(PlainTextEdit):
             c.endEditBlock()
             self.setTextCursor(c)
 
-    def find(self, exp, wrap=False, marked=False, complete=False, save_match=None):  # ty: ignore[invalid-method-override]
+    def find(self, exp, wrap=False, marked=False, complete=False, save_match=None):  # ty: ignore[lost-keyword-for-regular-parameter]
         if marked:
             return self.find_in_marked(exp, wrap=wrap, save_match=save_match)
         reverse = exp.flags & regex.REVERSE

@@ -508,7 +508,7 @@ class KeyPairSearch:  # {{{
             found: set[int] = set()
             if keyq:
                 for val, book_ids in field_iter():
-                    if val and val.get(keyq, False):  # ty: ignore[unresolved-attribute]
+                    if val and val.get(keyq, False):  # ty: ignore[missing-attribute]
                         found |= book_ids
             else:
                 for val, book_ids in field_iter():
@@ -517,7 +517,7 @@ class KeyPairSearch:  # {{{
             return found if valq == 'true' else candidates - found
 
         for m, book_ids in field_iter():
-            for key, val in m.items():  # ty: ignore[unresolved-attribute]
+            for key, val in m.items():  # ty: ignore[missing-attribute]
                 if keyq and not _match(keyq, (key,), keyq_mkind, use_primary_find_in_search=use_primary_find):  # ty: ignore[invalid-argument-type]
                     continue
                 if valq and not _match(valq, (val,), valq_mkind, use_primary_find_in_search=use_primary_find):
