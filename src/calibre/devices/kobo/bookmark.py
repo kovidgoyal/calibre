@@ -3,6 +3,7 @@
 import os
 from typing import TYPE_CHECKING, TypedDict
 
+from calibre.devices.kobo import bool_match
 from calibre.prints import debug_print
 
 if TYPE_CHECKING:
@@ -57,7 +58,7 @@ class Bookmark:  # {{{
             'bm.ChapterProgress, bm.StartContainerChildIndex, bm.StartOffset, '
             'c.BookTitle, c.Title, c.volumeIndex, c.MimeType '
             'FROM Bookmark bm LEFT OUTER JOIN Content c ON c.ContentID = bm.ContentID '
-            'WHERE bm.Hidden = "false" AND bm.volumeid = ? '
+            f"WHERE {bool_match('bm.Hidden', False)} AND bm.volumeid = ? "
             'ORDER BY bm.ContentID, bm.chapterprogress'
         )
 

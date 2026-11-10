@@ -20,6 +20,7 @@ from typing import IO, TYPE_CHECKING, ClassVar, Literal, cast, overload
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG
 from calibre.devices.interface import ModelMetadata
+from calibre.devices.kobo import bool_match, is_false_value, is_true_value
 from calibre.devices.kobo.books import Book, ImageWrapper, KTCollectionsBookList
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
@@ -499,7 +500,7 @@ class KOBO(USBMS):
                     **dict(
                         expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')',
                         previews=' and Accessibility <> 6' if not self.show_previews else '',
-                        recommendations=" and IsDownloaded in ('true', 1)" if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else '',
+                        recommendations=' and ' + bool_match('IsDownloaded', True) if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else '',
                     )
                 )
             elif self.dbversion >= 16 and self.dbversion < 33:
@@ -2011,14 +2012,10 @@ class KOBOTOUCH(KOBO):
         return os.path.exists(self.normalize_path(os.path.join(drive, '.kobo')))
 
     def is_false_value(self, x: object) -> bool:
-        if isinstance(x, str):
-            return x == 'false'
-        return not x
+        return is_false_value(x)
 
     def is_true_value(self, x: object) -> bool:
-        if isinstance(x, str):
-            return x == 'true'
-        return bool(x)
+        return is_true_value(x)
 
     @property
     def needs_real_bools(self) -> bool:
@@ -2297,7 +2294,7 @@ class KOBOTOUCH(KOBO):
                         if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
                             book = self.book_from_path(prefix, lpath, title, authors, MimeType, DateCreated, ContentType, ImageID)
                         else:
-                            if isdownloaded == 'true':  # A recommendation or preview is OK to not have a file
+                            if self.is_true_value(isdownloaded):  # A recommendation or preview is OK to not have a file
                                 debug_print('    Strange:  The file: ', prefix, lpath, ' does not exist!')
                                 title = 'FILE MISSING: ' + title
                             book = self.book_class(prefix, lpath, title, authors, MimeType, DateCreated, ContentType, ImageID, size=0)
@@ -2381,7 +2378,7 @@ class KOBOTOUCH(KOBO):
                 'select ShelfName '
                 'from ShelfContent '
                 'where ContentId = ? '
-                f'and _IsDeleted = {self.bool_for_query(False)} '
+                f"and {bool_match('_IsDeleted', False)} "
                 'and ShelfName is not null'
             )  # This should never be null, but it is protection against an error cause by a sync to the Kobo server
             values = (ContentID,)
@@ -2430,23 +2427,25 @@ class KOBOTOUCH(KOBO):
             where_clause = ''
             if self.supports_kobo_archive() or self.supports_overdrive():
                 where_clause = (
-                    " WHERE BookID IS NULL "
-                    " AND ((Accessibility = -1 AND IsDownloaded in ('true', 1 )) "  # Sideloaded books
-                    "      OR (Accessibility IN ({downloaded_accessibility}) {expiry}) "  # Purchased books
-                    "      {previews} {recommendations} ) "  # Previews or Recommendations
-                ).format(
-                    **dict(
-                        expiry='' if self.show_archived_books else "and IsDownloaded in ('true', 1)",
-                        previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else '',
-                        recommendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else '',
-                        downloaded_accessibility='1,2,8,9' if self.supports_overdrive() else '1,2',
+                    (
+                        ' WHERE BookID IS NULL '
+                        ' AND ((Accessibility = -1 AND ' + bool_match('IsDownloaded', True) + ') '  # Sideloaded books
+                        '      OR (Accessibility IN ({downloaded_accessibility}) {expiry}) '  # Purchased books
+                        '      {previews} {recommendations} ) '  # Previews or Recommendations
+                    ).format(
+                        **dict(
+                            expiry='' if self.show_archived_books else 'and ' + bool_match('IsDownloaded', True),
+                            previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else '',
+                            recommendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else '',
+                            downloaded_accessibility='1,2,8,9' if self.supports_overdrive() else '1,2',
+                        )
                     )
                 )
             elif self.supports_series():
                 where_clause = (
-                    " WHERE BookID IS NULL "
-                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) {previews} {recommendations} )"
-                    " AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) {expiry})"
+                    ' WHERE BookID IS NULL '
+                    ' AND ((Accessibility = -1 AND ' + bool_match('IsDownloaded', True) + ') or (Accessibility IN (1,2)) {previews} {recommendations} )'
+                    ' AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) {expiry})'
                 ).format(
                     **dict(
                         expiry=' AND ContentType = 6' if self.show_archived_books else '',
@@ -2461,7 +2460,7 @@ class KOBOTOUCH(KOBO):
                     **dict(
                         expiry=' AND ContentType = 6' if self.show_archived_books else '',
                         previews=' AND Accessibility <> 6' if not self.show_previews else '',
-                        recommendations=" AND IsDownloaded IN ('true', 1)" if not self.show_recommendations else '',
+                        recommendations=' AND ' + bool_match('IsDownloaded', True) if not self.show_recommendations else '',
                     )
                 )
             elif self.dbversion >= 16:
@@ -2506,9 +2505,11 @@ class KOBOTOUCH(KOBO):
                     raise
                 query = (
                     'SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
-                    'ImageId, ReadStatus, -1 AS ___ExpirationStatus, "-1" AS FavouritesIndex, '
-                    'null AS ISBN, NULL AS Language '
-                    '-1 AS Accessibility, 1 AS IsDownloaded, NULL AS Series, NULL AS SeriesNumber, null as Subtitle '
+                    'ImageId, ReadStatus, NULL AS Description, NULL AS Publisher, -1 AS ___ExpirationStatus, "-1" AS FavouritesIndex, '
+                    'null AS ISBN, NULL AS Language, '
+                    '-1 AS Accessibility, 1 AS IsDownloaded, NULL AS Series, NULL AS SeriesNumber, null as Subtitle, '
+                    'NULL AS ___UserID, NULL AS ExternalId, NULL AS SeriesID, NULL AS SeriesNumberFloat, '
+                    'NULL AS StorePages, NULL AS StoreWordCount, NULL AS StoreTimeToReadLowerEstimate, NULL AS StoreTimeToReadUpperEstimate '
                     'FROM content '
                     'WHERE BookID IS NULL'
                 )
@@ -2807,7 +2808,7 @@ class KOBOTOUCH(KOBO):
             try:
                 with self.database_transaction() as connection:
                     cursor = connection.cursor()
-                    cleanup_query = f'DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = {self.bool_for_query(False)}'
+                    cleanup_query = f'DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND {bool_match("IsDownloaded", False)}'
                     for fname, cycle in result:
                         show_debug = self.is_debugging_title(fname)
                         contentID = self.contentid_from_path(fname, 6)
@@ -3715,34 +3716,35 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:delete_empty_bookshelves - ignore_collections_in=', ignore_collections_placeholder)
             debug_print('KoboTouch:delete_empty_bookshelves - ignore_collections=', ignore_collections_values)
 
-        true, false = self.bool_for_query(True), self.bool_for_query(False)
+        true = self.bool_for_query(True)
         delete_query = (
             "DELETE FROM Shelf "
-            f"WHERE Shelf._IsSynced = {false} "
+            f"WHERE {bool_match('Shelf._IsSynced', False)} "
             "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
             "AND (Type IS NULL OR Type <> 'SystemTag') "  # Collections are created with Type of NULL and change after a sync.
             "AND NOT EXISTS "
             "(SELECT 1 FROM ShelfContent c "
             "WHERE Shelf.Name = c.ShelfName "
-            f"AND c._IsDeleted <> {true})"
+            f"AND NOT {bool_match('c._IsDeleted', True)})"
         )
         debug_print('KoboTouch:delete_empty_bookshelves - delete_query=', delete_query)
 
         update_query = (
             "UPDATE Shelf "
             f"SET _IsDeleted = {true} "
-            f"WHERE Shelf._IsSynced = {true} "
+            f"WHERE {bool_match('Shelf._IsSynced', True)} "
             "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
             "AND (Type IS NULL OR Type <> 'SystemTag') "
             "AND NOT EXISTS "
             "(SELECT 1 FROM ShelfContent c "
             "WHERE Shelf.Name = c.ShelfName "
-            f"AND c._IsDeleted <> {true})"
+            f"AND NOT {bool_match('c._IsDeleted', True)})"
         )
         debug_print('KoboTouch:delete_empty_bookshelves - update_query=', update_query)
 
         delete_activity_query = (
-            f"DELETE FROM Activity WHERE Type = 'Shelf' AND NOT EXISTS (SELECT 1 FROM Shelf WHERE Shelf.Name = Activity.Id AND Shelf._IsDeleted = {false})"
+            "DELETE FROM Activity WHERE Type = 'Shelf' AND NOT EXISTS "
+            f"(SELECT 1 FROM Shelf WHERE Shelf.Name = Activity.Id AND {bool_match('Shelf._IsDeleted', False)})"
         )
         debug_print('KoboTouch:delete_empty_bookshelves - delete_activity_query=', delete_activity_query)
 
@@ -3763,7 +3765,7 @@ class KOBOTOUCH(KOBO):
         if not self.supports_bookshelves:
             return bookshelves
 
-        query = f'SELECT Name FROM Shelf WHERE _IsDeleted = {self.bool_for_query(False)}'
+        query = f"SELECT Name FROM Shelf WHERE {bool_match('_IsDeleted', False)}"
         cursor = connection.cursor()
         cursor.execute(query)
         # count_bookshelves = 0
