@@ -41,6 +41,7 @@ from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.function_replace import DebugOutput
+from calibre.gui2.tweak_book.grammar import GrammarCheck
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.live_css import LiveCSS
 from calibre.gui2.tweak_book.manage_fonts import ManageFonts
@@ -307,6 +308,7 @@ class Main(MainWindow):
         self.setCentralWidget(self.central)
         self.check_book = Check(self)
         self.spell_check = SpellCheck(parent=self)
+        self.grammar_check = GrammarCheck(parent=self)
         self.toc_view = TOCViewer(self)
         self.text_search = TextSearch(self)
         self.saved_searches = SavedSearches(self)
@@ -858,6 +860,14 @@ class Main(MainWindow):
             ('Alt+F7'),
             _('Check book for spelling errors'),
         )
+        self.action_grammar_check_book = treg(
+            'grammar-check.png',
+            _('Check &grammar'),
+            self.boss.grammar_check_requested,
+            'grammar-check-book',
+            ('Shift+F7'),
+            _('Check book for grammar issues'),
+        )
         self.action_check_book_next = reg(
             'forward.png',
             _('&Next error'),
@@ -881,6 +891,14 @@ class Main(MainWindow):
             'spell-next',
             ('F8'),
             _('Go to next spelling mistake'),
+        )
+        self.action_grammar_next = reg(
+            'forward.png',
+            _('Next &grammar issue'),
+            self.boss.next_grammar_issue,
+            'grammar-next',
+            ('Shift+F8'),
+            _('Go to the next grammar issue in the current file'),
         )
 
         # Miscellaneous actions
@@ -1046,6 +1064,7 @@ class Main(MainWindow):
         e.addAction(self.action_accessibility)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
+        e.addAction(self.action_grammar_check_book)
         er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))
         assert er is not None
         er.addAction(self.action_check_external_links)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" version="1.1">
+  <title>grammar-check</title>
+  <defs>
+    <linearGradient id="check" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" style="stop-color:#1ecb2c" />
+      <stop offset="1" style="stop-color:#127c1b" />
+    </linearGradient>
+  </defs>
+  <g style="fill:#2271d5">
+    <rect x="8" y="10" width="112" height="13" rx="6.5" />
+    <rect x="8" y="36" width="84" height="13" rx="6.5" />
+    <rect x="8" y="62" width="56" height="13" rx="6.5" />
+  </g>
+  <path d="M 10,58 q 5,-7 10,0 t 10,0 t 10,0 t 10,0 t 10,0 t 10,0 t 10,0 t 10,0" style="fill:none;stroke:#e01b24;stroke-width:4;stroke-linecap:round;stroke-linejoin:round" />
+  <path d="M 52,94 74,114 120,64" style="fill:none;stroke:url(#check);stroke-width:16;stroke-linecap:round;stroke-linejoin:round" />
+</svg>

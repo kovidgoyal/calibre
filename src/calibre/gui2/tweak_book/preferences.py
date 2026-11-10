@@ -281,6 +281,17 @@ class EditorSettings(BasicSettings):  # {{{
         lw.setToolTip('<p>' + _('This will cause spelling errors to be highlighted in the code view for easy correction as you type.'))
         l.addRow(lw)
 
+        lw = self('inline_grammar_check')
+        lw.setText(_('Show &grammar issues underlined in the code view'))
+        lw.setToolTip(
+            '<p>'
+            + _(
+                'This will cause grammar issues to be highlighted in the code view for easy correction as you type. The data needed'
+                ' for checking a language is downloaded the first time it is needed, using the Tools->Check grammar tool.'
+            )
+        )
+        l.addRow(lw)
+
         lw = self('editor_accepts_drops')
         lw.setText(_('Allow drag and drop &editing of text'))
         lw.setToolTip(

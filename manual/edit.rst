@@ -762,6 +762,42 @@ format). You can download these dictionaries from
 `The LibreOffice Extensions repository <https://extensions.libreoffice.org/?Tags%5B%5D=50>`_.
 
 
+Checking the grammar of the book
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As you edit HTML files, grammar, style and typography issues are underlined in
+the code view. Right click on an underlined issue to replace its text with one
+of the suggested corrections, ignore the issue for the current session, stop
+checking for that kind of issue altogether, or see an explanation of it.
+Hovering the mouse over an issue shows a description of it, and pressing
+:kbd:`Shift+F8` jumps to the next issue in the current file. Corrections are made only to the text, so
+formatting such as bold and italics is preserved. You can turn off the
+underlining in :guilabel:`Preferences->Editor settings`.
+
+You can see all the issues in the book with :guilabel:`Tools->Check grammar`
+(:kbd:`Shift+F7`). Select an issue to see an explanation of it and the
+suggested replacements, then click :guilabel:`Change` to correct it, or
+:guilabel:`Show in editor` to edit the text yourself. The list of issues can be
+filtered by text and by the type of issue. Issues can be ignored for the
+current session, and rules that find issues you are not interested in can be
+disabled, and enabled again with the :guilabel:`Manage disabled rules`
+button. The :guilabel:`Picky` option also checks for stylistic issues that are
+not errors, such as wordiness.
+
+Grammar checking works for many languages. As with spell checking, the
+language of the text comes from the book's metadata and ``lang`` attributes in
+the HTML files, so books with text in multiple languages are checked
+correctly. The data needed to check a language is downloaded the first time
+it is needed, either by right clicking in the editor and choosing to download
+it, or with the :guilabel:`Check grammar` tool.
+
+For English, there is also a :guilabel:`Deep check` option, which checks
+every sentence with a neural network as well. This finds errors that the
+rules miss, but is slower and needs the neural network to be downloaded. Once
+downloaded, the neural network is also used to put the best suggestions for
+corrections first.
+
+
 Inserting special characters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

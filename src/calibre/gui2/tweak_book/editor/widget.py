@@ -2,8 +2,10 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import math
+import textwrap
 import unicodedata
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -20,6 +22,7 @@ from qt.core import (
     Qt,
     QTextCursor,
     QToolButton,
+    QUrl,
     pyqtSignal,
     qDrawShadeRect,
 )
@@ -34,6 +37,9 @@ from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import primary_sort_key, utf16_length
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.grammar import InlineGrammarChecker, InlineIssue
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
@@ -299,6 +305,10 @@ class Editor(QMainWindow):
         self.is_synced_to_container = False
         self.syntax = syntax
         self.editor = TextEdit(self)
+        if syntax == 'html':
+            from calibre.gui2.tweak_book.grammar import InlineGrammarChecker
+
+            self.editor.grammar_checker = InlineGrammarChecker(self.editor)
         self.editor.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.editor.customContextMenuRequested.connect(self.show_context_menu)
         self.setCentralWidget(self.editor)
@@ -674,10 +684,17 @@ class Editor(QMainWindow):
 
     def show_context_menu(self, pos) -> None:
         m = QMenu(self)
+        m.setToolTipsVisible(True)
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
         origc = QTextCursor(c)
         current_cursor = self.editor.textCursor()
+        if (gc := self.editor.grammar_checker) is not None:
+            gpos = c.position()
+            if (gi := gc.issue_at(gpos) or (gc.issue_at(gpos - 1) if gpos > 0 else None)) is not None:
+                self.add_grammar_actions(m, gc, gi)
+            if gc.enabled and gc.missing_languages:
+                self.add_grammar_download_actions(m, gc)
         r = self.editor.syntax_range_for_cursor(c)
         origr = self.editor.syntax_range_for_point(pos)
         if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0 and not current_cursor.hasSelection():
@@ -769,6 +786,42 @@ class Editor(QMainWindow):
         viewport = self.editor.viewport()
         assert viewport is not None
         m.exec(viewport.mapToGlobal(pos))
+
+    def add_grammar_actions(self, m: QMenu, checker: InlineGrammarChecker, gi: InlineIssue) -> None:
+        from calibre.gui2.tweak_book.grammar import MAX_CONTEXT_MENU_REPLACEMENTS, grammar_service, rule_description
+
+        issue = gi.issue
+        desc = rule_description(issue)
+        ac = m.addAction(QIcon.ic('grammar-check.png'), textwrap.shorten(desc, 60, placeholder='…'))
+        assert ac is not None
+        ac.setEnabled(False)
+        ac.setToolTip(issue.message)
+        for r in issue.replacements[:MAX_CONTEXT_MENU_REPLACEMENTS]:
+            ac = m.addAction(r or _('Remove the text'), partial(checker.apply_replacement, gi, r))
+            assert ac is not None
+            f = ac.font()
+            f.setBold(True), ac.setFont(f)
+        m.addSeparator()
+        m.addAction(actions['grammar-next'])
+        service = grammar_service()
+        m.addAction(_('Ignore this issue'), partial(service.ignore, gi.key))
+        ac = m.addAction(_('Disable this rule'), partial(service.disable_rule, issue.rule_id, desc))
+        assert ac is not None
+        ac.setToolTip(_('Stop checking for this kind of issue. Disabled rules can be enabled again in the Check grammar tool.'))
+        if issue.url:
+            m.addAction(_('Explain this issue'), partial(open_url, QUrl(issue.url)))
+        m.addSeparator()
+
+    def add_grammar_download_actions(self, m: QMenu, checker: InlineGrammarChecker) -> None:
+        from calibre.gui2.tweak_book.grammar import ensure_language_data, language_name
+
+        for lang in sorted(checker.missing_languages, key=language_name):
+            m.addAction(
+                QIcon.ic('grammar-check.png'),
+                _('Download data for checking the grammar of {}').format(language_name(lang)),
+                partial(ensure_language_data, self, lang),
+            )
+        m.addSeparator()
 
     def goto_sourceline(self, *args, **kwargs):
         return self.editor.goto_sourceline(*args, **kwargs)

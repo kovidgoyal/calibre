@@ -122,6 +122,7 @@ SOLARIZED = '''
 
     Error        us=wave uc={red}
     SpellError   us=wave uc={orange}
+    GrammarError us=wave uc={violet}
     Tooltip      fg=black bg=ffffed
     Link         fg={blue}
     BadLink      fg={cyan} us=wave uc={red}
@@ -165,6 +166,7 @@ THEMES = {
     Special      fg={special}
     Error        us=wave uc=red
     SpellError   us=wave uc=orange
+    GrammarError us=wave uc=5fafff
     SpecialCharacter bg=666666
     Link         fg=cyan
     BadLink      fg={string} us=wave uc=red
@@ -215,6 +217,7 @@ THEMES = {
     SpecialCharacter bg=afafaf
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
+    GrammarError us=wave uc=0060c0
     Link         fg=blue
     BadLink      fg={string} us=wave uc=red
 
@@ -587,6 +590,9 @@ the color of the blinking cursor.</p>
 {SpellError}
     Misspelled words such as <span lang="en">thisword</span>
 
+{GrammarError}
+    Grammar issues such as <span lang="en">She go home</span>
+
 {Comment}
     Comments like <!-- this one -->
 
@@ -659,6 +665,7 @@ class ThemeEditor(Dialog):
                 'SpecialCharacter',
                 'Error',
                 'SpellError',
+                'GrammarError',
                 'Comment',
             )
         }

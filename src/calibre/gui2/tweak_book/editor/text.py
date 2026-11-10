@@ -8,6 +8,7 @@ import textwrap
 import unicodedata
 from base64 import standard_b64encode
 from contextlib import suppress
+from typing import TYPE_CHECKING
 
 import regex
 from qt.core import (
@@ -63,6 +64,9 @@ from calibre.utils.img import image_to_data
 from calibre.utils.localization import _
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import as_unicode
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.grammar import InlineGrammarChecker
 
 
 def adjust_for_non_bmp_chars(raw: str, start: int, end: int) -> tuple[int, int]:
@@ -156,6 +160,9 @@ class TextEdit(PlainTextEdit):
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
+        # Set for editors of HTML files, see calibre.gui2.tweak_book.grammar
+        self.grammar_checker: InlineGrammarChecker | None = None
+        self.grammar_selections: list[QTextEdit.ExtraSelection] = []
         self.smarts_highlight_timer = t = QTimer()
         t.setInterval(750), t.setSingleShot(True), t.timeout.connect(self.update_extra_selections)
         self.highlighter = SyntaxHighlighter()
@@ -326,6 +333,8 @@ class TextEdit(PlainTextEdit):
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
         self.completion_popup.clear_caches(), self.completion_popup.update()
+        if self.grammar_checker is not None:
+            self.grammar_checker.update_selections()
 
     # }}}
 
@@ -395,6 +404,7 @@ class TextEdit(PlainTextEdit):
         sel = []
         if self.current_cursor_line is not None:
             sel.extend(self.current_cursor_line)
+        sel.extend(self.grammar_selections)
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
         if instant and not self.highlighter.has_requests and self.smarts is not None:
@@ -886,7 +896,13 @@ class TextEdit(PlainTextEdit):
         # ev.pos() is in editor co-ordinates
         vp = self.viewport()
         assert vp is not None
-        fmt_range = self.syntax_range_for_point(vp.mapFrom(self, ev.pos()))
+        vpos = vp.mapFrom(self, ev.pos())
+        if self.grammar_checker is not None and (tt := self.grammar_checker.tooltip(self.cursorForPosition(vpos).position())):
+            QToolTip.setFont(self.tooltip_font)
+            QToolTip.setPalette(self.tooltip_palette)
+            QToolTip.showText(ev.globalPos(), tt, self)
+            return
+        fmt_range = self.syntax_range_for_point(vpos)
         fmt = getattr(fmt_range, 'format', None)
         if fmt is not None:
             color = fmt.property(COLOR_PROPERTY)

@@ -958,6 +958,79 @@ class TestGrammar(unittest.TestCase):
         self.assertNotIn('~', ''.join(e.replacement for e in r.edits))
         self.assertIn('~', r.corrected)
 
+    def test_grammar_document(self) -> None:
+        from calibre.utils.grammar.document import (
+            IgnoreKey,
+            ParagraphNotFound,
+            Utf16Map,
+            correct_source,
+            ignore_key,
+            issue_source_ranges,
+            marked_range,
+            paragraph_refs,
+            paragraphs_by_language,
+            relocate,
+        )
+        from calibre.utils.grammar.markup import EditNotPossible, extract_paragraphs
+
+        # UTF-16 offsets
+        text = 'a\U0001f600b\U0001f600\U0001f600c'
+        m = Utf16Map(text)
+        u16 = text.encode('utf-16-le')
+        for i in range(len(text) + 1):
+            j = m.to_utf16(i)
+            self.assertEqual(len(text[:i].encode('utf-16-le')) // 2, j)
+            self.assertEqual(m.from_utf16(j), i)
+        # Offsets in the middle of a surrogate pair map to the start of the character
+        self.assertEqual(m.from_utf16(2), 1)
+        self.assertEqual(len(u16) // 2, m.to_utf16(len(text)))
+        m = Utf16Map('abc')
+        self.assertEqual((m.to_utf16(2), m.from_utf16(2)), (2, 2))
+
+        # Paragraphs are identified by their text and occurrence
+        source = '<p>Same text.</p><p>Other <i>text</i>.</p><p>Same text.</p>'
+        ps = extract_paragraphs(source, 'en')
+        refs = paragraph_refs(ps)
+        self.assertEqual([(r.text, r.occurrence) for r in refs], [('Same text.', 0), ('Other text.', 0), ('Same text.', 1)])
+        for p, r in zip(ps, refs):
+            self.assertIs(relocate(ps, r), p)
+        edited = extract_paragraphs('<p>New.</p>' + source, 'en')
+        self.assertEqual(relocate(edited, refs[2]), edited[3])
+        self.assertIsNone(relocate(edited, refs[2]._replace(occurrence=2)))
+
+        # Grouping by language
+        ps = extract_paragraphs('<p>One.</p><p lang="fr_FR">Deux.</p><div lang="de"><p>Drei.</p></div><p>Four.</p>', 'en-US')
+        self.assertEqual(paragraphs_by_language(ps, 'en-US'), {'en-US': [0, 3], 'fr-FR': [1], 'de': [2]})
+
+        # Marked ranges exclude markup and missing text marks a neighbor
+        source = '<p>She <i>go</i>es home.</p>'
+        p = extract_paragraphs(source)[0]
+        issue = bad_word_issue(p.text.index('goes'), p.text.index('goes') + 4)
+        self.assertEqual([source[s:e] for s, e in issue_source_ranges(p, issue)], ['go', 'es'])
+        self.assertEqual(marked_range(p, bad_word_issue(3, 3)), (2, 3))
+        self.assertEqual(marked_range(p, bad_word_issue(0, 0)), (0, 1))
+
+        # Ignore keys depend only on the sentence the issue is in
+        r = ParagraphResult('One two. Bad three.', ((0, 8), (9, 19)), ())
+        r2 = ParagraphResult('Changed sentence. Bad three.', ((0, 17), (18, 28)), ())
+        i = bad_word_issue(9, 12)
+        self.assertEqual(ignore_key(r, i), IgnoreKey('BAD_WORD', 'Bad three.', 0, 3))
+        self.assertEqual(ignore_key(r, i), ignore_key(r2, bad_word_issue(18, 21)))
+
+        # Corrections are applied to the paragraph, wherever it now is
+        source = '<p>She <i>go</i> home.</p><p>She <i>go</i> home.</p>'
+        ps = extract_paragraphs(source, 'en')
+        ref = paragraph_refs(ps)[1]
+        issue = bad_word_issue(4, 6, ('goes',))
+        edited = '<h1>Title</h1>' + source
+        self.assertEqual(correct_source(edited, 'en', ref, issue, 'goes'), '<h1>Title</h1><p>She <i>go</i> home.</p><p>She <i>goes</i> home.</p>')
+        with self.assertRaises(ParagraphNotFound):
+            correct_source('<p>She went home.</p>', 'en', ref, issue, 'goes')
+        with self.assertRaises(EditNotPossible):
+            source = '<p>Run <code>go</code> now.</p>'
+            ref = paragraph_refs(extract_paragraphs(source))[0]
+            correct_source(source, 'en', ref, bad_word_issue(4, 6), 'x')
+
 
 def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestGrammar)
