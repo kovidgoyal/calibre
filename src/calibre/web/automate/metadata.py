@@ -9,7 +9,7 @@ browser, for the sources whose websites block anything that is not a browser.
 # These two are read by calibre.live, which updates the server half of this
 # module from the calibre website, so that changes to the websites it drives
 # can be kept up with without needing a new calibre release
-module_version = 3
+module_version = 4
 minimum_calibre_version = (9, 17, 0)
 
 import asyncio
@@ -559,6 +559,8 @@ class AmazonHandler(SourceHandler):
             match action:
                 case 'search':
                     return await self.search(args, deadline)
+                case 'search_results':
+                    return await self.search_results(args, deadline)
                 case 'details':
                     return {'details': await self.open_in_tabs(None, [Link(str(u)) for u in args['urls']], deadline)}
         except Blocked as err:
@@ -620,18 +622,23 @@ class AmazonHandler(SourceHandler):
                     await self.submit_and_wait(page, lambda: page.click(AMAZON_CHECKPOINT_SUBMIT, timeout=deadline.remaining(FIELD_TIMEOUT)), deadline)
         raise Blocked('blocked', 'Amazon keeps answering with pages that are not the one asked for')
 
-    async def search(self, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
+    async def run_search(self, args: Mapping[str, Any], deadline: Deadline) -> tuple[Page, str, _Element]:
         """Search the way a person does, by typing the query into the search
         box of the store's home page, or of whatever page of the store the tab
-        was left on, and then open the books found in tabs of their own."""
+        was left on, handing back the tab, the HTML of the results page and
+        that page parsed."""
         site = str(args['site'])
-        domain = str(args.get('domain') or 'com')
         page = await self.search_page(site, deadline)
         if urlparse(page.url).hostname != site:
             await page.open(f'https://{site}/', wait='domcontentloaded', timeout=deadline.remaining(PAGE_TIMEOUT))
         root = (await self.check_page(page, deadline))[1]
         await self.settle(page, deadline)
-        if value := amazon_department_value(root, str(args.get('department') or 'aps')):
+        department = str(args.get('department') or 'aps')
+        if not (value := amazon_department_value(root, department)):
+            # The department menu can be filled in by the scripts of the page
+            # only once it has loaded
+            value = amazon_department_value(parse_html(await page.html()), department)
+        if value:
             await page.call(SELECT_OPTION_JS, AMAZON_DEPARTMENT, value)
         await self.scroll_to_top(page, deadline)
         box = await page.wait_for_selector(AMAZON_SEARCH_BOX, timeout=deadline.remaining(FIELD_TIMEOUT), visible=True)
@@ -640,8 +647,15 @@ class AmazonHandler(SourceHandler):
         finally:
             await box.dispose()
         await self.submit_and_wait(page, lambda: page.keyboard.press('Enter'), deadline)
-        root = (await self.check_page(page, deadline))[1]
+        html, root = await self.check_page(page, deadline)
         await self.settle(page, deadline)
+        return page, html, root
+
+    async def search(self, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
+        """Search, see run_search(), and then open the books found in tabs of
+        their own."""
+        domain = str(args.get('domain') or 'com')
+        page, html, root = await self.run_search(args, deadline)
         links = amazon_results(root, page.url, domain, int(args.get('max_results') or 5), bool(args.get('prefer_kindle')))
         ans: dict[str, Any] = {'results_url': page.url, 'details': await self.open_in_tabs(page, links, deadline)}
         if args.get('include_results_html'):
@@ -649,6 +663,13 @@ class AmazonHandler(SourceHandler):
 
             ans['results_html'] = tostring(root, encoding='unicode', method='html')
         return ans
+
+    async def search_results(self, args: Mapping[str, Any], deadline: Deadline) -> dict[str, Any]:
+        """Search, see run_search(), handing back only the HTML of the results
+        page, used by the Get books store plugins, which get everything they
+        need from the results page."""
+        page, html, root = await self.run_search(args, deadline)
+        return {'url': page.url, 'html': html}
 
 
 # }}}

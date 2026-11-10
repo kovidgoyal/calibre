@@ -61,6 +61,10 @@ HOME_PAGE = (
     + ''.join(f'<option value="{v}">{t}</option>' for v, t in OPTIONS)
     + '</select><input id="twotabsearchtextbox" name="field-keywords"></form></body></html>'
 )
+HOME_PAGE_NO_DEPARTMENTS = (
+    '<html><body><form id="nav-search-bar-form"><select id="searchDropdownBox"></select>'
+    '<input id="twotabsearchtextbox" name="field-keywords"></form></body></html>'
+)
 CONTINUE_PAGE = '''<html><body><h4>Click the button below to continue shopping</h4>
 <form method="get" action="/errors_page/validateCaptcha"><input type="hidden" name="amzn" value="x">
 <input type="hidden" name="field-keywords" value="TANMXF"><button type="submit">Continue shopping</button></form></body></html>'''
@@ -260,6 +264,11 @@ class FakePage:
         self.navigate(url)
 
     async def html(self) -> str:
+        if self.url == HOME and self.browser.departments_filled_late:
+            # The first read of the home page is from before its scripts
+            # filled in the department menu
+            self.browser.departments_filled_late = False
+            return HOME_PAGE_NO_DEPARTMENTS
         pages = self.browser.site.get(self.url)
         if pages is None:
             return f'<html><body><p id="url">{self.url}</p></body></html>'
@@ -331,6 +340,7 @@ class FakeBrowser:
         self.cookie_jar: list[dict[str, Any]] = []
         self.consent_navigates = True
         self.continue_to = ''
+        self.departments_filled_late = False
 
     async def cookies(self) -> list[dict[str, Any]]:
         return list(self.cookie_jar)
@@ -562,6 +572,28 @@ class TestHandlers(unittest.TestCase):
         self.assertNotIn('open', actions[1:])
         # The result tabs are closed, the search tab is kept for next time
         self.assertEqual([p.closed for p in browser.pages], [False, True, True, True])
+
+    def test_metadata_amazon_search_results(self) -> None:
+        browser = FakeBrowser(amazon_site())
+
+        async def t() -> dict[str, Any]:
+            state = fake_state(browser)
+            args = search_args(department='digital-text')
+            return await state.handle({'source': 'amazon', 'action': 'search_results', 'args': args, 'deadline': time.time() + 30})
+
+        result = run(t())
+        self.assertEqual(result, {'url': f'{HOME}s?k=audio+first', 'html': RESULTS})
+        self.assertEqual(browser.log[1], ('select', 'search-alias=digital-text'))
+        # Only the search tab was opened, none for the results
+        self.assertEqual(len(browser.pages), 1)
+        self.assertNotIn('click', [x[0] for x in browser.log])
+
+    def test_metadata_amazon_departments_filled_late(self) -> None:
+        browser = FakeBrowser(amazon_site())
+        browser.departments_filled_late = True
+        result = self.search(browser)[0]
+        self.assertNotIn('error', result)
+        self.assertEqual([x for x in browser.log if x[0] == 'select'], [('select', 'search-alias=stripbooks-intl-ship')])
 
     def test_metadata_amazon_search_tab_reused(self) -> None:
         site = amazon_site()

@@ -787,6 +787,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.scraper.test_fetch_backend import find_tests
 
         a(find_tests())
+        from calibre.gui2.store.test_amazon import find_tests
+
+        a(find_tests())
         from calibre.web.automate.test_worker import find_tests
 
         a(find_tests())
