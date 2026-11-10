@@ -174,6 +174,21 @@ def corrected_case_for_name(container: Container, name: str) -> str | None:
     return '/'.join(ans)
 
 
+def case_mismatched_name(container: Container, name: str) -> str | None:
+    """If name differs only in case from the name of a file in the book,
+    return the name of that file, otherwise return None. Works on both case
+    sensitive and case insensitive filesystems."""
+    if name in container.mime_map:
+        return None
+    if container.exists(name):
+        if os.path.isdir(container.name_to_abspath(name)):
+            return None
+        ans: str | None = actual_case_for_name(container, name)
+    else:
+        ans = corrected_case_for_name(container, name)
+    return ans if ans is not None and ans != name and ans in container.mime_map else None
+
+
 class PositionFinder:
     def __init__(self, raw: str | bytes) -> None:
         if isinstance(raw, bytes):

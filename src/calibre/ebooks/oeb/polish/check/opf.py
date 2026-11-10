@@ -9,7 +9,7 @@ from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.base import DC, DC11_NS, OPF, OPF2_NS, XHTML_MIME
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
 from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc, parse_nav
-from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.utils import case_mismatched_name, guess_type
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
@@ -329,7 +329,8 @@ def check_opf(container: Container) -> list[BaseError]:
             errors.append(NoHref(container.opf_name, item.get('id', None), item.sourceline))
         else:
             hname = container.href_to_name(href, container.opf_name)
-            if not hname or not container.exists(hname):
+            # Case mismatches are reported, with a fix, by check_links()
+            if not hname or (not container.exists(hname) and case_mismatched_name(container, hname) is None):
                 errors.append(MissingHref(container.opf_name, href, item.sourceline))
             if href in seen:
                 if href not in dups:

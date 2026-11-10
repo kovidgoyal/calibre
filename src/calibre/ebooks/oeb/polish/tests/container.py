@@ -18,6 +18,7 @@ from calibre.utils.filenames import nlinks_file
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.check.base import BaseError
     from calibre.ebooks.oeb.polish.container import Container
 
 
@@ -225,6 +226,46 @@ class ContainerTests(BaseTest):
             for n in variations:
                 self.assertEqual(name, corrected_case_for_name(c, n))
             self.assertIsNone(corrected_case_for_name(c, name + '/xx'))
+
+    def test_check_manifest_case_mismatch(self) -> None:
+        "Test that fixing a case mismatch in the manifest does not remove the file"
+        from calibre.ebooks.oeb.polish.check.links import CaseMismatch, check_links
+        from calibre.ebooks.oeb.polish.check.main import fix_errors
+        from calibre.ebooks.oeb.polish.check.opf import check_opf
+
+        # Don't use run_checks() as it needs a QApplication
+        def run_checks(c: Container) -> list[BaseError]:
+            return check_links(c) + check_opf(c)
+
+        c = get_container(get_simple_book())
+        # Audio referenced only from the media overlay of a spine item
+        c.add_file('audio.mp3', b'xxx')
+        c.add_file('overlay.smil', b'<smil xmlns="http://www.w3.org/ns/SMIL"><body><par><audio src="audio.mp3"/></par></body></smil>')
+        overlay_id = {v: k for k, v in c.manifest_id_map.items()}['overlay.smil']
+        # Cover image referenced only from <meta name="cover">
+        for img in c.parsed('titlepage.xhtml').xpath('//*[@*[local-name()="href" or local-name()="src"]="cover.png"]'):
+            img.getparent().remove(img)
+        c.dirty('titlepage.xhtml')
+        renames = {'index_split_001.html': 'INDEX_split_001.html', 'cover.png': 'Cover.png'}
+        for item in c.opf_xpath('//opf:manifest/opf:item[@href]'):
+            if (href := item.get('href')) in renames:
+                item.set('href', renames[href])
+                if href == 'index_split_001.html':
+                    item.set('media-overlay', overlay_id)
+        c.dirty(c.opf_name)
+        self.assertNotIn('cover.png', {x for n in c.mime_map if n.endswith(('html', 'xhtml')) for x, *_ in c.iterlinks(n)})
+        # A link with the wrong case still counts as a reference to the file
+        for img in c.parsed('index_split_000.html').xpath('//*[local-name()="img"][@src="marked.png"]'):
+            img.set('src', 'Marked.png')
+        c.dirty('index_split_000.html')
+        errors = run_checks(c)
+        self.assertEqual({type(e) for e in errors}, {CaseMismatch}, '\n'.join(f'{type(e).__name__}: {e.msg}' for e in errors))
+        self.assertEqual(len(errors), len(renames) + 1)
+        self.assertTrue(fix_errors(c, errors))
+        for name in (*renames, 'audio.mp3'):
+            self.assertTrue(c.has_name(name), f'{name} was removed from the book')
+        self.assertEqual(set(renames) - set(c.manifest_id_map.values()), set())
+        self.assertEqual(run_checks(c), [])
 
     def test_split_file(self) -> None:
         "Test splitting of files"
