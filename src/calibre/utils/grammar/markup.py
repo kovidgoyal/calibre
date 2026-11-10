@@ -305,7 +305,9 @@ class Extractor(HTMLParser):
     def push(self, name: str, attrs: dict[str, str], start_tag: tuple[int, int], keep: bool) -> None:
         lang = attrs.get('lang') or attrs.get('xml:lang') or ''
         parent_lang = self.current_lang()
-        foreign = bool(lang and self.paragraph_lang and primary_language(lang) != primary_language(self.paragraph_lang))
+        # Block elements start a new paragraph, whose language is their
+        # language, so their text is never in a foreign language
+        foreign = name not in BLOCK_TAGS and bool(lang and self.paragraph_lang and primary_language(lang) != primary_language(self.paragraph_lang))
         ignored_from = len(self.chars) if name in UNCHANGEABLE_TAGS or foreign else -1
         self.stack.append(OpenElement(name, lang or parent_lang, start_tag, self.paragraph_count, len(self.chars), not keep, ignored_from))
 

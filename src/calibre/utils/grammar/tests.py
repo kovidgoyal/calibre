@@ -814,6 +814,10 @@ class TestGrammar(unittest.TestCase):
         ps = extract_paragraphs(src, 'es')
         self.assertEqual([p.lang for p in ps], ['en', 'de', 'en'])
         self.assertEqual([ps[0].text[a:b] for a, b in ps[0].ignore_ranges], ['je ne sais quoi'])
+        # The text of a block element in a different language is checked
+        self.assertEqual(ps[1].ignore_ranges, ())
+        ps = extract_paragraphs('<p lang="fr">Il <i lang="en">is</i> là.</p><div lang="de"><p>Ein <b>Satz</b>.</p></div>', 'en')
+        self.assertEqual([(p.lang, p.ignore_ranges) for p in ps], [('fr', ((3, 5),)), ('de', ())])
         self.assertEqual([p.lang for p in extract_paragraphs('<p>x</p>', 'es')], ['es'])
         # Malformed markup
         src = '<html><head><title>x</title><body><p>Unclosed <i>italic <b>bold</p><p>Stray </span>end</i> tag < 3 &bogus; & more'
