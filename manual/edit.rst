@@ -797,6 +797,26 @@ rules miss, but is slower and needs the neural network to be downloaded. Once
 downloaded, the neural network is also used to put the best suggestions for
 corrections first.
 
+Suggestions for rewriting sentences
+#####################################
+
+For English text, a neural network can suggest rewrites of sentences, to fix
+grammar, make them more fluent or clearer, simpler or more formal, or to
+paraphrase them. Right click on a sentence and choose :guilabel:`Suggest
+rewrites for the sentence` (:kbd:`Ctrl+Shift+F8`) to see suggestions for it,
+or open the :guilabel:`View->Rewrite suggestions` panel to see suggestions for
+the sentence the cursor is in as you move around the text. The changes each
+suggestion makes are highlighted, click :guilabel:`Apply` to rewrite the
+sentence, preserving its formatting. You can choose which kinds of suggestions
+to show. Suggestions are also available in the :guilabel:`Check grammar` tool,
+for the sentence containing the selected issue.
+
+The neural network is downloaded the first time it is needed, it is large,
+about a gigabyte. Generating suggestions is faster on a GPU. By default the GPU
+is used if it is supported and faster than the CPU, in which case versions of
+the neural network for both are downloaded, you can change this in
+:guilabel:`Preferences->Editor settings`.
+
 
 Inserting special characters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

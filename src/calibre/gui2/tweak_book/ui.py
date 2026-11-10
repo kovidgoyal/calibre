@@ -41,7 +41,7 @@ from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.function_replace import DebugOutput
-from calibre.gui2.tweak_book.grammar import GrammarCheck
+from calibre.gui2.tweak_book.grammar import GrammarCheck, RewriteSuggestionsPanel
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.live_css import LiveCSS
 from calibre.gui2.tweak_book.manage_fonts import ManageFonts
@@ -892,6 +892,14 @@ class Main(MainWindow):
             ('F8'),
             _('Go to next spelling mistake'),
         )
+        self.action_grammar_suggest = reg(
+            'grammar-check.png',
+            _('Suggest &rewrites for the sentence'),
+            self.boss.suggest_rewrites,
+            'grammar-suggest',
+            ('Ctrl+Shift+F8'),
+            _('Show suggestions for rewriting the sentence at the cursor'),
+        )
         self.action_grammar_next = reg(
             'forward.png',
             _('Next &grammar issue'),
@@ -1264,6 +1272,18 @@ class Main(MainWindow):
         )
         d.setWidget(self.text_search)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
+        d.close()  # Hidden by default
+
+        d = create(_('Rewrite suggestions'), 'rewrite-suggestions')
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
+        self.rewrite_suggestions = RewriteSuggestionsPanel(d)
+        d.setWidget(self.rewrite_suggestions)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Checkpoints'), 'checkpoints')

@@ -18,6 +18,7 @@ from qt.core import (
     QMenu,
     QPainter,
     QPixmap,
+    QPoint,
     QSize,
     Qt,
     QTextCursor,
@@ -39,7 +40,7 @@ from calibre.utils.icu import primary_sort_key, utf16_length
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from calibre.gui2.tweak_book.grammar import InlineGrammarChecker, InlineIssue
+    from calibre.gui2.tweak_book.grammar import InlineGrammarChecker, InlineIssue, SentenceTarget
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
@@ -695,6 +696,10 @@ class Editor(QMainWindow):
                 self.add_grammar_actions(m, gc, gi)
             if gc.enabled and gc.missing_languages:
                 self.add_grammar_download_actions(m, gc)
+            if (target := gc.sentence_target(gpos)) is not None:
+                vp = self.editor.viewport()
+                assert vp is not None
+                self.add_rewrite_action(m, gc, target, vp.mapToGlobal(pos))
         r = self.editor.syntax_range_for_cursor(c)
         origr = self.editor.syntax_range_for_point(pos)
         if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0 and not current_cursor.hasSelection():
@@ -810,6 +815,13 @@ class Editor(QMainWindow):
         ac.setToolTip(_('Stop checking for this kind of issue. Disabled rules can be enabled again in the Check grammar tool.'))
         if issue.url:
             m.addAction(_('Explain this issue'), partial(open_url, QUrl(issue.url)))
+        m.addSeparator()
+
+    def add_rewrite_action(self, m: QMenu, checker: InlineGrammarChecker, target: SentenceTarget, pos: QPoint) -> None:
+        from calibre.gui2.tweak_book.grammar import show_rewrite_popup
+
+        ac = actions['grammar-suggest']
+        m.addAction(ac.icon(), ac.text(), partial(show_rewrite_popup, self.editor, target, checker.apply_suggestion, pos))
         m.addSeparator()
 
     def add_grammar_download_actions(self, m: QMenu, checker: InlineGrammarChecker) -> None:

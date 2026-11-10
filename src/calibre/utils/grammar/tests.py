@@ -577,10 +577,16 @@ class TestGrammar(unittest.TestCase):
                 # auto mode does not use the GPU for small models
                 self.assertEqual(backend.choose_variant('gec-t5-small', 'auto'), 'cpu')
                 self.assertEqual(backend.choose_variant('coedit-large', 'auto'), 'gpu')
+                # Both variants are downloaded in auto mode when the GPU might be used
+                self.assertEqual(backend.variants_to_download('coedit-large', 'auto'), ('cpu', 'gpu'))
+                self.assertEqual(backend.variants_to_download('coedit-large', 'on'), ('gpu',))
+                self.assertEqual(backend.variants_to_download('coedit-large', 'off'), ('cpu',))
+                self.assertEqual(backend.variants_to_download('gec-t5-small', 'auto'), ('cpu',))
                 h = backend.gpu_model_hash('coedit-large')
                 gpu.set_decision('coedit-large', h, 'P', {'use_gpu': False, 'reason': 'slow', 'gpu_ms': 2.0, 'cpu_ms': 1.0})
                 self.assertEqual(backend.choose_variant('coedit-large', 'auto'), 'cpu')
                 self.assertEqual(backend.choose_variant('coedit-large', 'on'), 'gpu')
+                self.assertEqual(backend.variants_to_download('coedit-large', 'auto'), ('cpu',))
             gpu.clear_decisions()
             self.assertIsNone(gpu.get_decision('m', 'h' * 64, 'P'))
         self.assertEqual(gpu.gpu_mode_from_string('on'), 'on')
@@ -1030,6 +1036,55 @@ class TestGrammar(unittest.TestCase):
             source = '<p>Run <code>go</code> now.</p>'
             ref = paragraph_refs(extract_paragraphs(source))[0]
             correct_source(source, 'en', ref, bad_word_issue(4, 6), 'x')
+
+    def test_grammar_document_sentences(self) -> None:
+        from calibre.utils.grammar.document import ParagraphNotFound, apply_suggestion, can_apply_suggestion, paragraph_refs, sentence_at, simple_sentences
+        from calibre.utils.grammar.markup import extract_paragraphs
+
+        def split(text: str) -> list[str]:
+            return [text[s:e] for s, e in simple_sentences(text)]
+
+        self.assertEqual(split('One two. Three?  “Four!” Five… six'), ['One two.', 'Three?', '“Four!”', 'Five…', 'six'])
+        self.assertEqual(split('  No end  '), ['No end'])
+        self.assertEqual(split('3.5 is a number.'), ['3.5 is a number.'])
+        self.assertEqual(split(''), [])
+
+        source = '<p>First one. She <i>go</i> home.</p>\n<p lang="fr">Une phrase.</p>'
+        ps = extract_paragraphs(source, 'en')
+        refs = paragraph_refs(ps)
+
+        def at(pos: int, results: dict[int, ParagraphResult] | None = None) -> str | None:
+            s = sentence_at(ps, refs, results or {}, pos, 'en')
+            return None if s is None else f'{s.lang}:{s.text}'
+
+        self.assertEqual(at(source.index('First')), 'en:First one.')
+        self.assertEqual(at(source.index('go')), 'en:She go home.')
+        # Positions inside markup and between sentences
+        self.assertEqual(at(source.index('<i>') + 1), 'en:She go home.')
+        self.assertEqual(at(source.index(' She')), 'en:First one.')
+        self.assertEqual(at(source.index('Une')), 'fr:Une phrase.')
+        self.assertIsNone(at(source.index('\n')))
+        # The sentences from a check result are used when available
+        r = ParagraphResult(ps[0].text, ((0, len(ps[0].text)),), ())
+        self.assertEqual(at(source.index('go'), {0: r}), 'en:First one. She go home.')
+
+        # Applying suggestions preserves markup
+        s = sentence_at(ps, refs, {}, source.index('go'), 'en')
+        assert s is not None
+        edits = (Edit(4, 6, 'went'), Edit(7, 11, 'away'))
+        self.assertTrue(can_apply_suggestion(ps[0], s, edits))
+        expected = source.replace('<i>go</i> home', '<i>went</i> away')
+        self.assertEqual(apply_suggestion(source, 'en', s, edits), expected)
+        self.assertEqual(apply_suggestion('<h1>X</h1>' + source, 'en', s, edits), '<h1>X</h1>' + expected)
+        with self.assertRaises(ParagraphNotFound):
+            apply_suggestion(source.replace('home', 'house'), 'en', s, edits)
+        # Suggestions that change code cannot be applied
+        source = '<p>Run <code>go</code> now.</p>'
+        ps = extract_paragraphs(source, 'en')
+        s = sentence_at(ps, paragraph_refs(ps), {}, 3, 'en')
+        assert s is not None
+        self.assertFalse(can_apply_suggestion(ps[0], s, (Edit(4, 6, 'x'),)))
+        self.assertTrue(can_apply_suggestion(ps[0], s, (Edit(7, 10, 'later'),)))
 
 
 def find_tests() -> unittest.TestSuite:

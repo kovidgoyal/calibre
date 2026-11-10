@@ -232,6 +232,18 @@ def choose_variant(model_id: str, mode: GpuMode = DEFAULT_GPU_MODE) -> Variant:
     return 'gpu'
 
 
+def variants_to_download(model_id: str, mode: GpuMode = DEFAULT_GPU_MODE) -> tuple[Variant, ...]:
+    """
+    The variants of the model to download for the GPU mode. In auto mode, when
+    the GPU might be used, both variants are downloaded, as whether the GPU is
+    used is decided by trying it, which needs the GPU variant, and the CPU
+    variant is used if it is not.
+    """
+    if choose_variant(model_id, mode) == 'cpu':
+        return ('cpu',)
+    return ('cpu', 'gpu') if mode == 'auto' else ('gpu',)
+
+
 def create_model(model_id: str, variant: Variant, provider: str = '', num_threads: int = 0) -> Seq2SeqModel:
     from calibre_extensions.seq2seq import Seq2SeqModel
 

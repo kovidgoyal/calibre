@@ -7,21 +7,27 @@
 # applied, checked paragraphs are identified by their text and the number of
 # earlier paragraphs with the same text, rather than by their position, and
 # are located again in the current source when a correction is applied.
+# Suggestions for rewriting sentences are applied in the same way, with the
+# sentence identified by its paragraph and its position in it.
 
 import re
-from bisect import bisect_left
+from bisect import bisect_left, bisect_right
 from typing import TYPE_CHECKING, NamedTuple
 
+from calibre.utils.grammar.backend import Edit
 from calibre.utils.grammar.checker import containing_sentence
-from calibre.utils.grammar.markup import EditNotPossible, Paragraph, SourceEdit, apply_source_edits, extract_paragraphs, issue_source_edits
+from calibre.utils.grammar.markup import EditNotPossible, Paragraph, SourceEdit, apply_source_edits, extract_paragraphs, issue_source_edits, source_edits
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from calibre.utils.grammar.checker import ParagraphResult
     from calibre.utils.grammar.rules import Issue
 
 NON_BMP = re.compile(r'[\U00010000-\U0010ffff]')
+# The end of a sentence, used to split paragraphs into sentences when they
+# have not been split by a check
+SENTENCE_END = re.compile(r'[.!?…]+[’”"\')\]]*(\s+|$)')
 
 
 class ParagraphNotFound(EditNotPossible):
@@ -50,6 +56,23 @@ class ParagraphRef(NamedTuple):
     # earlier paragraphs in the document with the same text
     text: str
     occurrence: int
+
+
+class SentenceRef(NamedTuple):
+    # Identifies a sentence by its paragraph and its position in the text of the paragraph
+    paragraph: ParagraphRef
+    start: int
+    end: int
+    # The language of the paragraph
+    lang: str
+
+    @property
+    def text(self) -> str:
+        return self.paragraph.text[self.start : self.end]
+
+    def shifted(self, edits: Sequence[Edit]) -> list[Edit]:
+        """Convert edits of the sentence into edits of its paragraph"""
+        return [Edit(e.start + self.start, e.end + self.start, e.replacement) for e in edits]
 
 
 class IgnoreKey(NamedTuple):
@@ -127,3 +150,82 @@ def correction_edits(source: str, default_lang: str, ref: ParagraphRef, issue: I
 def correct_source(source: str, default_lang: str, ref: ParagraphRef, issue: Issue, replacement: str) -> str:
     """Return the source with the issue in the paragraph identified by ref corrected. See correction_edits()."""
     return apply_source_edits(source, correction_edits(source, default_lang, ref, issue, replacement))
+
+
+# Sentences {{{
+
+
+def simple_sentences(text: str) -> list[tuple[int, int]]:
+    """Split text into sentences at sentence ending punctuation, returning their (start, end) offsets without surrounding whitespace"""
+    ans: list[tuple[int, int]] = []
+    start = 0
+
+    def add(end: int) -> None:
+        piece = text[start:end]
+        if stripped := piece.strip():
+            s = start + len(piece) - len(piece.lstrip())
+            ans.append((s, s + len(stripped)))
+
+    for m in SENTENCE_END.finditer(text):
+        add(m.start(1))
+        start = m.end()
+    add(len(text))
+    return ans
+
+
+def text_index(p: Paragraph, source_pos: int) -> int:
+    """The index of the character of the text of the paragraph at, or just before, the source offset"""
+    return max(0, bisect_right(p.source_starts, source_pos) - 1)
+
+
+def sentence_at(
+    paragraphs: Sequence[Paragraph], refs: Sequence[ParagraphRef], results: Mapping[int, ParagraphResult], source_pos: int, default_lang: str
+) -> SentenceRef | None:
+    """
+    The sentence at the source offset, or None if there is none. The sentences
+    of a paragraph are taken from its check result, if it has one, otherwise it
+    is split into sentences at sentence ending punctuation.
+    """
+    for idx, p in enumerate(paragraphs):
+        s, e = p.source_span
+        if s > source_pos:
+            break
+        if source_pos > e:
+            continue
+        i = text_index(p, source_pos)
+        sentences = results[idx].sentences if idx in results else simple_sentences(p.text)
+        # A position between sentences belongs to the sentence before it
+        span = next((x for x in sentences if x[0] <= i < x[1]), None) or next((x for x in reversed(sentences) if x[0] <= i), None)
+        if span is None:
+            return None
+        return SentenceRef(refs[idx], span[0], span[1], p.lang or default_lang)
+    return None
+
+
+def can_apply_suggestion(p: Paragraph, sentence: SentenceRef, edits: Sequence[Edit]) -> bool:
+    """False if the edits of the sentence change text that must not be changed, such as code or text in other languages"""
+    try:
+        source_edits(p, sentence.shifted(edits))
+    except EditNotPossible:
+        return False
+    return True
+
+
+def suggestion_edits(source: str, default_lang: str, sentence: SentenceRef, edits: Sequence[Edit]) -> list[SourceEdit]:
+    """
+    The edits of the source that apply the edits of the sentence. Raises
+    ParagraphNotFound if the paragraph of the sentence no longer exists and
+    EditNotPossible if the edits cannot be made.
+    """
+    p = relocate(extract_paragraphs(source, default_lang), sentence.paragraph)
+    if p is None:
+        raise ParagraphNotFound('The text has changed since it was checked')
+    return source_edits(p, sentence.shifted(edits))
+
+
+def apply_suggestion(source: str, default_lang: str, sentence: SentenceRef, edits: Sequence[Edit]) -> str:
+    """Return the source with the edits of the sentence applied. See suggestion_edits()."""
+    return apply_source_edits(source, suggestion_edits(source, default_lang, sentence, edits))
+
+
+# }}}

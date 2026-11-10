@@ -60,6 +60,9 @@ d['grammar_picky'] = False
 d['grammar_deep_check'] = False
 # Maps the ids of disabled grammar rules to their descriptions
 d['grammar_disabled_rules'] = {}
+# Whether to use the GPU for the neural networks used for grammar checking: auto, on or off
+d['grammar_gpu_mode'] = 'auto'
+d['grammar_suggestion_kinds'] = ['grammar', 'fluency', 'clarity']
 d['custom_themes'] = {}
 d['remove_unused_classes'] = False
 d['merge_identical_selectors'] = False
