@@ -1067,6 +1067,8 @@ class TestGrammar(unittest.TestCase):
         # The sentences from a check result are used when available
         r = ParagraphResult(ps[0].text, ((0, len(ps[0].text)),), ())
         self.assertEqual(at(source.index('go'), {0: r}), 'en:First one. She go home.')
+        # A check result without sentences falls back to splitting the paragraph
+        self.assertEqual(at(source.index('go'), {0: r._replace(sentences=())}), 'en:She go home.')
 
         # Applying suggestions preserves markup
         s = sentence_at(ps, refs, {}, source.index('go'), 'en')

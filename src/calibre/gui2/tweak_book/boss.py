@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from functools import partial, wraps
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from qt.core import (
@@ -92,6 +93,9 @@ from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
 from calibre.utils.localization import _, ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import as_bytes
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.text import TextEdit
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -185,6 +189,7 @@ class Boss(QObject):
         fl.open_file_with.connect(self.open_file_with)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.current_editor_changed.connect(self.update_rewrite_suggestions)
+        self.gui.rewrite_suggestions.current_text_edit = self.current_text_edit
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
         self.gui.text_search.find_text.connect(self.find_text)
@@ -1808,8 +1813,10 @@ class Boss(QObject):
             self.gui.show_status_message(_('No grammar issues found in this file'))
 
     def update_rewrite_suggestions(self, *a: object) -> None:
-        ed = self.gui.central.current_editor
-        self.gui.rewrite_suggestions.set_editor(getattr(ed, 'editor', None))
+        self.gui.rewrite_suggestions.cursor_moved()
+
+    def current_text_edit(self) -> TextEdit | None:
+        return getattr(self.gui.central.current_editor, 'editor', None)
 
     def suggest_rewrites(self) -> None:
         ed = self.gui.central.current_editor

@@ -81,7 +81,7 @@ from calibre.utils.grammar.document import (
     suggestion_edits,
 )
 from calibre.utils.grammar.gpu import GpuMode, gpu_mode_from_string
-from calibre.utils.grammar.markup import EditNotPossible, Paragraph, extract_paragraphs, visible_issues
+from calibre.utils.grammar.markup import EditNotPossible, Paragraph, SourceEdit, extract_paragraphs, visible_issues
 from calibre.utils.grammar.models import DownloadAborted, Task, Variant, default_model, download_size, files_to_download, is_downloaded, is_usable
 from calibre.utils.grammar.rules import RuleOptions
 from calibre.utils.grammar.worker import CheckResponse, SuggestResponse
@@ -193,6 +193,9 @@ class GrammarService(QObject):
         self.request_ids: dict[int, int] = {}
         self.suggestion_callbacks: dict[int, SuggestionReceiver] = {}
         self.suggestion_request_ids: dict[int, int] = {}
+        # Set on shutdown, after which no new requests are made, so that no
+        # worker processes are started while the application exits
+        self.closed = False
         self.tokens = count(1)
         self.ignored: set[IgnoreKey] = set()
         self.language_status_cache: dict[str, LanguageStatus] = {}
@@ -253,10 +256,12 @@ class GrammarService(QObject):
         """
         Check the paragraphs, returning a token that identifies the request.
         callback is called in the GUI thread with the responses, the last one
-        having done=True, unless owner is deleted or the request is cancelled
-        first.
+        having done=True, unless owner is deleted, the request is cancelled
+        first or the service has been shut down.
         """
         token = next(self.tokens)
+        if self.closed:
+            return token
         self.callbacks[token] = Receiver(owner, callback)
 
         def relay(r: CheckResponse) -> None:
@@ -277,6 +282,8 @@ class GrammarService(QObject):
         owner is deleted or the request is cancelled first.
         """
         token = next(self.tokens)
+        if self.closed:
+            return token
         self.suggestion_callbacks[token] = SuggestionReceiver(owner, callback)
 
         def relay(r: SuggestResponse) -> None:
@@ -358,6 +365,7 @@ class GrammarService(QObject):
         self.options_changed.emit()
 
     def shutdown(self) -> None:
+        self.closed = True
         self.shutdown_workers()
         if self.cache is not None:
             self.cache.close()
@@ -475,23 +483,31 @@ def ensure_language_data(parent: QWidget | None, lang: str) -> bool:
     return d.succeeded
 
 
+def as_variant(x: str) -> Variant | None:
+    if x == 'cpu':
+        return 'cpu'
+    if x == 'gpu':
+        return 'gpu'
+    return None
+
+
 def model_description(task: Task) -> str:
     if task == 'check':
         return _('the neural network used for deep grammar checks')
     return _('the neural network used for suggesting rewrites of sentences')
 
 
-def ensure_model(parent: QWidget | None, task: Task, lang: str, variants: Sequence[Variant] = ()) -> bool:
+def ensure_model(parent: QWidget | None, task: Task, lang: str, variants: Sequence[Variant] = (), model_id: str = '') -> bool:
     """
-    Download the model for the task and language, if needed, asking the user
-    first. If variants is empty, nothing is downloaded if some variant of the
-    model is usable, otherwise the variants for the GPU mode are downloaded.
-    Returns True if the model is available.
+    Download the model for the task and language, or the specified model, if
+    needed, asking the user first. If variants is empty, nothing is downloaded
+    if some variant of the model is usable, otherwise the variants for the GPU
+    mode are downloaded. Returns True if the model is available.
     """
     from calibre.gui2.tts.download import download_resources
 
-    model_id = default_model(task, lang)
-    if model_id is None:
+    model_id = model_id or default_model(task, lang) or ''
+    if not model_id:
         error_dialog(parent, _('Language not supported'), _('This is not available for {}').format(language_name(lang)), show=True)
         return False
     if not variants:
@@ -545,6 +561,13 @@ class InlineIssue(NamedTuple):
         return any(c.selectionStart() <= pos < c.selectionEnd() for c in self.cursors)
 
 
+class ParseCache(NamedTuple):
+    text_version: int
+    default_lang: str
+    paragraphs: list[Paragraph]
+    refs: list[ParagraphRef]
+
+
 class InlineGrammarChecker(QObject):
     """Checks the grammar of the HTML file being edited, underlining the issues found"""
 
@@ -567,6 +590,8 @@ class InlineGrammarChecker(QObject):
         self.tokens: list[int] = []
         self.outstanding = 0
         self.issues: list[InlineIssue] = []
+        # The paragraphs of the text, when it has not been checked, see current_paragraphs()
+        self.parse_cache: ParseCache | None = None
         # Languages of text in the file that cannot be checked as their data has not been downloaded
         self.missing_languages: set[str] = set()
         doc = editor.document()
@@ -661,6 +686,10 @@ class InlineGrammarChecker(QObject):
                 if r.language_data:
                     self.missing_languages.add(r.language_data)
                     self.service.report_missing_data(r.language_data)
+                elif r.model_id:
+                    # A neural network that is not downloaded, which can be
+                    # downloaded from the Check grammar tool
+                    pass
                 elif r.error not in self.service.reported_inline_errors:
                     self.service.reported_inline_errors.add(r.error)
                     print(f'Grammar check failed with error: {r.error}\n{r.details}', file=sys.stderr)
@@ -736,6 +765,12 @@ class InlineGrammarChecker(QObject):
                 show=True,
             )
             return False
+        self.apply_source_edits(source, edits)
+        self.remove_issue(issue)
+        return True
+
+    def apply_source_edits(self, source: str, edits: Sequence[SourceEdit]) -> None:
+        """Apply the edits of the source, which must be the current text of the document, as a single undo step"""
         um = Utf16Map(source)
         c = QTextCursor(self.editor.document())
         c.beginEditBlock()
@@ -744,18 +779,21 @@ class InlineGrammarChecker(QObject):
             c.setPosition(um.to_utf16(e.end), QTextCursor.MoveMode.KeepAnchor)
             c.insertText(e.replacement)
         c.endEditBlock()
-        self.remove_issue(issue)
-        return True
+
+    def current_paragraphs(self, source: str) -> tuple[list[Paragraph], list[ParagraphRef], dict[int, ParagraphResult], str]:
+        """The paragraphs of the current text, their refs, check results and the default language, cached until the text changes"""
+        if self.checked_version == self.text_version and self.paragraphs:
+            return self.paragraphs, self.refs, self.results, self.default_lang
+        default_lang = book_language()
+        if self.parse_cache is None or self.parse_cache.text_version != self.text_version or self.parse_cache.default_lang != default_lang:
+            paragraphs = extract_paragraphs(source, default_lang)
+            self.parse_cache = ParseCache(self.text_version, default_lang, paragraphs, paragraph_refs(paragraphs))
+        return self.parse_cache.paragraphs, self.parse_cache.refs, {}, default_lang
 
     def sentence_target(self, pos: int) -> SentenceTarget | None:
         """The sentence at the specified position in the document, or None if there is no sentence there"""
         source = self.editor.toPlainText()
-        if self.checked_version == self.text_version and self.paragraphs:
-            paragraphs, refs, results, default_lang = self.paragraphs, self.refs, self.results, self.default_lang
-        else:
-            default_lang = book_language()
-            paragraphs = extract_paragraphs(source, default_lang)
-            refs, results = paragraph_refs(paragraphs), {}
+        paragraphs, refs, results, default_lang = self.current_paragraphs(source)
         sentence = sentence_at(paragraphs, refs, results, Utf16Map(source).from_utf16(pos), default_lang)
         if sentence is None or (p := relocate(paragraphs, sentence.paragraph)) is None:
             return None
@@ -774,14 +812,7 @@ class InlineGrammarChecker(QObject):
                 show=True,
             )
             return False
-        um = Utf16Map(source)
-        c = QTextCursor(self.editor.document())
-        c.beginEditBlock()
-        for e in reversed(edits):
-            c.setPosition(um.to_utf16(e.start))
-            c.setPosition(um.to_utf16(e.end), QTextCursor.MoveMode.KeepAnchor)
-            c.insertText(e.replacement)
-        c.endEditBlock()
+        self.apply_source_edits(source, edits)
         return True
 
     def select_next(self) -> bool:
@@ -923,6 +954,8 @@ class SuggestionsWidget(QWidget):
         self.pending = 0
         self.generation = 0
         self.error = ''
+        # The model and variant the worker reported as not downloaded
+        self.missing_model_id = ''
         self.missing_variant: Variant | None = None
         self.seen: set[str] = set()
         self.rows: list[SuggestionRow] = []
@@ -981,7 +1014,7 @@ class SuggestionsWidget(QWidget):
         self.clear_rows()
         self.generation += 1
         self.error = ''
-        self.missing_variant = None
+        self.missing_model_id, self.missing_variant = '', None
         self.target = target
         if target is None:
             self.sentence_label.setText('')
@@ -999,7 +1032,7 @@ class SuggestionsWidget(QWidget):
             self.status.setText(_('Suggestions for rewriting sentences are not available for {}').format(prepare_string_for_xml(language_name(lang))))
             return
         if not is_usable(model_id):
-            self.missing_variant = None
+            self.missing_model_id, self.missing_variant = model_id, None
             self.show_download_link()
             return
         kinds = [k for k, cb in self.kind_boxes.items() if cb.isChecked()]
@@ -1029,8 +1062,8 @@ class SuggestionsWidget(QWidget):
         if r.done:
             self.pending = max(0, self.pending - 1)
             if r.error and not r.cancelled:
-                if r.model_id and r.variant in ('cpu', 'gpu'):
-                    self.missing_variant = 'cpu' if r.variant == 'cpu' else 'gpu'
+                if r.model_id and (variant := as_variant(r.variant)) is not None:
+                    self.missing_model_id, self.missing_variant = r.model_id, variant
                     self.cancel()
                 else:
                     self.error = r.error
@@ -1052,7 +1085,7 @@ class SuggestionsWidget(QWidget):
     def status_link_activated(self, link: str) -> None:
         if (t := self.target) is not None and link == 'download:':
             variants = () if self.missing_variant is None else (self.missing_variant,)
-            if ensure_model(self, 'suggest', t.sentence.lang, variants):
+            if ensure_model(self, 'suggest', t.sentence.lang, variants, self.missing_model_id):
                 self.regenerate()
 
     def apply(self, suggestion: Suggestion) -> None:
@@ -1061,11 +1094,16 @@ class SuggestionsWidget(QWidget):
 
 
 class RewriteSuggestionsPanel(QWidget):
-    """A panel showing suggestions for rewriting the sentence the cursor is in"""
+    """
+    A panel showing suggestions for rewriting the sentence the cursor is in.
+    The sentence is followed, and suggestions are generated, only while the
+    panel is visible.
+    """
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.text_edit: TextEdit | None = None
+        # Returns the editor whose cursor is followed
+        self.current_text_edit: Callable[[], TextEdit | None] = lambda: None
         self.timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(SUGGESTION_DELAY), t.timeout.connect(self.update_target)
         l = QVBoxLayout(self)
@@ -1073,8 +1111,8 @@ class RewriteSuggestionsPanel(QWidget):
         self.suggestions = SuggestionsWidget(self.apply, self)
         l.addWidget(self.suggestions)
 
-    def set_editor(self, text_edit: TextEdit | None) -> None:
-        self.text_edit = text_edit
+    def cursor_moved(self) -> None:
+        """Called when the cursor moves or the current editor changes"""
         if self.isVisible():
             self.timer.start()
 
@@ -1090,7 +1128,7 @@ class RewriteSuggestionsPanel(QWidget):
     def update_target(self) -> None:
         if not self.isVisible():
             return
-        te = self.text_edit
+        te = self.current_text_edit()
         target = None
         if te is not None and not sip.isdeleted(te) and te.grammar_checker is not None:
             target = te.grammar_checker.sentence_target(te.textCursor().position())
@@ -1100,7 +1138,7 @@ class RewriteSuggestionsPanel(QWidget):
             self.suggestions.set_target(target)
 
     def apply(self, target: SentenceTarget, suggestion: Suggestion) -> bool:
-        te = self.text_edit
+        te = self.current_text_edit()
         if te is None or sip.isdeleted(te) or te.grammar_checker is None:
             return False
         if ok := te.grammar_checker.apply_suggestion(target, suggestion):
@@ -1293,8 +1331,10 @@ class GrammarCheck(Dialog):
         self.errors: list[tuple[str, str]] = []
         self.missing_languages: set[str] = set()
         self.unsupported_languages: set[str] = set()
-        self.missing_model = False
-        self.undo_data: dict[str, bytes] = {}
+        # Maps the ids of models the worker reported as not downloaded to the missing variants
+        self.missing_models: dict[str, set[Variant]] = {}
+        # Maps the names of the files changed by the last change to their data before and after it
+        self.undo_data: dict[str, tuple[bytes, bytes]] = {}
         Dialog.__init__(self, _('Check grammar'), 'grammar-check', parent)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.update_timer = t = QTimer(self)
@@ -1472,7 +1512,7 @@ class GrammarCheck(Dialog):
         self.errors.clear()
         self.missing_languages.clear()
         self.unsupported_languages.clear()
-        self.missing_model = False
+        self.missing_models.clear()
         self.paragraphs_total = self.paragraphs_done = 0
         # The current list of issues is kept until the new results arrive,
         # so that the current issue, or its row, is preserved
@@ -1527,8 +1567,11 @@ class GrammarCheck(Dialog):
             for issue in visible_issues(p, result.issues):
                 self.issues[name].append(BookIssue(name, pf.default_lang, pf.refs[pidx], result, issue, ignore_key(result, issue), pf.file_index, pidx))
         self.paragraphs_done += len(r.results)
-        if r.model_id:
-            self.missing_model = True
+        if r.model_id and (variant := as_variant(r.variant)) is not None:
+            # Either the deep check continues with only the rules, or, for a
+            # failed request, the model is offered for download instead of
+            # reporting an error
+            self.missing_models.setdefault(r.model_id, set()).add(variant)
             self.update_banner()
         if r.done:
             self.paragraphs_done = min(self.paragraphs_done, self.paragraphs_total)
@@ -1536,7 +1579,7 @@ class GrammarCheck(Dialog):
                 if r.language_data:
                     self.missing_languages.add(r.language_data)
                     self.update_banner()
-                else:
+                elif not r.model_id:
                     self.errors.append((r.error, r.details))
                     self.report_errors()
         self.update_progress()
@@ -1581,7 +1624,7 @@ class GrammarCheck(Dialog):
                     prepare_string_for_xml(language_name(lang)), f'download-data:{lang}'
                 )
             )
-        if self.missing_model and self.deep.isChecked():
+        if self.missing_models:
             parts.append(_('The neural network for deep checks has not been downloaded. <a href="download-model:">Download it</a>.'))
         if self.unsupported_languages:
             names = ', '.join(sorted(language_name(x) for x in self.unsupported_languages))
@@ -1595,7 +1638,8 @@ class GrammarCheck(Dialog):
             if ensure_language_data(self, lang):
                 self.refresh()
         elif kind == 'download-model':
-            if ensure_model(self, 'check', book_language()):
+            missing = dict(self.missing_models)
+            if all(ensure_model(self, 'check', book_language(), tuple(variants), model_id) for model_id, variants in missing.items()):
                 self.service.options_changed.emit()
 
     # }}}
@@ -1721,8 +1765,9 @@ class GrammarCheck(Dialog):
             if not isinstance(source, str):
                 raise TypeError(f'{name} is not a text file')
             changed = replace_encoding_declarations(transform(source), enc='utf-8', limit=4 * 1024)[0]
+            new_raw = changed.encode('utf-8')
             with container.open(name, 'wb') as f:
-                f.write(changed.encode('utf-8'))
+                f.write(new_raw)
         except EditNotPossible as e:
             error_dialog(
                 self,
@@ -1738,7 +1783,7 @@ class GrammarCheck(Dialog):
         except (OSError, ValueError, TypeError) as e:
             error_dialog(self, _('Cannot change'), _('Failed to change {0} with error: {1}').format(name, e), det_msg=traceback.format_exc(), show=True)
             return False
-        self.undo_data = {name: raw}
+        self.undo_data = {name: (raw, new_raw)}
         row = self.issues_view.currentIndex().row()
         self.files_changed.emit({name})
         # Show the next issue while the file is checked again
@@ -1753,7 +1798,7 @@ class GrammarCheck(Dialog):
         if x is None:
             return
         pf = self.files.get(x.file_name)
-        if pf is None or pf.refs[x.paragraph_index] != x.ref:
+        if pf is None or x.paragraph_index >= len(pf.refs) or pf.refs[x.paragraph_index] != x.ref:
             error_dialog(self, _('Text changed'), _('The text has changed since it was checked, click Refresh to check the book again.'), show=True)
             return
 
@@ -1766,16 +1811,28 @@ class GrammarCheck(Dialog):
         if not self.undo_data:
             error_dialog(self, _('No change'), _('There is no correction to undo'), show=True)
             return
+        # Changes made in the editors since the last change must not be lost
+        self.commit_requested.emit()
         container = current_container()
-        data, self.undo_data = self.undo_data, {}
         try:
-            for name, raw in data.items():
+            for name, (before, after) in self.undo_data.items():
+                if container.raw_data(name, decode=False) != after:
+                    error_dialog(
+                        self,
+                        _('Cannot undo'),
+                        _('{} has been edited since the change was made, use undo in the editor instead.').format(name),
+                        show=True,
+                    )
+                    return
+            for name, (before, after) in self.undo_data.items():
                 with container.open(name, 'wb') as f:
-                    f.write(raw)
+                    f.write(before)
         except OSError as e:
             error_dialog(self, _('Cannot undo'), _('Failed to undo the change with error: {}').format(e), det_msg=traceback.format_exc(), show=True)
-        self.files_changed.emit(set(data))
-        self.check_files(tuple(data))
+            return
+        names, self.undo_data = tuple(self.undo_data), {}
+        self.files_changed.emit(set(names))
+        self.check_files(names)
 
     def ignore_current(self) -> None:
         if (x := self.current_issue) is not None:
@@ -1795,7 +1852,11 @@ class GrammarCheck(Dialog):
         self.service.options_changed.emit()
 
     def deep_toggled(self, checked: bool) -> None:
-        if checked and not ensure_model(self, 'check', book_language()):
+        # Offer to download the model for the language of the book, if there is
+        # one. Models needed for text in other languages are reported by the
+        # check and can be downloaded from the banner.
+        lang = book_language()
+        if checked and default_model('check', lang) and not ensure_model(self, 'check', lang):
             self.deep.blockSignals(True)
             self.deep.setChecked(False)
             self.deep.blockSignals(False)

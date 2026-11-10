@@ -193,7 +193,7 @@ def sentence_at(
         if source_pos > e:
             continue
         i = text_index(p, source_pos)
-        sentences = results[idx].sentences if idx in results else simple_sentences(p.text)
+        sentences = (results[idx].sentences if idx in results else ()) or simple_sentences(p.text)
         # A position between sentences belongs to the sentence before it
         span = next((x for x in sentences if x[0] <= i < x[1]), None) or next((x for x in reversed(sentences) if x[0] <= i), None)
         if span is None:
