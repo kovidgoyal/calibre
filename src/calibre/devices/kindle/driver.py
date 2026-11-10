@@ -105,6 +105,7 @@ class KINDLE(USBMS):
     VENDOR_ID = [0x1949]
     PRODUCT_ID = [0x0001]
     BCD = [0x399]
+    SCAN_SKIP_DIR_SUFFIXES = ('.sdr',)  # sidecar folders never contain books
 
     VENDOR_NAME = 'KINDLE'
     WINDOWS_MAIN_MEM = 'INTERNAL_STORAGE'
@@ -609,14 +610,12 @@ class KINDLE2(KINDLE):
         if not os.path.exists(dest_dir) or not os.path.exists(src_dir):
             return
         count = 0
+        # List the destination once rather than calling lstat() for every
+        # file, which is very slow on high latency filesystems such as sshfs
+        dest_sizes = {name: st.st_size for name, st in get_files_in(dest_dir)}
         for name, src_stat_result in get_files_in(src_dir):
             dest_path = os.path.join(dest_dir, name)
-            try:
-                dest_stat_result = os.lstat(dest_path)
-            except OSError:
-                needs_sync = True
-            else:
-                needs_sync = src_stat_result.st_size != dest_stat_result.st_size
+            needs_sync = src_stat_result.st_size != dest_sizes.get(name)
             if needs_sync:
                 count += 1
                 if DEBUG:

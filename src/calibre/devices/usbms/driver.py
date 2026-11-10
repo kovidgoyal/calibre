@@ -6,14 +6,18 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 """
 
+import hashlib
+import io
 import json
 import os
 import shutil
+import time
+from contextlib import suppress
 from itertools import cycle
 from typing import TYPE_CHECKING, ClassVar, Never, cast, overload
 
 from calibre import fsync, prints
-from calibre.constants import filesystem_encoding, ismacos, numeric_version
+from calibre.constants import cache_dir, filesystem_encoding, ismacos, numeric_version
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
@@ -78,6 +82,77 @@ def safe_walk(
         yield top, dirs, nondirs
 
 
+def file_creation_time(st: os.stat_result) -> float:
+    """The creation time from a stat result, 0 if the filesystem does not have one"""
+    # st_ctime is the creation time on Windows but the time of the last change
+    # to the metadata of the file on Linux, which is what os.path.getctime() returns there
+    return getattr(st, 'st_birthtime', 0) or getattr(st, 'st_ctime', 0)
+
+
+def _list_dir(top: str, skip_dir_suffixes: tuple[str, ...]) -> tuple[list[tuple[str, os.stat_result | None]], list[str]]:
+    """Return the (name, stat result) of the files in top and the paths of its sub folders"""
+    files = []
+    subdirs = []
+    try:
+        entries = list(os.scandir(top))
+    except OSError:
+        return files, subdirs
+    for entry in entries:
+        try:
+            if entry.is_dir(follow_symlinks=False):
+                if not entry.name.endswith(skip_dir_suffixes):
+                    subdirs.append(entry.path)
+            elif entry.is_dir():
+                continue  # symlink to a directory
+            else:
+                try:
+                    st = entry.stat()
+                except OSError:
+                    st = None
+                files.append((entry.name, st))
+        except OSError:
+            continue
+    return files, subdirs
+
+
+def scan_files(top: str, skip_dir_suffixes: tuple[str, ...] = (), threads: int = 1) -> Iterator[tuple[str, str, os.stat_result | None]]:
+    """
+    Walk top recursively, yielding (directory, filename, stat result) for every file.
+    Uses os.scandir() so that the stat result comes from the directory listing and
+    needs no extra stat() call per file, which matters a lot on high latency
+    filesystems such as sshfs. Symlinked directories are not followed and
+    directories whose names end with one of skip_dir_suffixes are not entered.
+
+    If threads is greater than one, several folders are listed at the same time.
+    On a high latency filesystem the requests overlap instead of being made one
+    after another. The results are then sorted rather than being in folder
+    scan order.
+    """
+    if threads <= 1:
+        files, subdirs = _list_dir(top, skip_dir_suffixes)
+        for name, st in files:
+            yield top, name, st
+        for d in subdirs:
+            yield from scan_files(d, skip_dir_suffixes)
+        return
+
+    from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+
+    found = []
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        pending = {executor.submit(_list_dir, top, skip_dir_suffixes): top}
+        while pending:
+            done, _ = wait(pending, return_when=FIRST_COMPLETED)
+            for future in done:
+                d = pending.pop(future)
+                files, subdirs = future.result()
+                found.extend((d, name, st) for name, st in files)
+                for sd in subdirs:
+                    pending[executor.submit(_list_dir, sd, skip_dir_suffixes)] = sd
+    found.sort(key=lambda x: (x[0], x[1]))
+    yield from found
+
+
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
@@ -103,6 +178,11 @@ class USBMS(CLI, Device):
     DRIVEINFO = 'driveinfo.calibre'
 
     SCAN_FROM_ROOT = False
+    #: Directories whose names end with one of these are not searched for books
+    #: when self.slow_connection is True
+    SCAN_SKIP_DIR_SUFFIXES: ClassVar[tuple[str, ...]] = ()
+    #: Number of folders to list at the same time when self.slow_connection is True
+    SCAN_THREADS: ClassVar[int] = 8
 
     def _update_driveinfo_record(self, dinfo: object, prefix: str, location_code: str, name: str | None = None) -> dict[str, object]:
         import uuid
@@ -241,7 +321,10 @@ class USBMS(CLI, Device):
 
         # get the metadata cache
         bl = self.booklist_class(oncard, prefix, self.settings)
-        need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
+        if self.slow_connection:
+            need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE, use_local_copy=True)
+        else:
+            need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
 
         # make a dict cache of paths so the lookup in the loop below is faster.
         bl_cache: dict[str, int | None] = {}
@@ -250,7 +333,7 @@ class USBMS(CLI, Device):
 
         all_formats = self.formats_to_scan_for()
 
-        def update_booklist(filename: str, path: str, prefix: str) -> bool:
+        def update_booklist(filename: str, path: str, prefix: str, st: os.stat_result | None = None) -> bool:
             changed = False
             # Ignore AppleDouble files
             if filename.startswith('._'):
@@ -263,7 +346,10 @@ class USBMS(CLI, Device):
                     idx = bl_cache.get(lpath, None)
                     if idx is not None:
                         bl_cache[lpath] = None
-                        if self.update_metadata_item(bl[idx]):
+                        if st is not None and getattr(bl[idx], 'datetime_deferred', False):
+                            bl[idx].datetime_deferred = False
+                            bl[idx].datetime = time.gmtime(file_creation_time(st) or st.st_mtime)
+                        if self.update_metadata_item(bl[idx]) if st is None else self.update_metadata_item(bl[idx], st.st_size):
                             # print('update_metadata_item returned true')
                             changed = True
                     elif bl.add_book(self.book_from_path(prefix, lpath), replace_metadata=False):
@@ -288,17 +374,19 @@ class USBMS(CLI, Device):
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
-                flist = []
-                for path, dirs, files in safe_walk(ebook_dir):
-                    for filename in files:
-                        if filename != self.METADATA_CACHE:
-                            flist.append({
-                                'filename': self.path_to_unicode(filename),
-                                'path': self.path_to_unicode(path),
-                            })
-                for i, f in enumerate(flist):
+                flist: list[tuple[str, str, os.stat_result | None]] = []
+                if self.slow_connection:
+                    # file sizes and dates come from the directory listing
+                    # rather than from a separate stat() call for every file
+                    found = scan_files(ebook_dir, self.SCAN_SKIP_DIR_SUFFIXES, self.SCAN_THREADS)
+                else:
+                    found = ((path, filename, None) for path, dirs, files in safe_walk(ebook_dir) for filename in files)
+                for path, filename, st in found:
+                    if filename != self.METADATA_CACHE:
+                        flist.append((self.path_to_unicode(filename), self.path_to_unicode(path), st))
+                for i, (filename, path, st) in enumerate(flist):
                     self.report_progress(i / float(len(flist)), _('Getting list of books on device...'))
-                    changed = update_booklist(f['filename'], f['path'], prefix)
+                    changed = update_booklist(filename, path, prefix, st)
                     if changed:
                         need_sync = True
             else:
@@ -480,7 +568,19 @@ class USBMS(CLI, Device):
             if prefix is not None and len(booklists) > listid and isinstance(booklists[listid], self.booklist_class):
                 if not os.path.exists(prefix):
                     os.makedirs(self.normalize_path(prefix))
-                with open(self.normalize_path(os.path.join(prefix, self.METADATA_CACHE)), 'wb') as f:
+                cache_file = self.normalize_path(os.path.join(prefix, self.METADATA_CACHE))
+                if self.slow_connection:
+                    # Keep the local copy of the cache up to date so that it
+                    # does not need to be re-read from the slow device
+                    buf = io.BytesIO()
+                    json_codec.encode_to_file(buf, booklists[listid])  # ty: ignore[invalid-argument-type] not None, see isinstance() check above
+                    data = buf.getvalue()
+                    with open(cache_file, 'wb') as f:
+                        f.write(data)
+                        fsync(f)
+                    self._store_local_metadata_cache(prefix, self.METADATA_CACHE, data)
+                    return
+                with open(cache_file, 'wb') as f:
                     json_codec.encode_to_file(f, booklists[listid])  # ty: ignore[invalid-argument-type] not None, see isinstance() check above
                     fsync(f)
 
@@ -528,14 +628,100 @@ class USBMS(CLI, Device):
         return cls.path_to_unicode(path)
 
     @classmethod
-    def parse_metadata_cache(cls, bl: BookList, prefix: str, name: str) -> bool:
+    def _local_metadata_cache_paths(cls, prefix: str, name: str) -> tuple[str, str]:
+        key = hashlib.sha1(f'{cls.__name__}|{cls.normalize_path(prefix)}|{name}'.encode()).hexdigest()
+        base = os.path.join(cache_dir(), 'device-metadata', key)
+        return base + '.json', base + '.info'
+
+    @classmethod
+    def _device_file_signature(cls, path: str) -> list[int]:
+        st = os.stat(path)
+        # sshfs only has one second resolution for modification times
+        return [st.st_size, int(st.st_mtime)]
+
+    @classmethod
+    def _store_local_metadata_cache(cls, prefix: str, name: str, data: bytes) -> None:
+        """
+        Save a copy of the metadata cache from a slow device in the calibre
+        cache folder. Never raises.
+        """
+        try:
+            data_path, info_path = cls._local_metadata_cache_paths(prefix, name)
+            os.makedirs(os.path.dirname(data_path), exist_ok=True)
+            with suppress(OSError):
+                os.remove(info_path)
+            tmp = data_path + '.tmp'
+            with open(tmp, 'wb') as f:
+                f.write(data)
+            os.replace(tmp, data_path)
+            sig = cls._device_file_signature(cls.normalize_path(os.path.join(prefix, name)))
+            with open(info_path, 'w') as f:
+                json.dump(sig, f)
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+
+    @classmethod
+    def _read_metadata_cache_via_local_copy(cls, prefix: str, name: str, cache_file: str) -> bytes:
+        """
+        Return the contents of the metadata cache file, using a local copy if
+        it is known to be identical to the one on the device.
+        """
+        data_path, info_path = cls._local_metadata_cache_paths(prefix, name)
+        sig = cls._device_file_signature(cache_file)
+        try:
+            with open(info_path) as f:
+                saved = json.load(f)
+            if saved == sig:
+                with open(data_path, 'rb') as f:
+                    data = f.read()
+                if len(data) == sig[0]:
+                    return data
+        except Exception:
+            pass
+        with open(cache_file, 'rb') as f:
+            data = f.read()
+        cls._store_local_metadata_cache(prefix, name, data)
+        return data
+
+    @classmethod
+    def _deferred_datetime_book_factory(cls) -> Callable[[str, str], Book]:
+        """
+        Return a book factory that does not stat() every book to find its date,
+        that is very slow on network folders. The date is filled in later by
+        books() from the directory listing.
+        """
+        book_class = cls.book_class
+
+        def factory(prefix: str, lpath: str) -> Book:
+            try:
+                book = book_class(prefix, lpath, defer_datetime=True)
+            except TypeError:
+                return book_class(prefix, lpath)
+            book.datetime_deferred = True
+            return book
+
+        return factory
+
+    @classmethod
+    def parse_metadata_cache(cls, bl: BookList, prefix: str, name: str, use_local_copy: bool = False) -> bool:
+        """
+        :param use_local_copy: Keep a copy of the cache file in the calibre cache
+            folder and only read it from the device if it has changed there. Use
+            for slow devices such as network folders.
+        """
         json_codec = JsonCodec()
         need_sync = False
         cache_file = cls.normalize_path(os.path.join(prefix, name))
         if os.access(cache_file, os.R_OK):
             try:
-                with open(cache_file, 'rb') as f:
-                    json_codec.decode_from_file(f, bl, cls.book_class, prefix)
+                if use_local_copy:
+                    data = cls._read_metadata_cache_via_local_copy(prefix, name, cache_file)
+                    json_codec.decode_from_file(io.BytesIO(data), bl, cls._deferred_datetime_book_factory(), prefix)
+                else:
+                    with open(cache_file, 'rb') as f:
+                        json_codec.decode_from_file(f, bl, cls.book_class, prefix)
             except Exception:
                 import traceback
 
@@ -546,9 +732,10 @@ class USBMS(CLI, Device):
         return need_sync
 
     @classmethod
-    def update_metadata_item(cls, book: Book) -> bool:
+    def update_metadata_item(cls, book: Book, size: int | None = None) -> bool:
         changed = False
-        size = os.stat(cls.normalize_path(book.path)).st_size
+        if size is None:
+            size = os.stat(cls.normalize_path(book.path)).st_size
         if size != book.size:
             changed = True
             mi = cls.metadata_from_path(book.path)

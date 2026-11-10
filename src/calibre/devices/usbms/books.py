@@ -51,7 +51,12 @@ def none_cmp(xx: tuple[Metadata, object, object], yy: tuple[Metadata, object, ob
 
 
 class Book(Metadata):
-    def __init__(self, prefix: str, lpath: str, size: int | None = None, other: Metadata | None = None) -> None:
+    def __init__(self, prefix: str, lpath: str, size: int | None = None, other: Metadata | None = None, defer_datetime: bool = False) -> None:
+        """
+        :param defer_datetime: Do not look up the date of the file, the caller will
+            set book.datetime. Avoids a stat() call per book, which is very slow
+            on network folders.
+        """
         from calibre.ebooks.metadata.meta import path_to_ext
 
         Metadata.__init__(self, '')
@@ -71,10 +76,14 @@ class Book(Metadata):
         match = re.search(r'_(\d+)$', lpath.rpartition('.')[0])
         self.db_id = int(match.group(1)) if match else None
         self.size = size  # will be set later if None
-        try:
-            self.datetime = time.gmtime(os.path.getctime(self.path))
-        except Exception:
+        if defer_datetime:
             self.datetime = time.gmtime()
+        else:
+            try:
+                # some filesystems, such as sshfs, do not have a creation time and report 0
+                self.datetime = time.gmtime(os.path.getctime(self.path) or os.path.getmtime(self.path))
+            except Exception:
+                self.datetime = time.gmtime()
         if other:
             self.smart_update(other)
 

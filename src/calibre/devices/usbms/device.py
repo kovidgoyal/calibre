@@ -163,6 +163,12 @@ class Device(DeviceConfig, DevicePlugin):
 
     connected_folder_path = ''  # used internally for fake folder device
     eject_connected_folder = False
+    #: Set by the device manager before opening a folder, see slow_connection
+    slow_folder_requested = False
+    #: True when the device is a folder on a slow (high latency) filesystem, such
+    #: as a network drive. The driver then avoids per file filesystem calls and
+    #: keeps a local copy of the metadata cache.
+    slow_connection = False
 
     @classmethod
     def model_metadata(cls) -> tuple[ModelMetadata, ...]:
@@ -882,8 +888,10 @@ class Device(DeviceConfig, DevicePlugin):
     def open(self, connected_device: object, library_uuid: str | None) -> None:
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.connected_folder_path = ''
+        self.slow_connection = False
         serial = getattr(connected_device, 'serial', None)
         if serial and serial.startswith(FAKE_DEVICE_SERIAL):
+            self.slow_connection = self.slow_folder_requested
             folder_path = serial[len(FAKE_DEVICE_SERIAL) :]
             if not os.path.isdir(folder_path):
                 raise DeviceError(f'The path {folder_path} is not a folder cannot connect to it')

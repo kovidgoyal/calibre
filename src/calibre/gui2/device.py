@@ -448,8 +448,8 @@ class DeviceManager(Thread):  # {{{
     # Mount devices that don't use USB, such as the folder device
     # This will be called on the GUI thread. Because of this, we must store
     # information that the scanner thread will use to do the real work.
-    def mount_device(self, kls, kind, path, model_metadata=None) -> None:
-        self.mount_connection_requests.put((kls, kind, path, model_metadata))
+    def mount_device(self, kls, kind, path, model_metadata=None, slow=False) -> None:
+        self.mount_connection_requests.put((kls, kind, path, model_metadata, slow))
 
     # disconnect a device
     def umount_device(self, *args) -> None:
@@ -498,9 +498,10 @@ class DeviceManager(Thread):  # {{{
 
         while not self.shutdown_event.is_set():
             kls = model_metadata = None
+            slow = False
             while True:
                 try:
-                    kls, device_kind, folder_path, model_metadata = self.mount_connection_requests.get_nowait()
+                    kls, device_kind, folder_path, model_metadata, slow = self.mount_connection_requests.get_nowait()
                 except queue.Empty:
                     break
             if model_metadata is not None:
@@ -515,6 +516,7 @@ class DeviceManager(Thread):  # {{{
                         dev = initialize_plugin(model_metadata.driver_class)
                         self.run_startup(dev)
                         self.call_shutdown_on_disconnect = True
+                    dev.slow_folder_requested = slow  # ty: ignore[invalid-assignment]
                     self.do_connect(
                         [
                             [dev, model_metadata.detected_device(folder_path)],
@@ -532,6 +534,7 @@ class DeviceManager(Thread):  # {{{
                     # it disconnects.
                     self.run_startup(dev)
                     self.call_shutdown_on_disconnect = True
+                    dev.slow_connection = slow
                     self.do_connect(
                         [
                             [dev, None],
@@ -1092,21 +1095,21 @@ class DeviceMixin:  # {{{
         self.default_thumbnail_prefs = prefs = override_prefs(cprefs)
         scale_cover(prefs, ratio)
 
-    def connect_to_folder_named(self: Main, folder, model_metadata=None) -> None:
+    def connect_to_folder_named(self: Main, folder, model_metadata=None, slow=False) -> None:
         if os.path.exists(folder) and os.path.isdir(folder):
             if model_metadata is not None:
-                self.device_manager.mount_device(kls=None, kind='folder-as-device', path=folder, model_metadata=model_metadata)
+                self.device_manager.mount_device(kls=None, kind='folder-as-device', path=folder, model_metadata=model_metadata, slow=slow)
             else:
-                self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=folder)
+                self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=folder, slow=slow)
 
     def connect_to_folder(self: Main) -> None:
         from calibre.gui2.dialogs.connect_to_folder import ConnectToFolder
 
         d = ConnectToFolder(self)
         if d.exec() == QDialog.DialogCode.Accepted:
-            folder_path, model_metadata = d.ans
+            folder_path, model_metadata, slow = d.ans
             if folder_path:
-                self.connect_to_folder_named(folder_path, model_metadata)
+                self.connect_to_folder_named(folder_path, model_metadata, slow)
 
     # disconnect from folder devices
     def disconnect_mounted_device(self: Main) -> None:

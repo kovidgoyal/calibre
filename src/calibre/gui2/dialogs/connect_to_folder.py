@@ -3,6 +3,7 @@
 
 from qt.core import (
     QAbstractItemView,
+    QCheckBox,
     QGroupBox,
     QHBoxLayout,
     QIcon,
@@ -110,6 +111,17 @@ class ConnectToFolder(Dialog):
         self.l = l = QVBoxLayout(self)
         self.folder_chooser = fc = ChooseFolder(self)
         l.addWidget(fc)
+        self.slow_check = sc = QCheckBox(_('The folder is on a &slow device (for example a network drive)'), self)
+        sc.setToolTip(
+            '<p>'
+            + _(
+                'Avoid slow per-file requests when listing the books and keep a local copy of the'
+                ' device metadata cache, so that connecting to a folder on a slow network drive is much faster.'
+                ' Changes made to the folder by other programs may not be noticed until the cache file in it changes.'
+            )
+        )
+        sc.setChecked(gprefs.get('connect_to_folder_is_slow', False))
+        l.addWidget(sc)
         self.la = la = QLabel('<p>' + _('Choose a device to connect as below. If no device is chosen a generic <i>Folder device</i> will be used.'))
         self.la2 = la2 = QLabel(
             '<p>'
@@ -187,11 +199,12 @@ class ConnectToFolder(Dialog):
         self.folder_chooser.on_accept()
         m = self.model_metadata
         gprefs.set('last_connected_folder_as_device', None if m is None else m.settings_key)
+        gprefs.set('connect_to_folder_is_slow', self.slow_check.isChecked())
         return super().accept()
 
     @property
     def ans(self):
-        return self.folder_chooser.folder, self.model_metadata
+        return self.folder_chooser.folder, self.model_metadata, self.slow_check.isChecked()
 
 
 if __name__ == '__main__':
