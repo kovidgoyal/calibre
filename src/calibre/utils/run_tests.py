@@ -985,6 +985,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.devices.kobo.test_driver import find_tests
 
         a(find_tests())
+        from calibre.devices.usbms.test_driver import find_tests
+
+        a(find_tests())
         from calibre.utils.safe_atexit import find_tests
 
         a(find_tests())

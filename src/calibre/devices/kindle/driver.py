@@ -105,6 +105,8 @@ class KINDLE(USBMS):
     VENDOR_ID = [0x1949]
     PRODUCT_ID = [0x0001]
     BCD = [0x399]
+    # The .sdr sidecar folders never contain books, see is_allowed_book_file()
+    SCAN_SKIP_DIR_SUFFIXES = ('.sdr',)
 
     VENDOR_NAME = 'KINDLE'
     WINDOWS_MAIN_MEM = 'INTERNAL_STORAGE'
@@ -609,14 +611,18 @@ class KINDLE2(KINDLE):
         if not os.path.exists(dest_dir) or not os.path.exists(src_dir):
             return
         count = 0
+        # List the destination once so that thumbnails missing from it, the
+        # common case, need no lstat() call, which is slow on high latency
+        # filesystems. Only the entries that may need comparing are stat()ed.
+        with os.scandir(dest_dir) as it:
+            dest_entries = {e.name: e for e in it}
         for name, src_stat_result in get_files_in(src_dir):
             dest_path = os.path.join(dest_dir, name)
+            dest_entry = dest_entries.get(name)
             try:
-                dest_stat_result = os.lstat(dest_path)
+                needs_sync = dest_entry is None or src_stat_result.st_size != dest_entry.stat(follow_symlinks=False).st_size
             except OSError:
                 needs_sync = True
-            else:
-                needs_sync = src_stat_result.st_size != dest_stat_result.st_size
             if needs_sync:
                 count += 1
                 if DEBUG:
