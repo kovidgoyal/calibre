@@ -22,7 +22,7 @@ from calibre import prints
 from calibre.constants import config_dir, filesystem_encoding, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
-from calibre.utils.filenames import samefile
+from calibre.utils.filenames import retry_on_fail, samefile
 from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import error_message
@@ -751,30 +751,24 @@ def import_data(
 
     if abort is not None and abort.is_set():
         return
-    base_dir = tempfile.mkdtemp(dir=os.path.dirname(config_location))
+    staging = tempfile.mkdtemp(dir=os.path.dirname(config_location))
+    base_dir = os.path.join(staging, 'new')
+    backup = os.path.join(staging, 'previous')
     try:
+        os.mkdir(base_dir)
         importer.export_config(base_dir, library_usage_stats)
+        if os.path.lexists(config_location):
+            retry_on_fail(os.rename, config_location, backup, count=2 if iswindows else 1, sleep_time=1)
+        retry_on_fail(os.rename, base_dir, config_location, count=2, sleep_time=2)
     except BaseException:
-        shutil.rmtree(base_dir, ignore_errors=True)
+        if os.path.lexists(backup):
+            try:
+                retry_on_fail(os.rename, backup, config_location, count=2, sleep_time=1)
+            except OSError as err:
+                raise OSError(_('Could not restore the previous settings. They are preserved at {}').format(backup)) from err
+        shutil.rmtree(staging, ignore_errors=True)
         raise
-    if os.path.lexists(config_location):
-        if os.path.islink(config_location) or os.path.isfile(config_location):
-            os.remove(config_location)
-        else:
-            shutil.rmtree(config_location, ignore_errors=True)
-            if os.path.exists(config_location):
-                try:
-                    shutil.rmtree(config_location)
-                except OSError:
-                    if not iswindows:
-                        raise
-                    time.sleep(1)
-                    shutil.rmtree(config_location)
-    try:
-        os.rename(base_dir, config_location)
-    except OSError:
-        time.sleep(2)
-        os.rename(base_dir, config_location)
+    shutil.rmtree(staging, ignore_errors=True)
     from calibre.gui2 import gprefs
 
     gprefs.refresh()

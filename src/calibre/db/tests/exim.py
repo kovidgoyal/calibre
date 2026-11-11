@@ -154,6 +154,37 @@ class VerifyExportTest(unittest.TestCase):
             self.assertEqual(Path(dest, 'plugins', 'a.zip').read_bytes(), b'a' * 45)
             self.assertEqual(Path(dest, 'b.json').read_bytes(), b'b' * 37)
 
+    def test_import_preserves_settings_on_replacement_failure(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        real_rename = os.rename
+        for rollback_fails in (False, True):
+            with self.subTest(rollback_fails=rollback_fails), TemporaryDirectory() as parent:
+                config = Path(parent).resolve() / 'config'
+                config.mkdir()
+                previous = config / 'old-settings.json'
+                previous.write_bytes(b'{"original": true}')
+
+                def rename(src: str, dst: str, *, config: Path = config, rollback_fails: bool = rollback_fails) -> None:
+                    if Path(dst) == config and (rollback_fails or Path(src, 'settings.json').is_file()):
+                        raise OSError('Injected configuration replacement failure')
+                    real_rename(src, dst)
+
+                with patch('calibre.utils.exim.os.rename', side_effect=rename), patch('calibre.utils.exim.time.sleep'):
+                    with self.assertRaises(OSError) as error:
+                        import_data(Importer(self.path), {}, config_location=str(config))
+
+                if rollback_fails:
+                    backups = list(config.parent.rglob(previous.name))
+                    self.assertEqual(len(backups), 1)
+                    self.assertEqual(backups[0].read_bytes(), b'{"original": true}')
+                    self.assertIn(str(backups[0].parent), str(error.exception))
+                else:
+                    self.assertTrue(previous.is_file())
+                    self.assertEqual(previous.read_bytes(), b'{"original": true}')
+                    self.assertEqual(list(config.iterdir()), [previous])
+                    self.assertEqual(list(config.parent.iterdir()), [config])
+
     def test_import_rejects_invalid_metadata_before_writing(self) -> None:
         file_metadata = self.export().file_metadata
         config = [['first', 'gui.json'], ['second', 'plugins/a.zip']]
