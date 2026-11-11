@@ -928,18 +928,27 @@ class SuggestionRow(QWidget):
     def __init__(self, sentence: str, suggestion: Suggestion, apply: Callable[[], None], parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.suggestion = suggestion
+        self.apply_callback = apply
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        self.label = la = QLabel(f'<b>{prepare_string_for_xml(kind_name(suggestion.kind))}:</b> {suggestion_html(sentence, suggestion.edits)}', self)
+        # The apply link is inline at the end of the text, rather than a
+        # button, so that the suggestion can use the full width of the panel
+        self.label = la = QLabel(
+            f'<b>{prepare_string_for_xml(kind_name(suggestion.kind))}:</b> {suggestion_html(sentence, suggestion.edits)}'
+            f' <a href="apply:" style="text-decoration: none">{prepare_string_for_xml(_("Apply"))}</a>',
+            self,
+        )
         la.setWordWrap(True)
         la.setTextFormat(Qt.TextFormat.RichText)
-        la.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        la.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+        )
+        la.linkActivated.connect(self.link_activated)
         l.addWidget(la, stretch=1)
-        self.apply_button = b = QPushButton(QIcon.ic('ok.png'), _('&Apply'), self)
-        b.setAutoDefault(False)
-        b.setToolTip('<p>' + _('Rewrite the sentence as suggested'))
-        b.clicked.connect(apply)
-        l.addWidget(b, alignment=Qt.AlignmentFlag.AlignTop)
+
+    def link_activated(self, link: str) -> None:
+        if link == 'apply:':
+            self.apply_callback()
 
 
 class SuggestionsWidget(QWidget):
