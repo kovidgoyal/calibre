@@ -5,6 +5,7 @@ import errno
 import hashlib
 import io
 import json
+import ntpath
 import os
 import re
 import shutil
@@ -14,10 +15,11 @@ import tempfile
 import time
 import uuid
 from collections import Counter
+from pathlib import PureWindowsPath
 from typing import IO, TYPE_CHECKING, NamedTuple, Self, Unpack
 
 from calibre import prints
-from calibre.constants import config_dir, filesystem_encoding, iswindows
+from calibre.constants import config_dir, filesystem_encoding, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
 from calibre.utils.filenames import samefile
@@ -26,7 +28,7 @@ from polyglot.binary import as_hex_unicode
 from polyglot.builtins import error_message
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Mapping
+    from collections.abc import Callable, Iterable, Iterator, Mapping
     from threading import Event
 
     from calibre.db.cache import Cache
@@ -388,6 +390,22 @@ class FileSource:
         self.close()
 
 
+def is_safe_relpath(relpath: str) -> bool:
+    """Return True if relpath stays inside the folder it is joined to on every platform."""
+    if '\0' in relpath or PureWindowsPath(relpath).anchor:
+        return False
+    return all(part not in ('', '.', '..') for part in relpath.replace('\\', '/').split('/'))
+
+
+def restored_path_parts(relpath: str) -> tuple[str, ...]:
+    """Return the components of relpath as the local filesystem sees them, case folded where it is usually case-insensitive."""
+    if iswindows:
+        relpath = relpath.replace('\\', '/')
+    if iswindows or ismacos:
+        relpath = relpath.casefold()
+    return tuple(relpath.split('/'))
+
+
 class LibraryExport(NamedTuple):
     """The validated export metadata for a single library, as used by import_library()."""
 
@@ -517,31 +535,101 @@ class Importer:
         return LibraryExport(total, databases, book_map('format_data', True), book_map('extra_files', False))
 
     def config_files(self) -> list[tuple[str, str]]:
-        """Validate the settings file records before using them."""
-        entries = self.metadata['config_dir']
+        """Validate the settings file records before using them. An export without settings has no records."""
+        entries = self.metadata.get('config_dir', [])
         if not isinstance(entries, list):
             raise ValueError('Invalid configuration file list')  # ruff: ignore[type-check-without-type-error]
-        files = []
+        files: list[tuple[str, str]] = []
+        file_paths: dict[tuple[str, ...], str] = {}
+        folder_paths: dict[tuple[str, ...], str] = {}
         for entry in entries:
             match entry:
                 case [str(key), str(relpath)] if relpath:
+                    if not is_safe_relpath(relpath):
+                        raise ValueError(f'The configuration file path {relpath!r} is not inside the settings folder')
+                    if iswindows and ntpath.isreserved(relpath):
+                        raise ValueError(f'The configuration file path {relpath!r} is not allowed on Windows')
+                    parts = restored_path_parts(relpath)
+                    file_paths.setdefault(parts, relpath)
+                    for i in range(1, len(parts)):
+                        folder_paths.setdefault(parts[:i], relpath)
                     files.append((key, relpath))
                 case _:
                     raise ValueError('A configuration file entry must contain a file key and a non-empty path')
+        for parts, relpath in file_paths.items():
+            if (other := folder_paths.get(parts)) is not None:
+                raise ValueError(f'The configuration file path {relpath!r} is also a folder in {other!r}')
         return files
+
+    def libraries(self) -> dict[str, int]:
+        """Return the usage count of every exported library, keyed by library key."""
+        libraries = self.metadata.get('libraries', {})
+        if not isinstance(libraries, dict) or any(type(count) is not int for count in libraries.values()):
+            raise ValueError('The list of libraries is not valid')
+        return libraries
+
+    def file_layout(self) -> tuple[dict[int, int], dict[int, int], int]:
+        """Return the offset of each part in the exported data, the size of file data in each part and the total size."""
+        starts, limits, total_size = {}, {}, 0
+        last_part = max(self.part_map)
+        for num in sorted(self.part_map):
+            starts[num] = total_size
+            limits[num] = self.metadata_start if num == last_part else self.size_of_part(num)
+            total_size += limits[num]
+        return starts, limits, total_size
+
+    def check_file_entry(self, key: str, layout: tuple[dict[int, int], dict[int, int], int]) -> tuple[int, str]:
+        """Raise ValueError unless the metadata for key describes a file inside the exported data. Return its size and checksum."""
+        starts, limits, total_size = layout
+        if key not in self.file_metadata:
+            raise ValueError(f'Missing file {key}')
+        match self.file_metadata[key]:
+            case [part, pos, size, digest, _]:
+                pass
+            case _:
+                raise ValueError('Invalid file metadata')
+        if any(type(x) is not int for x in (part, pos, size)) or part not in starts or pos < 0 or size < 0:
+            raise ValueError('Invalid file position or size')
+        if pos > limits[part] or starts[part] + pos + size > total_size:
+            raise ValueError('File extends outside the exported data')
+        if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{40}', digest) is None:
+            raise ValueError('Invalid file checksum')
+        return size, digest
+
+    def check_references(self, references: Iterable[tuple[str, str]]) -> None:
+        """Raise ValueError unless every referenced file has valid metadata, without reading the files."""
+        layout = self.file_layout()
+        for desc, key in references:
+            try:
+                self.check_file_entry(key, layout)
+            except ValueError as err:
+                raise ValueError(f'{desc}: {err}') from None
+
+    def restorable_config_files(self) -> list[tuple[str, str]]:
+        """Return the settings file records, raising ValueError unless every record can be restored."""
+        files = self.config_files()
+        self.check_references(('config_dir', key) for key, _ in files)
+        return files
+
+    def check_restorable(self, library_keys: Iterable[str]) -> None:
+        """Raise ValueError if import_data() would fail on the metadata for these libraries or the settings."""
+        self.libraries()
+        self.restorable_config_files()
+        for library_key in library_keys:
+            self.check_references(self.library_export(library_key).referenced_keys(library_key))
 
     def verify(self, progress: Callable[[str, int, int], object] | None = None) -> list[str]:
         """Read every exported file and return errors, without restoring data."""
         errors = [f'Part {num} is duplicated in: {", ".join(names)}' for num, names in sorted(self.duplicate_parts.items())]
         references: list[tuple[str, str]] = []
-        if 'config_dir' in self.metadata:
-            try:
-                references.extend(('config_dir', key) for key, relpath in self.config_files())
-            except ValueError as err:
-                errors.append(f'Invalid export metadata: config_dir: {err}')
-        libraries = self.metadata.get('libraries', {})
-        if not isinstance(libraries, dict):
-            errors.append('Invalid export metadata: The list of libraries is not valid')
+        try:
+            references.extend(('config_dir', key) for key, _ in self.config_files())
+        except ValueError as err:
+            errors.append(f'Invalid export metadata: config_dir: {err}')
+        try:
+            libraries = self.libraries()
+        except ValueError as err:
+            errors.append(f'Invalid export metadata: {err}')
             libraries = {}
         for library_key in libraries:
             try:
@@ -551,23 +639,12 @@ class Importer:
         for desc, key in references:
             if key not in self.file_metadata:
                 errors.append(f'{desc}: Missing file {key}')
-        starts, limits, total_size = {}, {}, 0
-        last_part = max(self.part_map)
-        for num in sorted(self.part_map):
-            starts[num] = total_size
-            limits[num] = self.metadata_start if num == last_part else self.size_of_part(num)
-            total_size += limits[num]
-        for i, (key, entry) in enumerate(self.file_metadata.items(), 1):
+        layout = self.file_layout()
+        for i, key in enumerate(self.file_metadata, 1):
             if progress is not None:
                 progress(key, i, len(self.file_metadata))
             try:
-                part, pos, size, digest, mtime = entry
-                if any(type(x) is not int for x in (part, pos, size)) or part not in starts or pos < 0 or size < 0:
-                    raise ValueError('Invalid file position or size')
-                if pos > limits[part] or starts[part] + pos + size > total_size:
-                    raise ValueError('File extends outside the exported data')
-                if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{40}', digest) is None:
-                    raise ValueError('Invalid file checksum')
+                size, digest = self.check_file_entry(key, layout)
                 hasher, count = hashlib.sha1(), 0
                 with self.start_file(key, key) as src:
                     src.check_hash = False
@@ -597,16 +674,19 @@ class Importer:
             shutil.copyfileobj(src, dest)
 
     def export_config(self, base_dir: str, library_usage_stats: Counter[str]) -> None:
-        for key, relpath in self.config_files():
-            with self.start_file(key, relpath) as f:
-                path = os.path.join(base_dir, relpath.replace('/', os.sep))
-                try:
-                    with open(path, 'wb') as dest:
-                        shutil.copyfileobj(f, dest)
-                except OSError:
-                    os.makedirs(os.path.dirname(path))
-                    with open(path, 'wb') as dest:
-                        shutil.copyfileobj(f, dest)
+        root = os.path.realpath(base_dir)
+        targets = []
+        for key, relpath in self.restorable_config_files():
+            path = os.path.join(root, relpath.replace('/', os.sep))
+            # Check the path the OS will actually use, in case the textual checks in config_files() missed a platform quirk
+            resolved = os.path.realpath(path)
+            if resolved == root or os.path.commonpath((root, resolved)) != root:
+                raise ValueError(f'The configuration file path {relpath!r} is not inside the settings folder')
+            targets.append((key, relpath, path))
+        for key, relpath, path in targets:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with self.start_file(key, relpath) as f, open(path, 'wb') as dest:
+                shutil.copyfileobj(f, dest)
         gpath = os.path.join(base_dir, 'global.py')
         try:
             with open(gpath, 'rb') as f:
@@ -639,6 +719,9 @@ def import_data(
 ) -> None:
     from calibre.db.cache import import_library
 
+    # Reject unusable metadata before anything is written, rather than after the libraries are imported
+    importer.check_restorable(library_path_map)
+    library_counts = importer.libraries()
     config_location = config_location or config_dir
     config_location = os.path.abspath(os.path.realpath(config_location))
     total = len(library_path_map) + 1
@@ -662,14 +745,18 @@ def import_data(
             return
         cache.close()
         stats_key = os.path.abspath(dest).replace(os.sep, '/')
-        library_usage_stats[stats_key] = importer.metadata['libraries'].get(library_key, 1)
+        library_usage_stats[stats_key] = library_counts.get(library_key, 1)
     if progress1 is not None:
         progress1(_('Settings and plugins'), total - 1, total)
 
     if abort is not None and abort.is_set():
         return
     base_dir = tempfile.mkdtemp(dir=os.path.dirname(config_location))
-    importer.export_config(base_dir, library_usage_stats)
+    try:
+        importer.export_config(base_dir, library_usage_stats)
+    except BaseException:
+        shutil.rmtree(base_dir, ignore_errors=True)
+        raise
     if os.path.lexists(config_location):
         if os.path.islink(config_location) or os.path.isfile(config_location):
             os.remove(config_location)
