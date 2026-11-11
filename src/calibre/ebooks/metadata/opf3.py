@@ -362,8 +362,15 @@ set_uuid = identifier_writer('uuid')
 # Title {{{
 
 
+def is_subtitle(title: _Element, refines: Refines) -> bool:
+    q = properties_for_id(title.get('id'), refines).get('title-type') or ''
+    return 'subtitle' in q or 'sub-title' in q
+
+
 def find_main_title(root: _Element, refines: Refines, remove_blanks: bool = False) -> _Element | None:
-    first_title = main_title = None
+    # Use the title marked as main, falling back to the first title that is
+    # not marked as a subtitle and then to the first title
+    first_title = first_non_subtitle = None
     for title in XPath('./opf:metadata/dc:title')(root):
         if not title.text or not title.text.strip():
             if remove_blanks:
@@ -371,23 +378,21 @@ def find_main_title(root: _Element, refines: Refines, remove_blanks: bool = Fals
             continue
         if first_title is None:
             first_title = title
-        props = properties_for_id(title.get('id'), refines)
-        if props.get('title-type') == 'main':
-            main_title = title
-            break
-    else:
-        main_title = first_title
-    return main_title
-
-
-def find_subtitle(root: _Element, refines: Refines) -> _Element | None:
-    for title in XPath('./opf:metadata/dc:title')(root):
-        if not title.text or not title.text.strip():
-            continue
-        props = properties_for_id(title.get('id'), refines)
-        q = props.get('title-type') or ''
-        if 'subtitle' in q or 'sub-title' in q:
+        if properties_for_id(title.get('id'), refines).get('title-type') == 'main':
             return title
+        if first_non_subtitle is None and not is_subtitle(title, refines):
+            first_non_subtitle = title
+    return first_title if first_non_subtitle is None else first_non_subtitle
+
+
+def find_subtitles(root: _Element, refines: Refines, main_title: _Element | None) -> list[_Element]:
+    # The main title is never a subtitle, even when it is the fallback for a
+    # book whose titles are all marked as subtitles
+    return [
+        title
+        for title in XPath('./opf:metadata/dc:title')(root)
+        if title is not main_title and title.text and title.text.strip() and is_subtitle(title, refines)
+    ]
 
 
 @simple_text
@@ -397,10 +402,10 @@ def read_title(root: _Element, prefixes: Prefixes, refines: Refines) -> str | No
         return None
     assert main_title.text is not None  # find_main_title() only returns titles with non-blank text
     ans = main_title.text.strip()
-    st = find_subtitle(root, refines)
-    if st is not None and st is not main_title:
-        assert st.text is not None  # find_subtitle() only returns titles with non-blank text
-        ans += ': ' + st.text.strip()
+    subtitles = find_subtitles(root, refines, main_title)
+    if subtitles:
+        assert subtitles[0].text is not None  # find_subtitles() only returns titles with non-blank text
+        ans += ': ' + subtitles[0].text.strip()
     return ans
 
 
@@ -420,10 +425,9 @@ def read_title_sort(root: _Element, prefixes: Prefixes, refines: Refines) -> str
 
 def set_title(root: _Element, prefixes: Prefixes, refines: Refines, title: str | None, title_sort: str | None = None) -> None:
     main_title = find_main_title(root, refines, remove_blanks=True)
-    st = find_subtitle(root, refines)
-    # With no title marked as main, the first title is used even if it is
-    # marked as a subtitle, and it must not be removed
-    if st is not None and st is not main_title:
+    # The new title includes the subtitle, so remove all subtitles, otherwise
+    # the next one would be appended to the title when it is read back
+    for st in find_subtitles(root, refines, main_title):
         remove_element(st, refines)
     if main_title is None:
         m = XPath('./opf:metadata')(root)[0]

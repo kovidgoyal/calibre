@@ -17,6 +17,7 @@ from calibre.ebooks.metadata.opf3 import (  # ruff: ignore[unused-import]
     ensure_prefix,
     expand_prefix,
     parse_prefixes,
+    properties_for_id,
     read_authors,
     read_book_producers,
     read_comments,
@@ -153,10 +154,38 @@ class TestOPF3(unittest.TestCase):
         self.ae(rt(root), 'x xx')
         self.ae(read_title_sort(root, read_prefixes(root), read_refines(root)), 'sorted')
         self.ae(st(root, 'abc'), 'abc')
-        root = self.get_opf('''<dc:title id='t'>xxx</dc:title><meta refines='#t' property='title-type'>subtitle</meta>
-            <dc:title id='u'>yyy</dc:title>''')
-        self.ae(rt(root), 'xxx')
+
+        def titles(root: _Element) -> list[tuple[str | None, str | None]]:
+            refines = read_refines(root)
+            return [(t.text, properties_for_id(t.get('id'), refines).get('title-type')) for t in XPath('//dc:title')(root)]
+
+        # Without a title marked as main, titles marked as subtitles are not used as the main title
+        sub = "<dc:title id='{0}'>{1}</dc:title><meta refines='#{0}' property='title-type'>subtitle</meta>"
+        root = self.get_opf(sub.format('t', 'xxx') + "<dc:title id='u'>yyy</dc:title>")
+        self.ae(rt(root), 'yyy: xxx')
         self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('abc', 'main')])
+        # All subtitles are removed when setting the title
+        root = self.get_opf(sub.format('t', 'xxx') + "<dc:title id='u'>yyy</dc:title>" + sub.format('v', 'zzz'))
+        self.ae(rt(root), 'yyy: xxx')
+        self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('abc', 'main')])
+        root = self.get_opf(
+            "<dc:title id='u'>yyy</dc:title><meta refines='#u' property='title-type'>main</meta>" + sub.format('t', 'xxx') + sub.format('v', 'zzz')
+        )
+        self.ae(rt(root), 'yyy: xxx')
+        self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('abc', 'main')])
+        # When all titles are subtitles the first is used as the main title
+        root = self.get_opf(sub.format('t', 'xxx') + sub.format('v', 'zzz'))
+        self.ae(rt(root), 'xxx: zzz')
+        self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('abc', 'main')])
+        # Untyped titles other than the main title are kept
+        root = self.get_opf("<dc:title id='u'>yyy</dc:title><dc:title id='w'>www</dc:title>" + sub.format('t', 'xxx'))
+        self.ae(rt(root), 'yyy: xxx')
+        self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('abc', 'main'), ('www', None)])
 
     # }}}
 
