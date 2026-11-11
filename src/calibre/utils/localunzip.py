@@ -14,10 +14,16 @@ import sys
 from collections import OrderedDict
 from compression import zlib
 from struct import calcsize, pack, unpack
-from typing import IO, NamedTuple
+from typing import IO, TYPE_CHECKING, NamedTuple
 
+from calibre import prints
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils import StreamOrPath
+
+if TYPE_CHECKING:
+    import unittest
+    from collections.abc import Iterator
+    from zlib import _Decompress
 
 HEADER_SIG = 0x04034B50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
@@ -102,9 +108,52 @@ class DataDescriptor(NamedTuple):
     size: int
 
 
-def find_data_descriptor(f: IO[bytes], compression_method: int) -> DataDescriptor:
+class ZipBomb(ValueError):
+    pass
+
+
+class TruncatedZipFile(ValueError):
+    pass
+
+
+READ_CHUNK_SIZE = 20 * 1024
+MAX_INFLATE_CHUNK_SIZE = 200 * 1024
+# The ways a data descriptor can be laid out: with or without its optional
+# signature, and with 32 or 64 bit (ZIP64) sizes
+DATA_DESCRIPTOR_LAYOUTS = ((True, b'<LLL'), (False, b'<LLL'), (True, b'<LQQ'), (False, b'<LQQ'))
+
+
+def inflate(d: _Decompress, raw: bytes) -> Iterator[bytes]:
+    # Decompress in bounded pieces, so that a little input cannot produce
+    # unlimited output
+    yield d.decompress(raw, MAX_INFLATE_CHUNK_SIZE)
+    count = 0
+    while d.unconsumed_tail and not d.eof:
+        count += 1
+        if count > 100:
+            raise ZipBomb('This ZIP file contains a ZIP bomb')
+        yield d.decompress(d.unconsumed_tail, MAX_INFLATE_CHUNK_SIZE)
+
+
+def warn_on_crc_mismatch(name: str | None, expected: int, actual: int) -> None:
+    # This module exists to salvage damaged files, which often have bad CRCs,
+    # so report corruption rather than refuse to return the data
+    if expected != actual:
+        prints(f'WARNING: The data for {name} in the damaged ZIP file does not match its CRC, it may be corrupted', file=sys.stderr)
+
+
+def find_data_descriptor(f: IO[bytes], compression_method: int, name: str | None) -> DataDescriptor:
     if compression_method == ZIP_DEFLATED:
-        return find_deflated_data_end(f)
+        try:
+            return find_deflated_data_end(f, name)
+        except (zlib.error, ZipBomb) as err:
+            # Fall back to searching for the signature, so that one undecodable
+            # entry does not prevent the rest of the file from being read
+            prints(f'WARNING: Could not decompress {name} in damaged ZIP file, falling back to searching for its end: {err}', file=sys.stderr)
+    return find_signed_data_descriptor(f)
+
+
+def find_signed_data_descriptor(f: IO[bytes]) -> DataDescriptor:
     pos = f.tell()
     raw = b'a' * 16
     try:
@@ -118,37 +167,44 @@ def find_data_descriptor(f: IO[bytes], compression_method: int) -> DataDescripto
             # by the 50K boundary
             f.seek(f.tell() - len(DATA_DESCRIPTOR_SIG))
 
-        raise ValueError('Failed to find data descriptor signature. Data descriptors without signatures are not supported for uncompressed files.')
+        raise ValueError('Failed to find data descriptor signature. Data descriptors without signatures are only supported for compressed files.')
     finally:
         f.seek(pos)
 
 
-def find_deflated_data_end(f: IO[bytes]) -> DataDescriptor:
+def find_deflated_data_end(f: IO[bytes], name: str | None) -> DataDescriptor:
     # The signature of a data descriptor is optional, and searching for it can
     # match bytes inside the compressed data. The end of the deflate stream is
     # where the data really ends, so decompress, discarding the output, to find
-    # it and the sizes.
+    # it, the sizes and the CRC.
     pos = f.tell()
     try:
         d = zlib.decompressobj(-15)
-        uncompressed_size = 0
+        crc = uncompressed_size = 0
         while not d.eof:
-            raw = f.read(20 * 1024)
+            raw = f.read(READ_CHUNK_SIZE)
             if not raw:
-                raise ValueError('Invalid ZIP file, compressed data is truncated')
-            uncompressed_size += len(d.decompress(raw, 200 * 1024))
-            count = 0
-            while d.unconsumed_tail and not d.eof:
-                count += 1
-                uncompressed_size += len(d.decompress(d.unconsumed_tail, 200 * 1024))
-                if count > 100:
-                    raise ValueError('This ZIP file contains a ZIP bomb')
+                raise TruncatedZipFile(f'Invalid ZIP file, the compressed data for {name} is truncated')
+            for chunk in inflate(d, raw):
+                crc = zlib.crc32(chunk, crc)
+                uncompressed_size += len(chunk)
         compressed_size = f.tell() - pos - len(d.unused_data)
         f.seek(pos + compressed_size)
-        raw = f.read(16)
+        raw = f.read(24)
+        actual = (crc, compressed_size, uncompressed_size)
+        # The layout whose values match the data identifies the descriptor
+        # and verifies the data at the same time
+        for signed, fmt in DATA_DESCRIPTOR_LAYOUTS:
+            offset = len(DATA_DESCRIPTOR_SIG) if signed else 0
+            size = offset + calcsize(fmt)
+            if len(raw) >= size and (not signed or raw.startswith(DATA_DESCRIPTOR_SIG)) and unpack(fmt, raw[offset:size]) == actual:
+                return DataDescriptor(*actual, size=size)
+        # The descriptor is damaged or the data is corrupt, assume the common layout
         size = 16 if raw.startswith(DATA_DESCRIPTOR_SIG) else 12
-        crc = raw[size - 12 : size - 8]
-        return DataDescriptor(unpack(b'<L', crc)[0] if len(crc) == 4 else 0, compressed_size, uncompressed_size, size)
+        crc_bytes = raw[size - 12 : size - 8]
+        # Keep the CRC the file claims, if any, so that reading the data reports the mismatch
+        expected_crc = unpack(b'<L', crc_bytes)[0] if len(crc_bytes) == 4 else crc
+        return DataDescriptor(expected_crc, compressed_size, uncompressed_size, size)
     finally:
         f.seek(pos)
 
@@ -194,52 +250,64 @@ def read_local_file_header(f: IO[bytes]) -> LocalHeader | None:
         if len(extra) != header.extra_length:
             return
     if has_data_descriptors:
-        desc = find_data_descriptor(f, header.compression_method)
+        desc = find_data_descriptor(f, header.compression_method, fname)
         header = header._replace(
             crc32=desc.crc32, compressed_size=desc.compressed_size, uncompressed_size=desc.uncompressed_size, data_descriptor_size=desc.size
         )
     return header._replace(filename=fname, extra=extra)
 
 
-def read_compressed_data(f: IO[bytes], header: LocalHeader) -> bytes:
-    cdata = f.read(header.compressed_size)
-    return cdata
-
-
-def copy_stored_file(src: IO[bytes], size: int, dest: IO[bytes]) -> None:
-    read = 0
-    amt = min(size, 20 * 1024)
+def copy_stored_file(src: IO[bytes], header: LocalHeader, dest: IO[bytes]) -> None:
+    size = header.compressed_size
+    read = crc = 0
+    amt = min(size, READ_CHUNK_SIZE)
     while read < size:
         raw = src.read(min(size - read, amt))
         if not raw:
             raise ValueError('Premature end of file')
         dest.write(raw)
+        crc = zlib.crc32(raw, crc)
         read += len(raw)
+    warn_on_crc_mismatch(header.filename, header.crc32, crc)
 
 
-def copy_compressed_file(src: IO[bytes], size: int, dest: IO[bytes]) -> None:
+def copy_compressed_file(src: IO[bytes], header: LocalHeader, dest: IO[bytes]) -> None:
+    size = header.compressed_size
     d = zlib.decompressobj(-15)
-    read = 0
-    amt = min(size, 20 * 1024)
+    read = crc = 0
+    amt = min(size, READ_CHUNK_SIZE)
     while read < size:
         raw = src.read(min(size - read, amt))
-        if not raw and read < size:
+        if not raw:
             raise ValueError('Invalid ZIP file, local header is damaged')
         read += len(raw)
-        dest.write(d.decompress(raw, 200 * 1024))
-        count = 0
-        while d.unconsumed_tail:
-            count += 1
-            dest.write(d.decompress(d.unconsumed_tail, 200 * 1024))
+        try:
+            for chunk in inflate(d, raw):
+                dest.write(chunk)
+                crc = zlib.crc32(chunk, crc)
+        except ZipBomb as err:
+            raise ZipBomb(f'This ZIP file contains a ZIP bomb in {header.filename}') from err
+    warn_on_crc_mismatch(header.filename, header.crc32, crc)
 
-            if count > 100:
-                raise ValueError(f'This ZIP file contains a ZIP bomb in {os.path.basename(dest.name)}')
+
+def copy_file(src: IO[bytes], header: LocalHeader, dest: IO[bytes]) -> None:
+    if header.compression_method == ZIP_STORED:
+        copy_stored_file(src, header, dest)
+    else:
+        copy_compressed_file(src, header, dest)
 
 
 def _extractall(f: IO[bytes], path: str | None = None, file_info: dict[str | None, tuple[int, LocalHeader]] | None = None) -> None:
     found = False
     while True:
-        header = read_local_file_header(f)
+        try:
+            header = read_local_file_header(f)
+        except TruncatedZipFile as err:
+            if not found:
+                raise
+            # A download that was cut short, keep the entries before the cut
+            prints(f'WARNING: {err}, ignoring it and anything after it', file=sys.stderr)
+            break
         if not header:
             break
         seekval = header.compressed_size + header.data_descriptor_size
@@ -277,10 +345,7 @@ def _extractall(f: IO[bytes], path: str | None = None, file_info: dict[str | Non
                     raise ValueError(f'This ZIP file contains a file with a reserved filename that cannot be processed on Windows: {os.path.basename(dest)}')
                 raise
             with df:
-                if header.compression_method == ZIP_STORED:
-                    copy_stored_file(f, header.compressed_size, df)
-                else:
-                    copy_compressed_file(f, header.compressed_size, df)
+                copy_file(f, header, df)
         else:
             f.seek(f.tell() + seekval)
 
@@ -318,10 +383,7 @@ class LocalZipFile:
         self.stream.seek(offset)
         dest = SpooledTemporaryFile(max_size=spool_size)
 
-        if header.compression_method == ZIP_STORED:
-            copy_stored_file(self.stream, header.compressed_size, dest)
-        else:
-            copy_compressed_file(self.stream, header.compressed_size, dest)
+        copy_file(self.stream, header, dest)
         dest.seek(0)
         return dest
 
@@ -378,6 +440,134 @@ class LocalZipFile:
             zipstream.truncate()
             shutil.copyfileobj(temp, zipstream)
             zipstream.flush()
+
+
+def find_tests() -> unittest.TestSuite:
+    import io
+    import random
+    import unittest
+    from contextlib import redirect_stderr
+
+    from calibre.ptempfile import TemporaryDirectory
+
+    def deflate(data: bytes) -> bytes:
+        c = zlib.compressobj(wbits=-15)
+        return c.compress(data) + c.flush()
+
+    def entry(
+        name: str, data: bytes, signed: bool = True, zip64: bool = False, crc: int | None = None, cdata: bytes | None = None, method: int = ZIP_DEFLATED
+    ) -> bytes:
+        # An entry whose sizes and CRC are only in the data descriptor after it
+        if cdata is None:
+            cdata = deflate(data) if method == ZIP_DEFLATED else data
+        fname = name.encode()
+        header = pack(local_header_fmt, HEADER_SIG, 20, 1 << 3, method, 0, 0, 0, 0, 0, len(fname), 0)
+        crc = zlib.crc32(data) if crc is None else crc
+        desc = (DATA_DESCRIPTOR_SIG if signed else b'') + pack(b'<LQQ' if zip64 else b'<LLL', crc, len(cdata), len(data))
+        return header + fname + cdata + desc
+
+    def plain_entry(name: str, data: bytes, crc: int | None = None) -> bytes:
+        # An entry with its sizes and CRC in the local header
+        cdata = deflate(data)
+        fname = name.encode()
+        crc = zlib.crc32(data) if crc is None else crc
+        return pack(local_header_fmt, HEADER_SIG, 20, 0, ZIP_DEFLATED, 0, 0, crc, len(cdata), len(data), len(fname), 0) + fname + cdata
+
+    a, b, c = b'first ' * 2000, b'second ' * 300, b'third'
+
+    class TestLocalUnzip(unittest.TestCase):
+        def open(self, raw: bytes) -> tuple[LocalZipFile, str]:
+            err = io.StringIO()
+            with redirect_stderr(err):
+                z = LocalZipFile(io.BytesIO(raw))
+            return z, err.getvalue()
+
+        def read(self, z: LocalZipFile, name: str) -> tuple[bytes, str]:
+            err = io.StringIO()
+            with redirect_stderr(err):
+                data = z.read(name)
+            return data, err.getvalue()
+
+        def assertContents(self, raw: bytes, expected: dict[str, bytes]) -> None:
+            z, err = self.open(raw)
+            self.assertFalse(err)
+            self.assertEqual(list(z.file_info), list(expected))
+            for name, data in expected.items():
+                self.assertEqual(self.read(z, name), (data, ''))
+            with TemporaryDirectory() as tdir:
+                extractall(io.BytesIO(raw), tdir)
+                for name, data in expected.items():
+                    with open(os.path.join(tdir, name), 'rb') as f:
+                        self.assertEqual(f.read(), data)
+
+        def test_data_descriptor_layouts(self) -> None:
+            for signed in (True, False):
+                for zip64 in (True, False):
+                    with self.subTest(signed=signed, zip64=zip64):
+                        raw = entry('a', a, signed, zip64) + entry('b', b, signed, zip64) + plain_entry('c', c)
+                        self.assertContents(raw, {'a': a, 'b': b, 'c': c})
+
+        def test_stored_entry_with_data_descriptor(self) -> None:
+            self.assertContents(entry('a', a, method=ZIP_STORED) + entry('c', c), {'a': a, 'c': c})
+            with self.assertRaisesRegex(ValueError, 'only supported for compressed files'):
+                LocalZipFile(io.BytesIO(entry('a', a, signed=False, method=ZIP_STORED)))
+
+        def test_signature_in_compressed_data(self) -> None:
+            # A stored deflate block whose content is the data descriptor signature
+            data = DATA_DESCRIPTOR_SIG
+            cdata = b'\x01' + pack(b'<HH', len(data), len(data) ^ 0xFFFF) + data
+            self.assertContents(entry('a', data, cdata=cdata) + entry('c', c), {'a': data, 'c': c})
+
+        def test_crc_resembling_signature(self) -> None:
+            # An unsigned descriptor whose CRC has the value of the signature
+            data = b'xxxxxxxxxx\xdbM\xa5['
+            self.assertEqual(pack(b'<L', zlib.crc32(data)), DATA_DESCRIPTOR_SIG)
+            z, err = self.open(entry('a', data, signed=False) + entry('c', c))
+            self.assertFalse(err)
+            self.assertEqual(list(z.file_info), ['a', 'c'])
+            self.assertEqual(self.read(z, 'c'), (c, ''))
+            self.assertEqual(z.read('a'), data)
+
+        def test_crc_mismatch_is_reported(self) -> None:
+            for label, raw in (('descriptor', entry('a', a, crc=1234) + entry('c', c)), ('header', plain_entry('a', a, crc=1234) + plain_entry('c', c))):
+                with self.subTest(label):
+                    z, err = self.open(raw)
+                    self.assertEqual(list(z.file_info), ['a', 'c'])
+                    data, err = self.read(z, 'a')
+                    self.assertEqual(data, a)
+                    self.assertIn('does not match its CRC', err)
+                    self.assertEqual(self.read(z, 'c'), (c, ''))
+
+        def test_undecodable_entry(self) -> None:
+            # An invalid deflate block type must not prevent reading the other entries
+            cdata = bytes([0x07]) + deflate(b)[1:]
+            z, err = self.open(entry('a', a) + entry('b', b, cdata=cdata) + entry('c', c))
+            self.assertIn('Could not decompress b', err)
+            self.assertEqual(list(z.file_info), ['a', 'b', 'c'])
+            self.assertEqual(self.read(z, 'a'), (a, ''))
+            self.assertEqual(self.read(z, 'c'), (c, ''))
+            with self.assertRaises(zlib.error):
+                z.read('b')
+
+        def test_truncated_file(self) -> None:
+            raw = entry('a', a) + entry('b', b) + entry('c', random.Random(0).randbytes(5000))
+            z, err = self.open(raw[: len(raw) - 100])
+            self.assertIn('is truncated', err)
+            self.assertEqual(list(z.file_info), ['a', 'b'])
+            self.assertEqual(self.read(z, 'b'), (b, ''))
+            with self.assertRaisesRegex(TruncatedZipFile, 'is truncated'):
+                LocalZipFile(io.BytesIO(raw[:40]))
+
+        def test_zip_bomb(self) -> None:
+            zeros = bytes(50 * 1024 * 1024)
+            z, err = self.open(entry('z', zeros) + entry('c', c))
+            self.assertIn('ZIP bomb', err)
+            self.assertEqual(self.read(z, 'c'), (c, ''))
+            z, err = self.open(plain_entry('z', zeros) + plain_entry('c', c))
+            with self.assertRaisesRegex(ZipBomb, 'ZIP bomb in z'):
+                z.read('z')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLocalUnzip)
 
 
 if __name__ == '__main__':
