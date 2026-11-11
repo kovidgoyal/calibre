@@ -181,6 +181,19 @@ class TestOPF3(unittest.TestCase):
         self.ae(rt(root), 'xxx: zzz')
         self.ae(st(root, 'abc'), 'abc')
         self.ae(titles(root), [('abc', 'main')])
+        # Without a title marked as main, untyped titles are preferred, then expanded, then other types
+        typed = "<dc:title id='{0}'>{1}</dc:title><meta refines='#{0}' property='title-type'>{2}</meta>"
+        root = self.get_opf(sub.format('t', 'xxx') + typed.format('c', 'Series', 'collection'))
+        self.ae(rt(root), 'Series: xxx')
+        root = self.get_opf(sub.format('t', 'xxx') + typed.format('s', 'Short', 'short') + typed.format('e', 'Full', 'expanded'))
+        self.ae(rt(root), 'Full: xxx')
+        self.ae(st(root, 'abc'), 'abc')
+        self.ae(titles(root), [('Short', 'short'), ('abc', 'main')])
+        root = self.get_opf(typed.format('c', 'Series', 'collection') + typed.format('e', 'Full', 'expanded') + "<dc:title id='u'>yyy</dc:title>")
+        self.ae(rt(root), 'yyy')
+        # An explicit main title always wins
+        root = self.get_opf(typed.format('c', 'Series', 'collection') + typed.format('m', 'Main', 'main'))
+        self.ae(rt(root), 'Main')
         # Untyped titles other than the main title are kept
         root = self.get_opf("<dc:title id='u'>yyy</dc:title><dc:title id='w'>www</dc:title>" + sub.format('t', 'xxx'))
         self.ae(rt(root), 'yyy: xxx')

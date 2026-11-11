@@ -367,22 +367,33 @@ def is_subtitle(title: _Element, refines: Refines) -> bool:
     return 'subtitle' in q or 'sub-title' in q
 
 
+def main_title_fallback_rank(title: _Element, refines: Refines) -> int:
+    # Lower is better. Untyped titles are preferred, then the expanded title,
+    # then other types such as collection, short or edition, and last subtitles.
+    q = properties_for_id(title.get('id'), refines).get('title-type') or ''
+    if not q:
+        return 0
+    if q == 'expanded':
+        return 1
+    return 3 if is_subtitle(title, refines) else 2
+
+
 def find_main_title(root: _Element, refines: Refines, remove_blanks: bool = False) -> _Element | None:
-    # Use the title marked as main, falling back to the first title that is
-    # not marked as a subtitle and then to the first title
-    first_title = first_non_subtitle = None
+    # Use the title marked as main, falling back to the earliest title with the
+    # best main_title_fallback_rank()
+    fallback: _Element | None = None
+    fallback_rank = 0
     for title in XPath('./opf:metadata/dc:title')(root):
         if not title.text or not title.text.strip():
             if remove_blanks:
                 remove_element(title, refines)
             continue
-        if first_title is None:
-            first_title = title
         if properties_for_id(title.get('id'), refines).get('title-type') == 'main':
             return title
-        if first_non_subtitle is None and not is_subtitle(title, refines):
-            first_non_subtitle = title
-    return first_title if first_non_subtitle is None else first_non_subtitle
+        rank = main_title_fallback_rank(title, refines)
+        if fallback is None or rank < fallback_rank:
+            fallback, fallback_rank = title, rank
+    return fallback
 
 
 def find_subtitles(root: _Element, refines: Refines, main_title: _Element | None) -> list[_Element]:
