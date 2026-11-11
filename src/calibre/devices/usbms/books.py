@@ -8,7 +8,7 @@ from functools import cmp_to_key
 from typing import TYPE_CHECKING
 
 from calibre import force_unicode
-from calibre.constants import preferred_encoding
+from calibre.constants import iswindows, preferred_encoding
 from calibre.devices.interface import BookList as _BookList
 from calibre.devices.mime import mime_type_ext
 from calibre.ebooks.metadata import title_sort
@@ -20,6 +20,21 @@ from polyglot.builtins import cmp
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+
+def file_datetime(st: os.stat_result) -> time.struct_time:
+    """
+    The date to show for a book file on the device, from its stat result. Uses
+    the creation time on Windows and the inode change time elsewhere, as
+    os.path.getctime() does, falling back to the modification time on
+    filesystems such as sshfs that report zero for it. Returns the current time
+    if the date is out of range.
+    """
+    ctime = st.st_birthtime if iswindows else st.st_ctime  # ty: ignore[deprecated] only deprecated on Windows
+    try:
+        return time.gmtime(ctime or st.st_mtime)
+    except OverflowError, ValueError, OSError:
+        return time.gmtime()
 
 
 def none_cmp(xx: tuple[Metadata, object, object], yy: tuple[Metadata, object, object]) -> int:
@@ -51,7 +66,13 @@ def none_cmp(xx: tuple[Metadata, object, object], yy: tuple[Metadata, object, ob
 
 
 class Book(Metadata):
-    def __init__(self, prefix: str, lpath: str, size: int | None = None, other: Metadata | None = None) -> None:
+    def __init__(self, prefix: str, lpath: str, size: int | None = None, other: Metadata | None = None, defer_datetime: bool = False) -> None:
+        """
+        :param defer_datetime: Do not stat() the file to get its date, the
+            caller will set :attr:`datetime` itself. Used when loading the
+            device metadata cache, as the date is then filled in from the
+            directory listing, avoiding a filesystem call per book.
+        """
         from calibre.ebooks.metadata.meta import path_to_ext
 
         Metadata.__init__(self, '')
@@ -71,10 +92,12 @@ class Book(Metadata):
         match = re.search(r'_(\d+)$', lpath.rpartition('.')[0])
         self.db_id = int(match.group(1)) if match else None
         self.size = size  # will be set later if None
-        try:
-            self.datetime = time.gmtime(os.path.getctime(self.path))
-        except Exception:
-            self.datetime = time.gmtime()
+        self.datetime = time.gmtime()
+        if not defer_datetime:
+            try:
+                self.datetime = file_datetime(os.stat(self.path))
+            except OSError, ValueError:
+                pass  # the file does not exist (yet) or the path is invalid, keep the current time
         if other:
             self.smart_update(other)
 

@@ -111,6 +111,10 @@ class FOLDER_DEVICE(USBMS):
     def open(self, connected_device: object, library_uuid: str | None) -> None:
         self.current_library_uuid = library_uuid
 
+    def scan_threads(self) -> int:
+        # always a folder, possibly on a slow network drive
+        return self.FOLDER_SCAN_THREADS
+
     def set_progress_reporter(self, report_progress: ProgressReporter | None) -> None:
         self.report_progress = report_progress or (lambda x, y: x)
 
