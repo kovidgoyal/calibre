@@ -14,6 +14,7 @@ from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
+from calibre.constants import iswindows
 from calibre.utils.exim import Exporter, Importer, import_data, is_safe_relpath, run_verifier
 
 if TYPE_CHECKING:
@@ -184,6 +185,29 @@ class VerifyExportTest(unittest.TestCase):
                     self.assertEqual(previous.read_bytes(), b'{"original": true}')
                     self.assertEqual(list(config.iterdir()), [previous])
                     self.assertEqual(list(config.parent.iterdir()), [config])
+
+    def test_import_keeps_installed_settings_when_interrupted(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        real_rename = os.rename
+        with TemporaryDirectory() as parent:
+            config = Path(parent).resolve() / 'config'
+            config.mkdir()
+            previous = config / 'old-settings.json'
+            previous.write_bytes(b'{"original": true}')
+
+            def rename(src: str, dst: str) -> None:
+                real_rename(src, dst)
+                if Path(dst) == config and Path(dst, 'settings.json').is_file():
+                    raise KeyboardInterrupt()
+
+            with patch('calibre.utils.exim.os.rename', side_effect=rename), self.assertRaises(KeyboardInterrupt):
+                import_data(Importer(self.path), {}, config_location=str(config))
+            self.assertTrue(Path(config, 'settings.json').is_file())
+            self.assertFalse(previous.exists())
+            self.assertEqual(list(config.parent.iterdir()), [config])
+            if not iswindows:
+                self.assertEqual(config.stat().st_mode & 0o777, 0o700)
 
     def test_import_rejects_invalid_metadata_before_writing(self) -> None:
         file_metadata = self.export().file_metadata

@@ -19,7 +19,7 @@ from pathlib import PureWindowsPath
 from typing import IO, TYPE_CHECKING, NamedTuple, Self, Unpack
 
 from calibre import prints
-from calibre.constants import config_dir, filesystem_encoding, ismacos, iswindows
+from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
 from calibre.utils.filenames import retry_on_fail, samefile
@@ -709,6 +709,13 @@ class Importer:
         gprefs['library_usage_stats'] = dict(library_usage_stats)
 
 
+def remove_staging_dir(path: str) -> None:
+    try:
+        retry_on_fail(shutil.rmtree, path, count=3 if iswindows else 1, sleep_time=1)
+    except OSError as err:
+        prints(f'Failed to remove the temporary settings folder {path} with error: {error_message(err)}', file=sys.stderr)
+
+
 def import_data(
     importer: Importer,
     library_path_map: Mapping[str, str],
@@ -755,20 +762,27 @@ def import_data(
     base_dir = os.path.join(staging, 'new')
     backup = os.path.join(staging, 'previous')
     try:
-        os.mkdir(base_dir)
+        os.mkdir(base_dir, mode=CONFIG_DIR_MODE)
         importer.export_config(base_dir, library_usage_stats)
         if os.path.lexists(config_location):
             retry_on_fail(os.rename, config_location, backup, count=2 if iswindows else 1, sleep_time=1)
         retry_on_fail(os.rename, base_dir, config_location, count=2, sleep_time=2)
-    except BaseException:
-        if os.path.lexists(backup):
+    except BaseException as original_err:
+        # base_dir only disappears once it has been renamed to config_location,
+        # so only roll back if the new settings were not installed.
+        if os.path.lexists(backup) and os.path.lexists(base_dir):
             try:
                 retry_on_fail(os.rename, backup, config_location, count=2, sleep_time=1)
             except OSError as err:
-                raise OSError(_('Could not restore the previous settings. They are preserved at {}').format(backup)) from err
-        shutil.rmtree(staging, ignore_errors=True)
+                remove_staging_dir(base_dir)
+                raise OSError(
+                    _('Failed to install the restored settings with error: {0}. Could not restore the previous settings, they are preserved at: {1}').format(
+                        original_err, backup
+                    )
+                ) from err
+        remove_staging_dir(staging)
         raise
-    shutil.rmtree(staging, ignore_errors=True)
+    remove_staging_dir(staging)
     from calibre.gui2 import gprefs
 
     gprefs.refresh()
