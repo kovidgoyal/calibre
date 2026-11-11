@@ -6,6 +6,7 @@ import os
 import shutil
 import struct
 import unittest
+from collections import Counter
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
@@ -97,6 +98,20 @@ class VerifyExportTest(unittest.TestCase):
                 f.write(b'X')
             self.assertEqual(Importer(self.path).verify(), [f'{key}: Checksum mismatch'])
             self.assertEqual(Path(config, 'plugins', 'sample.zip').read_bytes(), b'plugin bytes')
+
+    def test_verify_invalid_configuration_metadata(self) -> None:
+        self.export()
+        valid = ['first', 'settings.json']
+        for config_dir in ({}, [valid, ['second']], [valid, ['second', None]], [valid, ['second', '']]):
+            with self.subTest(config_dir=config_dir):
+                self.rewrite_metadata(lambda metadata, config_dir=config_dir: metadata.__setitem__('config_dir', config_dir))
+                status, out, err = self.run_verifier()
+                self.assertEqual(status, 1, err)
+                self.assertIn('Invalid export metadata: config_dir:', err)
+                with TemporaryDirectory() as dest:
+                    with self.assertRaises(ValueError):
+                        Importer(self.path).export_config(dest, Counter())
+                    self.assertEqual(os.listdir(dest), [])
 
     def test_verify_invalid_parts(self) -> None:
         importer = self.export()
