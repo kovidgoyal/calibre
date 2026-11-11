@@ -404,6 +404,9 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(edits('She go to school.', 'She went to school.'), [('go', 'went')])
         self.assertEqual(edits('Despite of the rain.', 'Despite the rain.'), [(' of', '')])
         self.assertEqual(edits('of the rain.', 'the rain.'), [('of ', '')])
+        # Removing a quote attached to the following word keeps the space before it
+        self.assertEqual(edits('an image that “floats “ on the page.', 'an image that floats on the page.'), [('“', ''), (' “', '')])
+        self.assertEqual(edits('a “big” dog.', 'a big dog.'), [('“', ''), ('”', '')])
         self.assertEqual(edits('I have dog.', 'I have a dog.'), [('dog', 'a dog')])
         self.assertEqual(edits('I have a dog', 'I have a dog.'), [('dog', 'dog.')])
         self.assertEqual(edits('Their going.', 'They are going.'), [('Their', 'They are')])

@@ -171,8 +171,12 @@ def compute_edits(original: str, nt: NormalizedText, corrected: str) -> list[Edi
             replacement = corrected[b[j1][1] : b[j2 - 1][2]] if tag == 'replace' else ''
             if not replacement:
                 # Remove the whitespace before the deleted text, or after it
-                # if it is at the start
-                while start > 0 and original[start - 1].isspace():
+                # if it is at the start. Text that is directly followed by
+                # a word, such as an opening quote, is attached to that
+                # word, so the whitespace before it separates the word from
+                # the preceding text and is kept.
+                attached_to_following = end < len(original) and original[end].isalnum()
+                while start > 0 and original[start - 1].isspace() and not attached_to_following:
                     start -= 1
                 if start == 0:
                     while end < len(original) and original[end].isspace():
