@@ -421,7 +421,9 @@ def read_title_sort(root: _Element, prefixes: Prefixes, refines: Refines) -> str
 def set_title(root: _Element, prefixes: Prefixes, refines: Refines, title: str | None, title_sort: str | None = None) -> None:
     main_title = find_main_title(root, refines, remove_blanks=True)
     st = find_subtitle(root, refines)
-    if st is not None:
+    # With no title marked as main, the first title is used even if it is
+    # marked as a subtitle, and it must not be removed
+    if st is not None and st is not main_title:
         remove_element(st, refines)
     if main_title is None:
         m = XPath('./opf:metadata')(root)[0]

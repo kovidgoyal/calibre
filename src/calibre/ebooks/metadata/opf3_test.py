@@ -153,6 +153,10 @@ class TestOPF3(unittest.TestCase):
         self.ae(rt(root), 'x xx')
         self.ae(read_title_sort(root, read_prefixes(root), read_refines(root)), 'sorted')
         self.ae(st(root, 'abc'), 'abc')
+        root = self.get_opf('''<dc:title id='t'>xxx</dc:title><meta refines='#t' property='title-type'>subtitle</meta>
+            <dc:title id='u'>yyy</dc:title>''')
+        self.ae(rt(root), 'xxx')
+        self.ae(st(root, 'abc'), 'abc')
 
     # }}}
 
