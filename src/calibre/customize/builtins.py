@@ -7,6 +7,7 @@ from typing import IO, TYPE_CHECKING
 from calibre.ai.anthropic import AnthropicAI
 from calibre.ai.google import GoogleAI
 from calibre.ai.grok import GrokAI
+from calibre.ai.liquid_inference import LiquidInference
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.open_router import OpenRouterAI
@@ -2143,7 +2144,7 @@ plugins += [
 
 # }}}
 
-plugins.extend((OpenRouterAI, GoogleAI, AnthropicAI, OllamaAI, LMStudioAI, OpenAI, OpenAICompatible, GrokAI, VeniceAI))
+plugins.extend((OpenRouterAI, GoogleAI, AnthropicAI, OllamaAI, LMStudioAI, OpenAI, OpenAICompatible, GrokAI, VeniceAI, LiquidInference))
 
 if __name__ == '__main__':
     # Test load speed

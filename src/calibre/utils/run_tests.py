@@ -890,6 +890,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(find_tests())
     if ok('ai'):
+        from calibre.ai.liquid_inference.tests import find_tests
+
+        a(find_tests())
         from calibre.ai.utils import find_tests
 
         a(find_tests())
