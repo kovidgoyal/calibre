@@ -2546,8 +2546,11 @@ class DB:
                             yield relpath, src, stat_result
 
     def remove_extra_files(self, book_path: str, relpaths: Iterable[str], permanent: bool) -> dict[str, Exception | None]:
+        from calibre.utils.recycle_bin import can_recycle, recycle
+
         bookdir = os.path.join(self.library_path, book_path)
         errors: dict[str, Exception | None] = {}
+        permanent = permanent or not can_recycle or recycle is None
         for relpath in relpaths:
             try:
                 path = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
@@ -2565,8 +2568,6 @@ class DB:
                         time.sleep(1)
                         os.remove(make_long_path_useable(path))
                 else:
-                    from calibre.utils.recycle_bin import recycle
-
                     assert recycle is not None
                     recycle(make_long_path_useable(path))
             except Exception as e:
