@@ -26,9 +26,25 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import human_readable
 from calibre.gui2 import error_dialog
 from calibre.utils.localization import _, ngettext
+
+FIGURE_SPACE = '\u2007'  # has the same width as a digit
+
+
+def download_progress_text(received: int, total: int) -> str:
+    """Text describing download progress whose width does not change as the
+    numbers change, so that it does not jump around when centered."""
+    divisor, suffix = 1, 'B'
+    for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+        if total < (1 << ((i + 1) * 10)):
+            divisor, suffix = 1 << (i * 10), candidate
+            break
+    decimals = 0 if divisor == 1 else 1
+    t = f'{total / divisor:.{decimals}f}'
+    r = f'{min(received, total) / divisor:.{decimals}f}'.rjust(len(t), FIGURE_SPACE)
+    percent = f'{min(100, received * 100 // max(1, total))}%'.rjust(4, FIGURE_SPACE)
+    return _('{0} {1} of {2} {3}').format(percent, r, t, suffix)
 
 
 class ProgressBar(QWidget):
@@ -239,9 +255,7 @@ class ProgressBar(QWidget):
             position = self.file_obj.tell()
             self.pb.setMaximum(1000)
             self.pb.setValue(min(1000, position * 1000 // self.total_size))
-            t = human_readable(self.total_size)
-            r = human_readable(position)
-            self.pb.setFormat(f'%p% {r} of {t}')
+            self.pb.setFormat(download_progress_text(position, self.total_size))
 
     def response_is_complete(self, code: object, ok: bool) -> bool:
         if code not in (200, 206) or not self.response_checked:
