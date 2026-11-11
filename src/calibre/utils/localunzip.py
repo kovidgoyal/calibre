@@ -48,6 +48,8 @@ class LocalHeader(NamedTuple):
     extra_length: int
     filename: str | None
     extra: bytes | None
+    # Bytes taken by the data descriptor that follows the file data
+    data_descriptor_size: int = 0
 
 
 if hasattr(sys, 'getwindowsversion'):
@@ -97,9 +99,12 @@ class DataDescriptor(NamedTuple):
     crc32: int
     compressed_size: int
     uncompressed_size: int
+    size: int
 
 
-def find_data_descriptor(f: IO[bytes]) -> DataDescriptor:
+def find_data_descriptor(f: IO[bytes], compression_method: int) -> DataDescriptor:
+    if compression_method == ZIP_DEFLATED:
+        return find_deflated_data_end(f)
     pos = f.tell()
     raw = b'a' * 16
     try:
@@ -108,12 +113,42 @@ def find_data_descriptor(f: IO[bytes]) -> DataDescriptor:
             idx = raw.find(DATA_DESCRIPTOR_SIG)
             if idx != -1:
                 f.seek(f.tell() - len(raw) + idx + len(DATA_DESCRIPTOR_SIG))
-                return DataDescriptor(*unpack(b'<LLL', f.read(12)))
+                return DataDescriptor(*unpack(b'<LLL', f.read(12)), size=16)
             # Rewind to handle the case of the signature being cut off
             # by the 50K boundary
             f.seek(f.tell() - len(DATA_DESCRIPTOR_SIG))
 
-        raise ValueError('Failed to find data descriptor signature. Data descriptors without signatures are not supported.')
+        raise ValueError('Failed to find data descriptor signature. Data descriptors without signatures are not supported for uncompressed files.')
+    finally:
+        f.seek(pos)
+
+
+def find_deflated_data_end(f: IO[bytes]) -> DataDescriptor:
+    # The signature of a data descriptor is optional, and searching for it can
+    # match bytes inside the compressed data. The end of the deflate stream is
+    # where the data really ends, so decompress, discarding the output, to find
+    # it and the sizes.
+    pos = f.tell()
+    try:
+        d = zlib.decompressobj(-15)
+        uncompressed_size = 0
+        while not d.eof:
+            raw = f.read(20 * 1024)
+            if not raw:
+                raise ValueError('Invalid ZIP file, compressed data is truncated')
+            uncompressed_size += len(d.decompress(raw, 200 * 1024))
+            count = 0
+            while d.unconsumed_tail and not d.eof:
+                count += 1
+                uncompressed_size += len(d.decompress(d.unconsumed_tail, 200 * 1024))
+                if count > 100:
+                    raise ValueError('This ZIP file contains a ZIP bomb')
+        compressed_size = f.tell() - pos - len(d.unused_data)
+        f.seek(pos + compressed_size)
+        raw = f.read(16)
+        size = 16 if raw.startswith(DATA_DESCRIPTOR_SIG) else 12
+        crc = raw[size - 12 : size - 8]
+        return DataDescriptor(unpack(b'<L', crc)[0] if len(crc) == 4 else 0, compressed_size, uncompressed_size, size)
     finally:
         f.seek(pos)
 
@@ -159,9 +194,11 @@ def read_local_file_header(f: IO[bytes]) -> LocalHeader | None:
         if len(extra) != header.extra_length:
             return
     if has_data_descriptors:
-        desc = find_data_descriptor(f)
-        header = header._replace(crc32=desc.crc32, compressed_size=desc.compressed_size, uncompressed_size=desc.uncompressed_size)
-    return LocalHeader(*(header[:-2] + (fname, extra)))
+        desc = find_data_descriptor(f, header.compression_method)
+        header = header._replace(
+            crc32=desc.crc32, compressed_size=desc.compressed_size, uncompressed_size=desc.uncompressed_size, data_descriptor_size=desc.size
+        )
+    return header._replace(filename=fname, extra=extra)
 
 
 def read_compressed_data(f: IO[bytes], header: LocalHeader) -> bytes:
@@ -205,8 +242,7 @@ def _extractall(f: IO[bytes], path: str | None = None, file_info: dict[str | Non
         header = read_local_file_header(f)
         if not header:
             break
-        has_data_descriptors = header.flags & (1 << 3)
-        seekval = header.compressed_size + (16 if has_data_descriptors else 0)
+        seekval = header.compressed_size + header.data_descriptor_size
         found = True
         # Sanitize path changing absolute to relative paths and removing .. and
         # .

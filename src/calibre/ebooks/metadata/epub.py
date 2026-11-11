@@ -405,6 +405,35 @@ def find_tests() -> unittest.TestSuite:
                     with self.subTest(label, damaged=damaged), self.assertRaisesRegex(EPubException, msg):
                         get_zip_reader(stream)
 
+        def test_epub_data_descriptors_without_central_directory(self) -> None:
+            from struct import pack
+            from zlib import compressobj, crc32
+
+            from calibre.utils.localunzip import DATA_DESCRIPTOR_SIG, HEADER_SIG, local_header_fmt
+
+            def entry(name: str, data: bytes, signed: bool) -> bytes:
+                # A deflated entry whose sizes and CRC are only in the data
+                # descriptor after it, which may or may not have its optional signature
+                c = compressobj(wbits=-15)
+                cdata = c.compress(data) + c.flush()
+                fname = name.encode()
+                header = pack(local_header_fmt, HEADER_SIG, 20, 1 << 3, ZIP_DEFLATED, 0, 0, 0, 0, 0, len(fname), 0)
+                desc = (DATA_DESCRIPTOR_SIG if signed else b'') + pack('<LLL', crc32(data), len(cdata), len(data))
+                return header + fname + cdata + desc
+
+            mimetype = OCF.MIMETYPE.encode()
+            mimetype_entry = pack(local_header_fmt, HEADER_SIG, 20, 0, ZIP_STORED, 0, 0, crc32(mimetype), len(mimetype), len(mimetype), 8, 0)
+            mimetype_entry += b'mimetype' + mimetype
+            for signed in (False, True):
+                with self.subTest(signed=signed):
+                    raw = mimetype_entry + entry(OCF.CONTAINER_PATH, container_xml('OPS/content.opf'), signed) + entry('OPS/content.opf', opf, signed)
+                    stream = io.BytesIO(raw)
+                    reader = get_zip_reader(stream)
+                    self.assertIsInstance(reader.archive, LocalZipFile)
+                    self.assertEqual(reader.archive.read('OPS/content.opf'), opf)
+                    mi = get_metadata(stream, extract_cover=False)
+                    self.assertEqual(mi.title, 'Recovery test')
+
         def test_html_cover_images_confined_to_root(self) -> None:
             from calibre.ebooks import extract_calibre_cover, extract_cover_from_embedded_svg
             from calibre.ptempfile import TemporaryDirectory
