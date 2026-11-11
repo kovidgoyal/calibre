@@ -516,14 +516,29 @@ class Importer:
 
         return LibraryExport(total, databases, book_map('format_data', True), book_map('extra_files', False))
 
+    def config_files(self) -> list[tuple[str, str]]:
+        """Validate the settings file records before using them."""
+        entries = self.metadata['config_dir']
+        if not isinstance(entries, list):
+            raise ValueError('Invalid configuration file list')  # ruff: ignore[type-check-without-type-error]
+        files = []
+        for entry in entries:
+            match entry:
+                case [str(key), str(relpath)] if relpath:
+                    files.append((key, relpath))
+                case _:
+                    raise ValueError('A configuration file entry must contain a file key and a non-empty path')
+        return files
+
     def verify(self, progress: Callable[[str, int, int], object] | None = None) -> list[str]:
         """Read every exported file and return errors, without restoring data."""
         errors = [f'Part {num} is duplicated in: {", ".join(names)}' for num, names in sorted(self.duplicate_parts.items())]
-        references: list[tuple[str, object]] = []
-        try:
-            references.extend(('config_dir', entry[0]) for entry in self.metadata.get('config_dir', ()))
-        except (TypeError, IndexError, KeyError) as err:
-            errors.append(f'Invalid export metadata: config_dir: {err}')
+        references: list[tuple[str, str]] = []
+        if 'config_dir' in self.metadata:
+            try:
+                references.extend(('config_dir', key) for key, relpath in self.config_files())
+            except ValueError as err:
+                errors.append(f'Invalid export metadata: config_dir: {err}')
         libraries = self.metadata.get('libraries', {})
         if not isinstance(libraries, dict):
             errors.append('Invalid export metadata: The list of libraries is not valid')
@@ -534,7 +549,7 @@ class Importer:
             except ValueError as err:
                 errors.append(f'Invalid export metadata: {err}')
         for desc, key in references:
-            if not isinstance(key, str) or key not in self.file_metadata:
+            if key not in self.file_metadata:
                 errors.append(f'{desc}: Missing file {key}')
         starts, limits, total_size = {}, {}, 0
         last_part = max(self.part_map)
@@ -582,7 +597,7 @@ class Importer:
             shutil.copyfileobj(src, dest)
 
     def export_config(self, base_dir: str, library_usage_stats: Counter[str]) -> None:
-        for key, relpath in self.metadata['config_dir']:
+        for key, relpath in self.config_files():
             with self.start_file(key, relpath) as f:
                 path = os.path.join(base_dir, relpath.replace('/', os.sep))
                 try:
