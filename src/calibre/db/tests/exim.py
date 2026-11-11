@@ -207,7 +207,94 @@ class VerifyExportTest(unittest.TestCase):
             self.assertFalse(previous.exists())
             self.assertEqual(list(config.parent.iterdir()), [config])
             if not iswindows:
-                self.assertEqual(config.stat().st_mode & 0o777, 0o700)
+                self.assertEqual(config.stat().st_mode & 0o077, 0, 'restored settings must not be accessible by other users')
+
+    def test_import_creates_missing_config_folder(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        with TemporaryDirectory() as parent:
+            config = Path(parent).resolve() / 'config'
+            import_data(Importer(self.path), {}, config_location=str(config))
+            self.assertTrue(Path(config, 'settings.json').is_file())
+            self.assertEqual(list(config.parent.iterdir()), [config])
+
+    def test_import_rolls_back_when_interrupted_between_renames(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        real_rename = os.rename
+        for rollback_fails in (False, True):
+            with self.subTest(rollback_fails=rollback_fails), TemporaryDirectory() as parent:
+                config = Path(parent).resolve() / 'config'
+                config.mkdir()
+                previous = config / 'old-settings.json'
+                previous.write_bytes(b'{"original": true}')
+
+                def rename(src: str, dst: str, *, config: Path = config, rollback_fails: bool = rollback_fails) -> None:
+                    if Path(dst) == config:
+                        if Path(src, 'settings.json').is_file():
+                            raise KeyboardInterrupt()
+                        if rollback_fails:
+                            raise OSError('Injected rollback failure')
+                    real_rename(src, dst)
+
+                stderr = StringIO()
+                with (
+                    patch('calibre.utils.exim.os.rename', side_effect=rename),
+                    patch('calibre.utils.exim.time.sleep'),
+                    redirect_stderr(stderr),
+                    self.assertRaises(KeyboardInterrupt),
+                ):
+                    import_data(Importer(self.path), {}, config_location=str(config))
+
+                if rollback_fails:
+                    backups = list(config.parent.rglob(previous.name))
+                    self.assertEqual(len(backups), 1)
+                    self.assertEqual(backups[0].read_bytes(), b'{"original": true}')
+                    self.assertIn(str(backups[0].parent), stderr.getvalue())
+                    self.assertIn('KeyboardInterrupt', stderr.getvalue())
+                    self.assertEqual(list(config.parent.rglob('settings.json')), [], 'the orphaned new settings must be removed')
+                else:
+                    self.assertEqual(list(config.iterdir()), [previous])
+                    self.assertEqual(list(config.parent.iterdir()), [config])
+
+    def test_import_removes_read_only_previous_settings(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        with TemporaryDirectory() as parent:
+            config = Path(parent).resolve() / 'config'
+            locked = config / 'locked'
+            locked.mkdir(parents=True)
+            read_only = locked / 'read-only.json'
+            read_only.write_bytes(b'{}')
+            read_only.chmod(0o400)
+            locked.chmod(0o500)
+            stderr = StringIO()
+            with redirect_stderr(stderr):
+                import_data(Importer(self.path), {}, config_location=str(config))
+            self.assertEqual(stderr.getvalue(), '')
+            self.assertTrue(Path(config, 'settings.json').is_file())
+            self.assertEqual(list(config.parent.iterdir()), [config])
+
+    def test_import_reports_failure_to_remove_previous_settings(self) -> None:
+        self.export()
+        self.rewrite_metadata(lambda metadata: metadata.__setitem__('config_dir', [['first', 'settings.json']]))
+        with TemporaryDirectory() as parent:
+            config = Path(parent).resolve() / 'config'
+            config.mkdir()
+            Path(config, 'old-settings.json').write_bytes(b'{}')
+            stderr = StringIO()
+            with (
+                patch('calibre.utils.exim.shutil.rmtree', side_effect=OSError('Injected removal failure')),
+                patch('calibre.utils.exim.time.sleep'),
+                redirect_stderr(stderr),
+            ):
+                import_data(Importer(self.path), {}, config_location=str(config))
+            self.assertTrue(Path(config, 'settings.json').is_file())
+            leftovers = [x for x in config.parent.iterdir() if x != config]
+            self.assertEqual(len(leftovers), 1)
+            self.assertTrue(leftovers[0].name.startswith('calibre-settings-import-'))
+            self.assertIn(str(leftovers[0]), stderr.getvalue())
+            self.assertIn('Injected removal failure', stderr.getvalue())
 
     def test_import_rejects_invalid_metadata_before_writing(self) -> None:
         file_metadata = self.export().file_metadata

@@ -9,12 +9,14 @@ import ntpath
 import os
 import re
 import shutil
+import stat
 import struct
 import sys
 import tempfile
 import time
 import uuid
 from collections import Counter
+from functools import partial
 from pathlib import PureWindowsPath
 from typing import IO, TYPE_CHECKING, NamedTuple, Self, Unpack
 
@@ -710,8 +712,26 @@ class Importer:
 
 
 def remove_staging_dir(path: str) -> None:
+    def make_writable_and_retry(func: Callable[[str], object], failed_path: str, exc: BaseException) -> None:
+        if isinstance(exc, FileNotFoundError):
+            return
+        if not isinstance(exc, PermissionError):
+            raise exc
+        # The previous settings can contain read-only files or folders, which
+        # rmtree cannot remove without first making them writable
+        try:
+            parent = os.path.dirname(failed_path)
+            # Never change permissions outside the staging folder
+            if parent == path or parent.startswith(path + os.sep):
+                os.chmod(parent, os.stat(parent).st_mode | stat.S_IRWXU)
+            if not os.path.islink(failed_path):
+                os.chmod(failed_path, os.stat(failed_path).st_mode | stat.S_IRWXU)
+            func(failed_path)
+        except OSError as err:
+            raise err from exc
+
     try:
-        retry_on_fail(shutil.rmtree, path, count=3 if iswindows else 1, sleep_time=1)
+        retry_on_fail(partial(shutil.rmtree, onexc=make_writable_and_retry), path, count=3 if iswindows else 1, sleep_time=1)
     except OSError as err:
         prints(f'Failed to remove the temporary settings folder {path} with error: {error_message(err)}', file=sys.stderr)
 
@@ -758,7 +778,7 @@ def import_data(
 
     if abort is not None and abort.is_set():
         return
-    staging = tempfile.mkdtemp(dir=os.path.dirname(config_location))
+    staging = tempfile.mkdtemp(prefix='calibre-settings-import-', dir=os.path.dirname(config_location))
     base_dir = os.path.join(staging, 'new')
     backup = os.path.join(staging, 'previous')
     try:
@@ -775,11 +795,15 @@ def import_data(
                 retry_on_fail(os.rename, backup, config_location, count=2, sleep_time=1)
             except OSError as err:
                 remove_staging_dir(base_dir)
-                raise OSError(
-                    _('Failed to install the restored settings with error: {0}. Could not restore the previous settings, they are preserved at: {1}').format(
-                        original_err, backup
-                    )
-                ) from err
+                msg = _('Failed to install the restored settings with error: {0}. Could not restore the previous settings, they are preserved at: {1}').format(
+                    error_message(original_err) or type(original_err).__name__, backup
+                )
+                if not isinstance(original_err, Exception):
+                    # Let interrupts such as KeyboardInterrupt propagate unchanged,
+                    # but still tell the user where the previous settings are
+                    prints(msg, file=sys.stderr)
+                    raise original_err from err
+                raise OSError(msg) from err
         remove_staging_dir(staging)
         raise
     remove_staging_dir(staging)
