@@ -797,8 +797,8 @@ class Cache:
 
     _set_fts_speed = set_fts_speed
 
-    @quiet_write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
-    def fts_search[T = tuple[FTSSearchResult, ...]](
+    @overload
+    def fts_search(
         self,
         fts_engine_query: str,
         use_stemming: bool = True,
@@ -807,9 +807,36 @@ class Cache:
         snippet_size: int | None = None,
         restrict_to_book_ids: Collection[int] | None = None,
         return_text: bool = True,
-        result_type: Callable[[Iterator[FTSSearchResult]], T] = tuple,
+        *,
         process_each_result: Callable[[FTSSearchResult], FTSSearchResult] | None = None,
-    ) -> T:
+    ) -> tuple[FTSSearchResult, ...]: ...
+    @overload
+    def fts_search[T](
+        self,
+        fts_engine_query: str,
+        use_stemming: bool = True,
+        highlight_start: str | None = None,
+        highlight_end: str | None = None,
+        snippet_size: int | None = None,
+        restrict_to_book_ids: Collection[int] | None = None,
+        return_text: bool = True,
+        *,
+        result_type: Callable[[Iterator[FTSSearchResult]], T],
+        process_each_result: Callable[[FTSSearchResult], FTSSearchResult] | None = None,
+    ) -> T: ...
+    @quiet_write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
+    def fts_search(
+        self,
+        fts_engine_query: str,
+        use_stemming: bool = True,
+        highlight_start: str | None = None,
+        highlight_end: str | None = None,
+        snippet_size: int | None = None,
+        restrict_to_book_ids: Collection[int] | None = None,
+        return_text: bool = True,
+        result_type: Callable[[Iterator[FTSSearchResult]], object] = tuple,
+        process_each_result: Callable[[FTSSearchResult], FTSSearchResult] | None = None,
+    ) -> object:
         return result_type(
             self.backend.fts_search(
                 fts_engine_query,
@@ -964,8 +991,8 @@ class Cache:
 
     _import_note = import_note
 
-    @quiet_write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
-    def search_notes[T = tuple[NotesSearchResult, ...]](
+    @overload
+    def search_notes(
         self,
         fts_engine_query: str = '',
         use_stemming: bool = True,
@@ -974,10 +1001,39 @@ class Cache:
         snippet_size: int | None = None,
         restrict_to_fields: tuple[str, ...] = (),
         return_text: bool = True,
-        result_type: Callable[[Iterator[NotesSearchResult]], T] = tuple,
+        *,
         process_each_result: Callable[[NotesSearchResult], NotesSearchResult] | None = None,
         limit: int | None = None,
-    ) -> T:
+    ) -> tuple[NotesSearchResult, ...]: ...
+    @overload
+    def search_notes[T](
+        self,
+        fts_engine_query: str = '',
+        use_stemming: bool = True,
+        highlight_start: str | None = None,
+        highlight_end: str | None = None,
+        snippet_size: int | None = None,
+        restrict_to_fields: tuple[str, ...] = (),
+        return_text: bool = True,
+        *,
+        result_type: Callable[[Iterator[NotesSearchResult]], T],
+        process_each_result: Callable[[NotesSearchResult], NotesSearchResult] | None = None,
+        limit: int | None = None,
+    ) -> T: ...
+    @quiet_write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
+    def search_notes(
+        self,
+        fts_engine_query: str = '',
+        use_stemming: bool = True,
+        highlight_start: str | None = None,
+        highlight_end: str | None = None,
+        snippet_size: int | None = None,
+        restrict_to_fields: tuple[str, ...] = (),
+        return_text: bool = True,
+        result_type: Callable[[Iterator[NotesSearchResult]], object] = tuple,
+        process_each_result: Callable[[NotesSearchResult], NotesSearchResult] | None = None,
+        limit: int | None = None,
+    ) -> object:
         "Search the text of notes using an FTS index. If the query is empty return all notes."
         return result_type(
             self.backend.search_notes(

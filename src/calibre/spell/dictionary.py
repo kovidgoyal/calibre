@@ -74,7 +74,7 @@ class UserDictionary:
         self.is_active = kwargs['is_active']
         self.words = set(map(tuple, kwargs['words']))
 
-    def serialize(self) -> dict[str, str | bool | list[tuple[str, str]]]:
+    def serialize(self) -> dict[str, str | bool | list[tuple[str, ...]]]:
         return {'name': self.name, 'is_active': self.is_active, 'words': list(self.words)}
 
 
