@@ -466,4 +466,11 @@ def find_tests() -> unittest.TestSuite:
                         self.assertIsNone(func(make(outside), text_dir, default_log, root=root))
                         self.assertIsNone(func(make('../images/cover.png'), text_dir, default_log))
 
+                # The text alternative of the image in calibre generated SVG
+                # cover pages does not prevent extracting the cover
+                titled = svg('../images/cover.png').replace('<image ', '<title>A Book</title><desc>Cover</desc><image ')
+                self.assertEqual(extract_cover_from_embedded_svg(titled, text_dir, default_log, root=root), png)
+                extra = svg('../images/cover.png').replace('<image ', '<rect width="1"/><image ')
+                self.assertIsNone(extract_cover_from_embedded_svg(extra, text_dir, default_log, root=root))
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestEPUBMetadata)

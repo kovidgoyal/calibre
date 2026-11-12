@@ -125,8 +125,13 @@ def extract_cover_from_embedded_svg(html: str | bytes, base: str, log: Log, root
     doc = safe_xml_fromstring(html)
 
     svg = XPath('//svg:svg')(doc)
-    if len(svg) == 1 and len(svg[0]) == 1 and svg[0][0].tag == SVG('image'):
-        image = svg[0][0]
+    if len(svg) != 1:
+        return None
+    # Ignore the text alternative of the image, such as the book title in
+    # calibre generated cover pages
+    children = [c for c in svg[0] if c.tag not in (SVG('title'), SVG('desc'))]
+    if len(children) == 1 and children[0].tag == SVG('image'):
+        image = children[0]
         href = image.get(XLINK('href'), None)
         if href:
             path = os.path.join(base, *href.split('/'))
