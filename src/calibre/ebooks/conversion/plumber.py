@@ -797,6 +797,14 @@ class Plumber:
                 help=_('Enable heuristic processing. This option must be set for any heuristic processing to take place.'),
             ),
             OptionRecommendation(
+                name='detect_pdf_diagrams',
+                recommended_value=False,
+                level=OptionRecommendation.LOW,
+                help=_('Experimental: preserve connected vector diagrams and their labels as SVG images in PDF input. '
+                       'Requires heuristic processing, the calibre PDF engine and PyMuPDF. Ignored when No images is enabled. '
+                       'May mistake tables for diagrams or miss disconnected parts.'),
+            ),
+            OptionRecommendation(
                 name='markup_chapter_headings',
                 recommended_value=True,
                 level=OptionRecommendation.LOW,

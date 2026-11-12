@@ -198,6 +198,8 @@ class Image(Element):
         self.top, self.left, self.width, self.height = float_attrs(img, 'top', 'left', 'width', 'height')
         self.page_width, self.page_height = page_width, page_height
         self.src = img.get('src')
+        self.is_diagram = img.get('type') == 'vector-diagram'
+        self.alt = img.get('alt', '')
         self.bottom = self.top + self.height
         self.right = self.left + self.width
         # Check for alignment done later
@@ -215,7 +217,11 @@ class Image(Element):
         percent = 100
         if self.page_width > 0 and self.page_height > 0 and self.width < self.page_width / 2 and self.height < self.page_height / 2:
             percent = max(1, round(100 * self.width / self.page_width))
-        return f'<img src="{self.src}" alt="" style="max-width:{percent}%"/>'
+        style = f'max-width:{percent}%'
+        # Keep diagrams on their own line even if heuristics merge paragraphs.
+        if self.is_diagram:
+            style += '; display:block; margin:1em auto'
+        return f'<img src="{self.src}" alt="{escape(self.alt)}" style="{style}"/>'
 
     def dump(self, f: IO[str]) -> None:
         f.write(self.to_html())

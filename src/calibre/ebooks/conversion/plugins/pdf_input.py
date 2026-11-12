@@ -86,6 +86,11 @@ class PDFInput(InputFormatPlugin):
         log.debug('Converting file to html...')
         # The main html file will be named index.html
         self.opts, self.log = options, log
+        detect_diagrams = (options.enable_heuristics and getattr(options, 'detect_pdf_diagrams', False)
+                           and not options.no_images)
+        if detect_diagrams and options.pdf_engine != 'calibre':
+            from calibre.ebooks import ConversionError
+            raise ConversionError(_('PDF diagram detection requires the calibre PDF engine.'))
         if options.pdf_engine == 'calibre':
             from calibre.ebooks.pdf.reflow import PDFDocument
             from calibre.utils.cleantext import clean_ascii_chars
@@ -93,6 +98,9 @@ class PDFInput(InputFormatPlugin):
             pdftohtml(os.getcwd(), stream.name, self.opts.no_images, as_xml=True)
             with open('index.xml', 'rb') as f:
                 xml = clean_ascii_chars(f.read())
+            if detect_diagrams:
+                from calibre.ebooks.pdf.diagrams import preserve_diagrams
+                xml = preserve_diagrams(stream.name, xml, os.getcwd(), log)
             PDFDocument(xml, self.opts, self.log)
         else:
             pdftohtml(os.getcwd(), stream.name, options.no_images)

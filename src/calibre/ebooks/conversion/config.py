@@ -253,6 +253,7 @@ OPTIONS = {
         'debug': ('debug_pipeline',),
         'heuristics': (
             'enable_heuristics',
+            'detect_pdf_diagrams',
             'markup_chapter_headings',
             'italicize_common_cases',
             'fix_indents',

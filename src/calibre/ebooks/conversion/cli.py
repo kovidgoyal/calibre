@@ -55,6 +55,7 @@ For full documentation of the conversion system see
 )
 
 HEURISTIC_OPTIONS = [
+    'detect_pdf_diagrams',
     'markup_chapter_headings',
     'italicize_common_cases',
     'fix_indents',

@@ -57,6 +57,13 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QCheckBox" name="opt_detect_pdf_diagrams">
+        <property name="text">
+         <string>Preserve PDF vector diagrams as SVG (experimental)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="opt_unwrap_lines">
         <property name="text">
          <string>Unwrap lines</string>
