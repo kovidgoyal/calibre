@@ -762,7 +762,7 @@ class Plumber:
                 name='rating',
                 recommended_value=None,
                 level=OptionRecommendation.LOW,
-                help=_('Set the rating. Should be a number between 1 and 5.'),
+                help=_('Set the rating as a number of stars between 0.5 and 5.'),
             ),
             OptionRecommendation(name='isbn', recommended_value=None, level=OptionRecommendation.LOW, help=_('Set the ISBN of the book.')),
             OptionRecommendation(
@@ -1085,6 +1085,12 @@ class Plumber:
                     except ValueError:
                         self.log.warn(_('Values of series index and rating must be numbers. Ignoring'), val)
                         continue
+                    if x == 'rating':
+                        if not 0.5 <= val <= 5:
+                            self.log.warn(_('The rating must be between 0.5 and 5. Ignoring'), val)
+                            continue
+                        # The rating is specified in stars, calibre stores ratings out of 10
+                        val *= 2
                 elif x in ('timestamp', 'pubdate'):
                     try:
                         val = parse_date(val, assume_utc=x == 'timestamp')

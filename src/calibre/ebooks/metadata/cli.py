@@ -62,7 +62,7 @@ def config() -> StringConfig:
     c.add_opt('category', ['--category'], help=_('Set the book category.'))
     c.add_opt('series', ['-s', '--series'], help=_('Set the series this e-book belongs to.'))
     c.add_opt('series_index', ['-i', '--index'], help=_('Set the index of the book in this series.'))
-    c.add_opt('rating', ['-r', '--rating'], help=_('Set the rating. Should be a number between 1 and 5.'))
+    c.add_opt('rating', ['-r', '--rating'], help=_('Set the rating as a number of stars between 0.5 and 5.'))
     c.add_opt('isbn', ['--isbn'], help=_('Set the ISBN of the book.'))
     c.add_opt(
         'identifiers',
@@ -147,6 +147,7 @@ def do_set_metadata(opts: Values, mi: Metadata, stream: IO[bytes], stream_type: 
             'tags',
             'lrf_bookid',
             'identifiers',
+            'rating',
         ):
             continue
         val = getattr(opts, pref.name, None)
@@ -167,6 +168,15 @@ def do_set_metadata(opts: Values, mi: Metadata, stream: IO[bytes], stream_type: 
         mi.series = opts.series.strip()
     if getattr(opts, 'series_index', None) is not None:
         mi.series_index = float(opts.series_index.strip())
+    if getattr(opts, 'rating', None) is not None:
+        try:
+            rating = float(opts.rating.strip())
+        except ValueError:
+            raise SystemExit(_('The rating must be a number, not: {}').format(opts.rating))
+        if not 0.5 <= rating <= 5:
+            raise SystemExit(_('The rating must be between 0.5 and 5, not: {}').format(opts.rating))
+        # The rating is specified in stars, calibre stores ratings out of 10
+        mi.rating = rating * 2
     if getattr(opts, 'pubdate', None) is not None:
         mi.pubdate = parse_date(opts.pubdate, assume_utc=False, as_utc=False)
     if getattr(opts, 'identifiers', None):
