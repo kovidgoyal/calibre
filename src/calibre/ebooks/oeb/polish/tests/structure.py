@@ -492,6 +492,16 @@ class Structure(BaseTest):
         self.assertEqual(problems, {MissingLanguage})
         self.assertNotIn(MissingAltText, problems)
 
+        # Setting the cover again replaces the generated cover page, whose SVG
+        # title is not content, instead of adding another cover page
+        for ver, no_svg in ((2, False), (3, False), (2, True), (3, True)):
+            c = self.create_epub([cmi('a.html', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>a</p></body></html>')], ver=ver)
+            for i in range(3):
+                set_cover(c, get_image_path('lt.png'), options={'no_svg': no_svg})
+                titlepage = find_cover_page(c)
+                self.assertEqual([name for name, linear in c.spine_names], [titlepage, 'a.html'], (ver, no_svg, i))
+                self.assertEqual(len([n for n in c.name_path_map if n.endswith('.png')]), 1, (ver, no_svg, i))
+
     def test_mark_sentences(self) -> None:
         from html5_parser import parse
         from lxml import html
