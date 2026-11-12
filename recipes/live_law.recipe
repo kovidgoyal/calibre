@@ -27,15 +27,26 @@ class livelaw(BasicNewsRecipe):
         .news-description { color:#202020; font-style:italic; }
     '''
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'page-content-wrapper'})]
+    keep_only_tags = [dict(name='article', attrs={'id': 'post-content-wrapper'})]
 
     remove_tags = [
-        classes('in-image-ad-wrap news_details_social_media_icons news_details_social_icon_desktop audioSection news_details_tags_row nextpage'),
+        classes(
+            'in-image-ad-wrap news_details_social_media_icons news_details_social_icon_desktop audioSection news_details_tags_row nextpage'
+            ' leo-author-card-wrap comments-section ad_unit_wrapper readTime'
+        ),
         dict(attrs={'class': lambda x: x and 'inside-post-ad' in x}),
         dict(attrs={'id': ['news_buzz_updates', 'after_tags', 'comments_before', 'comments', 'comments_after']}),
+        dict(attrs={'role': 'region', 'aria-label': 'Advertisement'}),
     ]
 
     def preprocess_html(self, soup):
+        # Premium articles have a truncated teaser and a subscription prompt,
+        # followed by the full text in a hidden paywall-content div
+        for rm in soup.findAll(**classes('restricted_message')):
+            if rm.find(**classes('paywall-content')):
+                for child in rm.findAll(recursive=False):
+                    if 'paywall-content' not in child.get('class', ''):
+                        child.extract()
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         for h2 in soup.findAll(['h2', 'h6']):
