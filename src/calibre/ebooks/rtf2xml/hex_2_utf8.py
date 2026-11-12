@@ -16,6 +16,7 @@ import sys
 
 from calibre.ebooks.rtf2xml import copy, get_char_map
 from calibre.ebooks.rtf2xml.char_set import char_set
+from calibre.ebooks.rtf2xml.default_encoding import codec_for_code_page, is_multibyte
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
@@ -192,6 +193,7 @@ class Hex2Utf8:
             'body': self.__body_func,
             'mi<mk<body-open_': self.__found_body_func,
             'tx<hx<__________': self.__hex_text_func,
+            'tx<nu<__________': self.__preamble_text_func,
         }
         self.__body_state_dict = {
             'preamble': self.__preamble_for_body_func,
@@ -210,6 +212,12 @@ class Hex2Utf8:
         }
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']
+        # In the East Asian code pages a character is a lead byte followed by
+        # a trail byte, the trail byte is written as a hex escape or, when it
+        # is below 0x80, as plain text
+        codec = codec_for_code_page(self.__default_char_map[len('ansicpg') :]) if self.__default_char_map.startswith('ansicpg') else None
+        self.__multibyte_codec = codec if codec is not None and is_multibyte(codec) else None
+        self.__pending_bytes = b''
 
     def __hex_text_func(self, line: str) -> None:
         '''
@@ -224,6 +232,14 @@ class Hex2Utf8:
             made.
         '''
         hex_num = line[17:-1]
+        if self.__multibyte_codec is not None and self.__token_info == 'tx<hx<__________' and self.__current_dict_name == 'default':
+            byte = int(hex_num[1:], 16)
+            if self.__add_byte(byte):
+                return
+            if self.__pending_bytes:
+                self.__flush_pending_bytes()
+                if self.__add_byte(byte):
+                    return
         converted = self.__current_dict.get(hex_num)
         if converted is not None:
             # tag as utf-8
@@ -253,6 +269,52 @@ class Hex2Utf8:
                     msg = f'Character "&#x{token};" does not appear to be valid (or is a control character)\n'
                     raise self.__bug_handler(msg)
 
+    def __add_byte(self, byte: int) -> bool:
+        """
+        Add byte to the multibyte character being read and write the character
+        once it is complete. Return False if byte cannot start or continue a
+        character.
+        """
+        data = self.__pending_bytes + bytes((byte,))
+        assert self.__multibyte_codec is not None
+        try:
+            text = data.decode(self.__multibyte_codec)
+        except UnicodeDecodeError as e:
+            if e.reason != 'incomplete multibyte sequence':
+                return False
+            self.__pending_bytes = data
+            return True
+        self.__pending_bytes = b''
+        for ch in text:
+            converted = f'&#x{ord(ch):04X};'
+            if self.__convert_caps and self.__caps_list[-1] == 'true':
+                converted = self.__utf_token_to_caps_func(converted)
+            self.__write_obj.write(f'tx<ut<__________<{converted}\n')
+        return True
+
+    def __complete_multibyte(self, text: str) -> str:
+        """
+        Complete the pending multibyte character with the trail bytes at the
+        start of text and return the rest of text.
+        """
+        while self.__pending_bytes and text and ord(text[0]) < 0x80 and self.__add_byte(ord(text[0])):
+            text = text[1:]
+        if text:
+            self.__flush_pending_bytes()
+        return text
+
+    def __flush_pending_bytes(self) -> None:
+        # a lead byte that is not followed by a trail byte
+        if self.__pending_bytes:
+            self.__pending_bytes = b''
+            self.__write_obj.write('tx<ut<__________<&#xFFFD;\n')
+
+    def __preamble_text_func(self, line: str) -> None:
+        if not self.__pending_bytes:
+            self.__write_obj.write(line)
+        elif text := self.__complete_multibyte(line[17:-1]):
+            self.__write_obj.write(f'tx<nu<__________<{text}\n')
+
     def __found_body_func(self, line: str) -> None:
         self.__state = 'body'
         self.__write_obj.write(line)
@@ -264,6 +326,8 @@ class Hex2Utf8:
         self.__write_obj.write(line)
 
     def __preamble_func(self, line: str) -> None:
+        if self.__pending_bytes and self.__token_info not in ('tx<hx<__________', 'tx<nu<__________'):
+            self.__flush_pending_bytes()
         action = self.__preamble_state_dict.get(self.__token_info)
         if action is not None:
             action(line)
@@ -281,6 +345,7 @@ class Hex2Utf8:
                         sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
                     assert action is not None
                     action(line)
+                self.__flush_pending_bytes()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'preamble_utf_convert.data')
@@ -309,6 +374,8 @@ class Hex2Utf8:
         Logic:
             Used when parsing the body.
         """
+        if self.__pending_bytes and self.__token_info not in ('tx<hx<__________', 'tx<nu<__________'):
+            self.__flush_pending_bytes()
         action = self.__in_body_dict.get(self.__token_info)
         if action is not None:
             action(line)
@@ -461,6 +528,10 @@ class Hex2Utf8:
             if in caps, convert. Otherwise, print out.
         """
         text = line[17:-1]
+        if self.__pending_bytes:
+            text = self.__complete_multibyte(text)
+            if not text:
+                return
         # print(line)
         if self.__current_dict_name in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
             the_string = ''
@@ -534,6 +605,7 @@ class Hex2Utf8:
                         sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
                     assert action is not None
                     action(line)
+                self.__flush_pending_bytes()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'body_utf_convert.data')

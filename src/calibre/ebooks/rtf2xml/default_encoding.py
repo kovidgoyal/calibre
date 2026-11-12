@@ -56,6 +56,7 @@ Codepages as to RTF 1.9.1:
     57011   Punjabi
 """
 
+import codecs
 import re
 
 from . import open_for_read
@@ -175,6 +176,28 @@ class DefaultEncoding:
                         self.__code_page = '437'
                     elif enc == 'pca':
                         self.__code_page = '850'
+
+
+def codec_for_code_page(code_page: str) -> str | None:
+    """Return the name of the Python codec for an RTF code page number, or None if there is none"""
+    names = [f'cp{code_page}'] + [name for name, cp in DefaultEncoding.ENCODINGS.items() if cp == code_page]
+    for name in names:
+        try:
+            return codecs.lookup(name).name
+        except LookupError:
+            pass
+    return None
+
+
+def is_multibyte(codec: str) -> bool:
+    """True if some characters of codec are more than one byte long, as in the East Asian code pages"""
+    for b in range(0x80, 0x100):
+        try:
+            bytes((b,)).decode(codec)
+        except UnicodeDecodeError as e:
+            if e.reason == 'incomplete multibyte sequence':
+                return True
+    return False
 
 
 if __name__ == '__main__':

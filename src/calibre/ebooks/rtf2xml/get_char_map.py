@@ -12,6 +12,28 @@
 #########################################################################
 from typing import IO
 
+from calibre.ebooks.rtf2xml.default_encoding import codec_for_code_page
+
+
+def code_page_map(code_page: str) -> dict[str, str] | None:
+    """
+    Return the character map for a code page that has no table in char_set,
+    made with the Python codec for it, or None if there is no such codec.
+    Bytes that are not characters on their own, such as the lead bytes of the
+    East Asian code pages, are left out.
+    """
+    codec = codec_for_code_page(code_page)
+    if codec is None:
+        return None
+    ans = {}
+    for b in range(0x80, 0x100):
+        try:
+            ch = bytes((b,)).decode(codec)
+        except UnicodeDecodeError:
+            continue
+        ans[f"'{b:02X}"] = f'&#x{ord(ch):04X};'
+    return ans
+
 
 class GetCharMap:
     """
@@ -51,6 +73,8 @@ class GetCharMap:
                 fields[1].replace('\\colon', ':')
                 map_dict[fields[1]] = fields[3]
 
+        if not found_map and map.startswith('ansicpg') and (cp_map := code_page_map(map[len('ansicpg') :])) is not None:
+            return cp_map
         if not found_map:
             msg = f'no map found\nmap is "{map}"\n'
             raise self.__bug_handler(msg)
