@@ -534,7 +534,8 @@ class MetadataSingleDialogBase(QDialog):
     def metadata_from_format(self, *args) -> None:
         mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
         if mi is not None:
-            self.update_from_mi(mi)
+            # Ratings read from book files are already on the 0-10 scale used by calibre
+            self.update_from_mi(mi, rating_is_out_of_five=False)
 
     def choose_cover_from_pages(self, ext) -> None:
         path = self.formats_manager.get_format_path(self.db, self.book_id, ext.lower())
@@ -580,7 +581,7 @@ class MetadataSingleDialogBase(QDialog):
             return error_dialog(self, _('Could not read cover'), _('The cover in the %s format is invalid') % fmt, show=True)
             return
 
-    def update_from_mi(self, mi, update_sorts=True, merge_tags=True, merge_comments=False) -> None:
+    def update_from_mi(self, mi, update_sorts=True, merge_tags=True, merge_comments=False, rating_is_out_of_five=True) -> None:
         fw = self.focusWidget()
         if not mi.is_null('title'):
             self.title.set_value(mi.title)
@@ -593,7 +594,7 @@ class MetadataSingleDialogBase(QDialog):
         elif update_sorts and not mi.is_null('authors'):
             self.author_sort.auto_generate()
         if not mi.is_null('rating'):
-            self.rating.set_value(mi.rating * 2)
+            self.rating.set_value(mi.rating * 2 if rating_is_out_of_five else mi.rating)
         if not mi.is_null('publisher'):
             self.publisher.set_value(mi.publisher)
         if not mi.is_null('tags'):
