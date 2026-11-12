@@ -10,15 +10,21 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
+import codecs
 import io
 import os
 import sys
 
 from calibre.ebooks.rtf2xml import copy, get_char_map
 from calibre.ebooks.rtf2xml.char_set import char_set
+from calibre.ebooks.rtf2xml.default_encoding import FONT_CHARSET_CODE_PAGES, codec_for_code_page, lead_bytes
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
+
+SPECIAL_FONTS = ('Symbol', 'Wingdings', 'Zapf Dingbats')
+# the longest character in the code pages with multibyte characters, in UTF-8
+MAX_CHAR_LENGTH = 4
 
 
 class Hex2Utf8:
@@ -77,6 +83,8 @@ class Hex2Utf8:
         self.__convert_wingdings = 0
         self.__convert_zapf = 0
         self.__run_level = run_level
+        self.__font_code_pages: dict[str, str] = {}
+        self.__default_font: str | None = None
         self.__write_to = better_mktemp()
         self.__bug_handler = bug_handler
         self.__invalid_rtf_handler = invalid_rtf_handler
@@ -96,6 +104,8 @@ class Hex2Utf8:
         wingdings: int | None = None,
         caps: int | None = None,
         dingbats: int | None = None,
+        font_code_pages: dict[str, str] | None = None,
+        default_font: str | None = None,
     ) -> None:
         """
         Required:
@@ -103,6 +113,8 @@ class Hex2Utf8:
             'area_to_convert'--the area of file to convert
             'char_file'--the file containing the character mappings
         Optional:
+            'font_code_pages'--the code page of each font name, from \\fcharset
+            'default_font'--the name of the default font
             'copy'-- whether to make a copy of result for debugging
             'temp_dir' --where to output temporary results (default is
             directory from which the script is run.)
@@ -127,6 +139,8 @@ class Hex2Utf8:
         self.__convert_symbol = convert_symbol
         self.__convert_wingdings = convert_wingdings
         self.__convert_zapf = convert_zapf
+        self.__font_code_pages = font_code_pages or {}
+        self.__default_font = default_font
         # new!
         # no longer try to convert these
         # self.__convert_symbol = 0
@@ -152,15 +166,17 @@ class Hex2Utf8:
             char_file=self.__char_file,
             bug_handler=self.__bug_handler,
         )
-        up_128_dict = char_map_obj.get_char_map(map=self.__default_char_map)
-        bt_128_dict = char_map_obj.get_char_map(map='bottom_128')
-        ms_standard_dict = char_map_obj.get_char_map(map='ms_standard')
-        self.__def_dict = {}
-        self.__def_dict.update(up_128_dict)
-        self.__def_dict.update(bt_128_dict)
-        self.__def_dict.update(ms_standard_dict)
-        self.__current_dict = self.__def_dict.copy()
-        self.__current_dict_name = 'default'
+        self.__char_map_obj = char_map_obj
+        self.__bt_128_dict = char_map_obj.get_char_map(map='bottom_128')
+        self.__ms_standard_dict = char_map_obj.get_char_map(map='ms_standard')
+        self.__doc_code_page = self.__default_char_map.removeprefix('ansicpg')
+        # the default dictionary of each code page, the code page of the text
+        # depends on its font
+        self.__def_dicts: dict[str, dict[str, str]] = {}
+        # In the code pages with multibyte characters, such as the East Asian
+        # ones, a character is a lead byte followed by trail bytes. The trail
+        # bytes are written as hex escapes or, when below 0x80, as plain text.
+        self.__pending_bytes = b''
         self.__in_caps = 0
         self.__special_fonts_found = 0
         if self.__symbol:
@@ -192,6 +208,9 @@ class Hex2Utf8:
             'body': self.__body_func,
             'mi<mk<body-open_': self.__found_body_func,
             'tx<hx<__________': self.__hex_text_func,
+            'mi<mk<fontit-beg': self.__font_in_table_func,
+            'cw<ci<font-chset': self.__font_in_table_func,
+            'mi<mk<fontit-end': self.__font_in_table_func,
         }
         self.__body_state_dict = {
             'preamble': self.__preamble_for_body_func,
@@ -210,6 +229,9 @@ class Hex2Utf8:
         }
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']
+        # sets self.__def_dict, self.__current_dict, self.__lead_bytes,
+        # self.__codec and self.__text_trail_bytes
+        self.__select_font(self.__font_list[-1])
 
     def __hex_text_func(self, line: str) -> None:
         '''
@@ -224,18 +246,24 @@ class Hex2Utf8:
             made.
         '''
         hex_num = line[17:-1]
+        if self.__token_info == 'tx<hx<__________' and self.__lead_bytes and self.__current_dict_name == 'default':
+            byte = int(hex_num[1:], 16)
+            if self.__pending_bytes and self.__add_trail_byte(byte):
+                return
+            if byte in self.__lead_bytes:
+                self.__pending_bytes = bytes((byte,))
+                return
+        self.__convert_hex(hex_num)
+
+    def __convert_hex(self, hex_num: str) -> None:
         converted = self.__current_dict.get(hex_num)
         if converted is not None:
             # tag as utf-8
             if converted[0:1] == '&':
-                font = self.__current_dict_name
-                if self.__convert_caps and self.__caps_list[-1] == 'true' and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
-                    converted = self.__utf_token_to_caps_func(converted)
-                self.__write_obj.write(f'tx<ut<__________<{converted}\n')
+                self.__write_utf(converted)
             # tag as normal text
             else:
-                font = self.__current_dict_name
-                if self.__convert_caps and self.__caps_list[-1] == 'true' and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
+                if self.__in_caps_text():
                     converted = converted.upper()
                 self.__write_obj.write(f'tx<nu<__________<{converted}\n')
         # error
@@ -252,6 +280,118 @@ class Hex2Utf8:
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
                     msg = f'Character "&#x{token};" does not appear to be valid (or is a control character)\n'
                     raise self.__bug_handler(msg)
+
+    def __in_caps_text(self) -> bool:
+        return bool(self.__convert_caps) and self.__caps_list[-1] == 'true' and self.__current_dict_name not in SPECIAL_FONTS
+
+    def __write_utf(self, converted: str) -> None:
+        if self.__in_caps_text():
+            converted = self.__utf_token_to_caps_func(converted)
+        self.__write_obj.write(f'tx<ut<__________<{converted}\n')
+
+    def __add_trail_byte(self, byte: int) -> bool:
+        """
+        Add byte to the multibyte character started by the pending bytes and
+        write the character once it is complete. Return False, after writing a
+        replacement character for the pending bytes, if byte cannot continue
+        the character.
+        """
+        assert self.__codec is not None
+        data = self.__pending_bytes + bytes((byte,))
+        try:
+            text = codecs.getincrementaldecoder(self.__codec)().decode(data, final=False)
+        except UnicodeDecodeError:
+            self.__flush_pending_bytes()
+            return False
+        if not text:
+            if len(data) >= MAX_CHAR_LENGTH:
+                self.__flush_pending_bytes()
+                return False
+            self.__pending_bytes = data
+            return True
+        self.__pending_bytes = b''
+        for ch in text:
+            self.__write_utf(f'&#x{ord(ch):04X};')
+        return True
+
+    def __flush_pending_bytes(self) -> None:
+        # the lead byte of a character whose trail bytes are missing or invalid
+        pending, self.__pending_bytes = self.__pending_bytes, b''
+        if not pending:
+            return
+        if self.__text_trail_bytes:
+            self.__write_utf('&#xFFFD;')
+        else:
+            # the font and the document disagree on the code page, the bytes
+            # are single byte characters
+            for byte in pending:
+                self.__convert_hex(f"'{byte:02X}")
+
+    def __complete_pending_char(self, line: str) -> str:
+        """
+        Called with a line that follows the start of a multibyte character.
+        Complete the character with the trail bytes written as plain text at
+        the start of line and return what is left of line, or flush the
+        pending bytes and return line unchanged if line is not text.
+        """
+        if self.__token_info != 'tx<nu<__________':
+            if self.__token_info != 'tx<hx<__________':
+                self.__flush_pending_bytes()
+            return line
+        text = line[17:-1]
+        if not self.__text_trail_bytes:
+            self.__flush_pending_bytes()
+            return line
+        while self.__pending_bytes and text and ord(text[0]) < 0x80 and self.__add_trail_byte(ord(text[0])):
+            text = text[1:]
+        if self.__pending_bytes and text:
+            self.__flush_pending_bytes()
+        return f'tx<nu<__________<{text}\n' if text else ''
+
+    def __select_code_page(self, code_page: str | None) -> None:
+        """
+        Use the code page of a font, if it has one, for its text.
+
+        Writers do not agree on whether the code page of the document or of
+        the font applies when only one of them has multibyte characters: Word
+        writes the double byte characters of the document code page in runs of
+        a \\fcharset0 font and UTF-8 writers use \\fcharset0 fonts. So in that
+        case a lead byte starts a multibyte character only when the trail
+        bytes are hex escapes too, otherwise the bytes are single byte
+        characters of the single byte code page. This also keeps the text of
+        single byte documents with East Asian fonts converted as before.
+        """
+        doc = self.__doc_code_page
+        if code_page is None or code_page == doc or not (lead_bytes(code_page) or lead_bytes(doc)):
+            code_page = doc
+        if bool(lead_bytes(code_page)) == bool(lead_bytes(doc)):
+            multibyte, single_byte, self.__text_trail_bytes = code_page, code_page, True
+        elif lead_bytes(code_page):
+            multibyte, single_byte, self.__text_trail_bytes = code_page, doc, False
+        else:
+            multibyte, single_byte, self.__text_trail_bytes = doc, code_page, False
+        self.__def_dict = self.__default_dict(single_byte)
+        self.__lead_bytes = lead_bytes(multibyte)
+        self.__codec = codec_for_code_page(multibyte)
+
+    def __default_dict(self, code_page: str) -> dict[str, str]:
+        ans = self.__def_dicts.get(code_page)
+        if ans is None:
+            ans = {}
+            ans.update(self.__char_map_obj.get_char_map(map=f'ansicpg{code_page}'))
+            ans.update(self.__bt_128_dict)
+            ans.update(self.__ms_standard_dict)
+            self.__def_dicts[code_page] = ans
+        return ans
+
+    def __font_in_table_func(self, line: str) -> None:
+        """
+        The font names in the font table are in the code page of their font
+        """
+        code_page = FONT_CHARSET_CODE_PAGES.get(line[20:-1]) if self.__token_info == 'cw<ci<font-chset' else None
+        self.__select_code_page(code_page)
+        self.__current_dict = self.__def_dict.copy()
+        self.__write_obj.write(line)
 
     def __found_body_func(self, line: str) -> None:
         self.__state = 'body'
@@ -276,11 +416,14 @@ class Hex2Utf8:
             with open_for_read(self.__file) as read_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
+                    if self.__pending_bytes and not (line := self.__complete_pending_char(line)):
+                        continue
                     action = self.__preamble_state_dict.get(self.__state)
                     if action is None:
                         sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
                     assert action is not None
                     action(line)
+                self.__flush_pending_bytes()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'preamble_utf_convert.data')
@@ -326,6 +469,9 @@ class Hex2Utf8:
         """
         face = line[17:-1]
         self.__font_list.append(face)
+        self.__select_font(face)
+
+    def __select_font(self, face: str) -> None:
         if face == 'Symbol' and self.__convert_symbol:
             self.__current_dict_name = 'Symbol'
             self.__current_dict = self.__symbol_dict.copy()
@@ -336,6 +482,9 @@ class Hex2Utf8:
             self.__current_dict_name = 'Zapf Dingbats'
             self.__current_dict = self.__dingbats_dict.copy()
         else:
+            if face == 'not-defined' and self.__default_font is not None:
+                face = self.__default_font
+            self.__select_code_page(self.__font_code_pages.get(face))
             self.__current_dict_name = 'default'
             self.__current_dict = self.__def_dict.copy()
 
@@ -355,18 +504,7 @@ class Hex2Utf8:
             sys.stderr.write('method is end_font_func\n')
             sys.stderr.write('self.__font_list should be greater than one?\n')
         face = self.__font_list[-1]
-        if face == 'Symbol' and self.__convert_symbol:
-            self.__current_dict_name = 'Symbol'
-            self.__current_dict = self.__symbol_dict.copy()
-        elif face == 'Wingdings' and self.__convert_wingdings:
-            self.__current_dict_name = 'Wingdings'
-            self.__current_dict = self.__wingdings_dict.copy()
-        elif face == 'Zapf Dingbats' and self.__convert_zapf:
-            self.__current_dict_name = 'Zapf Dingbats'
-            self.__current_dict = self.__dingbats_dict.copy()
-        else:
-            self.__current_dict_name = 'default'
-            self.__current_dict = self.__def_dict.copy()
+        self.__select_font(face)
 
     def __start_special_font_func_old(self, line: str) -> None:
         """
@@ -529,11 +667,14 @@ class Hex2Utf8:
             with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
+                    if self.__pending_bytes and not (line := self.__complete_pending_char(line)):
+                        continue
                     action = self.__body_state_dict.get(self.__state)
                     if action is None:
                         sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
                     assert action is not None
                     action(line)
+                self.__flush_pending_bytes()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'body_utf_convert.data')

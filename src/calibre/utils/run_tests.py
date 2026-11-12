@@ -838,6 +838,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.rtf.rtfml import find_tests
 
         a(find_tests())
+        from calibre.ebooks.conversion.plugins.rtf_input import find_tests
+
+        a(find_tests())
         from calibre.ebooks.metadata.rtf import find_tests
 
         a(find_tests())

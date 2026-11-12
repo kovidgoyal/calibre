@@ -56,7 +56,9 @@ Codepages as to RTF 1.9.1:
     57011   Punjabi
 """
 
+import codecs
 import re
+from functools import lru_cache
 
 from . import open_for_read
 
@@ -175,6 +177,89 @@ class DefaultEncoding:
                         self.__code_page = '437'
                     elif enc == 'pca':
                         self.__code_page = '850'
+
+
+# The code page of the characters in a font for each value of \fcharset.
+# DEFAULT_CHARSET (1) and OEM_CHARSET (255) are left out, as they do not
+# determine a code page.
+FONT_CHARSET_CODE_PAGES = {
+    '0': '1252',  # ANSI
+    '2': '1252',  # Symbol, the characters are single bytes
+    '77': '10000',  # Mac Roman
+    '78': '932',  # Mac Shift JIS
+    '79': '949',  # Mac Hangul
+    '80': '936',  # Mac GB2312
+    '81': '950',  # Mac Big5
+    '128': '932',  # Shift JIS
+    '129': '949',  # Hangul
+    '130': '1361',  # Johab
+    '134': '936',  # GB2312
+    '136': '950',  # Big5
+    '161': '1253',  # Greek
+    '162': '1254',  # Turkish
+    '163': '1258',  # Vietnamese
+    '177': '1255',  # Hebrew
+    '178': '1256',  # Arabic
+    '186': '1257',  # Baltic
+    '204': '1251',  # Russian
+    '222': '874',  # Thai
+    '238': '1250',  # Eastern European
+    '254': '437',  # PC 437
+}
+# The Mac code pages with multibyte characters and the Windows code pages
+# Python has codecs for that encode the same characters
+MAC_MULTIBYTE_CODE_PAGES = {
+    '10001': '932',  # Japanese
+    '10002': '950',  # Traditional Chinese
+    '10003': '949',  # Korean
+    '10008': '936',  # Simplified Chinese
+}
+# Single byte characters of Windows code pages that the Python codec for them
+# does not have
+SINGLE_BYTE_EXTRAS = {
+    '936': {0x80: '\u20ac'},  # the gbk codec has no euro sign
+}
+
+
+@lru_cache(maxsize=64)
+def codec_for_code_page(code_page: str) -> str | None:
+    """Return the name of the Python codec for an RTF code page number, or None if there is none"""
+    names = [f'cp{code_page}'] + [name for name, cp in DefaultEncoding.ENCODINGS.items() if cp == code_page]
+    if code_page == '10000':
+        names.append('mac_roman')
+    elif code_page in MAC_MULTIBYTE_CODE_PAGES:
+        names.append(f'cp{MAC_MULTIBYTE_CODE_PAGES[code_page]}')
+    for name in names:
+        try:
+            return codecs.lookup(name).name
+        except LookupError:
+            continue  # not a codec name known to Python, try the next one
+    return None
+
+
+@lru_cache(maxsize=64)
+def lead_bytes(code_page: str) -> frozenset[int]:
+    """
+    The bytes that start a character of more than one byte in code_page, as
+    in the East Asian code pages and UTF-8. Empty for single byte code pages
+    and code pages without a Python codec.
+    """
+    codec = codec_for_code_page(code_page)
+    if codec is None:
+        return frozenset()
+    ans = set()
+    extras = SINGLE_BYTE_EXTRAS.get(code_page, {})
+    for b in range(0x80, 0x100):
+        if b in extras:
+            continue
+        decoder = codecs.getincrementaldecoder(codec)()
+        try:
+            text = decoder.decode(bytes((b,)), final=False)
+        except UnicodeDecodeError:
+            continue  # not a valid first byte
+        if not text:
+            ans.add(b)
+    return frozenset(ans)
 
 
 if __name__ == '__main__':

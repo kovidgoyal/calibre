@@ -556,6 +556,8 @@ class ParseRtf:
             symbol=1,
             wingdings=1,
             dingbats=1,
+            font_code_pages=fonts_obj.font_code_pages(),
+            default_font=str(default_font),
         )
         hex2utf_obj.convert_hex_2_utf8()
         header_obj.join_headers()

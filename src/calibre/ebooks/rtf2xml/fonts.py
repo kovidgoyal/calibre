@@ -14,6 +14,7 @@ import os
 import sys
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ebooks.rtf2xml.default_encoding import FONT_CHARSET_CODE_PAGES
 from calibre.ptempfile import better_mktemp
 
 from . import open_for_read, open_for_write
@@ -68,6 +69,9 @@ class Fonts:
             'font_in_table': self.__font_in_table_func,
         }
         self.__font_table = {}
+        # the code page of each font name, from its \fcharset
+        self.__font_code_pages: dict[str, str | None] = {}
+        self.__code_page: str | None = None
         # individual font written
         self.__wrote_ind_font = 0
 
@@ -105,6 +109,7 @@ class Fonts:
             self.__state = 'font_in_table'
             self.__font_num = self.__default_font_num
             self.__text_line = ''
+            self.__code_page = None
         # self.__write_obj.write(line)
 
     def __font_in_table_func(self, line: str) -> None:
@@ -132,9 +137,18 @@ class Fonts:
             self.__state = 'font_table'
             self.__text_line = self.__text_line[:-1]  # get rid of last ';'
             self.__font_table[self.__font_num] = self.__text_line
+            # fonts with the same name and different code pages cannot be told
+            # apart after this, use the default code page for them
+            if self.__font_code_pages.get(self.__text_line, self.__code_page) != self.__code_page:
+                self.__font_code_pages[self.__text_line] = None
+            else:
+                self.__font_code_pages[self.__text_line] = self.__code_page
+            self.__code_page = None
             self.__write_obj.write(f'mi<tg<empty-att_<font-in-table<name>{self.__text_line}<num>{self.__font_num}\n')
         elif self.__token_info == 'cw<ci<font-style':
             self.__font_num = line[20:-1]
+        elif self.__token_info == 'cw<ci<font-chset':
+            self.__code_page = FONT_CHARSET_CODE_PAGES.get(line[20:-1])
         elif self.__token_info in {'tx<nu<__________', 'tx<ut<__________'}:
             self.__text_line += line[17:-1]
         elif self.__token_info == 'mi<mk<fonttb-end':
@@ -217,3 +231,10 @@ class Fonts:
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
         return self.__special_font_dict
+
+    def font_code_pages(self) -> dict[str, str]:
+        """
+        Return the code page of the characters in each font, by font name, for
+        the fonts that specify one with \\fcharset. Call after convert_fonts().
+        """
+        return {name: cp for name, cp in self.__font_code_pages.items() if cp is not None}

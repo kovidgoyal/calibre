@@ -209,6 +209,7 @@ class ProcessTokens:
             'dn': ('ci', 'font-down_', self.divide_by_2),
             'embo': ('ci', 'emboss____', self.bool_st_func),
             'f': ('ci', 'font-style', self.default_func),
+            'fcharset': ('ci', 'font-chset', self.default_func),
             'fs': ('ci', 'font-size_', self.divide_by_2),
             'green': ('ci', 'green_____', self.color_func),
             'i': ('ci', 'italics___', self.bool_st_func),

@@ -12,6 +12,7 @@ from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    import unittest
     from optparse import Values
 
     from lxml.etree import _Element
@@ -328,3 +329,126 @@ class RTFInput(InputFormatPlugin):
                         p.text = (p.text or '') + img.tail
                     else:
                         p[idx - 1].tail = (p[idx - 1].tail or '') + img.tail
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+    from optparse import Values
+
+    from calibre import CurrentDir
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre.utils.xml_parse import safe_xml_fromstring
+
+    def rtf(code_page: str, body: str, fonts: str = '{\\f0\\fnil Font;}', deff: int = 0) -> str:
+        cpg = f'\\ansicpg{code_page}' if code_page else ''
+        return '{\\rtf1\\ansi' + cpg + f'\\deff{deff}{{\\fonttbl' + fonts + '}\n\\pard ' + body + '\\par\n}\n'
+
+    def hex_escapes(text: str, codec: str) -> str:
+        # As written by WordPad: bytes above 0x7f as hex escapes, the others as
+        # plain text
+        ans = []
+        for b in text.encode(codec):
+            c = chr(b)
+            ans.append(f"\\'{b:02x}" if b > 0x7F else ('\\' + c if c in '\\{}' else c))
+        return ''.join(ans)
+
+    def unicode_escapes(text: str, codec: str) -> str:
+        # As written by Word: \uN followed by the bytes of the character in the
+        # code page, for readers that do not understand \uN
+        ans = []
+        for c in text:
+            if ord(c) < 0x80:
+                ans.append(c)
+            else:
+                fallback = c.encode(codec)
+                ans.append(f'\\uc{len(fallback)}\\u{ord(c)}' + ''.join(f"\\'{b:02x}" for b in fallback))
+        return ''.join(ans)
+
+    def convert(rtf: str, input_encoding: str | None = None) -> str:
+        with TemporaryDirectory() as tdir, CurrentDir(tdir):
+            with open('input.rtf', 'w', encoding='ascii') as f:
+                f.write(rtf)
+            plugin = RTFInput(None)
+            plugin.opts = Values({'input_encoding': input_encoding, 'debug_pipeline': None})
+            root = safe_xml_fromstring(plugin.generate_xml('input.rtf'))
+            return ''.join(root.xpath('//*[local-name()="para"]//text()')).strip()
+
+    class RTFInputTest(unittest.TestCase):
+        def test_code_pages_without_table(self) -> None:
+            for code_page, codec, text in (
+                ('932', 'cp932', '日本語の文章'),
+                ('936', 'gbk', '简体中文'),
+                ('949', 'cp949', '한국어 문장'),
+                ('874', 'cp874', 'ภาษาไทย'),
+                ('1258', 'cp1258', 'Xin chào'),
+            ):
+                self.assertEqual(convert(rtf(code_page, 'Hello ' + unicode_escapes(text, codec))), 'Hello ' + text, code_page)
+                self.assertEqual(convert(rtf(code_page, 'Hello')), 'Hello', code_page)
+
+        def test_double_byte_hex_escapes(self) -> None:
+            # trail bytes below 0x80 are written as plain text, including \ { }
+            for code_page, codec, text in (
+                ('932', 'cp932', 'こんにちは、表示ソフトのアイコン'),
+                ('936', 'gbk', '你好，世界'),
+                ('949', 'cp949', '안녕하세요 똠방각하'),
+                ('950', 'cp950', '許功蓋你好，世界'),
+            ):
+                self.assertEqual(convert(rtf(code_page, 'Hello ' + hex_escapes(text, codec) + ' end')), f'Hello {text} end', code_page)
+            # a lead byte without a trail byte
+            self.assertEqual(convert(rtf('932', "a\\'82 b")), 'a' + chr(0xFFFD) + ' b')
+
+        def test_multibyte_control_bytes(self) -> None:
+            # bytes that are not lead bytes are converted with the character map,
+            # which leaves out control characters
+            self.assertEqual(convert(rtf('932', "x\\'00y a\\'0bb \\'80")), 'xy ab')
+
+        def test_utf8_code_page(self) -> None:
+            self.assertEqual(convert(rtf('65001', "caf\\'c3\\'a9 \\'e2\\'82\\'ac")), 'café €')
+            self.assertEqual(convert(rtf('65001', "a\\'c3x")), 'a' + chr(0xFFFD) + 'x')
+
+        def test_font_charset(self) -> None:
+            fonts = (
+                '{\\f0\\fnil\\fcharset128 Mincho;}{\\f1\\fswiss\\fcharset0 Arial;}{\\f2\\fnil\\fcharset204 Cyr;}'
+                '{\\f3\\fnil\\fcharset134 Song;}{\\f4\\fnil\\fcharset2 Webdings;}'
+            )
+            latin = "{\\f1 caf\\'e9t\\'e9}"
+
+            def all_hex(text: str, codec: str) -> str:
+                # As written by Word: all bytes of multibyte characters as hex escapes
+                return ''.join(f"\\'{b:02x}" if c > '\x7f' else c for c in text for b in c.encode(codec))
+
+            japanese = '{\\f0 ' + all_hex('日本語', 'cp932') + '}'
+            chinese = '{\\f3 ' + all_hex('你好', 'gbk') + '}'
+            # the text of a Latin font in a document with a multibyte code page
+            self.assertEqual(convert(rtf('932', f'x{latin}y {japanese}', fonts)), 'xcafétéy 日本語')
+            # Word writes double byte characters in runs of a Latin font, with
+            # the trail bytes as hex escapes
+            self.assertEqual(convert(rtf('932', '{\\f1 ' + all_hex('表示', 'cp932') + '}', fonts)), '表示')
+            self.assertEqual(convert(rtf('932', "{\\f4 x\\'e0abc}", fonts)), 'xàabc')
+            # the text of multibyte fonts in a document with a single byte code page
+            self.assertEqual(convert(rtf('1252', f'{latin} {japanese} {chinese}', fonts)), 'cafété 日本語 你好')
+            # text in the default font
+            self.assertEqual(convert(rtf('1252', all_hex('日本語', 'cp932') + f' {latin}', fonts, deff=0)), '日本語 cafété')
+            # single byte characters in a multibyte font in a document with a
+            # single byte code page are converted as before
+            self.assertEqual(convert(rtf('1252', "caf\\'e9 na\\'efve", fonts, deff=0)), 'café naïve')
+            # single byte fonts in documents with a single byte code page are
+            # converted with the code page of the document, as before
+            self.assertEqual(convert(rtf('1252', "{\\f2 \\'e9}", fonts)), 'é')
+            # UTF-8 documents with Latin fonts
+            self.assertEqual(convert(rtf('65001', "caf\\'c3\\'a9 \\'e2\\'82\\'ac", '{\\f0\\fswiss\\fcharset0 Helvetica;}')), 'café €')
+
+        def test_code_page_extras(self) -> None:
+            self.assertEqual(convert(rtf('936', "a\\'80b")), 'a€b')
+            self.assertEqual(convert(rtf('10001', hex_escapes('日本語', 'cp932'))), '日本語')
+
+        def test_input_encoding(self) -> None:
+            self.assertEqual(convert(rtf('', hex_escapes('日本語', 'cp932')), input_encoding='shift_jis'), '日本語')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(RTFInputTest)
+
+
+if __name__ == '__main__':
+    from calibre.utils.run_tests import run_tests
+
+    run_tests(find_tests)
