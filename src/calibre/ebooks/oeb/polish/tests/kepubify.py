@@ -9,6 +9,7 @@ from calibre.ebooks.oeb.polish.kepubify import (
     DUMMY_TITLE_PAGE_NAME,
     KOBO_JS_NAME,
     Options,
+    is_probably_a_title_page,
     kepubify_html_data,
     kepubify_parsed_html,
     serialize_html,
@@ -58,6 +59,57 @@ class KepubifyTests(BaseTest):
         for has_cover in (True, False):
             for epub_version in '23':
                 b(has_cover, epub_version)
+
+    def test_is_probably_a_title_page(self) -> None:
+        import os
+
+        from calibre.ebooks.oeb.polish.cover import find_cover_page, set_cover
+        from calibre.ebooks.oeb.polish.tests.structure import cmi, create_epub
+        from calibre.utils.resources import get_image_path
+
+        def html(body: str, head: str = '') -> str:
+            return (
+                '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><title>A Book</title>'
+                f'<style>body {{ text-align: center; padding: 0; margin: 0; }} @page {{ margin: 0 }}</style>{head}</head><body>{body}</body></html>'
+            )
+
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">{}<image width="10" height="10" xlink:href="c.png"/></svg>'
+        long_title = 'A title that is very long, longer than fifty characters in total'
+        for body, expected in (
+            ('<div><img src="c.png" alt="A Book"/></div>', True),
+            (svg.format(''), True),
+            (svg.format(f'<title>{long_title}</title><desc>{long_title}</desc>'), True),
+            ('<h1>A Book</h1><p>By Someone</p>', True),
+            (f'<p>{long_title}</p>', False),
+            (svg.format('') + f'<p>{long_title}</p>', False),
+            ('<img src="a.png"/><img src="b.png"/>', False),
+            ('<p>x</p>' * 5 + svg.format(''), True),
+            ('<p>x</p>' * 11 + svg.format(''), False),
+        ):
+            root = parse(html(body))
+            self.assertIs(is_probably_a_title_page(root), expected, body)
+            # Detection must not modify the document
+            self.assertEqual(root.xpath('//*[local-name()="title"]/text()')[0], 'A Book')
+        self.assertTrue(is_probably_a_title_page(parse(html(f'<p>{long_title}</p>').replace('A Book', 'The Cover'))))
+
+        # calibre generated cover pages, which have the book title as the text
+        # alternative of the cover image, are title pages
+        for no_svg in (False, True):
+            ep = os.path.join(self.tdir, f'title-page-{no_svg}.epub')
+            with open(ep, 'wb') as f:
+                f.write(create_epub([cmi('a.html', html(f'<p>{long_title}</p>'))]).getvalue())
+            c = get_container(ep, tdir=os.path.join(self.tdir, f'title-page-{no_svg}'), tweak_mode=True)
+            metadata = c.opf_xpath('//opf:metadata')[0]
+            dc_title = metadata.makeelement('{http://purl.org/dc/elements/1.1/}title')
+            dc_title.text = long_title
+            metadata.append(dc_title)
+            c.dirty(c.opf_name)
+            set_cover(c, get_image_path('lt.png'), options={'no_svg': no_svg})
+            titlepage = find_cover_page(c)
+            assert titlepage is not None
+            root = c.parsed(titlepage)
+            self.assertIs(is_probably_a_title_page(root), True, no_svg)
+            self.assertFalse(is_probably_a_title_page(c.parsed('a.html')))
 
     def test_kepubify_html(self) -> None:
         prefix = f'''<?xml version='1.0' encoding='utf-8'?>

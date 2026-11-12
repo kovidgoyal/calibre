@@ -412,17 +412,21 @@ def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lan
 
 
 def is_probably_a_title_page(root: etree._Element) -> bool:
-    for title in XPath('//h:title')(root):
-        if title.text:
-            words = title.text.lower().split()
-            if 'cover' in words:
-                return True
-        title.text = None
-    text = etree.tostring(root, method='text', encoding='unicode')
+    for title in XPath('//h:head/h:title')(root):
+        if 'cover' in ''.join(title.itertext()).lower().split():
+            return True
+    # Only count visible text, not stylesheets, scripts or the text
+    # alternative of SVG images, such as the book title in calibre generated
+    # cover pages
+    text = ''.join(
+        XPath(
+            '//h:body//text()[not(ancestor::h:style or ancestor::h:script or ancestor::svg:style or ancestor::svg:script'
+            ' or ancestor::svg:title or ancestor::svg:desc)]'
+        )(root)
+    )
     textlen = len(re.sub(r'\s+', '', text))
-    num_images = len(XPath('//h:img')(root))
-    num_svgs = len(XPath('//h:svg')(root))
-    return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
+    num_images = len(XPath('//h:body//h:img | //h:body//svg:svg[not(ancestor::svg:svg)]')(root))
+    return (num_images == 1 and textlen <= 10) or (num_images == 0 and textlen <= 50)
 
 
 def add_dummy_title_page(container: Container, cover_image_name: str, mi: Metadata, kobo_js_name: str) -> str:
