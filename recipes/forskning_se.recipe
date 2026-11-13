@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ForskningSE(BasicNewsRecipe):
+    __author__ = 'Jonatan Nyberg'
+    title = 'Forskning.se'
+    publisher = 'Forskning.se'
+    description = 'Nyheter om svensk forskning från forskning.se.'
+    language = 'sv'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 20
+    simultaneous_downloads = 2
+    delay = 1
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Senaste nytt', 'https://forskning.se/feed/'),
+    ]

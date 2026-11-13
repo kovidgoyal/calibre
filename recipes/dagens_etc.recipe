@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class DagensETC(BasicNewsRecipe):
+    title = 'Dagens ETC – RSS-översikt'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Dagens ETC'
+    description = 'Rubriker, RSS-text och länkar från Dagens ETC.'
+    language = 'sv'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Senaste nytt', 'https://www.etc.se/rss.xml'),
+    ]

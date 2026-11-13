@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Iltalehti(BasicNewsRecipe):
+    title = 'Iltalehti – RSS-kooste'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Iltalehti'
+    description = 'Iltalehden RSS-syötteen otsikot, tiivistelmät ja linkit alkuperäisiin artikkeleihin. Ei artikkelien kokotekstiä.'
+    language = 'fi'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Uutiset', 'https://www.iltalehti.fi/rss/uutiset.xml'),
+    ]

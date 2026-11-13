@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import json
+import re
+from html import escape
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Affarsvarlden(BasicNewsRecipe):
+    title = 'Affärsvärlden'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Affärsvärlden'
+    description = 'Offentligt läsbara artiklar från Affärsvärlden. Identifierade betalspärrar hoppas över.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = False
+    auto_cleanup = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    def preprocess_raw_html(self, raw_html, url):
+        # Check before readability removes subscription notices and JSON-LD.
+        soup = self.index_to_soup(raw_html)
+        for script in soup.find_all('script', type='application/ld+json'):
+            try:
+                pending = [json.loads(script.string or '')]
+            except ValueError:
+                continue
+            while pending:
+                item = pending.pop()
+                if isinstance(item, list):
+                    pending.extend(item)
+                elif isinstance(item, dict):
+                    pending.append(item.get('@graph', []))
+                    types = item.get('@type', [])
+                    if isinstance(types, str):
+                        types = [types]
+                    if isinstance(types, list) and any(t in ('Article', 'NewsArticle') for t in types):
+                        if str(item.get('isAccessibleForFree', '')).lower() == 'false':
+                            self.abort_article('Artikeln kräver prenumeration.')
+        text = ' '.join(soup.get_text(' ', strip=True).split())
+        if re.search(r'(?:logga in|prenumerera|bli prenumerant) för att (?:fortsätta )?läsa', text, re.I):
+            self.abort_article('Artikeln kräver prenumeration.')
+        return raw_html
+
+    def preprocess_html(self, soup):
+        if not any(tag.get_text(strip=True) for tag in soup.find_all('p')):
+            self.abort_article('Ingen läsbar artikeltext hittades.')
+        return soup
+
+    def parse_index(self):
+        index_url = 'https://www.affarsvarlden.se/alla-artiklar'
+        soup = self.index_to_soup(index_url)
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'affarsvarlden.se', 'www.affarsvarlden.se'}:
+                continue
+            if not re.fullmatch(r'/artikel/[^/]+/?', parsed.path):
+                continue
+            text = link.get_text(' ', strip=True)
+            if not text or text.lower() in {'läs mer', 'läs artikeln', 'läs vidare'}:
+                continue
+            url = urlunsplit(('https', 'www.affarsvarlden.se', parsed.path.rstrip('/'), '', ''))
+            article = articles.setdefault(url, {'title': text, 'url': url, 'description': text})
+            # The index repeats a headline as a second link with its public intro.
+            if len(text) < len(article['title']):
+                article['title'] = text
+            if len(text) > len(article['description']):
+                article['description'] = text
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artiklar i Affärsvärldens artikelöversikt.')
+        result = list(articles.values())[: self.max_articles_per_feed]
+        for article in result:
+            article['description'] = '<p>' + escape(article['description']) + '</p>'
+        return [('Senaste artiklar', result)]

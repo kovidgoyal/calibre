@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class SvenskaYle(BasicNewsRecipe):
+    title = 'Svenska Yle'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Svenska Yle'
+    description = 'Nyheter, kultur, sport och regionala nyheter från Svenska Yle.'
+    language = 'sv'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 20
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Inrikes', 'https://svenska.yle.fi/rss/inrikes'),
+        ('Utrikes', 'https://svenska.yle.fi/rss/utrikes'),
+        ('Kultur', 'https://svenska.yle.fi/rss/kultur'),
+        ('Sport', 'https://svenska.yle.fi/rss/sport'),
+        ('Huvudstadsregionen', 'https://svenska.yle.fi/rss/huvudstadsregionen'),
+        ('Österbotten', 'https://svenska.yle.fi/rss/osterbotten'),
+        ('Åboland', 'https://svenska.yle.fi/rss/aboland'),
+        ('Östnyland', 'https://svenska.yle.fi/rss/ostnyland'),
+    ]
+
+    def fetch_article(self, url, directory, feed_index, article_index, num_of_feeds):
+        try:
+            return super().fetch_article(url, directory, feed_index, article_index, num_of_feeds)
+        except Exception:
+            article = self.feed_objects[feed_index].articles[article_index]
+            if not (article.content or article.summary):
+                raise
+            self.log.warning(f'Using RSS text after the article page could not be fetched: {article.title}')
+            return self.fetch_embedded_article(article, directory, feed_index, article_index, num_of_feeds)

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class YleSapmi(BasicNewsRecipe):
+    title = 'Yle Sápmi'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Yle'
+    description = 'Ođđasat davvisámegillii Yle Sámis.'
+    language = 'sme'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [('Ođđasat', 'https://yle.fi/rss/sapmi')]
+
+    def fetch_article(self, url, directory, feed_index, article_index, num_of_feeds):
+        try:
+            return super().fetch_article(url, directory, feed_index, article_index, num_of_feeds)
+        except Exception as err:
+            article = self.feed_objects[feed_index].articles[article_index]
+            if not (article.content or article.summary):
+                raise
+            self.log.warning(f'Using RSS text for {article.title} after the article page could not be fetched: {err}')
+            return self.fetch_embedded_article(article, directory, feed_index, article_index, num_of_feeds)
