@@ -482,7 +482,7 @@ class View:
             self.marked_ids = {k: (self.marked_ids.get(k, 'true')) for k in id_dict}
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = {k: str(v) for k, v in id_dict.items()}  # ty: ignore[call-non-callable]
+            self.marked_ids = {k: str(v) for k, v in id_dict.items()}  # ty: ignore[not-callable]
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)

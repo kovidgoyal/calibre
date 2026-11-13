@@ -682,7 +682,7 @@ class ServerLoop:
             if s in ignore:
                 continue
             try:
-                conn.handle_event(event)  # ty: ignore[call-non-callable]
+                conn.handle_event(event)  # ty: ignore[not-callable]
                 if not conn.ready:
                     self.close(s, conn)
             except JobQueueFull:

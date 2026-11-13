@@ -52,7 +52,7 @@ def sort_value_for_undefined_numbers() -> float:
 def numeric_sort_key(defval: float, x: object) -> float:
     # It isn't clear whether this function can ever be called with a non-numeric
     # argument, but we check just in case
-    return x if type(x) in (int, float) else defval  # ty: ignore[invalid-return-type]
+    return x if type(x) in (int, float) else defval  # ty: ignore[invalid-explicit-return]
 
 
 def IDENTITY[T](x: T) -> T:
@@ -309,7 +309,7 @@ class CompositeField(OneToOneField):
 
     def multiple_sort_key(self, val: str) -> tuple[bytes, ...]:
         val = (sort_key(x.strip()) for x in (val or '').split(self.splitter))  # ty: ignore[invalid-assignment]
-        return tuple(sorted(val))  # ty: ignore[invalid-return-type]
+        return tuple(sorted(val))  # ty: ignore[invalid-explicit-return]
 
     def number_sort_key(self, val: str) -> float:
         try:
@@ -320,14 +320,14 @@ class CompositeField(OneToOneField):
             val = atof(val) * p  # ty: ignore[invalid-assignment]
         except TypeError, AttributeError, ValueError, KeyError:
             val = self._undefined_number_sort_key  # ty: ignore[invalid-assignment]
-        return val  # ty: ignore[invalid-return-type]
+        return val  # ty: ignore[invalid-explicit-return]
 
     def date_sort_key(self, val: str) -> datetime:
         try:
             val = self._filter_date(parse_date(val))  # ty: ignore[invalid-assignment]
         except TypeError, ValueError, AttributeError, KeyError:
             val = UNDEFINED_DATE  # ty: ignore[invalid-assignment]
-        return val  # ty: ignore[invalid-return-type]
+        return val  # ty: ignore[invalid-explicit-return]
 
     def bool_sort_key(self, val: str) -> int:
         return self._bool_sort_key(force_to_bool(val))
@@ -747,7 +747,7 @@ class AuthorsField(ManyToManyField):
         return self.table.asort_map[item_id]
 
     def db_author_sort_for_book(self, book_id: int) -> str:
-        return self.author_sort_field.for_book(book_id)  # ty: ignore[invalid-return-type]
+        return self.author_sort_field.for_book(book_id)  # ty: ignore[invalid-explicit-return]
 
     def author_sort_for_book(self, book_id: int) -> str:
         return ' & '.join(self.table.asort_map[k] for k in self.table.book_col_map[book_id])

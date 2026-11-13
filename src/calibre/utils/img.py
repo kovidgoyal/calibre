@@ -178,7 +178,7 @@ def image_from_x(x: str | bytes | bytearray | QImage | QPixmap | IO[bytes]) -> Q
     if isinstance(x, str):
         return image_from_path(x)
     if hasattr(x, 'read'):
-        return image_from_data(x.read())  # ty: ignore[call-non-callable]
+        return image_from_data(x.read())  # ty: ignore[not-callable]
     if isinstance(x, (bytes, QImage)):
         return image_from_data(x)
     if isinstance(x, bytearray):

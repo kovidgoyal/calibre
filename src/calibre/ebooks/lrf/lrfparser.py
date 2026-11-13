@@ -91,7 +91,7 @@ class LRFDocument(LRFMetaFile):
             if not self.keep_parsing:
                 break
             if hasattr(obj, 'initialize'):
-                obj.initialize()  # ty: ignore[call-non-callable] hasattr() narrowing types it as object
+                obj.initialize()  # ty: ignore[not-callable] hasattr() narrowing types it as object
 
     def _parse_object(self, objid: int, objoff: int, objsize: int) -> None:
         obj = get_object(self, self._file, objid, objoff, objsize, self.scramble_key)

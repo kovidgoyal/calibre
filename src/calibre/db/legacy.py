@@ -510,7 +510,7 @@ class LibraryDatabase:
         ids = book_ids if return_ids else len(book_ids)
         if book_ids:
             self.data.books_added(book_ids)
-        return duplicates or None, ids  # ty: ignore[invalid-return-type]
+        return duplicates or None, ids  # ty: ignore[invalid-explicit-return]
 
     def import_book(
         self,

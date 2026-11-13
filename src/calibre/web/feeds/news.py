@@ -1508,7 +1508,7 @@ class BasicNewsRecipe(Recipe):
                 return
             cdata = None
             if hasattr(cu, 'read'):
-                cdata = cu.read()  # ty: ignore[call-non-callable]
+                cdata = cu.read()  # ty: ignore[not-callable]
                 cu = getattr(cu, 'name', 'cover.jpg')
             elif os.access(cu, os.R_OK):
                 with open(cu, 'rb') as f:
@@ -1556,7 +1556,7 @@ class BasicNewsRecipe(Recipe):
 
     def _download_masthead(self, mu: str | IO[bytes]) -> None:
         if hasattr(mu, 'rpartition'):
-            ext = mu.rpartition('.')[-1]  # ty: ignore[call-non-callable]
+            ext = mu.rpartition('.')[-1]  # ty: ignore[not-callable]
             if '?' in ext:
                 ext = ''
         else:
@@ -1566,7 +1566,7 @@ class BasicNewsRecipe(Recipe):
         outfile = os.path.join(self.output_dir, 'mastheadImage.jpg')
         if hasattr(mu, 'read'):
             with open(mpath, 'wb') as mfile:
-                mfile.write(mu.read())  # ty: ignore[call-non-callable]
+                mfile.write(mu.read())  # ty: ignore[not-callable]
         elif os.access(mu, os.R_OK):
             with open(mpath, 'wb') as mfile, open(mu, 'rb') as read:
                 mfile.write(read.read())
@@ -1942,7 +1942,7 @@ class BasicNewsRecipe(Recipe):
         if tag is None:
             return ''
         if isinstance(tag, (str, bytes)):
-            return tag  # ty: ignore[invalid-return-type]
+            return tag  # ty: ignore[invalid-explicit-return]
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring
 

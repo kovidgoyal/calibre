@@ -193,7 +193,7 @@ def start_pipe_worker(command: str, env: dict[str, str] | None = None, priority:
         if iswindows and pass_fds:
             for fd in pass_fds:
                 os.set_handle_inheritable(fd, False)
-    return p  # ty: ignore[invalid-return-type]
+    return p  # ty: ignore[invalid-explicit-return]
 
 
 def two_part_fork_job(env: dict[str, str] | None = None, priority: str = 'normal', cwd: str | None = None) -> Callable[..., dict[str, Any]]:

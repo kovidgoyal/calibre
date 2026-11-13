@@ -761,4 +761,4 @@ class LitWriter:
                 (b'\0' * pad),
                 pack('<H', len(dchunks)),
             ])
-        return dcounts, dchunks, ichunk  # ty: ignore[invalid-return-type] BytesIO objects are always truthy so ichunk is None or bytes
+        return dcounts, dchunks, ichunk  # ty: ignore[invalid-explicit-return] BytesIO objects are always truthy so ichunk is None or bytes

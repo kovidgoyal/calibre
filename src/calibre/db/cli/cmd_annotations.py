@@ -197,7 +197,7 @@ def implementation(
             annots = db._all_annotations(annotation_type=annotation_type or None, ignore_removed=True, restrict_to_book_ids=book_ids)
         annots = [a for a in annots if (not user_type or a['user_type'] == user_type) and (not user or a['user'] == user)]
         titles = {book_id: db._field_for('title', book_id) for book_id in {a['book_id'] for a in annots}}  # ty: ignore[no-matching-overload]
-    return True, (annots, titles)  # ty: ignore[invalid-return-type]
+    return True, (annots, titles)  # ty: ignore[invalid-explicit-return]
 
 
 def option_parser(get_parser: Callable[[str], OptionParser], args: Sequence[str]) -> OptionParser:

@@ -160,7 +160,7 @@ def wrap_simple[**P, R](lock: RWLockWrapper, func: Callable[P, R]) -> Callable[P
 def run_import_plugins(path_or_stream: str | IO[bytes], fmt: str) -> str:
     fmt = fmt.lower()
     if hasattr(path_or_stream, 'seek'):
-        path_or_stream.seek(0)  # ty: ignore[call-non-callable]
+        path_or_stream.seek(0)  # ty: ignore[not-callable]
         pt = PersistentTemporaryFile('_import_plugin.' + fmt)
         shutil.copyfileobj(path_or_stream, pt, 1024**2)  # ty: ignore[invalid-argument-type]
         pt.close()
@@ -639,7 +639,7 @@ class Cache:
         rate = None
         if self.fts_measuring_rate is not None and self.fts_num_done_since_start > 4:
             rate = self.fts_num_done_since_start / (monotonic() - self.fts_measuring_rate)
-        return self.fts_indexing_left, self.fts_indexing_total, rate  # ty: ignore[invalid-return-type]
+        return self.fts_indexing_left, self.fts_indexing_total, rate  # ty: ignore[invalid-explicit-return]
 
     _fts_indexing_progress = fts_indexing_progress
 
@@ -2623,7 +2623,7 @@ class Cache:
 
         try:
             # Handle code passing in an OPF object instead of a Metadata object
-            mi = mi.to_book_metadata()  # ty: ignore[call-non-callable] only OPF has it, it raises AttributeError for Metadata
+            mi = mi.to_book_metadata()  # ty: ignore[not-callable] only OPF has it, it raises AttributeError for Metadata
         except AttributeError, TypeError:
             pass
 
@@ -2926,7 +2926,7 @@ class Cache:
         idf = sf.index_field
         index_map = {book_id: self._fast_field_for(idf, book_id, default_value=1.0) for book_id in books}
         if current_indices:
-            return index_map  # ty: ignore[invalid-return-type]
+            return index_map  # ty: ignore[invalid-explicit-return]
         series_indices = sorted(index_map.values(), key=lambda s: s or 0)  # ty: ignore[no-matching-overload]
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 

@@ -70,7 +70,7 @@ def to_json(obj: object) -> dict[str, object] | str | int:
     if isinstance(obj, bytes):
         return obj.decode('utf-8')
     if hasattr(obj, 'toBase64'):  # QByteArray
-        return {'__class__': 'bytearray', '__value__': bytes(obj.toBase64()).decode('ascii')}  # ty: ignore[call-non-callable]
+        return {'__class__': 'bytearray', '__value__': bytes(obj.toBase64()).decode('ascii')}  # ty: ignore[not-callable]
     v = getattr(obj, 'value', None)
     if isinstance(v, int):  # Possibly an enum with integer values like all the Qt enums
         return v
@@ -447,7 +447,7 @@ def read_data(file_path: str) -> bytes:
         with open(file_path, 'rb') as f:
             return f.read()
 
-    return retry_on_fail(r)  # ty: ignore[invalid-return-type]
+    return retry_on_fail(r)  # ty: ignore[invalid-explicit-return]
 
 
 def commit_data(file_path: str, data: bytes, permissions: int = 0o666) -> None:

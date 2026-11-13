@@ -172,7 +172,7 @@ class TestICU(unittest.TestCase):
             m = icu.ascii_primary_no_punc_matcher(q)
             self.assertIsNotNone(m, f'No fast path for the ASCII query: {q!r}')
             for text in texts:
-                self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')  # ty: ignore[call-non-callable]
+                self.ae(bool(icu.primary_no_punc_contains(q, text)), m(text), f'Fast path differs from ICU for {q!r} in {text!r}')  # ty: ignore[not-callable]
 
         # queries for which there must be no fast path
         for q in ('peña', 'typographer’s', '\U0001f431'):  # not ASCII

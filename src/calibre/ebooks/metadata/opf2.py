@@ -466,7 +466,7 @@ class MetadataField[T = str]:
             except Exception:
                 return None
         if hasattr(ans, 'strip'):
-            ans = ans.strip()  # ty: ignore[call-non-callable] strings are stripped
+            ans = ans.strip()  # ty: ignore[not-callable] strings are stripped
         return ans
 
     def __get__(self, obj: OPF, type: type | None = None) -> T | None:

@@ -69,9 +69,9 @@ def is_date_undefined(qt_or_dt: date | QDate | QDateTime | None) -> bool:
         return True
     if hasattr(d, 'toString'):
         if hasattr(d, 'date'):
-            d = d.date()  # ty: ignore[call-non-callable]
+            d = d.date()  # ty: ignore[not-callable]
         try:
-            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)  # ty: ignore[call-non-callable]
+            d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)  # ty: ignore[not-callable]
         except ValueError:
             return True  # Undefined QDate
     return d.year < UNDEFINED_DATE.year or (d.year == UNDEFINED_DATE.year and d.month == UNDEFINED_DATE.month and d.day == UNDEFINED_DATE.day)

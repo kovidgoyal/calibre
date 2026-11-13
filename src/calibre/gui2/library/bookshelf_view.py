@@ -1733,13 +1733,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return ''
         match template:
             case '{title}':
-                return db.field_for('title', book_id)  # ty: ignore[invalid-return-type]
+                return db.field_for('title', book_id)  # ty: ignore[invalid-explicit-return]
             case '{author_sort}':
-                return db.field_for('author_sort', book_id)  # ty: ignore[invalid-return-type]
+                return db.field_for('author_sort', book_id)  # ty: ignore[invalid-explicit-return]
             case '{author}' | '{authors}':
                 return authors_to_string(db.field_for('authors', book_id))
             case '{sort}' | '{title_sort}':
-                return db.field_for('sort', book_id)  # ty: ignore[invalid-return-type]
+                return db.field_for('sort', book_id)  # ty: ignore[invalid-explicit-return]
         mi = db.get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=m.bookshelf_template_cache)
         return rslt or ''

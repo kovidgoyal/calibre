@@ -299,7 +299,7 @@ class Notes:
             self.remove_file(p + METADATA_EXT)
 
     def note_id_for(self, conn: Connection, field_name: str, item_id: int) -> int | None:
-        return conn.get('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)  # ty: ignore[invalid-return-type]
+        return conn.get('SELECT id FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)  # ty: ignore[invalid-explicit-return]
 
     def resources_used_by(self, conn: Connection, note_id: int | None) -> Iterator[str]:
         if note_id is not None:
@@ -469,10 +469,10 @@ class Notes:
                 tuple((note_id, x) for x in resources_to_add),
             )
         self.set_backup_for(field_name, item_id, item_value, marked_up_text, searchable_text, used_resource_hashes)
-        return note_id  # ty: ignore[invalid-return-type]
+        return note_id  # ty: ignore[invalid-explicit-return]
 
     def get_note(self, conn: Connection, field_name: str, item_id: int) -> str | None:
-        return conn.get('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)  # ty: ignore[invalid-return-type]
+        return conn.get('SELECT doc FROM notes_db.notes WHERE item=? AND colname=?', (item_id, field_name), all=False)  # ty: ignore[invalid-explicit-return]
 
     def get_note_data(self, conn: Connection, field_name: str, item_id: int) -> NoteData | None:
         ans: NoteData | None = None

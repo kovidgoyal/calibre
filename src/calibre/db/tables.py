@@ -329,7 +329,7 @@ class ManyToOneTable(Table):
             serialized_names = tuple(map(self.serialize, item_names)) if self.serialize else item_names
             if len(item_names) == 1:
                 iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((serialized_names[0],)), all=False)
-                return {item_names[0]: iid}  # ty: ignore[invalid-return-type]
+                return {item_names[0]: iid}  # ty: ignore[invalid-explicit-return]
             inq = ('?,' * len(item_names))[:-1]
             ans: dict[str, int | None] = {name: None for name in item_names}
             res: Iterable[tuple[str, int]] = db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names)  # ty: ignore[invalid-assignment]

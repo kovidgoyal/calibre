@@ -87,11 +87,11 @@ class FTS:
 
     def number_dirtied(self) -> int:
         conn = self.get_connection()
-        return conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]  # ty: ignore[invalid-return-type]
+        return conn.get('''SELECT COUNT(*) from fts_db.dirtied_formats''')[0][0]  # ty: ignore[invalid-explicit-return]
 
     def all_currently_dirty(self) -> list[tuple[int, str]]:
         conn = self.get_connection()
-        return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)  # ty: ignore[invalid-return-type]
+        return conn.get('''SELECT book, format from fts_db.dirtied_formats''', all=True)  # ty: ignore[invalid-explicit-return]
 
     def clear_all_dirty(self) -> None:
         conn = self.get_connection()
@@ -139,7 +139,7 @@ class FTS:
     def get_next_fts_job(self) -> tuple[int, str] | tuple[None, None]:
         conn = self.get_connection()
         for book_id, fmt in conn.get('SELECT book,format FROM fts_db.dirtied_formats WHERE in_progress=FALSE ORDER BY id'):
-            return book_id, fmt  # ty: ignore[invalid-return-type]
+            return book_id, fmt  # ty: ignore[invalid-explicit-return]
         return None, None
 
     def commit_result(self, book_id: int, fmt: str, fmt_size: int, fmt_hash: str, text: str, err_msg: str = '') -> None:

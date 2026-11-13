@@ -936,7 +936,7 @@ class Parser(SearchQueryParser):  # {{{
             if matchkind == CONTAINS_MATCH and q.lower() in {'true', 'false'}:
                 found = set()
                 for val, book_ids in self.field_iter(location, current_candidates):
-                    if val and (not hasattr(val, 'strip') or val.strip()):  # ty: ignore[call-non-callable]
+                    if val and (not hasattr(val, 'strip') or val.strip()):  # ty: ignore[not-callable]
                         found |= book_ids
                 matches |= found if q.lower() == 'true' else (current_candidates - found)
                 continue

@@ -142,7 +142,7 @@ def implementation(
                     data[field] = {k: cover(db, k) for k in book_ids}
                     continue
             data[field] = db.all_field_for(field, book_ids)
-    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields': fields}  # ty: ignore[invalid-argument-type, invalid-return-type]
+    return {'book_ids': book_ids, 'data': data, 'metadata': metadata, 'fields': fields}  # ty: ignore[invalid-argument-type, invalid-explicit-return]
 
 
 def stringify(data: dict[str, dict[int, object]], metadata: dict[str, dict[str, object]], for_machine: bool) -> None:

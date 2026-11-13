@@ -510,7 +510,7 @@ def type_safe_sort_key_function[T](
     if keyfunc is None:
 
         def keyfunc(x: T) -> SupportsAllComparisons:
-            return x  # ty: ignore[invalid-return-type]
+            return x  # ty: ignore[invalid-explicit-return]
 
     sentinel = object()
     first_value: SupportsAllComparisons = sentinel  # ty: ignore[invalid-assignment]

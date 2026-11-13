@@ -39,7 +39,7 @@ def empty(db: Cache, notify_changes: Callable[[ChangeEvent], None] | None, is_re
     mi = args[0]
     ids, duplicates = db.add_books([(mi, {})])
     if is_remote:
-        notify_changes(books_added(ids))  # ty: ignore[call-non-callable]
+        notify_changes(books_added(ids))  # ty: ignore[not-callable]
     db.dump_metadata(book_ids=ids)
     return ids, bool(duplicates)
 
@@ -126,9 +126,9 @@ def do_adding(
             db.update_data_for_find_identical_books(book_id, identical_books_data)
 
     if is_remote:
-        notify_changes(books_added(added_ids))  # ty: ignore[call-non-callable]
+        notify_changes(books_added(added_ids))  # ty: ignore[not-callable]
         if updated_ids:
-            notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))  # ty: ignore[call-non-callable]
+            notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))  # ty: ignore[not-callable]
     db.dump_metadata(book_ids=added_ids | updated_ids)
     return added_ids, updated_ids, duplicates
 

@@ -132,7 +132,7 @@ class WMF:
     def __call__(self, stream_or_data: bytes | IO[bytes]) -> None:
         data = stream_or_data
         if hasattr(data, 'read'):
-            data = data.read()  # ty: ignore[call-non-callable]
+            data = data.read()  # ty: ignore[not-callable]
         self.log.filter_level = self.log.DEBUG
         self.header = WMFHeader(data, self.log, self.verbose)
 
