@@ -17,7 +17,7 @@ import random
 import unittest
 from typing import TYPE_CHECKING
 
-from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument
+from calibre.ebooks.pdf.reflow import DocStats, Image, Page, PDFDocument
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import logical_to_visual
 
@@ -413,6 +413,94 @@ class TestPageBoundaries(unittest.TestCase):
         for p in paras:
             if 'Caption of the image' in p:
                 self.assertNotIn('The heading after the caption', p)
+
+    def test_indent_clusters_stay_anchored_to_the_mode(self) -> None:
+        doc = PDFDocument.__new__(PDFDocument)
+        doc.stats = DocStats()
+        doc.tops = {223: 1}
+        # Insertion order used to let each accepted position move the center
+        # towards the next one, eventually excluding the actual mode itself.
+        indents = {335: 10, 333: 9, 331: 8, 337: 100, 357: 50}
+        doc.indents_odd = indents.copy()
+        doc.indents_even = indents.copy()
+        doc.rights = {1437: 1}
+        doc.line_spaces = {35: 20, 55: 8}
+        doc.bottoms = {}
+        doc.setup_stats()
+        self.assertEqual((doc.stats.left_min_odd, doc.stats.left_max_odd), (335, 337))
+        self.assertEqual((doc.stats.indent_min_odd, doc.stats.indent_max_odd), (357, 357))
+
+    def test_nearby_first_line_indent_styles_are_paragraphs(self) -> None:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        examples = (
+            ('This introductory paragraph describes several possible arrangements for', 'the components of a small machine.'),
+            ('People familiar with earlier designs can compare the main features', 'before reading the detailed assembly instructions.'),
+            ('Anyone new to the subject can begin with the following explanation of', 'the parts and their relationships.'),
+            ('The remaining material is optional and experienced readers may prefer', 'to return to it after trying the simpler examples.'),
+        )
+        for first, last in examples:
+            with self.subTest(first=first):
+                page = []
+                for i in range(6):
+                    page += [(357, 223 + i * 90, 1080, f'{self.BODY} first {i}.', 0),
+                             (337, 258 + i * 90, 300, f'End of paragraph {i}.', 0)]
+                # This legitimate indent differs from the dominant style by
+                # only three pixels, rather than being a separate block.
+                page += [(360, 800, 1077, first, 0), (337, 835, 300, last, 0)]
+                root = safe_xml_fromstring(self.convert([page]))
+                paragraphs = [''.join(p.itertext()) for p in root.xpath('//*[local-name()="p"]')]
+                self.assertIn(first + ' ' + last, paragraphs)
+
+    def test_short_final_line_does_not_center_a_paragraph(self) -> None:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        page = self.text_page(0, page_number=False)[:6]
+        page += [(600, 600, 800, 'The first line of this indented paragraph is long', 0),
+                 (600, 635, 800, 'and the next line also reaches the same right edge', 0),
+                 (600, 670, 600, 'but its last line happens to finish near the page center.', 0)]
+        page += [(337, 820 + i * 35, 1100, f'{self.BODY} after {i}.', 0) for i in range(6)]
+        root = safe_xml_fromstring(self.convert([page]))
+        paragraph = next(p for p in root.xpath('//*[local-name()="p"]') if 'The first line of this indented' in ''.join(p.itertext()))
+        self.assertNotIn('text-align:center', paragraph.get('style', ''))
+
+    def test_hanging_bullets_are_unordered_list_items(self) -> None:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        page = self.text_page(0, page_number=False)[:6]
+        page += [(347, 600, 1090, '• The first category includes people learning to assemble a new device', 0),
+                 (357, 635, 1080, 'with components drawn from several different suppliers and designs.', 0),
+                 (357, 670, 600, 'Further details appear in the reference section.', 0),
+                 (347, 720, 1090, '• Another kind of reader has a different background and interests', 0),
+                 (357, 755, 300, 'but belongs in the same list.', 0),
+                 (337, 900, 1100, 'Ordinary prose after the list must remain a paragraph.', 0)]
+        root = safe_xml_fromstring(self.convert([page]))
+        lists = root.xpath('//*[local-name()="ul"]')
+        self.assertEqual(len(lists), 1)
+        items = lists[0].xpath('./*[local-name()="li"]')
+        self.assertEqual(len(items), 2)
+        self.assertIn('The first category includes people learning to assemble a new device with components', ''.join(items[0].itertext()))
+        self.assertIn('reference section.', ''.join(items[0].itertext()))
+        self.assertNotIn('•', ''.join(lists[0].itertext()))
+        self.assertNotIn('text-align:center', items[0].get('style', ''))
+        self.assertFalse(items[0].xpath('.//*[local-name()="p"]'))
+
+    def test_bullet_item_continues_across_a_page(self) -> None:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        for lines in (1, 3):
+            with self.subTest(lines=lines):
+                first = self.text_page(0, page_number=False)[:6]
+                first += [(347 if i == 0 else 357, 1160 - (lines - 1 - i) * 35, 1090,
+                           ('• ' if i == 0 else '') + 'This device includes several useful components as standard', 0)
+                          for i in range(lines)]
+                second = [(357, 223, 1080, 'equipment. Other models have different components.', 0)]
+                second += [(337, 350 + i * 35, 1100, f'{self.BODY} after {i}.', 0) for i in range(6)]
+                root = safe_xml_fromstring(self.convert([first, second]))
+                items = root.xpath('//*[local-name()="li"]')
+                self.assertEqual(len(items), 1)
+                self.assertIn('standard equipment.', ''.join(items[0].itertext()))
+                self.assertNotIn(f'{self.BODY} after', ''.join(items[0].itertext()))
 
 
 class TestImages(unittest.TestCase):

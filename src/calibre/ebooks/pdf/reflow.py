@@ -240,6 +240,7 @@ class Text(Element):
         self.bottom: float = self.top + self.height
         self.right: float = self.left + self.width
         self.tag = 'p'  # Normal paragraph <p...>
+        self.list_indent: float | None = None
         # Where in the reading order of the page this is, as a (band, column)
         # pair, counted so that sorting by it gives reading order. See
         # Page.find_columns(), single column pages leave every text at (0, 0).
@@ -291,6 +292,11 @@ class Text(Element):
             or re.match(r'^\s*<i>\s*</i>\s*$', self.raw) is not None
             or re.match(r'^\s*<b>\s*</b>\s*$', self.raw) is not None
         )
+
+    def continues_list_at(self, left: float) -> bool:
+        if self.list_indent is None:
+            return self.last_left <= left <= self.last_left + 3 * self.average_character_width
+        return abs(left - self.list_indent) <= SAME_INDENT
 
     def set_av_char_width(self) -> None:
         self.average_character_width = max(0.1, self.width / max(1, len(self.text_as_string)))  # Ensure never zero
@@ -1155,17 +1161,20 @@ class Page:
         m = len(self.texts)
         for i in range(m):
             t = self.texts[i]
-            lmargin = t.last_left  # Allow for lines joined into a para
-            if t.bottom - t.top > stats.line_space * 2:
-                rmargin = self.width - t.last_right  # Right of a coalesced paragraph
-            else:
-                rmargin = self.width - t.right  # Right of a coalesced line
+            if t.tag == 'li':
+                t.align = 'L'
+                first = False
+                continue
+            # A short final line does not make a wrapped paragraph centered.
+            # Classify the envelope of the whole block, not its final line.
+            lmargin = t.left
+            rmargin = self.width - t.right
             # Do we have a sequence of indented lines?
             xmargin = ymargin = -1
             if i > 0:
-                xmargin = self.texts[i - 1].last_left
+                xmargin = self.texts[i - 1].left
             if i < m - 1:
-                ymargin = self.texts[i + 1].last_left
+                ymargin = self.texts[i + 1].left
 
             # Don't want to set headings on a Contents page
             # NB Doesn't work where Contents goes to another page
@@ -1236,16 +1245,20 @@ class Page:
             # The left can wander by a few (SAME_INDENT) pixels.
             # "float:left" occurs where there is a multi-line character, so indentation is messed up
             same_left = bool(first_text.last_left - SAME_INDENT <= second_text.left <= first_text.last_left + SAME_INDENT)
-            if (
+            aligned = (
                 (
-                    (
-                        second_text.left < left_min + second_text.average_character_width
-                        and (same_left or (second_text.left < first_text.last_left and (first_text.indented > 0 or '"float:left"' in first_text.raw)))
-                    )
-                    or (same_left and first_text.indented == 0 and second_text.left >= indent_min)
-                    or (same_left and first_text.indented == second_text.indented and second_text.indented > 1)
-                    or (second_text.left >= first_text.last_left and second_text.bottom <= first_text.bottom)
+                    second_text.left < left_min + second_text.average_character_width
+                    and (same_left or (second_text.left < first_text.last_left and (first_text.indented > 0 or '"float:left"' in first_text.raw)))
                 )
+                or (same_left and first_text.indented == 0 and second_text.left >= indent_min)
+                or (same_left and first_text.indented == second_text.indented and second_text.indented > 1)
+                or (second_text.left >= first_text.last_left and second_text.bottom <= first_text.bottom)
+            )
+            if first_text.tag == 'li':
+                aligned = first_text.continues_list_at(second_text.left)
+            if (
+                aligned
+                and second_text.tag != 'li'
                 and first_text.column == second_text.column
                 and 'href=' not in second_text.raw
                 and '"float:right"' not in first_text.raw
@@ -1257,6 +1270,14 @@ class Page:
                 # at end of 1 line then start of next as a check for Don't merge
                 return True
             return False
+
+        for text in self.texts:
+            marker = re.match(r'^\s*[•◦‣]\s+', text.text_as_string)
+            if marker is not None:
+                text.tag = 'li'
+                text.text_as_string = text.text_as_string[marker.end():]
+                text.raw = re.sub(r'^((?:\s*<[^>]+>)*\s*)[•◦‣]', r'\1', text.raw, count=1)
+                text.set_av_char_width()
 
         # Loop through texts elements and coalesce if same lmargin
         # and no large gap between lines
@@ -1277,6 +1298,8 @@ class Page:
 
                 if last_frag is not None and frag != last_frag and can_merge(self, last_frag, frag, stats):
                     last_frag.coalesce(frag, self.number, self.left_margin, self.right_margin)
+                    if last_frag.tag == 'li' and last_frag.list_indent is None:
+                        last_frag.list_indent = frag.left
                     last_frag.last_left = frag.left
                     last_frag.last_right = frag.right
                     last_frag.final_width = frag.final_width
@@ -1288,7 +1311,8 @@ class Page:
                 elif frag.tag == 'p':
                     if frag.indented == 0 and frag.align != 'C' and frag.left > left_max + frag.average_character_width:
                         # Is it approx self.stats_indent?
-                        if indent_min <= frag.left <= indent_max:
+                        slack = max(SAME_INDENT, frag.average_character_width / 2)
+                        if indent_min - slack <= frag.left <= indent_max + slack:
                             frag.indented = 1  # 1em
                         else:  # Assume left margin of approx = number of chars
                             # Should check for values approx the same, as with indents
@@ -1636,7 +1660,20 @@ class Page:
             ans[-1] += '</p>'
             iind += 1
 
-        return ans
+        # Flat bullet lists; nested lists would need an indentation stack.
+        result = []
+        in_list = False
+        for block in ans:
+            is_item = block.startswith('<li')
+            if is_item and not in_list:
+                result.append('<ul>')
+            elif in_list and not is_item:
+                result.append('</ul>')
+            result.append(block)
+            in_list = is_item
+        if in_list:
+            result.append('</ul>')
+        return result
 
 
 class PDFDocument:
@@ -1803,22 +1840,22 @@ class PDFDocument:
 
         def set_indents(indents: dict[float, int], odd_even: int) -> None:
             # Find most popular left so that will be treated as left of page
-            left_k1 = left_c = 0
-            left_k = find_indent(indents)
+            left_c = 0
+            left_k = left_k1 = left_mode = find_indent(indents)
             # Find any adjacent indents and hide them
             for k, kc in indents.items():
-                if kc > 0 and abs(left_k - k) <= SAME_INDENT:
+                if kc > 0 and abs(left_mode - k) <= SAME_INDENT:
                     left_k = min(left_k, k)
                     left_k1 = max(left_k1, k)
                     left_c += kc
                     indents[k] = -kc  # Ensure not found again
 
             # Find second most popular left so that will be treated as indent
-            indent_k1 = indent_c = 0
-            indent_k = find_indent(indents)
+            indent_c = 0
+            indent_k = indent_k1 = indent_mode = find_indent(indents)
             # Find any adjacent indents and hide them
             for k, kc in indents.items():
-                if kc > 0 and abs(indent_k - k) <= SAME_INDENT:
+                if kc > 0 and abs(indent_mode - k) <= SAME_INDENT:
                     indent_k = min(indent_k, k)
                     indent_k1 = max(indent_k1, k)
                     indent_c += kc
@@ -1826,11 +1863,11 @@ class PDFDocument:
 
             # Find third most popular left as that might actually be the indent
             # if between left and current and occurs a reasonable number of times.
-            third_k1 = third_c = 0
-            third_k = find_indent(indents)
+            third_c = 0
+            third_k = third_k1 = third_mode = find_indent(indents)
             # Find any adjacent indents and hide them
             for k, kc in indents.items():
-                if kc > 0 and abs(third_k - k) <= SAME_INDENT:
+                if kc > 0 and abs(third_mode - k) <= SAME_INDENT:
                     third_k = min(third_k, k)
                     third_k1 = max(third_k1, k)
                     third_c += kc
@@ -2167,7 +2204,7 @@ class PDFDocument:
                 if page.texts:
                     if candidate:
                         last_line = candidate.texts[-1]
-                    if candidate and last_line.bottom > orphan_space and page.texts[0].indented == 0:
+                    if candidate and last_line.bottom > orphan_space and (page.texts[0].indented == 0 or last_line.tag == 'li'):
                         merged_text = page.texts[0]
                         top = merged_text.top
                         # How much space in pixels was at the end of the last line?
@@ -2191,7 +2228,10 @@ class PDFDocument:
                             top <= min_top + page.average_text_height
                             and merged_text.tag == 'p'
                             and 'href=' not in merged_text.raw
-                            and merged_text.left < stats_left_min + merged_text.average_character_width
+                            and (
+                                (last_line.tag != 'li' and merged_text.left < stats_left_min + merged_text.average_character_width)
+                                or (last_line.tag == 'li' and last_line.continues_list_at(merged_text.left))
+                            )
                             # Centered text such as an image caption or a heading is not part of a paragraph
                             and last_line.align != 'C'
                             and merged_text.align != 'C'
@@ -2243,7 +2283,14 @@ class PDFDocument:
                 assert candidate is not None
                 left_margin = merged_page.stats_left_min
                 right_margin = merged_page.stats_right
-                candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
+                last = candidate.texts[-1]
+                last.coalesce(merged_text, candidate.number, left_margin, right_margin)
+                if last.tag == 'li':
+                    if last.list_indent is None:
+                        last.list_indent = merged_text.left
+                    last.last_left = merged_text.last_left
+                    last.last_right = merged_text.last_right
+                    last.final_width = merged_text.final_width
                 merged_page.texts.remove(merged_text)
                 # Put back top/bottom after coalesce if final line
                 if save_bottom:
