@@ -436,6 +436,7 @@ decode_raw(State *state, int32_t bits) {
     int32_t n = 1, m = 1 << bits, b = 0;
     while (n < m) {
         b = zpcodec_decoder(state);
+        if (b < 0) return -1;
         n = (n << 1) | b;
     }
     return n - m;
@@ -497,6 +498,7 @@ decode_binary(State *state, uint8_t *ctx, int32_t index, int bits) {
     int n = 1, m = (1 << bits), b = 0;
     while (n < m) {
         b = zpcodec_decode(state, ctx, index + n);
+        if (b < 0) return -1;
         n = (n << 1) | b;
     }
     return n - m;
@@ -522,7 +524,10 @@ decode(State *state, uint8_t *ctx) {
     uint32_t *posn = NULL, n = 0, i = 0;
     uint8_t j = 0, c = 0;
 
-    state->xsize = decode_raw(state, 24);
+    tmp = decode_raw(state, 24);
+    if (tmp < 0) return FALSE;
+    state->xsize = (uint32_t)tmp;
+    tmp = 0;
     if (!state->xsize) return FALSE;
     if (state->xsize > MAXBLOCK * 1024) {
         CORRUPT;
@@ -561,7 +566,10 @@ decode(State *state, uint8_t *ctx) {
         ctxid = 2 * CTXIDS;
         for (j = 1; j < 8; j++) {
             if (zpcodec_decode(state, ctx, ctxid)) {
-                mtfno = (1 << j) + decode_binary(state, ctx, ctxid, j);
+                if (PyErr_Occurred()) goto end;
+                k = decode_binary(state, ctx, ctxid, j);
+                if (k < 0) goto end;
+                mtfno = (1 << j) + k;
                 state->buf[i] = mtf[mtfno];
                 goto rotate;
             }
