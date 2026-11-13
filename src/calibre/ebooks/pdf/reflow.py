@@ -1205,7 +1205,16 @@ class Page:
                 # Check for 'Chapter' or a centered word at the top of the page
                 # Some PDFs have chapter starts within the page so this check often fails
                 elif (
-                    re.match(r'(?i)^\s*chapter\s', t.text_as_string) is not None
+                    (
+                        re.match(r'(?i)^\s*chapter\s', t.text_as_string) is not None
+                        # A wrapped body line can also start with "chapter".
+                        # Require a layout or font cue before calling it a title.
+                        and (
+                            t.align == 'C' or t.font_size_em > 1 or t.blank_line_before > 0
+                            or (first and i + 1 < m and self.texts[i + 1].top - t.bottom > stats.line_space
+                                and re.fullmatch(r'(?i)\s*chapter\s+[\w-]+\s*', t.text_as_string) is not None)
+                        )
+                    )
                     or re.match(r'(?i)^\s*prologue|epilogue\s*$', t.text_as_string) is not None
                     or (first and t.align == 'C' and re.match(r'(?i)^\s*[a-z -]+\s*$', t.text_as_string) is not None)
                     or (first and re.match(r'^\s*[A-Z -]+\s*$', t.text_as_string) is not None)
