@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class FinlandsBank(BasicNewsRecipe):
+    __author__ = 'Jonatan Nyberg'
+    title = 'Finlands Bank'
+    publisher = 'Finlands Bank'
+    description = 'Senaste svenskspråkiga pressmeddelanden och nyheter från Finlands Bank.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 20
+    simultaneous_downloads = 2
+    delay = 1
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url'}
+    index_url = 'https://www.suomenpankki.fi/sv/aktuellt/pressmeddelanden-och-nyheter/'
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.index_url)
+        main = soup.find('main') or soup.find(attrs={'role': 'main'}) or soup
+        articles = {}
+        for link in main.find_all('a', href=True):
+            parsed = urlsplit(urljoin(self.index_url, link['href']))
+            if (
+                parsed.scheme != 'https'
+                or parsed.netloc not in {'www.suomenpankki.fi', 'suomenpankki.fi'}
+                or not re.fullmatch(
+                    r'/sv/aktuellt/pressmeddelanden-och-nyheter/(?:pressmeddelanden|nyheter)/\d{4}/[^/]+/?',
+                    parsed.path,
+                )
+            ):
+                continue
+            url = urlunsplit(('https', 'www.suomenpankki.fi', parsed.path.rstrip('/') + '/', '', ''))
+            heading = link.find(['h2', 'h3', 'h4']) or link.find_parent(['h2', 'h3', 'h4'])
+            title = (heading or link).get_text(' ', strip=True)
+            if title and (heading or url not in articles):
+                articles[url] = {'title': title, 'url': url}
+
+        if not articles:
+            self.abort_recipe_processing('Hittade inga svenskspråkiga nyheter från Finlands Bank.')
+        return [('Pressmeddelanden och nyheter', list(articles.values())[: self.max_articles_per_feed])]

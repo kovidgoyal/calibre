@@ -586,7 +586,7 @@ class Connection(apsw.Connection):  # {{{
 
     def executemany(
         self, statements: str, sequenceofbindings: Iterable[Bindings], *, can_cache: bool = True, prepare_flags: int = 0, explain: int = -1
-    ) -> apsw.Cursor:  # ty: ignore[invalid-return-type]
+    ) -> apsw.Cursor:  # ty: ignore[invalid-implicit-return]
         with self:  # Disable autocommit mode, for performance
             return self.cursor().executemany(statements, sequenceofbindings, can_cache=can_cache, prepare_flags=prepare_flags, explain=explain)
 
@@ -1550,7 +1550,7 @@ class DB:
             self.reopen(force=True)
             return self.conn.cursor().execute(sql, bindings)
 
-    def executemany(self, sql: str, sequence_of_bindings: Iterable[Bindings]) -> apsw.Cursor:  # ty: ignore[invalid-return-type]
+    def executemany(self, sql: str, sequence_of_bindings: Iterable[Bindings]) -> apsw.Cursor:  # ty: ignore[invalid-implicit-return]
         try:
             with self.conn:  # Disable autocommit mode, for performance
                 return self.conn.cursor().executemany(sql, sequence_of_bindings)
@@ -2935,7 +2935,7 @@ class DB:
     def book_storage_for_book(self, book_id: int, fmt: str, user_type: str, user: str) -> BookStorageEntry | None:
         return book_storage_for_book(self.conn, book_id, fmt, user_type, user)
 
-    def update_book_storage_for_book(self, book_id: int, fmt: str, entry: BookStorageEntry, user_type: str, user: str) -> BookStorageEntry:  # ty: ignore[invalid-return-type]
+    def update_book_storage_for_book(self, book_id: int, fmt: str, entry: BookStorageEntry, user_type: str, user: str) -> BookStorageEntry:  # ty: ignore[invalid-implicit-return]
         with self.conn:
             return update_book_storage_for_book(self.conn.cursor(), book_id, fmt, entry, user_type, user)
 
@@ -3226,7 +3226,7 @@ class DB:
                 except Exception:
                     pass
 
-    def has_conversion_options(self, ids: Iterable[int], fmt: str = 'PIPE') -> bool:  # ty: ignore[invalid-return-type]
+    def has_conversion_options(self, ids: Iterable[int], fmt: str = 'PIPE') -> bool:  # ty: ignore[invalid-implicit-return]
         ids = frozenset(ids)
         with self.conn:
             self.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')

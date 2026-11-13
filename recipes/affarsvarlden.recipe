@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from html import escape
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Affarsvarlden(BasicNewsRecipe):
+    title = 'Affärsvärlden – nyhetsöversikt'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Affärsvärlden'
+    description = 'Rubriker, offentliga ingresser och länkar från Affärsvärldens artikelöversikt.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        index_url = 'https://www.affarsvarlden.se/alla-artiklar'
+        soup = self.index_to_soup(index_url)
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'affarsvarlden.se', 'www.affarsvarlden.se'}:
+                continue
+            if not re.fullmatch(r'/artikel/[^/]+/?', parsed.path):
+                continue
+            text = link.get_text(' ', strip=True)
+            if not text or text.lower() in {'läs mer', 'läs artikeln', 'läs vidare'}:
+                continue
+            url = urlunsplit(('https', 'www.affarsvarlden.se', parsed.path.rstrip('/'), '', ''))
+            article = articles.setdefault(url, {'title': text, 'url': url, 'description': text})
+            # The index repeats a headline as a second link with its public intro.
+            if len(text) < len(article['title']):
+                article['title'] = text
+            if len(text) > len(article['description']):
+                article['description'] = text
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artiklar i Affärsvärldens artikelöversikt.')
+        result = list(articles.values())[: self.max_articles_per_feed]
+        for article in result:
+            article['description'] = '<p>' + escape(article['description']) + '</p>'
+        return [('Senaste artiklar', result)]
