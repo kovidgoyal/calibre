@@ -886,6 +886,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.pdf.bidi_test import find_tests
 
         a(find_tests())
+        from calibre.ebooks.pdf.pdftohtml_test import find_tests
+
+        a(find_tests())
         from calibre.ebooks.pdf.reflow_test import find_tests
 
         a(find_tests())

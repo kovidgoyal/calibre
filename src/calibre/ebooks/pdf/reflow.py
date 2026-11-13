@@ -1583,22 +1583,16 @@ class Page:
                 ans.append('<p')
                 if self.imgs[iind].align == 'C':
                     ans[-1] += ' style="text-align:center"'
+                ans[-1] += '>'
                 if self.id_used == 0:
                     self.id_used = 1
-                    ans[-1] += f' id="page_{self.number}"'
-                ans[-1] += '>'
+                    ans[-1] += f'<a id="page_{self.number}"></a>'
                 ans[-1] += self.imgs[iind].to_html()
                 ans[-1] += '</p>'
                 iind += 1
             if text.blank_line_before > 0:
                 ans.append('<p style="text-align:center">&#160;</p>')
             ans.append(f'<{text.tag}')
-            # Should be only for Headings, but there is no guarantee that the heading will be recognised
-            # So put in an ID once per page in case the Contents references it
-            #   and  text.tag[0] == 'h'
-            if self.id_used == 0:
-                self.id_used = 1
-                ans[-1] += f' id="page_{self.number}"'
             if text.align == 'C':
                 ans[-1] += ' style="text-align:center"'
             elif text.align == 'R':
@@ -1618,6 +1612,11 @@ class Page:
                 ans[-1] += str(text.margin_right)
                 ans[-1] += 'em"'
             ans[-1] += '>'
+            # Paragraph tags can be discarded by line unwrapping. Keep page
+            # targets inside the content so TOC links survive that processing.
+            if self.id_used == 0:
+                self.id_used = 1
+                ans[-1] += f'<a id="page_{self.number}"></a>'
             ans[-1] += text.to_html()
             ans[-1] += f'</{text.tag}>'  # Closing tag
             if text.blank_line_after > 0:
@@ -1628,10 +1627,10 @@ class Page:
             ans.append('<p')
             if self.imgs[iind].align == 'C':
                 ans[-1] += ' style="text-align:center"'
+            ans[-1] += '>'
             if self.id_used == 0:
                 self.id_used = 1
-                ans[-1] += f' id="page_{self.number}"'
-            ans[-1] += '>'
+                ans[-1] += f'<a id="page_{self.number}"></a>'
             ans[-1] += self.imgs[iind].to_html()
             ans[-1] += '</p>'
             iind += 1
@@ -1723,14 +1722,16 @@ class PDFDocument:
         count = [0]
 
         def process_node(node: _Element, toc: TOC) -> None:
+            parent = toc
             for child in node.iterchildren('*'):
                 if child.tag == 'outline':
-                    parent = toc.children[-1] if toc.children else toc
                     process_node(child, parent)
-                elif child.text:
-                    page = child.get('page', '1')
-                    toc.add(child.text, 'index.html', f'page_{page}')
-                    count[0] += 1
+                elif child.tag == 'item':
+                    parent = toc
+                    if child.text and child.text.strip():
+                        page = child.get('page', '1')
+                        parent = toc.add(child.text, 'index.html', f'page_{page}')
+                        count[0] += 1
 
         for outline in self.root.xpath('./outline'):
             process_node(outline, root_toc_node)
@@ -2243,6 +2244,9 @@ class PDFDocument:
                 assert candidate is not None
                 left_margin = merged_page.stats_left_min
                 right_margin = merged_page.stats_right
+                if not merged_page.id_used:
+                    merged_text.raw = f'<a id="page_{merged_page.number}"></a>' + merged_text.raw
+                    merged_page.id_used = 1
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
                 merged_page.texts.remove(merged_text)
                 # Put back top/bottom after coalesce if final line
