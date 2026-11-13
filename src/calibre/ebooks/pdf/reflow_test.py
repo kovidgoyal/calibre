@@ -17,7 +17,7 @@ import random
 import unittest
 from typing import TYPE_CHECKING
 
-from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument
+from calibre.ebooks.pdf.reflow import DocStats, Image, Page, PDFDocument
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import logical_to_visual
 
@@ -413,6 +413,38 @@ class TestPageBoundaries(unittest.TestCase):
         for p in paras:
             if 'Caption of the image' in p:
                 self.assertNotIn('The heading after the caption', p)
+
+    def test_paragraph_spacing_advances_through_nearby_candidates(self) -> None:
+        doc = PDFDocument.__new__(PDFDocument)
+        doc.stats = DocStats()
+        doc.tops = {100: 1}
+        doc.indents_odd = {100: 100, 120: 20}
+        doc.indents_even = doc.indents_odd.copy()
+        doc.rights = {700: 1}
+        doc.bottoms = {800: 1}
+        doc.line_spaces = {20: 100, 26: 20, 28: 10}
+        doc.setup_stats()
+        self.assertEqual((doc.stats.line_space, doc.stats.para_space), (20, 28))
+
+    def test_compact_text_does_not_split_body_paragraphs(self) -> None:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        page = [(337, 223 + i * 35, 1100, f'{self.BODY} before {i}.', 0) for i in range(6)]
+        page += [(337, 433, 1100, 'The original design of this small device was developed for the', 0),
+                 (337, 468, 200, 'new machine.', 0),
+                 (337, 513, 1100, 'This is a distinct paragraph after the computer sentence.', 0),
+                 (337, 558, 1100, 'Another paragraph follows a full-width line and a larger gap.', 0)]
+        # A less frequent, more compact spacing must not replace the dominant
+        # body leading just because it is smaller. It is not paragraph spacing.
+        page += [(337, 700 + i * 29, 300, f'Compact text {i}', 2) for i in range(4)]
+        html = self.convert([page])
+        paragraphs = [''.join(p.itertext()) for p in safe_xml_fromstring(html).xpath('//*[local-name()="p"]')]
+        sentence = 'The original design of this small device was developed for the new machine.'
+        matching = [p for p in paragraphs if sentence in p]
+        self.assertEqual(len(matching), 1, paragraphs)
+        self.assertNotIn('This is a distinct paragraph', matching[0])
+        following = next(p for p in paragraphs if 'This is a distinct paragraph' in p)
+        self.assertNotIn('Another paragraph follows', following)
 
 
 class TestImages(unittest.TestCase):

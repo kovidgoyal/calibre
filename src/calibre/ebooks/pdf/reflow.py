@@ -1782,11 +1782,11 @@ class PDFDocument:
         # At the moment it only does this when spaces are close in popularity.
 
         # Find (next) most popular gap between lines
-        def find_line_space(skip: int) -> tuple[int, float]:
+        def find_line_space(skip: int, minimum: float = 0) -> tuple[int, float]:
             scount: int = 0
             soffset: float = 0
             for s in self.line_spaces:
-                if scount <= self.line_spaces[s] and (skip <= 0 or self.line_spaces[s] < skip):
+                if s > minimum and scount <= self.line_spaces[s] and (skip <= 0 or self.line_spaces[s] < skip):
                     scount = self.line_spaces[s]
                     soffset = s
             return scount, soffset
@@ -1946,12 +1946,15 @@ class PDFDocument:
                 break
             count -= 1
 
-        # Get the next most popular gap
-        para_c = line_c - 1
+        # Paragraph gaps must exceed the dominant line-spacing band. Smaller
+        # leading in code/captions must not displace the body spacing below.
+        para_c = 0
         para_k = 0
         count = len(self.line_spaces)
         while count > 0:
-            c, k = find_line_space(para_c)
+            c, k = find_line_space(para_c, line_k + SAME_SPACE)
+            if para_c <= 0:
+                para_c = c
             if para_k <= 0:
                 para_k = k
             if abs(para_k - k) <= SAME_SPACE:
