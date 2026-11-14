@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: NodeFilter
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
@@ -66,7 +67,7 @@ def scroll_to_node(node, sync_context):
             window.scrollBy(0, -sync_context * line_height())
 
 
-state = {'blocks_found': False, 'in_split_mode': False}
+state = {'blocks_found': False, 'in_split_mode': False, 'highlight_timer': None}
 
 
 def go_to_line(lnum, sync_context):
@@ -77,17 +78,126 @@ def go_to_line(lnum, sync_context):
         break
 
 
-@from_python
-@no_prune
-def go_to_sourceline_address(sourceline, tags, sync_context):
+def find_sourceline_node(sourceline, tags):
     nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
     for index in range(nodes.length):
         node = nodes[index]
         if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
             break
-        if index == tags.length - 1 and not is_hidden(node):
-            return scroll_to_node(node, sync_context)
+        if index == tags.length - 1:
+            return node
+    return None
+
+
+@from_python
+@no_prune
+def go_to_sourceline_address(sourceline, tags, sync_context):
+    node = find_sourceline_node(sourceline, tags)
+    if node and not is_hidden(node):
+        return scroll_to_node(node, sync_context)
     go_to_line(sourceline, sync_context)
+
+
+# Highlighting of paragraphs {{{
+
+PARAGRAPH_HIGHLIGHT_NAME = 'calibre-paragraph-highlight'
+PARAGRAPH_HIGHLIGHT_DURATION = 5000  # milliseconds
+# Elements whose text is not part of the paragraphs of text checked for
+# grammar, see calibre/utils/grammar/markup.py. mjx-container is the output of
+# MathJax.
+NON_PARAGRAPH_TEXT_ELEMENTS = {
+    'rt': True, 'rp': True, 'svg': True, 'math': True, 'mjx-container': True, 'script': True, 'style': True,
+    'template': True, 'noscript': True, 'textarea': True, 'select': True,
+}
+# Characters that are left out when comparing the text of the paragraph with
+# the text in the preview, as whitespace is collapsed differently and invisible
+# characters and placeholders for maths are not in the text of the preview.
+UNCOMPARED_CHARS = /[\s\u00ad\u200b\u2060\ufeff\ufffc]/
+UNCOMPARED_CHARS_GLOBAL = /[\s\u00ad\u200b\u2060\ufeff\ufffc]+/g
+
+
+def accept_paragraph_text_node(node):
+    if node.nodeType is Node.ELEMENT_NODE:
+        return NodeFilter.FILTER_REJECT if NON_PARAGRAPH_TEXT_ELEMENTS[node.localName.toLowerCase()] else NodeFilter.FILTER_SKIP
+    return NodeFilter.FILTER_ACCEPT
+
+
+def compared_chars(root):
+    # The compared characters of the text in root along with the text node and
+    # offset in it of each character
+    text, nodes, offsets = v'[]', v'[]', v'[]'
+    walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, accept_paragraph_text_node)
+    node = walker.nextNode()
+    while node:
+        data = node.data
+        for i in range(data.length):
+            ch = data[i]
+            if not UNCOMPARED_CHARS.test(ch):
+                text.push(ch)
+                nodes.push(node)
+                offsets.push(i)
+        node = walker.nextNode()
+    return {'text': text.join(''), 'nodes': nodes, 'offsets': offsets}
+
+
+def find_paragraph_range(start_node, paragraph_text):
+    # Find the range containing the paragraph by searching for its text in the
+    # element containing its start, and then in the ancestors of that element
+    # until it is found, as the paragraph may not be all of an element.
+    needle = paragraph_text.replace(UNCOMPARED_CHARS_GLOBAL, '')
+    if not needle:
+        return None
+    ancestor = start_node
+    while ancestor and ancestor is not document.documentElement:
+        chars = compared_chars(ancestor)
+        idx = chars.text.indexOf(needle)
+        if idx > -1:
+            # Prefer an occurrence that starts in start_node itself rather
+            # than in a descendant, for text that is repeated in an element
+            best = idx
+            while idx > -1:
+                if chars.nodes[idx].parentNode is start_node:
+                    best = idx
+                    break
+                idx = chars.text.indexOf(needle, idx + 1)
+            last = best + needle.length - 1
+            r = document.createRange()
+            r.setStart(chars.nodes[best], chars.offsets[best])
+            r.setEnd(chars.nodes[last], chars.offsets[last] + 1)
+            return r
+        ancestor = ancestor.parentElement
+    return None
+
+
+def clear_paragraph_highlight():
+    if state.highlight_timer is not None:
+        window.clearTimeout(state.highlight_timer)
+        state.highlight_timer = None
+    if window.CSS and window.CSS.highlights:
+        window.CSS.highlights.delete(PARAGRAPH_HIGHLIGHT_NAME)
+
+
+@from_python
+@no_prune
+def highlight_paragraph(sourceline, tags, paragraph_text, sync_context):
+    clear_paragraph_highlight()
+    if not window.CSS or not window.CSS.highlights:
+        return
+    node = find_sourceline_node(sourceline, tags)
+    if not node:
+        return
+    r = find_paragraph_range(node, paragraph_text)
+    if not r:
+        # The preview does not have the paragraph, for instance, because it
+        # has not been refreshed after the text was changed
+        return
+    window.CSS.highlights.set(PARAGRAPH_HIGHLIGHT_NAME, v'new Highlight(r)')
+    rect = r.getBoundingClientRect()
+    if rect.top < 0 or rect.bottom > window.innerHeight:
+        window.scrollBy(0, rect.top - sync_context * line_height())
+    state.highlight_timer = window.setTimeout(clear_paragraph_highlight, PARAGRAPH_HIGHLIGHT_DURATION)
+
+# }}}
 
 
 def line_numbers():
@@ -221,6 +331,8 @@ def load_mathjax():
 if document.body:
     settings = JSON.parse(window.navigator.userAgent.split('|')[1])
     css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+    # Use the colors the browser uses for the <mark> element
+    css += '\n::highlight(' + PARAGRAPH_HIGHLIGHT_NAME + ') { background-color: Mark; color: MarkText }\n'
     if settings.os is 'macos':
         # See settings.pyj for reason for webkit-hyphenate-character
         css += '\n* { -webkit-hyphenate-character: "-" !important }\n'

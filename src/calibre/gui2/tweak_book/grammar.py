@@ -841,22 +841,36 @@ def issue_html(issue: Issue) -> str:
     return ans
 
 
-def select_issue_in_editor(editor: TextEdit, default_lang: str, ref: ParagraphRef, issue: Issue) -> bool:
-    """Select the text of the issue in the editor, returning False if it no longer exists"""
+class SelectedIssue(NamedTuple):
+    # The paragraph containing an issue selected in the editor
+    paragraph: Paragraph
+    # The sourceline address (line number and tag names) of the innermost
+    # element containing the start of the paragraph, used to find the
+    # paragraph in the preview. The line number is None if it is not known.
+    sourceline_address: tuple[int | None, list[str] | None]
+
+
+def select_issue_in_editor(editor: TextEdit, default_lang: str, ref: ParagraphRef, issue: Issue) -> SelectedIssue | None:
+    """Select the text of the issue in the editor, returning None if it no longer exists"""
     source = editor.toPlainText()
     p = relocate(extract_paragraphs(source, default_lang), ref)
     if p is None:
-        return False
+        return None
     ranges = issue_source_ranges(p, issue)
     if not ranges:
-        return False
+        return None
     um = Utf16Map(source)
+    # The containing element is found from the syntax highlighting data, so
+    # make sure it is up to date
+    editor.highlighter.join()
     c = editor.textCursor()
+    c.setPosition(um.to_utf16(p.source_span[0]))
+    sourceline_address = editor.current_tag(for_position_sync=False, cursor=c)
     c.setPosition(um.to_utf16(ranges[0][0]))
     c.setPosition(um.to_utf16(ranges[-1][1]), QTextCursor.MoveMode.KeepAnchor)
     editor.setTextCursor(c)
     editor.centerCursor()
-    return True
+    return SelectedIssue(p, sourceline_address)
 
 
 # }}}

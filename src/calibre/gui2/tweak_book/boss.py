@@ -1836,8 +1836,11 @@ class Boss(QObject):
         ed = self.edit_file(issue.file_name)
         if ed is None or not hasattr(ed, 'editor'):
             return
-        if not select_issue_in_editor(ed.editor, issue.default_lang, issue.ref, issue.issue):
+        selected = select_issue_in_editor(ed.editor, issue.default_lang, issue.ref, issue.issue)
+        if selected is None:
             self.gui.show_status_message(_('The text has changed since it was checked, click Refresh in the Check grammar tool to check it again'), 10)
+        else:
+            self.gui.preview.highlight_paragraph(issue.file_name, selected.sourceline_address, selected.paragraph.text)
 
     def grammar_language_data_needed(self, lang: str) -> None:
         if tprefs['inline_grammar_check']:

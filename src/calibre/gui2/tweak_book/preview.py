@@ -344,6 +344,7 @@ class PreviewBridge(Bridge):
     live_css_data = from_js(object)
 
     go_to_sourceline_address = to_js()
+    highlight_paragraph = to_js()
     go_to_anchor = to_js()
     set_split_mode = to_js()
     live_css = to_js()
@@ -389,6 +390,10 @@ class WebPage(QWebEnginePage):
                 return
             tags = [x.lower() for x in tags]
             self.bridge.go_to_sourceline_address.emit(lnum, tags, tprefs['preview_sync_context'])
+
+    def highlight_paragraph(self, sourceline: int, tags: list[str], text: str) -> None:
+        if self.bridge.ready:
+            self.bridge.highlight_paragraph.emit(sourceline, [x.lower() for x in tags], text, tprefs['preview_sync_context'])
 
     def split_mode(self, enabled) -> None:
         if self.bridge.ready:
@@ -574,6 +579,10 @@ class Preview(QWidget):
         self.view._page.loadFinished.connect(self.load_finished)
         self.view._page.loadStarted.connect(self.load_started)
         self.pending_go_to_anchor = None
+        self.pending_highlight: tuple[str, int, list[str], str] | None = None
+        self.highlight_retry_count = 0
+        # Messages sent to the javascript while a page is loading are lost
+        self.page_loading = False
         self.inspector = self.view.inspector
         self.stack.addWidget(self.view)
         self.cover = c = QLabel(_('Loading preview, please wait...'))
@@ -700,6 +709,35 @@ class Preview(QWidget):
         self.current_sync_retry_count = 0
         self.view._page.go_to_sourceline_address(sourceline_address)
 
+    def highlight_paragraph(self, name: str, sourceline_address: tuple[int | None, list[str] | None], text: str) -> None:
+        """Scroll to the paragraph with the specified text and highlight it
+        briefly. The paragraph is found from the sourceline address of the
+        innermost element containing its start."""
+        sourceline, tags = sourceline_address
+        if sourceline is None or tags is None or not text or not self.is_visible or actions['split-in-preview'].isChecked():
+            return
+        # Showing the paragraph replaces syncing to the cursor position, which
+        # would scroll the preview to a different place
+        self.current_sync_request = None
+        self.pending_highlight = name, sourceline, tags, text
+        self.highlight_retry_count = 0
+        QTimer.singleShot(100, self._highlight_paragraph)
+
+    def _highlight_paragraph(self) -> None:
+        if self.pending_highlight is None:
+            return
+        name, sourceline, tags, text = self.pending_highlight
+        if self.refresh_timer.isActive() or self.page_loading or not self.bridge_ready or name != self.current_name:
+            # Give up after 30 seconds, as the highlight would then be unexpected
+            self.highlight_retry_count += 1
+            if self.highlight_retry_count >= 300:
+                self.pending_highlight = None
+            else:
+                QTimer.singleShot(100, self._highlight_paragraph)
+            return
+        self.pending_highlight = None
+        self.view._page.highlight_paragraph(sourceline, tags, text)
+
     def report_worker_launch_error(self) -> None:
         if parse_worker.launch_error is not None:
             tb, parse_worker.launch_error = parse_worker.launch_error, None
@@ -811,12 +849,14 @@ class Preview(QWidget):
         actions['split-in-preview'].setChecked(False)
 
     def load_started(self) -> None:
+        self.page_loading = True
         self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
 
     def on_bridge_ready(self) -> None:
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
 
     def load_finished(self, ok) -> None:
+        self.page_loading = False
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
         if self.pending_go_to_anchor:
             self.view._page.go_to_anchor(self.pending_go_to_anchor)
