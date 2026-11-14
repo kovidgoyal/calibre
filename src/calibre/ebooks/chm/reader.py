@@ -34,7 +34,7 @@ def match_string(s1: str | None, s2_already_lowered: str | None) -> bool:
 def check_all_prev_empty(tag: PageElement | None) -> bool:
     if tag is None:
         return True
-    if tag.__class__ == NavigableString and not check_empty(cast('NavigableString', tag)):
+    if tag.__class__ == NavigableString and not check_empty(tag):
         return False
     return check_all_prev_empty(tag.previousSibling)
 
