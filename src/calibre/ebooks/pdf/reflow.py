@@ -68,6 +68,12 @@ ORPHAN_LINES = 5
 # is likely to be valid.  Somewhere between 1 and 2, probably nearer 2
 PARA_FACTOR = 1.8
 
+# Line and paragraph spacing are estimated only from the gaps between lines
+# that are both in the body text font size, provided at least this fraction of
+# all the gaps between lines are of that kind. Otherwise there are too few of
+# them to be representative, so all gaps between lines are used.
+BODY_LINE_SPACES_FRACTION = 0.25
+
 # Multiplies the gap between paragraphs to determine if this is a section break
 # not a paragraph break
 SECTION_FACTOR = 1.3
@@ -1408,7 +1414,13 @@ class Page:
         self.remove_head_foot_regex(opts)
 
     def find_margins(
-        self, tops: dict[float, int], indents: dict[float, int], line_spaces: dict[float, int], bottoms: dict[float, int], rights: dict[float, int]
+        self,
+        tops: dict[float, int],
+        indents: dict[float, int],
+        line_spaces: dict[float, int],
+        body_line_spaces: dict[float, int],
+        bottoms: dict[float, int],
+        rights: dict[float, int],
     ) -> None:
 
         # from collections import Counter
@@ -1420,6 +1432,12 @@ class Page:
         max_right: float = 0
         max_space: float = 0
         last_top: float = 0
+        last_font_size: float = 0
+        # Gaps between consecutive lines that are both in the body font size are
+        # also recorded separately, so that gaps between lines in a smaller or
+        # larger font, such as code, captions or headings, cannot be mistaken
+        # for the line or paragraph spacing of the body text.
+        body_size = self.document_font_stats.most_common_size if self.document_font_stats is not None else -1
         # last_bottom = 0
         first = True
         for text in self.texts:
@@ -1439,10 +1457,13 @@ class Page:
                 # Beware of multiple text on same line. These look like small spacing
                 if text.height <= space:
                     line_spaces[space] = line_spaces.get(space, 0) + 1
+                    if text.font_size == body_size and last_font_size == body_size:
+                        body_line_spaces[space] = body_line_spaces.get(space, 0) + 1
                 elif not max_space:
                     max_space = space  # Remember first in case of short docs
 
             last_top = top
+            last_font_size = text.font_size
             max_bot = max(max_bot, text.bottom)
 
             max_right = max(max_right, text.right)
@@ -1727,6 +1748,7 @@ class PDFDocument:
         self.indents_odd: dict[float, int] = {}
         self.indents_even: dict[float, int] = {}
         self.line_spaces: dict[float, int] = {}
+        self.body_line_spaces: dict[float, int] = {}
         self.bottoms: dict[float, int] = {}
         self.rights: dict[float, int] = {}
         self.font_sizes: dict[int, int] = {}
@@ -1753,6 +1775,7 @@ class PDFDocument:
                 self.tops,
                 self.indents_odd if page.odd_even else self.indents_even,
                 self.line_spaces,
+                self.body_line_spaces,
                 self.bottoms,
                 self.rights,
             )
@@ -1842,13 +1865,24 @@ class PDFDocument:
         # rather than simply the most popular.
         # At the moment it only does this when spaces are close in popularity.
 
+        # Line and paragraph spacing are properties of the body text. Gaps
+        # between lines of other sizes (code listings, captions, footnotes)
+        # can be frequent enough to be taken for the paragraph gap, and then
+        # swapped in as the line gap, splitting every body line into its own
+        # paragraph. So use only the gaps between body text lines, unless there
+        # are too few of them, for example, when most body text lines contain
+        # some text in a larger font.
+        body_count = sum(self.body_line_spaces.values())
+        use_body = body_count > 0 and body_count >= BODY_LINE_SPACES_FRACTION * sum(self.line_spaces.values())
+        line_spaces = self.body_line_spaces if use_body else self.line_spaces
+
         # Find (next) most popular gap between lines
         def find_line_space(skip: int) -> tuple[int, float]:
             scount: int = 0
             soffset: float = 0
-            for s in self.line_spaces:
-                if scount <= self.line_spaces[s] and (skip <= 0 or self.line_spaces[s] < skip):
-                    scount = self.line_spaces[s]
+            for s, c in line_spaces.items():
+                if scount <= c and (skip <= 0 or c < skip):
+                    scount = c
                     soffset = s
             return scount, soffset
 
@@ -1993,7 +2027,7 @@ class PDFDocument:
         # Find most popular space so that will be treated as line space
         line_k = 0
         line_c = 0
-        count = len(self.line_spaces)
+        count = len(line_spaces)
         while count > 0:
             c, k = find_line_space(line_c)
             if line_c <= 0:
@@ -2010,7 +2044,7 @@ class PDFDocument:
         # Get the next most popular gap
         para_c = line_c - 1
         para_k = 0
-        count = len(self.line_spaces)
+        count = len(line_spaces)
         while count > 0:
             c, k = find_line_space(para_c)
             if para_k <= 0:

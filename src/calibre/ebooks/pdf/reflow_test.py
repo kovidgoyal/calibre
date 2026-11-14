@@ -551,6 +551,76 @@ class TestPageBoundaries(unittest.TestCase):
             if 'Caption of the image' in p:
                 self.assertNotIn('The heading after the caption', p)
 
+    def paragraph_texts(self, html: str) -> list[str]:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        return [''.join(p.itertext()) for p in safe_xml_fromstring(html).xpath('//*[local-name()="p"]')]
+
+    def paragraphs_page(self, line_counts: Sequence[int], top: int = 223, line_gap: int = 35, para_gap: int = 50) -> tuple[list[FontFragment], int]:
+        """
+        Body text paragraphs of the given numbers of lines, without indents.
+        The last line of each paragraph is wide enough that only the gap
+        before the next paragraph keeps them apart. Returns the fragments and
+        the top of the line after the last paragraph.
+        """
+        ans: list[FontFragment] = []
+        for p, count in enumerate(line_counts):
+            for i in range(count):
+                last = i == count - 1
+                ans.append((337, top, 800 if last else 1100, f'Paragraph{p} line {i} {self.BODY}', 0))
+                top += para_gap if last else line_gap
+        return ans, top
+
+    def assert_paragraphs_kept(self, html: str, line_counts: Sequence[int]) -> None:
+        paras = self.paragraph_texts(html)
+        for p, count in enumerate(line_counts):
+            matching = [x for x in paras if f'Paragraph{p} ' in x]
+            self.assertEqual(1, len(matching), f'Paragraph{p} is split or missing in: {paras}')
+            self.assertEqual(count, matching[0].count(self.BODY), f'Paragraph{p} lines not all joined: {matching[0]}')
+            self.assertEqual({f'Paragraph{p}'}, set(re.findall(r'Paragraph\d+', matching[0])), f'Paragraph{p} merged with another: {matching[0]}')
+
+    def test_compact_text_does_not_split_body_paragraphs(self) -> None:
+        # Lines in a smaller font, such as code listings, set closer together
+        # than the body text must not be mistaken for the body line spacing,
+        # which would split every line of body text into its own paragraph
+        line_counts = (4, 4, 4)
+        page, top = self.paragraphs_page(line_counts)
+        page += [(337, top + i * 29, 300, f'(code line {i})', 2) for i in range(8)]
+        html = self.convert([page])
+        self.assert_paragraphs_kept(html, line_counts)
+        paras = self.paragraph_texts(html)
+        for i in range(8):
+            matching = [x for x in paras if f'(code line {i})' in x]
+            self.assertEqual([f'(code line {i})'], [x.strip() for x in matching], paras)
+
+    def test_short_paragraphs_with_frequent_paragraph_gaps(self) -> None:
+        # When most paragraphs are a single line, the gap between paragraphs
+        # is more common than the gap between lines, and must still separate
+        # paragraphs rather than be treated as the line spacing
+        line_counts = (2, 1, 1) * 5
+        page, _ = self.paragraphs_page(line_counts, top=100)
+        self.assert_paragraphs_kept(self.convert([page]), line_counts)
+
+    def test_few_body_size_line_gaps_are_not_used_for_spacing(self) -> None:
+        # A line takes the largest font size of the text in it, so lines with
+        # some larger text in them are not body text lines. When that leaves
+        # only the gaps between paragraphs as gaps between body text lines,
+        # they are too few to determine the line spacing from.
+        page: list[FontFragment] = []
+        top = 223
+        for p in range(3):
+            for i in range(4):
+                last = i == 3
+                page.append((337, top, 600, f'Paragraph{p} line {i} {self.BODY}', 0))
+                page.append((950, top, 400, 'LARGER', 1) if i in (1, 2) else (950, top, 100 if last else 400, 'tail', 0))
+                top += 50 if last else 35
+        html = self.convert([page])
+        found = [x for x in self.paragraph_texts(html) if 'Paragraph' in x]
+        self.assertEqual(3, len(found), found)
+        for p, text in enumerate(found):
+            self.assertEqual({f'Paragraph{p}'}, set(re.findall(r'Paragraph\d+', text)), found)
+            self.assertEqual(4, text.count(self.BODY), found)
+
 
 class TestImages(unittest.TestCase):
     """
