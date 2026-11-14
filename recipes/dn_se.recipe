@@ -11,29 +11,37 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DN_se(BasicNewsRecipe):
     title = 'Dagens Nyheter'
     __author__ = 'Darko Miletic'
-    description = 'News from Sweden'
+    description = 'Nyheter från Dagens Nyheter'
     publisher = 'Dagens Nyheter'
-    category = 'news, politics, Sveden'
+    category = 'news, politics, Sweden'
     oldest_article = 2
     delay = 1
+    timeout = 30
     max_articles_per_feed = 100
     no_stylesheets = True
+    auto_cleanup = True
     use_embedded_content = False
+    remove_empty_feeds = True
     encoding = 'utf-8'
     language = 'sv'
 
     conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     feeds = [
-        ('Nyheter', 'https://www.dn.se/m/rss/toppnyheter'),
-        ('Ekonomi', 'https://www.dn.se/ekonomi-rss'),
+        ('Nyheter', 'https://www.dn.se/rss/'),
+        ('Ekonomi', 'https://www.dn.se/rss/ekonomi/'),
         ('Sport', 'https://www.dn.se/sport-rss'),
         ('Debatt', 'https://www.dn.se/debatt-rss'),
         ('Ledare', 'https://www.dn.se/ledare-rss'),
-        ('Kultur', 'https://www.dn.se/kultur-rss'),
+        ('Kultur', 'https://www.dn.se/rss/kultur/'),
     ]
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'article-content'})]
-    remove_tags_before = dict(name='h1')
-    remove_tags_after = dict(name='div', attrs={'id': 'byline'})
-    remove_tags = [dict(name=['object', 'link', 'base']), dict(name='div', attrs={'id': 'hook'})]
+    def fetch_article(self, url, directory, feed_index, article_index, num_of_feeds):
+        try:
+            return super().fetch_article(url, directory, feed_index, article_index, num_of_feeds)
+        except Exception as err:
+            article = self.feed_objects[feed_index].articles[article_index]
+            if not (article.content or article.summary):
+                raise
+            self.log.warning(f'Using RSS text for {article.title} after the article page could not be fetched: {err}')
+            return self.fetch_embedded_article(article, directory, feed_index, article_index, num_of_feeds)

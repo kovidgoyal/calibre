@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Breakit(BasicNewsRecipe):
+    title = 'Breakit – RSS-översikt'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Breakit'
+    description = 'Rubriker, RSS-text och länkar från Breakit om techbolag och näringsliv.'
+    language = 'sv'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Senaste nytt', 'https://www.breakit.se/feed/artiklar'),
+    ]

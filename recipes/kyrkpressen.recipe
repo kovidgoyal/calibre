@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Kyrkpressen(BasicNewsRecipe):
+    title = 'Kyrkpressen'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Kyrkpressen'
+    description = 'Nyheter och opinion från den finlandssvenska debatt- och kulturtidningen Kyrkpressen.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        index_url = 'https://www.kyrkpressen.fi/'
+        soup = self.index_to_soup(index_url)
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'kyrkpressen.fi', 'www.kyrkpressen.fi'}:
+                continue
+            if not re.fullmatch(r'/(?:nyheter|opinion)/\d+-[^/]+\.html', parsed.path):
+                continue
+            heading = link.find(['h2', 'h3']) or link.find_parent(['h2', 'h3'])
+            if heading is None:
+                continue
+            title = heading.get_text(' ', strip=True)
+            if title:
+                url = urlunsplit(('https', 'www.kyrkpressen.fi', parsed.path, '', ''))
+                articles.setdefault(url, {'title': title, 'url': url})
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artiklar på Kyrkpressens förstasida.')
+        return [('Aktuellt', list(articles.values())[: self.max_articles_per_feed])]

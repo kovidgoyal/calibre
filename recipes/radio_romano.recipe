@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class RadioRomano(BasicNewsRecipe):
+    title = 'Radio Romano – romani chib och svenska'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Sveriges Radio'
+    description = 'Radio Romanos publicerade nyhetstexter, främst på romani chib och ibland på svenska. Ljudinslagen ingår inte.'
+    language = 'rom'
+    encoding = 'utf-8'
+    max_articles_per_feed = 20
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        index_url = 'https://www.sverigesradio.se/radio-romano'
+        soup = self.index_to_soup(index_url)
+        main = soup.find('main') or soup.find(attrs={'role': 'main'}) or soup
+        articles = {}
+        for link in main.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if (
+                parsed.scheme != 'https'
+                or parsed.netloc not in {'sverigesradio.se', 'www.sverigesradio.se'}
+                or not re.fullmatch(r'/artikel/[^/]+/?', parsed.path)
+            ):
+                continue
+            heading = link.find(['h2', 'h3', 'h4']) or link.find_parent(['h2', 'h3', 'h4'])
+            if heading is None:
+                continue
+            title = heading.get_text(' ', strip=True)
+            if title:
+                url = urlunsplit(('https', 'www.sverigesradio.se', parsed.path.rstrip('/'), '', ''))
+                articles.setdefault(url, {'title': title, 'url': url})
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artiklar på Radio Romanos sida.')
+        return [('Radio Romano', list(articles.values())[: self.max_articles_per_feed])]
+
+    def preprocess_html(self, soup):
+        for heading in soup.find_all('h1'):
+            if 'det här är en reservsida' in heading.get_text(' ', strip=True).casefold():
+                raise ValueError('Sveriges Radio returned its temporary outage page')
+        return soup

@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from html import escape
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AboUnderrattelser(BasicNewsRecipe):
+    title = 'Åbo Underrättelser – rubriköversikt'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Åbo Underrättelser'
+    description = 'Rubriker och länkar från Åbo Underrättelsers offentliga nyhetslista. Artiklarna läses på tidningens webbplats.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 20
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        index_url = 'https://www.abounderrattelser.fi/arkiv/'
+        soup = self.index_to_soup(index_url)
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'abounderrattelser.fi', 'www.abounderrattelser.fi'}:
+                continue
+            if not re.fullmatch(r'/artikel/[^/]+/?', parsed.path):
+                continue
+            title = link.get_text(' ', strip=True)
+            title = re.sub(r'\s+\d{1,2}\.\d{1,2}\.\d{4},\s*\d{1,2}:\d{2}\s*$', '', title).strip()
+            if not title or title.casefold() in {'läs mer', 'läs artikeln'}:
+                continue
+            url = urlunsplit(('https', 'www.abounderrattelser.fi', parsed.path.rstrip('/') + '/', '', ''))
+            if url not in articles:
+                articles[url] = {
+                    'title': title,
+                    'url': url,
+                    'description': (
+                        '<p>Rubrik från Åbo Underrättelsers offentliga nyhetslista.</p>'
+                        '<p>Denna översikt innehåller inte artikeltexten.</p>'
+                        f'<p><a href="{escape(url, quote=True)}">Läs artikeln på tidningens webbplats</a>'
+                        ' (prenumeration kan krävas).</p>'
+                    ),
+                }
+            if len(articles) >= self.max_articles_per_feed:
+                break
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artikelrubriker i Åbo Underrättelsers nyhetslista.')
+        return [('Senaste rubriker', list(articles.values()))]
