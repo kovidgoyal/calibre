@@ -32,6 +32,13 @@ if TYPE_CHECKING:
 PAGE_SCAN_COUNT = 20  # Arbitrary
 LINE_SCAN_COUNT = 2  # Arbitrary
 
+# A line at the top or bottom of pages containing the page number is a running
+# head or foot if it has at most this many words, and the page number is found
+# like that on at least this many pages, and this fraction of all pages
+RUNNING_HEAD_MAX_WORDS = 12
+RUNNING_HEAD_MIN_PAGES = 3
+RUNNING_HEAD_MIN_FRACTION = 0.1
+
 # Number of character widths that two strings have to be apart,
 # for them to be considered part of the same text fragment
 # The problem is justified text where fragments can be widely spaced
@@ -135,6 +142,14 @@ RIGHT_FACTOR = 1.8
 # Percentage amount left and right margins can differ
 # and still be considered centered. 0.15 = 15%
 CENTER_FACTOR = 0.15
+
+# The end of a sentence or a label, but not leader dots, and text that is just
+# numbers, such as page numbers
+SENTENCE_END = re.compile(r'(?<![.\s])[.!?:][”’"\')\]]*\s*$')
+_NUMBER = r'(?:(?:[a-z][-.])?\d+|(?=[ivxlcdm])m{0,3}(?:cm|cd|d?c{0,3})(?:xc|xl|l?x{0,3})(?:ix|iv|v?i{0,3}))'
+# The largest gap, in spaces, after the end of a sentence in justified text
+SENTENCE_GAP = 4
+NUMBERING = re.compile(rf'[\s(\[–—-]*{_NUMBER}(?:[\s/.,:–—-]+{_NUMBER})*[\s.)\]–—-]*', re.IGNORECASE)
 
 # How near does text right need to be to right margin
 # to be considered right aligned. 0.05 = 5%
@@ -393,7 +408,7 @@ class Text(Element):
     def set_av_char_width(self) -> None:
         self.average_character_width = max(0.1, self.width / max(1, len(self.text_as_string)))  # Ensure never zero
 
-    def coalesce(self, other: Text, page_number: int, left_margin: float, right_margin: float) -> None:
+    def coalesce(self, other: Text, page_number: int, left_margin: float, right_margin: float, same_line: bool = False) -> None:
         if self.opts.verbose > 2:
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         # Need to work out how to decide this
@@ -429,10 +444,16 @@ class Text(Element):
             self.top = min(self.top, other.top)
             self.bottom = max(self.bottom, other.bottom)
 
+        # final_width, last_left and last_right are the width and position
+        # of the final line of the text
+        if same_line:
+            self.last_right = max(self.last_right, other.right)
+        else:
+            self.last_left, self.last_right = other.last_left, other.last_right
+        self.final_width = self.last_right - self.last_left
         self.left = min(self.left, other.left)
         self.right = max(self.right, other.right)
         self.width += other.width
-        self.final_width = other.left + other.width
         self.height = self.bottom - self.top
         # Need to check for </span> <span... as well
         # This test does not work in its present form
@@ -479,8 +500,15 @@ class Text(Element):
                     has_gap = 0
             # Float right if the text ends around the right margin,
             # and there are no long groups of spaces earlier in the line
-            # as that probably means justified text.
-            elif '   ' not in self.text_as_string and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR:
+            # as that probably means justified text. Nor after the end of a
+            # sentence or a label followed by words rather than numbers, as
+            # justification often widens the space after a sentence enough
+            # for it to be a separate fragment.
+            elif (
+                '   ' not in self.text_as_string
+                and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR
+                and not (has_gap <= SENTENCE_GAP and SENTENCE_END.search(self.text_as_string) is not None and NUMBERING.fullmatch(other.text_as_string) is None)
+            ):
                 has_float = '<span style="float:right">'
                 has_gap = 1
                 # else leave has_gap
@@ -1233,7 +1261,7 @@ class Page:
                             and frag.text_as_string[-1] == match.text_as_string[0]
                         ):
                             break  # Overlapping same character, so ignore it
-                    frag.coalesce(match, self.number, self.left_margin, self.right_margin)
+                    frag.coalesce(match, self.number, self.left_margin, self.right_margin, same_line=True)
                     break  # Leave tind
                 tind += 1
             if match is not None:
@@ -1312,7 +1340,8 @@ class Page:
                 elif (
                     self.is_chapter_heading(t, self.texts[i + 1] if i + 1 < m else None, first, column_widths[t.column], stats)
                     or (first and t.align == 'C' and re.match(r'(?i)^\s*[a-z -]+\s*$', t.text_as_string) is not None)
-                    or (first and re.match(r'^\s*[A-Z -]+\s*$', t.text_as_string) is not None)
+                    # Not smaller text, such as labels in a figure
+                    or (first and (t.start_font_size_em == 0 or t.start_font_size_em >= 0.95) and re.match(r'^\s*[A-Z -]+\s*$', t.text_as_string) is not None)
                 ):
                     t.tag = 'h2'
             first = False
@@ -1416,9 +1445,6 @@ class Page:
 
                 if last_frag is not None and frag != last_frag and can_merge(self, last_frag, frag, stats):
                     last_frag.coalesce(frag, self.number, self.left_margin, self.right_margin)
-                    last_frag.last_left = frag.left
-                    last_frag.last_right = frag.right
-                    last_frag.final_width = frag.final_width
                     # Check for centred done later
                     match = frag
                     break  # Leave tind
@@ -1843,12 +1869,14 @@ class PDFDocument:
             page.create_page_format(self.stats, self.opts)
 
         # Need to work out the header/footer automatically if opt < 0
-        if self.opts.pdf_header_skip < 0 or self.opts.pdf_footer_skip < 0:
+        auto_header, auto_footer = self.opts.pdf_header_skip < 0, self.opts.pdf_footer_skip < 0
+        if auto_header or auto_footer:
             self.find_header_footer()
 
         # Remove any header/footer
         if self.opts.pdf_header_skip > 0 or self.opts.pdf_footer_skip > 0:
             self.remove_header_footer()
+        self.remove_running_heads(auto_header, auto_footer)
 
         # Work out document dimensions from page format
         for page in self.pages:
@@ -2223,6 +2251,69 @@ class PDFDocument:
         if foot_skip > 0:
             self.opts.pdf_footer_skip = foot_skip
 
+    def remove_running_heads(self, header: bool, footer: bool) -> None:
+        """
+        Remove lines at the top or bottom of pages that contain the page
+        number, such as the running heads of books, which can change from
+        page to page, for example with the chapter title, so they are not
+        found by find_header_footer(). They are recognised by the number
+        being at the start or end of a short line outside the area of the
+        page where the body text usually is, and differing from the position
+        of its page in the document by the same amount on many pages, whether
+        at the top or the bottom of the page, as books often have page
+        numbers at the bottom of pages starting chapters, and at the top of
+        the others.
+        """
+        # (page index, page, the texts of the line, whether at the top, page number)
+        candidates: list[tuple[int, Page, list[Text], bool, int]] = []
+        body_tops: dict[float, int] = {}
+        body_bottoms: dict[float, int] = {}
+        for idx, page in enumerate(self.pages):
+            if not page.texts:
+                continue
+            ends: list[tuple[bool, list[Text]]] = []
+            if header:
+                top = min(t.top for t in page.texts)
+                ends.append((True, [t for t in page.texts if abs(t.top - top) <= SAME_SPACE]))
+            if footer:
+                bottom = max(t.bottom for t in page.texts)
+                ends.append((False, [t for t in page.texts if abs(t.bottom - bottom) <= SAME_SPACE]))
+            in_candidates: set[int] = set()
+            for at_top, line in ends:
+                words = ' '.join(t.text_as_string for t in sorted(line, key=lambda t: t.left)).split()
+                if not words or len(words) > RUNNING_HEAD_MAX_WORDS:
+                    continue
+                for word in {words[0], words[-1]}:
+                    number = word.strip('-–—.,:;()[]|')
+                    if number.isdecimal() and number.isascii():
+                        candidates.append((idx, page, line, at_top, int(number)))
+                        in_candidates.update(id(t) for t in line)
+            # Where the body text of this page starts and ends
+            body = [t for t in page.texts if id(t) not in in_candidates]
+            if body:
+                body_top, body_bottom = min(t.top for t in body), max(t.bottom for t in body)
+                body_tops[body_top] = body_tops.get(body_top, 0) + 1
+                body_bottoms[body_bottom] = body_bottoms.get(body_bottom, 0) + 1
+        if not candidates:
+            return
+        # Where the body text usually starts and ends on pages
+        usual_top = max(body_tops, key=lambda k: (body_tops[k], -k)) if body_tops else 0
+        usual_bottom = max(body_bottoms, key=lambda k: (body_bottoms[k], k)) if body_bottoms else 0
+        found: dict[int, list[tuple[Page, list[Text]]]] = {}
+        for idx, page, line, at_top, number in candidates:
+            if at_top and max(t.bottom for t in line) > usual_top:
+                continue
+            if not at_top and min(t.top for t in line) < usual_bottom:
+                continue
+            found.setdefault(number - idx, []).append((page, line))
+        min_pages = max(RUNNING_HEAD_MIN_PAGES, RUNNING_HEAD_MIN_FRACTION * len(self.pages))
+        for lines in found.values():
+            if len({id(page) for page, line in lines}) >= min_pages:
+                for page, line in lines:
+                    for t in line:
+                        if t in page.texts:
+                            page.texts.remove(t)
+
     def remove_header_footer(self) -> None:
         # Remove any header/footer lines from all pages
         for page in self.pages:
@@ -2279,7 +2370,7 @@ class PDFDocument:
                         # How much space in pixels was at the end of the last line?
                         # If the book is justified text, any space could mean end-of-para
                         # So, how to check for a justified book/page?
-                        last_spare = candidate.textwidth - last_line.final_width  # Pixels
+                        last_spare = candidate.right_margin - last_line.last_right  # Pixels
                         # How big is the first word on the next line?
                         merged_first = re.match(r'^([^ ]+)\s', merged_text.text_as_string)
                         if merged_first is not None:

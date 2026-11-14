@@ -404,6 +404,131 @@ class TestPageBoundaries(unittest.TestCase):
         for i in range(6):
             self.assertNotIn(f'>{i + 2}<', html)
 
+    def book_pages(self, count: int) -> list[list[FontFragment]]:
+        """
+        Pages laid out as a printed book, with one paragraph flowing across
+        all of them, and running heads with the page number and the book or
+        chapter title, except on the first page, which starts a chapter and
+        has the page number at the bottom
+        """
+        pages: list[list[FontFragment]] = []
+        for num in range(1, count + 1):
+            page: list[FontFragment] = []
+            if num == 1:
+                page.append((337, 132, 600, 'CHAPTER I. The Beginning', 1))
+                page.append((892, 1212, 15, '1', 0))
+            elif num % 2 == 0:
+                page += [(337, 100, 15 * len(str(num)), str(num), 0), (1300, 100, 137, 'THE BOOK', 0)]
+            else:
+                page += [(337, 100, 300, 'CHAPTER I. THE BEGINNING', 0), (1437 - 15 * len(str(num)), 100, 15 * len(str(num)), str(num), 0)]
+            words = 'alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega'.split()
+            for i in range(24):
+                left = 380 if num == 1 and i == 0 else 337
+                page.append((left, 223 + i * 40, 1437 - left, f'{self.BODY} {words[num]} {words[i]} and then', 0))
+            pages.append(page)
+        return pages
+
+    def test_running_heads_with_titles_are_removed(self) -> None:
+        html = self.convert(self.book_pages(8))
+        self.assertNotIn('THE BOOK', html)
+        self.assertNotIn('THE BEGINNING', html)
+        self.assertIn('The Beginning', html)
+        for num in range(1, 9):
+            self.assertNotRegex(html, rf'>\s*{num}\s*<')
+        paras = [p for p in self.paragraph_texts(html) if self.BODY in p]
+        self.assertEqual(1, len(paras), paras)
+        self.assertEqual(8 * 24, paras[0].count(self.BODY))
+
+    def test_section_numbers_at_top_of_page_are_not_page_numbers(self) -> None:
+        # Numbered section headings at the top of the body of some pages,
+        # whose numbers happen to differ from the page number by the same
+        # amount, are not running heads
+        words = 'alpha beta gamma delta epsilon zeta eta theta iota kappa lambda'.split()
+        pages: list[list[FontFragment]] = []
+        for num in range(1, 11):
+            page: list[FontFragment] = []
+            top = 223
+            if num in (3, 5, 7, 9):
+                page.append((337, top, 400, f'{num - 1} Section {words[num]}', 1))
+                top += 60
+            while top < 1100:
+                page.append((337, top, 1100, f'{self.BODY} {words[num]} {top} and', 0))
+                top += 40
+            pages.append(page)
+        html = self.convert(pages)
+        for num in (3, 5, 7, 9):
+            self.assertIn(f'{num - 1} Section {words[num]}', html)
+
+    def test_numbers_in_text_are_not_page_numbers(self) -> None:
+        # The last line of each page ends with a number, but not the page number
+        pages = self.book_pages(6)
+        words = 'apples pears plums cherries grapes lemons'.split()
+        for num, page in enumerate(pages, start=1):
+            page.append((337, 223 + 24 * 40, 600, f'and the {words[num - 1]} numbered {num * 7 + 3}', 0))
+        html = self.convert(pages)
+        for num in range(1, 7):
+            self.assertIn(f'numbered {num * 7 + 3}', html)
+
+    def test_paragraph_continues_after_sentence_at_end_of_page(self) -> None:
+        # The last line of a page is the indented first line of a paragraph,
+        # ending a sentence. The paragraph continues on the next page, whose
+        # first line is not indented, so it is not a new paragraph.
+        first = [(337, 223 + i * 35, 1100, f'{self.BODY} alpha {i} and', 0) for i in range(11)]
+        first[-1] = (337, first[-1][1], 1100, f'{self.BODY} alpha 10.', 0)
+        first.append((380, 223 + 11 * 35, 1057, 'Then a new paragraph begins here, and it is a long one.', 0))
+        # The first word of the next page would fit in the indent, but it
+        # does not fit at the end of the line, as it is full
+        second = [(337, 223 + i * 35, 1100, f'I continue the paragraph {self.BODY} beta {i} and', 0) for i in range(12)]
+        paras = self.paragraph_texts(self.convert([first, second]))
+        matching = [p for p in paras if 'Then a new paragraph' in p]
+        self.assertEqual(1, len(matching), paras)
+        self.assertIn('I continue the paragraph', matching[0])
+
+    def test_wide_space_after_sentence_in_justified_line(self) -> None:
+        # Justification can widen the space after the end of a sentence so
+        # much that the rest of the line is a separate fragment, ending at
+        # the right margin. That is not text aligned to the right, such as a
+        # page number in a table of contents, so the line is still joined to
+        # the next one.
+        page = [(337, 223 + i * 35, 1100, f'{self.BODY} line {i} and', 0) for i in range(4)]
+        page += [(380, 363, 30, 'Mr.', 0), (450, 363, 987, f'Smith said {self.BODY} which', 0)]
+        page += [(337, 398 + i * 35, 1100, f'continues {self.BODY} more {i} and', 0) for i in range(4)]
+        page[-1] = (337, page[-1][1], 600, 'and ends here.', 0)
+        paras = self.paragraph_texts(self.convert([page]))
+        matching = [p for p in paras if 'Mr.' in p]
+        self.assertEqual(1, len(matching), paras)
+        self.assertIn('continues', matching[0])
+        self.assertIn('ends here.', matching[0])
+
+    def test_code_with_comments_at_right_is_not_joined(self) -> None:
+        # Lines of code ending a statement, followed by a comment at the right
+        page = self.body_lines(223, 4)
+        for i in range(6):
+            top = 400 + i * 35
+            page += [(337, top, 500, f'profile_t *profile_number_{i};', 0), (1000, top, 430, f'/* The profile for device {i} */', 2)]
+        page += self.body_lines(650, 4)
+        paras = [p for p in self.paragraph_texts(self.convert([page])) if 'profile_number' in p]
+        self.assertEqual(6, len(paras), paras)
+
+    def test_contents_with_lettered_page_numbers(self) -> None:
+        page: list[FontFragment] = []
+        for i in range(8):
+            top = 223 + i * 35
+            page += [(337, top, 1000, f'Appendix part {i + 1} . . . . . . . . . . . . . .', 0), (1397, top, 40, f'A-{i + 1}', 0)]
+        paras = [p for p in self.paragraph_texts(self.convert([page])) if 'Appendix part' in p]
+        self.assertEqual(8, len(paras), paras)
+
+    def test_contents_page_numbers_are_not_joined(self) -> None:
+        # Entries ending with a page number at the right margin are separate
+        page: list[FontFragment] = []
+        for i in range(8):
+            top = 223 + i * 35
+            page += [(337, top, 700, f'Chapter {i + 1}. The title of chapter number {i + 1} of the book.', 0), (1407, top, 30, str(10 * i + 5), 0)]
+        paras = [p for p in self.paragraph_texts(self.convert([page])) if 'chapter number' in p]
+        self.assertEqual(8, len(paras), paras)
+        for i, p in enumerate(paras):
+            self.assertIn(f'chapter number {i + 1} ', p)
+
     def test_chapter_in_prose_is_not_a_heading(self) -> None:
         sentence = 'chapter before proceeding to the next set of examples and exercises'
         page = [(337, 223 + i * 35, 700, f'{self.BODY} line {i}.', 0) for i in range(12)]
