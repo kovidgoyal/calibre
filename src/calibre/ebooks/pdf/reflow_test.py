@@ -401,6 +401,37 @@ class TestPageBoundaries(unittest.TestCase):
         for i in range(6):
             self.assertNotIn(f'>{i + 2}<', html)
 
+    def test_chapter_in_prose_is_not_a_heading(self) -> None:
+        sentence = 'chapter before proceeding to the next set of examples and exercises'
+        page = [(337, 223 + i * 35, 700, f'{self.BODY} line {i}.', 0) for i in range(12)]
+        page[3] = (337, 328, 1100, sentence, 0)
+        html = self.convert([page])
+        self.assertIn(sentence, html)
+        self.assertNotRegex(html, r'<h[1-6][^>]*>chapter before proceeding')
+
+    def test_chapter_prefixed_prose_at_page_start(self) -> None:
+        first = self.text_page(0, page_number=False)
+        first.append((337, 1178, 1100, 'The explanation continues in this', 0))
+        for separate in (False, True):
+            with self.subTest(followed_by_paragraph_gap=separate):
+                second = self.text_page(1, page_number=False)
+                second[0] = (337, 223, 1100, 'Chapter before proceeding to another example.', 0)
+                if separate:
+                    second[1:] = [(337, 315 + i * 35, 1100, f'{self.BODY} later {i}.', 0) for i in range(6)]
+                html = self.convert([first, second])
+                self.assertNotRegex(html, r'<h[1-6][^>]*>Chapter before proceeding')
+                self.assertIn('Chapter before proceeding to another example.', html)
+
+    def test_chapter_titles_keep_heading_markup(self) -> None:
+        for top, font, left, width in (
+            (132, 0, 337, 800), (258, 1, 337, 800), (258, 0, 700, 400), (500, 0, 337, 800),
+        ):
+            with self.subTest(top=top, font=font, left=left):
+                before = [] if top == 132 else [(337, 223, 700, f'{self.BODY} before.', 0)]
+                after = [(337, max(600, top + 100) + i * 35, 700, f'{self.BODY} after {i}.', 0) for i in range(6)]
+                html = self.convert([before + [(left, top, width, 'Chapter One', font)] + after])
+                self.assertRegex(html, r'<h2[^>]*>.*Chapter One')
+
     def test_caption_is_not_merged_with_next_page(self) -> None:
         # A centred image caption at the bottom of one page followed by a
         # heading at the top of the next must remain separate paragraphs, even
