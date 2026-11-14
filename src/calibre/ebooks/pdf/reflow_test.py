@@ -18,7 +18,7 @@ import re
 import unittest
 from typing import TYPE_CHECKING
 
-from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument
+from calibre.ebooks.pdf.reflow import Image, Page, PDFDocument, line_and_para_space
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import logical_to_visual
 
@@ -601,6 +601,15 @@ class TestPageBoundaries(unittest.TestCase):
         page, _ = self.paragraphs_page(line_counts, top=100)
         self.assert_paragraphs_kept(self.convert([page]), line_counts)
 
+    def test_line_gaps_smaller_than_the_text_height(self) -> None:
+        # The height of text is that of its font's bounding box, which can be
+        # more than the gap between lines. Those gaps must still be used to
+        # estimate the line spacing, otherwise only the paragraph gaps are,
+        # and paragraphs are merged.
+        line_counts = (3, 4, 2, 3, 5, 3)
+        page, _ = self.paragraphs_page(line_counts, line_gap=25, para_gap=38)
+        self.assert_paragraphs_kept(self.convert([page]), line_counts)
+
     def test_few_body_size_line_gaps_are_not_used_for_spacing(self) -> None:
         # A line takes the largest font size of the text in it, so lines with
         # some larger text in them are not body text lines. When that leaves
@@ -620,6 +629,89 @@ class TestPageBoundaries(unittest.TestCase):
         for p, text in enumerate(found):
             self.assertEqual({f'Paragraph{p}'}, set(re.findall(r'Paragraph\d+', text)), found)
             self.assertEqual(4, text.count(self.BODY), found)
+
+
+class TestLineAndParaSpace(unittest.TestCase):
+    """
+    The line and paragraph spacing are estimated from how often each gap
+    between the tops of consecutive lines occurs.
+    """
+
+    def check(self, spaces: dict[float, int], expected: tuple[float, float]) -> None:
+        self.assertEqual(expected, line_and_para_space(spaces))
+        # The order the gaps were first seen in must not matter
+        self.assertEqual(expected, line_and_para_space(dict(reversed(spaces.items()))))
+
+    def test_nearby_gaps_are_one_spacing(self) -> None:
+        # Lines are joined up to the largest common gap in the line spacing,
+        # rounding spreads it over neighbouring values
+        self.check({18: 3500, 19: 2800, 20: 2300, 36: 700, 28: 600}, (20, 36))
+
+    def test_rare_nearby_gaps_are_not_part_of_the_spacing(self) -> None:
+        self.check({18: 1000, 21: 5, 30: 100}, (18, 30))
+        # Nor are less common paragraph gaps close to the line spacing
+        self.check({18: 1000, 19: 150, 22: 200}, (18, 22))
+
+    def test_paragraph_spacing_is_its_most_common_gap(self) -> None:
+        # Paragraph gaps spread over a wider range, and the paragraph spacing
+        # is multiplied up to find section breaks, so it is not the largest
+        self.check({18: 666, 17: 59, 27: 86, 30: 77, 24: 55, 25: 45, 39: 21}, (18, 27))
+        # The smaller of equally common gaps
+        self.check({20: 100, 30: 20, 32: 20}, (20, 30))
+
+    def test_line_gaps_are_not_paragraph_gaps(self) -> None:
+        # Gaps up to the limit for joining lines are never the paragraph
+        # spacing, even when they are less common than it
+        self.check({20: 100, 22: 9, 23: 8, 34: 7}, (20, 34))
+        self.check({30: 100, 34: 30, 50: 20}, (30, 50))
+
+    def test_gaps_next_to_the_line_spacing_are_not_paragraph_gaps(self) -> None:
+        # Code in the body font size, more closely spaced than the prose, so
+        # that the line spacing band spans both, with the prose line gaps just
+        # above it. They must not be taken for the paragraph spacing, which
+        # would make every paragraph gap a section break.
+        self.check({21: 252, 25: 249, 22: 155, 41: 97, 46: 84, 24: 82, 40: 79, 45: 67, 64: 43}, (24, 41))
+
+    def test_gaps_just_below_the_line_spacing_are_not_line_gaps(self) -> None:
+        self.check({20: 100, 19: 60, 16: 50, 34: 20}, (20, 34))
+
+    def test_equally_common_gaps(self) -> None:
+        # Equally common gaps must all be considered, whatever their order
+        self.check({41: 147, 42: 34, 25: 34, 40: 11}, (25, 41))
+        self.check({20: 50, 30: 50}, (20, 30))
+
+    def test_paragraph_gaps_more_common_than_line_gaps(self) -> None:
+        # Many short paragraphs make the paragraph gap the most common one,
+        # and the line spacing is the largest in its band
+        self.check({50: 42, 35: 12}, (35, 50))
+        self.check({30: 100, 20: 40, 21: 30}, (21, 30))
+        self.check({27: 1968, 18: 1764, 17: 228, 31: 548, 30: 443}, (18, 27))
+
+    def test_rare_smaller_gaps_are_not_line_gaps(self) -> None:
+        # A few gaps smaller than the line spacing must not replace it, which
+        # would make every line a paragraph, but larger ones can still be the
+        # paragraph spacing
+        self.check({50: 100, 35: 5}, (50, 90))
+        self.check({25: 1000, 20: 3, 50: 40}, (25, 45))
+        self.check({25: 1000, 20: 60, 40: 40}, (25, 40))
+        self.check({25: 1000, 20: 30, 40: 40}, (25, 40))
+
+    def test_no_paragraph_spacing(self) -> None:
+        # Indented paragraphs have no paragraph gaps, so rare larger gaps are
+        # not the paragraph spacing, which is then a multiple of the line spacing
+        self.check({44: 70, 38: 1, 60: 2}, (44, 79))
+        self.check({20: 10, 30: 2}, (20, 36))
+        self.check({20: 1000, 30: 20}, (20, 36))
+        self.check({20: 100}, (20, 36))
+        self.check({}, (0, 0))
+
+    def test_paragraph_spacing_from_its_whole_band(self) -> None:
+        # Long paragraphs have few paragraph gaps, spread over nearby values
+        self.check({20: 1000, 30: 40}, (20, 30))
+        self.check({20: 100, 33: 2, 34: 2, 35: 2}, (20, 33))
+
+    def test_paragraph_spacing_is_limited(self) -> None:
+        self.check({20: 100, 60: 30}, (20, 36))
 
 
 class TestImages(unittest.TestCase):
@@ -699,6 +791,7 @@ def find_tests() -> unittest.TestSuite:
             TestTables,
             TestRightToLeftColumns,
             TestPageBoundaries,
+            TestLineAndParaSpace,
             TestImages,
             TestPageAnchorsSurviveHeuristics,
         )

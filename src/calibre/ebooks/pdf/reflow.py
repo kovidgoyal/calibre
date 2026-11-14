@@ -6,7 +6,7 @@ import re
 import sys
 from html import escape
 from operator import attrgetter
-from typing import IO, TYPE_CHECKING, cast
+from typing import IO, TYPE_CHECKING, NamedTuple, cast
 
 from lxml import etree
 
@@ -73,6 +73,19 @@ PARA_FACTOR = 1.8
 # all the gaps between lines are of that kind. Otherwise there are too few of
 # them to be representative, so all gaps between lines are used.
 BODY_LINE_SPACES_FRACTION = 0.25
+
+# Gaps between lines within SAME_SPACE of the most common gap are part of the
+# same spacing if they are at least this fraction as common
+SPACING_BAND_FRACTION = 0.25
+
+# The gaps in a spacing other than the line spacing must occur at least this
+# many times to be the paragraph spacing, or the line spacing when they are
+# smaller than the most common gaps
+PARA_SPACE_MIN_COUNT = 3
+# And at least this fraction as often as those in the line spacing, if larger
+PARA_SPACE_MIN_FRACTION = 0.03
+# Or this fraction, if smaller
+SMALLER_LINE_SPACE_MIN_FRACTION = 0.1
 
 # Multiplies the gap between paragraphs to determine if this is a section break
 # not a paragraph break
@@ -154,6 +167,72 @@ def adjacent_quotes(first_string: str, second_string: str) -> bool:
         first_char = fchar.group(1)  # First non-space char
 
     return bool((last_char == '"' and first_char == '"') or (last_char == '’' and first_char == '‘') or (last_char == '”' and first_char == '“'))
+
+
+class SpacingBand(NamedTuple):
+    bottom: float  # The smallest gap in the band
+    peak: float  # The most common gap
+    top: float  # The largest gap in the band
+    count: int  # The number of gaps in the band
+
+
+def spacing_band(spaces: dict[float, int]) -> SpacingBand:
+    """
+    A spacing is not a single value, as rounding and inline text in other
+    fonts spread it over a few nearby values, e.g. 18, 19 and 20. The band
+    is the most common gap (the smaller of equally common ones) and the gaps
+    close to it that are common enough to be part of the same spacing.
+    """
+    peak = max(spaces, key=lambda s: (spaces[s], -s))
+    minimum = SPACING_BAND_FRACTION * spaces[peak]
+    members = [s for s, c in spaces.items() if abs(s - peak) <= SAME_SPACE and c >= minimum]
+    return SpacingBand(min(members), peak, max(members), sum(spaces[s] for s in members))
+
+
+def line_and_para_space(spaces: dict[float, int]) -> tuple[float, float]:
+    """
+    The line and paragraph spacing from the numbers of times each gap between
+    the tops of consecutive lines occurs.
+
+    The most common spacing is usually the line spacing, and the most common
+    one outside it the paragraph spacing. But with many short paragraphs the
+    most common is the paragraph spacing, so the smaller of the two is the
+    line spacing. The line spacing is the largest gap in its band, as it is
+    the limit for joining lines. The paragraph spacing is the most common gap
+    in its band, as it is multiplied up to find gaps that are larger than
+    usual between paragraphs.
+    """
+    line_space: float = 0
+    para_space: float = 0
+    if spaces:
+        line = spacing_band(spaces)
+        line_space = line.top
+        # Gaps up to the limit for joining lines are not paragraph gaps, even
+        # if not in the line spacing band, as when lines with inline text in
+        # another font are spaced differently
+        others = {s: c for s, c in spaces.items() if s < line.bottom - SAME_SPACE or s > line.top * (1 + LINE_FACTOR)}
+        if others:
+            other: SpacingBand | None = spacing_band(others)
+            if other.peak < line.peak:
+                if other.count >= max(PARA_SPACE_MIN_COUNT, SMALLER_LINE_SPACE_MIN_FRACTION * line.count):
+                    # Paragraphs are not closer together than lines, so this
+                    # is the line spacing, though less common, as when most
+                    # paragraphs are a single line
+                    line_space, para_space = other.top, line.peak
+                else:
+                    # Too rare, so look for the paragraph spacing above
+                    others = {s: c for s, c in others.items() if s > line.peak}
+                    other = spacing_band(others) if others else None
+            # Rarer than this, it is not paragraph spacing, as when paragraphs
+            # are indented rather than spaced
+            if not para_space and other is not None and other.count >= max(PARA_SPACE_MIN_COUNT, PARA_SPACE_MIN_FRACTION * line.count):
+                para_space = other.peak
+    # Some docs have no great distinction for paragraphs. Limit the size of
+    # the gap, or section breaks are not found.
+    max_para_space = round(line_space * PARA_FACTOR)
+    if not para_space or para_space > max_para_space:
+        para_space = max_para_space
+    return line_space, para_space
 
 
 class Font:
@@ -1454,8 +1533,10 @@ class Page:
             else:
                 # Space from 1 line to the next
                 space = abs(top - last_top)
-                # Beware of multiple text on same line. These look like small spacing
-                if text.height <= space:
+                # Beware of multiple text on same line. These look like small
+                # spacing. The height is that of the font bounding box, which
+                # can be much more than the line spacing, so only half of it.
+                if text.height <= 2 * space:
                     line_spaces[space] = line_spaces.get(space, 0) + 1
                     if text.font_size == body_size and last_font_size == body_size:
                         body_line_spaces[space] = body_line_spaces.get(space, 0) + 1
@@ -1856,15 +1937,6 @@ class PDFDocument:
             f.size_em = round(f.size / self.stats.font_size, 2)
 
     def setup_stats(self) -> None:
-        # This probably needs more work on line spacing/para spacing
-        # Maybe sort the line_spaces array.
-        # It is possible to have more than 1 line space value, e.g. 8.0, 9.0, 10.0
-        # then more than 1 para space, e.g. 24.0, 25.0, 26.0
-        # Thus the count of a para space could be > the most popular line space.
-        # So, probably need to find the max line space and max para space
-        # rather than simply the most popular.
-        # At the moment it only does this when spaces are close in popularity.
-
         # Line and paragraph spacing are properties of the body text. Gaps
         # between lines of other sizes (code listings, captions, footnotes)
         # can be frequent enough to be taken for the paragraph gap, and then
@@ -1875,16 +1947,6 @@ class PDFDocument:
         body_count = sum(self.body_line_spaces.values())
         use_body = body_count > 0 and body_count >= BODY_LINE_SPACES_FRACTION * sum(self.line_spaces.values())
         line_spaces = self.body_line_spaces if use_body else self.line_spaces
-
-        # Find (next) most popular gap between lines
-        def find_line_space(skip: int) -> tuple[int, float]:
-            scount: int = 0
-            soffset: float = 0
-            for s, c in line_spaces.items():
-                if scount <= c and (skip <= 0 or c < skip):
-                    scount = c
-                    soffset = s
-            return scount, soffset
 
         # Find (next) most popular indent
         def find_indent(indents: dict[float, int]) -> float:
@@ -2019,58 +2081,7 @@ class PDFDocument:
             # Assume for both if self.stats.indent_min_even - self.stats.left_min_even > (self.stats.right - self.stats.left_min_even) * 0.10:    # 10%
             self.stats.indent_min_even = self.stats.indent_max_even = self.stats.left_min_even
 
-        # Sort spaces into ascending order then loop through.
-        # Lowest value(s) are line spacing, next are para
-        # Spaces not yet set up
-        self.stats.line_space = self.stats.para_space = -1.0
-        # Find spacing values
-        # Find most popular space so that will be treated as line space
-        line_k = 0
-        line_c = 0
-        count = len(line_spaces)
-        while count > 0:
-            c, k = find_line_space(line_c)
-            if line_c <= 0:
-                line_c = c
-            if line_k <= 0:
-                line_k = k
-            elif abs(line_k - k) <= SAME_SPACE:
-                line_k = max(line_k, k)
-                line_c = min(line_c, c)
-            else:
-                break
-            count -= 1
-
-        # Get the next most popular gap
-        para_c = line_c - 1
-        para_k = 0
-        count = len(line_spaces)
-        while count > 0:
-            c, k = find_line_space(para_c)
-            if para_k <= 0:
-                para_k = k
-            if abs(para_k - k) <= SAME_SPACE:
-                para_k = max(para_k, k)
-                para_c = min(para_c, c)
-            else:
-                break
-            count -= 1
-
-        # For safety, check present and in the right order
-        if not para_k or para_k == line_k:
-            para_k = round(line_k * PARA_FACTOR)
-        if line_k > para_k:
-            x = para_k
-            para_k = line_k
-            line_k = x
-
-        self.stats.line_space = line_k
-        # Some docs have no great distinction for paragraphs
-        # Limit the size of the gap, or section breaks not found
-        if para_k > round(line_k * PARA_FACTOR):
-            self.stats.para_space = round(line_k * PARA_FACTOR)
-        else:
-            self.stats.para_space = para_k
+        self.stats.line_space, self.stats.para_space = line_and_para_space(line_spaces)
 
         # Find the max bottom so that will be treated as bottom of page
         # Or most popular bottom?  Or the max used value within 10% of max value?
