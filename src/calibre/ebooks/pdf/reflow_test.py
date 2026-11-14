@@ -373,6 +373,7 @@ class TestPageBoundaries(unittest.TestCase):
                 parts.append('<fontspec id="0" size="24" family="Body" color="#000000"/>')
                 parts.append('<fontspec id="1" size="31" family="Heading" color="#000000"/>')
                 parts.append('<fontspec id="2" size="21" family="Caption" color="#000000"/>')
+                parts.append('<fontspec id="3" size="24" family="CourierNew" color="#000000"/>')
             for left, top, width, text, font in fragments:
                 parts.append(f'<text top="{top}" left="{left}" width="{width}" height="29" font="{font}">{text}</text>')
             parts.append('</page>')
@@ -517,6 +518,167 @@ class TestPageBoundaries(unittest.TestCase):
             page += [(337, top, 1000, f'Appendix part {i + 1} . . . . . . . . . . . . . .', 0), (1397, top, 40, f'A-{i + 1}', 0)]
         paras = [p for p in self.paragraph_texts(self.convert([page])) if 'Appendix part' in p]
         self.assertEqual(8, len(paras), paras)
+
+    def test_paragraph_indent_with_more_common_code_indent(self) -> None:
+        # Code, indented a little less than the first lines of paragraphs, is
+        # more common than those first lines, but is not the paragraph indent
+        page: list[FontFragment] = []
+        top = 150
+        for p in range(6):
+            page.append((390, top, 1047, f'Paragraph{p} line 0 {self.BODY}', 0))
+            top += 35
+            for i in range(1, 3):
+                page.append((337, top, 1100, f'Paragraph{p} line {i} {self.BODY}', 0))
+                top += 35
+            for i in range(2):
+                page.append((380, top, 300, f'(code {p} {i})', 0))
+                top += 35
+        paras = self.paragraph_texts(self.convert([page]))
+        for p in range(6):
+            matching = [x for x in paras if f'Paragraph{p} ' in x]
+            self.assertEqual(1, len(matching), paras)
+            self.assertEqual(3, matching[0].count(self.BODY), matching[0])
+
+    def list_items(self, top: int, labels: Sequence[str], lines: int = 3) -> list[FontFragment]:
+        # Items with a label, and their text and following lines further right
+        page: list[FontFragment] = []
+        for n, label in enumerate(labels):
+            page.append((360, top, 30, label, 0))
+            for i in range(lines):
+                page.append((410, top, 1027 if i < lines - 1 else 500, f'Item{n} line {i} {self.BODY}', 0))
+                top += 35
+            top += 10
+        return page
+
+    def test_list_items_with_hanging_indent(self) -> None:
+        for labels in (['•', '•', '•'], ['1.', '2.', '3.'], ['9.1.', '9.2.', '9.3.']):
+            with self.subTest(labels=labels):
+                page = self.body_lines(150, 4) + self.list_items(320, labels) + self.body_lines(700, 4, label='after ')
+                paras = self.paragraph_texts(self.convert([page]))
+                for n in range(3):
+                    matching = [x for x in paras if f'Item{n} ' in x]
+                    self.assertEqual(1, len(matching), paras)
+                    self.assertEqual(3, matching[0].count(self.BODY), matching[0])
+                    self.assertEqual({f'Item{n}'}, set(re.findall(r'Item\d', matching[0])), matching[0])
+                    self.assertNotIn('after', matching[0])
+
+    def test_list_item_continues_on_next_page(self) -> None:
+        first = self.body_lines(223, 26)
+        first += [(360, 1180, 30, '•', 0), (410, 1180, 1027, f'Item0 line 0 {self.BODY}', 0)]
+        second = [(410, 223, 600, 'and the item ends here.', 0)] + self.body_lines(300, 20, label='after ')
+        paras = self.paragraph_texts(self.convert([first, second]))
+        matching = [x for x in paras if 'Item0' in x]
+        self.assertEqual(1, len(matching), paras)
+        self.assertIn('the item ends here.', matching[0])
+        self.assertNotIn('after', matching[0])
+
+    def test_list_items_are_not_centered_or_right_aligned(self) -> None:
+        # The first line of an item has about the same space to its left and
+        # right, and its last line is at its hanging indent, far from the
+        # left, but the items as a whole are neither centered nor right aligned
+        for lines in (2, 3):
+            with self.subTest(lines=lines):
+                page = self.body_lines(150, 4)
+                top = 320
+                for n in range(3):
+                    page += [(355, top, 20, '•', 0), (390, top, 1047, f'Item{n} line 0 {self.BODY}', 0)]
+                    for i in range(1, lines):
+                        page.append((390, top + i * 35, 1047 if i < lines - 1 else 300, f'Item{n} line {i} ends.', 0))
+                    top += lines * 35 + 10
+                page += self.body_lines(top + 50, 4, label='after ')
+                for line in self.convert([page]).splitlines():
+                    if 'Item' in line:
+                        self.assertNotIn('text-align', line)
+
+    def test_alignment_of_two_line_items_is_of_the_whole_item(self) -> None:
+        # Deeply indented items of two lines, whose last lines alone would
+        # look centered or right aligned
+        for last_width in (400, 300):
+            with self.subTest(last_width=last_width):
+                page = self.body_lines(150, 4)
+                page += [(660, 320, 20, '•', 0), (700, 320, 737, f'Item line 0 {self.BODY}', 0), (700, 355, last_width, 'Item ends.', 0)]
+                page += self.body_lines(450, 4, label='after ')
+                for line in self.convert([page]).splitlines():
+                    if 'Item' in line:
+                        self.assertNotIn('text-align', line)
+
+    def test_long_lines_at_common_left_are_not_centered(self) -> None:
+        # Lines that start where many other lines do, such as examples in a
+        # book, are aligned there, even if they look centered on their own
+        pages = []
+        for num in range(4):
+            page: list[FontFragment] = []
+            top = 150
+            for i in range(6):
+                page += [(337, top + 35 * j, 1100, f'{self.BODY} {num} {i} {j} and', 0) for j in range(3)]
+                page.append((600, top + 105, 600, f'Example {num} {i} goes here.', 0))
+                top += 175
+            pages.append(page)
+        for line in self.convert(pages).splitlines():
+            if 'Example' in line:
+                self.assertNotIn('center', line)
+
+    def test_paragraph_after_list_item_at_indent(self) -> None:
+        # The text of list items starts at the indent of paragraphs, so the
+        # first line of the paragraph after the list is at the hanging indent
+        # of the last item
+        page = [(380, 150 + i * 120, 1057, f'Para{i} {self.BODY}', 0) for i in range(3)]
+        for i in range(3):
+            page += [(337, 185 + i * 120 + j * 35, 1100, f'{self.BODY} more {i} {j}', 0) for j in range(2)]
+        page += [(337, 520, 20, '•', 0), (380, 520, 1057, f'The only item {self.BODY} ends.', 0)]
+        page += [(380, 555, 1057, f'Next paragraph {self.BODY} goes', 0), (337, 590, 1100, f'on {self.BODY} here', 0)]
+        paras = self.paragraph_texts(self.convert([page]))
+        item = [p for p in paras if 'The only item' in p]
+        self.assertEqual(1, len(item), paras)
+        self.assertNotIn('Next paragraph', item[0])
+        nxt = [p for p in paras if 'Next paragraph' in p]
+        self.assertEqual(1, len(nxt), paras)
+        self.assertIn('here', nxt[0])
+
+    def test_block_of_text_at_paragraph_indent(self) -> None:
+        # Such as the definitions in a glossary, whose lines all start at the
+        # indent of paragraphs
+        page: list[FontFragment] = []
+        top = 150
+        for p in range(6):
+            page.append((380, top, 1057, f'Paragraph{p} line 0 {self.BODY}', 0))
+            page += [(337, top + 35 * (i + 1), 1100, f'Paragraph{p} line {i + 1} {self.BODY}', 0) for i in range(2)]
+            top += 115
+        page.append((337, top, 300, 'glossary term', 0))
+        page += [(380, top + 35 * (i + 1), 1057 if i < 2 else 400, f'Definition line {i} {self.BODY}', 0) for i in range(3)]
+        paras = self.paragraph_texts(self.convert([page]))
+        definition = [p for p in paras if 'Definition line' in p]
+        self.assertEqual(1, len(definition), paras)
+        self.assertEqual(3, definition[0].count(self.BODY))
+
+    def test_code_lines_are_not_joined_or_centered(self) -> None:
+        # Lines of code, further right than the indent of paragraphs
+        page: list[FontFragment] = []
+        for p in range(6):
+            top = 150 + p * 105 + (300 if p > 2 else 0)
+            page += [(380, top, 1057, f'Paragraph{p} {self.BODY}', 0)] + [(337, top + 35 * (i + 1), 1100, f'{self.BODY} {p} {i}', 0) for i in range(2)]
+        page += [(420, 470 + i * 35, 950, f'(defun function-number-{i} (x) (list x x x x {i}))', 3) for i in range(6)]
+        lines = [line for line in self.convert([page]).splitlines() if 'function-number' in line]
+        self.assertEqual(6, len(lines), lines)
+        for line in lines:
+            self.assertNotIn('center', line)
+
+    def test_contents_entries_beyond_paragraph_indent(self) -> None:
+        # Entries of a table of contents further right than the first lines
+        # of paragraphs elsewhere, which continue at the left margin, are not
+        # an indented block of text
+        pages = []
+        for num in range(3):
+            page: list[FontFragment] = []
+            top = 150
+            for p in range(5):
+                page.append((380, top, 1057, f'First line of paragraph {p} on page {num} {self.BODY}', 0))
+                page += [(337, top + 35 * (i + 1), 1100, f'{self.BODY} continued', 0) for i in range(3)]
+                top += 160
+            pages.append(page)
+        toc = [(420, 223 + i * 35, 1017, f'Section {i + 1} . . . . . . . . . . . . . . . . {i + 3}', 0) for i in range(10)]
+        paras = [p for p in self.paragraph_texts(self.convert([toc] + pages)) if 'Section' in p]
+        self.assertEqual(10, len(paras), paras)
 
     def test_contents_page_numbers_are_not_joined(self) -> None:
         # Entries ending with a page number at the right margin are separate

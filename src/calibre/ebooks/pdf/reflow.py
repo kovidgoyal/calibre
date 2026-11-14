@@ -151,11 +151,32 @@ _NUMBER = r'(?:(?:[a-z][-.])?\d+|(?=[ivxlcdm])m{0,3}(?:cm|cd|d?c{0,3})(?:xc|xl|l
 SENTENCE_GAP = 4
 NUMBERING = re.compile(rf'[\s(\[–—-]*{_NUMBER}(?:[\s/.,:–—-]+{_NUMBER})*[\s.)\]–—-]*', re.IGNORECASE)
 
+# The bullet or number of a list item
+LIST_LABEL = re.compile(r'\s*(?:[•◦‣▪●○■□–—*-]|\(?(?:\d+(?:\.\d+)*|[a-z]|[ivxlcdm]+)[.)])\s*', re.IGNORECASE)
+
+# An entry in a table of contents, ending with leader dots and a page number
+CONTENTS_ENTRY = re.compile(rf'(?:\.\s*){{3,}}{_NUMBER}\s*$', re.IGNORECASE)
+
 # How near does text right need to be to right margin
 # to be considered right aligned. 0.05 = 5%
 RIGHT_FLOAT_FACTOR = 0.05
 
 #### Indents and line spacing
+# Paragraphs are indented by the most common left of the first lines of
+# paragraphs, if there are at least this many of them, and they are at least
+# this fraction of the lines with that left
+FIRST_LINE_INDENT_MIN_COUNT = 5
+FIRST_LINE_INDENT_MIN_FRACTION = 0.5
+# The first line of a paragraph that continues onto the next line reaches at
+# least this fraction of the way across the text on the page
+FIRST_LINE_MIN_WIDTH_FRACTION = 0.8
+# Fonts of code
+MONOSPACE_FAMILY = re.compile(r'mono|courier|cmtt|consol|typewriter', re.IGNORECASE)
+
+# A left at which at least this many lines start is where lines are aligned,
+# so long lines starting there are not centered
+COMMON_LEFT_MIN_COUNT = 10
+
 # How near must pixel values be to appear the same
 SAME_SPACE = 3.0
 SAME_INDENT = 2.0
@@ -257,6 +278,7 @@ class Font:
         self.size_em = 0.0
         self.color = spec.get('color')
         self.family = spec.get('family')
+        self.monospace = MONOSPACE_FAMILY.search(self.family or '') is not None
 
 
 class Element:
@@ -296,6 +318,11 @@ class DocStats:
         self.left_max_even: float = 0
         self.indent_max_odd: float = 0
         self.indent_max_even: float = 0
+        # Whether most text is in a monospaced font
+        self.monospace_body = False
+        # Lefts at which many lines start, such as of code or list items
+        self.common_lefts_odd: list[float] = []
+        self.common_lefts_even: list[float] = []
 
 
 class Image(Element):
@@ -358,6 +385,9 @@ class Text(Element):
         # When joining lines for a paragraph, remember position of last line joined
         self.last_left: float = self.left
         self.last_right: float = self.right
+        # Where the lines after the first of a list item start, that is after
+        # its bullet or number, if the text is a list item
+        self.hanging_left: float | None = None
         # Remember the length of this line if it is merged into a paragraph
         self.final_width: float = self.width
         # Align = Left, Right, Center, Justified.  Default L
@@ -380,6 +410,8 @@ class Text(Element):
             self.font_size = 0.0
             self.font_size_em = 0.0
             # self.color = 0
+        # Whether all the text is in a monospaced font, such as code
+        self.monospace: bool = bool(self.font_map) and self.font.monospace
         # Font size of the start of the text, font_size_em becomes the largest
         # size when texts are coalesced
         self.start_font_size_em = self.font_size_em
@@ -411,6 +443,8 @@ class Text(Element):
     def coalesce(self, other: Text, page_number: int, left_margin: float, right_margin: float, same_line: bool = False) -> None:
         if self.opts.verbose > 2:
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
+        if same_line and self.hanging_left is None and LIST_LABEL.fullmatch(self.text_as_string) is not None:
+            self.hanging_left = other.left
         # Need to work out how to decide this
         # For elements of the same line, is there a space between?
         has_float = ''
@@ -486,6 +520,7 @@ class Text(Element):
 
         self.font_size = max(self.font_size, other.font_size)
         self.font_size_em = max(self.font_size_em, other.font_size_em)
+        self.monospace = self.monospace and other.monospace
         self.font = other.font
         if has_gap > 0:
             if has_gap < 3:  # Small number of spaces = 1 space
@@ -1289,7 +1324,8 @@ class Page:
         for i in range(m):
             t = self.texts[i]
             lmargin = t.last_left  # Allow for lines joined into a para
-            if t.bottom - t.top > stats.line_space * 2:
+            multiline = t.line_count > 1
+            if multiline:
                 rmargin = self.width - t.last_right  # Right of a coalesced paragraph
             else:
                 rmargin = self.width - t.right  # Right of a coalesced line
@@ -1310,9 +1346,15 @@ class Page:
             if (
                 (lmargin < indent_min or lmargin > indent_max)
                 and lmargin > left_max
+                # Long lines starting where many others do, such as code, are
+                # aligned there, not centered
+                and not (t.right - t.left > self.textwidth / 3 and any(abs(lmargin - k) <= SAME_INDENT for k in self.stats_common_lefts))
                 and lmargin not in {xmargin, ymargin}
                 and lmargin >= rmargin - rmargin * CENTER_FACTOR
                 and lmargin <= rmargin + rmargin * CENTER_FACTOR
+                # All the lines of a centered paragraph are centered, not just
+                # its last one, which can end anywhere
+                and (not multiline or abs(t.left - (self.width - t.right)) <= (self.width - t.right) * CENTER_FACTOR)
                 and '"float:right"' not in t.raw
             ):
                 # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
@@ -1404,6 +1446,20 @@ class Page:
             # The left can wander by a few (SAME_INDENT) pixels.
             # "float:left" occurs where there is a multi-line character, so indentation is messed up
             same_left = bool(first_text.last_left - SAME_INDENT <= second_text.left <= first_text.last_left + SAME_INDENT)
+            # Lines of a block of justified text reach the right of the text of
+            # the document, unlike the last line of a paragraph
+            full = first_text.last_right >= self.stats_right - first_text.average_character_width
+            # The continuation of a list item, unless its text starts at the
+            # indent of paragraphs, and it ends a sentence, when the next line
+            # can be the first line of a paragraph
+            continues_item = (
+                first_text.hanging_left is not None
+                and abs(second_text.left - first_text.hanging_left) <= SAME_INDENT
+                and not (
+                    indent_min - SAME_INDENT <= first_text.hanging_left <= indent_max + SAME_INDENT
+                    and SENTENCE_END.search(first_text.text_as_string) is not None
+                )
+            )
             if (
                 (
                     (
@@ -1411,12 +1467,20 @@ class Page:
                         and (same_left or (second_text.left < first_text.last_left and (first_text.indented > 0 or '"float:left"' in first_text.raw)))
                     )
                     or (same_left and first_text.indented == 0 and second_text.left >= indent_min)
+                    or continues_item
                     or (same_left and first_text.indented == second_text.indented and second_text.indented > 1)
+                    # A block of text at the indent of paragraphs, rather than
+                    # one line paragraphs
+                    or (same_left and first_text.indented == 1 and full and SENTENCE_END.search(first_text.text_as_string) is None)
                     or (second_text.left >= first_text.last_left and second_text.bottom <= first_text.bottom)
                 )
                 and first_text.column == second_text.column
+                # Lines of code are not paragraphs, unless all the text is in
+                # the same monospaced font
+                and not (first_text.monospace and second_text.monospace and not stats.monospace_body)
                 and 'href=' not in second_text.raw
                 and '"float:right"' not in first_text.raw
+                and CONTENTS_ENTRY.search(first_text.text_as_string) is None
                 and first_text.bottom + stats.line_space + (stats.line_space * LINE_FACTOR) >= second_text.bottom
                 and first_text.final_width > self.width * self.opts.unwrap_factor
                 and not adjacent_quotes(first_text.text_as_string, second_text.text_as_string)
@@ -1522,6 +1586,7 @@ class Page:
         self,
         tops: dict[float, int],
         indents: dict[float, int],
+        first_line_indents: dict[tuple[float, float], int],
         line_spaces: dict[float, int],
         body_line_spaces: dict[float, int],
         bottoms: dict[float, int],
@@ -1543,9 +1608,13 @@ class Page:
         # larger font, such as code, captions or headings, cannot be mistaken
         # for the line or paragraph spacing of the body text.
         body_size = self.document_font_stats.most_common_size if self.document_font_stats is not None else -1
+        # The first line of a paragraph that continues on the next line is full
+        text_left = min((t.left for t in self.texts), default=0)
+        text_right = max((t.right for t in self.texts), default=0)
+        full_right = text_left + FIRST_LINE_MIN_WIDTH_FRACTION * (text_right - text_left)
         # last_bottom = 0
         first = True
-        for text in self.texts:
+        for i, text in enumerate(self.texts):
             top = text.top
             left = text.left
             if round(left) != left:
@@ -1576,6 +1645,13 @@ class Page:
             max_right = max(max_right, text.right)
 
             indents[left] = indents.get(left, 0) + 1
+            # Full lines followed by a line further left, as the first line of
+            # an indented paragraph is, with the left of the line after them
+            if i + 1 < len(self.texts) and right >= full_right:
+                following = self.texts[i + 1]
+                following_left = round(following.left)
+                if following_left < left - SAME_INDENT and 0 < following.top - top <= 2 * max(text.height, 1):
+                    first_line_indents[(left, following_left)] = first_line_indents.get((left, following_left), 0) + 1
 
         if max_bot > 0:
             bottoms[max_bot] = bottoms.get(max_bot, 0) + 1
@@ -1725,12 +1801,14 @@ class Page:
             self.stats_indent_min = stats.indent_min_odd
             self.stats_indent_max = stats.indent_max_odd
             self.stats_right = stats.right  # Needs work
+            self.stats_common_lefts = stats.common_lefts_odd
         else:
             self.stats_left_min = stats.left_min_even
             self.stats_left_max = stats.left_max_even
             self.stats_indent_min = stats.indent_min_even
             self.stats_indent_max = stats.indent_max_even
             self.stats_right = stats.right  # Needs work
+            self.stats_common_lefts = stats.common_lefts_even
         self.stats_margin_px = stats.margin_px
 
         # Join lines to form paragraphs
@@ -1854,6 +1932,8 @@ class PDFDocument:
         self.tops: dict[float, int] = {}
         self.indents_odd: dict[float, int] = {}
         self.indents_even: dict[float, int] = {}
+        self.first_line_indents_odd: dict[tuple[float, float], int] = {}
+        self.first_line_indents_even: dict[tuple[float, float], int] = {}
         self.line_spaces: dict[float, int] = {}
         self.body_line_spaces: dict[float, int] = {}
         self.bottoms: dict[float, int] = {}
@@ -1883,6 +1963,7 @@ class PDFDocument:
             page.find_margins(
                 self.tops,
                 self.indents_odd if page.odd_even else self.indents_even,
+                self.first_line_indents_odd if page.odd_even else self.first_line_indents_even,
                 self.line_spaces,
                 self.body_line_spaces,
                 self.bottoms,
@@ -1934,6 +2015,7 @@ class PDFDocument:
 
     def collect_font_statistics(self) -> None:
         self.font_size_stats: dict[float, float] = {}
+        total_chars = monospace_chars = 0
         for p in self.pages:
             for sz in p.font_size_stats:
                 chars = p.font_size_stats[sz]
@@ -1944,6 +2026,11 @@ class PDFDocument:
             for text in p.texts:
                 font = int(cast('str', text.font.id))  # pdftohtml always outputs fontspec ids
                 self.font_sizes[font] = self.font_sizes.get(font, 0) + 1
+                chars = len(text.text_as_string)
+                total_chars += chars
+                if text.monospace:
+                    monospace_chars += chars
+        self.stats.monospace_body = monospace_chars > total_chars / 2
 
         self.font_size_stats = FontSizeStats(self.font_size_stats)
 
@@ -1978,54 +2065,64 @@ class PDFDocument:
 
         # Find (next) most popular indent
         def find_indent(indents: dict[float, int]) -> float:
+            # The most common left, the smaller of equally common ones
             icount: int = 0
             ioffset: float = 0
             for i, ii in indents.items():
-                if ii > 0 and icount <= ii:
+                if ii > 0 and (icount < ii or (icount == ii and i < ioffset)):
                     icount = ii
                     ioffset = i
             return ioffset
 
-        def set_indents(indents: dict[float, int], odd_even: int) -> None:
+        def indent_cluster(indents: dict[float, int]) -> tuple[float, float, int]:
+            # The most common left and those close to it, which are hidden so
+            # that they are not found again. Returns the smallest and largest
+            # left of the cluster and the number of lines in it.
+            mode = find_indent(indents)
+            low = high = mode
+            count = 0
+            for k, kc in indents.items():
+                if kc > 0 and abs(mode - k) <= SAME_INDENT:
+                    low, high = min(low, k), max(high, k)
+                    count += kc
+                    indents[k] = -kc  # Ensure not found again
+            return low, high, count
+
+        def set_indents(indents: dict[float, int], first_line_indents: dict[tuple[float, float], int], odd_even: int) -> None:
+            all_indents = indents.copy()
             # Find most popular left so that will be treated as left of page
-            left_k1 = left_c = 0
-            left_k = find_indent(indents)
-            # Find any adjacent indents and hide them
-            for k, kc in indents.items():
-                if kc > 0 and abs(left_k - k) <= SAME_INDENT:
-                    left_k = min(left_k, k)
-                    left_k1 = max(left_k1, k)
-                    left_c += kc
-                    indents[k] = -kc  # Ensure not found again
+            left_k, left_k1, left_c = indent_cluster(indents)
 
-            # Find second most popular left so that will be treated as indent
-            indent_k1 = indent_c = 0
-            indent_k = find_indent(indents)
-            # Find any adjacent indents and hide them
-            for k, kc in indents.items():
-                if kc > 0 and abs(indent_k - k) <= SAME_INDENT:
-                    indent_k = min(indent_k, k)
-                    indent_k1 = max(indent_k1, k)
-                    indent_c += kc
-                    indents[k] = -kc  # Ensure not found again
+            # The indent of paragraphs is the most common left of their first
+            # lines, those followed by a line at the left margin. Code,
+            # quotations, lists and the like can be more common than those,
+            # so they are only used if they are most of the lines at that left,
+            # otherwise there are no indented paragraphs to tell from them.
+            first_lines: dict[float, int] = {}
+            for (k, following), c in first_line_indents.items():
+                if k > left_k1 + SAME_INDENT and left_k - SAME_INDENT <= following <= left_k1 + SAME_INDENT:
+                    first_lines[k] = first_lines.get(k, 0) + c
+            first_k = first_k1 = 0.0
+            if first_lines:
+                first_k, first_k1, first_c = indent_cluster(first_lines)
+                lines_c = sum(c for k, c in all_indents.items() if first_k <= k <= first_k1)
+                if first_c < FIRST_LINE_INDENT_MIN_COUNT or first_c < FIRST_LINE_INDENT_MIN_FRACTION * lines_c:
+                    first_k = first_k1 = 0
+            if first_k:
+                indent_k, indent_k1 = first_k, first_k1
+            else:
+                # Find second most popular left so that will be treated as indent
+                indent_k, indent_k1, indent_c = indent_cluster(indents)
 
-            # Find third most popular left as that might actually be the indent
-            # if between left and current and occurs a reasonable number of times.
-            third_k1 = third_c = 0
-            third_k = find_indent(indents)
-            # Find any adjacent indents and hide them
-            for k, kc in indents.items():
-                if kc > 0 and abs(third_k - k) <= SAME_INDENT:
-                    third_k = min(third_k, k)
-                    third_k1 = max(third_k1, k)
-                    third_c += kc
-                    indents[k] = -kc  # Ensure not found again
+                # Find third most popular left as that might actually be the indent
+                # if between left and current and occurs a reasonable number of times.
+                third_k, third_k1, third_c = indent_cluster(indents)
 
-            # Is this to be used?
-            if third_k > 0 and third_k < indent_k and third_k > left_k and third_c > indent_c / 2:
-                # The unusual case. The third ones found are to be used
-                indent_k = third_k
-                indent_k1 = third_k1
+                # Is this to be used?
+                if third_k > 0 and third_k < indent_k and third_k > left_k and third_c > indent_c / 2:
+                    # The unusual case. The third ones found are to be used
+                    indent_k = third_k
+                    indent_k1 = third_k1
 
             # Check that we have data in variables
             if not indent_k:
@@ -2083,9 +2180,11 @@ class PDFDocument:
         # Some PDFs have alternating pages with different lefts/indents.
         # Always separate odd and even, though they are usually the same.
         # Find most left/indent for odd pages
-        set_indents(self.indents_odd, 1)
+        for lefts, common in ((self.indents_odd, self.stats.common_lefts_odd), (self.indents_even, self.stats.common_lefts_even)):
+            common.extend(k for k, c in lefts.items() if c >= COMMON_LEFT_MIN_COUNT)
+        set_indents(self.indents_odd, self.first_line_indents_odd, 1)
         # Find most left/indent for even pages
-        set_indents(self.indents_even, 0)
+        set_indents(self.indents_even, self.first_line_indents_even, 0)
 
         # Find farthest right so that will be treated as page right
         ## SHOULD DO RIGHT2 as well
@@ -2364,7 +2463,11 @@ class PDFDocument:
                 if page.texts:
                     if candidate:
                         last_line = candidate.texts[-1]
-                    if candidate and last_line.bottom > orphan_space and page.texts[0].indented == 0:
+                    # The continuation of a list item is at its hanging indent
+                    continues_item = (
+                        candidate is not None and last_line.hanging_left is not None and abs(page.texts[0].left - last_line.hanging_left) <= SAME_INDENT
+                    )
+                    if candidate and last_line.bottom > orphan_space and (page.texts[0].indented == 0 or continues_item):
                         merged_text = page.texts[0]
                         top = merged_text.top
                         # How much space in pixels was at the end of the last line?
@@ -2388,7 +2491,7 @@ class PDFDocument:
                             top <= min_top + page.average_text_height
                             and merged_text.tag == 'p'
                             and 'href=' not in merged_text.raw
-                            and merged_text.left < stats_left_min + merged_text.average_character_width
+                            and (merged_text.left < stats_left_min + merged_text.average_character_width or continues_item)
                             # Centered text such as an image caption or a heading is not part of a paragraph
                             and last_line.align != 'C'
                             and merged_text.align != 'C'
