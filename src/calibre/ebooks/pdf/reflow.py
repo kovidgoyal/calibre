@@ -72,6 +72,14 @@ PARA_FACTOR = 1.8
 # not a paragraph break
 SECTION_FACTOR = 1.3
 
+# Text whose font is at least this much larger than the body text is set in a
+# heading font. 1.1 = 110%
+HEADING_FONT_FACTOR = 1.1
+
+# A line no wider than this fraction of the widest text in its column is short
+# enough to be a title rather than a line of wrapped prose. 0.7 = 70%
+SHORT_TITLE_FACTOR = 0.7
+
 # Multiplies the average line height when determining row height
 # of a particular element to detect columns.
 YFUZZ = 1.5
@@ -257,6 +265,8 @@ class Text(Element):
         # Should there be extra space before/after paragraph?
         self.blank_line_before = 0
         self.blank_line_after = 0
+        # Number of lines joined into this text
+        self.line_count = 1
 
         self.font: Font
         if self.font_map:
@@ -270,6 +280,9 @@ class Text(Element):
             self.font_size = 0.0
             self.font_size_em = 0.0
             # self.color = 0
+        # Font size of the start of the text, font_size_em becomes the largest
+        # size when texts are coalesced
+        self.start_font_size_em = self.font_size_em
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text', encoding='unicode')
@@ -315,6 +328,7 @@ class Text(Element):
         # In this case, don't use their top/bottom
         if other.left >= self.right:
             # Same line
+            self.line_count += other.line_count - 1
             if self.top > other.top:
                 pass
             elif self.bottom < other.bottom:
@@ -326,6 +340,7 @@ class Text(Element):
                 self.top = other.top
                 self.bottom = other.bottom
         else:
+            self.line_count += other.line_count
             self.top = min(self.top, other.top)
             self.bottom = max(self.bottom, other.bottom)
 
@@ -836,6 +851,8 @@ class Page:
         self.top, self.left, self.width, self.height = float_attrs(page, 'top', 'left', 'width', 'height')
         self.id = f'page{self.number}'
         self.page_break_after = False
+        # Does the previous page end part way through a sentence?
+        self.starts_mid_sentence = False
 
         self.texts: list[Text] = []
         self.imgs: list[Image] = []
@@ -1153,6 +1170,9 @@ class Page:
         indent_max = self.stats_indent_max
 
         m = len(self.texts)
+        column_widths: dict[tuple[int, int], float] = {}
+        for t in self.texts:
+            column_widths[t.column] = max(column_widths.get(t.column, 0), t.right - t.left)
         for i in range(m):
             t = self.texts[i]
             lmargin = t.last_left  # Allow for lines joined into a para
@@ -1205,17 +1225,7 @@ class Page:
                 # Check for 'Chapter' or a centered word at the top of the page
                 # Some PDFs have chapter starts within the page so this check often fails
                 elif (
-                    (
-                        re.match(r'(?i)^\s*chapter\s', t.text_as_string) is not None
-                        # A wrapped body line can also start with "chapter".
-                        # Require a layout or font cue before calling it a title.
-                        and (
-                            t.align == 'C' or t.font_size_em > 1 or t.blank_line_before > 0
-                            or (first and i + 1 < m and self.texts[i + 1].top - t.bottom > stats.line_space
-                                and re.fullmatch(r'(?i)\s*chapter\s+[\w-]+\s*', t.text_as_string) is not None)
-                        )
-                    )
-                    or re.match(r'(?i)^\s*prologue|epilogue\s*$', t.text_as_string) is not None
+                    self.is_chapter_heading(t, self.texts[i + 1] if i + 1 < m else None, first, column_widths[t.column], stats)
                     or (first and t.align == 'C' and re.match(r'(?i)^\s*[a-z -]+\s*$', t.text_as_string) is not None)
                     or (first and re.match(r'^\s*[A-Z -]+\s*$', t.text_as_string) is not None)
                 ):
@@ -1228,6 +1238,41 @@ class Page:
             rmargin = self.width - i.right
             if lmargin > left_max and lmargin != indent_min and lmargin >= rmargin - rmargin * CENTER_FACTOR and lmargin <= rmargin + rmargin * CENTER_FACTOR:
                 i.align = 'C'
+
+    @property
+    def ends_mid_sentence(self) -> bool:
+        # Does the page end with text that stops part way through a sentence?
+        # Ignore trailing digits, as they are likely to be page numbers.
+        if not self.texts or (self.imgs and self.imgs[-1].bottom > self.texts[-1].bottom):
+            return False
+        return re.search(r'([^\W\d_]|[,;-])\s*$', self.texts[-1].text_as_string) is not None
+
+    def is_chapter_heading(self, t: Text, following: Text | None, first: bool, column_width: float, stats: DocStats) -> bool:
+        # Is this text a chapter, prologue or epilogue title? Body prose can
+        # also start with these words, so unless the text is just the bare word
+        # "prologue" or "epilogue", require a cue that it is set apart as a
+        # title rather than being part of a paragraph. following is the next
+        # text on the page and first is True for the first text on the page.
+        text = t.text_as_string
+        if re.match(r'(?i)^\s*(prologue|epilogue)\s*$', text) is not None:
+            return True
+        if re.match(r'(?i)^\s*(chapter\s|prologue\b|epilogue\b)', text) is None:
+            return False
+        if t.line_count > 3:  # Too long for a title, whatever its formatting
+            return False
+        if t.align == 'C' or t.start_font_size_em >= HEADING_FONT_FACTOR:
+            return True
+        # The remaining cues are weaker, so not if the text could be the end of
+        # a sentence continued from the previous page or one in mid sentence
+        if (first and self.starts_mid_sentence) or not text.lstrip()[:1].isupper():
+            return False
+        # A single short line, as wrapped prose fills the width of its column
+        if t.line_count == 1 and t.right - t.left <= column_width * SHORT_TITLE_FACTOR:
+            return True
+        # Set apart by gaps before and after it. The top of the page counts as
+        # a gap, as blank_line_before is never set for the first text on a page.
+        gap_after = following is not None and stats.para_space > 0 and following.bottom - t.bottom > stats.para_space * SECTION_FACTOR
+        return (first or t.blank_line_before > 0) and gap_after
 
     def coalesce_paras(self, stats: DocStats) -> None:
         # Join lines into paragraphs
@@ -1539,7 +1584,7 @@ class Page:
     def update_font_sizes(self, stats: DocStats) -> None:
         # Font sizes start as pixels/points, but em is more useful
         for text in self.texts:
-            text.font_size_em = self.font_map[text.font.id].size_em
+            text.font_size_em = text.start_font_size_em = self.font_map[text.font.id].size_em
             if text.font_size_em not in {0.0, 1.0}:
                 text.raw = f'<span style="font-size:{text.font_size_em!s}em">{text.raw}</span>'
 
@@ -1715,8 +1760,11 @@ class PDFDocument:
         self.setup_stats()
 
         # Joins lines etc. into paragraphs
+        prev_page: Page | None = None
         for page in self.pages:
+            page.starts_mid_sentence = prev_page is not None and prev_page.ends_mid_sentence
             page.second_pass(self.stats, self.opts)
+            prev_page = page
 
         # Join paragraphs across page boundaries
         self.merge_pages(idc)

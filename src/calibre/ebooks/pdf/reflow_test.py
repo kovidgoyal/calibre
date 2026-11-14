@@ -14,6 +14,7 @@ justified line, which does not line up from one row to the next.
 
 import os
 import random
+import re
 import unittest
 from typing import TYPE_CHECKING
 
@@ -424,13 +425,116 @@ class TestPageBoundaries(unittest.TestCase):
 
     def test_chapter_titles_keep_heading_markup(self) -> None:
         for top, font, left, width in (
-            (132, 0, 337, 800), (258, 1, 337, 800), (258, 0, 700, 400), (500, 0, 337, 800),
+            (132, 0, 337, 800),
+            (258, 1, 337, 800),
+            (258, 0, 700, 400),
+            (500, 0, 337, 800),
         ):
             with self.subTest(top=top, font=font, left=left):
                 before = [] if top == 132 else [(337, 223, 700, f'{self.BODY} before.', 0)]
                 after = [(337, max(600, top + 100) + i * 35, 700, f'{self.BODY} after {i}.', 0) for i in range(6)]
                 html = self.convert([before + [(left, top, width, 'Chapter One', font)] + after])
                 self.assertRegex(html, r'<h2[^>]*>.*Chapter One')
+
+    def test_left_aligned_body_font_titles_are_headings(self) -> None:
+        # Titles set in the body font, left aligned, at the top of a page and
+        # followed by an ordinary line gap
+        for title in ('Chapter 1: The Beginning', 'Chapter 12.', 'Chapter Twenty One', 'CHAPTER IV. The Storm', 'Prologue', 'Epilogue: Years Later'):
+            with self.subTest(title=title):
+                page = [(337, 223, 500, title, 0)] + [(337, 258 + i * 35, 1100, f'{self.BODY} {i}.', 0) for i in range(8)]
+                html = self.convert([page])
+                self.assertRegex(html, rf'<h2[^>]*>[^\n]*{re.escape(title)}')
+
+    def test_prose_starting_with_heading_words_is_not_a_heading(self) -> None:
+        for text in (
+            'Chapter 3 discusses the theory in rather more depth than this one does',
+            'Prologue writers in the early modern period were mostly anonymous figures',
+            'Epilogues were spoken by a single actor after the end of the main play',
+            'The ending of this play is commonly known as the epilogue',
+        ):
+            with self.subTest(text=text):
+                page = [(337, 223 + i * 35, 1100, f'{self.BODY} {i}.', 0) for i in range(4)]
+                page.append((380, 223 + 4 * 35, 1100, text, 0))
+                page += [(337, 223 + (5 + i) * 35, 1100, f'{self.BODY} {5 + i}.', 0) for i in range(4)]
+                html = self.convert([page])
+                self.assertIn(text, html)
+                self.assertNotRegex(html, r'<h[1-6][^>]*>[^<]*(Chapter|Prologue|Epilogue|The ending)')
+
+    def test_short_lowercase_continuation_at_page_start(self) -> None:
+        # The short last line of a sentence continued from the previous page
+        first = self.text_page(0, page_number=False)
+        first.append((337, 1178, 1100, 'The explanation is the same as the one given in this', 0))
+        second = [(337, 223, 300, 'chapter two.', 0)]
+        second += [(380, 258 + i * 35, 1100, f'{self.BODY} later {i}.', 0) for i in range(8)]
+        html = self.convert([first, second])
+        self.assertIn('chapter two.', html)
+        self.assertNotRegex(html, r'<h[1-6][^>]*>[^<]*chapter two')
+
+    def body_lines(self, top: int, count: int, step: int = 35, left: int = 337, width: int = 1100, label: str = '') -> list[FontFragment]:
+        return [(left, top + i * step, width, f'{self.BODY} {label}{i}.', 0) for i in range(count)]
+
+    def assert_heading(self, html: str, text: str) -> None:
+        self.assertRegex(html, rf'<h2[^>]*>[^\n]*{re.escape(text)}')
+
+    def assert_not_heading(self, html: str, text: str) -> None:
+        self.assertIn(text, html)
+        self.assertNotRegex(html, rf'<h[1-6][^>]*>[^\n]*{re.escape(text)}')
+
+    def test_title_split_into_fragments_is_a_heading(self) -> None:
+        # Such as a bold "Chapter 1:" followed by the title in a regular font
+        page = [(337, 223, 160, 'Chapter 1:', 0), (505, 223, 330, 'The Beginning', 0)] + self.body_lines(300, 8)
+        self.assert_heading(self.convert([page]), 'The Beginning')
+
+    def test_wrapped_title_at_page_start_is_a_heading(self) -> None:
+        page = [
+            (337, 223, 1100, 'Chapter 1: In Which Our Hero Sets Out Upon A Very Long Journey', 0),
+            (337, 258, 300, 'Across The Sea', 0),
+        ] + self.body_lines(340, 8)
+        html = self.convert([page])
+        self.assert_heading(html, 'Chapter 1: In Which Our Hero')
+        self.assertIn('Across The Sea', html)
+
+    def test_cross_reference_continued_from_previous_page(self) -> None:
+        first = self.text_page(0, page_number=False)
+        first.append((337, 1178, 1100, 'The reasons for this are explained in great detail in', 0))
+        second = [(337, 223, 150, 'Chapter 3.', 0)] + self.body_lines(258, 8, left=380, label='later ')
+        self.assert_not_heading(self.convert([first, second]), 'Chapter 3.')
+
+    def test_paragraph_after_a_gap_is_not_a_heading(self) -> None:
+        para = [(337, 400 + i * 35, 1100, f'Chapter 5 covers this in depth, in many words {i}', 0) for i in range(5)]
+        page = self.body_lines(223, 3) + para + self.body_lines(400 + 5 * 35, 4, label='after ')
+        self.assert_not_heading(self.convert([page]), 'Chapter 5 covers')
+
+    def test_larger_word_does_not_make_a_paragraph_a_heading(self) -> None:
+        page = (
+            self.body_lines(223, 3)
+            + [
+                (380, 328, 400, 'Chapter 5 covers the', 0),
+                (790, 328, 150, 'LARGE', 1),
+                (950, 328, 487, 'word in a paragraph,', 0),
+            ]
+            + self.body_lines(363, 4, label='after ')
+        )
+        self.assert_not_heading(self.convert([page]), 'Chapter 5 covers')
+
+    def test_double_spaced_paragraph_is_not_a_heading(self) -> None:
+        page = (
+            self.body_lines(223, 3, step=70)
+            + [
+                (380, 433, 1057, 'Chapter 3 discusses the theory in rather more depth than this one', 0),
+                (337, 503, 200, 'does here.', 0),
+            ]
+            + self.body_lines(573, 4, step=70, left=380, label='after ')
+        )
+        self.assert_not_heading(self.convert([page]), 'Chapter 3 discusses')
+
+    def test_line_in_a_column_is_not_a_heading(self) -> None:
+        page: list[FontFragment] = []
+        for i in range(12):
+            left_text = 'Chapter 3 discusses the theory in more' if i == 5 else f'The left column has some text {i:02d} in it'
+            page.append((100, 223 + i * 35, 700, left_text, 0))
+            page.append((1000, 223 + i * 35, 700, f'The right column has some text {i:02d} in it', 0))
+        self.assert_not_heading(self.convert([page]), 'Chapter 3 discusses')
 
     def test_caption_is_not_merged_with_next_page(self) -> None:
         # A centred image caption at the bottom of one page followed by a
