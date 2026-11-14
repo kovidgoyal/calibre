@@ -39,6 +39,8 @@ class HeuristicProcessor:
             r'(\s*<(?P<inner2>font|span|[ibu])[^>]*>)?(\s*<(?P<inner3>font|span|[ibu])[^>]*>)?\s*'
         )
         self.line_close = r'\s*(</(?P=inner3)>\s*)?(</(?P=inner2)>\s*)?(</(?P=inner1)>\s*)?</(?P=outer)>'
+        # matches the id attribute of opening tags
+        self.id_pat = re.compile(r'<[a-z][^>]*?(?<![-\w])id\s*=\s*(["\'])(.*?)\1', re.IGNORECASE | re.DOTALL)
         self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
         self.common_in_text_endings = r'["\'—’”,\.!\?\…\)„\w]'
@@ -488,16 +490,18 @@ class HeuristicProcessor:
         """
 
         def style_unwrap(match: re.Match[str]) -> str:
-            style_close = match.group('style_close')
-            style_open = match.group('style_open')
-            if style_open and style_close:
-                return style_close + ' ' + style_open
-            elif style_open and not style_close:
-                return ' ' + style_open
-            elif not style_open and style_close:
-                return style_close + ' '
-            else:
-                return ' '
+            style_close = match.group('style_close') or ''
+            style_open = match.group('style_open') or ''
+            # Preserve the ids of removed tags, as they may be link targets,
+            # for example, the page anchors used by the Table of Contents in
+            # PDF conversion. style_open is kept, so ignore its id.
+            removed = match.group()
+            if style_open:
+                start, end = match.span('style_open')
+                start, end = start - match.start(), end - match.start()
+                removed = removed[:start] + removed[end:]
+            anchors = ''.join(f'<a id={m.group(1)}{m.group(2)}{m.group(1)}></a>' for m in self.id_pat.finditer(removed))
+            return style_close + ' ' + anchors + style_open
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
@@ -679,7 +683,15 @@ class HeuristicProcessor:
             elif content.find('scenebreak') != -1:
                 return content
             else:
-                content = re.sub(r'(?i)<h(?P<hnum>\d+)[^>]*>', r'\n\n<h\g<hnum> style="' + top_margin + bottom_margin + '">', content)
+
+                def restyle_heading(m: re.Match[str]) -> str:
+                    # Keep the id as it may be a link target, for example, the
+                    # page anchors used by the Table of Contents in PDF conversion
+                    idm = self.id_pat.search(m.group())
+                    id_attr = f' id={idm.group(1)}{idm.group(2)}{idm.group(1)}' if idm else ''
+                    return f'\n\n<h{m.group("hnum")}{id_attr} style="{top_margin}{bottom_margin}">'
+
+                content = re.sub(r'(?i)<h(?P<hnum>\d+)[^>]*>', restyle_heading, content)
             return content
 
         html = blanks_around_headings.sub(merge_header_whitespace, html)

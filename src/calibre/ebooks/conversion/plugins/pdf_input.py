@@ -93,7 +93,7 @@ class PDFInput(InputFormatPlugin):
             pdftohtml(os.getcwd(), stream.name, self.opts.no_images, as_xml=True)
             with open('index.xml', 'rb') as f:
                 xml = clean_ascii_chars(f.read())
-            PDFDocument(xml, self.opts, self.log)
+            PDFDocument(xml, self.opts, self.log, stream.name)
         else:
             pdftohtml(os.getcwd(), stream.name, options.no_images)
 

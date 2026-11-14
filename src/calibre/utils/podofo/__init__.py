@@ -387,6 +387,7 @@ def find_tests() -> unittest.TestSuite:
         unused_type0_font: bool = False,
         type3_font: bool = False,
         font_file_data: bytes = b'FONTFILEDATA',
+        outline_actions: bool = False,
     ) -> bytes:
         "Build a PDF with num_pages pages, all using an indirect Type1 font with a font file, and various optional features"
         b = Builder()
@@ -437,6 +438,21 @@ def find_tests() -> unittest.TestSuite:
         if dests:
             d = b.add(f'<</anchor1[{page_nums[0]} 0 R/XYZ 10.5 20.5 3]>>'.encode('ascii'))
             catalog_body += f'/Dests {d} 0 R'
+        if outline_actions:
+            # An outline whose items link to pages via a destination, a
+            # JavaScript action and a GoTo action respectively
+            outlines, dest_item, js_item, goto_item = b.reserve(), b.reserve(), b.reserve(), b.reserve()
+            b.set(outlines, f'<</Type/Outlines/First {dest_item} 0 R/Last {js_item} 0 R/Count 3>>'.encode('ascii'))
+            b.set(dest_item, f'<</Title(Dest item)/Parent {outlines} 0 R/Next {js_item} 0 R/Dest[{page_nums[0]} 0 R/Fit]>>'.encode('ascii'))
+            b.set(
+                js_item,
+                (
+                    f'<</Title(JS item)/Parent {outlines} 0 R/Prev {dest_item} 0 R/First {goto_item} 0 R/Last {goto_item} 0 R/Count 1'
+                    '/A<</S/JavaScript/JS(this.pageNum = 1;)>>>>'
+                ).encode('ascii'),
+            )
+            b.set(goto_item, f'<</Title(GoTo item)/Parent {js_item} 0 R/A<</S/GoTo/D[{page_nums[2]} 0 R/Fit]>>>>'.encode('ascii'))
+            catalog_body += f'/Outlines {outlines} 0 R'
         b.set(catalog, (catalog_body + '>>').encode('ascii'))
         return b.build()
 
@@ -524,6 +540,45 @@ def find_tests() -> unittest.TestSuite:
             s = outline['children'][1]
             self.assertEqual(s['title'], 'Sibling')
             self.assertEqual(s['dest']['page'], 3)
+
+        def test_podofo_outline_actions(self) -> None:
+            from lxml import etree
+
+            from calibre.ebooks.pdf.pdftohtml import resolve_outline_pages
+
+            raw = multi_page_pdf(num_pages=3, outline_actions=True)
+            outline = cast('dict[str, Any]', load(raw).get_outline())
+            d, js = outline['children']
+            self.assertEqual((d['title'], d['dest']['page']), ('Dest item', 1))
+            self.assertEqual((js['title'], js['js']), ('JS item', 'this.pageNum = 1;'))
+            self.assertNotIn('dest', js)
+            # Items with actions other than JavaScript are present, without a dest
+            self.assertEqual(js['children'], [{'title': 'GoTo item', 'children': []}])
+
+            # Fill in the pages poppler could not resolve in its outline
+            with TemporaryDirectory() as tdir:
+                path = os.path.join(tdir, 'test.pdf')
+                with open(path, 'wb') as f:
+                    f.write(raw)
+
+                def resolve(xml: str) -> tuple[list[str | None], list[str]]:
+                    root = etree.fromstring(xml)
+                    reports: list[str] = []
+                    resolve_outline_pages(root, path, reports.append)
+                    return [item.get('page') for item in root.iter('item')], reports
+
+                pages, reports = resolve(
+                    '<outline><item page="1">Dest item</item><item>JS item</item><outline><item page="3">GoTo item</item></outline></outline>'
+                )
+                self.assertEqual(pages, ['1', '2', '3'])
+                self.assertFalse(reports)
+                # Outlines that do not correspond are left alone
+                pages, reports = resolve('<outline><item page="1">Dest item</item><item>Other</item><item page="3">GoTo item</item></outline>')
+                self.assertEqual(pages, ['1', None, '3'])
+                self.assertEqual(len(reports), 1)
+                pages, reports = resolve('<outline><item page="1">Dest item</item><item>JS item</item></outline>')
+                self.assertEqual(pages, ['1', None])
+                self.assertEqual(len(reports), 1)
 
         def test_podofo_extract_anchors(self) -> None:
             p = load(multi_page_pdf(num_pages=2, dests=True))

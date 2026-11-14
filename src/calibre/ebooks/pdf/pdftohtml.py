@@ -6,7 +6,7 @@ import os
 import re
 import shutil
 import subprocess
-from typing import TYPE_CHECKING, Unpack
+from typing import TYPE_CHECKING, Unpack, cast
 
 from calibre import CurrentDir, prints, xml_replace_entities
 from calibre.constants import bundled_binaries_dir, isbsd, iswindows
@@ -19,7 +19,7 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
     from typing import IO, TypedDict
 
     from lxml.etree import _Element
@@ -141,7 +141,7 @@ def pdftohtml(output_dir: str, pdf_path: str, no_images: bool, as_xml: bool = Fa
             assert p.stdout is not None  # stdout=PIPE
             rawb = p.stdout.read().strip()
             if p.wait() == 0 and rawb:
-                parse_outline(rawb, output_dir)
+                parse_outline(rawb, output_dir, pdfsrc)
 
         try:
             os.remove(pdfsrc)
@@ -149,7 +149,55 @@ def pdftohtml(output_dir: str, pdf_path: str, no_images: bool, as_xml: bool = Fa
             pass
 
 
-def parse_outline(raw: bytes, output_dir: str) -> None:
+def resolve_outline_pages(outline: _Element, pdf_path: str, report: Callable[[str], object]) -> None:
+    """
+    Set the page attribute on <item> elements in the pdftohtml generated
+    outline that poppler could not resolve, for example, because the PDF
+    outline uses JavaScript actions of the form "this.pageNum = N;"
+    rather than destinations.
+    """
+    items = list(outline.iter('item'))
+    if all(item.get('page') for item in items):
+        return
+    from calibre.utils.podofo import get_outline
+
+    try:
+        nodes = get_outline(pdf_path)
+    except Exception as err:
+        report(f'Failed to read the PDF outline to resolve Table of Contents destinations: {err}')
+        return
+    flat: list[dict[str, object]] = []
+
+    def flatten(children: list[dict[str, object]]) -> None:
+        for node in children:
+            flat.append(node)
+            flatten(cast('list[dict[str, object]]', node['children']))
+
+    flatten(nodes)
+    if len(flat) != len(items):
+        report(f'PDF outline has {len(flat)} entries but pdftohtml found {len(items)}, cannot resolve Table of Contents destinations')
+        return
+
+    def normalized(x: object) -> str:
+        return ' '.join(str(x or '').split())
+
+    for item, node in zip(items, flat):
+        if normalized(item.text) != normalized(node.get('title')):
+            report(f'PDF outline entry {node.get("title")!r} does not match pdftohtml entry {item.text!r}, cannot resolve Table of Contents destinations')
+            return
+    for item, node in zip(items, flat):
+        if item.get('page'):
+            continue
+        page = 0
+        if isinstance(dest := node.get('dest'), dict):
+            page = int(cast('dict[str, int]', dest)['page'])
+        elif isinstance(js := node.get('js'), str) and (m := re.fullmatch(r'\s*this\.pageNum\s*=\s*(\d+)\s*;?\s*', js)):
+            page = int(m.group(1)) + 1  # pageNum is zero based
+        if page > 0:
+            item.set('page', str(page))
+
+
+def parse_outline(raw: bytes, output_dir: str, pdf_path: str) -> None:
     from lxml import etree
 
     from calibre.utils.xml_parse import safe_xml_fromstring
@@ -160,6 +208,7 @@ def parse_outline(raw: bytes, output_dir: str) -> None:
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 
         outline = outline[0]
+        resolve_outline_pages(outline, pdf_path, prints)
         toc = TOC()
         count = [0]
 

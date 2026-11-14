@@ -25,6 +25,8 @@ from calibre.utils.icu import logical_to_visual
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from calibre.ebooks.conversion.utils import HeuristicProcessor
+
 # (left, top, width, text) or (left, top, width, text, height)
 type Fragment = tuple[int, int, int, str] | tuple[int, int, int, str, int]
 # (left, top, width, text, font)
@@ -577,6 +579,34 @@ class TestImages(unittest.TestCase):
         self.assertIn('style="max-width:100%"', self.html(1313, 300))
 
 
+class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
+    """
+    Each page starts with an element whose id is the target of Table of
+    Contents entries for that page, heuristic processing must not lose it.
+    """
+
+    def processor(self) -> HeuristicProcessor:
+        from calibre.ebooks.conversion.utils import HeuristicProcessor
+        from calibre.utils.logging import default_log
+
+        return HeuristicProcessor(None, default_log)
+
+    def test_unwrapping_a_sentence_across_pages(self) -> None:
+        html = '<p>The previous page ends in the middle of a sentence</p>\n<p id="page_2">that continues here.</p>'
+        ans = self.processor().punctuation_unwrap(5, html, 'html')
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a sentence <a id="page_2"></a>that continues here.</p>')
+
+    def test_unwrapping_keeps_ids_of_removed_and_retained_tags(self) -> None:
+        html = "<p>The previous page ends in the middle of a sentence</p>\n<p id='a\"b'><i id=\"x\">that</i> continues here.</p>"
+        ans = self.processor().punctuation_unwrap(5, html, 'html')
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a sentence <a id=\'a"b\'></a><i id="x">that</i> continues here.</p>')
+
+    def test_restyled_heading(self) -> None:
+        html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'
+        ans = self.processor().detect_whitespace(html)
+        self.assertIn('<h2 id="page_3" style="margin-top:1em;margin-bottom:1em;">A heading</h2>', ans)
+
+
 def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromNames([
         f'{__name__}.{x.__name__}'
@@ -588,6 +618,7 @@ def find_tests() -> unittest.TestSuite:
             TestRightToLeftColumns,
             TestPageBoundaries,
             TestImages,
+            TestPageAnchorsSurviveHeuristics,
         )
     ])
 

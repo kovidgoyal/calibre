@@ -66,13 +66,44 @@ convert_outline(PDFDoc *self, PyObject *parent, PdfOutlineItem *item) {
     pyunique_ptr node(create_outline_node());
     if (!node) return;
     if (PyDict_SetItemString(node.get(), "title", title.get()) != 0) return;
-    auto dest = item->GetDestination();
-    if (dest.has_value()) {
+    // Do not use PdfOutlineItem::GetDestination()/GetAction() as in PoDoFo
+    // 1.1.2 they dereference a null pointer when the item has no /Dest or /A
+    PdfDictionary &dict = item->GetDictionary();
+    PdfObject *obj;
+    std::unique_ptr<PdfDestination> dest;
+    std::unique_ptr<PdfAction> action;
+    if ((obj = dict.FindKey("Dest")) && PdfDestination::TryCreateFromObject(*obj, dest)) {
         PdfPage *page = dest->GetPage();
         long pnum = page ? page->GetPageNumber() : -1;
-        pyunique_ptr d(Py_BuildValue("{sl sd sd sd}", "page", pnum, "top", dest->GetTop(), "left", dest->GetLeft(), "zoom", dest->GetZoom()));
+        // Not all destination types have these values, PoDoFo raises
+        // WrongDestinationType or a type error (for null values) for them.
+        auto value = [&dest](double (PdfDestination::*getter)() const) -> double {
+            try {
+                return ((*dest).*getter)();
+            } catch (const PdfError &) { return 0; }
+        };
+        pyunique_ptr d(Py_BuildValue(
+            "{sl sd sd sd}",
+            "page",
+            pnum,
+            "top",
+            value(&PdfDestination::GetTop),
+            "left",
+            value(&PdfDestination::GetLeft),
+            "zoom",
+            value(&PdfDestination::GetZoom)));
         if (!d) return;
         if (PyDict_SetItemString(node.get(), "dest", d.get()) != 0) return;
+    } else if ((obj = dict.FindKey("A")) && PdfAction::TryCreateFromObject(*obj, action) && action->GetType() == PdfActionType::JavaScript) {
+        // Some generators link outline items to pages via JavaScript actions
+        // (e.g. "this.pageNum = 4;") which poppler cannot resolve, so expose
+        // the script and let the caller interpret it.
+        auto script = static_cast<const PdfActionJavaScript &>(*action).GetScript();
+        if (script.has_value()) {
+            pyunique_ptr js(podofo_convert_pdfstring(*script));
+            if (!js) return;
+            if (PyDict_SetItemString(node.get(), "js", js.get()) != 0) return;
+        }
     }
     PyObject *children = PyDict_GetItemString(parent, "children");
     if (PyList_Append(children, node.get()) != 0) return;

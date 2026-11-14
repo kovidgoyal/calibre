@@ -1694,11 +1694,11 @@ class Page:
 
 
 class PDFDocument:
-    def __init__(self, xml: bytes, opts: Values, log: Log) -> None:
+    def __init__(self, xml: bytes, opts: Values, log: Log, pdf_path: str = '') -> None:
         from calibre.utils.xml_parse import safe_xml_fromstring
         # from calibre.rpdb import set_trace;  set_trace()
 
-        self.opts, self.log = opts, log
+        self.opts, self.log, self.pdf_path = opts, log, pdf_path
 
         # Check for a testable value
         if self.opts.pdf_header_regex is None:
@@ -1790,6 +1790,10 @@ class PDFDocument:
                     count[0] += 1
 
         for outline in self.root.xpath('./outline'):
+            if self.pdf_path:
+                from calibre.ebooks.pdf.pdftohtml import resolve_outline_pages
+
+                resolve_outline_pages(outline, self.pdf_path, self.log.warn)
             process_node(outline, root_toc_node)
         if count[0] > 2:
             root = create_ncx(root_toc_node, (lambda x: x), 'pdftohtml', 'en', 'pdftohtml')
