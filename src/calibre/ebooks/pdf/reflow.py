@@ -170,8 +170,12 @@ FIRST_LINE_INDENT_MIN_FRACTION = 0.5
 # The first line of a paragraph that continues onto the next line reaches at
 # least this fraction of the way across the text on the page
 FIRST_LINE_MIN_WIDTH_FRACTION = 0.8
+# Text larger than the body, such as headings, wrapped onto at most this many
+# lines is joined
+WRAPPED_LARGE_TEXT_MAX_LINES = 3
+
 # Fonts of code
-MONOSPACE_FAMILY = re.compile(r'mono|courier|cmtt|consol|typewriter', re.IGNORECASE)
+MONOSPACE_FAMILY = re.compile(r'mono|courier|cmtt|consol|typewriter|nimbusmon', re.IGNORECASE)
 
 # A left at which at least this many lines start is where lines are aligned,
 # so long lines starting there are not centered
@@ -1437,6 +1441,44 @@ class Page:
         indent_min = self.stats_indent_min
         indent_max = self.stats_indent_max
 
+        def wrapped_large_text(self: Page, first_text: Text, second_text: Text, stats: DocStats) -> bool:
+            # Text in a larger font than the body, such as a heading, wrapped
+            # onto the next line, as its first word did not fit on this line.
+            # Its lines are further apart than those of the body, in
+            # proportion to its size, and it is often short and centered.
+            body_size = self.document_font_stats.most_common_size if self.document_font_stats is not None else 0
+            if body_size <= 0 or first_text.font_size < body_size * HEADING_FONT_FACTOR or second_text.font_size != first_text.font_size:
+                return False
+            size = first_text.font_size / body_size
+            if (
+                first_text.column != second_text.column
+                # Headings are short, and a single phrase, unlike rows of a
+                # table in a large font, with wide gaps between their cells
+                or first_text.line_count >= WRAPPED_LARGE_TEXT_MAX_LINES
+                or '   ' in first_text.text_as_string
+                or '   ' in second_text.text_as_string
+                or 'href=' in second_text.raw
+                or '"float:right"' in first_text.raw
+                or CONTENTS_ENTRY.search(first_text.text_as_string) is not None
+                or (first_text.monospace and second_text.monospace)
+            ):
+                return False
+            if second_text.top <= first_text.top or first_text.bottom + stats.line_space * size * (1 + LINE_FACTOR) < second_text.bottom:
+                return False
+            tolerance = max(SAME_INDENT, second_text.average_character_width)
+            same_left = abs(second_text.left - first_text.last_left) <= tolerance
+            same_centre = abs((second_text.left + second_text.right) - (first_text.last_left + first_text.last_right)) <= 2 * tolerance
+            if not same_left and not same_centre:
+                return False
+            first_word = re.match(r'\s*(\S+)', second_text.text_as_string)
+            if first_word is None:
+                return False
+            # The width of the text of the document, not just this page, which
+            # can have only a few lines, such as a title page
+            width = max(self.textwidth, self.stats_right - self.stats_left_min)
+            spare = width - (first_text.last_right - first_text.last_left)
+            return (len(first_word.group(1)) + 1) * second_text.average_character_width > spare
+
         def can_merge(self: Page, first_text: Text, second_text: Text, stats: DocStats) -> bool:
             # Can two lines be merged into one paragraph?
             # Some PDFs have a wandering left margin which is consistent on a page
@@ -1460,6 +1502,8 @@ class Page:
                     and SENTENCE_END.search(first_text.text_as_string) is not None
                 )
             )
+            if wrapped_large_text(self, first_text, second_text, stats):
+                return True
             if (
                 (
                     (

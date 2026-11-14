@@ -374,6 +374,7 @@ class TestPageBoundaries(unittest.TestCase):
                 parts.append('<fontspec id="1" size="31" family="Heading" color="#000000"/>')
                 parts.append('<fontspec id="2" size="21" family="Caption" color="#000000"/>')
                 parts.append('<fontspec id="3" size="24" family="CourierNew" color="#000000"/>')
+                parts.append('<fontspec id="4" size="24" family="ABCDEF+NimbusMonL-Regu" color="#000000"/>')
             for left, top, width, text, font in fragments:
                 parts.append(f'<text top="{top}" left="{left}" width="{width}" height="29" font="{font}">{text}</text>')
             parts.append('</page>')
@@ -679,6 +680,77 @@ class TestPageBoundaries(unittest.TestCase):
         toc = [(420, 223 + i * 35, 1017, f'Section {i + 1} . . . . . . . . . . . . . . . . {i + 3}', 0) for i in range(10)]
         paras = [p for p in self.paragraph_texts(self.convert([toc] + pages)) if 'Section' in p]
         self.assertEqual(10, len(paras), paras)
+
+    def heading_page(self, heading: Sequence[tuple[int, int, str]]) -> str:
+        # A page with a heading of the given (left, width, text) lines in a
+        # larger font than the body, wrapped onto more lines
+        page: list[FontFragment] = [(left, 132 + i * 45, width, text, 1) for i, (left, width, text) in enumerate(heading)]
+        page += self.body_lines(132 + len(heading) * 45 + 60, 16)
+        return self.convert([page])
+
+    def headings(self, html: str) -> list[str]:
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        return [re.sub(r'\s+', ' ', ''.join(h.itertext())).strip() for h in safe_xml_fromstring(html).xpath('//*[local-name()="h2"]')]
+
+    def test_wrapped_heading_is_one_heading(self) -> None:
+        html = self.heading_page([(337, 900, 'Chapter 2. The Very Long and'), (337, 600, 'Winding Title')])
+        self.assertEqual(['Chapter 2. The Very Long and Winding Title'], self.headings(html))
+        # Centered on the page
+        html = self.heading_page([(400, 1000, 'Chapter 2. The Very Long and'), (420, 960, 'Winding Title Is Here'), (800, 200, 'Again')])
+        self.assertEqual(['Chapter 2. The Very Long and Winding Title Is Here Again'], self.headings(html))
+
+    def test_heading_lines_that_are_not_wrapped(self) -> None:
+        # A short line followed by one whose first word would have fitted on
+        # it is set on separate lines on purpose
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        def blocks(html: str) -> list[str]:
+            return [re.sub(r'\s+', ' ', ''.join(b.itertext())).strip() for b in safe_xml_fromstring(html).xpath('//*[local-name()="p" or local-name()="h2"]')]
+
+        html = self.heading_page([(337, 300, 'Chapter 2.'), (337, 400, 'The Title')])
+        self.assertIn('Chapter 2.', blocks(html))
+        self.assertIn('The Title', blocks(html))
+        # The first word of the next line would just fit
+        html = self.heading_page([(337, 900, 'Chapter 2. The Very Long and'), (337, 100, 'Win')])
+        self.assertIn('Win', blocks(html))
+
+    def test_title_page_with_subtitle(self) -> None:
+        # A page with nothing but a title and subtitle, so that the title is
+        # the widest text on it, but the subtitle would have fitted after it
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        pages = [[(500, 300, 700, 'The Manual of Things', 1), (600, 345, 500, 'Version 1.2 Beta', 1)]]
+        pages += [self.body_lines(223, 28) for i in range(3)]
+        html = self.convert(pages)
+        blocks = [re.sub(r'\s+', ' ', ''.join(b.itertext())).strip() for b in safe_xml_fromstring(html).xpath('//*[local-name()="p" or local-name()="h2"]')]
+        self.assertIn('Version 1.2 Beta', blocks)
+
+    def test_large_text_that_is_not_wrapped(self) -> None:
+        # Contents entries and rows of a table in a large font, reaching the
+        # right of the text, are not wrapped headings
+        contents: list[FontFragment] = []
+        table: list[FontFragment] = []
+        for i in range(6):
+            top = 150 + i * 45
+            contents += [(337, top, 600, f'Chapter {i + 1} The Title of Chapter', 1), (1397, top, 40, str(10 * i + 5), 1)]
+            table += [(337, top, 300, f'Cell {i} first', 1), (737, top, 300, f'Cell {i} second', 1), (1137, top, 300, f'Cell {i} third', 1)]
+        from calibre.utils.xml_parse import safe_xml_fromstring
+
+        for page in (contents, table):
+            html = self.convert([page + self.body_lines(450, 20)])
+            blocks = [''.join(b.itertext()) for b in safe_xml_fromstring(html).xpath('//*[local-name()="p" or local-name()="h2"]')]
+            matching = [b for b in blocks if 'Chapter' in b or 'Cell' in b]
+            self.assertEqual(6, len(matching), matching)
+
+    def test_code_in_nimbus_mono_is_not_joined(self) -> None:
+        page: list[FontFragment] = []
+        for p in range(6):
+            top = 150 + p * 105 + (300 if p > 2 else 0)
+            page += [(380, top, 1057, f'Paragraph{p} {self.BODY}', 0)] + [(337, top + 35 * (i + 1), 1100, f'{self.BODY} {p} {i}', 0) for i in range(2)]
+        page += [(420, 470 + i * 35, 950, f'(defun function-number-{i} (x) (list x x x x {i}))', 4) for i in range(6)]
+        lines = [line for line in self.convert([page]).splitlines() if 'function-number' in line]
+        self.assertEqual(6, len(lines), lines)
 
     def test_contents_page_numbers_are_not_joined(self) -> None:
         # Entries ending with a page number at the right margin are separate
