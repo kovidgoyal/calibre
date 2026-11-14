@@ -601,6 +601,18 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
         ans = self.processor().punctuation_unwrap(5, html, 'html')
         self.assertEqual(ans, '<p>The previous page ends in the middle of a sentence <a id=\'a"b\'></a><i id="x">that</i> continues here.</p>')
 
+    def test_dehyphenating_a_word_across_pages(self) -> None:
+        from calibre.ebooks.conversion.preprocess import Dehyphenator
+        from calibre.utils.logging import default_log
+
+        html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word and the hyphenated text.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word and the hyphenated text.</p>')
+        # The hyphen is kept for words not found elsewhere in the text
+        html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphen-ated word.</p>')
+
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'
         ans = self.processor().detect_whitespace(html)

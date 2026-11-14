@@ -24,6 +24,18 @@ SVG_NS = 'http://www.w3.org/2000/svg'
 XLINK_NS = 'http://www.w3.org/1999/xlink'
 
 _span_pat = re.compile(r'<span.*?</span>', re.DOTALL | re.IGNORECASE)
+# matches the id attribute of opening tags
+id_attr_pat = re.compile(r'<[a-z][^>]*?(?<![-\w])id\s*=\s*(["\'])(.*?)\1', re.IGNORECASE | re.DOTALL)
+
+
+def anchors_for_ids(markup: str) -> str:
+    """
+    Return empty <a> tags carrying the ids of the opening tags in markup, used
+    to preserve link targets, such as the page anchors used by the Table of
+    Contents in PDF conversion, when heuristic processing removes markup.
+    """
+    return ''.join(f'<a id={m.group(1)}{m.group(2)}{m.group(1)}></a>' for m in id_attr_pat.finditer(markup))
+
 
 LIGATURES = {
     # 'Æ': 'AE',
@@ -217,9 +229,11 @@ class Dehyphenator:
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
         try:
-            wraptags = match.group('wraptags')
-        except Exception:
+            wraptags = match.group('wraptags') or ''
+        except IndexError:  # the regex for this format has no wraptags group
             wraptags = ''
+        # The ids of tags removed when joining the halves may be link targets
+        anchors = anchors_for_ids(wraptags)
         hyphenated = str(firsthalf) + '-' + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
         if self.suffixes.match(secondhalf) is None:
@@ -240,14 +254,14 @@ class Dehyphenator:
         try:
             searchresult = self.html.find(lookupword.lower())
         except Exception:
-            return hyphenated
+            return anchors + hyphenated
         if self.format in {'html_cleanup', 'txt_cleanup'}:
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 log('    Cleanup:returned dehyphenated word: ' + dehyphenated)
-                return dehyphenated
+                return anchors + dehyphenated
             elif self.html.find(hyphenated) != -1:
                 log('        Cleanup:returned hyphenated word: ' + hyphenated)
-                return hyphenated
+                return anchors + hyphenated
             else:
                 log('            Cleanup:returning original text ' + firsthalf + ' + linefeed ' + secondhalf)
                 return firsthalf + '—' + wraptags + secondhalf
@@ -255,16 +269,16 @@ class Dehyphenator:
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
                 log('too short, returned hyphenated word: ' + hyphenated)
-                return hyphenated
+                return anchors + hyphenated
             if len(firsthalf) <= 2 and len(secondhalf) <= 2:
                 log('too short, returned hyphenated word: ' + hyphenated)
-                return hyphenated
+                return anchors + hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 log('     returned dehyphenated word: ' + dehyphenated)
-                return dehyphenated
+                return anchors + dehyphenated
             else:
                 log('          returned hyphenated word: ' + hyphenated)
-                return hyphenated
+                return anchors + hyphenated
 
     def __call__(self, html: str, format: str, length: int = 1) -> str:
         self.html = html

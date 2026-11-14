@@ -159,10 +159,10 @@ def resolve_outline_pages(outline: _Element, pdf_path: str, report: Callable[[st
     items = list(outline.iter('item'))
     if all(item.get('page') for item in items):
         return
-    from calibre.utils.podofo import get_outline
+    from calibre.utils.podofo import get_outline_and_page_count
 
     try:
-        nodes = get_outline(pdf_path)
+        nodes, num_pages = get_outline_and_page_count(pdf_path)
     except Exception as err:
         report(f'Failed to read the PDF outline to resolve Table of Contents destinations: {err}')
         return
@@ -193,8 +193,10 @@ def resolve_outline_pages(outline: _Element, pdf_path: str, report: Callable[[st
             page = int(cast('dict[str, int]', dest)['page'])
         elif isinstance(js := node.get('js'), str) and (m := re.fullmatch(r'\s*this\.pageNum\s*=\s*(\d+)\s*;?\s*', js)):
             page = int(m.group(1)) + 1  # pageNum is zero based
-        if page > 0:
+        if 0 < page <= num_pages:
             item.set('page', str(page))
+        elif page > num_pages:
+            report(f'PDF outline entry {item.text!r} links to page {page} but the PDF has only {num_pages} pages, ignoring it')
 
 
 def parse_outline(raw: bytes, output_dir: str, pdf_path: str) -> None:

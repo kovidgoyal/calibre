@@ -131,16 +131,20 @@ def get_xmp_metadata(path: str) -> bytes | None:
     return p.get_xmp_metadata()
 
 
-def get_outline(path: str | None = None) -> list[dict[str, object]]:
-    if path is None:
-        path = sys.argv[-1]
+def get_outline_and_page_count(path: str) -> tuple[list[dict[str, object]], int]:
     podofo = get_podofo()
     p = podofo.PDFDoc()
     with open(path, 'rb') as f:
         raw = f.read()
     p.load(raw)
     outline = p.get_outline()
-    return [] if outline is None else outline['children']
+    return ([] if outline is None else outline['children']), p.page_count()
+
+
+def get_outline(path: str | None = None) -> list[dict[str, object]]:
+    if path is None:
+        path = sys.argv[-1]
+    return get_outline_and_page_count(path)[0]
 
 
 def get_image_count(path: str) -> int:
@@ -388,6 +392,7 @@ def find_tests() -> unittest.TestSuite:
         type3_font: bool = False,
         font_file_data: bytes = b'FONTFILEDATA',
         outline_actions: bool = False,
+        outline_js_page_num: int = 1,
     ) -> bytes:
         "Build a PDF with num_pages pages, all using an indirect Type1 font with a font file, and various optional features"
         b = Builder()
@@ -448,7 +453,7 @@ def find_tests() -> unittest.TestSuite:
                 js_item,
                 (
                     f'<</Title(JS item)/Parent {outlines} 0 R/Prev {dest_item} 0 R/First {goto_item} 0 R/Last {goto_item} 0 R/Count 1'
-                    '/A<</S/JavaScript/JS(this.pageNum = 1;)>>>>'
+                    f'/A<</S/JavaScript/JS(this.pageNum = {outline_js_page_num};)>>>>'
                 ).encode('ascii'),
             )
             b.set(goto_item, f'<</Title(GoTo item)/Parent {js_item} 0 R/A<</S/GoTo/D[{page_nums[2]} 0 R/Fit]>>>>'.encode('ascii'))
@@ -579,6 +584,16 @@ def find_tests() -> unittest.TestSuite:
                 pages, reports = resolve('<outline><item page="1">Dest item</item><item>JS item</item></outline>')
                 self.assertEqual(pages, ['1', None])
                 self.assertEqual(len(reports), 1)
+
+                # JavaScript actions linking to non-existent pages are ignored
+                with open(path, 'wb') as f:
+                    f.write(multi_page_pdf(num_pages=3, outline_actions=True, outline_js_page_num=3))
+                pages, reports = resolve(
+                    '<outline><item page="1">Dest item</item><item>JS item</item><outline><item page="3">GoTo item</item></outline></outline>'
+                )
+                self.assertEqual(pages, ['1', None, '3'])
+                self.assertEqual(len(reports), 1)
+                self.assertIn('page 4', reports[0])
 
         def test_podofo_extract_anchors(self) -> None:
             p = load(multi_page_pdf(num_pages=2, dests=True))

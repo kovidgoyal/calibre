@@ -5,7 +5,7 @@ import re
 from math import ceil
 from typing import TYPE_CHECKING
 
-from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis
+from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis, anchors_for_ids, id_attr_pat
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
 
@@ -39,8 +39,6 @@ class HeuristicProcessor:
             r'(\s*<(?P<inner2>font|span|[ibu])[^>]*>)?(\s*<(?P<inner3>font|span|[ibu])[^>]*>)?\s*'
         )
         self.line_close = r'\s*(</(?P=inner3)>\s*)?(</(?P=inner2)>\s*)?(</(?P=inner1)>\s*)?</(?P=outer)>'
-        # matches the id attribute of opening tags
-        self.id_pat = re.compile(r'<[a-z][^>]*?(?<![-\w])id\s*=\s*(["\'])(.*?)\1', re.IGNORECASE | re.DOTALL)
         self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
         self.common_in_text_endings = r'["\'—’”,\.!\?\…\)„\w]'
@@ -500,8 +498,7 @@ class HeuristicProcessor:
                 start, end = match.span('style_open')
                 start, end = start - match.start(), end - match.start()
                 removed = removed[:start] + removed[end:]
-            anchors = ''.join(f'<a id={m.group(1)}{m.group(2)}{m.group(1)}></a>' for m in self.id_pat.finditer(removed))
-            return style_close + ' ' + anchors + style_open
+            return style_close + ' ' + anchors_for_ids(removed) + style_open
 
         # define the pieces of the regex
         # (?<!\&\w{4});) is a semicolon not part of an entity
@@ -687,7 +684,7 @@ class HeuristicProcessor:
                 def restyle_heading(m: re.Match[str]) -> str:
                     # Keep the id as it may be a link target, for example, the
                     # page anchors used by the Table of Contents in PDF conversion
-                    idm = self.id_pat.search(m.group())
+                    idm = id_attr_pat.search(m.group())
                     id_attr = f' id={idm.group(1)}{idm.group(2)}{idm.group(1)}' if idm else ''
                     return f'\n\n<h{m.group("hnum")}{id_attr} style="{top_margin}{bottom_margin}">'
 
