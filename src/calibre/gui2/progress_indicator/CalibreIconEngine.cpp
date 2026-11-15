@@ -480,7 +480,12 @@ class CalibreIconEngine : public QIconEngine {
     }
     QString
     iconName() override {
-        return name;
+        // name is a path inside calibre's private resource themes, not a
+        // freedesktop icon theme name. Returning it causes Qt to export it
+        // as the icon-name of DBus menu items (system tray menu), which the
+        // desktop then fails to find in the system icon theme. Returning an
+        // empty name makes Qt send the actual pixmap as icon-data instead.
+        return QString();
     }
 };
 
