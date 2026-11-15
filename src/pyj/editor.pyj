@@ -107,8 +107,16 @@ PARAGRAPH_HIGHLIGHT_DURATION = 5000  # milliseconds
 # MathJax.
 NON_PARAGRAPH_TEXT_ELEMENTS = {
     'rt': True, 'rp': True, 'svg': True, 'math': True, 'mjx-container': True, 'script': True, 'style': True,
-    'template': True, 'noscript': True, 'textarea': True, 'select': True,
+    'template': True, 'noscript': True, 'textarea': True, 'select': True, 'pre': True, 'iframe': True, 'object': True,
 }
+# Elements that delimit paragraphs, a paragraph never extends outside the
+# innermost one of these containing its start
+PARAGRAPH_BLOCK_ELEMENTS = {}
+for block_tag_name in (
+    'address article aside blockquote body caption center dd details dialog dir div dl dt fieldset figcaption figure footer form'
+    ' frameset h1 h2 h3 h4 h5 h6 header hgroup hr html legend li main menu nav ol p section summary table tbody td tfoot th thead tr ul'
+).split(' '):
+    PARAGRAPH_BLOCK_ELEMENTS[block_tag_name] = True
 # Characters that are left out when comparing the text of the paragraph with
 # the text in the preview, as whitespace is collapsed differently and invisible
 # characters and placeholders for maths are not in the text of the preview.
@@ -116,9 +124,18 @@ UNCOMPARED_CHARS = /[\s\u00ad\u200b\u2060\ufeff\ufffc]/
 UNCOMPARED_CHARS_GLOBAL = /[\s\u00ad\u200b\u2060\ufeff\ufffc]+/g
 
 
+def is_noteref(node):
+    epub_type = node.getAttribute('epub:type')
+    if epub_type and 'noteref' in epub_type.split(/\s+/):
+        return True
+    return node.getAttribute('role') is 'doc-noteref'
+
+
 def accept_paragraph_text_node(node):
     if node.nodeType is Node.ELEMENT_NODE:
-        return NodeFilter.FILTER_REJECT if NON_PARAGRAPH_TEXT_ELEMENTS[node.localName.toLowerCase()] else NodeFilter.FILTER_SKIP
+        if NON_PARAGRAPH_TEXT_ELEMENTS[node.localName.toLowerCase()] or is_noteref(node):
+            return NodeFilter.FILTER_REJECT
+        return NodeFilter.FILTER_SKIP
     return NodeFilter.FILTER_ACCEPT
 
 
@@ -143,7 +160,9 @@ def compared_chars(root):
 def find_paragraph_range(start_node, paragraph_text):
     # Find the range containing the paragraph by searching for its text in the
     # element containing its start, and then in the ancestors of that element
-    # until it is found, as the paragraph may not be all of an element.
+    # until it is found, as the paragraph may not be all of an element. The
+    # search stops at the innermost block element, as paragraphs do not extend
+    # outside it, which also prevents matching the same text elsewhere.
     needle = paragraph_text.replace(UNCOMPARED_CHARS_GLOBAL, '')
     if not needle:
         return None
@@ -152,11 +171,11 @@ def find_paragraph_range(start_node, paragraph_text):
         chars = compared_chars(ancestor)
         idx = chars.text.indexOf(needle)
         if idx > -1:
-            # Prefer an occurrence that starts in start_node itself rather
-            # than in a descendant, for text that is repeated in an element
+            # Prefer an occurrence that starts in start_node rather than
+            # elsewhere in the ancestor, for text that is repeated
             best = idx
             while idx > -1:
-                if chars.nodes[idx].parentNode is start_node:
+                if start_node.contains(chars.nodes[idx]):
                     best = idx
                     break
                 idx = chars.text.indexOf(needle, idx + 1)
@@ -165,6 +184,8 @@ def find_paragraph_range(start_node, paragraph_text):
             r.setStart(chars.nodes[best], chars.offsets[best])
             r.setEnd(chars.nodes[last], chars.offsets[last] + 1)
             return r
+        if PARAGRAPH_BLOCK_ELEMENTS[ancestor.localName.toLowerCase()]:
+            break
         ancestor = ancestor.parentElement
     return None
 
@@ -194,6 +215,12 @@ def highlight_paragraph(sourceline, tags, paragraph_text, sync_context):
     window.CSS.highlights.set(PARAGRAPH_HIGHLIGHT_NAME, v'new Highlight(r)')
     rect = r.getBoundingClientRect()
     if rect.top < 0 or rect.bottom > window.innerHeight:
+        # Use scrollIntoView() first as the book may use an element other
+        # than the window as the scroll container
+        elem = r.startContainer.parentElement
+        if elem:
+            elem.scrollIntoView()
+            rect = r.getBoundingClientRect()
         window.scrollBy(0, rect.top - sync_context * line_height())
     state.highlight_timer = window.setTimeout(clear_paragraph_highlight, PARAGRAPH_HIGHLIGHT_DURATION)
 

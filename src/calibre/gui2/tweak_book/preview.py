@@ -581,6 +581,10 @@ class Preview(QWidget):
         self.pending_go_to_anchor = None
         self.pending_highlight: tuple[str, int, list[str], str] | None = None
         self.highlight_retry_count = 0
+        # The last request to sync to the cursor position in the editor and
+        # the one made when the pending highlight was requested
+        self.last_sync_request: tuple[str, object] | None = None
+        self.sync_request_at_highlight: tuple[str, object] | None = None
         # Messages sent to the javascript while a page is loading are lost
         self.page_loading = False
         self.inspector = self.view.inspector
@@ -694,6 +698,15 @@ class Preview(QWidget):
         return self.view._page.bridge.ready
 
     def sync_to_editor(self, name, sourceline_address) -> None:
+        self.last_sync_request = (name, sourceline_address)
+        if self.pending_highlight is not None:
+            if self.last_sync_request == self.sync_request_at_highlight:
+                # The cursor has not moved since the highlight was requested,
+                # for instance, this is a sync made once syntax highlighting
+                # finishes, so keep showing the highlighted paragraph
+                return
+            # The user has moved on, so the highlight would be unexpected
+            self.pending_highlight = None
         self.current_sync_request = (name, sourceline_address)
         self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
@@ -719,6 +732,7 @@ class Preview(QWidget):
         # Showing the paragraph replaces syncing to the cursor position, which
         # would scroll the preview to a different place
         self.current_sync_request = None
+        self.sync_request_at_highlight = self.last_sync_request
         self.pending_highlight = name, sourceline, tags, text
         self.highlight_retry_count = 0
         QTimer.singleShot(100, self._highlight_paragraph)
@@ -763,6 +777,9 @@ class Preview(QWidget):
             self.current_name = name
             self.report_worker_launch_error()
             parse_worker.add_request(name)
+            # loadStarted is emitted asynchronously, so mark the page as
+            # loading now, so that no messages are sent to the old page
+            self.page_loading = True
             self.view.set_url(self.name_to_qurl())
             return True
 
@@ -776,6 +793,9 @@ class Preview(QWidget):
             # Tell webkit to reload all html and associated resources
             current_url = self.name_to_qurl()
             self.refresh_starting.emit()
+            # loadStarted is emitted asynchronously, so mark the page as
+            # loading now, so that no messages are sent to the old page
+            self.page_loading = True
             if current_url != self.view.url():
                 # The container was changed
                 self.view.set_url(current_url)
