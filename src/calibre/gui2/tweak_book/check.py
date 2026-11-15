@@ -20,6 +20,7 @@ from qt.core import (
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.polish.check.base import CRITICAL, DEBUG, ERROR, INFO, WARN, BaseError
+from calibre.ebooks.oeb.polish.check.coalesce import coalesce_toc_link_errors, expand_coalesced_errors
 from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
@@ -180,8 +181,12 @@ class Check(QSplitter):
         else:
             self.hidden_accessibility_problems = [e for e in errors if e.is_accessibility_problem]
             errors = [e for e in errors if not e.is_accessibility_problem]
+        errors = coalesce_toc_link_errors(errors)
         for err in sorted(errors, key=sort_key):
-            i = QListWidgetItem(build_error_message(err), self.items)
+            msg = build_error_message(err)
+            if err.has_multiple_locations and err.all_locations:
+                msg = f'{msg}  ({len(err.all_locations)})'
+            i = QListWidgetItem(msg, self.items)
             i.setData(Qt.ItemDataRole.UserRole, err)
             i.setIcon(icon_for_level(err.level))
         if num := len(self.hidden_accessibility_problems):
@@ -306,12 +311,12 @@ class Check(QSplitter):
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            self.fix_requested.emit(self.errors_in_list())
+            self.fix_requested.emit(expand_coalesced_errors(self.errors_in_list()))
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
             err = self.error_for_item(self.items.item(num))
             assert err is not None
-            self.fix_requested.emit([err])
+            self.fix_requested.emit(expand_coalesced_errors([err]))
         elif url.startswith('skip:rule,'):
             self.skip_rule(int(url.rpartition(',')[-1]))
         elif url.startswith('unskip:rule,'):
@@ -507,7 +512,7 @@ class Check(QSplitter):
         with BusyCursor():
             self.show_busy(_('Running fixers, please wait...'))
             QApplication.processEvents()
-            changed = fix_errors(container, errors, frozenset(skipped_rules()))
+            changed = fix_errors(container, expand_coalesced_errors(errors), frozenset(skipped_rules()))
         self.run_checks(container)
         return changed
 

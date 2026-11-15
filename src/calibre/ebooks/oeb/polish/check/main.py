@@ -15,7 +15,6 @@ from calibre.ebooks.oeb.polish.check.links import (
     CaseMismatch,
     DanglingLink,
     batch_fix_case_mismatches,
-    check_link_destinations,
     check_links,
     check_mimetypes,
 )
@@ -127,7 +126,8 @@ def run_checks(container: Container, skipped_rules: frozenset[str] = frozenset()
 
     errors.extend(css_checker())
     errors += check_mimetypes(container)
-    errors += check_links(container) + check_link_destinations(container)
+    # check_links also validates HTML destinations (single pass; was check_links + check_link_destinations)
+    errors += check_links(container)
     errors += check_fonts(container)
     errors += check_ids(container)
     errors += check_filenames(container)

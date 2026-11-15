@@ -105,24 +105,24 @@ def batch_fix_case_mismatches(container: Container, errors: Sequence[CaseMismatc
 class BadDestinationType(BaseError):
     level = WARN
 
-    def __init__(self, link_source: str, link_dest: str, link_elem: _Element) -> None:
-        BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
+    def __init__(self, link_source: str, link_dest: str, href: str, line: int | None = None) -> None:
+        BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=line)
         self.HELP = _(
             'The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
             ' Many e-book readers will be unable to follow such a link. You should'
             ' either remove the link or change it to point to a text document.'
             ' For example, if it points to an image, you can create small wrapper'
             ' document that contains the image and change the link to point to that.'
-        ).format(link_elem.get('href'), link_dest)
-        self.bad_href = link_elem.get('href')
+        ).format(href, link_dest)
+        self.bad_href = href
 
 
 class BadDestinationFragment(BaseError):
     level = WARN
 
-    def __init__(self, link_source: str, link_dest: str, link_elem: _Element, fragment: str) -> None:
-        BaseError.__init__(self, _('Link points to a location not present in the target file'), link_source, line=link_elem.sourceline)
-        self.bad_href = link_elem.get('href')
+    def __init__(self, link_source: str, link_dest: str, href: str, fragment: str, line: int | None = None) -> None:
+        BaseError.__init__(self, _('Link points to a location not present in the target file'), link_source, line=line)
+        self.bad_href = href
         self.HELP = _(
             'The link "{0}" points to a location <i>{1}</i> in the file {2} that does not exist.'
             ' You should either remove the location so that the link points to the top of the file,'
@@ -297,7 +297,14 @@ def check_mimetypes(container: Container) -> list[BaseError]:
     return errors
 
 
-def check_link_destination(container: Container, dest_map: dict[str, set[str]], name: str, href: str, a: _Element, errors: list[BaseError]) -> None:
+def check_link_destination(
+    container: Container,
+    dest_map: dict[str, set[str]],
+    name: str,
+    href: str,
+    errors: list[BaseError],
+    line: int | None = None,
+) -> None:
     if href.startswith('#'):
         tname = name
     else:
@@ -307,7 +314,7 @@ def check_link_destination(container: Container, dest_map: dict[str, set[str]], 
             tname = None  # Absolute links to files on another drive in windows cause this
     if tname and tname in container.mime_map:
         if container.mime_map[tname] not in OEB_DOCS:
-            errors.append(BadDestinationType(name, tname, a))
+            errors.append(BadDestinationType(name, tname, href, line=line))
         else:
             root = container.parsed(tname)
             if isinstance(root, etree._Element):
@@ -315,13 +322,17 @@ def check_link_destination(container: Container, dest_map: dict[str, set[str]], 
                     dest_map[tname] = set(root.xpath('//*/@id|//*/@name'))
                 purl = urlparse(href)
                 if purl.fragment and purl.fragment not in dest_map[tname]:
-                    errors.append(BadDestinationFragment(name, tname, a, purl.fragment))
+                    errors.append(BadDestinationFragment(name, tname, href, purl.fragment, line=line))
             else:
-                errors.append(BadDestinationType(name, tname, a))
+                errors.append(BadDestinationType(name, tname, href, line=line))
 
 
 def check_link_destinations(container: Container) -> list[BaseError]:
-    "Check destinations of links that point to HTML files"
+    '''Check destinations of links that point to HTML files.
+
+    Prefer :func:`check_links` with destinations enabled (default); this remains
+    for callers that only want destination errors.
+    '''
     errors: list[BaseError] = []
     dest_map: dict[str, set[str]] = {}
     opf_type = guess_type('a.opf')
@@ -332,7 +343,7 @@ def check_link_destinations(container: Container) -> list[BaseError]:
             assert isinstance(root, etree._Element)
             for a in root.xpath('//*[local-name()="a" and @href]'):
                 href = a.get('href')
-                check_link_destination(container, dest_map, name, href, a, errors)
+                check_link_destination(container, dest_map, name, href, errors, line=a.sourceline)
         elif mt == opf_type:
             for a in container.opf_xpath('//opf:reference[@href]'):
                 if container.book_type == 'azw3' and a.get('type') in {
@@ -342,13 +353,13 @@ def check_link_destinations(container: Container) -> list[BaseError]:
                 }:
                     continue
                 href = cast('str', a.get('href'))  # selected by the XPath expression
-                check_link_destination(container, dest_map, name, href, a, errors)
+                check_link_destination(container, dest_map, name, href, errors, line=a.sourceline)
         elif mt == ncx_type:
             root = container.parsed(name)
             assert isinstance(root, etree._Element)
             for a in root.xpath('//*[local-name() = "content" and @src]'):
                 href = a.get('src')
-                check_link_destination(container, dest_map, name, href, a, errors)
+                check_link_destination(container, dest_map, name, href, errors, line=a.sourceline)
 
     return errors
 
@@ -382,11 +393,13 @@ def locate_spine_media_overlays(container: Container) -> Iterator[str]:
                                 yield canonical_name(container, x)
 
 
-def check_links(container: Container) -> list[BaseError]:
+def check_links(container: Container, check_destinations: bool = True) -> list[BaseError]:
+    '''Check links (and optionally HTML destinations) in a single pass.'''
     links_map: defaultdict[str, set[str]] = defaultdict(set)
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
     errors: list[BaseError] = []
     a = errors.append
+    dest_map: dict[str, set[str]] = {}
 
     def fl(x: str) -> str:
         x = repr(x)
@@ -400,15 +413,22 @@ def check_links(container: Container) -> list[BaseError]:
                 href = cast('str', href)
                 if not href:
                     a(EmptyLink(_('The link is empty'), name, lnum, col))
+                if href.startswith('#'):
+                    # Same-file fragment: existence is implied; only destination ids matter
+                    if check_destinations and mt in OEB_DOCS:
+                        check_link_destination(container, dest_map, name, href, errors, line=lnum)
+                    continue
                 try:
                     tname = container.href_to_name(href, name)
                 except ValueError:
                     tname = None  # Absolute paths to files on another drive in windows cause this
                 if tname is not None:
                     cname: str | None = None
+                    resolved: str | None = None
                     if tname in container.mime_map:
                         # In-map names exist without a filesystem exists() call
                         links_map[name].add(tname)
+                        resolved = tname
                     elif container.exists(tname):
                         if os.path.isdir(container.name_to_abspath(tname)):
                             a(FolderLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
@@ -422,7 +442,17 @@ def check_links(container: Container) -> list[BaseError]:
                         if cname in container.mime_map:
                             # The link still references the file, so it is not unreferenced
                             links_map[name].add(cname)
+                            resolved = cname
                         a(CaseMismatch(href, cname, name, lnum, col))
+                    if (
+                        check_destinations
+                        and resolved is not None
+                        and mt not in OEB_STYLES
+                        and mt != guess_type('a.opf')
+                    ):
+                        # Docs + NCX destinations in this pass; OPF guide refs handled below
+                        # (cover image references must keep the azw3 exceptions).
+                        check_link_destination(container, dest_map, name, href, errors, line=lnum)
                 else:
                     try:
                         purl = urlparse(href)
@@ -442,6 +472,17 @@ def check_links(container: Container) -> list[BaseError]:
                                     col,
                                 )
                             )
+
+    if check_destinations:
+        for a_el in container.opf_xpath('//opf:reference[@href]'):
+            if container.book_type == 'azw3' and a_el.get('type') in {
+                'cover',
+                'other.ms-coverimage-standard',
+                'other.ms-coverimage',
+            }:
+                continue
+            href = cast('str', a_el.get('href'))
+            check_link_destination(container, dest_map, container.opf_name, href, errors, line=a_el.sourceline)
 
     def canonical(x: str) -> str:
         return canonical_name(container, x)
