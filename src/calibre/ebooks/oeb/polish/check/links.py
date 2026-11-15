@@ -12,13 +12,23 @@ from urllib.parse import urlparse
 from lxml import etree
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML_MIME, urlunquote
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML_MIME, barename, iterlinks as iter_html_links, urlunquote
 from calibre.ebooks.oeb.polish.check.base import ERROR, INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, case_mismatched_name, corrected_case_for_name, guess_type
 from calibre.utils.localization import _
+
+# Destination-type warnings apply to navigational hyperlinks only. Resource
+# references (<link rel=stylesheet>, <img src>, …) correctly target non-HTML.
+_NAV_HREF_TAGS = frozenset({'a', 'area'})
+
+
+def _is_navigational_href(tag: str, attr: str | None) -> bool:
+    if tag not in _NAV_HREF_TAGS or not attr:
+        return False
+    return attr == 'href' or attr.endswith('}href')
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -406,72 +416,101 @@ def check_links(container: Container, check_destinations: bool = True) -> list[B
         x = x.removeprefix('u')
         return x
 
+    def check_one_href(
+        name: str,
+        mt: str,
+        href: str,
+        lnum: int | None,
+        col: int | None,
+        *,
+        check_dest: bool,
+    ) -> None:
+        if not href:
+            a(EmptyLink(_('The link is empty'), name, lnum, col))
+            return
+        if href.startswith('#'):
+            # Same-file fragment: only navigational destinations matter
+            if check_destinations and check_dest and mt in OEB_DOCS:
+                check_link_destination(container, dest_map, name, href, errors, line=lnum)
+            return
+        try:
+            tname = container.href_to_name(href, name)
+        except ValueError:
+            tname = None  # Absolute paths to files on another drive in windows cause this
+        if tname is not None:
+            cname: str | None = None
+            resolved: str | None = None
+            if tname in container.mime_map:
+                # In-map names exist without a filesystem exists() call
+                links_map[name].add(tname)
+                resolved = tname
+            elif container.exists(tname):
+                if os.path.isdir(container.name_to_abspath(tname)):
+                    a(FolderLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
+                else:
+                    # Filesystem says the file exists, but it is not in
+                    # the mime_map, so there is a case mismatch
+                    cname = actual_case_for_name(container, tname)
+            elif (cname := corrected_case_for_name(container, tname)) is None:
+                a(DanglingLink(_('The linked resource %s does not exist') % fl(href), tname, name, lnum, col))
+            if cname is not None:
+                if cname in container.mime_map:
+                    # The link still references the file, so it is not unreferenced
+                    links_map[name].add(cname)
+                    resolved = cname
+                a(CaseMismatch(href, cname, name, lnum, col))
+            if check_destinations and check_dest and resolved is not None:
+                # Docs + NCX destinations; OPF guide refs handled below
+                # (cover image references must keep the azw3 exceptions).
+                check_link_destination(container, dest_map, name, href, errors, line=lnum)
+        else:
+            try:
+                purl = urlparse(href)
+            except ValueError:
+                a(MalformedURL(_('The URL {} could not be parsed').format(href), name, lnum, col))
+            else:
+                if purl.scheme == 'file':
+                    a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
+                elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
+                    a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
+                elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
+                    a(
+                        InvalidCharInLink(
+                            _('The link %s contains a : character, this will cause errors on Windows computers') % fl(href),
+                            name,
+                            lnum,
+                            col,
+                        )
+                    )
+
     for name, mt in container.mime_map.items():
-        if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
+        if mt in OEB_DOCS:
+            root = container.parsed(name)
+            assert isinstance(root, etree._Element)
+            for el, attr, href, pos in iter_html_links(root):
+                href = cast('str', href) if href else ''
+                tag = barename(el.tag).lower() if isinstance(el.tag, str) else ''
+                check_one_href(
+                    name,
+                    mt,
+                    href,
+                    el.sourceline,
+                    pos,
+                    check_dest=_is_navigational_href(tag, attr),
+                )
+        elif mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
                 # Container.iterlinks() only yields values of attributes that are present
                 href = cast('str', href)
-                if not href:
-                    a(EmptyLink(_('The link is empty'), name, lnum, col))
-                if href.startswith('#'):
-                    # Same-file fragment: existence is implied; only destination ids matter
-                    if check_destinations and mt in OEB_DOCS:
-                        check_link_destination(container, dest_map, name, href, errors, line=lnum)
-                    continue
-                try:
-                    tname = container.href_to_name(href, name)
-                except ValueError:
-                    tname = None  # Absolute paths to files on another drive in windows cause this
-                if tname is not None:
-                    cname: str | None = None
-                    resolved: str | None = None
-                    if tname in container.mime_map:
-                        # In-map names exist without a filesystem exists() call
-                        links_map[name].add(tname)
-                        resolved = tname
-                    elif container.exists(tname):
-                        if os.path.isdir(container.name_to_abspath(tname)):
-                            a(FolderLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
-                        else:
-                            # Filesystem says the file exists, but it is not in
-                            # the mime_map, so there is a case mismatch
-                            cname = actual_case_for_name(container, tname)
-                    elif (cname := corrected_case_for_name(container, tname)) is None:
-                        a(DanglingLink(_('The linked resource %s does not exist') % fl(href), tname, name, lnum, col))
-                    if cname is not None:
-                        if cname in container.mime_map:
-                            # The link still references the file, so it is not unreferenced
-                            links_map[name].add(cname)
-                            resolved = cname
-                        a(CaseMismatch(href, cname, name, lnum, col))
-                    if (
-                        check_destinations
-                        and resolved is not None
-                        and mt not in OEB_STYLES
-                        and mt != guess_type('a.opf')
-                    ):
-                        # Docs + NCX destinations in this pass; OPF guide refs handled below
-                        # (cover image references must keep the azw3 exceptions).
-                        check_link_destination(container, dest_map, name, href, errors, line=lnum)
-                else:
-                    try:
-                        purl = urlparse(href)
-                    except ValueError:
-                        a(MalformedURL(_('The URL {} could not be parsed').format(href), name, lnum, col))
-                    else:
-                        if purl.scheme == 'file':
-                            a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
-                        elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
-                            a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
-                        elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
-                            a(
-                                InvalidCharInLink(
-                                    _('The link %s contains a : character, this will cause errors on Windows computers') % fl(href),
-                                    name,
-                                    lnum,
-                                    col,
-                                )
-                            )
+                # Stylesheets: existence/case only. NCX/OPF XML: also destinations.
+                check_one_href(
+                    name,
+                    mt,
+                    href,
+                    lnum,
+                    col,
+                    check_dest=mt not in OEB_STYLES and mt != guess_type('a.opf'),
+                )
 
     if check_destinations:
         for a_el in container.opf_xpath('//opf:reference[@href]'):
