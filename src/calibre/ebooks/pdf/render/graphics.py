@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from math import sqrt
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QBrush, QImage, QPaintEngine, QPainterPath, QPen, QPointF, Qt, QTransform
 
@@ -226,8 +226,7 @@ class Graphics:
         do_fill = True
 
         matrix = QTransform.fromTranslate(brush_origin.x(), brush_origin.y()) * pdf_system * qt_system.inverted()[0]
-        # getRgbF() never returns None components, the stubs are overly broad
-        vals = cast('tuple[float, float, float, float]', brush.color().getRgbF())
+        vals = brush.color().getRgbF()
         self.brushobj = None
 
         if style.value <= Qt.BrushStyle.DiagCrossPattern.value:

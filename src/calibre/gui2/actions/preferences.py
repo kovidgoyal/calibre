@@ -71,6 +71,7 @@ class PreferencesAction(InterfaceAction):
             if p.category_order != current_cat:
                 current_cat = p.category_order
                 cm = pm.addMenu(p.gui_category.replace('&', '&&'))
+                assert cm is not None
                 cm.setIcon(config_icon)
             self.action_map[p.name] = self.create_menu_action(
                 cm,

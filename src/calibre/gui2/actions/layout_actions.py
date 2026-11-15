@@ -143,15 +143,18 @@ class LayoutActions(InterfaceAction):
         assert m is not None
         m.clear()
         lm = m.addMenu(self.layout_icon, _('Restore saved layout'))
+        assert lm is not None
         layouts = gprefs['saved_layouts']
         if layouts:
             for l in sorted(layouts, key=sort_key):
                 lm.addAction(self.layout_icon, l, partial(self.apply_layout, l))
         else:
             lm.setEnabled(False)
-        lm = m.addAction(self.layout_icon, _('Save current layout'))
-        lm.triggered.connect(self.save_current_layout)
+        ac = m.addAction(self.layout_icon, _('Save current layout'))
+        assert ac is not None
+        ac.triggered.connect(self.save_current_layout)
         lm = m.addMenu(self.layout_icon, _('Delete saved layout'))
+        assert lm is not None
         layouts = gprefs['saved_layouts']
         if layouts:
             for l in sorted(layouts, key=sort_key):

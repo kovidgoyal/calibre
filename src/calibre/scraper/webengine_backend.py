@@ -124,8 +124,8 @@ class Worker(QWebEnginePage):
     def javaScriptConfirm(self, securityOrigin: QUrl, msg: str | None) -> bool:
         return True
 
-    def javaScriptPrompt(self, securityOrigin: QUrl, msg: str | None, defaultValue: str | None) -> tuple[bool, str | None]:
-        return True, defaultValue
+    def javaScriptPrompt(self, securityOrigin: QUrl, msg: str | None, defaultValue: str | None) -> tuple[bool, str]:
+        return True, defaultValue or ''
 
     def javaScriptConsoleMessage(
         self,

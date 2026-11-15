@@ -394,7 +394,7 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
         self.ensure_lazy_initialized()
         super().restore_defaults()
 
-    def showEvent(self, a0) -> None:
+    def showEvent(self, a0, /) -> None:
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if

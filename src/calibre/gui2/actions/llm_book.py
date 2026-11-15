@@ -35,6 +35,7 @@ class LLMBookAction(InterfaceAction):
 
         for ac in sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name)):
             a = m.addAction(ac.human_name)
+            assert a is not None
             a.triggered.connect(partial(self.ask_ai_with_action, ac))
 
     def ask_ai_with_action(self, action=None) -> None:

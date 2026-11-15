@@ -500,6 +500,7 @@ class ChooseLibraryAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         lname = self.stats.library_used(db)
+        assert self.vl_to_apply_action is not None
         self.vl_to_apply_action.setText(_('Apply Virtual library when %s is opened') % lname)
         locations = list(self.stats.locations(db))
 
@@ -548,6 +549,7 @@ class ChooseLibraryAction(InterfaceAction):
             qs_actions.append(ac)
         self.qs_locations = [i[1] for i in locations_by_frequency]
 
+        assert self.quick_menu_action is not None and self.rename_menu_action is not None and self.delete_menu_action is not None
         self.quick_menu_action.setVisible(bool(locations))
         self.rename_menu_action.setVisible(bool(locations))
         self.delete_menu_action.setVisible(bool(locations))

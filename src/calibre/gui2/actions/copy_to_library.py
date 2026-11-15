@@ -401,10 +401,12 @@ class CopyToLibraryAction(InterfaceAction):
         for name, loc in locations:
             ic = library_qicon(name)
             name = name.replace('&', '&&')
-            self.menu.addAction(ic, name, partial(self.copy_to_library, loc)).setStatusTip(_('Copy to: {}').format(loc))
-            self.menu.addAction(ic, name + ' ' + _('(delete after copy)'), partial(self.copy_to_library, loc, delete_after=True)).setStatusTip(
-                _('Move to: {}').format(loc)
-            )
+            ac = self.menu.addAction(ic, name, partial(self.copy_to_library, loc))
+            assert ac is not None
+            ac.setStatusTip(_('Copy to: {}').format(loc))
+            ac = self.menu.addAction(ic, name + ' ' + _('(delete after copy)'), partial(self.copy_to_library, loc, delete_after=True))
+            assert ac is not None
+            ac.setStatusTip(_('Move to: {}').format(loc))
             self.menu.addSeparator()
         if len(locations) <= 5:
             self.menu.addAction(_('Choose library...'), self.choose_library)

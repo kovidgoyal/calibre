@@ -130,7 +130,7 @@ class SortByAction(InterfaceAction):
             menu = self.qaction.menu()
         assert menu is not None
         for action in menu.actions():
-            if hasattr(action, 'sort_requested'):
+            if isinstance(action, SortAction):
                 action.sort_requested.disconnect()
                 with suppress(TypeError):
                     action.toggled.disconnect()
@@ -158,7 +158,9 @@ class SortByAction(InterfaceAction):
             sort_col = 'date'
 
         # The operations to choose which columns to display and to create saved sorts
-        menu.addAction(_('Select sortable columns')).triggered.connect(self.select_sortable_columns)
+        ac = menu.addAction(_('Select sortable columns'))
+        assert ac is not None
+        ac.triggered.connect(self.select_sortable_columns)
         menu.addAction(_('Sort on multiple columns'), self.choose_multisort)
         menu.addSeparator()
 

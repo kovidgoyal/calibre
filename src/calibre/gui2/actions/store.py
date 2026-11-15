@@ -31,7 +31,9 @@ class StoreAction(InterfaceAction):
             ac = cm(x, _('Search for %s') % t, triggered=func)
             setattr(self, 'action_search_by_' + x, ac)
         self.store_menu.addSeparator()
-        self.store_list_menu = self.store_menu.addMenu(_('Stores'))
+        store_list_menu = self.store_menu.addMenu(_('Stores'))
+        assert store_list_menu is not None
+        self.store_list_menu = store_list_menu
         self.load_menu()
         self.store_menu.addSeparator()
         cm('choose stores', _('Choose stores'), triggered=self.choose)

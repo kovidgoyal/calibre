@@ -103,7 +103,7 @@ def launch_calibre_gui(args: Sequence[str] = ()) -> None:
     subprocess.Popen(cmd, env=env, close_fds=True, creationflags=creationflags)
 
 
-def connect_lambda(bound_signal: pyqtBoundSignal, self: object, func: FunctionType, **kw: Qt.ConnectionType) -> None:
+def connect_lambda(bound_signal: pyqtBoundSignal, self: object, func: FunctionType, type: Qt.ConnectionType | None = None) -> None:
     import weakref
 
     r = weakref.ref(self)
@@ -119,7 +119,10 @@ def connect_lambda(bound_signal: pyqtBoundSignal, self: object, func: FunctionTy
                 args = args[:num_args]
             func(ctx, *args)
 
-    bound_signal.connect(slot, **kw)
+    if type is None:
+        bound_signal.connect(slot)
+    else:
+        bound_signal.connect(slot, type)
 
 
 _calibre_initialized = False
