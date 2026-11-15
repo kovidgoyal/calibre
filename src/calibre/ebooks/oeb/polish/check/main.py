@@ -20,7 +20,11 @@ from calibre.ebooks.oeb.polish.check.links import (
 )
 from calibre.ebooks.oeb.polish.check.opf import check_opf
 from calibre.ebooks.oeb.polish.check.parsing import (
+    DanglingIdReference,
+    DuplicateId,
     EmptyFile,
+    InvalidId,
+    batch_fix_invalid_ids,
     check_encoding_declarations,
     check_filenames,
     check_html_size,
@@ -67,9 +71,35 @@ def remove_skipped(errors: Iterable[BaseError], skipped_rules: frozenset[str]) -
     return [e for e in errors if not e.can_be_skipped or e.rule_id not in skipped_rules]
 
 
-def run_checks(container: Container, skipped_rules: frozenset[str] = frozenset(), accessibility: bool = False) -> list[BaseError]:
+# Closed allowlist: only these fixers touch links/ids in ways safe for a partial recheck.
+LINK_ID_FIX_TYPES = (DanglingLink, CaseMismatch, InvalidId, DuplicateId, DanglingIdReference)
+_PARTIAL_CHECK_TOKENS = frozenset({'links', 'ids'})
 
-    errors: list[BaseError] = []
+
+def can_partial_recheck(errors: Sequence[BaseError]) -> bool:
+    '''True when every error is in LINK_ID_FIX_TYPES (fail-closed otherwise).'''
+    return bool(errors) and all(isinstance(e, LINK_ID_FIX_TYPES) for e in errors)
+
+
+def run_checks(
+    container: Container,
+    skipped_rules: frozenset[str] = frozenset(),
+    accessibility: bool = False,
+    only: frozenset[str] | None = None,
+) -> list[BaseError]:
+    # Partial suite (post-fix only): unknown / empty tokens → fall back to full (fail-closed).
+    if only is not None:
+        if only and only.issubset(_PARTIAL_CHECK_TOKENS):
+            errors: list[BaseError] = []
+            if 'links' in only:
+                # check_links also validates HTML destinations (single pass)
+                errors += check_links(container)
+            if 'ids' in only:
+                errors += check_ids(container)
+            return remove_skipped(errors, skipped_rules)
+        only = None
+
+    errors = []
 
     # Check parsing
     xml_items, html_items, raster_images, stylesheets = [], [], [], []
@@ -217,6 +247,12 @@ def fix_errors(container: Container, errors: Sequence[BaseError], skipped_rules:
         if remove_links_to(container, lambda name, *a: name in targets):
             changed = True
         batched.update(dangling_errs)
+    # Batch InvalidId after Case/Dangling so link structure is stable before fragment retargeting
+    invalid_errs = [e for e in errors if isinstance(e, InvalidId) and e.INDIVIDUAL_FIX]
+    if invalid_errs:
+        if batch_fix_invalid_ids(container, invalid_errs):
+            changed = True
+        batched.update(invalid_errs)
 
     has_fixable_css_errors = False
     for err in errors:

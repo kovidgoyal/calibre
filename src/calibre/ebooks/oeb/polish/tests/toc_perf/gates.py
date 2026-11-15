@@ -19,8 +19,8 @@ def gates_forced() -> bool:
 def gates_enabled(feature: str) -> bool:
     '''Return True when hard call-count asserts for *feature* should run.
 
-    Features: ``a1``, ``b1``, ``b2``, ``a2``.
-    Default: a1 enabled (product lands with corpus PR); b1/b2/a2 off unless
+    Features: ``a1``, ``b1``, ``b2``, ``a2``, ``a3``.
+    Default: a1/a3 enabled on Check-book branch; b1/b2 via Conversion PR once landed; a2 off unless
     CALIBRE_TOC_PERF_GATES=1 or the feature-specific env is set.
     '''
     if gates_forced():
@@ -31,7 +31,7 @@ def gates_enabled(feature: str) -> bool:
     if specific in {'0', 'false', 'no'}:
         return False
     # Defaults after product PRs land in-tree; corpus-only red path uses xfail when False
-    return feature == 'a1'
+    return feature in {'a1', 'a3'}
 
 
 def maybe_expected_failure(feature: str) -> Callable[[Callable], Callable]:

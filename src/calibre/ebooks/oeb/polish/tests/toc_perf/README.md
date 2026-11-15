@@ -26,6 +26,7 @@ Built as EPUB3 under the polish-test cache (`get_cache()/toc_perf/`), not commit
 | A-dual | nav+NCX same dangling set |
 | A-mixed | dangling + case + BadDestinationFragment |
 | A-clean | valid deep dual TOC |
+| A-invalid-id | invalid `_frag` ids in HTML (+ shared id on chapter2) + CSS; TOC hrefs use those fragments (A3/R5) |
 
 **Case-sensitive FS required** for A-case (Linux CI). On macOS/Windows default FS, A-case tests skip.
 

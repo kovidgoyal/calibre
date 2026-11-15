@@ -17,13 +17,20 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-AVariant = Literal['dangling', 'case', 'dual', 'mixed', 'clean']
+AVariant = Literal['dangling', 'case', 'dual', 'mixed', 'clean', 'invalid_id']
 CHAPTER = 'chapter.xhtml'
+CHAPTER2 = 'chapter2.xhtml'  # second HTML file for InvalidId CSS-global dedupe
 CHAPTER_CASE_WRONG = 'Chapter.xhtml'  # wrong case href → CHAPTER on case-sensitive FS
 MISSING = 'missing.xhtml'
 NAV = 'nav.xhtml'
 NCX = 'toc.ncx'
 OPF = 'content.opf'
+STYLE = 'style.css'
+
+
+def invalid_id_for_frag(frag: str) -> str:
+    '''Invalid HTML/CSS id derived from a TOC fragment (leading underscore).'''
+    return f'_{frag}'
 
 XHTML = f'http://www.w3.org/1999/xhtml'
 EPUB_NS = 'http://www.idpf.org/2007/ops'
@@ -56,22 +63,32 @@ def iter_toc_entries(fanout: Fanout) -> Iterable[tuple[int, int, int, str, str]]
                 yield (i, j, k, f'Subsection {i}.{j}.{k}', frag)
 
 
-def _chapter_html(fanout: Fanout, *, include_ids: bool = True, bad_frags: Sequence[str] = ()) -> str:
+def _chapter_html(
+    fanout: Fanout,
+    *,
+    include_ids: bool = True,
+    bad_frags: Sequence[str] = (),
+    id_for_frag=None,
+    extra_head: str = '',
+    title: str = 'Chapter',
+) -> str:
     '''Spine HTML with heading ids matching TOC fragments (unless bad_frags).'''
     parts = [
         f'<html xmlns="{XHTML_NS}" xmlns:epub="{EPUB_NS}">',
-        '<head><title>Chapter</title></head><body>',
+        f'<head><title>{title}</title>{extra_head}</head><body>',
         '<p>Body start.</p>',
     ]
     bad = set(bad_frags)
-    for _i, _j, _k, title, frag in iter_toc_entries(fanout):
+    for _i, _j, _k, entry_title, frag in iter_toc_entries(fanout):
         if not include_ids or frag in bad:
-            parts.append(f'<h3>{title}</h3>')
+            parts.append(f'<h3>{entry_title}</h3>')
         else:
             level = 1 if _j == 0 else (2 if _k == 0 else 3)
-            parts.append(f'<h{level} id="{frag}">{title}</h{level}>')
-            parts.append(f'<p>Text for {title}.</p>')
-    parts.append('<p><a href="#h1-1">Legitimate body link</a></p>')
+            eid = id_for_frag(frag) if id_for_frag else frag
+            parts.append(f'<h{level} id="{eid}">{entry_title}</h{level}>')
+            parts.append(f'<p>Text for {entry_title}.</p>')
+    first_id = id_for_frag('h1-1') if id_for_frag else 'h1-1'
+    parts.append(f'<p><a href="#{first_id}">Legitimate body link</a></p>')
     parts.append('</body></html>')
     return '\n'.join(parts)
 
@@ -252,6 +269,28 @@ def build_a_epub(
         href_for = _href_clean
         bad_frags = ()
         chapter = _chapter_html(fanout, include_ids=True)
+    elif variant == 'invalid_id':
+        # Distinct invalid ids (_frag) on spine HTML; TOC hrefs use those fragments.
+        # Second HTML file shares the first invalid id (CSS-global dedupe).
+        # CSS selectors reference the invalid ids. Dual TOC (nav+NCX) by default.
+        bad_frags = ()
+        id_map_frags = {frag: invalid_id_for_frag(frag) for *_rest, frag in entries}
+
+        def href_for(_title: str, frag: str) -> str:
+            return f'{CHAPTER}#{id_map_frags[frag]}'
+
+        css_rules = '\n'.join(f'#{invalid_id_for_frag(frag)} {{ color: red }}' for *_r, frag in entries[: min(20, len(entries))])
+        head = f'<link rel="stylesheet" href="{STYLE}"/>'
+        chapter = _chapter_html(fanout, include_ids=True, id_for_frag=invalid_id_for_frag, extra_head=head)
+        # Second file: same first invalid id only (dedupe gold)
+        first_frag = entries[0][4]
+        first_invalid = invalid_id_for_frag(first_frag)
+        chapter2 = (
+            f'<html xmlns="{XHTML_NS}" xmlns:epub="{EPUB_NS}">'
+            f'<head><title>Chapter2</title><link rel="stylesheet" href="{STYLE}"/></head>'
+            f'<body><p id="{first_invalid}">shared invalid id</p>'
+            f'<a href="{CHAPTER}#{first_invalid}">cross</a></body></html>'
+        )
     else:
         raise ValueError(variant)
 
@@ -264,6 +303,11 @@ def build_a_epub(
         CHAPTER: chapter.encode('utf-8'),
         NAV: nav.encode('utf-8'),
     }
+    if variant == 'invalid_id':
+        files[CHAPTER2] = chapter2.encode('utf-8')
+        files[STYLE] = (css_rules + '\n').encode('utf-8')
+        manifest.append(('chapter2', CHAPTER2, None))
+        manifest.append(('style', STYLE, None))
     spine_toc = None
     if dual_toc:
         ncx = _ncx_xml(entries, href_for)

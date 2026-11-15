@@ -21,7 +21,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.polish.check.base import CRITICAL, DEBUG, ERROR, INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.check.coalesce import coalesce_toc_link_errors, expand_coalesced_errors
-from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+from calibre.ebooks.oeb.polish.check.main import can_partial_recheck, fix_errors, run_checks
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.widgets import BusyCursor
@@ -512,8 +512,32 @@ class Check(QSplitter):
         with BusyCursor():
             self.show_busy(_('Running fixers, please wait...'))
             QApplication.processEvents()
-            changed = fix_errors(container, expand_coalesced_errors(errors), frozenset(skipped_rules()))
-        self.run_checks(container)
+            expanded = expand_coalesced_errors(errors)
+            changed = fix_errors(container, expanded, frozenset(skipped_rules()))
+        # Fail-closed: partial links+ids recheck only when every fixed error is
+        # in LINK_ID_FIX_TYPES. Otherwise full Check book suite (user can always
+        # re-run Check book for completeness after a partial panel refresh).
+        if can_partial_recheck(expanded):
+            with BusyCursor():
+                self.show_busy()
+                QApplication.processEvents()
+                new_errors = run_checks(
+                    container,
+                    frozenset(skipped_rules()),
+                    accessibility=False,
+                    only=frozenset({'links', 'ids'}),
+                )
+                self.hide_busy()
+            self.items.blockSignals(True)
+            try:
+                self.populate(new_errors)
+            finally:
+                self.items.blockSignals(False)
+            self.show_initial_item()
+            if self.items.count() > 0:
+                self.items.setFocus(Qt.FocusReason.OtherFocusReason)
+        else:
+            self.run_checks(container)
         return changed
 
     def show_busy(self, msg=_('Running checks, please wait...')) -> None:
