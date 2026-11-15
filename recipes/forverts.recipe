@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Forverts(BasicNewsRecipe):
+    title = 'Forverts (ייִדיש)'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'The Forward'
+    description = 'Yiddish news, culture and opinion from Forverts. Some headlines also include an English translation.'
+    language = 'yi'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url'}
+    extra_css = 'body { direction: rtl; text-align: right; }'
+
+    def parse_index(self):
+        index_url = 'https://forward.com/yiddish/'
+        soup = self.index_to_soup(index_url)
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'forward.com', 'www.forward.com'}:
+                continue
+            if not re.fullmatch(r'/yiddish/\d+/[^/]+/?', parsed.path):
+                continue
+            heading = link.find(['h2', 'h3']) or link.find_parent(['h2', 'h3'])
+            title = (heading or link).get_text(' ', strip=True)
+            if not re.search(r'[\u05d0-\u05ea]', title):
+                continue
+            url = urlunsplit(('https', 'forward.com', parsed.path.rstrip('/') + '/', '', ''))
+            previous = articles.get(url)
+            if previous is None or len(title) < len(previous['title']):
+                articles[url] = {'title': title, 'url': url}
+        if not articles:
+            self.abort_recipe_processing('No Yiddish article links found on the Forverts index.')
+        return [('ייִדיש', list(articles.values())[: self.max_articles_per_feed])]
+
+    def postprocess_html(self, soup, first_fetch):
+        if soup.html:
+            soup.html['dir'] = 'rtl'
+            soup.html['lang'] = 'yi'
+        if soup.body:
+            soup.body['dir'] = 'rtl'
+        return soup
+
+    def postprocess_book(self, oeb, opts, log):
+        oeb.spine.page_progression_direction = 'rtl'

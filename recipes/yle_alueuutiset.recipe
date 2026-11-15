@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class YleAlueuutiset(BasicNewsRecipe):
+    title = 'Yle Alueuutiset'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Yle'
+    description = (
+        'Ylen suomenkieliset alueuutiset 18 alueelta, myös Uudeltamaalta. Enintään kymmenen uutista alueelta. '
+        'RSS-teksti toimii varana, jos artikkelin nouto epäonnistuu.'
+    )
+    language = 'fi'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 10
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Etelä-Karjala', 'https://yle.fi/rss/t/18-141372/fi'),
+        ('Etelä-Pohjanmaa', 'https://yle.fi/rss/t/18-146311/fi'),
+        ('Etelä-Savo', 'https://yle.fi/rss/t/18-141852/fi'),
+        ('Kainuu', 'https://yle.fi/rss/t/18-141399/fi'),
+        ('Kanta-Häme', 'https://yle.fi/rss/t/18-138727/fi'),
+        ('Keski-Pohjanmaa', 'https://yle.fi/rss/t/18-135629/fi'),
+        ('Keski-Suomi', 'https://yle.fi/rss/t/18-148148/fi'),
+        ('Kymenlaakso', 'https://yle.fi/rss/t/18-131408/fi'),
+        ('Lappi', 'https://yle.fi/rss/t/18-139752/fi'),
+        ('Pirkanmaa', 'https://yle.fi/rss/t/18-146831/fi'),
+        ('Pohjanmaa', 'https://yle.fi/rss/t/18-148149/fi'),
+        ('Pohjois-Karjala', 'https://yle.fi/rss/t/18-141936/fi'),
+        ('Pohjois-Pohjanmaa', 'https://yle.fi/rss/t/18-148154/fi'),
+        ('Pohjois-Savo', 'https://yle.fi/rss/t/18-141764/fi'),
+        ('Päijät-Häme', 'https://yle.fi/rss/t/18-141401/fi'),
+        ('Satakunta', 'https://yle.fi/rss/t/18-139772/fi'),
+        ('Uusimaa', 'https://yle.fi/rss/t/18-147345/fi'),
+        ('Varsinais-Suomi', 'https://yle.fi/rss/t/18-135507/fi'),
+    ]
+
+    def fetch_article(self, url, directory, feed_index, article_index, num_of_feeds):
+        try:
+            return super().fetch_article(url, directory, feed_index, article_index, num_of_feeds)
+        except Exception:
+            article = self.feed_objects[feed_index].articles[article_index]
+            if not (article.content or article.summary):
+                raise
+            self.log.warning(f'Using RSS text after the article page could not be fetched: {article.title}')
+            return self.fetch_embedded_article(article, directory, feed_index, article_index, num_of_feeds)

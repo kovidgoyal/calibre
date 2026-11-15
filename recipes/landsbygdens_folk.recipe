@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import json
+import re
+from html import escape
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LandsbygdensFolk(BasicNewsRecipe):
+    title = 'Landsbygdens Folk'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Landsbygdens Folk'
+    description = 'Offentligt läsbara artiklar från Landsbygdens Folk. Identifierade betalspärrar hoppas över.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = False
+    auto_cleanup = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    def preprocess_raw_html(self, raw_html, url):
+        # Check before readability removes subscription notices and JSON-LD.
+        soup = self.index_to_soup(raw_html)
+        for script in soup.find_all('script', type='application/ld+json'):
+            try:
+                pending = [json.loads(script.string or '')]
+            except ValueError:
+                continue
+            while pending:
+                item = pending.pop()
+                if isinstance(item, list):
+                    pending.extend(item)
+                elif isinstance(item, dict):
+                    pending.append(item.get('@graph', []))
+                    types = item.get('@type', [])
+                    if isinstance(types, str):
+                        types = [types]
+                    if isinstance(types, list) and any(t in ('Article', 'NewsArticle') for t in types):
+                        if str(item.get('isAccessibleForFree', '')).lower() == 'false':
+                            self.abort_article('Artikeln kräver medlemskap eller prenumeration.')
+        text = ' '.join(soup.get_text(' ', strip=True).split())
+        if 'logga in dig som medlem eller prenumerant för att läsa denna artikel' in text.lower():
+            self.abort_article('Artikeln kräver medlemskap eller prenumeration.')
+        return raw_html
+
+    def preprocess_html(self, soup):
+        if not any(tag.get_text(strip=True) for tag in soup.find_all('p')):
+            self.abort_article('Ingen läsbar artikeltext hittades.')
+        return soup
+
+    def parse_index(self):
+        index_url = 'https://www.landsbygdensfolk.fi/nyheter'
+        soup = self.index_to_soup(index_url)
+        date_pattern = re.compile(
+            r'\b(?:måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)\s+(\d{1,2}\.\d{1,2}\.\d{4})\b',
+            re.IGNORECASE,
+        )
+        articles = {}
+        for link in soup.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if parsed.scheme != 'https' or parsed.netloc not in {'landsbygdensfolk.fi', 'www.landsbygdensfolk.fi'}:
+                continue
+            path = parsed.path.rstrip('/')
+            if not re.fullmatch(r'/nyheter/[^/]+', path):
+                continue
+            text = ' '.join(link.get_text(' ', strip=True).split())
+            match = date_pattern.search(text)
+            if match is None:
+                continue
+            title = text[: match.start()].strip()
+            if not title:
+                continue
+            summary = re.sub(r'\s*Läs mer\s*$', '', text[match.end() :], flags=re.IGNORECASE).strip(' -')
+            article = {
+                'title': title,
+                'url': urlunsplit(('https', 'www.landsbygdensfolk.fi', path, '', '')),
+                'date': match.group(1),
+                'description': '<p>' + escape(summary or title) + '</p>',
+            }
+            previous = articles.get(article['url'])
+            if previous is None or len(article['description']) > len(previous['description']):
+                articles[article['url']] = article
+        if not articles:
+            self.abort_recipe_processing('Hittade inga daterade nyhetsingresser hos Landsbygdens Folk.')
+        return [('Senaste nyheterna', list(articles.values())[: self.max_articles_per_feed])]

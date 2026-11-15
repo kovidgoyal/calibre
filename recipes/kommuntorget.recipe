@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: GPL-3.0-only
+import re
+from urllib.parse import urljoin, urlsplit, urlunsplit
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Kommuntorget(BasicNewsRecipe):
+    title = 'Kommuntorget'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Kommuntorget'
+    description = 'Nyheter och opinion om kommuner, offentlig ekonomi och Svenskfinland.'
+    language = 'sv'
+    encoding = 'utf-8'
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    auto_cleanup = True
+    no_stylesheets = True
+    use_embedded_content = False
+    ignore_duplicate_articles = {'url'}
+
+    def parse_index(self):
+        index_url = 'https://www.kommuntorget.fi/'
+        soup = self.index_to_soup(index_url)
+        main = soup.find('main') or soup.find(attrs={'role': 'main'}) or soup
+        articles = {}
+        for link in main.find_all('a', href=True):
+            parsed = urlsplit(urljoin(index_url, link['href']))
+            if (
+                parsed.scheme != 'https'
+                or parsed.netloc not in {'kommuntorget.fi', 'www.kommuntorget.fi'}
+                or not re.fullmatch(r'/(?:nyheter|opinion)/[^/]+/\d+/?', parsed.path)
+            ):
+                continue
+            url = urlunsplit(('https', 'www.kommuntorget.fi', parsed.path.rstrip('/'), '', ''))
+            heading = link.find(['h2', 'h3']) or link.find_parent(['h2', 'h3'])
+            title = (heading or link).get_text(' ', strip=True)
+            if title and (heading or url not in articles):
+                articles[url] = {'title': title, 'url': url}
+        if not articles:
+            self.abort_recipe_processing('Hittade inga artiklar på Kommuntorgets förstasida.')
+        return [('Nyheter och opinion', list(articles.values())[: self.max_articles_per_feed])]

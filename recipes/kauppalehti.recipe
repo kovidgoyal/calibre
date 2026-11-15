@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-only
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Kauppalehti(BasicNewsRecipe):
+    title = 'Kauppalehti – RSS-kooste'
+    __author__ = 'Jonatan Nyberg'
+    publisher = 'Kauppalehti'
+    description = 'Kauppalehden RSS-syötteen otsikot, tiivistelmät ja linkit alkuperäisiin artikkeleihin. Ei tilaaja-artikkelien kokotekstiä.'
+    language = 'fi'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 30
+    simultaneous_downloads = 2
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Pääuutiset', 'https://feeds.kauppalehti.fi/rss/main'),
+    ]
