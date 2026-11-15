@@ -50,9 +50,9 @@ dependencies = [
 	"zeroconf == 0.149.16",
 	"fonttools == 4.61.0",
 	"lxml_html_clean == 0.4.5",
-	"PyQt6_sip == 13.10.2",
-	"PyQt6 == 6.10.0",
-	"PyQt6_WebEngine == 6.10.0",
+	"PyQt6_sip == 13.13.1",
+	"PyQt6 == 6.12.1",
+	"PyQt6_WebEngine == 6.140.1",
 	"MacFSEvents == 0.8.4; sys_platform == 'darwin'",
 	"xxhash == 3.6.0",
     "tzdata == 2026.5",
@@ -88,7 +88,7 @@ requires = [
 	"setuptools_scm == 9.2.2",
 	"poetry_core == 2.2.1",  # needed for building zeroconf
 	"ply == 3.11",  # needed for sip
-	"sip == 6.14.0",
+	"sip == 6.17.3",
 	"PyQt_builder == 1.19.1",
 ]
 [dependency-groups]
