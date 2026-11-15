@@ -8,6 +8,7 @@ class Realtid(BasicNewsRecipe):
     publisher = 'Realtid'
     description = 'Nyheter om finans, näringsliv och ekonomi från Realtid.'
     language = 'sv'
+    encoding = 'utf-8'
     oldest_article = 3
     max_articles_per_feed = 15
     simultaneous_downloads = 2

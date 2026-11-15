@@ -8,6 +8,7 @@ class DagensPS(BasicNewsRecipe):
     publisher = 'Dagens PS'
     description = 'Nyheter om ekonomi, börs och privatekonomi från Dagens PS.'
     language = 'sv'
+    encoding = 'utf-8'
     oldest_article = 3
     max_articles_per_feed = 15
     simultaneous_downloads = 2

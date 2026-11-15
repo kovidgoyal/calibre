@@ -7,6 +7,7 @@ class SvenskaEkonominyheter(BasicNewsRecipe):
     title = 'Svenska ekonominyheter'
     description = 'Rubriker, RSS-ingresser och länkar från svenska ekonomikällor.'
     language = 'sv'
+    encoding = 'utf-8'
     oldest_article = 5
     max_articles_per_feed = 8
     simultaneous_downloads = 2

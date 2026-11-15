@@ -8,6 +8,7 @@ class Aftonbladet(BasicNewsRecipe):
     publisher = 'Aftonbladet'
     description = 'Senaste nytt från Aftonbladet.'
     language = 'sv'
+    encoding = 'utf-8'
     oldest_article = 2
     max_articles_per_feed = 15
     simultaneous_downloads = 2

@@ -8,6 +8,7 @@ class Expressen(BasicNewsRecipe):
     publisher = 'Expressen'
     description = 'Nyheter från Expressen.'
     language = 'sv'
+    encoding = 'utf-8'
     oldest_article = 2
     max_articles_per_feed = 15
     simultaneous_downloads = 2
