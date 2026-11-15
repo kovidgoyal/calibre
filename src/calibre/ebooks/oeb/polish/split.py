@@ -67,6 +67,92 @@ def get_body(root: _Element) -> _Element | None:
     return root.find('h:body', namespaces=XPNSMAP)
 
 
+def body_child_for(elem: _Element, body: _Element) -> _Element | None:
+    """Return the direct child of ``body`` that is ``elem`` or an ancestor of it."""
+    child: _Element | None = elem
+    while child is not None and child.getparent() is not body:
+        child = child.getparent()
+    if child is None or child.getparent() is not body:
+        return None
+    return child
+
+
+def partition_by_body_siblings(
+    tree: _ElementTree,
+    split_points: Sequence[_Element] | Sequence[tuple[_Element, bool]],
+    log: Log,
+    before: bool = True,
+) -> list[_ElementTree] | None:
+    """
+    Split ``tree`` into multiple trees at ``split_points`` by partitioning the
+    body's direct children (common for Markdown→HTML novels).
+
+    ``split_points`` may be elements (all using ``before``) or ``(element, before)``
+    pairs when page-break-before and page-break-after are mixed.
+
+    Returns None when the tree cannot use this fast path (non-body points,
+    nested-only structure, etc.) so callers can fall back to repeated
+    :func:`do_split`.
+
+    Cost is one shallow shell deepcopy per output part plus moving children once,
+    not a full-tree deepcopy per cut.
+    """
+    if not split_points:
+        return [tree]
+    root = tree.getroot()
+    body = get_body(root)
+    if body is None:
+        return None
+
+    specs: list[tuple[_Element, bool]] = []
+    for item in split_points:
+        if isinstance(item, tuple):
+            specs.append(item)
+        else:
+            specs.append((item, before))
+
+    cut_indices: list[int] = []
+    for sp, sp_before in specs:
+        point = adjust_split_point(sp, log) if sp_before else sp
+        child = body_child_for(point, body)
+        if child is None:
+            return None
+        idx = body.index(child)
+        if not sp_before:
+            idx += 1
+        if 0 < idx < len(body):
+            cut_indices.append(idx)
+
+    if not cut_indices:
+        return [tree]
+
+    cuts = sorted(set(cut_indices))
+    children = list(body)
+    segments: list[list[_Element]] = []
+    prev = 0
+    for cut in cuts:
+        segments.append(children[prev:cut])
+        prev = cut
+    segments.append(children[prev:])
+
+    # Empty shell template (html/head only) — body children are moved, not copied.
+    for child in list(body):
+        body.remove(child)
+    body.text = '\n'
+    shell = copy.deepcopy(tree)
+
+    trees: list[_ElementTree] = []
+    for seg in segments:
+        if not seg:
+            continue
+        part = copy.deepcopy(shell)
+        part_body = cast('_Element', get_body(part.getroot()))
+        for elem in seg:
+            part_body.append(elem)
+        trees.append(part)
+    return trees or [tree]
+
+
 def do_split(split_point: _Element, log: Log, before: bool = True) -> tuple[_ElementTree, _ElementTree]:
     """
     Split tree into a *before* and an *after* tree at ``split_point``.

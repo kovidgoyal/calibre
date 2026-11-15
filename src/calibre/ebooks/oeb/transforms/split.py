@@ -24,7 +24,7 @@ from calibre import as_unicode, force_unicode
 from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, rewrite_links, urldefrag, urlnormalize
 from calibre.ebooks.oeb.base import XPNSMAP as NAMESPACES
-from calibre.ebooks.oeb.polish.split import do_split
+from calibre.ebooks.oeb.polish.split import do_split, partition_by_body_siblings
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
@@ -40,6 +40,32 @@ if TYPE_CHECKING:
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_POINT_ATTR = 'csp'
+
+
+def resolve_page_break_elements(
+    ordered_ids: OrderedDict[str, tuple[object, bool]],
+    root: _Element,
+) -> list[tuple[_Element, bool]]:
+    """Map page-break ids to elements with one document walk (O(D+N)).
+
+    Completes the sibling-partition fast path: callers used to resolve each
+    break with ``//*[@id=…]`` (O(N×D)), which dominated TOC-options converts
+    on large flat Markdown bodies while partition itself stayed cheap.
+    """
+    wanted = frozenset(ordered_ids)
+    id_to_elem: dict[str, _Element] = {}
+    for elem in root.iter('*'):
+        eid = elem.get('id')
+        if eid is not None and eid in wanted and eid not in id_to_elem:
+            id_to_elem[eid] = elem
+            if len(id_to_elem) == len(wanted):
+                break
+    specs: list[tuple[_Element, bool]] = []
+    for pb_id, (_pattern, before) in ordered_ids.items():
+        elem = id_to_elem.get(pb_id)
+        if elem is not None:
+            specs.append((elem, before))
+    return specs
 
 
 def tostring(root: _Element) -> bytes:
@@ -140,9 +166,26 @@ class Split:
             return [], []
         descendants = frozenset(body[0].iterdescendants('*'))
 
+        pb_before_map: dict[_Element, bool] = {}
+        # css_selectors.Select can be pathologically slow on large flat bodies
+        # (e.g. .calibre1 ≈ 7min on a 265k-node Markdown novel). Use XPath for
+        # the common post-flatcss ".classname" form.
+        simple_class = re.compile(r'^\.([A-Za-z_][\w-]*)$')
+
+        def match_selector(selector: str | _XPath) -> list[_Element]:
+            if isinstance(selector, str):
+                m = simple_class.match(selector)
+                if m is not None:
+                    cls = m.group(1)
+                    return root.xpath(
+                        f'//*[contains(concat(" ", normalize-space(@class), " "), " {cls} ")]'
+                    )
+                return list(select(selector))
+            return list(selector(root))
+
         for selector, before in self.page_break_selectors:
             try:
-                matches = select(selector) if isinstance(selector, str) else selector(root)
+                matches = match_selector(selector)
                 for elem in matches:
                     if elem in descendants and elem.tag.rpartition('}')[2].lower() not in {
                         'html',
@@ -153,19 +196,24 @@ class Split:
                         'meta',
                         'link',
                     }:
-                        elem.set('pb_before', '1' if before else '0')
+                        # Last matching selector wins for before/after, same as prior attrib overwrite.
+                        pb_before_map[elem] = before
                         page_breaks.add(elem)
             except SelectorError as err:
                 self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
+            except Exception as err:
+                self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
 
-        for i, elem in enumerate(root.iter('*')):
-            try:
-                elem.set('pb_order', str(i))
-            except TypeError:  # Can't set attributes on comment nodes etc.
-                continue
+        # Document order without tagging every node (attrib set on 10^5–10^6 nodes
+        # dominated Split time on large Markdown novels).
+        pb_order: dict[_Element, int] = {}
+        if page_breaks:
+            for i, elem in enumerate(root.iter('*')):
+                if elem in page_breaks:
+                    pb_order[elem] = i
 
         page_breaks = list(page_breaks)
-        page_breaks.sort(key=lambda x: int(x.get('pb_order')))
+        page_breaks.sort(key=lambda x: pb_order[x])
         page_break_ids: list[str] = []
         page_breaks_: list[PageBreak] = []
         for i, x in enumerate(page_breaks):
@@ -183,12 +231,8 @@ class Split:
                     id = f'calibre_pb_{i}'
                     x.set('id', id)
                     xp = XPath(f'//*[@id={id!r}]')
-            page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
+            page_breaks_.append((xp, pb_before_map.get(x, False)))
             page_break_ids.append(id)
-
-        for elem in root.iter(etree.Element):
-            elem.attrib.pop('pb_order', False)
-            elem.attrib.pop('pb_before', False)
 
         return page_breaks_, page_break_ids
 
@@ -292,11 +336,30 @@ class FlowSplitter:
     def split_on_page_breaks(self, orig_tree: _ElementTree) -> None:
         ordered_ids: OrderedDict[str, PageBreak] = OrderedDict()
         all_page_break_ids = frozenset(self.page_break_ids)
+        pb_by_id = dict(zip(self.page_break_ids, self.page_breaks, strict=True))
         for elem_id in orig_tree.xpath('//*/@id'):
             if elem_id in all_page_break_ids:
-                ordered_ids[elem_id] = self.page_breaks[self.page_break_ids.index(elem_id)]
+                ordered_ids[elem_id] = pb_by_id[elem_id]
 
         self.trees = [orig_tree]
+        # Fast path: many page breaks on a flat <body> (typical Markdown novels).
+        # Partition body siblings once instead of N× full-tree do_split deepcopies.
+        # Supports mixed page-break-before / page-break-after (chapter_mark=pagebreak).
+        if len(ordered_ids) > 1:
+            specs = resolve_page_break_elements(ordered_ids, orig_tree.getroot())
+            for elem, before in specs:
+                self.log.debug(
+                    f'\t\tQueued page-break at id={elem.get("id")} before={before}'
+                )
+            if specs:
+                partitioned = partition_by_body_siblings(orig_tree, specs, self.log)
+                if partitioned is not None:
+                    self.log(f'\tSibling-partitioned page breaks into {len(partitioned)} parts')
+                    self.trees = partitioned
+                    ordered_ids.clear()
+                else:
+                    self.log.debug('\tSibling partition unavailable; falling back to sequential do_split')
+
         while ordered_ids:
             pb_id, (pattern, before) = next(iter(ordered_ids.items()))
             del ordered_ids[pb_id]
@@ -396,6 +459,34 @@ class FlowSplitter:
                 i = p.index(pre)
                 p[i : i + 1] = new_pres
 
+        # Prefer one-shot sibling partition at all headings (flat Markdown bodies).
+        headings = XPath('//*[re:match(name(), "h[1-6]", "i")]')(root)
+        if len(headings) >= 2:
+            # Cut before every heading after the first (keeps preamble with first heading).
+            partitioned = partition_by_body_siblings(tree, headings[1:], self.log, before=True)
+            if partitioned is not None and len(partitioned) > 1:
+                self.log.debug(f'\t\t\tSibling-partitioned into {len(partitioned)} heading parts')
+                for t in partitioned:
+                    r = t.getroot()
+                    if self.is_page_empty(r):
+                        continue
+                    size = len(tostring(r))
+                    if size <= self.max_flow_size:
+                        self.split_trees.append(t)
+                        self.log.debug(f'\t\t\tCommitted sub-tree #{len(self.split_trees)} ({size / 1024.0} KB)')
+                    else:
+                        self.log.debug(f'\t\t\tSplit tree still too large: {size / 1024.0} KB')
+                        more = XPath('//*[re:match(name(), "h[1-6]", "i")]')(r)
+                        if len(more) >= 2:
+                            self.split_to_size(t)
+                        else:
+                            self._split_to_size_binary(t)
+                return
+
+        self._split_to_size_binary(tree)
+
+    def _split_to_size_binary(self, tree: _ElementTree) -> None:
+        root = tree.getroot()
         split_point, before = self.find_split_point(root)
         if split_point is None:
             raise SplitError(self.item.href, root)
