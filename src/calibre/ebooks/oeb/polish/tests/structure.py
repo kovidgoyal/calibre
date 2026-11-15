@@ -295,6 +295,37 @@ class Structure(BaseTest):
             landmarks,
         )
 
+    def test_split_on_page_breaks_in_conversion(self) -> None:
+        from calibre.ebooks.conversion.plumber import Plumber
+        from calibre.utils.logging import DevNull
+
+        css = '<style>h2 { page-break-before: always } .end { page-break-after: always }</style>'
+        flat = '<p>intro</p><h2>A</h2><p class="end">a</p><p>mid</p><h2 id="b">B</h2><p pb_order="1" pb_before="1">b</p>'
+        expected = ['intro', 'Aa', 'mid', 'Bb']
+        counter = count()
+
+        def convert(body: str) -> list[str]:
+            n = next(counter)
+            src = os.path.join(self.tdir, f'split-{n}.html')
+            with open(src, 'w') as f:
+                f.write(f'<html><head><title>t</title>{css}</head><body>{body}</body></html>')
+            out = os.path.join(self.tdir, f'split-{n}.epub')
+            plumber = Plumber(src, out, DevNull())
+            plumber.merge_ui_recommendations([('no_default_epub_cover', True, 3)])
+            plumber.run()
+            c = get_container(out, tdir=os.path.join(self.tdir, f'split-out-{n}'))
+            texts = []
+            for name, is_linear in c.spine_names:
+                root = c.parsed(name)
+                self.assertFalse(root.xpath('//*[@pb_order or @pb_before]'), 'Temporary attributes not removed')
+                texts.append(''.join(xml2text(x) for x in root.xpath('//*[local-name()="body"]')).replace('\n', '').replace(' ', ''))
+            return texts
+
+        # All split points are children of <body>
+        self.assertEqual(expected, convert(flat))
+        # Split points inside a wrapper, cannot be split at body children
+        self.assertEqual(expected, convert(f'<div class="wrapper">{flat}</div>'))
+
     def test_guide_reference_without_type(self) -> None:
         # Guide references with no type must not cause a crash, see
         # https://bugs.launchpad.net/bugs/2170400

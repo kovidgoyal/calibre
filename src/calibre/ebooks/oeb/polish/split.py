@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.utils.localization import _
+from calibre.utils.logging import DevNull
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
@@ -94,11 +95,14 @@ def do_split(split_point: _Element, log: Log, before: bool = True) -> tuple[_Ele
         # Remove elem unless top is False in which case replace elem by its
         # children
         parent = cast('_Element', elem.getparent())  # descendants of <body> always have a parent
-        if top:
-            parent.remove(elem)
-        else:
-            index = parent.index(elem)
-            parent[index : index + 1] = list(elem.iterchildren())
+        if not top:
+            # Move the children (with their tails) to before elem. Avoids
+            # parent.index() and slice assignment which are both O(number of
+            # children of parent), making splitting of large flat bodies
+            # quadratic.
+            for child in tuple(elem.iterchildren()):
+                elem.addprevious(child)
+        parent.remove(elem)
 
     # Tree 1
     hit_split_point = False
@@ -158,6 +162,82 @@ def do_split(split_point: _Element, log: Log, before: bool = True) -> tuple[_Ele
     body2.text = '\n'
 
     return tree, tree2
+
+
+def split_at_body_children(tree: _ElementTree, split_points: Sequence[tuple[_Element, bool]], log: Log) -> list[_ElementTree] | None:
+    """
+    Split ``tree`` at all of ``split_points`` at once. The result is identical
+    to calling :func:`do_split` for every split point in turn, on the
+    sub-tree containing it, but much faster when there are many split points,
+    as :func:`do_split` copies the entire remaining tree for every split.
+
+    This works only when every split point (after adjustment, for split
+    points with before=True) is a direct child of <body> and the split points
+    are in document order. Otherwise, None is returned and nothing is done.
+    ``tree`` is not modified.
+
+    :param split_points: Sequence of (split_point, before) pairs, where
+        split_point is an element in ``tree`` and before has the same meaning
+        as for :func:`do_split`
+    :return: The list of trees, len(split_points) + 1 long, or None
+    """
+    body = get_body(tree.getroot())
+    if body is None:
+        return None
+    positions = {child: i for i, child in enumerate(body)}
+    # Adjust silently, so that nothing is logged if we end up returning None
+    # and the caller falls back to do_split(), which will log it.
+    quiet_log = DevNull()
+    num_adjusted = 0
+    cuts: list[int] = []
+    after_cuts: list[int] = []
+    for split_point, before in split_points:
+        if before:
+            adjusted = adjust_split_point(split_point, quiet_log)
+            if adjusted is not split_point:
+                num_adjusted += 1
+                split_point = adjusted
+        idx = positions.get(split_point)
+        if idx is None:
+            return None
+        if not before:
+            tail = split_point.tail
+            if tail and not tail.isspace():
+                # do_split() has special handling for this case
+                return None
+            idx += 1
+            after_cuts.append(idx)
+        if cuts and idx < cuts[-1]:
+            return None
+        cuts.append(idx)
+    for _i in range(num_adjusted):
+        log.debug('Adjusted split point to ancestor')
+
+    # Only ever copy whole trees and delete from them, moving nodes between
+    # trees would cause lxml to remove redundant namespace declarations,
+    # unlike do_split(). Splitting at the middle cut recursively means the
+    # total cost is O(size of tree * log(number of cuts)).
+    work = copy.deepcopy(tree)
+    work_body = cast('_Element', get_body(work.getroot()))
+    for idx in after_cuts:
+        # do_split() keeps the split point in the before tree but replaces its tail
+        work_body[idx - 1].tail = '\n'
+
+    def split_range(t: _ElementTree, first_child: int, cuts: list[int]) -> list[_ElementTree]:
+        # t contains the original body children from first_child onwards,
+        # up to the next cut not in cuts
+        if not cuts:
+            return [t]
+        mid = len(cuts) // 2
+        cut = cuts[mid]
+        head = copy.deepcopy(t)
+        del cast('_Element', get_body(head.getroot()))[cut - first_child :]
+        after_body = cast('_Element', get_body(t.getroot()))
+        del after_body[: cut - first_child]
+        after_body.text = '\n'
+        return split_range(head, first_child, cuts[:mid]) + split_range(t, cut, cuts[mid + 1 :])
+
+    return split_range(work, 0, cuts)
 
 
 class SplitLinkReplacer:

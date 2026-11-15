@@ -24,7 +24,7 @@ from calibre import as_unicode, force_unicode
 from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, rewrite_links, urldefrag, urlnormalize
 from calibre.ebooks.oeb.base import XPNSMAP as NAMESPACES
-from calibre.ebooks.oeb.polish.split import do_split
+from calibre.ebooks.oeb.polish.split import do_split, split_at_body_children
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
@@ -131,7 +131,10 @@ class Split:
                     pass
         if not self.page_break_selectors:
             return [], []
-        page_breaks = set()
+        # Maps page break elements to whether the break is before or after them.
+        # Uses a dict rather than setting attributes on elements, as that is
+        # slow for large documents.
+        page_breaks: dict[_Element, bool] = {}
         root = item.data
         assert isinstance(root, etree._Element)  # only called for items whose data is an element
         select = Select(root)
@@ -153,22 +156,22 @@ class Split:
                         'meta',
                         'link',
                     }:
-                        elem.set('pb_before', '1' if before else '0')
-                        page_breaks.add(elem)
+                        page_breaks[elem] = before
             except SelectorError as err:
                 self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
 
-        for i, elem in enumerate(root.iter('*')):
-            try:
-                elem.set('pb_order', str(i))
-            except TypeError:  # Can't set attributes on comment nodes etc.
-                continue
+        # Remove these attributes in case they are present in the source, as was
+        # done when they were used to track page breaks
+        for elem in root.xpath('//*[@pb_order or @pb_before]'):
+            elem.attrib.pop('pb_order', None)
+            elem.attrib.pop('pb_before', None)
 
-        page_breaks = list(page_breaks)
-        page_breaks.sort(key=lambda x: int(x.get('pb_order')))
         page_break_ids: list[str] = []
         page_breaks_: list[PageBreak] = []
-        for i, x in enumerate(page_breaks):
+        if not page_breaks:
+            return page_breaks_, page_break_ids
+        in_document_order = [x for x in body[0].iterdescendants('*') if x in page_breaks]
+        for i, x in enumerate(in_document_order):
             x.set('id', x.get('id', f'calibre_pb_{i}'))
             id = x.get('id')
             try:
@@ -183,12 +186,8 @@ class Split:
                     id = f'calibre_pb_{i}'
                     x.set('id', id)
                     xp = XPath(f'//*[@id={id!r}]')
-            page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
+            page_breaks_.append((xp, page_breaks[x]))
             page_break_ids.append(id)
-
-        for elem in root.iter(etree.Element):
-            elem.attrib.pop('pb_order', False)
-            elem.attrib.pop('pb_before', False)
 
         return page_breaks_, page_break_ids
 
@@ -291,12 +290,30 @@ class FlowSplitter:
 
     def split_on_page_breaks(self, orig_tree: _ElementTree) -> None:
         ordered_ids: OrderedDict[str, PageBreak] = OrderedDict()
-        all_page_break_ids = frozenset(self.page_break_ids)
-        for elem_id in orig_tree.xpath('//*/@id'):
-            if elem_id in all_page_break_ids:
-                ordered_ids[elem_id] = self.page_breaks[self.page_break_ids.index(elem_id)]
+        page_break_map: dict[str, PageBreak] = {}
+        for pb_id, pb in zip(self.page_break_ids, self.page_breaks, strict=True):
+            page_break_map.setdefault(pb_id, pb)
+        split_points: list[tuple[_Element, bool]] = []
+        has_duplicate_ids = False
+        for elem in orig_tree.xpath('//*[@id]'):
+            elem_id = elem.get('id')
+            if elem_id in page_break_map:
+                if elem_id in ordered_ids:
+                    has_duplicate_ids = True
+                else:
+                    ordered_ids[elem_id] = pb = page_break_map[elem_id]
+                    split_points.append((elem, pb[1]))
 
         self.trees = [orig_tree]
+        if split_points and not has_duplicate_ids:
+            # Fast path for the common case of split points that are all
+            # children of <body>, avoids copying the tree once per split point
+            trees = split_at_body_children(orig_tree, split_points, self.log)
+            if trees is not None:
+                for split_point, _before in split_points:
+                    self.log.debug('\t\tSplitting on page-break at id={}'.format(split_point.get('id')))
+                self.trees = trees
+                ordered_ids.clear()
         while ordered_ids:
             pb_id, (pattern, before) = next(iter(ordered_ids.items()))
             del ordered_ids[pb_id]

@@ -7,17 +7,22 @@ import subprocess
 from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
+from lxml import etree
+
 from calibre import CurrentDir
 from calibre.ebooks.oeb.polish.container import OCF_NS, clone_container
 from calibre.ebooks.oeb.polish.container import get_container as _gc
 from calibre.ebooks.oeb.polish.replace import rationalize_folders, rename_files
-from calibre.ebooks.oeb.polish.split import merge, split
+from calibre.ebooks.oeb.polish.split import do_split, merge, split, split_at_body_children
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.utils.filenames import nlinks_file
+from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    from lxml.etree import _ElementTree
+
     from calibre.ebooks.oeb.polish.check.base import BaseError
     from calibre.ebooks.oeb.polish.container import Container
     from calibre.ebooks.oeb.polish.utils import FolderCaseMap
@@ -287,6 +292,92 @@ class ContainerTests(BaseTest):
         self.assertEqual(1, len(root.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.assertEqual(0, len(troot.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.check_links(c)
+
+    def test_split_at_body_children(self) -> None:
+        "Test that splitting at many points at once matches sequential splitting"
+        log = DevNull()
+
+        def tree_from(body: str) -> _ElementTree:
+            return etree.fromstring(
+                f'<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body class="b">{body}</body></html>'
+            ).getroottree()
+
+        def serialize(trees: list[_ElementTree]) -> list[bytes]:
+            return [etree.tostring(t) for t in trees]
+
+        def sequential(body: str, points: tuple[tuple[str, bool], ...]) -> list[bytes]:
+            trees = [tree_from(body)]
+            for pid, before in points:
+                for i in range(len(trees) - 1, -1, -1):
+                    elems = trees[i].getroot().xpath(f'//*[@id="{pid}"]')
+                    if elems:
+                        trees[i : i + 1] = do_split(elems[0], log, before=before)
+                        break
+            return serialize(trees)
+
+        def at_once(body: str, points: tuple[tuple[str, bool], ...]) -> list[bytes] | None:
+            tree = tree_from(body)
+            before_split = etree.tostring(tree)
+            root = tree.getroot()
+            split_points = [(root.xpath(f'//*[@id="{pid}"]')[0], before) for pid, before in points]
+            trees = split_at_body_children(tree, split_points, log)
+            self.assertEqual(before_split, etree.tostring(tree), 'Original tree was modified')
+            return None if trees is None else serialize(trees)
+
+        # Elements used as after split points have no tail text
+        flat = 'btext<h1 id="t">Title</h1>\n<p id="a">a<b>b</b></p> <!-- c -->tc<p id="q">q</p>tq<h2 id="h">H</h2>\n<p id="z">z</p>\n'
+        for body, points in (
+            (flat, (('h', True),)),
+            (flat, (('a', True), ('h', True))),
+            (flat, (('q', True), ('h', True))),
+            (flat, (('t', True), ('z', True))),
+            (flat, (('t', True), ('a', False), ('h', True))),
+            (flat, (('a', False), ('h', False))),
+            (flat, (('h', False), ('z', False))),
+            (flat, (('t', False), ('a', True), ('h', False), ('z', True))),
+            (flat, ()),
+            # Split point adjusted to a child of body
+            ('<p>x</p><div id="d"><h2 id="h">H</h2><p>y</p></div>\n<p id="p">p</p>', (('h', True), ('p', True))),
+            ('<div id="d"><h2 id="h">H</h2><p>y</p></div><p id="p">p</p>', (('d', True), ('h', True))),
+            # Redundant namespace declarations must be preserved
+            (
+                '<p id="a">a</p><p xmlns="http://www.w3.org/1999/xhtml" id="b">b<i xmlns:epub="http://www.idpf.org/2007/ops">i</i></p><p id="c">c</p>',
+                (('b', True), ('c', True)),
+            ),
+            # Comment at a split boundary, no body text
+            ('<p id="a">a</p><!-- c --><p id="b">b</p>', (('a', False), ('b', True))),
+        ):
+            expected = sequential(body, points)
+            self.assertEqual(expected, at_once(body, points), f'Mismatch for: {body} split at: {points}')
+
+        for body, points in (
+            # Not a child of body, even after adjustment
+            ('<div><p id="x">x</p><h2 id="h">H</h2><p>y</p></div>', (('h', True),)),
+            ('<div><h2 id="h">H</h2><p>y</p></div>', (('h', False),)),
+            # All content wrapped in a single <div>
+            ('<div><h2 id="a">A</h2><p>a</p><h2 id="b">B</h2><p>b</p></div>', (('a', True), ('b', True))),
+            # Split after with significant tail text
+            ('<p id="a">a</p>tail<p id="b">b</p>', (('a', False),)),
+            # Not in document order after adjustment
+            ('<p id="a">a</p><div id="d"><h2 id="h">H</h2></div>', (('d', False), ('h', True))),
+        ):
+            self.assertIsNone(at_once(body, points), f'Fast path wrongly used for: {body} split at: {points}')
+            self.assertGreater(len(sequential(body, points)), 1)
+
+    def test_split_on_page_breaks_duplicate_ids(self) -> None:
+        "Page breaks on elements with duplicate ids must split as they always did"
+        from calibre.ebooks.oeb.transforms.split import FlowSplitter, XPath
+
+        root = etree.fromstring(
+            '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body>'
+            '<p id="b">intro</p><h2 id="a">A</h2><p>a</p><h2 id="b">B</h2><p>b</p></body></html>'
+        )
+        fs = FlowSplitter.__new__(FlowSplitter)
+        fs.log = DevNull()
+        fs.page_break_ids = ['a', 'b']
+        fs.page_breaks = [(XPath('//*[@id="a"]'), True), (XPath('//*[@id="b"]'), True)]
+        fs.split_on_page_breaks(root.getroottree())
+        self.assertEqual(['t\nintro', 't\nAaBb'], [''.join(t.getroot().itertext()) for t in fs.trees])
 
     def test_merge_file(self) -> None:
         "Test merging of files"
