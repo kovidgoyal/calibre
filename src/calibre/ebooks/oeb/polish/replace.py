@@ -368,11 +368,17 @@ def remove_links_in_declaration(href_to_name: Callable[[str], str | None], style
 
 def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
     """predicate must be a function that takes the arguments (name, href,
-    fragment=None) and returns True iff the link should be removed"""
+    fragment=None) and returns True iff the link should be removed.
+
+    HTML/CSS: clear link attributes (or remove link/img tags) as before.
+    NCX: clear @src on content (and any other @src) while keeping navPoint structure.
+    """
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, iterlinks
+    from calibre.ebooks.oeb.polish.utils import guess_type
 
     stylepath = XPath('//h:style')
     styleattrpath = XPath('//*[@style]')
+    ncx_type = guess_type('a.ncx')
     changed: set[str] = set()
     for name, mt in container.mime_map.items():
         removed = False
@@ -407,6 +413,18 @@ def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
             sheet = container.parsed(name)
             assert isinstance(sheet, CSSStyleSheet)  # CSS files are parsed into css_parser stylesheets
             removed = remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate)
+        elif mt == ncx_type:
+            root = container.parsed(name)
+            assert isinstance(root, etree._Element)
+            for el in root.xpath('//*[@src]'):
+                href = el.get('src')
+                if not href:
+                    continue
+                hname = container.href_to_name(href, name)
+                frag = href.partition('#')[-1]
+                if predicate(hname, href, frag):
+                    del el.attrib['src']
+                    removed = True
         if removed:
             changed.add(name)
     for i in changed:

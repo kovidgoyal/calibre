@@ -3,6 +3,7 @@
 
 import os
 from collections import defaultdict
+from collections.abc import Sequence
 from queue import Empty, Queue
 from threading import Thread
 from typing import TYPE_CHECKING, cast
@@ -64,26 +65,41 @@ class CaseMismatch(BadLink):
         self.corrected_name = corrected_name
         self.href = href
 
-    def __call__(self, container: Container) -> bool:
+    def corrected_href(self, container: Container) -> str:
         frag = urlparse(self.href).fragment
         nhref = container.name_to_href(self.corrected_name, self.name)
         if frag:
             nhref += '#' + frag
-        orig_href = self.href
+        return nhref
+
+    def __call__(self, container: Container) -> bool:
+        return bool(batch_fix_case_mismatches(container, [self]))
+
+
+def batch_fix_case_mismatches(container: Container, errors: Sequence[CaseMismatch]) -> bool:
+    '''Fix many CaseMismatch errors with one replace_links pass per source file.'''
+    by_name: defaultdict[str, list[CaseMismatch]] = defaultdict(list)
+    for err in errors:
+        by_name[err.name].append(err)
+    changed = False
+    for name, errs in by_name.items():
+        mapping = {e.href: e.corrected_href(container) for e in errs}
 
         class LinkReplacer:
             replaced = False
             file_type: str  # set by Container.replace_links()
 
             def __call__(self, url: str) -> str:
-                if url != orig_href:
+                nhref = mapping.get(url)
+                if nhref is None:
                     return url
                 self.replaced = True
                 return nhref
 
         replacer = LinkReplacer()
-        container.replace_links(self.name, replacer)
-        return replacer.replaced
+        container.replace_links(name, replacer)
+        changed = changed or replacer.replaced
+    return changed
 
 
 class BadDestinationType(BaseError):
@@ -390,10 +406,11 @@ def check_links(container: Container) -> list[BaseError]:
                     tname = None  # Absolute paths to files on another drive in windows cause this
                 if tname is not None:
                     cname: str | None = None
-                    if container.exists(tname):
-                        if tname in container.mime_map:
-                            links_map[name].add(tname)
-                        elif os.path.isdir(container.name_to_abspath(tname)):
+                    if tname in container.mime_map:
+                        # In-map names exist without a filesystem exists() call
+                        links_map[name].add(tname)
+                    elif container.exists(tname):
+                        if os.path.isdir(container.name_to_abspath(tname)):
                             a(FolderLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
                         else:
                             # Filesystem says the file exists, but it is not in

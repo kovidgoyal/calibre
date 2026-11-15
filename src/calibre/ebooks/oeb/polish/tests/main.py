@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 
 
 def find_tests() -> unittest.TestSuite:
-    return find_tests_in_package('calibre.ebooks.oeb.polish.tests')
+    suite = find_tests_in_package('calibre.ebooks.oeb.polish.tests')
+    suite.addTests(find_tests_in_package('calibre.ebooks.oeb.polish.tests.toc_perf'))
+    return suite
 
 
 if __name__ == '__main__':

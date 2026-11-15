@@ -11,7 +11,14 @@ from calibre.ebooks.oeb.polish.check.accessibility import check_accessibility
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
-from calibre.ebooks.oeb.polish.check.links import check_link_destinations, check_links, check_mimetypes
+from calibre.ebooks.oeb.polish.check.links import (
+    CaseMismatch,
+    DanglingLink,
+    batch_fix_case_mismatches,
+    check_link_destinations,
+    check_links,
+    check_mimetypes,
+)
 from calibre.ebooks.oeb.polish.check.opf import check_opf
 from calibre.ebooks.oeb.polish.check.parsing import (
     EmptyFile,
@@ -24,6 +31,7 @@ from calibre.ebooks.oeb.polish.check.parsing import (
     fix_style_tag,
 )
 from calibre.ebooks.oeb.polish.cover import is_raster_image
+from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import guess_type
 from polyglot.builtins import as_unicode
 
@@ -196,11 +204,25 @@ def fix_errors(container: Container, errors: Sequence[BaseError], skipped_rules:
 
         changed = True
 
+    # Batch CaseMismatch before DanglingLink so case-correctable links are not removed
+    batched: set[BaseError] = set()
+    case_errs = [e for e in errors if isinstance(e, CaseMismatch) and e.INDIVIDUAL_FIX]
+    if case_errs:
+        if batch_fix_case_mismatches(container, case_errs):
+            changed = True
+        batched.update(case_errs)
+    dangling_errs = [e for e in errors if isinstance(e, DanglingLink) and e.INDIVIDUAL_FIX]
+    if dangling_errs:
+        targets = {e.target_name for e in dangling_errs}
+        if remove_links_to(container, lambda name, *a: name in targets):
+            changed = True
+        batched.update(dangling_errs)
+
     has_fixable_css_errors = False
     for err in errors:
         if getattr(err, 'FIXABLE_CSS_ERROR', False):
             has_fixable_css_errors = True
-        if err.INDIVIDUAL_FIX:
+        if err.INDIVIDUAL_FIX and err not in batched:
             if err(container) is not False:
                 # Assume changed unless fixer explicitly says no change (this
                 # is because sometimes I forget to return True, and it is
