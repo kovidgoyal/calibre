@@ -125,7 +125,15 @@ def setup_css_parser_serialization(tab_width: int = 2) -> None:
     prefs.formatUnknownAtRules = False  # True breaks @supports rules
 
 
-def actual_case_for_name(container: Container, name: str) -> str:
+#: Map of folder path to a map of lowercased file name to file name for the files in that folder
+type FolderCaseMap = dict[str, dict[str, str] | None]
+
+
+def actual_case_for_name(container: Container, name: str, folder_case_map: FolderCaseMap | None = None) -> str:
+    """Return the name, as stored on the filesystem, of the existing file
+    referred to by name, which can differ from name in case on case
+    insensitive filesystems. See :func:`corrected_case_for_name` for
+    folder_case_map."""
     from calibre.utils.filenames import samefile
 
     if not container.exists(name):
@@ -137,21 +145,48 @@ def actual_case_for_name(container: Container, name: str) -> str:
         base = '/'.join(ans + [x])
         path = container.name_to_abspath(base)
         pdir = os.path.dirname(path)
-        candidates = {os.path.join(pdir, q) for q in os.listdir(pdir)}
-        if x in candidates:
-            correctx = x
+        # Try the file whose name differs only in case first, to avoid
+        # comparing against every file in the folder
+        folder_names = folder_names_by_case(pdir, folder_case_map)
+        if folder_names and (q := folder_names.get(x.lower())) is not None and samefile(os.path.join(pdir, q), path):
+            correctx = q
         else:
-            for q in candidates:
-                if samefile(q, path):
-                    correctx = os.path.basename(q)
-                    break
+            candidates = {os.path.join(pdir, q) for q in os.listdir(pdir)}
+            if x in candidates:
+                correctx = x
             else:
-                raise RuntimeError('Something bad happened')
+                for q in candidates:
+                    if samefile(q, path):
+                        correctx = os.path.basename(q)
+                        break
+                else:
+                    raise RuntimeError('Something bad happened')
         ans.append(correctx)
     return '/'.join(ans)
 
 
-def corrected_case_for_name(container: Container, name: str) -> str | None:
+def folder_names_by_case(folder: str, folder_case_map: FolderCaseMap | None = None) -> dict[str, str] | None:
+    """Return a map of lowercased file name to file name for the files in
+    folder, or None if folder cannot be listed. The result is cached in
+    folder_case_map, if specified."""
+    if folder_case_map is not None and folder in folder_case_map:
+        return folder_case_map[folder]
+    ans: dict[str, str] | None = {}
+    try:
+        for q in os.listdir(folder):
+            ans.setdefault(q.lower(), q)
+    except OSError:
+        ans = None
+    if folder_case_map is not None:
+        folder_case_map[folder] = ans
+    return ans
+
+
+def corrected_case_for_name(container: Container, name: str, folder_case_map: FolderCaseMap | None = None) -> str | None:
+    """Return the name of the file that matches name ignoring case, or None if
+    no such file exists. When looking up many names, pass in the same
+    folder_case_map, initially empty, to avoid listing a folder repeatedly. It
+    must be discarded when files are added, removed or renamed."""
     parts = name.split('/')
     ans: list[str] = []
     base = ''
@@ -160,16 +195,11 @@ def corrected_case_for_name(container: Container, name: str) -> str | None:
         if container.exists(base):
             correctx = x
         else:
-            try:
-                candidates = set(os.listdir(os.path.dirname(container.name_to_abspath(base))))
-            except OSError:
-                return None  # one of the non-terminal components of name is a file instead of a directory
-            for q in candidates:
-                if q.lower() == x.lower():
-                    correctx = q
-                    break
-            else:
+            # candidates is None if one of the non-terminal components of name is a file instead of a directory
+            candidates = folder_names_by_case(os.path.dirname(container.name_to_abspath(base)), folder_case_map)
+            if candidates is None or (q := candidates.get(x.lower())) is None:
                 return None
+            correctx = q
         ans.append(correctx)
     return '/'.join(ans)
 

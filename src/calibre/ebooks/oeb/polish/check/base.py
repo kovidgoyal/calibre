@@ -3,7 +3,7 @@
 
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from calibre import detect_ncpus as cpu_count
 
@@ -38,10 +38,22 @@ class BaseError:
         # A list with entries of the form: (name, lnum, col)
         self.all_locations: list[ErrorLocation] | None = None
 
+    # Error types whose fix touches the whole book set this to True and
+    # implement fix_batch() so that many errors can be fixed in a single pass
+    has_batch_fix = False
+
     if TYPE_CHECKING:
         # Errors that have INDIVIDUAL_FIX set implement this to fix the error,
         # returning False if nothing was changed
         def __call__(self, container: Container) -> bool | None: ...
+
+    @classmethod
+    def fix_batch(cls, container: Container, errors: Sequence[Self]) -> bool:
+        """Fix all the specified errors, which must be instances of this
+        class, with the same result as fixing them one by one, in order.
+        Returns False if nothing was changed. Only called if has_batch_fix is
+        True."""
+        raise NotImplementedError(f'{cls.__name__} does not support fixing in batches')
 
     @property
     def rule_id(self) -> str:

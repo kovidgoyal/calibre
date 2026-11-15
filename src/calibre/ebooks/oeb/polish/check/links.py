@@ -20,12 +20,13 @@ from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, cas
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterator, Sequence
     from collections.abc import Set as AbstractSet
 
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.utils import FolderCaseMap
 
 #: (name, href, lnum, col) of an external link
 type ExternalLinkLocation = tuple[str, str, int | None, int | None]
@@ -64,26 +65,43 @@ class CaseMismatch(BadLink):
         self.corrected_name = corrected_name
         self.href = href
 
+    has_batch_fix = True
+
     def __call__(self, container: Container) -> bool:
-        frag = urlparse(self.href).fragment
-        nhref = container.name_to_href(self.corrected_name, self.name)
-        if frag:
-            nhref += '#' + frag
-        orig_href = self.href
+        return self.fix_batch(container, (self,))
+
+    @classmethod
+    def fix_batch(cls, container: Container, errors: Sequence[CaseMismatch]) -> bool:
+        # Map of file name -> {href: corrected href} for the links in that file
+        replacements: dict[str, dict[str, str]] = {}
+        for err in errors:
+            frag = urlparse(err.href).fragment
+            nhref = container.name_to_href(err.corrected_name, err.name)
+            if frag:
+                nhref += '#' + frag
+            replacements.setdefault(err.name, {}).setdefault(err.href, nhref)
 
         class LinkReplacer:
-            replaced = False
             file_type: str  # set by Container.replace_links()
 
+            def __init__(self, href_map: dict[str, str]) -> None:
+                self.href_map = href_map
+                self.replaced = False
+
             def __call__(self, url: str) -> str:
-                if url != orig_href:
+                nhref = self.href_map.get(url)
+                if nhref is None:
                     return url
                 self.replaced = True
                 return nhref
 
-        replacer = LinkReplacer()
-        container.replace_links(self.name, replacer)
-        return replacer.replaced
+        changed = False
+        for name, href_map in replacements.items():
+            replacer = LinkReplacer(href_map)
+            container.replace_links(name, replacer)
+            if replacer.replaced:
+                changed = True
+        return changed
 
 
 class BadDestinationType(BaseError):
@@ -201,8 +219,15 @@ class DanglingLink(BadLink):
         self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
         self.target_name = target_name
 
+    has_batch_fix = True
+
     def __call__(self, container: Container) -> bool:
-        return bool(remove_links_to(container, lambda name, *a: name == self.target_name))
+        return self.fix_batch(container, (self,))
+
+    @classmethod
+    def fix_batch(cls, container: Container, errors: Sequence[DanglingLink]) -> bool:
+        targets = frozenset(err.target_name for err in errors)
+        return bool(remove_links_to(container, lambda name, *a: name in targets))
 
 
 class Bookmarks(BadLink):
@@ -371,6 +396,7 @@ def check_links(container: Container) -> list[BaseError]:
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
     errors: list[BaseError] = []
     a = errors.append
+    folder_case_map: FolderCaseMap = {}
 
     def fl(x: str) -> str:
         x = repr(x)
@@ -398,8 +424,8 @@ def check_links(container: Container) -> list[BaseError]:
                         else:
                             # Filesystem says the file exists, but it is not in
                             # the mime_map, so there is a case mismatch
-                            cname = actual_case_for_name(container, tname)
-                    elif (cname := corrected_case_for_name(container, tname)) is None:
+                            cname = actual_case_for_name(container, tname, folder_case_map)
+                    elif (cname := corrected_case_for_name(container, tname, folder_case_map)) is None:
                         a(DanglingLink(_('The linked resource %s does not exist') % fl(href), tname, name, lnum, col))
                     if cname is not None:
                         if cname in container.mime_map:

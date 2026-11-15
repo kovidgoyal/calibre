@@ -20,6 +20,7 @@ from calibre.utils.resources import get_path as P
 if TYPE_CHECKING:
     from calibre.ebooks.oeb.polish.check.base import BaseError
     from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.utils import FolderCaseMap
 
 
 def get_container(path: str, tdir: str | None = None) -> Container:
@@ -219,13 +220,21 @@ class ContainerTests(BaseTest):
         c.add_file(name, b'xxx')
         self.assertTrue(c.exists(name))
         variations = (name, name.upper(), name.replace('f1', 'F1'), name.replace('f2', 'F2'))
+        self.assertEqual(name, actual_case_for_name(c, name, {}))
         if c.exists(name.upper()):
+            folder_case_map: FolderCaseMap = {}
             for n in variations:
                 self.assertEqual(name, actual_case_for_name(c, n))
+                self.assertEqual(name, actual_case_for_name(c, n, folder_case_map))
         else:
+            folder_case_map = {}
             for n in variations:
                 self.assertEqual(name, corrected_case_for_name(c, n))
+                self.assertEqual(name, corrected_case_for_name(c, n, folder_case_map))
             self.assertIsNone(corrected_case_for_name(c, name + '/xx'))
+            self.assertIsNone(corrected_case_for_name(c, name + '/xx', folder_case_map))
+            self.assertIsNone(corrected_case_for_name(c, name.upper() + '/xx', folder_case_map))
+            self.assertIsNone(corrected_case_for_name(c, 'f1/F2/missing.html', folder_case_map))
 
     def test_check_manifest_case_mismatch(self) -> None:
         "Test that fixing a case mismatch in the manifest does not remove the file"

@@ -11,7 +11,7 @@ from calibre.ebooks.oeb.polish.check.accessibility import check_accessibility
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError, run_checkers
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
-from calibre.ebooks.oeb.polish.check.links import check_link_destinations, check_links, check_mimetypes
+from calibre.ebooks.oeb.polish.check.links import CaseMismatch, check_link_destinations, check_links, check_mimetypes
 from calibre.ebooks.oeb.polish.check.opf import check_opf
 from calibre.ebooks.oeb.polish.check.parsing import (
     EmptyFile,
@@ -197,15 +197,35 @@ def fix_errors(container: Container, errors: Sequence[BaseError], skipped_rules:
         changed = True
 
     has_fixable_css_errors = False
+    fixable: list[BaseError] = []
+    # Errors whose types support it are fixed in batches, as fixing them one
+    # by one would mean processing the whole book once per error. All errors of
+    # a type are fixed together at the position of the first error of that type.
+    batches: dict[type[BaseError], list[BaseError]] = {}
     for err in errors:
         if getattr(err, 'FIXABLE_CSS_ERROR', False):
             has_fixable_css_errors = True
         if err.INDIVIDUAL_FIX:
-            if err(container) is not False:
-                # Assume changed unless fixer explicitly says no change (this
-                # is because sometimes I forget to return True, and it is
-                # better to have a false positive than a false negative)
+            if type(err).has_batch_fix:
+                batches.setdefault(type(err), []).append(err)
+            fixable.append(err)
+    # Correcting the case of links first ensures that subsequent fixes, such as
+    # renaming ids or files, update those links as well. It cannot harm any
+    # other fix as it only changes links that do not point to any file.
+    case_mismatches = [e for e in batches.pop(CaseMismatch, ()) if isinstance(e, CaseMismatch)]
+    if case_mismatches and CaseMismatch.fix_batch(container, case_mismatches):
+        changed = True
+    for err in fixable:
+        if (batch := batches.pop(type(err), None)) is not None:
+            if type(err).fix_batch(container, batch):
                 changed = True
+        elif type(err).has_batch_fix:
+            continue  # already fixed in a batch
+        elif err(container) is not False:
+            # Assume changed unless fixer explicitly says no change (this
+            # is because sometimes I forget to return True, and it is
+            # better to have a false positive than a false negative)
+            changed = True
     if has_fixable_css_errors:
         if fix_css(container, skipped_rules):
             changed = True

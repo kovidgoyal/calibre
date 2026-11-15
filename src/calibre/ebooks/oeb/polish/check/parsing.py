@@ -19,7 +19,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import error_message
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
 
     from calibre.ebooks.oeb.polish.container import Container
 
@@ -377,36 +377,75 @@ class InvalidId(BaseError):
         )
         self.invalid_id = eid
 
-    def __call__(self, container: Container) -> bool:
-        from calibre.ebooks.oeb.polish.css import rename_ids_in_css
-        from calibre.ebooks.oeb.polish.replace import replace_ids
+    has_batch_fix = True
 
+    def __call__(self, container: Container) -> bool:
+        return self.fix_batch(container, (self,))
+
+    @classmethod
+    def fix_batch(cls, container: Container, errors: Sequence[InvalidId]) -> bool:
         # IDs in HTML files can be targeted by stylesheets shared between
         # files, so rename the id in all HTML files, ensuring the renamed
-        # CSS selectors continue to match everywhere.
-        is_html = container.mime_map.get(self.name) in OEB_DOCS
-        names = [name for name, mt in container.mime_map.items() if mt in OEB_DOCS] if is_html else [self.name]
-        taken = set()
-        elems_map = {}
-        for name in names:
-            root = container.parsed(name)
-            assert isinstance(root, etree._Element)
-            for e in root.xpath('//*[@id]'):
-                eid = e.get('id')
-                taken.add(eid)
-                if eid == self.invalid_id:
-                    elems_map.setdefault(name, []).append(e)
-        if not elems_map:
-            return False
-        newid = make_valid_id(self.invalid_id, taken)
-        for name, elems in elems_map.items():
+        # CSS selectors continue to match everywhere. IDs in other files, such
+        # as the OPF and NCX are only renamed in that file.
+        html_ids: list[str] = []
+        other_ids: dict[str, list[str]] = {}
+        for err in errors:
+            if container.mime_map.get(err.name) in OEB_DOCS:
+                html_ids.append(err.invalid_id)
+            else:
+                other_ids.setdefault(err.name, []).append(err.invalid_id)
+        changed = False
+        if html_ids:
+            html_names = [name for name, mt in container.mime_map.items() if mt in OEB_DOCS]
+            changed = rename_invalid_ids(container, html_names, html_ids, rename_in_css=True)
+        for name, ids in other_ids.items():
+            if rename_invalid_ids(container, (name,), ids, rename_in_css=False):
+                changed = True
+        return changed
+
+
+def rename_invalid_ids(container: Container, names: Iterable[str], invalid_ids: Iterable[str], rename_in_css: bool) -> bool:
+    """Rename the specified ids in the specified files to valid ids, updating
+    all links and id references to them. The new ids are generated in the order
+    of invalid_ids. Since the new ids are always valid and the renamed ids are
+    invalid, renaming all of them at once has the same result as renaming them
+    one at a time."""
+    from calibre.ebooks.oeb.polish.css import rename_ids_in_css
+    from calibre.ebooks.oeb.polish.replace import replace_ids
+
+    wanted = dict.fromkeys(invalid_ids)  # ordered set
+    taken: set[str] = set()
+    # Map of old id -> file name -> elements having that id
+    elems_map: dict[str, dict[str, list[etree._Element]]] = {}
+    for name in names:
+        root = container.parsed(name)
+        assert isinstance(root, etree._Element)
+        for e in root.xpath('//*[@id]'):
+            eid = cast('str', e.get('id'))  # selected by the XPath expression
+            taken.add(eid)
+            if eid in wanted:
+                elems_map.setdefault(eid, {}).setdefault(name, []).append(e)
+    id_map: dict[str, dict[str, str]] = {}
+    css_id_map: dict[str, str] = {}
+    for old_id in wanted:
+        if (locations := elems_map.get(old_id)) is None:
+            continue
+        new_id = make_valid_id(old_id, taken)
+        taken.add(new_id)
+        css_id_map[old_id] = new_id
+        for name, elems in locations.items():
             for e in elems:
-                e.set('id', newid)
-            container.dirty(name)
-        replace_ids(container, {name: {self.invalid_id: newid} for name in elems_map})
-        if is_html:
-            rename_ids_in_css(container, {self.invalid_id: newid})
-        return True
+                e.set('id', new_id)
+            id_map.setdefault(name, {})[old_id] = new_id
+    if not id_map:
+        return False
+    for name in id_map:
+        container.dirty(name)
+    replace_ids(container, id_map)
+    if rename_in_css:
+        rename_ids_in_css(container, css_id_map)
+    return True
 
 
 class DanglingIdReference(BaseError):
