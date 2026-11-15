@@ -638,29 +638,52 @@ class EPUBOutput(OutputFormatPlugin):
         """
         from lxml import etree
 
-        from calibre.ebooks.oeb.base import XPath, urldefrag
+        from calibre.ebooks.oeb.base import urldefrag
         from calibre.ebooks.oeb.polish.toc import item_at_top
 
-        def frag_is_at_top(root: _Element, frag: str) -> bool:
-            elem = XPath(f'//*[@id="{frag}" or @name="{frag}"]')(root)
-            if elem:
-                elem = elem[0]
-            else:
-                return False
-            return item_at_top(elem)
+        # Cache spine lookups, id/name -> element maps and results per
+        # document so that large TOCs dont need a full document XPath query
+        # and spine scan for every entry
+        spine_by_href = {x.href: x for x in self.oeb.spine}
+        id_maps: dict[str, dict[str, _Element]] = {}
+        at_top_cache: dict[tuple[str, str], bool] = {}
+
+        def id_map_for(href: str, root: _Element) -> dict[str, _Element]:
+            cached = id_maps.get(href)
+            if cached is not None:
+                return cached
+            mapping: dict[str, _Element] = {}
+            for el in root.xpath('//*[@id or @name]'):
+                eid = el.get('id')
+                if eid:
+                    mapping.setdefault(eid, el)
+                name = el.get('name')
+                if name:
+                    mapping.setdefault(name, el)
+            id_maps[href] = mapping
+            return mapping
+
+        def frag_is_at_top(href: str, root: _Element, frag: str) -> bool:
+            key = (href, frag)
+            cached = at_top_cache.get(key)
+            if cached is not None:
+                return cached
+            elem = id_map_for(href, root).get(frag)
+            ans = bool(elem is not None and item_at_top(elem))
+            at_top_cache[key] = ans
+            return ans
 
         def simplify_toc_entry(toc: TOC) -> None:
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if frag:
-                    for x in self.oeb.spine:
-                        if x.href == href:
-                            root = x.data
-                            assert isinstance(root, etree._Element)
-                            if frag_is_at_top(root, frag):
-                                self.log.debug('Removing anchor from TOC href:', href + '#' + frag)
-                                toc.href = href
-                            break
+                    item = spine_by_href.get(href)
+                    if item is not None:
+                        root = item.data
+                        assert isinstance(root, etree._Element)
+                        if frag_is_at_top(href, root, frag):
+                            self.log.debug('Removing anchor from TOC href:', href + '#' + frag)
+                            toc.href = href
             for x in toc:
                 simplify_toc_entry(x)
 

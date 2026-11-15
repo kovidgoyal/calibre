@@ -433,21 +433,18 @@ def item_at_top(elem: _Element) -> bool:
         body = XPath('//h:body')(elem.getroottree().getroot())[0]
     except TypeError, IndexError, KeyError, AttributeError:
         return False
-    tree = body.getroottree()
-    path = tree.getpath(elem)
+    ancestors = set(elem.iterancestors())
     for el in body.iterdescendants(etree.Element):
-        epath = tree.getpath(el)
-        if epath == path:
-            break
+        if el is elem:
+            return True
         try:
             if el.tag.endswith('}img') or (el.text and el.text.strip()):
                 return False
         except Exception:
             return False
-        if not path.startswith(epath):
+        if el not in ancestors and el.tail and el.tail.strip():
             # Only check tail of non-parent elements
-            if el.tail and el.tail.strip():
-                return False
+            return False
     return True
 
 

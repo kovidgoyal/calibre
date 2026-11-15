@@ -423,6 +423,21 @@ def find_tests() -> unittest.TestSuite:
             self.assertEqual(txtz_formatting_for_extension('.textile'), 'textile')
             self.assertIsNone(txtz_formatting_for_extension('.txt'))
 
+        def test_markdown_toc_ids(self) -> None:
+            import re
+
+            from calibre.ebooks.txt.processor import convert_markdown
+
+            html = convert_markdown(
+                '## 第一卷\n\n### 第7章 黄山\n\n## 第二卷\n\n## Chapter One\n\n## 2024 Review\n\n## id7\n\n'
+                '[a](#2024-review) [b](#chapter-one) [c](#_1) [d](#missing) [e](#7) <a href="#_2">f</a>\n\n[TOC]\n'
+            )
+            self.assertEqual(re.findall(r'<h[23] id="([^"]+)"', html), ['id_1', 'id7_1', 'id_2', 'chapter-one', 'id2024-review', 'id7'])
+            self.assertEqual(
+                re.findall(r'<a href="#([^"]+)"', html),
+                ['id2024-review', 'chapter-one', 'id_1', 'missing', 'id7_1', 'id_2', 'id_1', 'id7_1', 'id_2', 'chapter-one', 'id2024-review', 'id7'],
+            )
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TXTInputTest)
 
 

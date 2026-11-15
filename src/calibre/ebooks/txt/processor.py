@@ -16,6 +16,7 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Mapping
+    from xml.etree.ElementTree import Element
 
     from markdown import Extension, Markdown
 
@@ -111,6 +112,44 @@ def create_markdown_object(extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) ->
     import importlib
 
     from markdown import Extension, Markdown
+    from markdown.treeprocessors import Treeprocessor
+
+    class MakeHeadingIdsValid(Treeprocessor):
+        """
+        The toc extension generates heading ids by dropping all non-ASCII
+        characters, so headings in, for example, Chinese get ids such as 7
+        or _1, which are not valid. Prefix such ids to make them valid and
+        update in document links that point to them.
+        """
+
+        def __init__(self, md: Markdown) -> None:
+            super().__init__(md)
+            self.html_stash = md.htmlStash
+
+        def run(self, root: Element) -> None:
+            ids = {eid for el in root.iter() if (eid := el.get('id'))}
+            renamed: dict[str, str] = {}
+            for el in root.iter():
+                eid = el.get('id')
+                if el.tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6') and eid and eid not in renamed and re.match(r'[a-zA-Z]', eid) is None:
+                    new_id, n = 'id' + eid, 0
+                    while new_id in ids:
+                        n += 1
+                        new_id = f'id{eid}_{n}'
+                    ids.add(new_id)
+                    renamed[eid] = el.attrib['id'] = new_id
+            if not renamed:
+                return
+            for el in root.iter('a'):
+                href = el.get('href')
+                if href and href.startswith('#') and (new_id := renamed.get(href[1:])):
+                    el.set('href', '#' + new_id)
+            # Links in raw HTML are not part of the tree
+            pat = re.compile(r'''(href\s*=\s*["']#)([^"']+)(?=["'])''')
+            blocks = self.html_stash.rawHtmlBlocks
+            for i, block in enumerate(blocks):
+                if isinstance(block, str):
+                    blocks[i] = pat.sub(lambda m: m.group(1) + renamed.get(m.group(2), m.group(2)), block)
 
     class NotBrainDeadMarkdown(Markdown):
         def build_extension(self, ext_name: str, configs: Mapping[str, object]) -> Extension:
@@ -130,6 +169,9 @@ def create_markdown_object(extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) ->
     extensions = [x.lower() for x in extensions]
     extensions = [x for x in extensions if x in MD_EXTENSIONS]
     md = NotBrainDeadMarkdown(extensions=extensions)
+    if 'toc' in extensions:
+        # Run after the toc treeprocessor (priority 5) has assigned the ids
+        md.treeprocessors.register(MakeHeadingIdsValid(md), 'calibre_valid_heading_ids', 4)
     return md
 
 

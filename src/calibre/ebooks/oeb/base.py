@@ -1944,29 +1944,25 @@ class TOC:
         Ensure that all nodes with the same play_order have the same href and
         with different play_orders have different hrefs.
         """
-
-        def po_node(n: TOC) -> TOC | None:
-            for x in self.iter():
-                if x is n:
-                    return
-                if x.play_order == n.play_order:
-                    return x
-
-        def href_node(n: TOC) -> TOC | None:
-            for x in self.iter():
-                if x is n:
-                    return
-                if x.href == n.href:
-                    return x
-
-        for x in self.iter():
-            y = po_node(x)
-            if y is not None:
-                if x.href != y.href:
-                    x.play_order = getattr(href_node(x), 'play_order', self.next_play_order())
-            y = href_node(x)
+        # Maps from play_order/href to the first node (in iteration order)
+        # having it, so that this is O(N) rather than O(N^2). Only the node
+        # currently being processed is modified, so the maps stay accurate.
+        po_map: dict[int, TOC] = {}
+        href_map: dict[str | None, TOC] = {}
+        nodes = tuple(self.iter())
+        next_play_order = max(x.play_order for x in nodes) + 1
+        for x in nodes:
+            y = po_map.get(x.play_order)
+            if y is not None and x.href != y.href:
+                y = href_map.get(x.href)
+                if y is None:
+                    x.play_order = next_play_order
+                    next_play_order += 1
+            y = href_map.get(x.href)
             if y is not None:
                 x.play_order = y.play_order
+            po_map.setdefault(x.play_order, x)
+            href_map.setdefault(x.href, x)
 
 
 class PageList:

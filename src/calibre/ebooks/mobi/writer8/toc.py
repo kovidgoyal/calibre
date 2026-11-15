@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
+from itertools import islice
 from typing import TYPE_CHECKING
 
 from lxml import etree
@@ -56,7 +57,8 @@ class TOCAdder:
         self.at_start = opts.mobi_toc_at_start
         self.generated_item = None
         self.added_toc_guide_entry = False
-        self.has_toc = oeb.toc and oeb.toc.count() > 1
+        # Check for at least two entries without walking the whole tree
+        self.has_toc = len(tuple(islice(oeb.toc.iterdescendants(), 2))) > 1
 
         self.tocitem = tocitem = None
         if replace_previous_inline_toc:
@@ -123,7 +125,7 @@ class TOCAdder:
         a = parent.makeelement(XHTML('a'), href=href or '#')
         a.text = toc.title
         li.append(a)
-        if toc.count() > 0:
+        if toc.nodes:
             parent = li.makeelement(XHTML('ul'))
             li.append(parent)
             a.tail = '\n' + ('\t' * level)
