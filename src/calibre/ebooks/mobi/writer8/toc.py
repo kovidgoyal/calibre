@@ -49,6 +49,16 @@ def find_previous_calibre_inline_toc(oeb: OEBBook) -> Manifest.Item | None:
                 return item
 
 
+def _toc_entry_count_at_least(toc: TOC, n: int) -> bool:
+    '''True if toc has at least n descendant entries, without walking the whole tree.'''
+    seen = 0
+    for _ in toc.iterdescendants():
+        seen += 1
+        if seen >= n:
+            return True
+    return False
+
+
 class TOCAdder:
     def __init__(self, oeb: OEBBook, opts: Values, replace_previous_inline_toc: bool = True, ignore_existing_toc: bool = False) -> None:
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
@@ -56,7 +66,8 @@ class TOCAdder:
         self.at_start = opts.mobi_toc_at_start
         self.generated_item = None
         self.added_toc_guide_entry = False
-        self.has_toc = oeb.toc and oeb.toc.count() > 1
+        # Prefer nodes / early-exit over count() which walks the whole tree
+        self.has_toc = bool(oeb.toc) and _toc_entry_count_at_least(oeb.toc, 2)
 
         self.tocitem = tocitem = None
         if replace_previous_inline_toc:
@@ -123,7 +134,7 @@ class TOCAdder:
         a = parent.makeelement(XHTML('a'), href=href or '#')
         a.text = toc.title
         li.append(a)
-        if toc.count() > 0:
+        if toc.nodes:
             parent = li.makeelement(XHTML('ul'))
             li.append(parent)
             a.tail = '\n' + ('\t' * level)

@@ -106,6 +106,24 @@ def convert_basic(txt: str | bytes, title: str = '', epub_split_size_kb: int = 0
 DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
 
 
+def short_valid_toc_slugify(value: str, separator: str) -> str:
+    """Slugify heading text into a short HTML/CSS-safe id.
+
+    Python-Markdown's default slugify strips non-ASCII, so CJK titles become
+    ``7`` or empty (then ``_1`` via unique()) — invalid as HTML ids. Prefix
+    ``id`` when needed so ids stay short and legal (``id7``, ``id_1``).
+    """
+    import re
+
+    from markdown.extensions.toc import slugify as md_slugify
+
+    base = md_slugify(value, separator)
+    base = re.sub(r'[^a-zA-Z0-9_-]', '_', base)
+    if not base or re.match(r'[a-zA-Z]', base) is None:
+        base = 'id' + (base or '')
+    return base
+
+
 def create_markdown_object(extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) -> Markdown:
     # Need to load markdown extensions without relying on pkg_resources
     import importlib
@@ -129,7 +147,13 @@ def create_markdown_object(extensions: Iterable[str] = DEFAULT_MD_EXTENSIONS) ->
 
     extensions = [x.lower() for x in extensions]
     extensions = [x for x in extensions if x in MD_EXTENSIONS]
-    md = NotBrainDeadMarkdown(extensions=extensions)
+    extension_configs: dict[str, dict[str, object]] = {}
+    if 'toc' in extensions:
+        # Keys cover both short name and fully-qualified extension id.
+        toc_cfg = {'slugify': short_valid_toc_slugify}
+        extension_configs['toc'] = toc_cfg
+        extension_configs['markdown.extensions.toc'] = toc_cfg
+    md = NotBrainDeadMarkdown(extensions=extensions, extension_configs=extension_configs)
     return md
 
 

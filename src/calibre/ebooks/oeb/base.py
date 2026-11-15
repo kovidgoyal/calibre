@@ -1812,9 +1812,12 @@ class TOC:
         self.id = id
         self.nodes: list[TOC] = []
         self.play_order = 0
+        # Incremental next_play_order() counter (max play_order assigned so far)
+        self._play_order_seq = 0
         if play_order is None:
             play_order = self.next_play_order()
         self.play_order = play_order
+        self._absorb_play_order(play_order)
         self.author = author
         self.description = description
         self.toc_thumbnail = toc_thumbnail
@@ -1833,7 +1836,12 @@ class TOC:
         """Create and return a new sub-node of this node."""
         node = TOC(title, href, klass, id, play_order, author, description, toc_thumbnail)
         self.nodes.append(node)
+        self._absorb_play_order(node.play_order)
         return node
+
+    def _absorb_play_order(self, po: int) -> None:
+        if po > self._play_order_seq:
+            self._play_order_seq = po
 
     def remove(self, node: TOC) -> bool:
         for child in self.nodes:
@@ -1853,10 +1861,15 @@ class TOC:
     def count(self) -> int:
         return len(list(self.iter())) - 1
 
-    def next_play_order(self) -> int:
+    def _max_play_order_scan(self) -> int:
+        '''Full-tree max(play_order) scan. Kept for tests/diagnostics; not used by next_play_order.'''
         entries = [x.play_order for x in self.iter()]
-        base = max(entries) if entries else 0
-        return base + 1
+        return max(entries) if entries else 0
+
+    def next_play_order(self) -> int:
+        '''Return the next playOrder value in O(1) using an incremental counter.'''
+        self._play_order_seq += 1
+        return self._play_order_seq
 
     def has_href(self, href: str | None) -> bool:
         return any(x.href == href for x in self.iter())
@@ -1943,30 +1956,24 @@ class TOC:
         """
         Ensure that all nodes with the same play_order have the same href and
         with different play_orders have different hrefs.
+
+        Uses play_order→node and href→node maps (O(N)) instead of repeated
+        full-tree scans.
         """
-
-        def po_node(n: TOC) -> TOC | None:
-            for x in self.iter():
-                if x is n:
-                    return
-                if x.play_order == n.play_order:
-                    return x
-
-        def href_node(n: TOC) -> TOC | None:
-            for x in self.iter():
-                if x is n:
-                    return
-                if x.href == n.href:
-                    return x
-
+        po_map: dict[int, TOC] = {}
+        href_map: dict[str | None, TOC] = {}
         for x in self.iter():
-            y = po_node(x)
-            if y is not None:
-                if x.href != y.href:
-                    x.play_order = getattr(href_node(x), 'play_order', self.next_play_order())
-            y = href_node(x)
+            y = po_map.get(x.play_order)
+            if y is not None and x.href != y.href:
+                prev = href_map.get(x.href)
+                x.play_order = prev.play_order if prev is not None else self.next_play_order()
+            y = href_map.get(x.href)
             if y is not None:
                 x.play_order = y.play_order
+            po_map.setdefault(x.play_order, x)
+            href_map.setdefault(x.href, x)
+
+    rationalize_play_orders._toc_perf_map_based = True  # type: ignore[attr-defined]
 
 
 class PageList:

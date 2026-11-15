@@ -254,9 +254,16 @@ class DetectStructure:
         return text, href
 
     def add_leveled_toc_items(self) -> None:
+        '''Build a leveled TOC with a single document-order pass per spine item.
+
+        Aligns with polish.toc.from_xpaths nesting (parent stack / last node at
+        each level) while preserving cross-document previous_level1/2 behavior.
+        '''
         added: OrderedDict[etree._Element, TOC] = OrderedDict()
         added2: OrderedDict[etree._Element, TOC] = OrderedDict()
         counter = 1
+        previous_level1: TOC | None = None
+        previous_level2: TOC | None = None
 
         def find_matches(expr: str, doc: etree._Element) -> list[etree._Element]:
             try:
@@ -270,50 +277,54 @@ class DetectStructure:
         for document in self.oeb.spine:
             root = document.data
             assert isinstance(root, etree._Element)  # spine items are always (X)HTML documents
-            previous_level1 = list(added.values())[-1] if added else None
-            previous_level2 = list(added2.values())[-1] if added2 else None
 
             level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
-            for elem in find_matches(level1_toc, root):
-                text, _href = self.elem_to_link(document, elem, level1_title, counter)
-                counter += 1
-                if text:
-                    node = self.oeb.toc.add(text, _href, play_order=self.oeb.toc.next_play_order())
-                    added[elem] = node
-                    # node.add(_('Top'), _href)
-
-            if self.opts.level2_toc is not None and added:
+            level1_elems = frozenset(find_matches(level1_toc, root))
+            level2_elems: frozenset[etree._Element] = frozenset()
+            level3_elems: frozenset[etree._Element] = frozenset()
+            level2_toc = level2_title = None
+            level3_toc = level3_title = None
+            if self.opts.level2_toc is not None:
                 level2_toc, level2_title = self.get_toc_parts_for_xpath(self.opts.level2_toc)
-                for elem in find_matches(level2_toc, root):
-                    level1 = None
-                    for item in root.iterdescendants():
-                        if item in added:
-                            level1 = added[item]
-                        elif item == elem:
-                            if level1 is None:
-                                if previous_level1 is None:
-                                    break
-                                level1 = previous_level1
-                            text, _href = self.elem_to_link(document, elem, level2_title, counter)
-                            counter += 1
-                            if text:
-                                added2[elem] = level1.add(text, _href, play_order=self.oeb.toc.next_play_order())
-                            break
-
-                if self.opts.level3_toc is not None and added2:
+                level2_elems = frozenset(find_matches(level2_toc, root))
+                if self.opts.level3_toc is not None:
                     level3_toc, level3_title = self.get_toc_parts_for_xpath(self.opts.level3_toc)
-                    for elem in find_matches(level3_toc, root):
-                        level2 = None
-                        for item in root.iterdescendants():
-                            if item in added2:
-                                level2 = added2[item]
-                            elif item == elem:
-                                if level2 is None:
-                                    if previous_level2 is None:
-                                        break
-                                    level2 = previous_level2
-                                text, _href = self.elem_to_link(document, elem, level3_title, counter)
-                                counter += 1
-                                if text:
-                                    level2.add(text, _href, play_order=self.oeb.toc.next_play_order())
-                                break
+                    level3_elems = frozenset(find_matches(level3_toc, root))
+
+            if not (level1_elems or level2_elems or level3_elems):
+                continue
+
+            current_level1 = previous_level1
+            current_level2 = previous_level2
+            # Single document-order walk (not once per L2/L3 match)
+            self._leveled_doc_walks = getattr(self, '_leveled_doc_walks', 0) + 1
+            for elem in root.iterdescendants(etree.Element):
+                if elem in level1_elems:
+                    text, _href = self.elem_to_link(document, elem, level1_title, counter)
+                    counter += 1
+                    if text:
+                        node = self.oeb.toc.add(text, _href, play_order=self.oeb.toc.next_play_order())
+                        added[elem] = node
+                        current_level1 = node
+                        current_level2 = None
+                elif elem in level2_elems:
+                    if current_level1 is None:
+                        continue
+                    text, _href = self.elem_to_link(document, elem, level2_title, counter)
+                    counter += 1
+                    if text:
+                        node = current_level1.add(text, _href, play_order=self.oeb.toc.next_play_order())
+                        added2[elem] = node
+                        current_level2 = node
+                elif elem in level3_elems:
+                    if current_level2 is None:
+                        continue
+                    text, _href = self.elem_to_link(document, elem, level3_title, counter)
+                    counter += 1
+                    if text:
+                        current_level2.add(text, _href, play_order=self.oeb.toc.next_play_order())
+
+            if current_level1 is not None:
+                previous_level1 = current_level1
+            if current_level2 is not None:
+                previous_level2 = current_level2
