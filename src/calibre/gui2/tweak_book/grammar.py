@@ -23,6 +23,7 @@ from qt.core import (
     QHBoxLayout,
     QHideEvent,
     QIcon,
+    QKeyEvent,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -1894,6 +1895,17 @@ class GrammarCheck(Dialog):
         assert hh is not None
         tprefs['grammar-check-table-state'] = bytearray(hh.saveState())
         self.cancel()
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0 is not None and a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            # Do not close the dialog on Enter, instead behave like a double click
+            # in the issues list. The replacements list and replacement box
+            # handle Enter themselves via their activated/returnPressed signals.
+            if self.focusWidget() is self.issues_view:
+                self.show_current_issue()
+            a0.accept()
+            return
+        Dialog.keyPressEvent(self, a0)
 
     def accept(self) -> None:
         self.save_table_state()
