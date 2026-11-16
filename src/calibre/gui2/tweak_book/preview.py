@@ -420,6 +420,7 @@ class Inspector(QWidget):
             view_page = self.view.page()
             assert view_page is not None
             setup_profile(view_page.profile())
+            view_page.windowCloseRequested.connect(self.close_requested)
             view_to_debug = self.view_to_debug
             assert view_to_debug is not None
             vtd_page = view_to_debug.page()
@@ -428,6 +429,12 @@ class Inspector(QWidget):
             h = self.layout()
             assert h is not None
             h.addWidget(self.view)
+
+    def close_requested(self) -> None:
+        # The close button in the DevTools toolbar requests the window be closed
+        ac = actions['inspector-dock']
+        if ac.isChecked():
+            ac.trigger()
 
     def sizeHint(self):
         return QSize(1280, 600)
