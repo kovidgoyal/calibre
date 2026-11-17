@@ -436,22 +436,31 @@ class Chunker:
         # an offset from the start of the chunk to the start of the tag pointed
         # to by the link.
         aid_map = PolyglotDict()  # Map of aid to (fid, offset_from_start_of_chunk, offset_from_start_of_text)
+        chunk_table = self.chunk_table
+        last = len(chunk_table) - 1
+        # The offsets only increase and a chunk that ends at or before one
+        # offset also ends before all later ones, so each search can resume at
+        # the chunk the previous aid was found in instead of at the start.
+        first = 0
         for match in re.finditer(rb'<[^>]+? [ac]id=[\'"]([cA-Z0-9]+)[\'"]', rebuilt_text):
             offset = match.start()
             pos_fid = None
-            for chunk in self.chunk_table:
+            for i in range(first, len(chunk_table)):
+                chunk = chunk_table[i]
                 if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
                     pos_fid = (chunk.sequence_number, offset - chunk.insert_pos, offset)
-                    break
-                if chunk.insert_pos > offset:
+                elif chunk.insert_pos > offset:
                     # This aid is in the skeleton, not in a chunk, so we use
                     # the chunk immediately after
                     pos_fid = (chunk.sequence_number, 0, offset)
-                    break
-                if chunk is self.chunk_table[-1]:
+                elif i == last:
                     # This can happen for aids very close to the end of the
                     # text (https://bugs.launchpad.net/bugs/1011330)
                     pos_fid = (chunk.sequence_number, offset - chunk.insert_pos, offset)
+                else:
+                    continue
+                first = i
+                break
             if pos_fid is None:
                 raise ValueError(f'Could not find chunk for aid: {match.group(1)!r}')
             aid_map[match.group(1)] = pos_fid
