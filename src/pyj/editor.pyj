@@ -67,7 +67,7 @@ def scroll_to_node(node, sync_context):
             window.scrollBy(0, -sync_context * line_height())
 
 
-state = {'blocks_found': False, 'in_split_mode': False, 'highlight_timer': None}
+state = {'blocks_found': False, 'in_split_mode': False}
 
 
 def go_to_line(lnum, sync_context):
@@ -101,7 +101,6 @@ def go_to_sourceline_address(sourceline, tags, sync_context):
 # Highlighting of paragraphs {{{
 
 PARAGRAPH_HIGHLIGHT_NAME = 'calibre-paragraph-highlight'
-PARAGRAPH_HIGHLIGHT_DURATION = 5000  # milliseconds
 # Elements whose text is not part of the paragraphs of text checked for
 # grammar, see calibre/utils/grammar/markup.py. mjx-container is the output of
 # MathJax.
@@ -190,10 +189,11 @@ def find_paragraph_range(start_node, paragraph_text):
     return None
 
 
+@from_python
+@no_prune
 def clear_paragraph_highlight():
-    if state.highlight_timer is not None:
-        window.clearTimeout(state.highlight_timer)
-        state.highlight_timer = None
+    # The highlight stays until it is cleared from python, or the page is
+    # reloaded
     if window.CSS and window.CSS.highlights:
         window.CSS.highlights.delete(PARAGRAPH_HIGHLIGHT_NAME)
 
@@ -222,7 +222,6 @@ def highlight_paragraph(sourceline, tags, paragraph_text, sync_context):
             elem.scrollIntoView()
             rect = r.getBoundingClientRect()
         window.scrollBy(0, rect.top - sync_context * line_height())
-    state.highlight_timer = window.setTimeout(clear_paragraph_highlight, PARAGRAPH_HIGHLIGHT_DURATION)
 
 # }}}
 

@@ -219,6 +219,9 @@ class Boss(QObject):
         self.gui.grammar_check.commit_requested.connect(self.commit_all_editors_to_container)
         self.gui.grammar_check.files_changed.connect(self.word_replaced)
         self.gui.grammar_check.show_issue.connect(self.show_grammar_issue)
+        # The paragraph highlighted in the preview when showing an issue is
+        # only relevant while the grammar check window is open
+        self.gui.grammar_check.hidden.connect(self.gui.preview.clear_paragraph_highlight)
         gs = grammar_service()
         gs.language_data_needed.connect(self.grammar_language_data_needed)
         gs.inline_check_failed.connect(self.inline_grammar_check_failed)

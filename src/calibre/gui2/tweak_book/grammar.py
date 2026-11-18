@@ -1344,6 +1344,8 @@ class GrammarCheck(Dialog):
     files_changed = pyqtSignal(object)
     # Emitted with a BookIssue to show it in the editor
     show_issue = pyqtSignal(object)
+    # Emitted when the window is closed or otherwise hidden by the application
+    hidden = pyqtSignal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         self.service = grammar_service()
@@ -1509,6 +1511,13 @@ class GrammarCheck(Dialog):
         Dialog.show(self)
         self.undo_data.clear()
         QTimer.singleShot(0, self.refresh)
+
+    def hideEvent(self, a0: QHideEvent | None) -> None:
+        super().hideEvent(a0)
+        # Spontaneous hide events come from the window system, for instance,
+        # when the window is minimized, which does not close it
+        if a0 is None or not a0.spontaneous():
+            self.hidden.emit()
 
     def cancel(self) -> None:
         for token in self.tokens:

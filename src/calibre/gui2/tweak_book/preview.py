@@ -345,6 +345,7 @@ class PreviewBridge(Bridge):
 
     go_to_sourceline_address = to_js()
     highlight_paragraph = to_js()
+    clear_paragraph_highlight = to_js()
     go_to_anchor = to_js()
     set_split_mode = to_js()
     live_css = to_js()
@@ -394,6 +395,10 @@ class WebPage(QWebEnginePage):
     def highlight_paragraph(self, sourceline: int, tags: list[str], text: str) -> None:
         if self.bridge.ready:
             self.bridge.highlight_paragraph.emit(sourceline, [x.lower() for x in tags], text, tprefs['preview_sync_context'])
+
+    def clear_paragraph_highlight(self) -> None:
+        if self.bridge.ready:
+            self.bridge.clear_paragraph_highlight.emit()
 
     def split_mode(self, enabled) -> None:
         if self.bridge.ready:
@@ -588,8 +593,10 @@ class Preview(QWidget):
         self.pending_go_to_anchor = None
         self.pending_highlight: tuple[str, int, list[str], str] | None = None
         self.highlight_retry_count = 0
+        # Whether a paragraph is highlighted in the currently loaded page
+        self.highlight_shown = False
         # The last request to sync to the cursor position in the editor and
-        # the one made when the pending highlight was requested
+        # the one made when the pending or shown highlight was requested
         self.last_sync_request: tuple[str, object] | None = None
         self.sync_request_at_highlight: tuple[str, object] | None = None
         # Messages sent to the javascript while a page is loading are lost
@@ -706,14 +713,14 @@ class Preview(QWidget):
 
     def sync_to_editor(self, name, sourceline_address) -> None:
         self.last_sync_request = (name, sourceline_address)
-        if self.pending_highlight is not None:
+        if self.pending_highlight is not None or self.highlight_shown:
             if self.last_sync_request == self.sync_request_at_highlight:
                 # The cursor has not moved since the highlight was requested,
                 # for instance, this is a sync made once syntax highlighting
                 # finishes, so keep showing the highlighted paragraph
                 return
             # The user has moved on, so the highlight would be unexpected
-            self.pending_highlight = None
+            self.clear_paragraph_highlight()
         self.current_sync_request = (name, sourceline_address)
         self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
@@ -730,9 +737,11 @@ class Preview(QWidget):
         self.view._page.go_to_sourceline_address(sourceline_address)
 
     def highlight_paragraph(self, name: str, sourceline_address: tuple[int | None, list[str] | None], text: str) -> None:
-        """Scroll to the paragraph with the specified text and highlight it
-        briefly. The paragraph is found from the sourceline address of the
-        innermost element containing its start."""
+        """Scroll to the paragraph with the specified text and highlight it.
+        The paragraph is found from the sourceline address of the innermost
+        element containing its start. The highlight stays until
+        clear_paragraph_highlight() is called, the cursor in the editor is
+        moved to a different element or the preview is reloaded."""
         sourceline, tags = sourceline_address
         if sourceline is None or tags is None or not text or not self.is_visible or actions['split-in-preview'].isChecked():
             return
@@ -757,7 +766,17 @@ class Preview(QWidget):
                 QTimer.singleShot(100, self._highlight_paragraph)
             return
         self.pending_highlight = None
+        self.highlight_shown = True
         self.view._page.highlight_paragraph(sourceline, tags, text)
+
+    def clear_paragraph_highlight(self) -> None:
+        """Remove the paragraph highlight, and cancel any pending one"""
+        self.pending_highlight = None
+        if self.highlight_shown:
+            self.highlight_shown = False
+            # A page that is loading has no highlight
+            if not self.page_loading:
+                self.view._page.clear_paragraph_highlight()
 
     def report_worker_launch_error(self) -> None:
         if parse_worker.launch_error is not None:
@@ -870,6 +889,7 @@ class Preview(QWidget):
             self.view._page.split_mode(False)
 
     def do_start_split(self) -> None:
+        self.clear_paragraph_highlight()
         self.view._page.split_mode(True)
 
     def stop_split(self) -> None:
@@ -877,6 +897,8 @@ class Preview(QWidget):
 
     def load_started(self) -> None:
         self.page_loading = True
+        # Loading a page removes the highlight from the previous one
+        self.highlight_shown = False
         self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
 
     def on_bridge_ready(self) -> None:
