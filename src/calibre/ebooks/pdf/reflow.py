@@ -126,6 +126,14 @@ COLUMN_MIN_SHARE = 0.15
 # A gutter has to be at least this many times the average height of the text
 # wide, so that ordinary word spacing is never mistaken for one
 COLUMN_MIN_GUTTER = 1.5
+# A narrower gutter, down to this many times the average height of the text,
+# and wider than this many average character widths, so that it is not a
+# space, counts too, if the text on one side of it lines up along it on at
+# least this fraction of the rows with text on both sides of it, as the text of
+# a column does
+COLUMN_MIN_NARROW_GUTTER = 0.6
+COLUMN_NARROW_GUTTER_CHARS = 1.5
+COLUMN_NARROW_GUTTER_ALIGNED = 0.6
 # A column of prose puts this many characters on each of its rows. The cells
 # of a table line up just as neatly but hold far less, and reading a table one
 # column at a time would destroy it, so pages like that are left alone.
@@ -1164,6 +1172,11 @@ class Page:
         # width heading would hide the gutter of a short page.
         max_crossings = max(1, int(COLUMN_CROSS_FACTOR * len(rows)))
         min_width = max(1, int(COLUMN_MIN_GUTTER * self.average_text_height))
+        # Narrower gutters, as typeset by LaTeX for instance, need the text on
+        # one side of them to line up as well, and to be wider than a space
+        chars = sum(len(t.text_as_string) for t in self.texts)
+        char_width = sum(t.width for t in self.texts) / max(1, chars)
+        min_narrow_width = max(1, int(COLUMN_MIN_NARROW_GUTTER * self.average_text_height), int(COLUMN_NARROW_GUTTER_CHARS * char_width) + 1)
         ans: list[tuple[int, int]] = []
         start: int | None = None
         crossing = 0
@@ -1176,10 +1189,31 @@ class Page:
                 # A run reaching either edge of the text is a margin rather
                 # than a gutter, and a run that reaches the right hand edge
                 # never gets here as it is not followed by any text
-                if start > 0 and i - start >= min_width:
+                if start > 0 and (i - start >= min_width or (i - start >= min_narrow_width and self.lines_up_at_gutter(rows, left + start, left + i))):
                     ans.append((left + start, left + i))
                 start = None
         return ans
+
+    def lines_up_at_gutter(self, rows: list[list[Text]], gutter_left: float, gutter_right: float) -> bool:
+        # Whether the text on one side of a strip of the page lines up along
+        # it, as the text of a column does: its lines start at the left of the
+        # column, and, if justified or right to left, end at its right. The
+        # gaps between words of a page of prose, even ones that happen to line
+        # up from one row to the next, are not followed by text that does.
+        starts = ends = count = 0
+        for row in rows:
+            before = [t.right for t in row if t.right <= gutter_left + SAME_INDENT]
+            after = [t.left for t in row if t.left >= gutter_right - SAME_INDENT]
+            if not before or not after:
+                continue
+            count += 1
+            if abs(min(after) - gutter_right) <= SAME_INDENT:
+                starts += 1
+            if abs(max(before) - gutter_left) <= SAME_INDENT:
+                ends += 1
+        if count < COLUMN_MIN_ROWS:
+            return False
+        return max(starts, ends) >= COLUMN_NARROW_GUTTER_ALIGNED * count
 
     def find_columns(self) -> int:
         # Split the page into columns at its gutters and record where in the

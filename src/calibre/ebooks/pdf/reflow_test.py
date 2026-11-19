@@ -150,6 +150,25 @@ class TestSingleColumn(unittest.TestCase):
         # there is no text to the right of it
         self.check_not_split([(10, 10 + i * 20, 200 + (i % 3) * 40, f'Line {i}') for i in range(10)])
 
+    def test_word_gaps_that_nearly_line_up(self) -> None:
+        # The gaps between words of each line overlap in a narrow strip of the
+        # page, but the words after them start at different places, unlike
+        # the lines of a column
+        fragments = []
+        for i, (end, start) in enumerate([(205, 225), (210, 222), (208, 230), (203, 224)] * 3):
+            fragments.append((10, 10 + i * 20, end - 10, f'Some words of line {i} of a page'))
+            fragments.append((start, 10 + i * 20, 210, f'and more words of the line {i}'))
+        self.check_not_split(fragments)
+
+    def test_aligned_spaces_in_monospaced_text(self) -> None:
+        # A space that lines up from one line to the next, as in code, is not
+        # a narrow gutter, however the text around it lines up
+        fragments = []
+        for i in range(10):
+            fragments.append((10, 10 + i * 20, 161, f'value_of_assignment_{i:03d}'))
+            fragments.append((178, 10 + i * 20, 210, f'= compute_value({i}, x, y)'))
+        self.check_not_split(fragments)
+
 
 class TestColumnDetection(unittest.TestCase):
     def test_two_columns(self) -> None:
@@ -190,6 +209,18 @@ class TestColumnDetection(unittest.TestCase):
         page = build(fragments)
         self.assertEqual(3, page.column_count)
         self.assertEqual([f'text of the {n} column {i}' for n in names for i in range(6)], texts_of(page))
+
+    def test_narrow_gutter(self) -> None:
+        # LaTeX puts columns only about the height of a line apart. The lines
+        # of the right column start at the same left, apart from the first
+        # lines of paragraphs.
+        fragments: list[Fragment] = []
+        for i in range(8):
+            fragments.append((10, 10 + i * 20, 200, f'{LEFT_LINE} {i}'))
+            fragments.append((222 + (10 if i % 4 == 0 else 0), 10 + i * 20, 200, f'{RIGHT_LINE} {i}'))
+        page = build(fragments)
+        self.assertEqual(2, page.column_count)
+        self.assertEqual([f'{LEFT_LINE} {i}' for i in range(8)] + [f'{RIGHT_LINE} {i}' for i in range(8)], texts_of(page))
 
     def test_gutters(self) -> None:
         page = build(two_columns(), join=False)
