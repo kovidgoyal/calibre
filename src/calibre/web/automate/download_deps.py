@@ -18,10 +18,20 @@ version as in use by holding a shared lock on it, see :class:`VersionLock`.
 A failed install is recorded, along with an explanation of what went wrong, and
 not tried again for a while, see :class:`InstallFailed`, since installing
 camoufox means downloading hundreds of megabytes.
+
+This module is updated live from the calibre website, so that changes to where
+the dependencies are downloaded from can reach users without needing a new
+calibre release. Code that installs them should use the live version, see
+:func:`live_module`.
 """
+
+# These two are read by calibre.live, see live_module()
+module_version = 1
+minimum_calibre_version = (9, 20, 0)
 
 import errno
 import hashlib
+import io
 import json
 import os
 import platform
@@ -47,6 +57,7 @@ from calibre.utils.safe_atexit import remove_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from types import ModuleType
 
 if iswindows:
     import msvcrt
@@ -73,6 +84,8 @@ CAMOUFOX_REPO = 'daijro/camoufox'
 # Repositories with backups of the camoufox releases, used, in order, when the
 # camoufox repository is not found, as happened when GitHub removed it
 CAMOUFOX_BACKUP_REPOS = ('jo-inc/camofox-browser',)
+# The camoufox python package, which bundles the font lists, see camoufox_font_lists()
+CAMOUFOX_PYPI_PACKAGE = 'camoufox'
 
 
 def github_api_headers() -> dict[str, str]:
@@ -196,6 +209,17 @@ def make_executable(path: str) -> None:
 
 
 # }}}
+
+
+def latest_pypi_wheel(package: str, timeout: float = NETWORK_TIMEOUT) -> Release:
+    """The wheel of the latest release of package on PyPI."""
+    data = download_json(f'https://pypi.org/pypi/{package}/json', timeout=timeout)
+    version = data['info']['version']
+    for f in data.get('urls', ()):
+        if f.get('packagetype') == 'bdist_wheel' and not f.get('yanked'):
+            return Release(version, f['url'], (f.get('digests') or {}).get('sha256', ''))
+    raise ValueError(f'No wheel found for {package} {version} on PyPI')
+
 
 # Version numbers {{{
 
@@ -941,6 +965,28 @@ def use_camoufox(allow_prerelease: bool = False) -> tuple[Install, VersionLock |
     return camoufox_installer.use(allow_prerelease=allow_prerelease)
 
 
+live: ModuleType | None = None
+
+
+def live_module() -> ModuleType:
+    """The live version of this module, which is either this one or a newer one
+    downloaded from the calibre website. Any newer version is checked for in
+    the background, for use from the next time calibre is run."""
+    global live
+    if live is None:
+        from calibre.live import Strategy, load_module, start_worker
+
+        start_worker()
+        live = load_module(__name__, strategy=Strategy.fast)
+    return live
+
+
+def use_live_camoufox(allow_prerelease: bool = False) -> tuple[Install, VersionLock | None]:
+    """Like :func:`use_camoufox` but using the live version of this module."""
+    install, lock = live_module().use_camoufox(allow_prerelease=allow_prerelease)
+    return Install(*install), lock
+
+
 def lock_camoufox_install(install: Install) -> VersionLock | None:
     """Stop install, as returned by :func:`camoufox_install`, possibly in another
     process, from being removed by updates. Returns None if install is not one
@@ -971,15 +1017,36 @@ def camoufox_font_lists(version: str) -> dict[str, list[str]]:
     """The font families upstream camoufox reports for each OS, keyed by win,
     mac and lin, for the specified camoufox version. Downloaded from the
     camoufox source repository, as newer camoufox bundles do not record which
-    fonts belong to which OS, except on Linux."""
+    fonts belong to which OS, except on Linux. Falls back to the camoufox
+    python package if the source repository is not found."""
     if VERSION_PAT.fullmatch(version) is None:
         raise ValueError(f'The version {version!r} of camoufox is not a valid version number')
     url = f'https://raw.githubusercontent.com/{CAMOUFOX_REPO}/v{version}/pythonlib/camoufox/fonts.json'
-    # A short timeout as this is done when launching the browser
-    data = download_json(url, timeout=FONT_LISTS_TIMEOUT)
+    try:
+        # A short timeout as this is done when launching the browser
+        data = download_json(url, timeout=FONT_LISTS_TIMEOUT)
+    except HTTPError as e:
+        if e.code != 404:
+            raise
+        debug(f'The camoufox font lists at {url} were not found, using the ones in the {CAMOUFOX_PYPI_PACKAGE} package on PyPI instead')
+        url, data = camoufox_font_lists_from_pypi()
     if not isinstance(data, dict) or not all(isinstance(families, list) and all(isinstance(f, str) for f in families) for families in data.values()):
         raise ValueError(f'The camoufox font lists downloaded from {url} are not a mapping of OS names to lists of font families')
     return data
+
+
+def camoufox_font_lists_from_pypi() -> tuple[str, Any]:
+    """The URL of and the font lists in the latest release of the camoufox
+    python package, which contains the fonts.json of the source repository.
+    The package is not released in step with the browser, but the font lists
+    rarely change and any fonts in them that a browser does not bundle are
+    ignored anyway, see :func:`calibre.web.automate.camoufox.reportable_font_families`."""
+    release = latest_pypi_wheel(CAMOUFOX_PYPI_PACKAGE, timeout=FONT_LISTS_TIMEOUT)
+    wheel = download_data(release.url, timeout=FONT_LISTS_TIMEOUT)
+    if release.sha256 and hashlib.sha256(wheel).hexdigest() != release.sha256:
+        raise ValueError(f'The checksum of {release.url} does not match the one PyPI reports for it')
+    with zipfile.ZipFile(io.BytesIO(wheel)) as zf:
+        return release.url, json.loads(zf.read(f'{CAMOUFOX_PYPI_PACKAGE}/fonts.json'))
 
 
 # }}}
@@ -995,13 +1062,7 @@ class BrowserforgeData(Installer):
 
     def latest_release(self, **kw: Any) -> Release:  # ruff: ignore[any-type]
         # The data files are distributed as the apify_fingerprint_datapoints package
-        name = BROWSERFORGE_DATA_PACKAGE.replace('_', '-')
-        data = download_json(f'https://pypi.org/pypi/{name}/json')
-        version = data['info']['version']
-        for f in data.get('urls', ()):
-            if f.get('packagetype') == 'bdist_wheel' and not f.get('yanked'):
-                return Release(version, f['url'], (f.get('digests') or {}).get('sha256', ''))
-        raise ValueError(f'No wheel found for {name} {version} on PyPI')
+        return latest_pypi_wheel(BROWSERFORGE_DATA_PACKAGE.replace('_', '-'))
 
     def unpack(self, downloaded_file: str, dest: str) -> None:
         prefix = BROWSERFORGE_DATA_PACKAGE + '/data/'
