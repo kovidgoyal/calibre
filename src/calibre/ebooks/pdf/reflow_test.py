@@ -294,6 +294,24 @@ class TestSpanningElements(unittest.TestCase):
             if 'Heading' in text:
                 self.assertEqual('A Full Width Heading Over The Page', text)
 
+    def test_heading_in_pieces_over_the_gutter_is_one_line(self) -> None:
+        # A heading in small capitals is split by pdftohtml into pieces of
+        # different sizes, which have to stay together to be joined into a
+        # line, though some of them are on either side of the gutter
+        fragments: list[Fragment] = [
+            (150, 5, 24, 'A S', 15),
+            (174, 9, 33, 'tudy', 7),
+            (211, 5, 5, 'I', 15),
+            (216, 9, 10, 'n', 7),
+            (231, 5, 8, 'S', 15),
+            (239, 9, 48, 'carlet', 7),
+        ]
+        fragments += [(x, 45 + i * 20, 200, f'{name} {i}') for i in range(6) for x, name in ((10, LEFT_LINE), (250, RIGHT_LINE))]
+        page = build(fragments)
+        self.assertEqual(2, page.column_count)
+        self.assertEqual('A Study In Scarlet', texts_of(page)[0])
+        self.assertEqual(13, len(page.texts), texts_of(page))
+
 
 class TestTables(unittest.TestCase):
     """
@@ -471,6 +489,25 @@ class TestPageBoundaries(unittest.TestCase):
         paras = [p for p in self.paragraph_texts(html) if self.BODY in p]
         self.assertEqual(1, len(paras), paras)
         self.assertEqual(8 * 24, paras[0].count(self.BODY))
+
+    def test_running_heads_without_page_numbers_are_removed(self) -> None:
+        # The title of the part of the book at the top of every page, which
+        # changes part way through the book, unlike a heading starting a page
+        pages = []
+        for num in range(8):
+            title = 'The First Story' if num < 4 else 'The Second Story'
+            heading = 'Chapter One' if num in (0, 4) else ''
+            pages.append([(750, 60, 300, title, 0)] + self.text_page(num, heading=heading))
+        html = self.convert(pages)
+        self.assertNotIn('The First Story', html)
+        self.assertNotIn('The Second Story', html)
+        self.assertEqual(2, html.count('Chapter One'))
+
+    def test_lines_at_top_of_pages_far_apart_are_not_running_heads(self) -> None:
+        pages = []
+        for num in range(9):
+            pages.append(([(750, 60, 300, 'A Repeated Title', 0)] if num % 4 == 0 else []) + self.text_page(num))
+        self.assertEqual(3, self.convert(pages).count('A Repeated Title'))
 
     def test_section_numbers_at_top_of_page_are_not_page_numbers(self) -> None:
         # Numbered section headings at the top of the body of some pages,

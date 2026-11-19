@@ -38,6 +38,10 @@ LINE_SCAN_COUNT = 2  # Arbitrary
 RUNNING_HEAD_MAX_WORDS = 12
 RUNNING_HEAD_MIN_PAGES = 3
 RUNNING_HEAD_MIN_FRACTION = 0.1
+# A running head without a page number, such as the title of the book or
+# chapter, is the same on pages at most this many apart, so that the left and
+# right hand pages can have different running heads
+REPEATED_HEAD_MAX_DISTANCE = 2
 
 # Number of character widths that two strings have to be apart,
 # for them to be considered part of the same text fragment
@@ -1227,17 +1231,46 @@ class Page:
             return 1
         boundaries = [(a + b) / 2.0 for a, b in gutters]
 
-        def column_of(t: Text) -> int:
+        def column_of_extent(left: float, right: float) -> int:
             # -1 for an element that spans a gutter rather than sitting in a
             # column, so that it is read before the columns it spans
             for b in boundaries:
-                if t.left < b < t.right:
+                if left < b < right:
                     return -1
-            centre = (t.left + t.right) / 2.0
+            centre = (left + right) / 2.0
             for i, b in enumerate(boundaries):
                 if centre < b:
                     return i
             return len(boundaries)
+
+        # The fragments of a row that are much closer together than the width
+        # of a gutter are parts of the same text, such as the words of a
+        # heading in small capitals, which pdftohtml splits at each change of
+        # size. They are in a column, or span the gutters, together, so that
+        # they can be joined into a line.
+        rows = self.rows()
+        max_gap = min(b - a for a, b in gutters) / 2.0
+        row_of: dict[int, int] = {}
+        column_of_text: dict[int, int] = {}
+        for r, row in enumerate(rows):
+            group: list[Text] = []
+            group_right = 0.0
+            for t in sorted(row, key=attrgetter('left')) + [None]:
+                if t is not None and group and t.left - group_right < max_gap:
+                    group.append(t)
+                    group_right = max(group_right, t.right)
+                    continue
+                if group:
+                    idx = column_of_extent(min(g.left for g in group), group_right)
+                    for g in group:
+                        column_of_text[id(g)] = idx
+                if t is not None:
+                    group, group_right = [t], t.right
+            for t in row:
+                row_of[id(t)] = r
+
+        def column_of(t: Text) -> int:
+            return column_of_text[id(t)]
 
         columns: list[list[Text]] = [[] for _ in range(len(boundaries) + 1)]
         for t in self.texts:
@@ -1253,7 +1286,7 @@ class Page:
         # Count the rows of each column separately, a column of prose has to
         # have both enough of them and enough text on each of them
         row_counts = [0] * len(columns)
-        for row in self.rows():
+        for row in rows:
             for i in {column_of(t) for t in row} - {-1}:
                 row_counts[i] += 1
         for size, rows in zip(sizes, row_counts):
@@ -1265,11 +1298,15 @@ class Page:
         rtl = is_predominantly_rtl(''.join(t.text_as_string for t in self.texts))
         last = len(boundaries)
         band = 0
+        spanning_row = -1
         for t in sorted(self.texts, key=attrgetter('top')):
             idx = column_of(t)
             if idx < 0:
-                # A spanning element ends the band above it and leads the next
-                band += 1
+                # A spanning element ends the band above it and leads the
+                # next, along with the rest of its row
+                if row_of[id(t)] != spanning_row:
+                    band += 1
+                    spanning_row = row_of[id(t)]
                 t.column = (band, -1)
             else:
                 t.column = (band, last - idx if rtl else idx)
@@ -2092,6 +2129,7 @@ class PDFDocument:
         if self.opts.pdf_header_skip > 0 or self.opts.pdf_footer_skip > 0:
             self.remove_header_footer()
         self.remove_running_heads(auto_header, auto_footer)
+        self.remove_repeated_heads(auto_header, auto_footer)
 
         # Work out document dimensions from page format
         for page in self.pages:
@@ -2547,6 +2585,72 @@ class PDFDocument:
                     for t in line:
                         if t in page.texts:
                             page.texts.remove(t)
+
+    def remove_repeated_heads(self, header: bool, footer: bool) -> None:
+        """
+        Remove running heads without page numbers, such as the title of a
+        book or of its chapters, which changes from chapter to chapter, so
+        they are not found by find_header_footer(). They are recognised by
+        being a short line at the top or bottom of pages, outside the area of
+        the page where the body text usually is, the same as on nearby pages.
+        A heading at the top of a page starting a chapter is not on nearby
+        pages, and a line of the body text is inside the body area.
+        """
+        # (at top, text) -> [(page index, the texts of the line)]
+        lines: dict[tuple[bool, str], list[tuple[int, list[Text]]]] = {}
+        for idx, page in enumerate(self.pages):
+            if not page.texts:
+                continue
+            ends: list[tuple[bool, list[Text]]] = []
+            if header:
+                top = min(t.top for t in page.texts)
+                ends.append((True, [t for t in page.texts if abs(t.top - top) <= SAME_SPACE]))
+            if footer:
+                bottom = max(t.bottom for t in page.texts)
+                ends.append((False, [t for t in page.texts if abs(t.bottom - bottom) <= SAME_SPACE]))
+            for at_top, line in ends:
+                if len(line) == len(page.texts):
+                    continue  # The only line of the page
+                words = ' '.join(t.text_as_string for t in sorted(line, key=attrgetter('left'))).split()
+                if words and len(words) <= RUNNING_HEAD_MAX_WORDS:
+                    lines.setdefault((at_top, ' '.join(words)), []).append((idx, line))
+        # The lines that are the same as on a nearby page
+        repeated: list[tuple[bool, int, list[Text]]] = []
+        for (at_top, text), occurrences in lines.items():
+            if len(occurrences) < RUNNING_HEAD_MIN_PAGES:
+                continue
+            indices = [idx for idx, line in occurrences]
+            near = [
+                (idx, line)
+                for i, (idx, line) in enumerate(occurrences)
+                if (i > 0 and idx - indices[i - 1] <= REPEATED_HEAD_MAX_DISTANCE)
+                or (i + 1 < len(indices) and indices[i + 1] - idx <= REPEATED_HEAD_MAX_DISTANCE)
+            ]
+            if len(near) >= RUNNING_HEAD_MIN_PAGES:
+                repeated.extend((at_top, idx, line) for idx, line in near)
+        if not repeated:
+            return
+        # Where the body text usually starts and ends on pages
+        in_repeated = {id(t) for at_top, idx, line in repeated for t in line}
+        body_tops: dict[float, int] = {}
+        body_bottoms: dict[float, int] = {}
+        for page in self.pages:
+            body = [t for t in page.texts if id(t) not in in_repeated]
+            if body:
+                body_top, body_bottom = min(t.top for t in body), max(t.bottom for t in body)
+                body_tops[body_top] = body_tops.get(body_top, 0) + 1
+                body_bottoms[body_bottom] = body_bottoms.get(body_bottom, 0) + 1
+        usual_top = max(body_tops, key=lambda k: (body_tops[k], -k)) if body_tops else 0
+        usual_bottom = max(body_bottoms, key=lambda k: (body_bottoms[k], k)) if body_bottoms else 0
+        for at_top, idx, line in repeated:
+            if at_top and max(t.bottom for t in line) > usual_top:
+                continue
+            if not at_top and min(t.top for t in line) < usual_bottom:
+                continue
+            page = self.pages[idx]
+            for t in line:
+                if t in page.texts:
+                    page.texts.remove(t)
 
     def remove_header_footer(self) -> None:
         # Remove any header/footer lines from all pages
