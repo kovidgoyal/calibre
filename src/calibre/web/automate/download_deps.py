@@ -21,8 +21,8 @@ camoufox means downloading hundreds of megabytes.
 
 This module is updated live from the calibre website, so that changes to where
 the dependencies are downloaded from can reach users without needing a new
-calibre release. Code that installs them should use the live version, see
-:func:`live_module`.
+calibre release. Everything outside this module that uses it should do so
+through the live version of it, see :func:`live_module`.
 """
 
 # These two are read by calibre.live, see live_module()
@@ -979,12 +979,6 @@ def live_module() -> ModuleType:
         start_worker()
         live = load_module(__name__, strategy=Strategy.fast)
     return live
-
-
-def use_live_camoufox(allow_prerelease: bool = False) -> tuple[Install, VersionLock | None]:
-    """Like :func:`use_camoufox` but using the live version of this module."""
-    install, lock = live_module().use_camoufox(allow_prerelease=allow_prerelease)
-    return Install(*install), lock
 
 
 def lock_camoufox_install(install: Install) -> VersionLock | None:

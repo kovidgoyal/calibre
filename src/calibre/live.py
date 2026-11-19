@@ -37,6 +37,7 @@ db_path: str | None = None
 old_interval = timedelta(days=1)
 module_version = 1
 minimum_calibre_version = 5, 7, 0
+NO_LIVE_MODULES_ENV_VAR = 'CALIBRE_NO_LIVE_MODULES'
 
 
 class Strategy(Enum):
@@ -244,9 +245,14 @@ def load_module(full_name: str, strategy: Strategy = Strategy.download_now, time
     whether to check for the latest version immediately or eventually
     (strategies other that download_now).  Note that you must call
     start_worker() for eventual checking to work. Remember to call
-    stop_worker() at exit as well.
+    stop_worker() at exit as well. Setting the environment variable
+    NO_LIVE_MODULES_ENV_VAR to 1 always loads the installed module, without
+    checking for a newer one, which is used by the tests, so that they run
+    the code being tested, even in worker processes.
     """
     installed = import_module(full_name)
+    if os.environ.get(NO_LIVE_MODULES_ENV_VAR) == '1':
+        return installed
     try:
         if strategy is Strategy.fast:
             cached = get_cached_module(full_name)
@@ -264,6 +270,7 @@ def find_tests() -> unittest.TestSuite:
     import hashlib
     import tempfile
     import unittest
+    import unittest.mock
 
     class LiveTest(unittest.TestCase):
         ae = unittest.TestCase.assertEqual
@@ -334,6 +341,12 @@ def find_tests() -> unittest.TestSuite:
             clear_cache()
             m = load_module('calibre.live', strategy=Strategy.download_if_old)
             self.assertEqual(m.module_version, self.fetched_module_version)
+            self.ae(self.fetch_counter, 4)
+            # Always the installed module, without checking for a newer one
+            with unittest.mock.patch.dict(os.environ, {NO_LIVE_MODULES_ENV_VAR: '1'}):
+                for strategy in Strategy:
+                    m = load_module('calibre.live', strategy=strategy)
+                    self.assertEqual(m.module_version, module_version)
             self.ae(self.fetch_counter, 4)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(LiveTest)

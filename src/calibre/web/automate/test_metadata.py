@@ -11,6 +11,7 @@ import io
 import os
 import threading
 import time
+import types
 import unittest
 from collections import Counter
 from contextlib import redirect_stderr
@@ -45,6 +46,7 @@ from calibre.web.automate.metadata import (
     parse_html,
     run_in_browser,
 )
+from calibre.web.automate.test_download_deps import installed_download_deps
 from calibre.web.automate.worker import Response, start_worker
 
 if TYPE_CHECKING:
@@ -1068,6 +1070,7 @@ class TestLauncher(unittest.TestCase):
         LaunchedBrowser.launched, LaunchedBrowser.fail_with = [], None
         self.stderr = io.StringIO()
         self.patches = (
+            installed_download_deps(),
             patch.object(download_deps, 'use_camoufox', self.use_camoufox),
             patch('calibre.web.automate.browser.Browser', LaunchedBrowser),
             patch.object(metadata, 'state', None),
@@ -1418,6 +1421,18 @@ class TestGoogleImagesPlugin(unittest.TestCase):
 
 
 class TestCamoufoxBackups(unittest.TestCase):
+    def setUp(self) -> None:
+        self.enterContext(installed_download_deps())
+
+    def test_metadata_live_download_deps(self) -> None:
+        live = types.ModuleType(download_deps.__name__)
+        with patch.object(download_deps, 'live', live):
+            self.assertIs(metadata.deps(), live)
+        # calibre < 9.20 has no live version of download_deps
+        old = SimpleNamespace(use_camoufox=download_deps.use_camoufox)
+        with patch.object(metadata, 'download_deps', old):
+            self.assertIs(metadata.deps(), old)
+
     def test_metadata_camoufox_backups(self) -> None:
         from urllib.error import HTTPError
 

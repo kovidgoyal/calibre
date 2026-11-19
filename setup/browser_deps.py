@@ -34,6 +34,8 @@ class BrowserDeps(Command):
                 time.sleep(2 * (attempt + 1))
 
     def run(self, opts):
+        # Not the live version of download_deps, see live_module(), as this
+        # runs from the source tree, whose download_deps is what should be used
         from calibre.web.automate.download_deps import browserforge_data, camoufox_binary
 
         self.num_attempts = max(1, opts.num_attempts)
