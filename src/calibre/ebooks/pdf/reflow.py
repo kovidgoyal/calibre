@@ -474,30 +474,39 @@ class Text(Element):
     def set_av_char_width(self) -> None:
         self.average_character_width = max(0.1, self.width / max(1, len(self.text_as_string)))  # Ensure never zero
 
-    def coalesce(self, other: Text, page_number: int, left_margin: float, right_margin: float, same_line: bool = False) -> None:
+    def coalesce(
+        self,
+        other: Text,
+        page_number: int,
+        left_margin: float,
+        right_margin: float,
+        same_line: bool = False,
+        next_column: bool = False,
+        in_column: bool = False,
+    ) -> None:
         if self.opts.verbose > 2:
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         if same_line and self.hanging_left is None and LIST_LABEL.fullmatch(self.text_as_string) is not None:
             self.hanging_left = other.left
         # The other text starts further left than this one ends, so is on
-        # the next line
-        next_line = other.left < self.right
+        # the next line, or it is at the top of the next column
+        next_line = other.left < self.right or next_column
         # Need to work out how to decide this
         # For elements of the same line, is there a space between?
         has_float = ''
         # Spaces are narrow, so a_c_w/3
         # Or assume any gap = a space?
-        if (self.top <= other.top and self.bottom >= other.bottom) and abs(other.left - self.right) < 2.0:
+        if not next_column and (self.top <= other.top and self.bottom >= other.bottom) and abs(other.left - self.right) < 2.0:
             # and abs(other.left - self.right) < self.average_character_width / 3.0:
             has_gap = 0
-        elif other.left < self.right:
+        elif next_line:
             has_gap = 1  # Coalescing different lines. 1 space
         else:  # Multiple texts on same line
             has_gap = round(0.5 + abs(other.left - self.right) / self.average_character_width)
 
         # Allow for super or subscript.  These probably have lower heights
         # In this case, don't use their top/bottom
-        if other.left >= self.right:
+        if not next_line:
             # Same line
             self.line_count += other.line_count - 1
             if self.top > other.top:
@@ -576,8 +585,12 @@ class Text(Element):
             # sentence or a label followed by words rather than numbers, as
             # justification often widens the space after a sentence enough
             # for it to be a separate fragment.
+            # Nor in a column of a page split into columns, as justifying its
+            # narrow lines leaves wide spaces, and the last column reaches the
+            # right margin of the page.
             elif (
-                '   ' not in self.text_as_string
+                not in_column
+                and '   ' not in self.text_as_string
                 and other.right > right_margin - right_margin * RIGHT_FLOAT_FACTOR
                 and not (has_gap <= SENTENCE_GAP and SENTENCE_END.search(self.text_as_string) is not None and NUMBERING.fullmatch(other.text_as_string) is None)
             ):
@@ -1357,6 +1370,76 @@ class Page:
             width /= self.column_count
         return width * self.opts.unwrap_factor
 
+    def merge_columns(self, stats: DocStats) -> None:
+        """
+        Join a paragraph that ends at the bottom of a column to the one at the
+        top of the next column, if that is its continuation: it starts at the
+        left of its column, rather than at the indent of paragraphs, and the
+        last line of the first fills its column, or stops part way through a
+        sentence, as the paragraphs continued on the next page are found by
+        PDFDocument.merge_pages(). Headings, centered text and the like are
+        never joined.
+        """
+        if self.column_count < 2 or len(self.texts) < 2:
+            return
+        # The extent of each column, and the top and bottom of the columns of
+        # each band
+        rights: dict[tuple[int, int], float] = {}
+        tops: dict[int, float] = {}
+        bottoms: dict[int, float] = {}
+        for t in self.texts:
+            band, idx = t.column
+            if idx >= 0:
+                rights[t.column] = max(rights.get(t.column, 0), t.right)
+                tops[band] = min(tops.get(band, t.top), t.top)
+                bottoms[band] = max(bottoms.get(band, t.bottom), t.bottom)
+        line_space = max(stats.line_space, self.average_text_height)
+        left_min = self.stats_left_min
+        i = 1
+        # The column of the last line of the previous text, which changes
+        # when it is joined to the next column
+        last_column = self.texts[0].column
+        while i < len(self.texts):
+            first, second = self.texts[i - 1], self.texts[i]
+            band, idx = second.column
+            if (
+                idx >= 0
+                and last_column[0] == band
+                and 0 <= last_column[1] < idx
+                and first.tag == 'p'
+                and second.tag == 'p'
+                and first.align == 'L'
+                and second.align == 'L'
+                and second.indented == 0
+                and second.margin_left == 0
+                and second.blank_line_before == 0
+                and abs(second.left - left_min - self.column_offset(second)) <= max(SAME_INDENT, second.average_character_width)
+                and first.bottom >= bottoms[band] - line_space
+                and second.top <= tops[band] + line_space
+                and abs(first.font_size - second.font_size) < 0.5
+                and 'href=' not in second.raw
+                and '"float:right"' not in first.raw
+                and not adjacent_quotes(first.text_as_string, second.text_as_string)
+                and self.continues_in(first, second, rights[last_column])
+            ):
+                first.coalesce(second, self.number, self.left_margin, self.right_margin, next_column=True)
+                last_column = second.column
+                del self.texts[i]
+                continue
+            last_column = second.column
+            i += 1
+
+    def continues_in(self, first: Text, second: Text, column_right: float) -> bool:
+        # Whether the paragraph first is continued by second, as its last line
+        # is full, not leaving room for the first word of second, or it stops
+        # part way through a sentence
+        if re.match(r'.*[a-z,-]\s*$', first.text_as_string) is not None or re.match(r'^\s*[a-z,-]', second.text_as_string) is not None:
+            return True
+        word = re.match(r'^\s*(\S+)', second.text_as_string)
+        if word is None:
+            return False
+        return column_right - first.last_right <= len(word.group(1)) * second.average_character_width
+
     def find_column_offsets(self) -> None:
         # On a page split into columns, how far the left margin of each column
         # is to the right of that of the leftmost one. Subtracting it from the
@@ -1441,7 +1524,9 @@ class Page:
                             and frag.text_as_string[-1] == match.text_as_string[0]
                         ):
                             break  # Overlapping same character, so ignore it
-                    frag.coalesce(match, self.number, self.left_margin, self.right_margin, same_line=True)
+                    frag.coalesce(
+                        match, self.number, self.left_margin, self.right_margin, same_line=True, in_column=self.column_count > 1 and frag.column[1] >= 0
+                    )
                     break  # Leave tind
                 tind += 1
             if match is not None:
@@ -1464,22 +1549,36 @@ class Page:
 
         m = len(self.texts)
         column_widths: dict[tuple[int, int], float] = {}
+        # On a page split into columns, the margins of text in a column are
+        # those of the column, as if it were the text of the whole page: its
+        # left is shifted to that of the leftmost column, and the space to the
+        # right of the column is that to the right of the text of the page
+        column_rights: dict[int, float] = {}
         for t in self.texts:
             column_widths[t.column] = max(column_widths.get(t.column, 0), t.right - t.left)
+            if self.column_offsets and t.column[1] >= 0:
+                column_rights[t.column[1]] = max(column_rights.get(t.column[1], 0), t.right)
+
+        def right_margin(t: Text, right: float) -> float:
+            if t.column[1] in column_rights and t.column[1] >= 0:
+                return self.width - self.stats_right + column_rights[t.column[1]] - right
+            return self.width - right
+
         for i in range(m):
             t = self.texts[i]
-            lmargin = t.last_left  # Allow for lines joined into a para
+            shift = self.column_offset(t) if column_rights else 0
+            lmargin = t.last_left - shift  # Allow for lines joined into a para
             multiline = t.line_count > 1
             if multiline:
-                rmargin = self.width - t.last_right  # Right of a coalesced paragraph
+                rmargin = right_margin(t, t.last_right)  # Right of a coalesced paragraph
             else:
-                rmargin = self.width - t.right  # Right of a coalesced line
+                rmargin = right_margin(t, t.right)  # Right of a coalesced line
             # Do we have a sequence of indented lines?
             xmargin = ymargin = -1
             if i > 0:
-                xmargin = self.texts[i - 1].last_left
+                xmargin = self.texts[i - 1].last_left - (self.column_offset(self.texts[i - 1]) if column_rights else 0)
             if i < m - 1:
-                ymargin = self.texts[i + 1].last_left
+                ymargin = self.texts[i + 1].last_left - (self.column_offset(self.texts[i + 1]) if column_rights else 0)
 
             # Don't want to set headings on a Contents page
             # NB Doesn't work where Contents goes to another page
@@ -1499,7 +1598,7 @@ class Page:
                 and lmargin <= rmargin + rmargin * CENTER_FACTOR
                 # All the lines of a centered paragraph are centered, not just
                 # its last one, which can end anywhere
-                and (not multiline or abs(t.left - (self.width - t.right)) <= (self.width - t.right) * CENTER_FACTOR)
+                and (not multiline or abs(t.left - shift - right_margin(t, t.right)) <= right_margin(t, t.right) * CENTER_FACTOR)
                 and '"float:right"' not in t.raw
             ):
                 # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
@@ -2017,6 +2116,9 @@ class Page:
         self.coalesce_paras(stats)
 
         self.check_centered(stats)
+
+        # Join paragraphs that continue from one column to the next
+        self.merge_columns(stats)
 
         # self.elements = list(self.texts)
         # for img in page.xpath('descendant::img'):

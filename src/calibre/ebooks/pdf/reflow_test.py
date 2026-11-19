@@ -210,6 +210,22 @@ class TestColumnDetection(unittest.TestCase):
         self.assertEqual(3, page.column_count)
         self.assertEqual([f'text of the {n} column {i}' for n in names for i in range(6)], texts_of(page))
 
+    def test_justified_words_in_last_column_are_not_floated_right(self) -> None:
+        # pdftohtml can split the justified lines of a narrow column at its
+        # wide spaces, and the end of the lines of the last column is at the
+        # right margin of the page, which is not right aligned text
+        fragments: list[Fragment] = []
+        for i in range(8):
+            fragments.append((10, 10 + i * 20, 200, f'{LEFT_LINE} {i}'))
+            # The wide space is in a different place on each line
+            end = 380 + (i % 3) * 3
+            fragments.append((250, 10 + i * 20, end - 250, f'the right column of {i}'))
+            fragments.append((end + 17, 10 + i * 20, 450 - end - 17, 'page'))
+        page = build(fragments)
+        self.assertEqual(2, page.column_count)
+        for t in page.texts:
+            self.assertNotIn('float:right', t.raw)
+
     def test_narrow_gutter(self) -> None:
         # LaTeX puts columns only about the height of a line apart. The lines
         # of the right column start at the same left, apart from the first
@@ -632,10 +648,10 @@ class TestPageBoundaries(unittest.TestCase):
             self.assertEqual(1, len(matching), paras)
             self.assertEqual(3, matching[0].count(self.BODY), matching[0])
 
-    def test_paragraphs_in_two_columns(self) -> None:
-        # The lines of a column are much less wide than the page, and the
-        # columns are at different lefts, but the lines of paragraphs with an
-        # indented first line are still joined
+    def two_column_pages(self, continued: bool = False) -> list[list[FontFragment]]:
+        # Pages of two columns of paragraphs of four lines with an indented
+        # first line. If continued, the last paragraph of the left column of
+        # each page continues at the top of the right column.
         pages: list[list[FontFragment]] = []
         for page_num in range(2):
             page: list[FontFragment] = []
@@ -643,12 +659,28 @@ class TestPageBoundaries(unittest.TestCase):
                 top = 150
                 for p in range(4):
                     label = f'Para{page_num}{column}{p}'
-                    page.append((left + 40, top, 610, f'{label} line 0 some text of a column', 0))
+                    if continued and column == 1 and p == 0:
+                        # The rest of the last paragraph of the left column
+                        label = f'Para{page_num}03'
+                        page.append((left, top, 650, f'{label} line 4 some text of a column', 0))
+                    else:
+                        page.append((left + 40, top, 610, f'{label} line 0 some text of a column', 0))
                     for i in range(1, 4):
-                        page.append((left, top + i * 35, 650 if i < 3 else 300, f'{label} line {i} some text of a column', 0))
+                        last_line = i == 3 and not (continued and column == 0 and p == 3)
+                        page.append((left, top + i * 35, 450 if last_line else 650, f'{label} line {i} some text of a column', 0))
                     top += 4 * 35
             pages.append(page)
-        paras = self.paragraph_texts(self.convert(pages))
+        return pages
+
+    def test_paragraphs_in_two_columns(self) -> None:
+        # The lines of a column are much less wide than the page, and the
+        # columns are at different lefts, but the lines of paragraphs with an
+        # indented first line are still joined, and the paragraphs of the
+        # right column are not taken to be right aligned
+        html = self.convert(self.two_column_pages())
+        self.assertNotIn('text-align:right', html)
+        self.assertIn('text-indent', html)
+        paras = self.paragraph_texts(html)
         for page_num in range(2):
             for column in range(2):
                 for p in range(4):
@@ -656,6 +688,19 @@ class TestPageBoundaries(unittest.TestCase):
                     matching = [x for x in paras if label in x]
                     self.assertEqual(1, len(matching), paras)
                     self.assertEqual(4, matching[0].count(label), matching[0])
+                    # Not joined to the paragraph in the next column
+                    self.assertEqual(4, matching[0].count('Para'), matching[0])
+
+    def test_paragraph_continued_in_next_column(self) -> None:
+        paras = self.paragraph_texts(self.convert(self.two_column_pages(continued=True)))
+        for page_num in range(2):
+            label = f'Para{page_num}03'
+            matching = [x for x in paras if label in x]
+            self.assertEqual(1, len(matching), paras)
+            self.assertEqual(8, matching[0].count(label), matching[0])
+            self.assertIn(f'{label} line 3 some text of a column {label} line 4', matching[0])
+            # The next paragraph of the right column is not part of it
+            self.assertNotIn(f'Para{page_num}11', matching[0])
 
     def list_items(self, top: int, labels: Sequence[str], lines: int = 3) -> list[FontFragment]:
         # Items with a label, and their text and following lines further right
