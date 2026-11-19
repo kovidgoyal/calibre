@@ -210,6 +210,34 @@ class TestColumnDetection(unittest.TestCase):
         self.assertEqual(3, page.column_count)
         self.assertEqual([f'text of the {n} column {i}' for n in names for i in range(6)], texts_of(page))
 
+    def test_parts_of_a_line_with_different_tops_stay_together(self) -> None:
+        # A word in small capitals is a little lower than the rest of its line,
+        # which shares its row with an element spanning the gutter, and the
+        # parts of the line are not split between the bands above and below it
+        fragments: list[Fragment] = [
+            (10, 10, 20, '“I', 12),
+            (34, 14, 40, 'have', 7),
+            (80, 10, 125, 'in my pocket a note', 12),
+            (226, 10, 224, 'spanning the gutter'),
+        ]
+        for i in range(1, 8):
+            fragments.append((10, 10 + i * 20, 200, f'{LEFT_LINE} {i}'))
+            fragments.append((250, 10 + i * 20, 200, f'{RIGHT_LINE} {i}'))
+        page = build(fragments)
+        self.assertEqual(2, page.column_count)
+        self.assertIn('“I have in my pocket a note', texts_of(page))
+
+    def test_lines_reaching_into_a_narrow_gutter_stay_in_their_columns(self) -> None:
+        # The lines of both columns of a row reach into the gutter, as
+        # protruding punctuation can, but are not one line spanning it
+        fragments: list[Fragment] = []
+        for i in range(8):
+            fragments.append((10, 10 + i * 20, 200 + (4 if i == 3 else 0), f'{LEFT_LINE} {i}-'))
+            fragments.append((224 - (4 if i == 3 else 0), 10 + i * 20, 200, f'“{RIGHT_LINE} {i}'))
+        page = build(fragments)
+        self.assertEqual(2, page.column_count)
+        self.assertEqual([(0, 0)] * 8 + [(0, 1)] * 8, [t.column for t in page.texts])
+
     def test_justified_words_in_last_column_are_not_floated_right(self) -> None:
         # pdftohtml can split the justified lines of a narrow column at its
         # wide spaces, and the end of the lines of the last column is at the
@@ -549,6 +577,35 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and zorp-blatt ', html)
         self.assertIn(' and self-Contained ', html)
         self.assertNotIn('\x01', html)
+
+    def test_split_words_with_unicode_hyphen_and_markup(self) -> None:
+        page = self.body_lines(150, 3, label='surrounding text with someunusualword and emailed words ')
+        page += self.hyphenated_paragraph(300, 'someunu', 'sualword').copy()
+        # The hyphen character U+2010
+        page += [(337, 450, 1100, f'{self.BODY} and emai\u2010', 0), (337, 485, 1100, f'led {self.BODY} again.', 0), (337, 520, 500, 'The end.', 0)]
+        # Markup inside the first part of the word
+        page += [(337, 600, 1100, f'{self.BODY} and <i>some</i>unu-', 0), (337, 635, 1100, f'sualword {self.BODY} again.', 0), (337, 670, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' and emailed ', html)
+        self.assertIn(' and <i>some</i>unusualword ', html)
+
+    def test_hyphen_in_overlapping_parts_of_a_line_is_kept(self) -> None:
+        # Parts of a line that overlap a little are not a word split over two
+        # lines, even if the word without the hyphen is in the document
+        page = self.body_lines(150, 3, label='surrounding text with email in it ')
+        page += [(337, 300, 1000, f'{self.BODY} and an e-', 0), (1335, 300, 100, 'mail here', 0)]
+        page += [(337, 335, 1100, f'{self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        self.assertIn('e-mail here', self.convert([page]))
+
+    def test_repeated_table_headings_are_not_running_heads(self) -> None:
+        # The headings of the columns of a table that continues over several
+        # pages, just above its rows, are not a running head
+        pages = [self.text_page(num) for num in range(3)]
+        for num in range(8):
+            page: list[FontFragment] = [(337, 223, 1100, 'Date Description Amount', 0)]
+            page += [(337, 258 + i * 35, 1100, f'{num}-{i} payment for something {num * 10 + i}', 0) for i in range(20)]
+            pages.append(page)
+        self.assertEqual(8, self.convert(pages).count('Date Description Amount'))
 
     def test_large_initial_letters(self) -> None:
         # The space after a large initial letter is the same whether or not it

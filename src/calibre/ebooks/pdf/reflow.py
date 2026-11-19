@@ -55,6 +55,10 @@ SPLIT_WORD_START = re.compile(r'[^\W\d_][-\u2010]$')
 # The two parts of a word split at a hyphen, and any markup in between
 SPLIT_WORD = re.compile(r'(\w+)([-\u2010])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
 WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
+# Every mark, with the parts of the word split there if they are words
+SPLIT_WORD_AT_JOIN = re.compile(r'(\w+)?([-\u2010])?((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)?')
+# The hyphen before a mark, and any markup in between
+HYPHEN_AT_JOIN = re.compile(r'([-\u2010]?)((?:<[^>]*>)*)' + HYPHEN_JOIN)
 # A spelling dictionary is used for words that are not found elsewhere in the
 # document, if it recognises at least this fraction of the most common words of
 # the document, as that means the document is in its language
@@ -250,6 +254,17 @@ def adjacent_quotes(first_string: str, second_string: str) -> bool:
         first_char = fchar.group(1)  # First non-space char
 
     return bool((last_char == '"' and first_char == '"') or (last_char == '’' and first_char == '‘') or (last_char == '”' and first_char == '“'))
+
+
+def resolve_hyphen_joins(text: str, keep: Sequence[bool]) -> str:
+    # Remove each HYPHEN_JOIN mark in text, and the hyphen before it unless
+    # the next of keep is True. Hyphens are kept for marks beyond keep.
+    decisions = iter(keep)
+
+    def sub(m: re.Match[str]) -> str:
+        return (m.group(1) if next(decisions, True) else '') + m.group(2)
+
+    return HYPHEN_AT_JOIN.sub(sub, text)
 
 
 def find_all(text: str, sub: str) -> Iterator[int]:
@@ -522,6 +537,10 @@ class Text(Element):
         # The other text starts further left than this one ends, so is on
         # the next line, or it is at the top of the next column
         next_line = other.left < self.right or next_column
+        # Parts of a line that are joined as one line, as next to a large
+        # initial letter, but are on the next line, start back to the left
+        # and end no further right, unlike overlapping parts of a line
+        wraps = other.left < self.right and other.right <= self.right + SAME_INDENT
         # This is a large initial letter, followed by the rest of its line
         initial = (
             same_line
@@ -615,7 +634,7 @@ class Text(Element):
             if has_gap < 3:  # Small number of spaces = 1 space
                 if not (
                     self.text_as_string.endswith(' ')
-                    or self.text_as_string.endswith('-')
+                    or self.text_as_string.endswith(('-', '\u2010'))
                     or other.text_as_string.startswith(' ')
                     or other.text_as_string.startswith('-')
                 ):
@@ -664,7 +683,7 @@ class Text(Element):
         # wrapped at its hyphen, is decided once all the text is known. Lines
         # next to a large initial letter are joined as parts of its line, but
         # each starts back at the left.
-        split_word = (not same_line or next_line) and SPLIT_WORD_START.search(self.text_as_string) is not None and other.text_as_string[:1].islower()
+        split_word = (not same_line or wraps) and SPLIT_WORD_START.search(self.text_as_string) is not None and other.text_as_string[:1].islower()
         if split_word:
             self.text_as_string += HYPHEN_JOIN
         elif initial:
@@ -1333,16 +1352,19 @@ class Page:
                     return i
             return len(boundaries)
 
-        # The fragments of a row that are much closer together than the width
-        # of a gutter are parts of the same text, such as the words of a
-        # heading in small capitals, which pdftohtml splits at each change of
-        # size. They are in a column, or span the gutters, together, so that
-        # they can be joined into a line.
+        # The fragments of a row that are no further apart than the space
+        # between words, and much closer together than the width of a gutter,
+        # are parts of the same text, such as the words of a heading in small
+        # capitals, which pdftohtml splits at each change of size. They are in
+        # a column, or span the gutters, together, so that they can be joined
+        # into a line. The lines of two columns that both reach into a narrow
+        # gutter are further apart than a space.
         rows = self.rows()
-        max_gap = min(b - a for a, b in gutters) / 2.0
-        row_of: dict[int, int] = {}
+        chars = sum(len(t.text_as_string) for t in self.texts)
+        char_width = sum(t.width for t in self.texts) / max(1, chars)
+        max_gap = min(min(b - a for a, b in gutters) / 2.0, char_width)
         column_of_text: dict[int, int] = {}
-        for r, row in enumerate(rows):
+        for row in rows:
             group: list[Text] = []
             group_right = 0.0
             for t in sorted(row, key=attrgetter('left')) + [None]:
@@ -1356,8 +1378,6 @@ class Page:
                         column_of_text[id(g)] = idx
                 if t is not None:
                     group, group_right = [t], t.right
-            for t in row:
-                row_of[id(t)] = r
 
         def column_of(t: Text) -> int:
             return column_of_text[id(t)]
@@ -1379,8 +1399,8 @@ class Page:
         for row in rows:
             for i in {column_of(t) for t in row} - {-1}:
                 row_counts[i] += 1
-        for size, rows in zip(sizes, row_counts):
-            if rows < COLUMN_MIN_ROWS or size < COLUMN_MIN_CHARS_PER_ROW * rows:
+        for size, row_count in zip(sizes, row_counts):
+            if row_count < COLUMN_MIN_ROWS or size < COLUMN_MIN_CHARS_PER_ROW * row_count:
                 return 1
         from calibre.ebooks.pdf.bidi import is_predominantly_rtl
 
@@ -1388,18 +1408,16 @@ class Page:
         rtl = is_predominantly_rtl(''.join(t.text_as_string for t in self.texts))
         last = len(boundaries)
         band = 0
-        spanning_row = -1
-        for t in sorted(self.texts, key=attrgetter('top')):
-            idx = column_of(t)
-            if idx < 0:
-                # A spanning element ends the band above it and leads the
-                # next, along with the rest of its row
-                if row_of[id(t)] != spanning_row:
-                    band += 1
-                    spanning_row = row_of[id(t)]
-                t.column = (band, -1)
-            else:
-                t.column = (band, last - idx if rtl else idx)
+        for row in rows:
+            # A row with a spanning element ends the band above it and leads
+            # the next. All of the row is in the next band, as the parts of a
+            # line in a column can have different tops, such as words in
+            # small capitals, and must not be split between bands.
+            if any(column_of(t) < 0 for t in row):
+                band += 1
+            for t in row:
+                idx = column_of(t)
+                t.column = (band, -1) if idx < 0 else (band, last - idx if rtl else idx)
         return len(columns)
 
     @property
@@ -1727,6 +1745,15 @@ class Page:
         left_max = self.stats_left_max
         indent_min = self.stats_indent_min
         indent_max = self.stats_indent_max
+        # On a page split into columns, the left and right of the text of each
+        # column, for the lines in it
+        column_extents: dict[int, tuple[float, float]] = {}
+        if self.column_offsets:
+            for t in self.texts:
+                idx = t.column[1]
+                if idx >= 0:
+                    l, r = column_extents.get(idx, (t.left, t.right))
+                    column_extents[idx] = min(l, t.left), max(r, t.right)
 
         def wrapped_large_text(self: Page, first_text: Text, second_text: Text, stats: DocStats) -> bool:
             # Text in a larger font than the body, such as a heading, wrapped
@@ -1763,6 +1790,9 @@ class Page:
             # The width of the text of the document, not just this page, which
             # can have only a few lines, such as a title page
             width = max(self.textwidth, self.stats_right - self.stats_left_min)
+            if first_text.column[1] in column_extents:
+                l, r = column_extents[first_text.column[1]]
+                width = r - l
             spare = width - (first_text.last_right - first_text.last_left)
             return (len(first_word.group(1)) + 1) * second_text.average_character_width > spare
 
@@ -1777,7 +1807,8 @@ class Page:
             same_left = bool(first_text.last_left - SAME_INDENT <= second_text.left <= first_text.last_left + SAME_INDENT)
             # Lines of a block of justified text reach the right of the text of
             # the document, unlike the last line of a paragraph
-            full = first_text.last_right >= self.stats_right - first_text.average_character_width
+            right = column_extents[first_text.column[1]][1] if first_text.column[1] in column_extents else self.stats_right
+            full = first_text.last_right >= right - first_text.average_character_width
             # The margins of the column the lines are in
             shift = self.column_offset(second_text)
             # The continuation of a list item, unless its text starts at the
@@ -2256,6 +2287,10 @@ class PDFDocument:
         # from calibre.rpdb import set_trace;  set_trace()
 
         self.opts, self.log, self.pdf_path = opts, log, pdf_path
+        # The spelling dictionary for the language of the document, if any,
+        # see spelling_dictionary()
+        self.dictionary_searched = False
+        self.recognized_by_dictionary: Callable[[str], bool] | None = None
 
         # Check for a testable value
         if self.opts.pdf_header_regex is None:
@@ -2792,7 +2827,6 @@ class PDFDocument:
                 for word in WORD.findall(SPLIT_WORD.sub(' ', t.text_as_string)):
                     word = word.lower()
                     counts[word] = counts.get(word, 0) + 1
-        recognized = self.spelling_dictionary(counts)
         decisions: dict[tuple[str, str], bool] = {}
 
         def remove_hyphen(first: str, second: str) -> bool:
@@ -2804,17 +2838,23 @@ class PDFDocument:
                 if joined or hyphenated:
                     ans = joined > hyphenated
                 else:
+                    recognized = self.spelling_dictionary(counts)
                     ans = recognized is not None and recognized(first + second)
                 decisions[key] = ans
             return ans
 
-        def sub(m: re.Match[str]) -> str:
-            first, hyphen, before, after, second = m.groups()
-            return first + ('' if remove_hyphen(first, second) else hyphen) + before + after + second
-
         for t in texts:
-            t.raw = SPLIT_WORD.sub(sub, t.raw).replace(HYPHEN_JOIN, '')
-            t.text_as_string = SPLIT_WORD.sub(sub, t.text_as_string).replace(HYPHEN_JOIN, '')
+            # The decisions, in order, are made from the text, as markup in
+            # the raw HTML can split the parts of the word anywhere. The hyphen
+            # before each mark in the text and the HTML is kept or removed.
+            keep = [
+                m.group(1) is None or m.group(5) is None or not remove_hyphen(m.group(1), m.group(5)) for m in SPLIT_WORD_AT_JOIN.finditer(t.text_as_string)
+            ]
+            t.text_as_string = resolve_hyphen_joins(t.text_as_string, keep)
+            if len(HYPHEN_AT_JOIN.findall(t.raw)) == len(keep):
+                t.raw = resolve_hyphen_joins(t.raw, keep)
+            else:
+                t.raw = resolve_hyphen_joins(t.raw, [])
 
     def join_initials(self) -> None:
         """
@@ -2836,8 +2876,6 @@ class PDFDocument:
                     word = word.lower()
                     counts[word] = counts.get(word, 0) + 1
 
-        dictionary: list[Callable[[str], bool] | None] = []
-
         def joined(initial: str, rest: str) -> bool:
             if not counts.get(initial.lower()):
                 return True
@@ -2848,9 +2886,7 @@ class PDFDocument:
             # document, so if only one of them is a word, it is used, and
             # otherwise the rest of the word is taken to be a part of a word,
             # such as a name
-            if not dictionary:
-                dictionary.append(self.spelling_dictionary(counts))
-            recognized = dictionary[0]
+            recognized = self.spelling_dictionary(counts)
             if recognized is not None and recognized(rest) and not recognized(initial + rest):
                 return False
             return True
@@ -2871,7 +2907,13 @@ class PDFDocument:
     def spelling_dictionary(self, counts: dict[str, int]) -> Callable[[str], bool] | None:
         # The spelling dictionary that recognises the most of the common words
         # of the document, if it recognises most of them, as PDF files rarely
-        # say what language they are in
+        # say what language they are in. Found the first time it is needed.
+        if not self.dictionary_searched:
+            self.dictionary_searched = True
+            self.recognized_by_dictionary = self.find_spelling_dictionary(counts)
+        return self.recognized_by_dictionary
+
+    def find_spelling_dictionary(self, counts: dict[str, int]) -> Callable[[str], bool] | None:
         sample = [w for w in sorted(counts, key=counts.__getitem__, reverse=True) if w.isalpha()][:DICTIONARY_SAMPLE_WORDS]
         if not sample:
             return None
@@ -2918,8 +2960,19 @@ class PDFDocument:
                 bottom = max(t.bottom for t in page.texts)
                 ends.append((False, [t for t in page.texts if abs(t.bottom - bottom) <= SAME_SPACE]))
             for at_top, line in ends:
-                if len(line) == len(page.texts):
+                rest = [t for t in page.texts if t not in line]
+                if not rest:
                     continue  # The only line of the page
+                # A running head is set apart from the body by at least a line,
+                # unlike, say, the headings of the columns of a table that
+                # continues over several pages, which are just above its rows
+                height = max(t.height for t in line)
+                if at_top:
+                    gap = min(t.top for t in rest) - max(t.bottom for t in line)
+                else:
+                    gap = min(t.top for t in line) - max(t.bottom for t in rest)
+                if gap < height:
+                    continue
                 words = ' '.join(t.text_as_string for t in sorted(line, key=attrgetter('left'))).split()
                 if words and len(words) <= RUNNING_HEAD_MAX_WORDS:
                     lines.setdefault((at_top, ' '.join(words)), []).append((idx, line))
