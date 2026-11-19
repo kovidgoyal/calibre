@@ -1097,6 +1097,9 @@ class Page:
         self.column_count = self.find_columns()
         if self.column_count > 1:
             self.texts.sort(key=attrgetter('column'))
+        # How far each column is to the right of the leftmost one, set once
+        # headers and footers have been removed
+        self.column_offsets: dict[int, float] = {}
 
     def rows(self) -> list[list[Text]]:
         # The texts of the page grouped into rows, two texts being in the same
@@ -1242,6 +1245,43 @@ class Page:
     def is_empty(self) -> bool:
         # There is nothing in this Page
         return len(self.texts) == 0 and len(self.imgs) == 0
+
+    def unwrap_width(self, t: Text) -> float:
+        # The width that a line has to be wider than to be joined to the next
+        # line. On a page split into columns it is a share of the width of a
+        # column rather than the page, otherwise no line in a column is long
+        # enough to be joined, and every line becomes a paragraph.
+        width = self.width
+        if self.column_count > 1 and t.column[1] >= 0:
+            width /= self.column_count
+        return width * self.opts.unwrap_factor
+
+    def find_column_offsets(self) -> None:
+        # On a page split into columns, how far the left margin of each column
+        # is to the right of that of the leftmost one. Subtracting it from the
+        # left of a line puts all the columns at the same left, so that the
+        # left margin and paragraph indent of the document are found, and
+        # used, the same way as for a page with a single column. The left
+        # margin of a column is its most common left, as that is where most of
+        # the lines of a paragraph start.
+        self.column_offsets = {}
+        if self.column_count < 2:
+            return
+        lefts: dict[int, dict[float, int]] = {}
+        for t in self.texts:
+            idx = t.column[1]
+            if idx >= 0:
+                counts = lefts.setdefault(idx, {})
+                left = round(t.left)
+                counts[left] = counts.get(left, 0) + 1
+        if not lefts:
+            return
+        margins = {idx: max(counts, key=lambda l, c=counts: (c[l], -l)) for idx, counts in lefts.items()}
+        base = min(margins.values())
+        self.column_offsets = {idx: margin - base for idx, margin in margins.items()}
+
+    def column_offset(self, t: Text) -> float:
+        return self.column_offsets.get(t.column[1], 0) if t.column[1] >= 0 else 0
 
     def find_match(self, frag: Text) -> Text | None:
         # We have not yet worked out the stats, specifically line_spacing
@@ -1491,6 +1531,8 @@ class Page:
             # Lines of a block of justified text reach the right of the text of
             # the document, unlike the last line of a paragraph
             full = first_text.last_right >= self.stats_right - first_text.average_character_width
+            # The margins of the column the lines are in
+            shift = self.column_offset(second_text)
             # The continuation of a list item, unless its text starts at the
             # indent of paragraphs, and it ends a sentence, when the next line
             # can be the first line of a paragraph
@@ -1498,7 +1540,7 @@ class Page:
                 first_text.hanging_left is not None
                 and abs(second_text.left - first_text.hanging_left) <= SAME_INDENT
                 and not (
-                    indent_min - SAME_INDENT <= first_text.hanging_left <= indent_max + SAME_INDENT
+                    indent_min + shift - SAME_INDENT <= first_text.hanging_left <= indent_max + shift + SAME_INDENT
                     and SENTENCE_END.search(first_text.text_as_string) is not None
                 )
             )
@@ -1507,10 +1549,10 @@ class Page:
             if (
                 (
                     (
-                        second_text.left < left_min + second_text.average_character_width
+                        second_text.left < left_min + shift + second_text.average_character_width
                         and (same_left or (second_text.left < first_text.last_left and (first_text.indented > 0 or '"float:left"' in first_text.raw)))
                     )
-                    or (same_left and first_text.indented == 0 and second_text.left >= indent_min)
+                    or (same_left and first_text.indented == 0 and second_text.left >= indent_min + shift)
                     or continues_item
                     or (same_left and first_text.indented == second_text.indented and second_text.indented > 1)
                     # A block of text at the indent of paragraphs, rather than
@@ -1526,7 +1568,7 @@ class Page:
                 and '"float:right"' not in first_text.raw
                 and CONTENTS_ENTRY.search(first_text.text_as_string) is None
                 and first_text.bottom + stats.line_space + (stats.line_space * LINE_FACTOR) >= second_text.bottom
-                and first_text.final_width > self.width * self.opts.unwrap_factor
+                and first_text.final_width > self.unwrap_width(first_text)
                 and not adjacent_quotes(first_text.text_as_string, second_text.text_as_string)
             ):
                 # This has checked for single quotes (9...6), double quotes (99...66), and "..."
@@ -1559,13 +1601,14 @@ class Page:
                 # Check for start of a paragraph being indented
                 # Ought to have some way of setting a standard indent
                 elif frag.tag == 'p':
-                    if frag.indented == 0 and frag.align != 'C' and frag.left > left_max + frag.average_character_width:
+                    shift = self.column_offset(frag)
+                    if frag.indented == 0 and frag.align != 'C' and frag.left > left_max + shift + frag.average_character_width:
                         # Is it approx self.stats_indent?
-                        if indent_min <= frag.left <= indent_max:
+                        if indent_min + shift <= frag.left <= indent_max + shift:
                             frag.indented = 1  # 1em
                         else:  # Assume left margin of approx = number of chars
                             # Should check for values approx the same, as with indents
-                            frag.margin_left = round(((frag.left - left_min) / self.stats_margin_px) + 0.5)
+                            frag.margin_left = round(((frag.left - left_min - shift) / self.stats_margin_px) + 0.5)
                     if last_frag is not None and stats.para_space > 0 and frag.bottom - last_frag.bottom > stats.para_space * SECTION_FACTOR:
                         # and frag.top - last_frag.bottom > frag.height + stats.line_space + (stats.line_space*LINE_FACTOR):
                         frag.blank_line_before = 1
@@ -1656,6 +1699,18 @@ class Page:
         text_left = min((t.left for t in self.texts), default=0)
         text_right = max((t.right for t in self.texts), default=0)
         full_right = text_left + FIRST_LINE_MIN_WIDTH_FRACTION * (text_right - text_left)
+        # On a page split into columns, lefts are recorded as if all the
+        # columns were at the left of the leftmost one, and a line is full if
+        # it fills its column
+        self.find_column_offsets()
+        column_full_right: dict[int, float] = {}
+        if self.column_offsets:
+            extents: dict[int, tuple[float, float]] = {}
+            for t in self.texts:
+                idx = t.column[1]
+                l, r = extents.get(idx, (t.left, t.right))
+                extents[idx] = min(l, t.left), max(r, t.right)
+            column_full_right = {idx: l + FIRST_LINE_MIN_WIDTH_FRACTION * (r - l) for idx, (l, r) in extents.items()}
         # last_bottom = 0
         first = True
         for i, text in enumerate(self.texts):
@@ -1688,13 +1743,15 @@ class Page:
 
             max_right = max(max_right, text.right)
 
+            offset = self.column_offset(text)
+            left -= offset
             indents[left] = indents.get(left, 0) + 1
             # Full lines followed by a line further left, as the first line of
             # an indented paragraph is, with the left of the line after them
-            if i + 1 < len(self.texts) and right >= full_right:
+            if i + 1 < len(self.texts) and right >= column_full_right.get(text.column[1], full_right):
                 following = self.texts[i + 1]
-                following_left = round(following.left)
-                if following_left < left - SAME_INDENT and 0 < following.top - top <= 2 * max(text.height, 1):
+                following_left = round(following.left) - offset
+                if following_left < left - SAME_INDENT and 0 < following.top - top <= 2 * max(text.height, 1) and following.column == text.column:
                     first_line_indents[(left, following_left)] = first_line_indents.get((left, following_left), 0) + 1
 
         if max_bot > 0:
@@ -2574,7 +2631,7 @@ class PDFDocument:
                                 and (len(self.pages[pind + 1].texts) == 0 or self.pages[pind + 1].texts[0].top > self.pages[pind + 1].imgs[0].top)
                             ):
                                 page.page_break_after = True
-                    elif re.match(r'.*[a-z,]\s*$', last_line.text_as_string) is not None or last_line.final_width > page.width * self.opts.unwrap_factor:
+                    elif re.match(r'.*[a-z,]\s*$', last_line.text_as_string) is not None or last_line.final_width > page.unwrap_width(last_line):
                         candidate = page
                 else:
                     candidate = None

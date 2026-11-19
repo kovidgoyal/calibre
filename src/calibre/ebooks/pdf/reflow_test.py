@@ -540,6 +540,31 @@ class TestPageBoundaries(unittest.TestCase):
             self.assertEqual(1, len(matching), paras)
             self.assertEqual(3, matching[0].count(self.BODY), matching[0])
 
+    def test_paragraphs_in_two_columns(self) -> None:
+        # The lines of a column are much less wide than the page, and the
+        # columns are at different lefts, but the lines of paragraphs with an
+        # indented first line are still joined
+        pages: list[list[FontFragment]] = []
+        for page_num in range(2):
+            page: list[FontFragment] = []
+            for column, left in enumerate((150, 950)):
+                top = 150
+                for p in range(4):
+                    label = f'Para{page_num}{column}{p}'
+                    page.append((left + 40, top, 610, f'{label} line 0 some text of a column', 0))
+                    for i in range(1, 4):
+                        page.append((left, top + i * 35, 650 if i < 3 else 300, f'{label} line {i} some text of a column', 0))
+                    top += 4 * 35
+            pages.append(page)
+        paras = self.paragraph_texts(self.convert(pages))
+        for page_num in range(2):
+            for column in range(2):
+                for p in range(4):
+                    label = f'Para{page_num}{column}{p}'
+                    matching = [x for x in paras if label in x]
+                    self.assertEqual(1, len(matching), paras)
+                    self.assertEqual(4, matching[0].count(label), matching[0])
+
     def list_items(self, top: int, labels: Sequence[str], lines: int = 3) -> list[FontFragment]:
         # Items with a label, and their text and following lines further right
         page: list[FontFragment] = []
