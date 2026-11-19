@@ -440,6 +440,7 @@ class TestPageBoundaries(unittest.TestCase):
                 parts.append('<fontspec id="2" size="21" family="Caption" color="#000000"/>')
                 parts.append('<fontspec id="3" size="24" family="CourierNew" color="#000000"/>')
                 parts.append('<fontspec id="4" size="24" family="ABCDEF+NimbusMonL-Regu" color="#000000"/>')
+                parts.append('<fontspec id="5" size="72" family="Initial" color="#000000"/>')
             for left, top, width, text, font in fragments:
                 parts.append(f'<text top="{top}" left="{left}" width="{width}" height="29" font="{font}">{text}</text>')
             parts.append('</page>')
@@ -548,6 +549,22 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and zorp-blatt ', html)
         self.assertIn(' and self-Contained ', html)
         self.assertNotIn('\x01', html)
+
+    def test_large_initial_letters(self) -> None:
+        # The space after a large initial letter is the same whether or not it
+        # is a word by itself, so the words of the document decide
+        page: list[FontFragment] = []
+        top = 150
+        for initial, rest in (('T', 'he story starts'), ('I', 'n the morning'), ('I', 'had not seen'), ('A', 'nother day')):
+            page.append((337, top, 40, initial, 5))
+            page.append((379, top, 1058, f'{rest} {self.BODY}', 0))
+            page.append((337, top + 35, 1100, f'In the end I said that {self.BODY}', 0))
+            page.append((337, top + 70, 500, 'The end of this paragraph.', 0))
+            top += 150
+        html = self.convert([page])
+        for expected in ('The story starts', 'In the morning', 'I had not seen', 'Another day'):
+            self.assertRegex(html, r'>' + expected[0] + r'(</span>)*' + re.escape(expected[1:]), html)
+        self.assertNotIn('\x02', html)
 
     def test_section_numbers_at_top_of_page_are_not_page_numbers(self) -> None:
         # Numbered section headings at the top of the body of some pages,

@@ -13,7 +13,7 @@ from lxml import etree
 from calibre.ebooks.pdf.bidi import fix_markup_line, has_rtl, is_predominantly_rtl, markup_to_text
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from optparse import Values
 
     from lxml.etree import _Element
@@ -59,6 +59,19 @@ WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
 # document, if it recognises at least this fraction of the most common words of
 # the document, as that means the document is in its language
 DICTIONARY_MIN_RECOGNIZED = 0.8
+#### Large initial letters
+# A large initial letter, or drop cap, is at least this many times the size
+# of the text after it, which it is joined to without a space if it starts the
+# first word, as in the "I" of "In", and with one if it is a word by itself, as
+# in "I am". The space between them is not a guide, as it is the same in both
+# cases, so the words of the document decide. Marks the join until then, and,
+# like HYPHEN_JOIN, is never in the text and is not whitespace.
+DROP_CAP_FACTOR = 2.0
+INITIAL_JOIN = '\x02'
+# The initial letter, any markup, and the rest of the first word
+INITIAL_WORD = re.compile(r'(\w+)((?:<[^>]*>)*)' + INITIAL_JOIN + r'((?:<[^>]*>)*)(\w+)')
+# Whole words, including those with apostrophes, such as Holmes’s
+WHOLE_WORD = re.compile(r"\w+(?:['\u2019]\w+)*")
 DICTIONARY_SAMPLE_WORDS = 500
 
 # Number of character widths that two strings have to be apart,
@@ -237,6 +250,24 @@ def adjacent_quotes(first_string: str, second_string: str) -> bool:
         first_char = fchar.group(1)  # First non-space char
 
     return bool((last_char == '"' and first_char == '"') or (last_char == '’' and first_char == '‘') or (last_char == '”' and first_char == '“'))
+
+
+def find_all(text: str, sub: str) -> Iterator[int]:
+    # The positions of all occurrences of sub in text
+    i = text.find(sub)
+    while i > -1:
+        yield i
+        i = text.find(sub, i + len(sub))
+
+
+def replace_in_order(text: str, sub: str, replacements: Sequence[str]) -> str:
+    # Replace each occurrence of sub in text with the next of replacements
+    parts = text.split(sub)
+    ans = [parts[0]]
+    for part, replacement in zip(parts[1:], replacements):
+        ans.append(replacement)
+        ans.append(part)
+    return ''.join(ans)
 
 
 class SpacingBand(NamedTuple):
@@ -491,6 +522,16 @@ class Text(Element):
         # The other text starts further left than this one ends, so is on
         # the next line, or it is at the top of the next column
         next_line = other.left < self.right or next_column
+        # This is a large initial letter, followed by the rest of its line
+        initial = (
+            same_line
+            and not next_line
+            and 0 < len(self.text_as_string.strip()) <= 2
+            and self.text_as_string[-1:].isalpha()
+            and other.text_as_string[:1].isalpha()
+            and 0 < other.font_size
+            and self.font_size >= DROP_CAP_FACTOR * other.font_size
+        )
         # Need to work out how to decide this
         # For elements of the same line, is there a space between?
         has_float = ''
@@ -503,6 +544,8 @@ class Text(Element):
             has_gap = 1  # Coalescing different lines. 1 space
         else:  # Multiple texts on same line
             has_gap = round(0.5 + abs(other.left - self.right) / self.average_character_width)
+        if initial:
+            has_gap = 0  # Decided later, see INITIAL_JOIN
 
         # Allow for super or subscript.  These probably have lower heights
         # In this case, don't use their top/bottom
@@ -624,6 +667,8 @@ class Text(Element):
         split_word = (not same_line or next_line) and SPLIT_WORD_START.search(self.text_as_string) is not None and other.text_as_string[:1].islower()
         if split_word:
             self.text_as_string += HYPHEN_JOIN
+        elif initial:
+            self.text_as_string += INITIAL_JOIN
         self.text_as_string += other.text_as_string
         # self.width += other.width
 
@@ -666,6 +711,8 @@ class Text(Element):
             self.raw += has_float
         if split_word:
             self.raw += HYPHEN_JOIN
+        elif initial:
+            self.raw += INITIAL_JOIN
         self.raw += other.raw
         if has_float:
             self.raw += '</span>'
@@ -2287,8 +2334,10 @@ class PDFDocument:
         # Join paragraphs across page boundaries
         self.merge_pages(idc)
 
-        # Remove the hyphens of words split over two lines
+        # Remove the hyphens of words split over two lines, and join large
+        # initial letters to the rest of their words
         self.dehyphenate()
+        self.join_initials()
 
         # self.linearize()
         self.render()
@@ -2766,6 +2815,58 @@ class PDFDocument:
         for t in texts:
             t.raw = SPLIT_WORD.sub(sub, t.raw).replace(HYPHEN_JOIN, '')
             t.text_as_string = SPLIT_WORD.sub(sub, t.text_as_string).replace(HYPHEN_JOIN, '')
+
+    def join_initials(self) -> None:
+        """
+        Decide for each large initial letter whether it is the first letter of
+        the word after it, as the "I" of "In", or a word by itself, as the "I"
+        of "I am", using the words of the document. A letter that is never a
+        word by itself in the document starts the word after it. Otherwise it
+        does if the word with it is more common in the document than the word
+        without it, or if they are equally common, unless only the word
+        without it is in the spelling dictionary.
+        """
+        texts = [t for page in self.pages for t in page.texts if INITIAL_JOIN in t.raw or INITIAL_JOIN in t.text_as_string]
+        if not texts:
+            return
+        counts: dict[str, int] = {}
+        for page in self.pages:
+            for t in page.texts:
+                for word in WHOLE_WORD.findall(INITIAL_WORD.sub(' ', t.text_as_string)):
+                    word = word.lower()
+                    counts[word] = counts.get(word, 0) + 1
+
+        dictionary: list[Callable[[str], bool] | None] = []
+
+        def joined(initial: str, rest: str) -> bool:
+            if not counts.get(initial.lower()):
+                return True
+            with_initial, without = counts.get((initial + rest).lower(), 0), counts.get(rest.lower(), 0)
+            if with_initial != without:
+                return with_initial > without
+            # Neither is more common, as when neither is used elsewhere in the
+            # document, so if only one of them is a word, it is used, and
+            # otherwise the rest of the word is taken to be a part of a word,
+            # such as a name
+            if not dictionary:
+                dictionary.append(self.spelling_dictionary(counts))
+            recognized = dictionary[0]
+            if recognized is not None and recognized(rest) and not recognized(initial + rest):
+                return False
+            return True
+
+        for t in texts:
+            # The decisions, in order, made from the text, as the markup can
+            # come between the initial and the rest of the word in any way
+            separators = [
+                '' if m is not None and joined(m.group(1)[-1], m.group(4)) else ' '
+                for m in (INITIAL_WORD.match(t.text_as_string, max(0, i - 1)) for i in find_all(t.text_as_string, INITIAL_JOIN))
+            ]
+            t.text_as_string = replace_in_order(t.text_as_string, INITIAL_JOIN, separators)
+            if t.raw.count(INITIAL_JOIN) == len(separators):
+                t.raw = replace_in_order(t.raw, INITIAL_JOIN, separators)
+            else:
+                t.raw = t.raw.replace(INITIAL_JOIN, ' ')
 
     def spelling_dictionary(self, counts: dict[str, int]) -> Callable[[str], bool] | None:
         # The spelling dictionary that recognises the most of the common words
