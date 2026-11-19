@@ -4,6 +4,7 @@
 import asyncio
 import functools
 import http.server
+import io
 import json
 import os
 import socketserver
@@ -11,9 +12,9 @@ import tempfile
 import threading
 import unittest
 from collections import Counter
+from contextlib import redirect_stderr
 from http.cookies import SimpleCookie
-from typing import TYPE_CHECKING
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from urllib.error import URLError
 from urllib.parse import parse_qs, urlparse
 from urllib.request import Request
@@ -23,10 +24,8 @@ from calibre.web.automate import browser as browser_module
 from calibre.web.automate import recipes
 from calibre.web.automate.bot_check import retry_bot_checks
 from calibre.web.automate.browser import Warmup
+from calibre.web.automate.download_deps import Install
 from calibre.web.automate.test_camoufox import TEST_MAX_MOVE_TIME, TEST_TYPING_WPM, installed_camoufox
-
-if TYPE_CHECKING:
-    from calibre.web.automate.download_deps import Install
 
 ARTICLE_PAGE = '''<!DOCTYPE html><html><head><title>An Article</title>
 <link rel="stylesheet" type="text/css" href="style.css">
@@ -432,6 +431,50 @@ class TestRecipeFillField(unittest.TestCase):
 
 
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
+class TestRecipeInstall(unittest.TestCase):
+    """How the recipe worker gets the browser it launches, which needs no browser."""
+
+    def launch(self, input_data: dict[str, object]) -> list[Install | None]:
+        launched: list[Install | None] = []
+        test = self
+
+        class FakeBrowser:
+            def __init__(self, install: Install | None = None, **kw: object) -> None:
+                self.install = install
+
+            async def launch(self) -> None:
+                # The install must still be locked while the browser locks it itself
+                test.assertFalse(lock.release.called)
+                launched.append(self.install)
+
+        lock = MagicMock()
+        live_install = Install('/live/camoufox-bin', '158.0.1-beta.41')
+        with (
+            patch.object(browser_module, 'Browser', FakeBrowser),
+            patch.object(recipes, 'use_live_camoufox', return_value=(live_install, lock)) as use_live,
+            patch.object(recipes, 'State'),
+            redirect_stderr(io.StringIO()),
+        ):
+            try:
+                asyncio.run(recipes.setup_browser({'warmup': False, **input_data}))
+            finally:
+                recipes.state = None
+            self.use_live_called = use_live.called
+        self.lock_released = lock.release.called
+        return launched
+
+    def test_recipes_install_from_live_download_deps(self) -> None:
+        self.assertEqual(self.launch({}), [Install('/live/camoufox-bin', '158.0.1-beta.41')])
+        self.assertTrue(self.use_live_called)
+        # Released once the browser holds a lock of its own
+        self.assertTrue(self.lock_released)
+
+    def test_recipes_install_given(self) -> None:
+        given = Install('/given/camoufox-bin', '156.0.1-beta.36')
+        self.assertEqual(self.launch({'install': list(given)}), [given])
+        self.assertFalse(self.use_live_called)
+
+
 class TestRecipeBrowser(unittest.TestCase):
     """Tests that drive the real browser. Skipped unless it is already installed."""
 
@@ -794,7 +837,7 @@ class TestRecipeBrowser(unittest.TestCase):
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeSubmitFormArguments, TestRecipeFillField, TestRecipeBrowser):
+    for cls in (TestRecipeBotCheck, TestRecipeWarmupUrls, TestRecipeSubmitFormArguments, TestRecipeFillField, TestRecipeInstall, TestRecipeBrowser):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

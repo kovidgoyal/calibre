@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
+import hashlib
 import io
 import json
 import os
@@ -603,6 +604,76 @@ class TestDownloadDeps(unittest.TestCase):
             self.assertRaises(ValueError, dd.camoufox_font_lists, '../main')
         finally:
             dd.download_json = original
+
+    def test_download_deps_camoufox_font_lists_from_pypi(self) -> None:
+        font_lists = {'win': ['Segoe UI'], 'mac': ['Helvetica'], 'lin': ['Arimo']}
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, 'w') as zf:
+            zf.writestr('camoufox/__init__.py', '')
+            zf.writestr('camoufox/fonts.json', json.dumps(font_lists))
+        wheel = buf.getvalue()
+        wheel_url = 'https://files.example.com/camoufox-0.5.9-py3-none-any.whl'
+        pypi = {
+            'info': {'version': '0.5.9'},
+            'urls': [
+                {'packagetype': 'sdist', 'url': 'https://files.example.com/camoufox-0.5.9.tar.gz'},
+                {'packagetype': 'bdist_wheel', 'url': wheel_url, 'digests': {'sha256': hashlib.sha256(wheel).hexdigest()}},
+            ],
+        }
+        repo_status = 404
+
+        def download_json(url: str, headers: dict[str, str] | None = None, timeout: float = dd.NETWORK_TIMEOUT) -> object:
+            self.assertLessEqual(timeout, dd.FONT_LISTS_TIMEOUT)
+            if url.startswith('https://raw.githubusercontent.com/'):
+                raise HTTPError(url, repo_status, 'error', None, None)  # type: ignore[arg-type]
+            self.assertEqual(url, f'https://pypi.org/pypi/{dd.CAMOUFOX_PYPI_PACKAGE}/json')
+            return pypi
+
+        def download_data(url: str, headers: dict[str, str] | None = None, timeout: float = dd.NETWORK_TIMEOUT) -> bytes:
+            self.assertEqual(url, wheel_url)
+            self.assertLessEqual(timeout, dd.FONT_LISTS_TIMEOUT)
+            return wheel
+
+        with (
+            unittest.mock.patch.object(dd, 'download_json', download_json),
+            unittest.mock.patch.object(dd, 'download_data', download_data),
+            redirect_stderr(io.StringIO()),
+        ):
+            # Falls back to the camoufox package when the source repository is not found
+            self.assertEqual(dd.camoufox_font_lists('158.0.1-beta.41'), font_lists)
+            # The package must match the checksum PyPI reports for it
+            pypi['urls'][1]['digests'] = {'sha256': '0' * 64}
+            with self.assertRaisesRegex(ValueError, 'checksum'):
+                dd.camoufox_font_lists('158.0.1-beta.41')
+            # Other errors are not a reason to use the package
+            repo_status = 503
+            with self.assertRaises(HTTPError):
+                dd.camoufox_font_lists('158.0.1-beta.41')
+
+    def test_download_deps_live_module(self) -> None:
+        live = types.ModuleType(dd.__name__)
+        live_lock = object()
+
+        def use_camoufox(allow_prerelease: bool = False) -> tuple[tuple[str, str], object]:
+            return ('/live/camoufox-bin', '158.0.1-beta.41' if allow_prerelease else '156.0.1-beta.36'), live_lock
+
+        live.use_camoufox = use_camoufox  # type: ignore[attr-defined]
+        with (
+            unittest.mock.patch.object(dd, 'live', None),
+            unittest.mock.patch('calibre.live.load_module', return_value=live) as load_module,
+            unittest.mock.patch('calibre.live.start_worker') as start_worker,
+        ):
+            self.assertIs(dd.live_module(), live)
+            self.assertIs(dd.live_module(), live)  # loaded only once
+            load_module.assert_called_once()
+            self.assertEqual(load_module.call_args.args, (dd.__name__,))
+            start_worker.assert_called_once()
+            install, lock = dd.use_live_camoufox()
+            # Converted to an Install of this module, the live one has its own
+            self.assertIsInstance(install, dd.Install)
+            self.assertEqual(install, dd.Install('/live/camoufox-bin', '156.0.1-beta.36'))
+            self.assertIs(lock, live_lock)
+            self.assertEqual(dd.use_live_camoufox(allow_prerelease=True)[0].version, '158.0.1-beta.41')
 
     def test_download_deps_browserforge_patching(self) -> None:
         data_dir = os.path.join(self.tdir, 'bf-data')
