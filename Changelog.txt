@@ -23,6 +23,95 @@
 # - title by author
 # }}}
 
+{{{ 9.19.0 2026-11-19
+
+:: new features
+
+- [major] Edit book: Add grammar checking and suggestions for rewriting sentences
+
+  Grammar, style and typography issues are underlined in the code view as you edit, with suggested corrections
+  available by right clicking. Tools->Check grammar lists the issues in the whole book, allowing them to be corrected,
+  ignored or their rules disabled. For English text, a neural network can also suggest rewrites of sentences for
+  grammar, fluency, clarity, simplicity, formality or paraphrasing. The data needed for checking a language is
+  downloaded, with confirmation, when first needed.
+
+- PDF Input: Greatly improve detection of paragraphs, headings and columns
+
+  Paragraphs that continue across columns and pages are joined, headings wrapped onto several lines are joined,
+  words split over two lines are de-hyphenated, columns with narrow gutters are detected and running heads
+  such as chapter titles are removed.
+
+- Content server: Allow downloading metadata and covers in the book metadata editor
+
+- Content server and E-book viewer: Many more accessibility improvements for keyboard and screen reader users, including dialogs, the footnote popup, the Read aloud and audio ebook controls, the color scheme and selection bar settings and rating books at their end
+
+- [2173690] Content server: Allow non-ASCII passwords
+
+- [2173873] Get books: Use a browser to search the Amazon stores, so that stores other than Amazon US return results
+
+- Conversion: Speed up building large Tables of Contents and splitting large HTML files for EPUB output
+
+- Edit book: Check book: Speed up fixing many link and id errors
+
+- [2173688] Auto-add: Improve detection of files that are still being downloaded
+
+:: bug fixes
+
+- [2173593] Fix a regression in 9.16 that broke restoring the sort of the book list when it included fields that cannot be sorted on
+
+- [2173530] RTF Output: Fix nested lists and other nested block elements being run together into a single paragraph
+
+- RTF Input: Fix conversion of files using East Asian, Thai and Vietnamese code pages
+
+- ebook-meta/ebook-convert: Fix the --rating option being interpreted as out of ten instead of a number of stars
+
+- Edit metadata dialog: Fix setting metadata from a format doubling the rating
+
+- [2173877] Edit book: Check book: Fix case mismatches in the OPF manifest causing the auto-fix to delete the file
+
+- Polish book: Fix updating the cover adding a new cover page each time
+
+- Fix extracting the cover from calibre generated SVG cover pages
+
+- Fix setting the title of EPUB 3 books whose first title is a subtitle
+
+- Conversion: Generate valid ids for non-ASCII Markdown headings
+
+- PDF Input: Fix Table of Contents entries that link via JavaScript actions
+
+- Heuristics: Preserve page anchors when dehyphenating across pages
+
+- Fix reading damaged ZIP files whose data descriptors lack a signature
+
+- PDF metadata: Fix escaped strings being carried over from corrupted XMP metadata
+
+- Decode numeric HTML entities as specified by HTML5
+
+- [2173828] Kobo driver: Handle boolean columns stored as either text or integers
+
+- MTP driver: Show a clearer error message on Windows when the device stops responding
+
+- [2174504] Fix icons in the system tray menu showing as missing on some Linux desktops
+
+- [2174668] E-book viewer/Edit book: Fix the close button in the Inspector toolbar not working
+
+- Content server: Fix changed covers not being shown until the page is reloaded
+
+- Content server: Fix an error when pressing OK while editing a rating or enumeration whose value is not one of the choices
+
+- Metadata download: Fix camoufox being downloaded over and over when installing it fails
+
+:: improved recipes
+- Dagens Nyheter
+- Dagens Industri
+- Ekot
+- Fokus
+- Live Law
+
+:: new recipes
+- Various Swedish, Finnish, Sami, Meänkieli, Romani and Yiddish news sources by Jonatan Nyberg
+}}}
+
 {{{ 9.18.0 2026-11-06
 
 :: new features
