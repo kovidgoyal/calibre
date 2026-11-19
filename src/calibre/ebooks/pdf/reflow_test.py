@@ -509,6 +509,30 @@ class TestPageBoundaries(unittest.TestCase):
             pages.append(([(750, 60, 300, 'A Repeated Title', 0)] if num % 4 == 0 else []) + self.text_page(num))
         self.assertEqual(3, self.convert(pages).count('A Repeated Title'))
 
+    def hyphenated_paragraph(self, top: int, first: str, second: str) -> list[FontFragment]:
+        # A paragraph whose first line ends with first followed by a hyphen
+        # and whose second line starts with second
+        return [
+            (337, top, 1100, f'{self.BODY} and {first}-', 0),
+            (337, top + 35, 1100, f'{second} {self.BODY} again.', 0),
+            (337, top + 70, 500, 'The end of this paragraph.', 0),
+        ]
+
+    def test_words_split_over_two_lines_are_joined(self) -> None:
+        page = self.body_lines(150, 3, label='surrounding text with someunusualword and well-known words ')
+        page += self.hyphenated_paragraph(300, 'someunu', 'sualword')  # in the document
+        page += self.hyphenated_paragraph(450, 'well', 'known')  # in the document with the hyphen
+        page += self.hyphenated_paragraph(600, 'extraor', 'dinary')  # in the dictionary
+        page += self.hyphenated_paragraph(750, 'zorp', 'blatt')  # in neither
+        page += self.hyphenated_paragraph(900, 'self', 'Contained')  # not a lower case continuation
+        html = self.convert([page])
+        self.assertIn(' and someunusualword ', html)
+        self.assertIn(' and well-known ', html)
+        self.assertIn(' and extraordinary ', html)
+        self.assertIn(' and zorp-blatt ', html)
+        self.assertIn(' and self-Contained ', html)
+        self.assertNotIn('\x01', html)
+
     def test_section_numbers_at_top_of_page_are_not_page_numbers(self) -> None:
         # Numbered section headings at the top of the body of some pages,
         # whose numbers happen to differ from the page number by the same

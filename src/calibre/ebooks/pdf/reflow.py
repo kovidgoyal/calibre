@@ -13,7 +13,7 @@ from lxml import etree
 from calibre.ebooks.pdf.bidi import fix_markup_line, has_rtl, is_predominantly_rtl, markup_to_text
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
     from optparse import Values
 
     from lxml.etree import _Element
@@ -42,6 +42,24 @@ RUNNING_HEAD_MIN_FRACTION = 0.1
 # chapter, is the same on pages at most this many apart, so that the left and
 # right hand pages can have different running heads
 REPEATED_HEAD_MAX_DISTANCE = 2
+
+#### Hyphenation
+# Marks where a line ending with a hyphen is joined to the next, until it is
+# decided whether the hyphen splits a word or is part of it. This control
+# character is never in the text, as clean_ascii_chars() removes them all from
+# the output of pdftohtml, and, unlike some others, is not whitespace.
+HYPHEN_JOIN = '\x01'
+# A line that ends with a hyphen after a letter, and one that starts with a
+# lowercase letter, can be the two parts of a word
+SPLIT_WORD_START = re.compile(r'[^\W\d_][-\u2010]$')
+# The two parts of a word split at a hyphen, and any markup in between
+SPLIT_WORD = re.compile(r'(\w+)([-\u2010])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
+WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
+# A spelling dictionary is used for words that are not found elsewhere in the
+# document, if it recognises at least this fraction of the most common words of
+# the document, as that means the document is in its language
+DICTIONARY_MIN_RECOGNIZED = 0.8
+DICTIONARY_SAMPLE_WORDS = 500
 
 # Number of character widths that two strings have to be apart,
 # for them to be considered part of the same text fragment
@@ -461,6 +479,9 @@ class Text(Element):
             self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         if same_line and self.hanging_left is None and LIST_LABEL.fullmatch(self.text_as_string) is not None:
             self.hanging_left = other.left
+        # The other text starts further left than this one ends, so is on
+        # the next line
+        next_line = other.left < self.right
         # Need to work out how to decide this
         # For elements of the same line, is there a space between?
         has_float = ''
@@ -583,6 +604,13 @@ class Text(Element):
                 # self.final_width += self.average_character_width
                 has_gap -= 1
 
+        # A word split over two lines at a hyphen, or a hyphenated word
+        # wrapped at its hyphen, is decided once all the text is known. Lines
+        # next to a large initial letter are joined as parts of its line, but
+        # each starts back at the left.
+        split_word = (not same_line or next_line) and SPLIT_WORD_START.search(self.text_as_string) is not None and other.text_as_string[:1].islower()
+        if split_word:
+            self.text_as_string += HYPHEN_JOIN
         self.text_as_string += other.text_as_string
         # self.width += other.width
 
@@ -623,6 +651,8 @@ class Text(Element):
 
         if has_float:
             self.raw += has_float
+        if split_word:
+            self.raw += HYPHEN_JOIN
         self.raw += other.raw
         if has_float:
             self.raw += '</span>'
@@ -2155,6 +2185,9 @@ class PDFDocument:
         # Join paragraphs across page boundaries
         self.merge_pages(idc)
 
+        # Remove the hyphens of words split over two lines
+        self.dehyphenate()
+
         # self.linearize()
         self.render()
         self.generate_toc()
@@ -2585,6 +2618,79 @@ class PDFDocument:
                     for t in line:
                         if t in page.texts:
                             page.texts.remove(t)
+
+    def dehyphenate(self) -> None:
+        """
+        Decide for each line that was joined to the next after a hyphen,
+        whether the hyphen splits a word in two, and is removed, or is part of
+        a hyphenated word, and is kept. The document itself is used as the
+        dictionary, as it is in any language and has names and made up words,
+        whichever of the word with and without the hyphen is found elsewhere
+        in it is used. Words found in neither form are looked up in a spelling
+        dictionary for the language of the document. The hyphen is kept if
+        that does not decide either.
+        """
+        texts = [t for page in self.pages for t in page.texts if HYPHEN_JOIN in t.raw or HYPHEN_JOIN in t.text_as_string]
+        if not texts:
+            return
+        # The words of the document, other than the parts of words split
+        # over two lines, as they are what is being decided
+        counts: dict[str, int] = {}
+        for page in self.pages:
+            for t in page.texts:
+                for word in WORD.findall(SPLIT_WORD.sub(' ', t.text_as_string)):
+                    word = word.lower()
+                    counts[word] = counts.get(word, 0) + 1
+        recognized = self.spelling_dictionary(counts)
+        decisions: dict[tuple[str, str], bool] = {}
+
+        def remove_hyphen(first: str, second: str) -> bool:
+            key = first, second
+            ans = decisions.get(key)
+            if ans is None:
+                joined = counts.get((first + second).lower(), 0)
+                hyphenated = counts.get(f'{first}-{second}'.lower(), 0) + counts.get(f'{first}\u2010{second}'.lower(), 0)
+                if joined or hyphenated:
+                    ans = joined > hyphenated
+                else:
+                    ans = recognized is not None and recognized(first + second)
+                decisions[key] = ans
+            return ans
+
+        def sub(m: re.Match[str]) -> str:
+            first, hyphen, before, after, second = m.groups()
+            return first + ('' if remove_hyphen(first, second) else hyphen) + before + after + second
+
+        for t in texts:
+            t.raw = SPLIT_WORD.sub(sub, t.raw).replace(HYPHEN_JOIN, '')
+            t.text_as_string = SPLIT_WORD.sub(sub, t.text_as_string).replace(HYPHEN_JOIN, '')
+
+    def spelling_dictionary(self, counts: dict[str, int]) -> Callable[[str], bool] | None:
+        # The spelling dictionary that recognises the most of the common words
+        # of the document, if it recognises most of them, as PDF files rarely
+        # say what language they are in
+        sample = [w for w in sorted(counts, key=counts.__getitem__, reverse=True) if w.isalpha()][:DICTIONARY_SAMPLE_WORDS]
+        if not sample:
+            return None
+        try:
+            from calibre.spell.dictionary import builtin_dictionaries, custom_dictionaries, load_dictionary
+
+            candidates = list(custom_dictionaries()) + list(builtin_dictionaries())
+        except Exception as e:
+            self.log.warning(f'Could not find spelling dictionaries to remove hyphens with: {e}')
+            return None
+        best: Callable[[str], bool] | None = None
+        best_count = DICTIONARY_MIN_RECOGNIZED * len(sample)
+        for d in candidates:
+            try:
+                recognized = load_dictionary(d).obj.recognized
+                count = sum(1 for w in sample if recognized(w))
+            except Exception as e:
+                self.log.warning(f'Could not use the spelling dictionary {d.dicpath}: {e}')
+                continue
+            if count >= best_count:
+                best, best_count = recognized, count
+        return best
 
     def remove_repeated_heads(self, header: bool, footer: bool) -> None:
         """
