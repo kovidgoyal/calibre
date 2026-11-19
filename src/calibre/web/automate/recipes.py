@@ -40,13 +40,11 @@ from urllib.parse import urlencode, urlparse
 from urllib.request import Request
 
 from calibre.web.automate.camoufox import DEFAULT_TIMEOUT, Error, InputWedged, Page, TimeoutExceeded, debug
-from calibre.web.automate.download_deps import Install, use_live_camoufox
+from calibre.web.automate.download_deps import Install
 from calibre.web.automate.worker import make_request, start_worker
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
-
-    from calibre.web.automate.download_deps import VersionLock
 
 # The recipe thread pool defaults to five threads and a tab costs real memory,
 # so the pool of them is kept to a size that a download actually uses
@@ -544,13 +542,9 @@ async def setup_browser(input_data: Mapping[str, Any]) -> None:
     if input_data.get('warmup', True):
         warmup = Warmup(excluded_domains=input_data.get('warmup_excluded_domains') or ())
         debug(f'Warming up camoufox on: {", ".join(warmup.urls)}')
-    install_lock: VersionLock | None = None
+    install = None
     if (install_data := input_data.get('install')) is not None:
         install = Install(*install_data)
-    else:
-        # Installed with the live version of download_deps, so that changes to
-        # where camoufox is downloaded from do not need a new calibre release
-        install, install_lock = await asyncio.get_running_loop().run_in_executor(None, use_live_camoufox)
     browser = Browser(
         headless=bool(input_data.get('headless', True)),
         warmup=warmup,
@@ -562,12 +556,7 @@ async def setup_browser(input_data: Mapping[str, Any]) -> None:
         humanize=float(input_data.get('max_move_time') or 0) or False,
     )
     started = time.monotonic()
-    try:
-        await browser.launch()
-    finally:
-        # The browser holds a lock of its own on the install once launched
-        if install_lock is not None:
-            install_lock.release()
+    await browser.launch()
     debug(f'Camoufox ready in {time.monotonic() - started:.1f} seconds')
     state = State(browser, int(input_data.get('max_tabs') or DEFAULT_MAX_TABS))
 

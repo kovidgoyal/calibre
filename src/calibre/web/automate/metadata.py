@@ -893,10 +893,18 @@ class BrowserUnavailable(Exception):
         self.message = message
 
 
+def deps() -> ModuleType:
+    """The live version of download_deps, so that changes to where the browser
+    is downloaded from do not need a new calibre release. calibre < 9.20 has no
+    live version of it, so the installed one is used."""
+    live_deps: Callable[[], ModuleType] | None = getattr(download_deps, 'live_module', None)
+    return download_deps if live_deps is None else live_deps()
+
+
 def installing_message() -> str:
     msg = 'The browser used to download from this website is being installed, which can take a while. Until that is done, this website cannot be used.'
     # install_progress is not present in calibre < 9.19
-    p = getattr(download_deps.camoufox_installer, 'install_progress', None)
+    p = getattr(deps().camoufox_installer, 'install_progress', None)
     if p is not None:
         if p.stage == 'downloading' and p.total:
             msg += f' {human_readable(p.done)} of {human_readable(p.total)} downloaded so far.'
@@ -907,7 +915,7 @@ def installing_message() -> str:
 
 def is_installing() -> bool:
     """Whether this process is downloading or unpacking the browser."""
-    return getattr(download_deps.camoufox_installer, 'install_progress', None) is not None
+    return getattr(deps().camoufox_installer, 'install_progress', None) is not None
 
 
 class Launcher:
@@ -954,7 +962,7 @@ class Launcher:
         if (install_data := self.input_data.get('install')) is not None:
             return Install(*install_data), None  # the browser locks it itself
         self.set_stage('installing')
-        return await asyncio.get_running_loop().run_in_executor(None, download_deps.use_camoufox)
+        return await asyncio.get_running_loop().run_in_executor(None, lambda: deps().use_camoufox())
 
     async def launch(self) -> State:
         from calibre.web.automate.browser import Browser, Warmup
@@ -985,16 +993,16 @@ class Launcher:
         if self.stage != 'installing':
             message = f'Failed to start the browser used to download from this website with error: {err}'
             return BrowserUnavailable(message, ''.join(traceback.format_exception(err))), now + LAUNCH_RETRY_INTERVAL
-        if isinstance(err, getattr(download_deps, 'InstallFailed', ())):
+        if isinstance(err, getattr(dd := deps(), 'InstallFailed', ())):
             # A failure recorded by calibre >= 9.19, with an explanation of it
             return BrowserUnavailable(err.message, err.details), (err.retry_at or now + LAUNCH_RETRY_INTERVAL)
         display_name = 'the browser used to download from this website'
-        if (explain := getattr(download_deps, 'explain_install_failure', None)) is not None:
-            message = explain(display_name, err, download_deps.camoufox_installer.install_dir)
+        if (explain := getattr(dd, 'explain_install_failure', None)) is not None:
+            message = explain(display_name, err, dd.camoufox_installer.install_dir)
         else:
             message = f'Failed to install {display_name} with error: {err}'
         details = ''.join(traceback.format_exception(err))
-        if hasattr(download_deps, 'InstallFailed'):
+        if hasattr(dd, 'InstallFailed'):
             # Not a failure to install, which would have been InstallFailed, so
             # something cheap to retry, such as not being able to find out what
             # the latest release is
@@ -1057,27 +1065,27 @@ CAMOUFOX_BACKUP_REPO = 'jo-inc/camofox-browser'
 
 def use_camoufox_backups_if_needed() -> None:
     """Have calibre < 9.20 install camoufox from the backups of its releases when
-    the camoufox repository is not found. Done here since, unlike download_deps,
-    this module is updated live."""
-    if hasattr(download_deps, 'CAMOUFOX_BACKUP_REPOS'):
+    the camoufox repository is not found. Done here since, in those versions,
+    download_deps is not updated live, unlike this module."""
+    if hasattr(dd := deps(), 'CAMOUFOX_BACKUP_REPOS'):
         return  # download_deps falls back to the backups itself
     from urllib.error import HTTPError
 
-    if (cls := getattr(download_deps, 'Camoufox', None)) is None:
+    if (cls := getattr(dd, 'Camoufox', None)) is None:
         return
     original: Callable[..., Release] = cls.latest_release
     if getattr(original, 'uses_camoufox_backups', False):
         return
 
-    def latest_release(self: download_deps.Camoufox, allow_prerelease: bool = False, **kw: Any) -> Release:  # ruff: ignore[any-type]
+    def latest_release(self: object, allow_prerelease: bool = False, **kw: Any) -> Release:  # ruff: ignore[any-type]
         try:
             return original(self, allow_prerelease=allow_prerelease, **kw)
         except HTTPError as e:
-            if e.code != 404 or download_deps.CAMOUFOX_REPO == CAMOUFOX_BACKUP_REPO:
+            if e.code != 404 or dd.CAMOUFOX_REPO == CAMOUFOX_BACKUP_REPO:
                 raise
-        debug(f'The camoufox releases in {download_deps.CAMOUFOX_REPO} were not found, using the backups in {CAMOUFOX_BACKUP_REPO} instead')
+        debug(f'The camoufox releases in {dd.CAMOUFOX_REPO} were not found, using the backups in {CAMOUFOX_BACKUP_REPO} instead')
         # Switched for good, so that later update checks go straight to the backups
-        download_deps.CAMOUFOX_REPO = CAMOUFOX_BACKUP_REPO
+        dd.CAMOUFOX_REPO = CAMOUFOX_BACKUP_REPO
         return original(self, allow_prerelease=allow_prerelease, **kw)
 
     latest_release.uses_camoufox_backups = True  # type: ignore[attr-defined]

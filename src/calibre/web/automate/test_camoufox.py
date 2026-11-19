@@ -17,12 +17,13 @@ import struct
 import tempfile
 import threading
 import time
+import types
 import unittest
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 from calibre.constants import cache_dir, iswindows
-from calibre.web.automate import camoufox
+from calibre.web.automate import camoufox, download_deps
 from calibre.web.automate.download_deps import (
     VERSION_LOCK_SUFFIX,
     Install,
@@ -32,6 +33,7 @@ from calibre.web.automate.download_deps import (
     camoufox_resource_dir,
     system_camoufox,
 )
+from calibre.web.automate.test_download_deps import installed_download_deps
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterator, Mapping
@@ -530,6 +532,9 @@ class TestCamoufoxTransport(unittest.TestCase):
 
 
 class TestCamoufoxFonts(unittest.TestCase):
+    def setUp(self) -> None:
+        self.enterContext(installed_download_deps())
+
     def test_sfnt_name_table(self) -> None:
         self.assertIsNone(camoufox.sfnt_name_table(b'too short'))
         self.assertIsNone(camoufox.sfnt_name_table(b'\x00\x01\x00\x00' + b'\x00\x00' * 4))
@@ -581,7 +586,7 @@ class TestCamoufoxFonts(unittest.TestCase):
             # Newer macOS and Windows bundles, all fonts directly in the fonts dir
             for name in ('Sans', 'Serif', 'Mono'):
                 shutil.copy(font(name), fonts)
-            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+            with patch.object(download_deps, 'camoufox_font_lists', font_lists):
                 self.assertEqual(camoufox.reportable_font_families(tdir, version, 'windows'), (('Liberation Sans',), True))
                 self.assertEqual(calls, [version])
             # If the upstream lists are not available, use the fallback lists, without caching the result
@@ -589,14 +594,14 @@ class TestCamoufoxFonts(unittest.TestCase):
             self.addCleanup(lambda: os.path.exists(cache_path) and os.remove(cache_path))
             fallback = {'windows': ('Liberation Mono', 'Liberation Serif', 'Also Not Bundled')}
             with (
-                patch.object(camoufox, 'camoufox_font_lists', failing_font_lists),
+                patch.object(download_deps, 'camoufox_font_lists', failing_font_lists),
                 patch.object(camoufox, 'FALLBACK_REPORTABLE_FONTS', fallback),
                 contextlib.redirect_stderr(io.StringIO()),
             ):
                 self.assertEqual(camoufox.reportable_font_families(tdir, version, 'windows'), (('Liberation Mono', 'Liberation Serif'), False))
                 self.assertEqual(camoufox.font_families(tdir, version, 'windows'), ('Liberation Mono', 'Liberation Serif'))
             self.assertFalse(os.path.exists(cache_path), 'a non-definitive list of fonts was cached')
-            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+            with patch.object(download_deps, 'camoufox_font_lists', font_lists):
                 self.assertEqual(camoufox.font_families(tdir, version, 'linux'), ('Liberation Sans', 'Liberation Serif'))
             self.assertTrue(os.path.exists(cache_path), 'a definitive list of fonts was not cached')
             # Newer Linux bundles, fonts in directories shared between OSes
@@ -607,7 +612,7 @@ class TestCamoufoxFonts(unittest.TestCase):
                 shutil.copy(font(name), os.path.join(fonts, group))
             with open(os.path.join(fonts, 'groups.json'), 'w') as f:
                 json.dump({'readBy': {'lin': ['L', 'LW'], 'win': ['LW', 'W']}}, f)
-            with patch.object(camoufox, 'camoufox_font_lists', font_lists):
+            with patch.object(download_deps, 'camoufox_font_lists', font_lists):
                 self.assertEqual(camoufox.reportable_font_families(tdir, version, 'linux'), (('Liberation Sans',), True))
             # Older bundles, a directory per OS, need no upstream lists
             os.mkdir(os.path.join(fonts, 'linux'))
@@ -615,7 +620,7 @@ class TestCamoufoxFonts(unittest.TestCase):
             shutil.rmtree(os.path.join(fonts, 'L'))
             shutil.rmtree(os.path.join(fonts, 'LW'))
             os.remove(os.path.join(fonts, 'groups.json'))
-            with patch.object(camoufox, 'camoufox_font_lists', failing_font_lists):
+            with patch.object(download_deps, 'camoufox_font_lists', failing_font_lists):
                 self.assertEqual(camoufox.reportable_font_families(tdir, version, 'linux'), (('Liberation Serif',), True))
 
     def test_fontconfig_generation(self) -> None:
@@ -1123,6 +1128,35 @@ class TestCamoufoxKeyboard(unittest.TestCase):
 
 
 @unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
+class TestCamoufoxInstall(unittest.TestCase):
+    """How a browser gets the install it launches, which needs no browser."""
+
+    def test_launch_uses_live_download_deps(self) -> None:
+        live = types.ModuleType(download_deps.__name__)
+        calls: list[tuple[str, object]] = []
+
+        class Installed(Exception):
+            pass
+
+        def use_camoufox(allow_prerelease: bool = False) -> tuple[Install, None]:
+            calls.append(('use_camoufox', allow_prerelease))
+            raise Installed()
+
+        def lock_camoufox_install(install: Install) -> None:
+            calls.append(('lock_camoufox_install', install))
+            raise Installed()
+
+        live.use_camoufox = use_camoufox  # type: ignore[attr-defined]
+        live.lock_camoufox_install = lock_camoufox_install  # type: ignore[attr-defined]
+        given = Install('/given/camoufox-bin', '156.0.1-beta.36')
+        with patch.object(download_deps, 'live', live):
+            with self.assertRaises(Installed):
+                asyncio.run(camoufox.Browser(allow_prerelease=True).launch())
+            with self.assertRaises(Installed):
+                asyncio.run(camoufox.Browser(install=given).launch())
+        self.assertEqual(calls, [('use_camoufox', True), ('lock_camoufox_install', given)])
+
+
 class TestCamoufoxBrowser(unittest.TestCase):
     """Tests that drive the real browser. Skipped unless it is already installed."""
 
@@ -1143,6 +1177,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
         install = installed_camoufox()
         if install is None:
             raise unittest.SkipTest('the camoufox browser is not installed')
+        cls.enterClassContext(installed_download_deps())
         # Every browser is given the existing install, as otherwise launching
         # one would apply any pending update to it, downloading hundreds of
         # megabytes while holding a lock every other browser test waits on
@@ -1933,7 +1968,15 @@ class TestCamoufoxBrowser(unittest.TestCase):
 
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestCamoufoxConfig, TestCamoufoxTransport, TestCamoufoxFonts, TestCamoufoxMouse, TestCamoufoxKeyboard, TestCamoufoxBrowser):
+    for cls in (
+        TestCamoufoxConfig,
+        TestCamoufoxTransport,
+        TestCamoufoxFonts,
+        TestCamoufoxMouse,
+        TestCamoufoxKeyboard,
+        TestCamoufoxInstall,
+        TestCamoufoxBrowser,
+    ):
         ans.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

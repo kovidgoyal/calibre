@@ -7,8 +7,8 @@ An asyncio based API for driving the Camoufox browser.
 Camoufox is a fork of Firefox that hides the fact that it is being automated and
 allows the fingerprint it presents to web pages (the values reported by
 ``navigator``, ``screen``, the list of installed fonts, WebGL, etc.) to be
-spoofed. The browser binary is downloaded on demand by
-:mod:`calibre.web.automate.download_deps`.
+spoofed. The browser binary is downloaded on demand by the live version of
+:mod:`calibre.web.automate.download_deps`, see its ``live_module()``.
 
 The browser is driven using the Juggler protocol, which is the protocol
 Playwright uses to drive Firefox. Messages are NUL delimited JSON objects
@@ -55,19 +55,17 @@ from calibre.constants import cache_dir, ismacos, iswindows, sanitize_env_vars_i
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.safe_atexit import remove_folder_atexit
 from calibre.web.automate.camoufox_fonts import ESSENTIAL_FONTS, FALLBACK_REPORTABLE_FONTS
-from calibre.web.automate.download_deps import (
-    Install,
-    VersionLock,
-    browserforge_data,
-    camoufox_font_lists,
-    camoufox_resource_dir,
-    debug,
-    lock_camoufox_install,
-    use_camoufox,
-)
+from calibre.web.automate.download_deps import live_module
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator, Callable, Iterable, Mapping, Sequence
+
+    from calibre.web.automate.download_deps import Install, VersionLock
+
+
+def debug(*a: object) -> None:
+    print(*a, file=sys.stderr, flush=True)
+
 
 DEFAULT_TIMEOUT = 60.0  # seconds, for individual protocol commands
 # The browser answers an input event only once the page has actually seen it,
@@ -484,7 +482,7 @@ def reportable_font_families(resource_dir: str, version: str, target_os: str) ->
         return ans, True
     definitive = True
     try:
-        reportable = frozenset(camoufox_font_lists(version)[OS_ABBREV[target_os]])
+        reportable = frozenset(live_module().camoufox_font_lists(version)[OS_ABBREV[target_os]])
     except Exception as e:
         debug(f'Failed to get the list of fonts camoufox {version} reports for {target_os}, using the fallback list instead, with error: {e}')
         reportable, definitive = frozenset(FALLBACK_REPORTABLE_FONTS[target_os]), False
@@ -587,7 +585,7 @@ def fontconfig_path(resource_dir: str, version: str, target_os: str) -> str:
 def generate_fingerprint(target_os: str, window: tuple[int, int] | None = None) -> dict[str, Any]:
     """Generate a random, internally consistent, fingerprint for target_os using
     browserforge and return it as a camoufox config."""
-    browserforge_data()  # ensure the data files are present and up to date first
+    live_module().browserforge_data()  # ensure the data files are present and up to date first
     from browserforge.fingerprints import FingerprintGenerator
 
     fingerprint = FingerprintGenerator(browser='firefox', os=(target_os,)).generate()
@@ -3676,15 +3674,18 @@ class Browser:
         if self.process is not None:
             raise Error('This browser has already been launched')
         loop = asyncio.get_running_loop()
+        # Loading it can mean reading it from the cache of live modules
+        deps = await loop.run_in_executor(None, live_module)
+        install: Install
         if (given_install := self.install) is None:
-            install, self.install_lock = await loop.run_in_executor(None, lambda: use_camoufox(allow_prerelease=self.allow_prerelease))
+            install, self.install_lock = await loop.run_in_executor(None, lambda: deps.use_camoufox(allow_prerelease=self.allow_prerelease))
         else:
             install = given_install
-            self.install_lock = await loop.run_in_executor(None, lambda: lock_camoufox_install(given_install))
+            self.install_lock = await loop.run_in_executor(None, lambda: deps.lock_camoufox_install(given_install))
         try:
             binary, self.version = install.path, install.version
             self.binary = binary
-            resource_dir = camoufox_resource_dir(binary)
+            resource_dir: str = deps.camoufox_resource_dir(binary)
             self.config = await loop.run_in_executor(
                 None,
                 lambda: generate_config(

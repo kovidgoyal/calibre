@@ -249,6 +249,11 @@ def clear_caches() -> int:
     import shutil
 
     from calibre.constants import existing_cache_dir
+
+    # Not the live version of download_deps, see live_module(), as loading that
+    # means reading, and so creating, the cache folder being cleared here,
+    # possibly by the uninstaller. Only where things are installed is needed,
+    # which the live version cannot usefully change.
     from calibre.web.automate.download_deps import browserforge_installer, camoufox_installer, system_camoufox
 
     failures: list[str] = []

@@ -15,7 +15,7 @@ import types
 import unittest
 import unittest.mock
 import zipfile
-from contextlib import redirect_stderr
+from contextlib import contextmanager, redirect_stderr
 from threading import Event, Thread
 from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
@@ -24,7 +24,18 @@ from calibre.constants import iswindows
 from calibre.web.automate import download_deps as dd
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
+
+
+@contextmanager
+def installed_download_deps() -> Iterator[None]:
+    """Have live_module() return the installed download_deps, so that the tests
+    neither run code from the calibre website nor check it for updates. Also in
+    any worker processes started meanwhile, such as the one recipes use."""
+    from calibre.live import NO_LIVE_MODULES_ENV_VAR
+
+    with unittest.mock.patch.object(dd, 'live', dd), unittest.mock.patch.dict(os.environ, {NO_LIVE_MODULES_ENV_VAR: '1'}):
+        yield
 
 
 class FakeInstaller(dd.Installer):
@@ -652,12 +663,6 @@ class TestDownloadDeps(unittest.TestCase):
 
     def test_download_deps_live_module(self) -> None:
         live = types.ModuleType(dd.__name__)
-        live_lock = object()
-
-        def use_camoufox(allow_prerelease: bool = False) -> tuple[tuple[str, str], object]:
-            return ('/live/camoufox-bin', '158.0.1-beta.41' if allow_prerelease else '156.0.1-beta.36'), live_lock
-
-        live.use_camoufox = use_camoufox  # type: ignore[attr-defined]
         with (
             unittest.mock.patch.object(dd, 'live', None),
             unittest.mock.patch('calibre.live.load_module', return_value=live) as load_module,
@@ -668,12 +673,9 @@ class TestDownloadDeps(unittest.TestCase):
             load_module.assert_called_once()
             self.assertEqual(load_module.call_args.args, (dd.__name__,))
             start_worker.assert_called_once()
-            install, lock = dd.use_live_camoufox()
-            # Converted to an Install of this module, the live one has its own
-            self.assertIsInstance(install, dd.Install)
-            self.assertEqual(install, dd.Install('/live/camoufox-bin', '156.0.1-beta.36'))
-            self.assertIs(lock, live_lock)
-            self.assertEqual(dd.use_live_camoufox(allow_prerelease=True)[0].version, '158.0.1-beta.41')
+        # Live loading is set up the way calibre.live needs it
+        self.assertIsInstance(dd.module_version, int)
+        self.assertEqual(len(dd.minimum_calibre_version), 3)
 
     def test_download_deps_browserforge_patching(self) -> None:
         data_dir = os.path.join(self.tdir, 'bf-data')
