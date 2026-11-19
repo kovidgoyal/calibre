@@ -36,7 +36,7 @@ from functools import lru_cache
 from pathlib import Path
 from threading import Lock, Thread
 from typing import IO, TYPE_CHECKING, Any, NamedTuple, Self
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import OpenerDirector, ProxyHandler, Request, build_opener
 
 from calibre import get_proxies, human_readable
@@ -70,6 +70,9 @@ VERSION_LOCK_SUFFIX = '.lock'
 VERSION_PAT = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9._-]*')
 
 CAMOUFOX_REPO = 'daijro/camoufox'
+# Repositories with backups of the camoufox releases, used, in order, when the
+# camoufox repository is not found, as happened when GitHub removed it
+CAMOUFOX_BACKUP_REPOS = ('jo-inc/camofox-browser',)
 
 
 def github_api_headers() -> dict[str, str]:
@@ -787,6 +790,20 @@ def camoufox_asset_pattern(os_name: str, archs: tuple[str, ...]) -> re.Pattern[s
     return re.compile(rf'camoufox-(?P<version>[^-]+)-(?P<build>[^-]+)-{re.escape(os_name)}\.(?P<arch>{arch})\.zip')
 
 
+def camoufox_releases() -> tuple[str, list[dict[str, Any]]]:
+    """The GitHub releases of camoufox and the repository they came from,
+    falling back to the backups of them if the camoufox repository is not found."""
+    repo, backups = CAMOUFOX_REPO, list(CAMOUFOX_BACKUP_REPOS)
+    while True:
+        try:
+            return repo, download_json(f'https://api.github.com/repos/{repo}/releases?per_page=50', github_api_headers())
+        except HTTPError as e:
+            if e.code != 404 or not backups:
+                raise
+            debug(f'The camoufox releases in {repo} were not found, using the backups in {backups[0]} instead')
+            repo = backups.pop(0)
+
+
 class Camoufox(Installer):
     display_name = 'the Camoufox browser'
     # The download is about 1.3 GB, unpacking to about 2.6 GB, both of
@@ -799,7 +816,7 @@ class Camoufox(Installer):
     def latest_release(self, allow_prerelease: bool = False, **kw: Any) -> Release:  # ruff: ignore[any-type]
         os_name, archs = camoufox_os(), camoufox_archs()
         pat = camoufox_asset_pattern(os_name, archs)
-        releases = download_json(f'https://api.github.com/repos/{CAMOUFOX_REPO}/releases?per_page=50', github_api_headers())
+        repo, releases = camoufox_releases()
         ans: Release | None = None
         ans_key: tuple[tuple[int, ...], int] = ((), 0)
         for release in releases:
@@ -820,7 +837,7 @@ class Camoufox(Installer):
                     sha256 = (asset.get('digest') or '').partition('sha256:')[2]
                     ans, ans_key = Release(version, asset['browser_download_url'], sha256), key
         if ans is None:
-            raise ValueError(f'No camoufox release for {" or ".join(f"{os_name}.{a}" for a in archs)} found in {CAMOUFOX_REPO}')
+            raise ValueError(f'No camoufox release for {" or ".join(f"{os_name}.{a}" for a in archs)} found in {repo}')
         return ans
 
     def unpack(self, downloaded_file: str, dest: str) -> None:

@@ -17,7 +17,7 @@ import zipfile
 from contextlib import redirect_stderr
 from threading import Event, Thread
 from typing import TYPE_CHECKING, Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 
 from calibre.constants import iswindows
 from calibre.web.automate import download_deps as dd
@@ -442,6 +442,43 @@ class TestDownloadDeps(unittest.TestCase):
                 dd.camoufox_installer.latest_release()
         finally:
             dd.download_json = original
+
+    def test_download_deps_camoufox_backup_repos(self) -> None:
+        name = f'camoufox-152.0.4-beta.29-{dd.camoufox_os()}.{dd.camoufox_arch()}.zip'
+        backup_releases = [{'prerelease': False, 'assets': [{'name': name, 'browser_download_url': f'https://example.com/{name}'}]}]
+        requested: list[str] = []
+        missing = {dd.CAMOUFOX_REPO}
+
+        def download_json(url: str, *a: object, **kw: object) -> list[dict[str, Any]]:
+            requested.append(url)
+            for repo in missing:
+                if f'/repos/{repo}/' in url:
+                    raise HTTPError(url, 404, 'Not Found', None, None)  # type: ignore[arg-type]
+            return backup_releases
+
+        with unittest.mock.patch.object(dd, 'download_json', download_json), redirect_stderr(io.StringIO()):
+            # Falls back to the backups when the camoufox repository is not found
+            self.assertEqual(dd.camoufox_installer.latest_release().version, '152.0.4-beta.29')
+            self.assertEqual(len(requested), 2)
+            self.assertIn(f'/repos/{dd.CAMOUFOX_BACKUP_REPOS[0]}/', requested[1])
+            self.assertEqual(dd.camoufox_releases()[0], dd.CAMOUFOX_BACKUP_REPOS[0])
+            # The camoufox repository itself is used when it is available
+            missing.clear()
+            requested.clear()
+            self.assertEqual(dd.camoufox_releases()[0], dd.CAMOUFOX_REPO)
+            self.assertEqual(len(requested), 1)
+            # The error is reported when the backups are not found either
+            missing.update((dd.CAMOUFOX_REPO,) + dd.CAMOUFOX_BACKUP_REPOS)
+            with self.assertRaises(HTTPError):
+                dd.camoufox_installer.latest_release()
+
+        def unavailable(url: str, *a: object, **kw: object) -> list[dict[str, Any]]:
+            raise HTTPError(url, 503, 'Service Unavailable', None, None)  # type: ignore[arg-type]
+
+        # Other errors are not a reason to use the backups
+        with unittest.mock.patch.object(dd, 'download_json', unavailable), self.assertRaises(HTTPError) as cm:
+            dd.camoufox_releases()
+        self.assertEqual(cm.exception.code, 503)
 
     def test_download_deps_camoufox_emulated_arch(self) -> None:
         def asset(build: str, arch: str) -> dict[str, Any]:

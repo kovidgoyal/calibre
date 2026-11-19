@@ -1417,9 +1417,54 @@ class TestGoogleImagesPlugin(unittest.TestCase):
         self.assertIn('no browser here', self.log.plain_text)
 
 
+class TestCamoufoxBackups(unittest.TestCase):
+    def test_metadata_camoufox_backups(self) -> None:
+        from urllib.error import HTTPError
+
+        release = download_deps.Release('152.0.4-beta.29', 'https://example.com/camoufox.zip', '')
+        queried: list[str] = []
+
+        # The latest_release() of calibre versions that do not know about the backups
+        def old_latest_release(self: download_deps.Camoufox, allow_prerelease: bool = False, **kw: object) -> download_deps.Release:
+            repo = download_deps.CAMOUFOX_REPO
+            queried.append(repo)
+            if repo != metadata.CAMOUFOX_BACKUP_REPO:
+                raise HTTPError(repo, 404, 'Not Found', None, None)  # type: ignore[arg-type]
+            return release
+
+        # Restores CAMOUFOX_REPO and CAMOUFOX_BACKUP_REPOS afterwards
+        with patch.dict(download_deps.__dict__), patch.object(download_deps.Camoufox, 'latest_release', old_latest_release):
+            del download_deps.CAMOUFOX_BACKUP_REPOS
+            original_repo = download_deps.CAMOUFOX_REPO
+            metadata.use_camoufox_backups_if_needed()
+            metadata.use_camoufox_backups_if_needed()  # patching twice is harmless
+            with redirect_stderr(io.StringIO()):
+                self.assertEqual(download_deps.camoufox_installer.latest_release(), release)
+            self.assertEqual(queried, [original_repo, metadata.CAMOUFOX_BACKUP_REPO])
+            # Later queries go straight to the backups
+            queried.clear()
+            self.assertEqual(download_deps.camoufox_installer.latest_release(), release)
+            self.assertEqual(queried, [metadata.CAMOUFOX_BACKUP_REPO])
+        self.assertTrue(hasattr(download_deps, 'CAMOUFOX_BACKUP_REPOS'))
+        # Nothing is patched in versions that know about the backups
+        original = download_deps.Camoufox.latest_release
+        metadata.use_camoufox_backups_if_needed()
+        self.assertIs(download_deps.Camoufox.latest_release, original)
+
+
 def find_tests() -> unittest.TestSuite:
     ans = unittest.TestSuite()
-    for cls in (TestPageAnalysis, TestTabPool, TestHandlers, TestQueueing, TestWorkerProcess, TestLauncher, TestAmazonPlugin, TestGoogleImagesPlugin):
+    for cls in (
+        TestPageAnalysis,
+        TestTabPool,
+        TestHandlers,
+        TestQueueing,
+        TestWorkerProcess,
+        TestLauncher,
+        TestAmazonPlugin,
+        TestGoogleImagesPlugin,
+        TestCamoufoxBackups,
+    ):
         ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(cls))
     return ans
 

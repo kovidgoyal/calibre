@@ -9,7 +9,7 @@ browser, for the sources whose websites block anything that is not a browser.
 # These two are read by calibre.live, which updates the server half of this
 # module from the calibre website, so that changes to the websites it drives
 # can be kept up with without needing a new calibre release
-module_version = 4
+module_version = 5
 minimum_calibre_version = (9, 17, 0)
 
 import asyncio
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from lxml.etree import _Element
 
     from calibre.web.automate.camoufox import Browser
-    from calibre.web.automate.download_deps import VersionLock
+    from calibre.web.automate.download_deps import Release, VersionLock
 
 # How it fits together
 # ====================
@@ -1049,7 +1049,47 @@ def get_launcher(input_data: Mapping[str, Any]) -> Launcher:
     return launcher
 
 
+# The backups of the camoufox releases, used if the camoufox repository is not
+# found, as happened when GitHub removed it. Only for calibre versions whose
+# download_deps does not know about the backups itself.
+CAMOUFOX_BACKUP_REPO = 'jo-inc/camofox-browser'
+
+
+def use_camoufox_backups_if_needed() -> None:
+    """Have calibre < 9.20 install camoufox from the backups of its releases when
+    the camoufox repository is not found. Done here since, unlike download_deps,
+    this module is updated live."""
+    if hasattr(download_deps, 'CAMOUFOX_BACKUP_REPOS'):
+        return  # download_deps falls back to the backups itself
+    from urllib.error import HTTPError
+
+    if (cls := getattr(download_deps, 'Camoufox', None)) is None:
+        return
+    original: Callable[..., Release] = cls.latest_release
+    if getattr(original, 'uses_camoufox_backups', False):
+        return
+
+    def latest_release(self: download_deps.Camoufox, allow_prerelease: bool = False, **kw: Any) -> Release:  # ruff: ignore[any-type]
+        try:
+            return original(self, allow_prerelease=allow_prerelease, **kw)
+        except HTTPError as e:
+            if e.code != 404 or download_deps.CAMOUFOX_REPO == CAMOUFOX_BACKUP_REPO:
+                raise
+        debug(f'The camoufox releases in {download_deps.CAMOUFOX_REPO} were not found, using the backups in {CAMOUFOX_BACKUP_REPO} instead')
+        # Switched for good, so that later update checks go straight to the backups
+        download_deps.CAMOUFOX_REPO = CAMOUFOX_BACKUP_REPO
+        return original(self, allow_prerelease=allow_prerelease, **kw)
+
+    latest_release.uses_camoufox_backups = True  # type: ignore[attr-defined]
+    cls.latest_release = latest_release  # type: ignore[method-assign]
+
+
 async def impl_setup_browser(input_data: Mapping[str, Any]) -> None:
+    try:
+        use_camoufox_backups_if_needed()
+    except Exception as e:
+        # Not fatal, the camoufox repository might be available after all
+        debug(f'Failed to set up using the backups of the camoufox releases with error: {e}')
     # Not waited for, so that the setup does not fail, which would have the
     # worker try it again for every request, see Launcher
     get_launcher(input_data).start()
