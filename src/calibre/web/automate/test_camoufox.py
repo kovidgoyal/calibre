@@ -1127,7 +1127,6 @@ class TestCamoufoxKeyboard(unittest.TestCase):
             self.assertFalse(camoufox.key_info(ch).shifted)
 
 
-@unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
 class TestCamoufoxInstall(unittest.TestCase):
     """How a browser gets the install it launches, which needs no browser."""
 
@@ -1157,6 +1156,7 @@ class TestCamoufoxInstall(unittest.TestCase):
         self.assertEqual(calls, [('use_camoufox', True), ('lock_camoufox_install', given)])
 
 
+@unittest.skipIf(installed_camoufox() is None, 'the camoufox browser is not installed')
 class TestCamoufoxBrowser(unittest.TestCase):
     """Tests that drive the real browser. Skipped unless it is already installed."""
 
