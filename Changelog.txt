@@ -33,7 +33,7 @@
   available by right clicking. Tools->Check grammar lists the issues in the whole book, allowing them to be corrected,
   ignored or their rules disabled. For English text, a neural network can also suggest rewrites of sentences for
   grammar, fluency, clarity, simplicity, formality or paraphrasing. The data needed for checking a language is
-  downloaded, with confirmation, when first needed.
+  downloaded, with confirmation, when first needed. All processing is local to your computer and no AI is used.
 
 - PDF Input: Greatly improve detection of paragraphs, headings and columns
 
