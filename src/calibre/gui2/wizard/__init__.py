@@ -492,9 +492,11 @@ class KindlePage(QWizardPage, KindleUI):
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
+        from calibre.gui2.email import is_for_kindle
+
         for x, ac in opts.accounts.items():
             default = ac[2]
-            if x.strip().endswith('@kindle.com'):
+            if is_for_kindle(x.strip()):
                 accs.append((x, default))
                 if default:
                     has_default = True
@@ -521,7 +523,7 @@ class KindlePage(QWizardPage, KindleUI):
                 accounts = {}
             for y in accounts.values():
                 y[2] = False
-            accounts[x] = ['EPUB, TPZ', True, True]
+            accounts[x] = ['EPUB', True, True]
             conf.set('accounts', accounts)
 
     def nextId(self):

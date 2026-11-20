@@ -182,8 +182,10 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return False
             self.accounts[na] = self.accounts.pop(account)
             self.account_order[row] = na
-            if '@kindle.com' in addr:
-                self.accounts[na][0] = 'EPUB, TPZ'
+            from calibre.gui2.email import is_for_kindle
+
+            if is_for_kindle(addr):
+                self.accounts[na][0] = 'EPUB'
 
         self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), 3))
         return True
