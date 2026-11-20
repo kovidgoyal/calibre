@@ -3,11 +3,12 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from dom import unique_id
 from read_book.bookmarks import create_bookmarks_list
 from read_book.globals import ui_operations
-from read_book.goto import create_page_list_overlay
+from read_book.goto import create_location_overlay, create_page_list_overlay
 from read_book.overlay import EndOfBook
 from read_book.profiles import got_all_profiles
 from test_book_list_helpers import with_empty_session
@@ -194,3 +195,129 @@ def end_of_book_rating_half_stars_with_the_keyboard():
                 container.remove()
 
     with_empty_session(run)
+
+
+def with_location_panel(proceed):
+    parent = E.div(id=unique_id())
+    document.body.appendChild(parent)
+    calls = {'position': [], 'cfi': [], 'reference': [], 'closed': 0}
+    previous = {}
+
+    def position(value):
+        calls.position.push(value)
+
+    def cfi(value):
+        calls.cfi.push(value)
+        return True
+
+    def reference(value):
+        calls.reference.push(value)
+        return True
+
+    def hide():
+        calls.closed += 1
+
+    replacements = {'goto_book_position': position, 'goto_cfi': cfi, 'goto_reference': reference}
+    for key in Object.keys(replacements):
+        previous[key] = ui_operations[key]
+        ui_operations[key] = replacements[key]
+    try:
+        create_location_overlay({'progress_frac': 0.25, 'book_length': 100, 'cfi': 'epubcfi(/6/2)'},
+            {'calibre_book_url': 'https://example.com/book'}, {'hide': hide}, parent)
+        proceed(parent, calls)
+    finally:
+        for key in Object.keys(previous):
+            ui_operations[key] = previous[key]
+        parent.remove()
+
+
+@test
+def goto_location_field_has_a_label_and_both_help_paragraphs():
+    def run(parent, calls):
+        input = parent.querySelector('[name=newpos]')
+        assert_equal(input.labels.length, 1)
+        assert_equal(input.labels[0].textContent, _('Go to:'))
+        assert_true(input.labels[0].control is input)
+        descriptions = input.getAttribute('aria-describedby').split(' ')
+        assert_equal(descriptions.length, 2)
+        for id in descriptions:
+            node = document.getElementById(id)
+            assert_true(parent.contains(node))
+            assert_true(node.textContent)
+
+        def other(other_parent, other_calls):
+            other_input = other_parent.querySelector('[name=newpos]')
+            assert_true(other_input.id is not input.id)
+            assert_true(other_input.labels[0].control is other_input)
+            assert_true(other_input.getAttribute('aria-describedby') is not input.getAttribute('aria-describedby'))
+
+        with_location_panel(other)
+
+    with_location_panel(run)
+
+
+@test
+def goto_copy_controls_have_distinct_names_and_copy_the_original_values():
+    def run(parent, calls):
+        buttons = parent.querySelectorAll('[aria-label]')
+        assert_equal(buttons.length, 2)
+        assert_equal(buttons[0].getAttribute('aria-label'), _('Copy current location'))
+        assert_equal(buttons[1].getAttribute('aria-label'), _('Copy URL for this position'))
+        input = parent.querySelector('[name=newpos]')
+        input.value = 'Unsaved position'
+        copied = []
+        previous = document.execCommand
+        document.execCommand = def (command):
+            copied.push([command, input.value])
+            return True
+        try:
+            for button in buttons:
+                assert_equal(button.textContent, _('Copy'))
+                button.click()
+                assert_equal(input.value, 'Unsaved position')
+            assert_equal(copied[0], ['copy', 'epubcfi(/6/2)'])
+            assert_equal(copied[1][0], 'copy')
+            assert_true(copied[1][1].startsWith('https://example.com/book?open_at='))
+            assert_equal(decodeURIComponent(copied[1][1].split('open_at=')[1]), 'epubcfi(/6/2)')
+        finally:
+            document.execCommand = previous
+
+    with_location_panel(run)
+
+
+@test
+def goto_location_enter_still_handles_positions_locations_and_references():
+    def run(parent, calls):
+        input = parent.querySelector('[name=newpos]')
+        for text in ['12.5', 'epubcfi(/6/4)', 'ref:1,2']:
+            input.value = text
+            input.dispatchEvent(new window.KeyboardEvent('keydown', {'key': 'Enter', 'bubbles': True}))
+        assert_equal(calls.position, [12.5])
+        assert_equal(calls.cfi, ['epubcfi(/6/4)'])
+        assert_equal(calls.reference, ['1.2'])
+        assert_equal(calls.closed, 3)
+
+    with_location_panel(run)
+
+
+@test
+def goto_page_number_field_has_a_name_and_preserves_enter_navigation():
+    parent = E.div()
+    document.body.appendChild(parent)
+    calls = []
+
+    def goto(page):
+        calls.push(page.pagenum)
+
+    try:
+        create_page_list_overlay({'manifest': {'page_list': [{'pagenum': 'xii'}, {'pagenum': '12'}]}}, {
+            'view': {'current_pagelist_items': [], 'goto_pagelist_item': goto}, 'hide': def (): pass
+        }, parent)
+        input = parent.querySelector('input')
+        assert_equal(input.getAttribute('aria-label'), _('Page number'))
+        assert_equal(input.getAttribute('placeholder'), _('Enter a page number'))
+        input.value = 'XII'
+        input.dispatchEvent(new window.KeyboardEvent('keydown', {'key': 'Enter', 'bubbles': True}))
+        assert_equal(calls, ['xii'])
+    finally:
+        parent.remove()

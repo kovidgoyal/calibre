@@ -8,7 +8,7 @@ from gettext import gettext as _
 
 from ajax import encode_query_component
 from book_list.item_list import build_list, create_item
-from dom import ensure_id, set_css
+from dom import ensure_id, set_css, unique_id
 from modals import error_dialog
 from read_book.globals import current_book, runtime, ui_operations
 from read_book.prefs.head_foot import format_pos
@@ -100,7 +100,7 @@ def create_page_list_overlay(book, overlay, container):
         container.appendChild(E.div(style='margin: 1em', text))
     search_input = E.div(
         E.div(
-            E.input(type='text', placeholder=_('Enter a page number'), onkeydown=def (ev):
+            E.input(type='text', aria_label=_('Page number'), placeholder=_('Enter a page number'), onkeydown=def (ev):
                     if ev.key is 'Enter':
                         text = ev.target.value
                         if text:
@@ -139,16 +139,18 @@ def create_location_overlay(current_position_data, book, overlay, container):
                     src.value = orig
             )
 
-    def display_and_copy(label, text):
+    def display_and_copy(label, text, copy_label):
+        button = copy_button(text)
+        button.setAttribute('aria-label', copy_label)
         container.appendChild(E.div(
             style='margin: 1rem; margin-bottom: calc(1rem - 1ex); display: flex; align-items: baseline; flex-wrap: wrap',
             E.div(style='flex-grow: 10; text-overflow: ellipsis; margin-bottom: 1ex',
                   label, ' ', E.span(text, style='font-size: smaller; font-family: monospace; overflow-wrap: anywhere')),
-            copy_button(text)
+            button
         ))
 
     if current_cfi:
-        display_and_copy(_('Current location:'), current_cfi)
+        display_and_copy(_('Current location:'), current_cfi, _('Copy current location'))
 
     def goto_cfi(cfi):
         if ui_operations.goto_cfi(cfi):
@@ -170,9 +172,9 @@ def create_location_overlay(current_position_data, book, overlay, container):
             E.div(style='margin: 1rem', _('Current position: {}').format(
                 format_pos(current_position_data.progress_frac, current_position_data.book_length))))
 
-    container.appendChild(
-        E.div(style='margin: 1rem', _(
-            'Type the position, location or reference below. For a reference type ref: followed by the reference:')))
+    instructions = E.div(style='margin: 1rem', _(
+        'Type the position, location or reference below. For a reference type ref: followed by the reference:'))
+    container.appendChild(instructions)
 
     def goto_pos():
         src = document.querySelector(f'#{container_id} [name=newpos]').value
@@ -190,28 +192,31 @@ def create_location_overlay(current_position_data, book, overlay, container):
         else:
             overlay.hide()
 
+    position_id = unique_id('goto-position')
+    position_help = E.div(style='margin: 1rem', _(
+        'Note that using a position is not very robust, it is best to use either the location or reference.'))
     container.appendChild(E.div(
         style='margin: 1rem;',
         E.div(
             style='display: flex; align-items: baseline; flex-wrap: wrap',
-            E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newpos', type='text', style='flex-grow: 10; margin-right: 1rem', onkeydown=def (ev):
+            E.label(_('Go to:'), for_=position_id, style='margin-right: 1rem'),
+            E.input(name='newpos', type='text', id=position_id,
+                aria_describedby=ensure_id(instructions, 'goto-help') + ' ' + ensure_id(position_help, 'goto-help'),
+                style='flex-grow: 10; margin-right: 1rem', onkeydown=def (ev):
                     if ev.key is 'Enter':
                         goto_pos()
             ), E.span(' '),
             create_button(_('Go'), action=goto_pos)
         )
     ))
-    container.appendChild(
-        E.div(style='margin: 1rem', _(
-            'Note that using a position is not very robust, it is best to use either the location or reference.')))
+    container.appendChild(position_help)
 
     if calibre_book_url:
         if current_cfi:
             calibre_book_url += '?open_at=' + encode_query_component(current_cfi)
-        display_and_copy(_('URL for this position:'), calibre_book_url)
+        display_and_copy(_('URL for this position:'), calibre_book_url, _('Copy URL for this position'))
     elif not runtime.is_standalone_viewer:
-        display_and_copy(_('URL for this position:'), window.top.location.toString())
+        display_and_copy(_('URL for this position:'), window.top.location.toString(), _('Copy URL for this position'))
     window.setTimeout(def ():
         container = document.getElementById(container_id)
         if container:
