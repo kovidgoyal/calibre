@@ -6,10 +6,12 @@ from elementmaker import E
 from gettext import gettext as _
 
 from dom import unique_id
+from modals import close_all_modals, create_modal_container
 from read_book.bookmarks import create_bookmarks_list
 from read_book.globals import ui_operations
 from read_book.goto import create_location_overlay, create_page_list_overlay
 from read_book.overlay import EndOfBook
+from read_book.prefs.head_foot import format_pos
 from read_book.profiles import got_all_profiles
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_true, test
@@ -232,14 +234,15 @@ def with_location_panel(proceed):
 
 
 @test
-def goto_location_field_has_a_label_and_both_help_paragraphs():
+def goto_location_field_has_a_label_and_is_described_by_position_and_help():
     def run(parent, calls):
         input = parent.querySelector('[name=newpos]')
         assert_equal(input.labels.length, 1)
         assert_equal(input.labels[0].textContent, _('Go to:'))
         assert_true(input.labels[0].control is input)
         descriptions = input.getAttribute('aria-describedby').split(' ')
-        assert_equal(descriptions.length, 2)
+        assert_equal(descriptions.length, 3)
+        assert_equal(document.getElementById(descriptions[0]).textContent, _('Current position: {}').format(format_pos(0.25, 100)))
         for id in descriptions:
             node = document.getElementById(id)
             assert_true(parent.contains(node))
@@ -270,17 +273,44 @@ def goto_copy_controls_have_distinct_names_and_copy_the_original_values():
         document.execCommand = def (command):
             copied.push([command, input.value])
             return True
+        status = parent.querySelector('[role=status]')
         try:
             for button in buttons:
                 assert_equal(button.textContent, _('Copy'))
+                assert_equal(button.getAttribute('title'), button.getAttribute('aria-label'))
+                status.textContent = ''
+                button.focus()
                 button.click()
                 assert_equal(input.value, 'Unsaved position')
+                assert_true(document.activeElement is button)
+                assert_equal(status.textContent, _('Copied to clipboard'))
             assert_equal(copied[0], ['copy', 'epubcfi(/6/2)'])
             assert_equal(copied[1][0], 'copy')
             assert_true(copied[1][1].startsWith('https://example.com/book?open_at='))
             assert_equal(decodeURIComponent(copied[1][1].split('open_at=')[1]), 'epubcfi(/6/2)')
         finally:
             document.execCommand = previous
+
+    with_location_panel(run)
+
+
+@test
+def goto_copy_failure_is_reported():
+    def run(parent, calls):
+        create_modal_container()
+        button = parent.querySelector('[aria-label]')
+        previous = document.execCommand
+        document.execCommand = def (command):
+            return False
+        try:
+            button.focus()
+            button.click()
+            assert_true(document.activeElement is button)
+            assert_equal(parent.querySelector('[role=status]').textContent, _('Could not copy to clipboard'))
+            assert_equal(document.getElementById('modal-container').style.display, 'flex')
+        finally:
+            document.execCommand = previous
+            close_all_modals()
 
     with_location_panel(run)
 
