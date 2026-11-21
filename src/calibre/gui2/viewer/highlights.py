@@ -416,7 +416,7 @@ class Highlights(QTreeWidget):
                 m.addAction(QIcon.ic('modified.png'), _('Edit notes for this highlight'), self.edit_notes_requested.emit)
             m.addAction(
                 QIcon.ic('format-text-color.png'),
-                ngettext('Change style of this highlight…', 'Change style of {} highlights…', n).format(n),
+                ngettext('Change style of this highlight', 'Change style of {} highlights', n).format(n),
                 self.change_style_requested.emit,
             )
             m.addAction(

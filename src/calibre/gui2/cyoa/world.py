@@ -229,7 +229,7 @@ def recommended_style(brief: str) -> StoryStyle:
     return StoryStyle()
 
 
-WORLD_GENERATION_MESSAGE = _('Creating your world, this can take a while…')
+WORLD_GENERATION_MESSAGE = _('Creating your world, this can take a while') + '…'
 BRIEF_ROLE = Qt.ItemDataRole.UserRole
 SAVED_WORLD_ROLE = Qt.ItemDataRole.UserRole + 1
 # The combined index of the character of an item in the cast list, see
@@ -324,7 +324,7 @@ class CharacterEditor(QWidget):
         self.portrait_label = pla = QLabel(pp)
         pla.setFixedSize(PORTRAIT_SIZE / 2)
         pla.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.portrait_stack = ps = WaitStack(_('Generating…'), after=pla, parent=pp, size=64)
+        self.portrait_stack = ps = WaitStack(_('Generating') + '…', after=pla, parent=pp, size=64)
         ps.stop()
         pl.addWidget(ps)
         h = QHBoxLayout()
@@ -1331,7 +1331,7 @@ class CreateWorldWidget(QWidget):
             error_dialog(self, _('No AI configured'), _('No AI for text generation has been configured for the game.'), show=True)
             return
         self.current_call_number = next(self.counter)
-        self.wait_stack.msg = _('Creating the characters of your world, this can take a while…')
+        self.wait_stack.msg = _('Creating the characters of your world, this can take a while') + '…'
         self.wait_stack.start()
         self.stack.setCurrentWidget(self.wait_stack)
         Thread(name='CYOACastGen', daemon=True, target=self.do_generate_cast, args=(world, self.current_call_number, plugin)).start()

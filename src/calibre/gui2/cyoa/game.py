@@ -200,7 +200,7 @@ class BackToTurnDialog(Dialog):
             ok.setText(_('&Go back'))
             ok.setIcon(QIcon.ic('edit-undo.png'))
             ok.setEnabled(can_go_back)
-        rb = self.bb.addButton(_('&Restart…'), QDialogButtonBox.ButtonRole.ActionRole)
+        rb = self.bb.addButton(_('&Restart') + '…', QDialogButtonBox.ButtonRole.ActionRole)
         if rb is not None:
             rb.setIcon(QIcon.ic('restart.png'))
             rb.setToolTip(
@@ -413,7 +413,7 @@ class GameWidget(QWidget):
         ib.clicked.connect(self.interesting_event)
         h.addWidget(ib), h.addStretch()
         il.addLayout(h)
-        self.input_stack = ws = WaitStack(_('Thinking…'), after=input_panel, parent=left, size=64)
+        self.input_stack = ws = WaitStack(_('Thinking') + '…', after=input_panel, parent=left, size=64)
         # A discreet Stop button in the corner of the overlay, for abandoning
         # a turn that is taking too long or was asked for by mistake.
         ws.enable_corner_button('window-close.png', '<p>' + _('Stop waiting for the AI to write this turn. The AI provider may still charge for it.'))
@@ -558,7 +558,7 @@ class GameWidget(QWidget):
             mins, s = divmod(secs, 60)
             human = _('{m}m {s}s').format(m=mins, s=s)
         # Once prose starts arriving the AI is no longer thinking but writing
-        self.input_stack.msg = (_('Writing… {}') if self.streamed_narrative else _('Thinking… {}')).format(human)
+        self.input_stack.msg = (_('Writing... {}') if self.streamed_narrative else _('Thinking... {}')).format(human)
 
     def _stop_thinking(self) -> None:
         self._thinking_ticker.stop()
@@ -961,7 +961,7 @@ class GameWidget(QWidget):
         failed = img is None and not busy and tn in self.failed_image_turns
         can_generate = bool(tn) and img is None and not busy and not failed
         if busy:
-            placeholder = _('Generating a picture of this scene…')
+            placeholder = _('Generating a picture of this scene') + '…'
         elif failed or can_generate:
             placeholder = ''  # the scene image display shows its retry/generate panel instead
         else:

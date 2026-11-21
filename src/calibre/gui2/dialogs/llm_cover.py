@@ -292,7 +292,7 @@ class PromptEdit(QPlainTextEdit):
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.addSeparator()
-        ac = menu.addAction(QIcon.ic('plus.png'), _('Save current text as custom style…'))
+        ac = menu.addAction(QIcon.ic('plus.png'), _('Save current text as custom style'))
         assert ac is not None
         ac.triggered.connect(self.save_as_custom_requested)
         ac.setEnabled(bool(self.toPlainText().strip()))
@@ -359,7 +359,7 @@ class CustomStylesWidget(QWidget):
         lw.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         l.addWidget(lw)
         bh = QHBoxLayout()
-        self.add_button = ab = QPushButton(QIcon.ic('plus.png'), _('&Add style…'), self)
+        self.add_button = ab = QPushButton(QIcon.ic('plus.png'), _('&Add style'), self)
         ab.clicked.connect(self.add_style)
         bh.addWidget(ab)
         self.remove_button = rb = QPushButton(QIcon.ic('trash.png'), _('&Delete selected'), self)
@@ -403,7 +403,7 @@ class TemplateFieldRow(QWidget):
         ed.setText(value)
         ed.setPlaceholderText(_('Leave empty to use the value directly'))
         h.addWidget(ed, 1)
-        self.btn = btn = QPushButton(QIcon.ic('template_funcs.png'), _('&Edit…'), self)
+        self.btn = btn = QPushButton(QIcon.ic('template_funcs.png'), _('&Edit'), self)
         btn.setToolTip(_('Open the calibre template editor'))
         btn.clicked.connect(self._open_editor)
         h.addWidget(btn)
