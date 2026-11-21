@@ -229,7 +229,8 @@ over the net. First perform the following steps in calibre
 
 The Content server allows you to read books directly in Safari itself. In
 addition, there are many apps for your iDevice that can connect to the calibre
-Content server. Examples include: Marvin, Mapleread and iBooks itself.
+Content server. Examples include: Marvin, Mapleread,
+`Sutra <https://sutra-reader.com/calibre-reader.html>`_ and iBooks itself.
 
 Using the Content server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,6 +264,7 @@ Android: Some examples (in no particular order):
 `Moon+ <https://play.google.com/store/apps/details?id=com.flyersoft.moonreader&hl=en>`_,
 `Mantano <https://play.google.com/store/apps/details?id=com.mantano.reader.android.lite&hl=en>`_,
 `Aldiko <https://play.google.com/store/apps/details?id=com.aldiko.android&hl=en>`_,
+`Sutra <https://sutra-reader.com/calibre-reader.html>`_,
 `Kindle <https://play.google.com/store/apps/details?id=com.amazon.kindle&feature=related_apps>`_.
 
 .. _android_usb:
