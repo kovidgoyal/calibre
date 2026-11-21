@@ -14,6 +14,7 @@ from calibre.ebooks.oeb.base import XHTML_NS, extract
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    import unittest
     from collections.abc import Callable, Iterable
 
     from lxml.etree import _Element, _Entity
@@ -449,18 +450,20 @@ class Chunker:
                 chunk = chunk_table[i]
                 if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
                     pos_fid = (chunk.sequence_number, offset - chunk.insert_pos, offset)
-                elif chunk.insert_pos > offset:
+                    first = i
+                    break
+                if chunk.insert_pos > offset:
                     # This aid is in the skeleton, not in a chunk, so we use
                     # the chunk immediately after
                     pos_fid = (chunk.sequence_number, 0, offset)
-                elif i == last:
+                    first = i
+                    break
+                if i == last:
                     # This can happen for aids very close to the end of the
                     # text (https://bugs.launchpad.net/bugs/1011330)
                     pos_fid = (chunk.sequence_number, offset - chunk.insert_pos, offset)
-                else:
-                    continue
-                first = i
-                break
+                    first = i
+                    break
             if pos_fid is None:
                 raise ValueError(f'Could not find chunk for aid: {match.group(1)!r}')
             aid_map[match.group(1)] = pos_fid
@@ -517,3 +520,102 @@ class Chunker:
             raise ValueError('The before and after HTML differs. Run a diff tool on the orig and rebuilt directories')
         else:
             self.log('Skeleton HTML before and after is identical.')
+
+
+def find_tests() -> unittest.TestSuite:
+    import random
+    import unittest
+
+    def make_chunker(spans: Iterable[tuple[int, int]], placeholder_map: dict[str, str | None] | None = None) -> Chunker:
+        # Bypass __init__ as it needs a full OEBBook, set_internal_links()
+        # only uses the chunk table and the placeholder map
+        c = Chunker.__new__(Chunker)
+        c.chunk_table = [Chunker.Chunk(insert_pos, f'P-{i}', 0, i, 0, length) for i, (insert_pos, length) in enumerate(spans)]
+        c.placeholder_map = placeholder_map or {}
+        return c
+
+    def make_text(aids: dict[int, str], size: int) -> bytes:
+        # Place a tag with the specified aid at each specified offset
+        ans = bytearray(b'x' * size)
+        for offset, aid in aids.items():
+            tag = f'<p aid="{aid}">'.encode()
+            ans[offset : offset + len(tag)] = tag
+        return bytes(ans)
+
+    def reference_lookup(chunk_table: list[Chunker.Chunk], offset: int) -> tuple[int, int, int]:
+        # Straightforward full scan of the chunk table, used to check the
+        # incremental search in set_internal_links()
+        for i, chunk in enumerate(chunk_table):
+            if chunk.insert_pos <= offset < chunk.insert_pos + chunk.length:
+                return chunk.sequence_number, offset - chunk.insert_pos, offset
+            if chunk.insert_pos > offset:
+                return chunk.sequence_number, 0, offset
+            if i == len(chunk_table) - 1:
+                return chunk.sequence_number, offset - chunk.insert_pos, offset
+        raise ValueError(f'No chunk for offset: {offset}')
+
+    class TestSetInternalLinks(unittest.TestCase):
+        def test_aid_positions(self) -> None:
+            c = make_chunker([(100, 100), (300, 100), (500, 50)])
+            aids = {
+                0: 'A',  # in skeleton before first chunk
+                120: 'B',  # inside first chunk
+                150: 'C',  # inside the same chunk as the previous aid
+                250: 'D',  # in skeleton between chunks
+                300: 'E',  # at the start of a chunk
+                400: 'F',  # at the end (exclusive) of a chunk
+                600: 'G',  # past the last chunk
+                650: 'H',  # past the last chunk again
+            }
+            c.set_internal_links(b'', make_text(aids, 700))
+            self.assertEqual(
+                {k.decode(): v for k, v in c.aid_offset_map.items()},
+                {
+                    'A': (0, 0, 0),
+                    'B': (0, 20, 120),
+                    'C': (0, 50, 150),
+                    'D': (1, 0, 250),
+                    'E': (1, 0, 300),
+                    'F': (2, 0, 400),
+                    'G': (2, 100, 600),
+                    'H': (2, 150, 650),
+                },
+            )
+
+        def test_no_chunks(self) -> None:
+            c = make_chunker([])
+            with self.assertRaises(ValueError):
+                c.set_internal_links(b'', make_text({0: 'A'}, 50))
+
+        def test_links_are_replaced(self) -> None:
+            placeholder = f'kindle:pos:fid:0000:off:{to_href(1)}'
+            unknown = f'kindle:pos:fid:0000:off:{to_href(2)}'
+            c = make_chunker([(0, 100), (100, 100)], {placeholder: 'B'})
+            c.set_internal_links(b'', make_text({10: 'A', 150: 'B'}, 200))
+            text = f'<a href="{placeholder}">x</a><a href="{unknown}">y</a>'.encode()
+            expected = f'<a href="kindle:pos:fid:{to_base(1, min_num_digits=4)}:off:{to_href(50)}">x</a><a href="{unknown}">y</a>'.encode()
+            self.assertEqual(c.set_internal_links(text, make_text({10: 'A', 150: 'B'}, 200)), expected)
+
+        def test_matches_full_scan(self) -> None:
+            rng = random.Random(1011330)
+            for _ in range(200):
+                spans, pos = [], rng.randint(0, 50)
+                for _ in range(rng.randint(1, 10)):
+                    length = rng.randint(1, 60)
+                    spans.append((pos, length))
+                    pos += length + rng.choice((0, 0, rng.randint(1, 50)))
+                size = pos + 100
+                offsets = sorted(rng.sample(range(0, size - 20, 20), rng.randint(1, size // 40)))
+                aids = {offset: to_base(i) for i, offset in enumerate(offsets)}
+                c = make_chunker(spans)
+                c.set_internal_links(b'', make_text(aids, size))
+                expected = {aid: reference_lookup(c.chunk_table, offset) for offset, aid in aids.items()}
+                self.assertEqual({k.decode(): v for k, v in c.aid_offset_map.items()}, expected)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestSetInternalLinks)
+
+
+if __name__ == '__main__':
+    import unittest
+
+    unittest.TextTestRunner(verbosity=2).run(find_tests())
