@@ -45,6 +45,7 @@ class Opts(NamedTuple):
     add_soft_hyphens: bool = False
     remove_soft_hyphens: bool = False
     download_external_resources: bool = False
+    check_and_fix: bool = False
 
 
 class PolishActions(TypedDict, total=False):
@@ -62,6 +63,7 @@ class PolishActions(TypedDict, total=False):
     add_soft_hyphens: bool
     remove_soft_hyphens: bool
     download_external_resources: bool
+    check_and_fix: bool
 
 
 class GuiPolishData(PolishActions, total=False):
@@ -163,6 +165,13 @@ better when the text is justified, in readers that do not support hyphenation.</
 All such resources will be downloaded and added to the book so that the book no longer references any external resources.
 </p>
 '''),
+    'check_and_fix': _('''\
+<p>Check the book for errors and automatically fix all errors that can be fixed automatically.
+This is the same as running <i>Check book</i> in the calibre e-book editor and then
+using <i>Try to fix all fixable errors automatically</i>. The fixers are run only once.
+Errors that cannot be fixed automatically are listed in the report.
+Rules that you have chosen to skip in the <i>Check book</i> tool of the editor are skipped here as well.</p>
+'''),
 }
 
 
@@ -216,6 +225,40 @@ def download_resources(ebook: Container, report: Report) -> bool:
     return changed
 
 
+def check_book_skipped_rules() -> frozenset[str]:
+    # The rules the user has chosen to skip in the Check book tool of the
+    # editor, read directly from the editor preferences to avoid importing GUI
+    # code in the polishing worker
+    from calibre.utils.config import JSONConfig
+
+    return frozenset(JSONConfig('tweak_book_gui').get('check_book_skipped_rules', None) or ())
+
+
+def check_and_fix(ebook: Container, report: Report, skipped_rules: frozenset[str] | None = None) -> bool:
+    from calibre.ebooks.oeb.polish.check.base import WARN
+    from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+
+    if skipped_rules is None:
+        skipped_rules = check_book_skipped_rules()
+    errors = run_checks(ebook, skipped_rules)
+    if not errors:
+        report(_('No errors found'))
+        return False
+    num = len(errors)
+    report(ngettext('Found one error', 'Found {} errors', num).format(num))
+    changed = fix_errors(ebook, errors, skipped_rules)
+    remaining = run_checks(ebook, skipped_rules)
+    fixed = max(0, num - len(remaining))
+    report(ngettext('Fixed one error', 'Fixed {} errors', fixed).format(fixed))
+    if remaining:
+        report(ngettext('One error could not be fixed automatically:', '{} errors could not be fixed automatically:', len(remaining)).format(len(remaining)))
+        for err in remaining:
+            loc = err.name if err.line is None else f'{err.name}:{err.line}'
+            level = _('Error') if err.level > WARN else _('Warning') if err.level == WARN else _('Info')
+            report(f'  [{level}] {loc}: {err.msg}')
+    return changed
+
+
 def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict[str, bool] | None = None) -> bool:
     def rt(x: str) -> object:
         return report('\n### ' + x)
@@ -223,6 +266,15 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()
+
+    # This runs first as it can change the HTML of the book, which the
+    # other actions, such as font subsetting, depend on
+    if opts.check_and_fix:
+        rt(_('Checking book and fixing errors'))
+        if check_and_fix(ebook, report):
+            changed = True
+        report('')
+
     has_subsettable_fonts = False
     for x in iter_subsettable_fonts(ebook):
         has_subsettable_fonts = True
@@ -410,6 +462,7 @@ def option_parser() -> OptionParser:
     o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
     o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
     o('--download-external-resources', '-d', help=CLI_HELP['download_external_resources'])
+    o('--check-and-fix', help=CLI_HELP['check_and_fix'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 

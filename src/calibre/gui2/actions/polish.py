@@ -86,6 +86,7 @@ class Polish(QDialog):  # {{{
             'add_soft_hyphens': _('<h3>Add soft-hyphens</h3>%s') % HELP['add_soft_hyphens'],
             'remove_soft_hyphens': _('<h3>Remove soft-hyphens</h3>%s') % HELP['remove_soft_hyphens'],
             'upgrade_book': _('<h3>Upgrade book internals</h3>%s') % HELP['upgrade_book'],
+            'check_and_fix': _('<h3>Check book and fix errors</h3>%s') % HELP['check_and_fix'],
         }
 
         self.l = l = QGridLayout()
@@ -109,6 +110,7 @@ class Polish(QDialog):  # {{{
             ('add_soft_hyphens', _('Add soft &hyphens')),
             ('remove_soft_hyphens', _('Remove soft h&yphens')),
             ('upgrade_book', _('Up&grade book internals')),
+            ('check_and_fix', _('&Check book and fix errors automatically')),
         ])
         prefs = gprefs.get('polishing_settings', {})
         for name, text in self.all_actions.items():
