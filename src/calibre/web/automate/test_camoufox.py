@@ -1780,9 +1780,24 @@ class TestCamoufoxBrowser(unittest.TestCase):
                     break
                 await asyncio.sleep(0.01)
             self.assertEqual(value, 'xy', 'the keys whose answers were lost never reached the page')
-            # so typing again, into what is there now, works
+            # so typing again, into what is there now, works. What the page
+            # sees is recorded, since replacing the text has been seen to leave
+            # the keys given up on in front of the new text on a slow CI machine,
+            # even though they had already landed, for reasons not yet known.
+            await page.evaluate('''(() => {
+                window.__seen = [];
+                const field = document.getElementById("text");
+                const note = (e) => window.__seen.push([
+                    e.type, e.key ?? e.inputType ?? '', e.ctrlKey ?? '', field.value, field.selectionStart, field.selectionEnd,
+                    document.activeElement?.id ?? '', document.hasFocus()]);
+                for (const type of ['keydown', 'keyup', 'keypress', 'input', 'mousedown', 'mouseup', 'focus', 'blur', 'select'])
+                    window.addEventListener(type, note, true);
+            })()''')
             await page.fill('#text', 'typed again')
-            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'typed again')
+            value = await page.evaluate('document.getElementById("text").value')
+            if value != 'typed again':
+                seen = '\n'.join(map(repr, await page.evaluate('window.__seen')))
+                self.fail(f'Typing again produced {value!r} instead of {"typed again"!r}. The page saw:\n{seen}')
 
         self.run_shared(check)
 
