@@ -1917,6 +1917,33 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 await page.fill('#text', 'corrected', mistakes=1.0)
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'corrected')
 
+            # A modifier the browser lets go of before the key it modifies
+            # turns select all into a plain key that is typed, which is noticed
+            # and select all pressed again, so the text is still replaced
+            keyboard = page.keyboard
+            press = keyboard.press
+            dropped: list[str] = []
+
+            async def press_dropping_modifier(key: str, *, delay: float | None = None, count: int = 1) -> None:
+                if key == camoufox.SELECT_ALL_CHORD and not dropped:
+                    dropped.append(key)
+                    key = SELECT_ALL_KEY
+                await press(key, delay=delay, count=count)
+
+            with patch.object(keyboard, 'press', press_dropping_modifier):
+                await page.fill('#text', 'replaced')
+            self.assertEqual(dropped, [camoufox.SELECT_ALL_CHORD])
+            self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'replaced')
+
+            # and one that never selects anything fails rather than leaving the
+            # old text in front of the new
+            async def press_always_dropping_modifier(key: str, *, delay: float | None = None, count: int = 1) -> None:
+                await press(SELECT_ALL_KEY if key == camoufox.SELECT_ALL_CHORD else key, delay=delay, count=count)
+
+            with patch.object(keyboard, 'press', press_always_dropping_modifier):
+                with self.assertRaisesRegex(camoufox.Error, 'did not select everything'):
+                    await page.fill('#text', 'never')
+
         self.run_shared(check)
 
     def test_typing_text_that_is_not_on_the_keyboard(self) -> None:

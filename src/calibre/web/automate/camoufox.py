@@ -1508,6 +1508,14 @@ FOCUSED_IS_EDITABLE_JS = '''() => {
     return !node.disabled && !node.readOnly && !uneditable.includes(kind);
 }'''
 
+# Whether everything a form field holds is selected, so that deleting the
+# selection empties it, see Element.fill(). Only a text field reports where its
+# selection lies precisely enough to tell, so anything else is taken on trust.
+SELECTS_ALL_JS = '''(node) => {
+    if (typeof node.value !== 'string' || typeof node.selectionStart !== 'number') return true;
+    return node.selectionStart === 0 && node.selectionEnd === node.value.length;
+}'''
+
 # Scripts run behind Xray wrappers, which forbid reading the contents of a typed
 # array, so the bytes are turned into base64 by the browser itself rather than by
 # walking a Uint8Array. It has to be an async function because the promise
@@ -2072,6 +2080,8 @@ MODIFIER_KEY_NAMES = ('Shift', 'Control', 'Alt', 'Meta')
 # depends on the machine the browser actually runs on, not on the operating
 # system its fingerprint claims, since the key handling is the real one.
 SELECT_ALL_CHORD = 'meta+a' if ismacos else 'control+a'
+# How many times select all is pressed before replacing text gives up
+SELECT_ALL_ATTEMPTS = 3
 
 DEFAULT_TYPING_WPM = 55.0  # words per minute, a moderately quick typist who is not a professional one
 CHARS_PER_WORD = 5.0  # the conventional definition of a word when measuring typing speed
@@ -2775,7 +2785,8 @@ class Element:
         accelerator and deleted rather than being assigned from JavaScript, so
         that a page which watches for key and input events, as anything built
         on a JavaScript framework does, sees what it is expecting. Pass an empty
-        string to only clear it.
+        string to only clear it. Raises :class:`Error` if what is in a text
+        field cannot be selected, rather than typing in front of it.
         """
         self.page.check_accepts_input()
         if click:
@@ -2783,7 +2794,17 @@ class Element:
         else:
             await self.focus()
         keyboard = self.page.keyboard
-        await keyboard.press(SELECT_ALL_CHORD)
+        # A modifier the browser lets go of early, which has been seen to
+        # happen on a heavily loaded machine, turns the chord into a plain key
+        # that is typed rather than selecting anything, so check that
+        # everything was selected and try again, as a hand would, if it was not
+        for attempt in range(SELECT_ALL_ATTEMPTS):
+            await keyboard.press(SELECT_ALL_CHORD)
+            if await self.call(SELECTS_ALL_JS):
+                break
+            debug(f'Pressing {SELECT_ALL_CHORD} did not select everything in {self!r} on attempt {attempt + 1}')
+        else:
+            raise Error(f'Pressing {SELECT_ALL_CHORD} {SELECT_ALL_ATTEMPTS} times did not select everything in {self!r}, so its contents cannot be replaced')
         await keyboard.press('Backspace')
         await keyboard.type(text, wpm=wpm, delay=delay, human=human, mistakes=mistakes)
 
