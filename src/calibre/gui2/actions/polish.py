@@ -322,7 +322,7 @@ class Polish(QDialog):  # {{{
 
         nums = num
         if hasattr(self, 'pd'):
-            nums = self.pd.max - num
+            nums = self.pd.max - num + 1
 
         desc = ngettext(
             _('Polish %s') % mi.title,
