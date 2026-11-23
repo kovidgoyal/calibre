@@ -143,6 +143,10 @@ created from production templates can have a large number of extra CSS rules
 that don't match any actual content. These extra rules can slow down readers
 that need to parse them all.</p>
 '''),
+    'remove_unused_images': _('''\
+<p>Remove all images that are not referenced by any HTML file in the book or by any
+stylesheet used by those files.</p>
+'''),
     'compress_images': _('''\
 <p>Losslessly compress images in the book, to reduce the filesize, without
 affecting image quality.</p>
@@ -405,6 +409,7 @@ def option_parser() -> OptionParser:
     o('--remove-jacket', help=CLI_HELP['remove_jacket'])
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
     o('--remove-unused-css', '-u', help=CLI_HELP['remove_unused_css'])
+    o('--remove-unused-images', help=CLI_HELP['remove_unused_images'])
     o('--compress-images', '-i', help=CLI_HELP['compress_images'])
     o('--add-soft-hyphens', '-H', help=CLI_HELP['add_soft_hyphens'])
     o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
