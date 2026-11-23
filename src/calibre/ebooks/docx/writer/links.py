@@ -89,6 +89,10 @@ class LinksManager:
         self.document_hrefs: set[str] = set()
         self.external_links: dict[str, str] = {}
         self.toc: list[TOCItem] = []
+        # Anchors that are not output in the body, for example, the contents of notes
+        self.skipped_anchors: set[tuple[str, str]] = set()
+        # Files that produced no output, for example, ones containing only notes
+        self.empty_hrefs: set[str] = set()
 
     def bookmark_for_anchor(self, anchor: str, current_item: Manifest.Item, html_tag: etree._Element) -> str:
         key = (current_item.href, anchor)
@@ -99,12 +103,15 @@ class LinksManager:
             self.document_hrefs.add(current_item.href)
         else:
             name = start_text(html_tag).strip() or anchor
-        name = sanitize_bookmark_name(name)
+        name = self.unique_bookmark_name(sanitize_bookmark_name(name))
+        self.anchor_map[key] = name
+        return name
+
+    def unique_bookmark_name(self, name: str) -> str:
         i, bname = 0, name
         while name in self.used_bookmark_names:
             i += 1
             name = bname + f'_{i}'
-        self.anchor_map[key] = name
         self.used_bookmark_names.add(name)
         return name
 
@@ -177,7 +184,10 @@ class LinksManager:
                     bmark = self.anchor_map[key]
                 else:
                     bmark = self.anchor_map[(href, self.top_anchor)]
-                self.toc.append(TOCItem(toc.title, bmark, level))
+                if key in self.skipped_anchors or (key not in self.anchor_map and href in self.empty_hrefs):
+                    self.log.debug(f'Removing Table of Contents entry pointing to removed content: {toc.title}')
+                else:
+                    self.toc.append(TOCItem(toc.title, bmark, level))
         for child in toc:
             self.process_toc_node(child, level + 1)
 

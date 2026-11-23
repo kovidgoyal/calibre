@@ -12,6 +12,7 @@ from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.ebooks.docx.writer.lists import ListsManager
+from calibre.ebooks.docx.writer.notes import NotesManager
 from calibre.ebooks.docx.writer.styles import FloatSpec, StylesManager
 from calibre.ebooks.docx.writer.tables import Table
 from calibre.ebooks.oeb.base import XPath, barename
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from calibre.ebooks.docx.writer.container import DOCX
     from calibre.ebooks.docx.writer.images import Image
     from calibre.ebooks.docx.writer.links import Link
+    from calibre.ebooks.docx.writer.notes import Note, NotesType
     from calibre.ebooks.docx.writer.styles import CombinedStyle, DescendantTextStyle, TextStyle
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.oeb.base import Manifest, OEBBook
@@ -88,6 +90,9 @@ class TextRun:
         self.parent_style: TextStyle | None = None
         self.makeelement = namespace.makeelement
         self.descendant_style: DescendantTextStyle | None = None
+
+    # Whether text, breaks and images can be appended to this run
+    accepts_content = True
 
     def add_text(self, text: str, preserve_whitespace: bool, bookmark: str | None = None, link: Link | None = None) -> None:
         if not preserve_whitespace:
@@ -184,6 +189,57 @@ class TextRun:
         return ans
 
 
+class NoteReferenceRun(TextRun):
+    """
+    A reference to a footnote/endnote. The first reference to a note is a
+    native note reference, subsequent references are NOTEREF fields that
+    display the number of the note.
+    """
+
+    def __init__(
+        self,
+        namespace: DOCXNamespace,
+        style: TextStyle,
+        first_html_parent: _Element,
+        note: Note,
+        notes_type: NotesType,
+        is_first_reference: bool,
+        bookmark: str | None = None,
+    ) -> None:
+        super().__init__(namespace, style, first_html_parent)
+        self.note, self.notes_type, self.is_first_reference, self.bookmark = note, notes_type, is_first_reference, bookmark
+
+    accepts_content = False
+
+    def serialize(self, p: _Element, links_manager: LinksManager, parent: _Element | None = None) -> None:
+        makeelement = self.makeelement
+        parent = p if parent is None else parent
+        bookmarks = [b for b in (self.bookmark, self.note.ref_bookmark if self.is_first_reference else None) if b]
+        bids = []
+        for b in bookmarks:
+            bids.append(str(links_manager.bookmark_id))
+            makeelement(parent, 'w:bookmarkStart', w_id=bids[-1], w_name=b)
+        if self.is_first_reference:
+            r = makeelement(parent, 'w:r')
+        else:
+            fld = makeelement(parent, 'w:fldSimple', w_instr=f' NOTEREF {self.note.ref_bookmark} \\f \\h ')
+            r = makeelement(fld, 'w:r')
+        makeelement(makeelement(r, 'w:rPr'), 'w:rStyle', w_val=note_reference_style_id(self.notes_type))
+        if self.is_first_reference:
+            makeelement(r, 'w:footnoteReference' if self.notes_type == 'footnotes' else 'w:endnoteReference', w_id=str(self.note.number))
+        else:
+            makeelement(r, 'w:t').text = str(self.note.number)
+        for bid in bids:
+            makeelement(parent, 'w:bookmarkEnd', w_id=bid)
+
+    def is_empty(self) -> bool:
+        return False
+
+
+def note_reference_style_id(notes_type: NotesType) -> str:
+    return 'FootnoteReference' if notes_type == 'footnotes' else 'EndnoteReference'
+
+
 class Block:
     def __init__(
         self,
@@ -246,7 +302,7 @@ class Block:
         preserve_whitespace = ws in {'pre', 'pre-wrap', '-o-pre-wrap'}
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         # Each source anchor has its own link tuple, even when its destination and tooltip match another anchor.
-        if self.runs and ts == self.runs[-1].style and link is self.runs[-1].link and lang == self.runs[-1].lang:
+        if self.runs and self.runs[-1].accepts_content and ts == self.runs[-1].style and link is self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
@@ -262,12 +318,16 @@ class Block:
             run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
 
     def add_break(self, clear: str = 'none', bookmark: str | None = None) -> None:
-        if self.runs:
+        if self.runs and self.runs[-1].accepts_content:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
         run.add_break(clear=clear, bookmark=bookmark)
+
+    def add_note_reference(self, style: St, note: Note, notes_type: NotesType, is_first_reference: bool, bookmark: str | None = None) -> None:
+        ts = self.styles_manager.create_text_style(style)
+        self.runs.append(NoteReferenceRun(self.namespace, ts, self.html_block, note, notes_type, is_first_reference, bookmark=bookmark))
 
     def add_image(self, drawing: _Element, bookmark: str | None = None, link: Link | None = None, floating: bool = False) -> None:
         drawing_link = None
@@ -283,7 +343,7 @@ class Block:
                 pos -= 1
         else:
             pos = len(self.runs)
-        if pos > 0 and link is self.runs[pos - 1].link:
+        if pos > 0 and self.runs[pos - 1].accepts_content and link is self.runs[pos - 1].link:
             run = self.runs[pos - 1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
@@ -536,10 +596,22 @@ class Convert:
         self.blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)
         self.current_link: Link | None = None
         self.current_lang: str | None = None
+        self.notes_manager: NotesManager | None = None
+        self.note_blocks: dict[Note, Blocks] = {}
+        self.referenced_notes: set[Note] = set()
+        self.rendering_note: _Element | None = None
+        notes_type = self.opts.docx_notes
+        if notes_type in ('footnotes', 'endnotes'):
+            nm = NotesManager(self.oeb, notes_type, self.svg_rasterizer.stylizer, self.log)
+            if nm():
+                self.notes_manager = nm
+                self.links_manager.skipped_anchors = nm.skipped_anchors()
 
         for item in self.oeb.spine:
             self.log.debug('Processing', item.href)
             self.process_item(item)
+        if self.notes_manager is not None:
+            self.render_notes(self.notes_manager)
         if self.add_toc:
             self.links_manager.process_toc_links(self.oeb)
 
@@ -563,6 +635,10 @@ class Convert:
         self.blocks.all_blocks[0].is_first_block = True
         self.blocks.apply_page_break_after()
         self.blocks.resolve_language()
+        all_blocks = list(all_blocks)
+        for blocks in self.note_blocks.values():
+            blocks.resolve_language()
+            all_blocks.extend(blocks.all_blocks)
 
         if self.cover_img is not None:
             # cover_img is the Image from read_image() at this point
@@ -584,10 +660,13 @@ class Convert:
         root = item.data
         assert isinstance(root, etree._Element)  # spine items are parsed HTML
         self.current_lang = lang_for_tag(root) or self.styles_manager.document_lang
+        num_blocks = len(self.blocks.all_blocks)
         for i, body in enumerate(XPath('//h:body')(root)):
             with self.blocks:
                 self.blocks.top_bookmark = self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
+        if len(self.blocks.all_blocks) == num_blocks:
+            self.links_manager.empty_hrefs.add(item.href)
 
     def process_tag(self, html_tag: _Element, stylizer: Sz, is_first_tag: bool = False, float_spec: FloatSpec | None = None) -> None:
         html_tag_name = html_tag.tag
@@ -597,6 +676,16 @@ class Convert:
         ignore_tag_contents = tagname in {'script', 'style', 'title', 'meta'} or tag_style.is_hidden
         display = cast('str', tag_style._get('display'))  # the display default is a str
         is_block = False
+        if (nm := self.notes_manager) is not None:
+            if html_tag is self.rendering_note:
+                if display == 'list-item':
+                    display = 'block'  # Word numbers the notes, so dont output the list number
+            elif html_tag in nm.skipped_elements:
+                ignore_tag_contents = True
+                is_block = display not in ('inline', 'inline-block')
+            elif self.rendering_note is None and (note := nm.note_for_ref.get(html_tag)) is not None:
+                ignore_tag_contents = True
+                self.add_note_reference(html_tag, note, nm.notes_type, stylizer)
 
         if not ignore_tag_contents:
             previous_link = self.current_link
@@ -747,6 +836,110 @@ class Convert:
     def bookmark_for_anchor(self, anchor: str, html_tag: _Element) -> str:
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)
 
+    def add_note_reference(self, html_tag: _Element, note: Note, notes_type: NotesType, stylizer: Sz) -> None:
+        is_first_reference = note not in self.referenced_notes
+        if is_first_reference:
+            self.referenced_notes.add(note)
+            note.ref_bookmark = self.links_manager.unique_bookmark_name(f'_RefNote{note.number}')
+        anchor = html_tag.get('id') or html_tag.get('name')
+        bmark = self.bookmark_for_anchor(anchor, html_tag) if anchor else None
+        parent = html_tag.getparent()
+        assert parent is not None  # all processed tags are inside <body>
+        block = self.create_block_from_parent(html_tag, stylizer)
+        block.add_note_reference(stylizer.style(parent), note, notes_type, is_first_reference, bookmark=bmark)
+
+    def render_notes(self, nm: NotesManager) -> None:
+        body_blocks = self.blocks
+        for note in nm.notes:
+            item = note.item
+            self.current_item = item
+            stylizer = self.svg_rasterizer.stylizer(item)
+            self.abshref = self.images_manager.abshref = item.abshref  # ty: ignore[invalid-assignment]  # instance attribute shadows the default method
+            self.current_lang = None
+            for x in note.container.iterancestors():
+                if lang := lang_for_tag(x):
+                    self.current_lang = lang
+                    break
+            self.current_lang = self.current_lang or self.styles_manager.document_lang
+            self.current_link = None
+            if note not in self.referenced_notes:
+                # Should never happen as references are only converted if
+                # they are output, but make sure no text is lost if it does.
+                self.log.warn(f'The note at {item.href} was never referenced, adding it to the end of the document')
+                self.rendering_note = note.container
+                with body_blocks:
+                    self.process_tag(note.container, stylizer, is_first_tag=True)
+                self.rendering_note = None
+                continue
+            self.blocks = blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)
+            self.rendering_note = note.container
+            try:
+                with blocks:
+                    self.process_tag(note.container, stylizer, is_first_tag=True)
+            finally:
+                self.rendering_note = None
+                self.blocks = body_blocks
+            # Remove the empty blocks left behind by removing the links back
+            # to the note reference and by wrapper tags.
+            for i in range(len(blocks.all_blocks) - 1, -1, -1):
+                if len(blocks.all_blocks) > 1 and blocks.all_blocks[i].is_empty():
+                    blocks.delete_block_at(i)
+            for b in blocks.all_blocks:
+                b.page_break_before = b.page_break_after = False
+            self.note_blocks[note] = blocks
+
+    def serialize_notes(self, nm: NotesManager) -> None:
+        namespace = self.docx.namespace
+        makeelement = namespace.makeelement
+        tag = 'w:footnote' if nm.notes_type == 'footnotes' else 'w:endnote'
+        root = etree.Element(namespace.expand(f'w:{nm.notes_type}'), nsmap=self.docx.document.nsmap)
+        for nid, sep in (('-1', 'separator'), ('0', 'continuationSeparator')):
+            p = makeelement(makeelement(root, tag, w_type=sep, w_id=nid), 'w:p')
+            makeelement(makeelement(p, 'w:pPr'), 'w:spacing', w_after='0', w_line='240', w_lineRule='auto')
+            makeelement(makeelement(p, 'w:r'), f'w:{sep}')
+        style_id = note_reference_style_id(nm.notes_type)
+        for note in nm.notes:
+            blocks = self.note_blocks.get(note)
+            if blocks is None:
+                continue
+            ne = makeelement(root, tag, w_id=str(note.number))
+            blocks.serialize(ne)
+            if len(ne) and ne[0].tag == namespace.expand('w:p'):
+                p = ne[0]
+            else:
+                p = makeelement(ne, 'w:p', append=False)
+                ne.insert(0, p)
+            ppr = p.find(namespace.expand('w:pPr'))
+            pos = 0 if ppr is None else p.index(ppr) + 1
+            r = makeelement(p, 'w:r', append=False)
+            makeelement(makeelement(r, 'w:rPr'), 'w:rStyle', w_val=style_id)
+            makeelement(r, 'w:footnoteRef' if nm.notes_type == 'footnotes' else 'w:endnoteRef')
+            space = makeelement(p, 'w:r', append=False)
+            t = makeelement(space, 'w:t')
+            t.text = ' '
+            t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            p.insert(pos, r)
+            p.insert(pos + 1, space)
+        self.docx.notes = nm.notes_type, root
+        rtype = namespace.names['FOOTNOTES' if nm.notes_type == 'footnotes' else 'ENDNOTES']
+        self.docx.document_relationships.add_relationship(f'{nm.notes_type}.xml', rtype)
+
+        # The note reference character style
+        styles = self.docx.styles
+        s = makeelement(styles, 'w:style', w_type='character', w_styleId=style_id)
+        makeelement(s, 'w:name', w_val='footnote reference' if nm.notes_type == 'footnotes' else 'endnote reference')
+        makeelement(s, 'w:uiPriority', w_val='99')
+        makeelement(s, 'w:unhideWhenUsed')
+        makeelement(makeelement(s, 'w:rPr'), 'w:vertAlign', w_val='superscript')
+
+        if nm.notes_type == 'endnotes':
+            # Word defaults to lower case roman numerals for endnotes
+            sect_pr = self.docx.document.find(f'.//{namespace.expand("w:sectPr")}')
+            if sect_pr is not None:
+                endnote_pr = makeelement(sect_pr, 'w:endnotePr', append=False)
+                makeelement(endnote_pr, 'w:numFmt', w_val='decimal')
+                sect_pr.insert(0, endnote_pr)
+
     def write(self) -> None:
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
         self.blocks.serialize(body)
@@ -759,3 +952,5 @@ class Convert:
         self.images_manager.serialize(self.docx.images)
         self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts, self.docx.fonts)
         self.lists_manager.serialize(self.docx.numbering)
+        if self.notes_manager is not None:
+            self.serialize_notes(self.notes_manager)

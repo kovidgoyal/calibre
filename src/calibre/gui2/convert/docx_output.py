@@ -1,6 +1,6 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QLineEdit, QSizePolicy
+from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QFormLayout, QLineEdit, QSizePolicy, QWidget
 
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
@@ -20,11 +20,25 @@ class PluginWidget(Widget):
         Widget.__init__(self, parent, OPTIONS['output']['docx'])
         for x in get_option('docx_page_size').option.choices:
             self.opt_docx_page_size.addItem(x)
+        for x, text in (('footnotes', _('Footnotes')), ('endnotes', _('Endnotes')), ('links', _('Hyperlinks to the notes text'))):
+            self.opt_docx_notes.addItem(text, x)
 
         self.initialize_options(get_option, get_help, db, book_id)
         lay = self.layout()
         assert isinstance(lay, QFormLayout)
         lay.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+
+    def get_value_handler(self, g: QWidget) -> str:
+        if g is self.opt_docx_notes:
+            return str(self.opt_docx_notes.currentData() or 'footnotes')
+        return Widget.get_value_handler(self, g)
+
+    def set_value_handler(self, g: QWidget, val: str | None) -> bool:
+        if g is self.opt_docx_notes:
+            idx = self.opt_docx_notes.findData(val or 'footnotes')
+            self.opt_docx_notes.setCurrentIndex(max(0, idx))
+            return True
+        return Widget.set_value_handler(self, g, val)
 
     def setupUi(self, *a) -> None:
         self.l = l = QFormLayout(self)
@@ -44,6 +58,8 @@ class PluginWidget(Widget):
             w.setRange(-100, 500), w.setSuffix(' pt'), w.setDecimals(1)
             setattr(self, 'opt_docx_page_margin_' + m, w)
             l.addRow(text + ':', w)
+        self.opt_docx_notes = QComboBox(self)
+        l.addRow(_('Output foot/end&notes as:'), self.opt_docx_notes)
         self.opt_docx_no_toc = QCheckBox(_('Do not insert the &Table of Contents as a page at the start of the document'))
         l.addRow(self.opt_docx_no_toc)
         self.opt_docx_no_cover = QCheckBox(_('Do not insert &cover as image at start of document'))

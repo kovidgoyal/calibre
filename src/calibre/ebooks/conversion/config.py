@@ -337,6 +337,7 @@ OPTIONS = {
             'docx_custom_page_size',
             'docx_no_cover',
             'docx_no_toc',
+            'docx_notes',
             'docx_page_margin_left',
             'docx_page_margin_top',
             'docx_page_margin_right',

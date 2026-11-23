@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.base import OEBBook
     from calibre.utils.logging import Log
 
+NOTES_TYPES = ['footnotes', 'endnotes', 'links']
 PAGE_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']
 
 
@@ -20,7 +21,7 @@ class DOCXOutput(OutputFormatPlugin):
     author = 'Kovid Goyal'
     file_type = 'docx'
     commit_name = 'docx_output'
-    ui_data = {'page_sizes': PAGE_SIZES}
+    ui_data = {'page_sizes': PAGE_SIZES, 'notes_types': NOTES_TYPES}
 
     options = {
         OptionRecommendation(
@@ -53,6 +54,18 @@ class DOCXOutput(OutputFormatPlugin):
             name='docx_no_toc',
             recommended_value=False,
             help=_('Do not insert the table of contents as a page at the start of the document.'),
+        ),
+        OptionRecommendation(
+            name='docx_notes',
+            recommended_value='footnotes',
+            level=OptionRecommendation.LOW,
+            choices=NOTES_TYPES,
+            help=_(
+                'How to output footnotes and endnotes. With {0} they are converted into native Word footnotes,'
+                ' with {1} into native Word endnotes and with {2} they are left as hyperlinks to the notes text.'
+                ' Notes are detected using semantic markup, if present, or else superscripted links'
+                ' whose destination links back to them. Default is {0}.'
+            ).format('footnotes', 'endnotes', 'links'),
         ),
         OptionRecommendation(
             name='extract_to',
