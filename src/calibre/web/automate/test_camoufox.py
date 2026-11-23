@@ -1769,6 +1769,17 @@ class TestCamoufoxBrowser(unittest.TestCase):
             self.assertIn('still runs JavaScript', str(ctx.exception))
             self.assertFalse(page.input_wedged)
             self.assertFalse(page.keyboard.pressed, 'a key the page may never have seen released is still held down')
+            # The keys given up on still reached the browser and may be
+            # dispatched to the page at any time from now on, so wait for them
+            # to land before replacing the text, lest they arrive after it has
+            # been cleared and end up in front of the new text
+            deadline = time.monotonic() + 30
+            for _ in itertools.count():
+                value = await page.evaluate('document.getElementById("text").value')
+                if value == 'xy' or time.monotonic() > deadline:
+                    break
+                await asyncio.sleep(0.01)
+            self.assertEqual(value, 'xy', 'the keys whose answers were lost never reached the page')
             # so typing again, into what is there now, works
             await page.fill('#text', 'typed again')
             self.assertEqual(await page.evaluate('document.getElementById("text").value'), 'typed again')
