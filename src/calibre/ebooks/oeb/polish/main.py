@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens, remove_soft_hyphens
 from calibre.ebooks.oeb.polish.images import compress_images, remove_unused_images
 from calibre.ebooks.oeb.polish.jacket import add_or_replace_jacket, find_existing_jacket, remove_jacket, replace_jacket
+from calibre.ebooks.oeb.polish.pretty import fix_all_html
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_fonts
@@ -45,6 +46,7 @@ class Opts(NamedTuple):
     add_soft_hyphens: bool = False
     remove_soft_hyphens: bool = False
     download_external_resources: bool = False
+    fix_html: bool = False
 
 
 class PolishActions(TypedDict, total=False):
@@ -62,6 +64,7 @@ class PolishActions(TypedDict, total=False):
     add_soft_hyphens: bool
     remove_soft_hyphens: bool
     download_external_resources: bool
+    fix_html: bool
 
 
 class GuiPolishData(PolishActions, total=False):
@@ -163,6 +166,11 @@ better when the text is justified, in readers that do not support hyphenation.</
 All such resources will be downloaded and added to the book so that the book no longer references any external resources.
 </p>
 '''),
+    'fix_html': _('''\
+<p>Fix any errors in the HTML markup of all HTML files in the book, such as unclosed tags.
+Fixing is done using the HTML5 parsing algorithm, in the same way that web browsers
+handle broken HTML. This is the same as the <i>Fix HTML - all files</i> tool in the calibre e-book editor.</p>
+'''),
 }
 
 
@@ -223,6 +231,15 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()
+
+    # This runs first as it can change the HTML of the book, which the
+    # other actions, such as font subsetting, depend on
+    if opts.fix_html:
+        changed = True
+        rt(_('Fixing HTML'))
+        fix_all_html(ebook)
+        report(_('All HTML files fixed\n'))
+
     has_subsettable_fonts = False
     for x in iter_subsettable_fonts(ebook):
         has_subsettable_fonts = True
@@ -410,6 +427,7 @@ def option_parser() -> OptionParser:
     o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
     o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
     o('--download-external-resources', '-d', help=CLI_HELP['download_external_resources'])
+    o('--fix-html', help=CLI_HELP['fix_html'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
