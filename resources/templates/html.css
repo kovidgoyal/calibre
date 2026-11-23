@@ -128,6 +128,41 @@ pre {
   margin: 1em 0;
 }
 
+/* HTML 5 elements, see https://html.spec.whatwg.org/multipage/rendering.html */
+
+article, aside, nav, section, header, footer, main, hgroup, search,
+figcaption, details, summary, dialog, legend {
+  display: block;
+}
+
+figure {
+  display: block;
+  margin: 1em 40px;
+}
+
+listing, plaintext, xmp {
+  display: block;
+  font-family: monospace;
+  white-space: pre-wrap;
+  margin: 1em 0;
+}
+
+fieldset {
+  display: block;
+  margin: 0 2px;
+  border: 2px groove;
+  padding: 0.35em 0.75em 0.625em;
+}
+
+legend {
+  padding: 0 2px;
+}
+
+mark {
+  background-color: yellow;
+  color: black;
+}
+
 /* tables */
 
 table {
@@ -388,7 +423,11 @@ spacer {
 
 /* hidden elements */
 area, base, basefont, head, meta, script, style, title,
-noembed, param, link {
+noembed, param, link, datalist, template {
+   display: none;
+}
+
+[hidden], dialog:not([open]), audio:not([controls]) {
    display: none;
 }
 
