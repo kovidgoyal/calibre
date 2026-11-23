@@ -134,6 +134,7 @@ def make_filename_safe(name: str) -> str:
 
 class EscapedName(BaseError):
     level = WARN
+    renames_file = True
 
     def __init__(self, name: str) -> None:
         BaseError.__init__(self, _('Filename contains unsafe characters'), name)

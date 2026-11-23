@@ -42,6 +42,10 @@ class BaseError:
     # implement fix_batch() so that many errors can be fixed in a single pass
     has_batch_fix = False
 
+    # Error types whose fix renames a file set this to True. They are fixed
+    # after all other errors, as the other errors refer to files by name.
+    renames_file = False
+
     if TYPE_CHECKING:
         # Errors that have INDIVIDUAL_FIX set implement this to fix the error,
         # returning False if nothing was changed

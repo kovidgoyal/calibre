@@ -209,13 +209,19 @@ def fix_errors(container: Container, errors: Sequence[BaseError], skipped_rules:
             if type(err).has_batch_fix:
                 batches.setdefault(type(err), []).append(err)
             fixable.append(err)
+    # Fixes that rename files run last, as other errors refer to files by
+    # their current names. The sort is stable, preserving the order otherwise.
+    fixable.sort(key=lambda e: type(e).renames_file)
     # Correcting the case of links first ensures that subsequent fixes, such as
     # renaming ids or files, update those links as well. It cannot harm any
     # other fix as it only changes links that do not point to any file.
     case_mismatches = [e for e in batches.pop(CaseMismatch, ()) if isinstance(e, CaseMismatch)]
     if case_mismatches and CaseMismatch.fix_batch(container, case_mismatches):
         changed = True
+    existing_names = set(container.name_path_map)
     for err in fixable:
+        if err.name in existing_names and not container.exists(err.name):
+            continue  # the file was removed or renamed by a previous fix
         if (batch := batches.pop(type(err), None)) is not None:
             if type(err).fix_batch(container, batch):
                 changed = True

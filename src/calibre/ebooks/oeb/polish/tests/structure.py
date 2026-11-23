@@ -736,6 +736,24 @@ class Structure(BaseTest):
             self.assertIn('c.html#id3x', batched.parsed('b.html').xpath('//*[local-name()="a"]/@href'))
             self.assertFalse(fix_errors(batched, order(initial)))
 
+    def test_fix_errors_with_renamed_files(self) -> None:
+        "Fixes that rename files must not break other fixes for the same files"
+        from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+
+        def html(body: str) -> str:
+            return f'<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body>{body}</body></html>'
+
+        # .html files get the text/html MIME type, which is a MimetypeMismatch
+        # in EPUB, whose fix renames the file
+        c = self.create_epub([cmi('a.html', html('<p id="1x">a</p><a href="#1x">l</a><a href="B.html">c</a>')), cmi('b.html', html('<p>b</p>'))], ver=2)
+        errors = run_checks(c)
+        self.assertTrue(any(type(e).renames_file for e in errors))
+        self.assertTrue(fix_errors(c, errors))
+        self.assertEqual([str(e) for e in run_checks(c)], [])
+        self.assertEqual(sorted(n for n in c.mime_map if n.endswith('html')), ['a.xhtml', 'b.xhtml'])
+        a = c.parsed('a.xhtml')
+        self.assertEqual(a.xpath('//*[local-name()="a"]/@href'), ['#id1x', 'b.xhtml'])
+
     def test_dangling_id_reference(self) -> None:
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference, check_ids
