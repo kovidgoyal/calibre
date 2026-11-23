@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens, remove_soft_hyphens
 from calibre.ebooks.oeb.polish.images import compress_images, remove_unused_images
 from calibre.ebooks.oeb.polish.jacket import add_or_replace_jacket, find_existing_jacket, remove_jacket, replace_jacket
+from calibre.ebooks.oeb.polish.pretty import pretty_all
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_fonts
@@ -45,6 +46,7 @@ class Opts(NamedTuple):
     add_soft_hyphens: bool = False
     remove_soft_hyphens: bool = False
     download_external_resources: bool = False
+    beautify: bool = False
 
 
 class PolishActions(TypedDict, total=False):
@@ -62,6 +64,7 @@ class PolishActions(TypedDict, total=False):
     add_soft_hyphens: bool
     remove_soft_hyphens: bool
     download_external_resources: bool
+    beautify: bool
 
 
 class GuiPolishData(PolishActions, total=False):
@@ -162,6 +165,12 @@ better when the text is justified, in readers that do not support hyphenation.</
 <p>Download external resources such as images, stylesheets, etc. that point to URLs instead of files in the book.
 All such resources will be downloaded and added to the book so that the book no longer references any external resources.
 </p>
+'''),
+    'beautify': _('''\
+<p>Beautify (pretty print) all HTML, CSS and XML files in the book, making them easier to read
+and edit. This is the same as the <i>Beautify all files</i> tool in the calibre e-book editor.</p>
+<p>Note that this re-formats the code of the book, so it changes the internal code of
+the book more than the other actions.</p>
 '''),
 }
 
@@ -341,6 +350,13 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
             report(traceback.format_exc())
         report('')
 
+    # This runs last so that it formats the output of all the other actions
+    if opts.beautify:
+        changed = True
+        rt(_('Beautifying all files'))
+        pretty_all(ebook)
+        report(_('All files beautified\n'))
+
     return changed
 
 
@@ -410,6 +426,7 @@ def option_parser() -> OptionParser:
     o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
     o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
     o('--download-external-resources', '-d', help=CLI_HELP['download_external_resources'])
+    o('--beautify', help=CLI_HELP['beautify'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
