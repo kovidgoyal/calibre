@@ -14,7 +14,6 @@ from typing import IO, TYPE_CHECKING, Any, NotRequired, TypedDict, cast
 
 from calibre import CurrentDir, __appname__, guess_type, prints
 from calibre.constants import isbsd, islinux
-from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
@@ -664,7 +663,7 @@ def get_bash_completion_path(root: str, share: str, info: Callable[..., object])
 
 
 def write_completion(self: PostInstall, bash_comp_dest: str, zsh: ZshCompleter) -> None:
-    from calibre.customize.ui import available_input_formats
+    from calibre.customize.ui import all_input_formats, available_input_formats
     from calibre.debug import option_parser as debug_op
     from calibre.ebooks import BOOK_EXTENSIONS
     from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
@@ -1001,6 +1000,7 @@ class PostInstall:
                 self.install_xdg_junk(cc, env)
 
     def install_xdg_junk(self, cc: Callable[..., int], env: dict[str, str]) -> None:
+        from calibre.customize.ui import all_input_formats
 
         def install_single_icon(iconsrc: str, basename: str, size: int, context: str, is_last_icon: bool = False) -> None:
             filename = f'{basename}-{size}.png'

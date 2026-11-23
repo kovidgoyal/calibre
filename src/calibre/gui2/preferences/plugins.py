@@ -4,17 +4,20 @@
 import os
 import textwrap
 from collections import OrderedDict
+from itertools import chain
 
 from qt.core import QAbstractItemModel, QAbstractItemView, QBrush, QDialog, QIcon, QItemSelectionModel, QMenu, QModelIndex, Qt
 
 from calibre.constants import iswindows
-from calibre.customize import PluginInstallationType
+from calibre.customize import Plugin, PluginInstallationType
 from calibre.customize.ui import (
     NameConflict,
     add_plugin,
     can_be_disabled,
     disable_plugin,
+    disable_plugin_by_name,
     enable_plugin,
+    ignored_plugins,
     initialized_plugins,
     is_disabled,
     plugin_customization,
@@ -32,6 +35,24 @@ from calibre.utils.search_query_parser import SearchQueryParser
 class AdaptSQP(SearchQueryParser):
     def __init__(self, *args, **kwargs) -> None:
         pass
+
+
+class IgnoredPlugin(Plugin):
+    """
+    Stand-in for a custom plugin that was not loaded because calibre was
+    started with custom plugins ignored. None of the plugin's code is run.
+    """
+
+    type = _('Not loaded')
+    description = _('This plugin was not loaded because calibre was started with custom plugins ignored')
+
+    def __init__(self, name: str, plugin_path: str, installation_type: PluginInstallationType) -> None:
+        super().__init__(plugin_path)
+        self.name = name
+        self.installation_type = installation_type
+
+    def is_customizable(self) -> bool:
+        return False
 
 
 class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
@@ -53,7 +74,8 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
 
     def populate(self) -> None:
         self._data = {}
-        for plugin in initialized_plugins():
+        ignored = (IgnoredPlugin(name, path, itype) for name, (path, itype) in ignored_plugins().items())
+        for plugin in chain(initialized_plugins(), ignored):
             if getattr(plugin, 'installation_type', None) is not PluginInstallationType.EXTERNAL and self.show_only_user_plugins:
                 continue
             if plugin.type not in self._data:
@@ -200,9 +222,12 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             plugin = self.index_to_plugin(index)
             disabled = is_disabled(plugin)
             if role == Qt.ItemDataRole.DisplayRole:
-                ver = '.'.join(map(str, plugin.version))
                 desc = '\n'.join(textwrap.wrap(plugin.description, 100))
-                ans = '{} ({}) {} {}\n{}'.format(plugin.name, ver, _('by'), plugin.author, desc)
+                if isinstance(plugin, IgnoredPlugin):
+                    ans = f'{plugin.name}\n{desc}'
+                else:
+                    ver = '.'.join(map(str, plugin.version))
+                    ans = '{} ({}) {} {}\n{}'.format(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c and not disabled:
                     ans += _('\nCustomization: ') + c
@@ -362,6 +387,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
+                if isinstance(plugin, IgnoredPlugin):
+                    if is_disabled(plugin):
+                        enable_plugin(plugin)
+                        msg = _('Plugin <b>{0}</b> successfully enabled.').format(plugin.name)
+                    else:
+                        disable_plugin_by_name(plugin.name)
+                        msg = _('Plugin <b>{0}</b> successfully disabled.').format(plugin.name)
+                    self._plugin_model.refresh_plugin(plugin)
+                    self.changed_signal.emit()
+                    info_dialog(self, _('Success'), msg, show=True, show_copy_button=False)
+                    return
                 if not can_be_disabled(plugin):
                     info_dialog(
                         self,

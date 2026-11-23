@@ -141,8 +141,15 @@ def find_portable_library() -> None:
 def init_qt(args):
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    if os.environ.pop('CALIBRE_IGNORE_PLUGINS_ON_RESTART', '') == '1':
-        opts.ignore_plugins = True
+    from calibre.customize import ignore_custom_plugins, set_ignore_custom_plugins
+
+    if opts.ignore_plugins and not ignore_custom_plugins():
+        # Not launched via calibre.gui_launch so plugins are already loaded,
+        # reload without custom plugins
+        from calibre.customize.ui import initialize_plugins
+
+        set_ignore_custom_plugins()
+        initialize_plugins()
     find_portable_library()
     if opts.with_library is not None:
         libpath = os.path.expanduser(opts.with_library)
@@ -630,8 +637,11 @@ def restart_after_quit() -> None:
     if iswindows and not is_calibre_debug_exe:
         # detach the stdout/stderr/stdin handles
         winutil.prepare_for_restart()
-    if after_quit_actions['no_plugins_on_restart']:
-        os.environ['CALIBRE_IGNORE_PLUGINS_ON_RESTART'] = '1'
+    from calibre.customize import set_ignore_custom_plugins
+
+    # The restarted calibre inherits our environment, so this both enables
+    # and, for a normal restart, clears ignoring of custom plugins
+    set_ignore_custom_plugins(after_quit_actions['no_plugins_on_restart'])
     if after_quit_actions['debug_on_restart']:
         run_in_debug_mode()
         return

@@ -26,6 +26,7 @@ from calibre.customize import (
     PluginNotFound,
     PreferencesPlugin,
     StoreBase,
+    ignore_custom_plugins,
     platform,
 )
 from calibre.customize import InterfaceActionBase as InterfaceAction
@@ -842,6 +843,9 @@ def content_server_plugins() -> Iterator[ContentServerPlugin]:
 # Initialize plugins {{{
 
 _initialized_plugins: list[Plugin] = []
+#: name -> (path to plugin file, installation type) for custom plugins not
+#: loaded because of :func:`calibre.customize.ignore_custom_plugins`
+_ignored_plugins: dict[str, tuple[str, PluginInstallationType]] = {}
 
 
 def initialize_plugin[P: Plugin](
@@ -904,6 +908,16 @@ def initialize_plugins(perf: bool = False) -> None:
     for name in BLACKLISTED_PLUGINS:
         external_plugins.pop(name, None)
         system_plugins.pop(name, None)
+    global _ignored_plugins
+    _ignored_plugins = {}
+    if ignore_custom_plugins():
+        # Do not run any code from non-builtin plugins, just record them so
+        # that they can still be managed, for example, removed if broken.
+        for name, path in external_plugins.items():
+            _ignored_plugins[name] = (path, PluginInstallationType.EXTERNAL)
+        for name, path in system_plugins.items():
+            _ignored_plugins.setdefault(name, (path, PluginInstallationType.SYSTEM))
+        external_plugins, system_plugins = {}, {}
     ostdout, ostderr = sys.stdout, sys.stderr
     if perf:
         import time
@@ -957,6 +971,14 @@ initialize_plugins()
 
 def initialized_plugins() -> Iterator[Plugin]:
     yield from _initialized_plugins
+
+
+def ignored_plugins() -> dict[str, tuple[str, PluginInstallationType]]:
+    """
+    Custom plugins that were installed but not loaded because custom plugins
+    are being ignored. Maps plugin name to (path to plugin file, installation type).
+    """
+    return _ignored_plugins.copy()
 
 
 # }}}

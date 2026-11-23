@@ -73,7 +73,22 @@ def register_with_default_programs() -> AbstractContextManager[object, None]:
         return Dummy()
 
 
+def wants_custom_plugins_ignored(args: list[str]) -> bool:
+    # This has to be detected before the option parser is created, as creating
+    # it loads plugins. Matches the abbreviations optparse would accept.
+    for arg in args[1:]:
+        if arg == '--':
+            break
+        if len(arg) > 2 and '--ignore-plugins'.startswith(arg):
+            return True
+    return False
+
+
 def calibre(args: list[str] = sys.argv) -> None:
+    from calibre.customize import set_ignore_custom_plugins
+
+    if wants_custom_plugins_ignored(args):
+        set_ignore_custom_plugins()
     from calibre.constants import DEBUG
 
     if DEBUG:

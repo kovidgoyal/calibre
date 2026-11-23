@@ -165,8 +165,6 @@ class Main(
         self.iactions = OrderedDict()
         # Actions
         for action in interface_actions():
-            if opts.ignore_plugins and action.installation_type is not PluginInstallationType.BUILTIN:
-                continue
             try:
                 ac = self.init_iaction(action)
             except Exception:
@@ -207,8 +205,6 @@ class Main(
 
         self.istores = Stores()
         for store in available_store_plugins():
-            if self.opts.ignore_plugins and store.installation_type is not PluginInstallationType.BUILTIN:
-                continue
             try:
                 st = self.init_istore(store)
                 self.add_istore(st)
