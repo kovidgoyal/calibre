@@ -1159,7 +1159,7 @@ class BasicNewsRecipe(Recipe):
                 del o['onload']
 
         for attr in self.remove_attributes:
-            for x in soup.find_all(attrs={attr: True}):
+            for x in soup.find_all(None, attrs={attr: True}):
                 del x[attr]
         for bad_tag in list(
             soup.find_all([

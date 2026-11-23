@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
     from fontTools.ttLib import TTFont
 
+    from calibre.utils.fonts.utils import TTLibOS2Table
+
     # The dictionary returned by FontMetadata.to_dict(), plus the path key added by
     # the font scanner. All keys are optional because the scanner caches an
     # empty dict for unsupported fonts.
@@ -127,7 +129,8 @@ class FontMetadata:
 
     def _read_characteristics(self, font: TTFont) -> None:
         try:
-            os2_table = font['OS/2']
+            # fontTools sets the attributes of the OS/2 table dynamically
+            os2_table = cast('TTLibOS2Table', font['OS/2'])
         except KeyError:
             raise UnsupportedFont('This font has no OS/2 table')
 

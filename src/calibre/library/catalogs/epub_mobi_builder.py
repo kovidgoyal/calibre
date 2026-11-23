@@ -2254,12 +2254,12 @@ class CatalogBuilder:
         body.insert(btc, divTag)
         btc += 1
 
-        titleTag = body.find(attrs={'class': 'title'})
+        titleTag = body.find(None, attrs={'class': 'title'})
         assert isinstance(titleTag, Tag)  # added by generate_html_genre_header()
         titleTag.insert(0, NavigableString(f'{self.get_friendly_genre_tag(genre)}'))
 
         # Insert the books by author list
-        divTag = body.find(attrs={'class': 'authors'})
+        divTag = body.find(None, attrs={'class': 'authors'})
         assert isinstance(divTag, Tag)  # added by generate_html_genre_header()
         dtc = 0
 

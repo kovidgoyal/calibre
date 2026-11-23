@@ -8,59 +8,59 @@ dynamic = ["version"]
 dependencies = [
 	"six == 1.17.0",
 	"unrardll == 0.1.7",
-	"lxml == 6.1.1",
+	"lxml == 6.1.3",
 	"pychm == 0.8.6",
 	"html5-parser == 0.5.0",
 	"css-parser == 1.1.2",
-	"python-dateutil == 2.9.0",
+	"python-dateutil == 4.0.0",
 	"jeepney == 0.9.0",
 	"dnspython == 2.9.2",
 	"mechanize == 0.4.11",
-	"feedparser-sgmllib == 2.0.1",
+	"feedparser-sgmllib == 2.1.0",
 	"feedparser == 6.0.14",
-	"Markdown == 3.10.0",
+	"Markdown == 3.11.3",
 	"html2text == 2025.4.15",
-	"soupsieve == 4.0",
-    "typing-extensions == 4.15.0",  # needed by beautifulsoup4
-	"beautifulsoup4 == 4.14.3",
-	"regex == 2026.11.9",
+	"soupsieve == 4.1.3",
+    "typing-extensions == 4.16.0",  # needed by beautifulsoup4
+	"beautifulsoup4 == 4.15.0",
+	"regex == 2026.11.19",
     "kovidgoyal-langtool == 1.3.0",
-	"chardet == 5.2.0",
-	"msgpack == 1.2.3",
-	"Pygments == 2.20.0",
-	"pycryptodome == 3.23.0",
-	"apsw == 3.53.2.0",
-	"webencodings == 0.5.1",
+	"chardet == 7.7.0",
+	"msgpack == 1.2.4",
+	"Pygments == 2.21.0",
+	"pycryptodome == 4.6.0",
+	"apsw == 3.54.1.0",
+	"webencodings == 0.6.1",
 	"html5lib == 1.1",
 	"pillow == 13.0.0",
 	"netifaces == 0.11.0",
-	"psutil == 7.1.3",
+	"psutil == 7.2.2",
 	"ifaddr == 0.2.0",
-	"texttable == 1.7.0",
+	"texttable == 1.7.3",
 	"multivolumefile == 0.2.3",
 	"Brotli == 1.2.1",
 	"pyppmd == 1.3.1",
-	"pybcj == 1.0.7",
+	"pybcj == 1.0.8",
 	"inflate64 == 1.0.4",
-	"py7zr == 1.1.3",
-	"jaconv == 0.4.1",
-	"wrapt == 2.0.1",
-	"Deprecated == 1.3.1",
+	"py7zr == 1.1.4",
+	"jaconv == 0.5.0",
+	"wrapt == 2.5.2",
+	"Deprecated == 3.0.1",
 	"pykakasi == 2.3.0",
-	"zeroconf == 0.149.16",
-	"fonttools == 4.61.0",
-	"lxml_html_clean == 0.4.5",
+	"zeroconf == 0.154.0",
+	"fonttools == 4.68.0",
+	"lxml_html_clean == 0.4.6",
 	"PyQt6_sip == 13.13.1",
 	"PyQt6 == 6.12.1",
 	"PyQt6_WebEngine == 6.140.1",
 	"MacFSEvents == 0.8.4; sys_platform == 'darwin'",
-	"xxhash == 3.6.0",
-    "tzdata == 2026.5",
-    "tzlocal == 5.4.4",
+	"xxhash == 4.1.0",
+    "tzdata == 2026.6",
+    "tzlocal == 5.4.5",
 	"pystache == 0.6.8",
 
-    "apify_fingerprint_datapoints == 0.15.0",  # needed for browserforge
-	"click == 8.5.0",  # needed for browserforge
+    "apify_fingerprint_datapoints == 0.16.0",  # needed for browserforge
+	"click == 8.5.1",  # needed for browserforge
 	"browserforge == 1.2.4",  # needed for camoufox
 ]
 
@@ -75,29 +75,30 @@ Community-Forum = "https://www.mobileread.com/forums/forumdisplay.php?f=166"
 
 [build-system]
 requires = [
-    "installer == 0.7.0",  # Needed for installing pure python packages at build time
-    "packaging == 25.0",   # Needed for build which is needed for setuptools
-	"pyproject_hooks == 1.2.0", # Needed for build which is needed for setuptools
-	"wheel == 0.46.2", # Needed for build which is needed for setuptools
-	"build == 1.3.0", # Needed for build which is needed for setuptools
-    "pybind11 == 3.0.1", # Needed for pillow
-	"setuptools == 84.1.0",
-    "pkgconfig == 1.5.5",  # Needed by Brotli
+    "installer == 1.1.0",  # Needed for installing pure python packages at build time
+    "packaging == 26.3",   # Needed for build which is needed for setuptools
+	"pyproject_hooks == 1.3.3", # Needed for build which is needed for setuptools
+	"wheel == 0.48.0", # Needed for build which is needed for setuptools
+	"build == 1.6.1", # Needed for build which is needed for setuptools
+    "pybind11 == 3.1.0", # Needed for pillow
+	"setuptools == 84.2.1",
+    "pkgconfig == 1.6.0",  # Needed by Brotli
 	# Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even
 	# though it is needed only for sdist not building wheels
-	"setuptools_scm == 9.2.2",
-	"poetry_core == 2.2.1",  # needed for building zeroconf
+    "vcs_versioning == 2.6.0",
+	"setuptools_scm == 10.3.4",
+	"poetry_core == 2.5.0",  # needed for building zeroconf
 	"ply == 3.11",  # needed for sip
 	"sip == 6.17.3",
-	"PyQt_builder == 1.19.1",
+	"PyQt_builder == 1.21.0",
 ]
 [dependency-groups]
 dev = [
-    "ruff >= 0.16.0",
+    "ruff >= 0.17.6",
     "types-lxml >= 2026.2.16",
-    "ty >= 0.0.102",
-    "rapydscript-ng >= 0.8.5",
-    "clang-format >= 22.1.8",
+    "ty >= 0.0.108",
+    "rapydscript-ng >= 0.8.7",
+    "clang-format >= 23.1.5",
 ]
 
 [tool.ruff]
