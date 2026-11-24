@@ -34,7 +34,7 @@ pre_initialize_interpreter(bool is_gui_app) {
     size_t tsz; \
     wchar_t* t__ = Py_DecodeLocale(src, &tsz); \
     if (!t__) fatal("Failed to decode path: %s", src); \
-	if (tsz > sizeof(dest) - 1) tsz = sizeof(dest) - 1; \
+	if (tsz > arraysz(dest) - 1) tsz = arraysz(dest) - 1; \
     memcpy(dest, t__, tsz * sizeof(wchar_t)); \
 	dest[tsz] = 0; \
     PyMem_RawFree(t__); \

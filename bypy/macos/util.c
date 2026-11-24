@@ -29,6 +29,14 @@ set_env_vars(const char *contents_path) {
 }
 
 static void
+join_path(wchar_t *dest, size_t destsz, const wchar_t *base, const wchar_t *suffix) {
+    size_t n = wcslen(base), m = wcslen(suffix);
+    if (n + m >= destsz) fatal("Path too long");
+    wmemcpy(dest, base, n);
+    wmemcpy(dest + n, suffix, m + 1);
+}
+
+static void
 get_paths(char *path) {
     decode_char_buf(path, interpreter_data.exe_path);
     for (unsigned i = 0; i < 3; i++) {
@@ -48,13 +56,18 @@ get_paths(char *path) {
     cat_literal(strncat, path, "/Contents");
     set_env_vars(path);
     decode_char_buf(path, interpreter_data.bundle_resource_path);
-#define set_path(which, fmt, ...) swprintf(interpreter_data.which, arraysz(interpreter_data.which), fmt, interpreter_data.bundle_resource_path, __VA_ARGS__)
-    set_path(python_home_path, L"%ls/Resources/Python", NULL);
-    set_path(frameworks_path, L"%ls/Frameworks", NULL);
-    set_path(python_lib_path, L"%ls/Resources/Python/lib/python%d.%d", PY_VERSION_MAJOR, PY_VERSION_MINOR);
-    set_path(extensions_path, L"%ls/Frameworks/plugins", NULL);
-    set_path(resources_path, L"%ls/Resources/resources", NULL);
-    set_path(executables_path, L"%ls/MacOS", NULL);
+    // Do not use swprintf() with %ls here as on macOS it round-trips through
+    // the current locale's multibyte encoding, which is the C locale since we
+    // never call setlocale(), and so fails for paths with non-ASCII characters.
+#define set_path(which, suffix) join_path(interpreter_data.which, arraysz(interpreter_data.which), interpreter_data.bundle_resource_path, suffix)
+    set_path(python_home_path, L"/Resources/Python");
+    set_path(frameworks_path, L"/Frameworks");
+    set_path(extensions_path, L"/Frameworks/plugins");
+    set_path(resources_path, L"/Resources/resources");
+    set_path(executables_path, L"/MacOS");
+    wchar_t pylib[64];  // ASCII only so swprintf() is safe
+    swprintf(pylib, arraysz(pylib), L"/Resources/Python/lib/python%d.%d", PY_VERSION_MAJOR, PY_VERSION_MINOR);
+    set_path(python_lib_path, pylib);
 #undef set_path
     cat_literal(wcsncat, interpreter_data.bundle_resource_path, L"/Resources");
 #undef cat_literal
