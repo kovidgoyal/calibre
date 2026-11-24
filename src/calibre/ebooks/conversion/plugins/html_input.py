@@ -201,6 +201,11 @@ class HTMLInput(InputFormatPlugin):
         self.log = log
         self.log('Normalizing filename cases')
         for path, href in htmlfile_map.items():
+            # Normalize the same way as link_to_local_path() so that links to
+            # the HTML files are recognized. Otherwise, for example, on Windows
+            # with an 8.3 short name in the path, realpath() expands it and
+            # the link target is added as a duplicate resource.
+            path = os.path.abspath(os.path.realpath(path))
             if not self.is_case_sensitive(path):
                 path = path.lower()
             self.added_resources[path] = href

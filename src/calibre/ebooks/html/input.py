@@ -259,6 +259,28 @@ def find_tests() -> unittest.TestSuite:
             flat = root, a, b, a1, a2, b1, x
             self.assertEqual(tuple(depth_first(flat[0], flat)), (root, a, a1, x, a2, b, b1))
 
+        @unittest.skipIf(iswindows, 'Creating symlinks needs special privileges on Windows')
+        def test_self_links_via_non_canonical_path(self) -> None:
+            # Links from a file to itself must not be turned into links to a
+            # duplicate of the file when the path to the input file is not
+            # canonical, for example, it has a symlink or a Windows 8.3 short name
+            from calibre.ebooks.conversion.cli import main
+            from calibre.ebooks.oeb.polish.container import get_container
+            from calibre.ptempfile import TemporaryDirectory
+            from calibre.utils.logging import DevNull
+
+            with TemporaryDirectory('html-input-test') as tdir:
+                os.mkdir(os.path.join(tdir, 'real'))
+                os.symlink('real', os.path.join(tdir, 'link'))
+                src = os.path.join(tdir, 'link', 'index.html')
+                with open(src, 'w') as f:
+                    f.write('<html><body><p id="one">One</p><a href="index.html#one">self link</a></body></html>')
+                dest = os.path.join(tdir, 'out.epub')
+                main(['ebook-convert', src, dest, '--no-default-epub-cover'])
+                c = get_container(dest, log=DevNull(), tweak_mode=True)
+                links = [x for x in c.iterlinks('index.html', get_line_numbers=False) if x and 'one' in x]
+                self.assertEqual(links, ['index.html#one'])
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestHTMLInput)
 
 
