@@ -287,7 +287,7 @@ class Freeze:
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib', 'libjbig.2.1.dylib') and not is_id:
+            if x in ('libunrar.dylib', 'libstemmer.0.dylib', 'libstemmer.dylib', 'libjbig.2.2.dylib') and not is_id:
                 yield x, x, is_id
             else:
                 for y in ('@rpath/', PREFIX + '/lib/', PREFIX + '/python/Python.framework/', PREFIX + '/ffmpeg/lib/'):
@@ -496,13 +496,13 @@ class Freeze:
     @flush
     def add_podofo(self):
         print('\nAdding PoDoFo')
-        pdf = join(PREFIX, 'lib', 'libpodofo.4.dylib')
+        pdf = join(PREFIX, 'lib', 'libpodofo.5.dylib')
         self.install_dylib(pdf)
 
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.154.dylib', 'liblcms2.2.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.166.dylib', 'liblcms2.2.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdftotext'):
             self.install_dylib(
@@ -513,7 +513,7 @@ class Freeze:
         print('\nAdding imaging libraries')
         for x in (
             'jpeg.8', 'png16.16', 'webp.7', 'webpmux.3', 'webpdemux.2', 'sharpyuv.0', 'yuv', 'dav1d.7', 'avif.16',
-            'hwy.1', 'hwy_contrib.1', 'jxl.0.12', 'jxl_cms.0.12', 'jxl_threads.0.12'
+            'hwy.1', 'hwy_contrib.1', 'jxl.0.13', 'jxl_cms.0.13', 'jxl_threads.0.13'
         ):
             self.install_dylib(join(PREFIX, 'lib', 'lib%s.dylib' % x))
         for x in 'optipng', 'JxrDecApp', 'cwebp':
@@ -559,9 +559,9 @@ class Freeze:
 
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3', 'hunspell-1.7.0',
-            'icudata.78', 'icui18n.78', 'icuio.78', 'icuuc.78', 'hyphen.0', 'uchardet.0',
+            'icudata.79', 'icui18n.79', 'icuio.79', 'icuuc.79', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.16', 'z.1', 'unrar', 'lzma.5',
-            'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
+            'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.2', 'tiff.6',
             'crypto.3', 'ssl.3', 'iconv.2', 'espeak-ng.1', 'onnxruntime.1',  # 'ltdl.7'
         ):
             x = 'lib%s.dylib' % x
