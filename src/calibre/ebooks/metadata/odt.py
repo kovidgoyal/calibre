@@ -24,6 +24,7 @@ import os
 import re
 from typing import IO, TYPE_CHECKING, cast
 
+from lxml import etree
 from lxml.etree import tostring
 from odf.draw import Frame as odFrame
 from odf.draw import Image as odImage
@@ -39,6 +40,7 @@ from calibre.utils.zipfile import ZipFile, safe_replace
 from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
+    import unittest
     from collections.abc import Hashable, Iterable, Iterator
     from datetime import date
 
@@ -82,7 +84,11 @@ def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
         return whitespace.sub(' ', s).strip()
 
     with ZipFile(stream) as zf:
-        meta = zf.read('meta.xml')
+        try:
+            meta = zf.read('meta.xml')
+        except KeyError:
+            # meta.xml is optional in ODF, read the cover from files that have none
+            meta = empty_meta()
         root = safe_xml_fromstring(meta)
 
         def find(field: str) -> str | None:
@@ -173,14 +179,56 @@ def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     return mi
 
 
-def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
+MANIFEST_NS = 'urn:oasis:names:tc:opendocument:xmlns:manifest:1.0'
 
+
+def empty_meta(version: str | None = None) -> bytes:
+    nsmap = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
+    root = etree.Element(f'{{{OFFICENS}}}document-meta', nsmap=nsmap)
+    if version:
+        root.set(f'{{{OFFICENS}}}version', version)
+    root.append(root.makeelement(f'{{{OFFICENS}}}meta'))
+    return tostring(root, encoding='utf-8', xml_declaration=True)
+
+
+def add_meta_to_manifest(raw: bytes) -> tuple[bytes | None, str | None]:
+    '''
+    Return the manifest with an entry for meta.xml, or None if it already has
+    one, and the ODF version of the document.
+    '''
+    root = safe_xml_fromstring(raw)
+    version = root.get(f'{{{MANIFEST_NS}}}version')
+    entries = root.findall(f'{{{MANIFEST_NS}}}file-entry')
+    if any(x.get(f'{{{MANIFEST_NS}}}full-path') == 'meta.xml' for x in entries):
+        return None, version
+    entry = root.makeelement(f'{{{MANIFEST_NS}}}file-entry')
+    entry.set(f'{{{MANIFEST_NS}}}full-path', 'meta.xml')
+    entry.set(f'{{{MANIFEST_NS}}}media-type', 'text/xml')
+    root.append(entry)
+    # Keep the DOCTYPE written by ODF 1.0/1.1 producers, lxml would drop it
+    m = re.search(rb'<!DOCTYPE[^>]*>', raw)
+    doctype = m.group().decode('utf-8') if m else None
+    return tostring(root, encoding='utf-8', xml_declaration=True, doctype=doctype), version
+
+
+def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
+    replacements: dict[str, io.BytesIO] = {}
     with ZipFile(stream) as zf:
-        raw = _set_metadata(zf.open('meta.xml').read(), mi)
-        # print(raw.decode('utf-8'))
+        names = frozenset(zf.namelist())
+        if 'meta.xml' in names:
+            raw = zf.read('meta.xml')
+        else:
+            # meta.xml is optional in ODF and some producers omit it
+            version = None
+            if 'META-INF/manifest.xml' in names:
+                manifest, version = add_meta_to_manifest(zf.read('META-INF/manifest.xml'))
+                if manifest is not None:
+                    replacements['META-INF/manifest.xml'] = io.BytesIO(manifest)
+            raw = empty_meta(version)
+        raw = _set_metadata(raw, mi)
 
     stream.seek(os.SEEK_SET)
-    safe_replace(stream, 'meta.xml', io.BytesIO(raw))
+    safe_replace(stream, 'meta.xml', io.BytesIO(raw), extra_replacements=replacements, add_missing=True)
 
 
 def _set_metadata(raw: bytes, mi: Metadata) -> bytes:
@@ -230,7 +278,12 @@ def _set_metadata(raw: bytes, mi: Metadata) -> bytes:
             val_type = 'date'
         add_um(name, val, val_type)
 
-    meta = xpath('//office:meta')[0]
+    metas = xpath('//office:meta')
+    if metas:
+        meta = metas[0]
+    else:
+        meta = root.makeelement(f'{{{OFFICENS}}}meta')
+        root.append(meta)
 
     if not mi.is_null('title'):
         remove('title')
@@ -330,3 +383,89 @@ def read_cover(stream: IO[bytes], zin: ZipFile, mi: Metadata, opfmeta: bool, ext
                 else:
                     cover_data = (fmt, raw)
             mi.set('cover_data', cover_data)  # None is converted to the null value
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.zipfile import ZIP_STORED
+
+    manifest = (
+        '<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.3">'
+        '<manifest:file-entry manifest:full-path="/" manifest:version="1.3" manifest:media-type="application/vnd.oasis.opendocument.text"/>'
+        '<manifest:file-entry manifest:full-path="content.xml" manifest:media-type="text/xml"/>'
+        '{}</manifest:manifest>'
+    )
+    meta_entry = '<manifest:file-entry manifest:full-path="meta.xml" manifest:media-type="text/xml"/>'
+    content = (
+        '<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"'
+        ' xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" office:version="1.3">'
+        '<office:body><office:text><text:p>x</text:p></office:text></office:body></office:document-content>'
+    )
+    meta_tmpl = (
+        '<office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"'
+        ' xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/"'
+        ' office:version="1.3">{}</office:document-meta>'
+    )
+
+    doctype = '<!DOCTYPE manifest:manifest PUBLIC "-//OpenOffice.org//DTD Manifest 1.0//EN" "Manifest.dtd">'
+
+    def make_odt(meta: str | None = None, manifest_entries: str = '', manifest_prolog: str = '') -> io.BytesIO:
+        stream = io.BytesIO()
+        with ZipFile(stream, 'w') as zf:
+            zf.writestr('mimetype', 'application/vnd.oasis.opendocument.text', compression=ZIP_STORED)
+            zf.writestr('META-INF/manifest.xml', manifest_prolog + manifest.format(manifest_entries))
+            zf.writestr('content.xml', content)
+            if meta is not None:
+                zf.writestr('meta.xml', meta)
+        stream.seek(0)
+        return stream
+
+    class TestODTMetadata(unittest.TestCase):
+        def check(self, stream: io.BytesIO) -> None:
+            mi = Metadata('New title', ['Some Author'])
+            mi.comments = 'Some description'
+            mi.tags = ['One', 'Two words']
+            mi.publisher = 'Some publisher'
+            set_metadata(stream, mi)
+            stream.seek(0)
+            rmi = get_metadata(stream, extract_cover=False)
+            self.assertEqual(rmi.title, 'New title')
+            self.assertEqual(rmi.authors, ['Some Author'])
+            self.assertEqual(rmi.comments, 'Some description')
+            self.assertEqual(rmi.tags, ['One', 'Two words'])
+            self.assertEqual(rmi.publisher, 'Some publisher')
+            stream.seek(0)
+            with ZipFile(stream) as zf:
+                self.assertIsNone(zf.testzip())
+                mf = zf.read('META-INF/manifest.xml').decode()
+                meta = safe_xml_fromstring(zf.read('meta.xml'))
+            self.assertEqual(mf.count('full-path="meta.xml"'), 1)
+            self.assertEqual(meta.get(f'{{{OFFICENS}}}version'), '1.3')
+            self.assertEqual(len(meta.findall(f'{{{OFFICENS}}}meta')), 1)
+
+        def test_meta_present(self) -> None:
+            self.check(make_odt(meta_tmpl.format('<office:meta><dc:title>Old</dc:title></office:meta>'), meta_entry))
+
+        def test_meta_missing(self) -> None:
+            stream = make_odt()
+            mi = get_metadata(stream, extract_cover=False)
+            self.assertEqual(mi.title, _('Unknown'))
+            stream.seek(0)
+            self.check(stream)
+            # Writing again must not add a duplicate manifest entry
+            stream.seek(0)
+            self.check(stream)
+
+        def test_meta_missing_manifest_doctype(self) -> None:
+            stream = make_odt(manifest_prolog=doctype)
+            self.check(stream)
+            stream.seek(0)
+            with ZipFile(stream) as zf:
+                self.assertIn(doctype, zf.read('META-INF/manifest.xml').decode())
+
+        def test_meta_without_office_meta(self) -> None:
+            self.check(make_odt(meta_tmpl.format(''), meta_entry))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestODTMetadata)
