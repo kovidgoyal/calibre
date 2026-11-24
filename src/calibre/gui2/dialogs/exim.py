@@ -5,6 +5,7 @@ import os
 import stat
 from functools import partial
 from threading import Event, Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -39,8 +40,11 @@ from calibre.utils.exim import Importer, all_known_libraries, export, import_dat
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-def disk_usage(path_to_dir, abort=None):
+
+def disk_usage(path_to_dir: str, abort: Event | None = None) -> int:
     stack = [path_to_dir]
     ans = 0
     while stack:
@@ -60,7 +64,7 @@ def disk_usage(path_to_dir, abort=None):
 
 
 class ImportLocation(QWidget):
-    def __init__(self, lpath, parent=None) -> None:
+    def __init__(self, lpath: str, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         self.la = la = QLabel(_('Previous location: ') + lpath)
@@ -81,7 +85,7 @@ class ImportLocation(QWidget):
             self.le.setText(path)
 
     @property
-    def path(self):
+    def path(self) -> str:
         return self.le.text().strip()
 
 
@@ -90,7 +94,7 @@ class RunAction(QDialog):
     update_overall_signal = pyqtSignal(object, object, object)
     finish_signal = pyqtSignal()
 
-    def __init__(self, title, err_msg, action, parent=None) -> None:
+    def __init__(self, title: str, err_msg: str, action: Callable[..., object], parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Working, please wait...'))
         self.title, self.action, self.tb, self.err_msg = title, action, None, err_msg
@@ -130,11 +134,11 @@ class RunAction(QDialog):
         self.update_overall_signal.connect(self.update_overall, type=Qt.ConnectionType.QueuedConnection)
         self.finish_signal.connect(self.finish_processing, type=Qt.ConnectionType.QueuedConnection)
 
-    def update_overall(self, msg, count, total) -> None:
+    def update_overall(self, msg: str, count: int, total: int) -> None:
         self.overall.setMaximum(total), self.overall.setValue(count)
         self.omsg.setText(msg)
 
-    def update_current(self, msg, count, total) -> None:
+    def update_current(self, msg: str, count: int, total: int) -> None:
         self.current.setMaximum(total), self.current.setValue(count)
         self.cmsg.setText(msg)
 
@@ -144,7 +148,7 @@ class RunAction(QDialog):
         assert cancel_btn is not None
         cancel_btn.setEnabled(False)
 
-    def finish_processing(self):
+    def finish_processing(self) -> None:
         if self.abort.is_set():
             return QDialog.reject(self)
         if self.tb is not None:
@@ -170,13 +174,13 @@ class RunAction(QDialog):
 class EximDialog(Dialog):
     update_disk_usage = pyqtSignal(object, object)
 
-    def __init__(self, parent=None, initial_panel=None) -> None:
+    def __init__(self, parent: QWidget | None = None, initial_panel: str | None = None) -> None:
         self.initial_panel = initial_panel
         self.abort_disk_usage = Event()
         self.restart_needed = False
         Dialog.__init__(self, _('Export/import all calibre data'), 'exim-calibre', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def setup_ui(self) -> None:
@@ -214,7 +218,7 @@ class EximDialog(Dialog):
         self.setup_import_panel()
         self.show_panel(self.initial_panel)
 
-    def export_lib_text(self, lpath, size=None):
+    def export_lib_text(self, lpath: str, size: int | None = None) -> str:
         return _('{0} [Size: {1}]\nin {2}').format(
             os.path.basename(lpath),
             ('' if size < 0 else human_readable(size)) if size is not None else _('Calculating...'),
@@ -240,7 +244,7 @@ class EximDialog(Dialog):
             i.setIcon(QIcon.ic('lt.png'))
             i.setSelected(True)
 
-        def _on_disk_usage_update(i, sz) -> None:
+        def _on_disk_usage_update(i: int, sz: int) -> None:
             item = self.lib_list.item(i)
             assert item is not None
             item.setText(self.export_lib_text(item.data(Qt.ItemDataRole.UserRole), sz))
@@ -292,7 +296,7 @@ class EximDialog(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
 
-    def select_import_folder(self):
+    def select_import_folder(self) -> None:
         path = choose_dir(self, 'choose-export-folder-for-import', _('Select folder with exported data'))
         if path is None:
             return
@@ -311,13 +315,14 @@ class EximDialog(Dialog):
         except Exception as e:
             import traceback
 
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Not valid'),
                 _('The folder {0} is not valid: {1}').format(path, as_unicode(e)),
                 det_msg=traceback.format_exc(),
                 show=True,
             )
+            return
         self.setup_select_libraries_panel()
         self.import_panel_stack.setCurrentIndex(1)
 
@@ -395,7 +400,7 @@ class EximDialog(Dialog):
                     return False
         return True
 
-    def show_panel(self, which) -> None:
+    def show_panel(self, which: str | None) -> None:
         self.validate = self.run_action = lambda: True
         if which is None:
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
@@ -427,7 +432,7 @@ class EximDialog(Dialog):
         self.export_dir = path
         return True
 
-    def run_export_action(self):
+    def run_export_action(self) -> bool:
         from calibre.gui2.ui import get_gui
 
         library_paths = {i.data(Qt.ItemDataRole.UserRole): i.data(Qt.ItemDataRole.UserRole + 1) for i in self.lib_list.selectedItems()}
@@ -446,7 +451,7 @@ class EximDialog(Dialog):
             == QDialog.DialogCode.Accepted
         )
 
-    def run_import_action(self):
+    def run_import_action(self) -> bool:
         library_path_map = {}
         for w in self.imported_lib_widgets:
             if w.path:

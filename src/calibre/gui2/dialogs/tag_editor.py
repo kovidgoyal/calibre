@@ -1,5 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QAbstractItemView, QCheckBox, QDialog, QModelIndex, QSortFilterProxyModel, QStringListModel, Qt
 
 from calibre.constants import islinux
@@ -10,13 +12,20 @@ from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QObject, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 class AccentInsensitiveFilter(QSortFilterProxyModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._filter_text = ''
 
-    def set_filter_text(self, text) -> None:
+    def set_filter_text(self, text: str) -> None:
         self._filter_text = text
         self.invalidateFilter()
 
@@ -31,7 +40,9 @@ class AccentInsensitiveFilter(QSortFilterProxyModel):
 
 
 class TagEditor(QDialog, Ui_TagEditor):
-    def __init__(self, window, db, id_=None, key=None, current_tags=None) -> None:
+    def __init__(
+        self, window: QWidget | None, db: LibraryDatabase, id_: int | None = None, key: str | None = None, current_tags: Iterable[str] | None = None
+    ) -> None:
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
@@ -46,12 +57,12 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.is_names = fm['display'].get('is_names', False)
                 if self.is_names:
                     self.sep = '&'
-                self.setWindowTitle(self.windowTitle() + ': ' + fm['name'])
+                self.setWindowTitle(self.windowTitle() + ': ' + cast('str', fm['name']))
             except Exception:
                 pass
             key = db.field_metadata.key_to_label(key)
         else:
-            self.setWindowTitle(self.windowTitle() + ': ' + db.field_metadata['tags']['name'])
+            self.setWindowTitle(self.windowTitle() + ': ' + cast('str', db.field_metadata['tags']['name']))
 
         if self.sep == '&':
             self.add_tag_input.setToolTip(
@@ -79,11 +90,11 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
             if key is None:
-                tags = self.db.tags(self.index)
-                if tags:
-                    tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
+                tags_str = self.db.tags(self.index)
+                tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()] if tags_str else []
             else:
-                tags = self.db.get_custom(self.index, label=key)
+                # The tag editor is only used for is_multiple columns
+                tags = cast('list[str] | None', self.db.get_custom(self.index, label=key))
         else:
             tags = []
         if current_tags is not None:
@@ -112,7 +123,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_tags.setModel(p)
 
         self._in_vl = bool(db.data.get_base_restriction() or db.data.get_search_restriction())
-        self._vl_tags_cache = None
+        self._vl_tags_cache: set[str] | None = None
         self.restrict_to_vl = QCheckBox(_('Limit to current virtual &library'))
         self.restrict_to_vl.setEnabled(self._in_vl)
         if self._in_vl:
@@ -152,9 +163,9 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         self.restore_geometry(gprefs, 'tag_editor_geometry')
 
-    def _get_vl_tags(self):
+    def _get_vl_tags(self) -> set[str]:
         if self._vl_tags_cache is None:
-            book_ids = frozenset(self.db.search('', return_matches=True, sort_results=False))
+            book_ids = frozenset(cast('list[int]', self.db.search('', return_matches=True, sort_results=False)))
             cat_key = ('#' + self.key) if self.key else 'tags'
             cats = self.db.new_api.get_categories(book_ids=book_ids)
             self._vl_tags_cache = {item.name for item in cats.get(cat_key, [])}
@@ -165,7 +176,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         applied = set(self._get_applied_tags_box_contents())
         self.all_tags_model.setStringList(sorted(vl_tags - applied, key=sort_key))
 
-    def _vl_restriction_changed(self, checked) -> None:
+    def _vl_restriction_changed(self, checked: bool) -> None:
         if checked:
             self._apply_vl_filter()
         else:
@@ -176,7 +187,7 @@ class TagEditor(QDialog, Ui_TagEditor):
                 all_tags = list(self.db.all_tags())
             self.all_tags_model.setStringList(sorted(set(all_tags) - applied, key=sort_key))
 
-    def edit_box_changed(self, which) -> None:
+    def edit_box_changed(self, which: str) -> None:
         gprefs['tag_editor_last_filter'] = which
 
     def delete_tags(self) -> None:
@@ -221,7 +232,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             _avail_model.removeRows(item.row(), 1)
         _avail_vsb.setValue(pos)
 
-    def apply_tags(self, item=None) -> None:
+    def apply_tags(self, item: QModelIndex | None = None) -> None:
         _avail_sel_model2 = self.available_tags.selectionModel()
         assert _avail_sel_model2 is not None
         row_indices = list(_avail_sel_model2.selectedRows())
@@ -248,10 +259,10 @@ class TagEditor(QDialog, Ui_TagEditor):
             tags.sort(key=sort_key)
         self.applied_model.setStringList(tags)
 
-    def _get_applied_tags_box_contents(self):
+    def _get_applied_tags_box_contents(self) -> list[str]:
         return list(self.applied_model.stringList())
 
-    def unapply_tags(self, item=None) -> None:
+    def unapply_tags(self, item: QModelIndex | None = None) -> None:
         _appl_sel_model = self.applied_tags.selectionModel()
         assert _appl_sel_model is not None
         row_indices = list(_appl_sel_model.selectedRows())
@@ -291,18 +302,18 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.applied_model.setStringList(tags_in_box)
         self.add_tag_input.setText('')
 
-    def filter_tags(self, filter_value, which='available_tags') -> None:
+    def filter_tags(self, filter_value: str | None, which: str = 'available_tags') -> None:
         collection = getattr(self, which)
         collection.model().set_filter_text(filter_value or '')
 
-    def accept(self):
+    def accept(self) -> None:
         if self.add_tag_input.text().strip():
             self.add_tag()
         self.tags = self._get_applied_tags_box_contents()
         self.save_state()
         return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_state()
         return QDialog.reject(self)
 

@@ -6,6 +6,7 @@ import textwrap
 import unicodedata
 from bisect import bisect
 from functools import partial
+from typing import TYPE_CHECKING, overload
 
 from qt.core import (
     QAbstractItemModel,
@@ -44,6 +45,11 @@ from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
 from calibre_extensions.progress_indicator import set_no_activate_on_click
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QMouseEvent, QObject, QPainter, QPoint, QStyleOptionViewItem
 
 ROOT = QModelIndex()
 
@@ -94,7 +100,7 @@ non_printing = {
 
 
 # Searching {{{
-def search_for_chars(query, and_tokens=False):
+def search_for_chars(query: str, and_tokens: bool = False) -> list[int]:
     ans = set()
     for i, token in enumerate(query.split()):
         token = token.lower()
@@ -115,7 +121,7 @@ def search_for_chars(query, and_tokens=False):
 
 
 class CategoryModel(QAbstractItemModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QAbstractItemModel.__init__(self, parent)
         self.categories = (
             (_('Favorites'), ()),  # {{{
@@ -477,10 +483,10 @@ class CategoryModel(QAbstractItemModel):
         f.setBold(True)
         self.fav_icon = QIcon.ic('rating.png')
 
-    def columnCount(self, parent=ROOT) -> int:
+    def columnCount(self, parent: QModelIndex = ROOT) -> int:
         return 1
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         if not parent.isValid():
             return len(self.categories)
         r = parent.row()
@@ -489,7 +495,7 @@ class CategoryModel(QAbstractItemModel):
             return len(self.categories[r][1])
         return 0
 
-    def index(self, row, column, parent=ROOT):
+    def index(self, row: int, column: int, parent: QModelIndex = ROOT) -> QModelIndex:
         if not parent.isValid():
             return self.createIndex(row, column) if -1 < row < len(self.categories) else ROOT
         try:
@@ -497,7 +503,11 @@ class CategoryModel(QAbstractItemModel):
         except IndexError:
             return ROOT
 
-    def parent(self, child: QModelIndex = ROOT):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = ROOT) -> QModelIndex | QObject | None:
         if not child.isValid():
             return ROOT
         pid = child.internalId()
@@ -505,7 +515,7 @@ class CategoryModel(QAbstractItemModel):
             return ROOT
         return self.index(pid - 1, 0)
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if not index.isValid():
             return None
         pid = index.internalId()
@@ -521,7 +531,7 @@ class CategoryModel(QAbstractItemModel):
             return item[0]
         return None
 
-    def get_range(self, index):
+    def get_range(self, index: QModelIndex) -> tuple[str, list[int]] | None:
         if index.isValid():
             pid = index.internalId()
             if pid == 0:
@@ -531,7 +541,7 @@ class CategoryModel(QAbstractItemModel):
                 item = self.categories[pid - 1][1][index.row()]
                 return (item[0], list(range(item[1][0], item[1][1] + 1)))
 
-    def get_char_info(self, char_code):
+    def get_char_info(self, char_code: int) -> tuple[str, str, str]:
         ipos = bisect(self.starts, char_code) - 1
         try:
             category, subcategory = self.category_map[self.starts[ipos]]
@@ -541,10 +551,10 @@ class CategoryModel(QAbstractItemModel):
 
 
 class CategoryDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QStyledItemDelegate.__init__(self, parent)
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         if not index.parent().isValid():
             ans += QSize(0, 6)
@@ -555,7 +565,7 @@ class CategoryView(QTreeView):
     category_selected = pyqtSignal(object, object)
     _model: CategoryModel
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QTreeView.__init__(self, parent)
         self.setHeaderHidden(True)
         self.setAnimated(True)
@@ -565,7 +575,7 @@ class CategoryView(QTreeView):
         self.initialized = False
         self.setExpandsOnDoubleClick(False)
 
-    def item_activated(self, index) -> None:
+    def item_activated(self, index: QModelIndex) -> None:
         ans = self._model.get_range(index)
         if ans is not None:
             self.category_selected.emit(*ans)
@@ -591,40 +601,40 @@ class CategoryView(QTreeView):
 
 
 class CharModel(QAbstractListModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
         self.chars = []
         self.allow_dnd = False
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         return len(self.chars)
 
-    def data(self, index, role=None):
+    def data(self, index: QModelIndex, role: int | None = None) -> object:
         if role == Qt.ItemDataRole.UserRole and -1 < index.row() < len(self.chars):
             return self.chars[index.row()]
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         ans = Qt.ItemFlag.ItemIsEnabled
         if self.allow_dnd:
             ans |= Qt.ItemFlag.ItemIsSelectable
             ans |= Qt.ItemFlag.ItemIsDragEnabled if index.isValid() else Qt.ItemFlag.ItemIsDropEnabled
         return ans
 
-    def supportedDropActions(self):
+    def supportedDropActions(self) -> Qt.DropAction:
         return Qt.DropAction.MoveAction
 
-    def mimeTypes(self):
+    def mimeTypes(self) -> list[str]:
         return ['application/calibre_charcode_indices']
 
-    def mimeData(self, indexes):
+    def mimeData(self, indexes: Iterable[QModelIndex]) -> QMimeData:
         data = ','.join(str(i.row()) for i in indexes)
         md = QMimeData()
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md
 
-    def dropMimeData(self, data, action, row, column, parent) -> bool:
-        if action != Qt.DropAction.MoveAction or not data.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
+    def dropMimeData(self, data: QMimeData | None, action: Qt.DropAction, row: int, column: int, parent: QModelIndex) -> bool:
+        if action != Qt.DropAction.MoveAction or data is None or not data.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
         indices = list(map(int, bytes(data.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
         codes = [self.chars[x] for x in indices]
@@ -640,16 +650,17 @@ class CharModel(QAbstractListModel):
 
 
 class CharDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.item_size = QSize(32, 32)
         self.np_pat = re.compile(r'(sp|j|nj|ss|fs|ds)$')
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return self.item_size
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
+        assert painter is not None
         try:
             charcode = int(index.data(Qt.ItemDataRole.UserRole))
         except TypeError, ValueError:
@@ -663,7 +674,7 @@ class CharDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
-    def paint_normal(self, painter, option, charcode) -> None:
+    def paint_normal(self, painter: QPainter, option: QStyleOptionViewItem, charcode: int) -> None:
         f = option.font
         f.setPixelSize(option.rect.height() - 8)
         painter.setFont(f)
@@ -673,7 +684,7 @@ class CharDelegate(QStyledItemDelegate):
             chr(charcode),
         )
 
-    def paint_non_printing(self, painter, option, charcode) -> None:
+    def paint_non_printing(self, painter: QPainter, option: QStyleOptionViewItem, charcode: int) -> None:
         text = self.np_pat.sub(r'\n\1', non_printing[charcode])
         painter.drawText(option.rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap | Qt.TextFlag.TextWrapAnywhere, text)
         painter.setPen(QPen(Qt.PenStyle.DashLine))
@@ -684,7 +695,7 @@ class CharView(QListView):
     show_name = pyqtSignal(object)
     char_selected = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.last_mouse_idx = -1
         QListView.__init__(self, parent)
         self._model = CharModel(self)
@@ -704,7 +715,7 @@ class CharView(QListView):
         self.activated.connect(self.item_activated)
         self.clicked.connect(self.item_activated)
 
-    def item_activated(self, index) -> None:
+    def item_activated(self, index: QModelIndex) -> None:
         try:
             m = self.model()
             assert m is not None
@@ -714,7 +725,7 @@ class CharView(QListView):
         else:
             self.char_selected.emit(chr(char_code))
 
-    def set_allow_drag_and_drop(self, enabled) -> None:
+    def set_allow_drag_and_drop(self, enabled: bool) -> None:
         vp = self.viewport()
         assert vp is not None
         if not enabled:
@@ -730,14 +741,15 @@ class CharView(QListView):
             self.setDropIndicatorShown(False)
             self._model.allow_dnd = True
 
-    def show_chars(self, name, codes) -> None:
+    def show_chars(self, name: str, codes: list[int]) -> None:
         self.showing_favorites = name == _('Favorites')
         self._model.beginResetModel()
         self._model.chars = codes
         self._model.endResetModel()
         self.scrollToTop()
 
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, e: QMouseEvent | None) -> None:
+        assert e is not None
         index = self.indexAt(e.pos())
         if index.isValid():
             row = index.row()
@@ -758,7 +770,7 @@ class CharView(QListView):
             self.last_mouse_idx = -1
         return QListView.mouseMoveEvent(self, e)
 
-    def context_menu(self, pos) -> None:
+    def context_menu(self, pos: QPoint) -> None:
         index = self.indexAt(pos)
         if index.isValid():
             try:
@@ -789,12 +801,12 @@ class CharView(QListView):
         self._model.chars = list(tprefs['charmap_favorites'])
         self._model.endResetModel()
 
-    def copy_to_clipboard(self, char_code) -> None:
+    def copy_to_clipboard(self, char_code: int) -> None:
         c = QApplication.clipboard()
         assert c is not None
         c.setText(chr(char_code))
 
-    def remove_from_favorites(self, char_code) -> None:
+    def remove_from_favorites(self, char_code: int) -> None:
         existing = tprefs['charmap_favorites']
         if not self.showing_favorites:
             if char_code not in existing:
@@ -808,7 +820,7 @@ class CharView(QListView):
 
 
 class CharSelect(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.initialized = False
         Dialog.__init__(self, _('Insert character'), 'charmap_dialog', parent)
         self.setWindowIcon(QIcon.ic('character-set.png'))
@@ -889,7 +901,7 @@ class CharSelect(Dialog):
         if isinstance(p, QWidget) and p.focusWidget() is not None:
             p.activateWindow()
 
-    def do_search(self):
+    def do_search(self) -> None:
         text = str(self.search.text()).strip()
         if not text:
             return self.clear_search()
@@ -901,11 +913,11 @@ class CharSelect(Dialog):
         self.search.clear()
         self.category_view.get_chars()
 
-    def set_allow_drag_and_drop(self, on) -> None:
+    def set_allow_drag_and_drop(self, on: bool) -> None:
         self.char_view.set_allow_drag_and_drop(on)
         self.rearrange_msg.setVisible(on)
 
-    def show_chars(self, name, codes) -> None:
+    def show_chars(self, name: str, codes: list[int]) -> None:
         b = self.rearrange_button
         assert b is not None
         b.setVisible(name == _('Favorites'))
@@ -919,10 +931,10 @@ class CharSelect(Dialog):
         if not self.initialized:
             self.category_view.initialize()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
-    def show_char_info(self, char_code) -> None:
+    def show_char_info(self, char_code: int) -> None:
         text = '\xa0'
         if char_code > 0:
             category_name, subcategory_name, character_name = self.category_view._model.get_char_info(char_code)
@@ -934,7 +946,7 @@ class CharSelect(Dialog):
         Dialog.show(self)
         self.raise_and_focus()
 
-    def char_selected(self, c) -> None:
+    def char_selected(self, c: str) -> None:
         if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
             self.hide()
         p = self.parent()

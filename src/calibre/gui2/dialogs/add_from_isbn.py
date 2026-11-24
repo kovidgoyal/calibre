@@ -3,7 +3,7 @@
 
 import os
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout, QWidget
 
 from calibre.constants import iswindows
 from calibre.ebooks.metadata import check_isbn, normalize_isbn
@@ -12,16 +12,16 @@ from calibre.utils.localization import _
 
 
 class AddFromISBN(QDialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setup_ui()
 
         path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else '/Users/kovid/e-books/some_book.epub'
         self.label.setText(str(self.label.text()) % path)
 
-        self.isbns = []
-        self.books = []
-        self.set_tags = []
+        self.isbns: list[str] = []
+        self.books: list[dict[str, str | None]] = []
+        self.set_tags: list[str] = []
 
     def setup_ui(self) -> None:
         self.resize(678, 430)
@@ -75,7 +75,7 @@ class AddFromISBN(QDialog):
 
         l.addStretch(10)
 
-    def paste(self, *args) -> None:
+    def paste(self, *args: object) -> None:
         app = qapplication_or_fail()
         c = app.clipboard()
         assert c is not None
@@ -86,14 +86,14 @@ class AddFromISBN(QDialog):
             self.isbn_box.setPlainText(new)
 
     @property
-    def check_for_existing(self):
+    def check_for_existing(self) -> bool:
         return self._check_for_existing.isChecked()
 
     @property
-    def convert_to_13(self):
+    def convert_to_13(self) -> bool:
         return self._convert_to_13.isChecked()
 
-    def accept(self, *args):
+    def accept(self, *args: object) -> None:
         tags = str(self.add_tags.text()).strip().split(',')
         tags = list(filter(None, [x.strip() for x in tags]))
         with gprefs:
@@ -145,10 +145,11 @@ class AddFromISBN(QDialog):
                 ):
                     return
             else:
-                return error_dialog(
+                error_dialog(
                     self,
                     _('All invalid ISBNs'),
                     _('All the ISBNs you entered were invalid. No books can be added.'),
                     show=True,
                 )
+                return
         QDialog.accept(self, *args)

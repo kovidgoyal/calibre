@@ -10,10 +10,17 @@ from typing import TYPE_CHECKING
 from calibre.db.constants import EBOOK_VIEWER_DEVICE, EBOOK_VIEWER_USER
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    import apsw
+
     from calibre.db.book_storage import BookStorageEntry
+    from calibre.gui2.viewer import BookLibraryDetails, LastReadData
+    from calibre.gui2.viewer.book_storage import CalibreData
+    from calibre.srv.library_broker import LibraryBroker
 
 
-def get_book_library_details(absolute_path_to_ebook):
+def get_book_library_details(absolute_path_to_ebook: str) -> BookLibraryDetails | None:
     from calibre.srv.library_broker import correct_case_of_last_path_component, library_id_from_path
 
     absolute_path_to_ebook = os.path.abspath(os.path.expanduser(absolute_path_to_ebook))
@@ -37,16 +44,16 @@ def get_book_library_details(absolute_path_to_ebook):
     }
 
 
-def database_has_annotations_support(cursor):
+def database_has_annotations_support(cursor: apsw.Cursor) -> bool:
     return next(cursor.execute('pragma user_version;'))[0] > 23
 
 
-def load_annotations_map_from_library(book_library_details, user_type='local', user='viewer'):
+def load_annotations_map_from_library(book_library_details: BookLibraryDetails, user_type: str = 'local', user: str = 'viewer') -> dict[str, list[dict]]:
     import apsw
 
     from calibre.db.backend import Connection, annotations_for_book
 
-    ans = {}
+    ans: dict[str, list[dict]] = {}
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READONLY)
@@ -64,7 +71,9 @@ def load_annotations_map_from_library(book_library_details, user_type='local', u
     return ans
 
 
-def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt, last_read_data) -> bool:
+def send_msg_to_calibre(
+    alist: Iterable[tuple[dict, float]], sync_annots_user: str, library_id: str, book_id: int, book_fmt: str | None, last_read_data: LastReadData | None
+) -> bool:
     import json
 
     from calibre.gui2.listener import send_message_in_process
@@ -85,7 +94,7 @@ def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt, 
         return False
 
 
-def save_annotations_in_gui(library_broker, msg) -> tuple[str, int]:
+def save_annotations_in_gui(library_broker: LibraryBroker, msg: str) -> tuple[str, int]:
     import json
 
     data = json.loads(msg)
@@ -112,7 +121,13 @@ def save_annotations_in_gui(library_broker, msg) -> tuple[str, int]:
     return lid, book_id
 
 
-def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None, last_read_data=None) -> None:
+def save_annotations_list_to_library(
+    book_library_details: BookLibraryDetails,
+    alist: Iterable[tuple[dict, float]],
+    sync_annots_user: str = '',
+    calibre_data: CalibreData | None = None,
+    last_read_data: LastReadData | None = None,
+) -> None:
     calibre_data = calibre_data or {}
     if (
         (lid := calibre_data.get('library_id'))
@@ -152,7 +167,7 @@ def save_annotations_list_to_library(book_library_details, alist, sync_annots_us
         conn.close()
 
 
-def load_book_storage_from_library(book_library_details, user_type='local', user='viewer') -> BookStorageEntry | None:
+def load_book_storage_from_library(book_library_details: BookLibraryDetails, user_type: str = 'local', user: str = 'viewer') -> BookStorageEntry | None:
     import apsw
 
     from calibre.db.backend import Connection, book_storage_for_book, database_has_book_storage_support
@@ -173,7 +188,7 @@ def load_book_storage_from_library(book_library_details, user_type='local', user
         conn.close()
 
 
-def send_book_storage_msg_to_calibre(entry: BookStorageEntry, sync_annots_user: str, library_id: str, book_id: int, book_fmt: str) -> bool:
+def send_book_storage_msg_to_calibre(entry: BookStorageEntry, sync_annots_user: str, library_id: str, book_id: int, book_fmt: str | None) -> bool:
     import json
 
     from calibre.gui2.listener import send_message_in_process
@@ -192,7 +207,7 @@ def send_book_storage_msg_to_calibre(entry: BookStorageEntry, sync_annots_user: 
         return False
 
 
-def save_book_storage_in_gui(library_broker, msg: str) -> bool:
+def save_book_storage_in_gui(library_broker: LibraryBroker, msg: str) -> bool:
     import json
 
     from calibre.db.book_storage import validate_book_storage
@@ -211,7 +226,9 @@ def save_book_storage_in_gui(library_broker, msg: str) -> bool:
     return True
 
 
-def save_book_storage_to_library(book_library_details, entry: BookStorageEntry, sync_annots_user: str = '', calibre_data=None) -> None:
+def save_book_storage_to_library(
+    book_library_details: BookLibraryDetails, entry: BookStorageEntry, sync_annots_user: str = '', calibre_data: CalibreData | None = None
+) -> None:
     calibre_data = calibre_data or {}
     if (
         (lid := calibre_data.get('library_id'))

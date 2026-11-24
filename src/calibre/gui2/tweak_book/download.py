@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QDialogButtonBox,
@@ -27,9 +28,12 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 
 class ChooseResources(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Choose the external resources to download'))
@@ -38,9 +42,11 @@ class ChooseResources(QWidget):
         self.items = i = QListWidget(self)
         l.addWidget(i)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[QListWidgetItem]:
         for i in range(self.items.count()):
-            yield self.items.item(i)
+            item = self.items.item(i)
+            assert item is not None
+            yield item
 
     def select_none(self) -> None:
         for item in self:
@@ -51,13 +57,13 @@ class ChooseResources(QWidget):
             item.setCheckState(Qt.CheckState.Checked)
 
     @property
-    def resources(self):
+    def resources(self) -> dict[str, list[str]]:
         return {
             i.data(Qt.ItemDataRole.UserRole): self.original_resources[i.data(Qt.ItemDataRole.UserRole)] for i in self if i.checkState() == Qt.CheckState.Checked
         }
 
     @resources.setter
-    def resources(self, resources) -> None:
+    def resources(self, resources: dict[str, list[str]]) -> None:
         self.items.clear()
         self.original_resources = resources
         dc = 0
@@ -75,14 +81,14 @@ class ChooseResources(QWidget):
 
 
 class DownloadStatus(QScrollArea):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
         self.w = QWidget(self)
         self.l = QGridLayout(self.w)
         self.setWidget(self.w)
 
-    def __call__(self, resources):
+    def __call__(self, resources: dict[str, list[str]]) -> None:
         self.url_map = {}
         self.labels = []
         for url in resources:
@@ -95,7 +101,7 @@ class DownloadStatus(QScrollArea):
         self.l.addWidget(QLabel(''))
         self.l.setRowStretch(self.l.rowCount() - 1, 10)
 
-    def progress(self, url, done, total) -> None:
+    def progress(self, url: str, done: int, total: int) -> None:
         p = self.url_map.get(url)
         if p is not None:
             if total > 0:
@@ -111,7 +117,7 @@ class DownloadResources(Dialog):
     download_done = pyqtSignal(object, object)
     replace_done = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.resources_replaced = False
         self.show_diff = False
         Dialog.__init__(self, _('Download external resources'), 'download-external-resources', parent)
@@ -151,7 +157,7 @@ class DownloadResources(Dialog):
             ret, tb = err, traceback.format_exc()
         self.get_done.emit(ret, tb)
 
-    def _get_done(self, x, tb):
+    def _get_done(self, x: dict[str, list[str]] | Exception, tb: str | None) -> None:
         if not self.isVisible():
             return self.reject()
         if tb is not None:
@@ -167,6 +173,7 @@ class DownloadResources(Dialog):
             self.wait.stop()
             self.state = 1
             resources = x
+            assert not isinstance(resources, Exception)
             if not resources:
                 info_dialog(
                     self,
@@ -179,7 +186,7 @@ class DownloadResources(Dialog):
             self.choose_resources.resources = resources
             self.bb.setVisible(True)
 
-    def download_resources(self, resources) -> None:
+    def download_resources(self, resources: dict[str, list[str]]) -> None:
         tb = None
         try:
             ret = download_external_resources(current_container(), resources, progress_report=self.progress.emit)
@@ -189,7 +196,7 @@ class DownloadResources(Dialog):
             ret, tb = err, traceback.format_exc()
         self.download_done.emit(ret, tb)
 
-    def _download_done(self, ret, tb):
+    def _download_done(self, ret: tuple[dict[str, str], dict[str, str]] | Exception, tb: str | None) -> None:
         if not self.isVisible():
             return self.reject()
         if tb is not None:
@@ -202,15 +209,16 @@ class DownloadResources(Dialog):
             )
             self.reject()
         else:
+            assert not isinstance(ret, Exception)
             replacements, failures = ret
             if failures:
-                tb = [f'{url}\n\t{err}\n' for url, err in failures.items()]
+                failure_details = [f'{url}\n\t{err}\n' for url, err in failures.items()]
                 if not replacements:
                     error_dialog(
                         self,
                         _('Download failed'),
                         _('Failed to download external resources, click "Show details" for more information.'),
-                        det_msg='\n'.join(tb),
+                        det_msg='\n'.join(failure_details),
                         show=True,
                     )
                     self.reject()
@@ -220,7 +228,7 @@ class DownloadResources(Dialog):
                         self,
                         _('Some downloads failed'),
                         _('Failed to download some external resources, click "Show details" for more information.'),
-                        det_msg='\n'.join(tb),
+                        det_msg='\n'.join(failure_details),
                         show=True,
                     )
             self.state = 2
@@ -239,7 +247,7 @@ class DownloadResources(Dialog):
             t.daemon = True
             t.start()
 
-    def replace_resources(self, resources, replacements) -> None:
+    def replace_resources(self, resources: dict[str, list[str]], replacements: dict[str, str]) -> None:
         tb = None
         try:
             ret = replace_resources(current_container(), resources, replacements)
@@ -249,7 +257,7 @@ class DownloadResources(Dialog):
             ret, tb = err, traceback.format_exc()
         self.replace_done.emit(ret, tb)
 
-    def _replace_done(self, ret, tb) -> None:
+    def _replace_done(self, ret: bool | Exception, tb: str | None) -> None:
         if tb is not None:
             error_dialog(
                 self,
@@ -272,7 +280,7 @@ class DownloadResources(Dialog):
             connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))
             self.bb.setVisible(True)
 
-    def accept(self):
+    def accept(self) -> None:
         if self.state == 0:
             return self.reject()
         if self.state == 1:
@@ -289,13 +297,13 @@ class DownloadResources(Dialog):
         self.wait.stop()
         Dialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         if self.state == 2:
             return
         self.wait.stop()
         return Dialog.reject(self)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 500)
 
 

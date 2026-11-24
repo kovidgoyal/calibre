@@ -7,6 +7,7 @@ import shutil
 import stat
 from queue import Empty, LifoQueue
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import QHBoxLayout, QLabel, QObject, QSize, Qt, QWidget, pyqtSignal
 
@@ -17,8 +18,11 @@ from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
 
-def save_dir_container(container, path) -> None:
+
+def save_dir_container(container: Container, path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
     if not os.path.isdir(path):
@@ -26,7 +30,7 @@ def save_dir_container(container, path) -> None:
     container.commit(path)
 
 
-def save_container(container, path):
+def save_container(container: Container, path: str) -> None:
     if container.is_dir:
         return save_dir_container(container, path)
     temp = PersistentTemporaryFile(prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
@@ -77,14 +81,14 @@ def save_container(container, path):
             os.remove(temp)
 
 
-def send_message(msg='') -> None:
+def send_message(msg: str | None = '') -> None:
     if msg:
         from calibre.gui2.listener import send_message_in_process
 
         send_message_in_process('bookedited:' + msg)
 
 
-def find_first_existing_ancestor(path):
+def find_first_existing_ancestor(path: str) -> str:
     while path and not os.path.exists(path):
         npath = os.path.dirname(path)
         if npath == path:
@@ -94,7 +98,7 @@ def find_first_existing_ancestor(path):
 
 
 class SaveWidget(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
@@ -124,12 +128,12 @@ class SaveManager(QObject):
     save_done = pyqtSignal()
     check_for_completion = pyqtSignal()
 
-    def __init__(self, parent, notify=None) -> None:
+    def __init__(self, parent: QWidget, notify: str | None = None) -> None:
         QObject.__init__(self, parent)
         self.count = 0
         self.last_saved = -1
-        self.requests = LifoQueue()
-        self.notify_requests = LifoQueue()
+        self.requests: LifoQueue[tuple[int, str, Container] | None] = LifoQueue()
+        self.notify_requests: LifoQueue[bool | None] = LifoQueue()
         self.notify_data = notify
         t = Thread(name='save-thread', target=self.run)
         t.daemon = True
@@ -141,7 +145,7 @@ class SaveManager(QObject):
         self.start_save.connect(w.start, type=Qt.ConnectionType.QueuedConnection)
         self.save_done.connect(w.stop, type=Qt.ConnectionType.QueuedConnection)
 
-    def schedule(self, tdir, container) -> None:
+    def schedule(self, tdir: str, container: Container) -> None:
         self.count += 1
         self.requests.put((self.count, tdir, container))
 
@@ -191,7 +195,7 @@ class SaveManager(QObject):
             else:
                 self.requests.task_done()
 
-    def process_save(self, count, tdir, container):
+    def process_save(self, count: int, tdir: str, container: Container) -> bool | None:
         if count <= self.last_saved:
             shutil.rmtree(tdir, ignore_errors=True)
             return
@@ -210,17 +214,17 @@ class SaveManager(QObject):
             self.notify_requests.put(True)
         return error_occurred
 
-    def do_save(self, tdir, container) -> None:
+    def do_save(self, tdir: str, container: Container) -> None:
         try:
             save_container(container, container.path_to_ebook)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
 
     @property
-    def has_tasks(self):
+    def has_tasks(self) -> bool:
         return bool(self.requests.unfinished_tasks)
 
-    def wait(self, timeout=30) -> bool:
+    def wait(self, timeout: float | None = 30) -> bool:
         if timeout is None:
             self.requests.join()
         else:

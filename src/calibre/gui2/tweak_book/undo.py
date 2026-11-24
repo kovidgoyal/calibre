@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import shutil
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractListModel,
@@ -20,12 +21,20 @@ from qt.core import (
 from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QSize, QStyleOptionViewItem
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.dialogs.message_box import MessageBox
+
 ROOT = QModelIndex()
 
 MAX_SAVEPOINTS = 100
 
 
-def cleanup(containers) -> None:
+def cleanup(containers: Iterable[Container]) -> None:
     for container in containers:
         try:
             shutil.rmtree(container.root, ignore_errors=True)
@@ -34,22 +43,22 @@ def cleanup(containers) -> None:
 
 
 class State:
-    def __init__(self, container) -> None:
+    def __init__(self, container: Container) -> None:
         self.container = container
-        self.message = None
-        self.rewind_message = None
+        self.message: str | None = None
+        self.rewind_message: str | None = None
 
 
 class GlobalUndoHistory(QAbstractListModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
-        self.states = []
+        self.states: list[State] = []
         self.pos = 0
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         return len(self.states)
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if role == Qt.ItemDataRole.DisplayRole:
             return self.label_for_row(index.row())
         if role == Qt.ItemDataRole.FontRole and index.row() == self.pos:
@@ -60,7 +69,7 @@ class GlobalUndoHistory(QAbstractListModel):
             return self.states[index.row()]
         return None
 
-    def label_for_row(self, row):
+    def label_for_row(self, row: int) -> str:
         msg = self.states[row].message
         if self.pos == row:
             msg = _('Current state') + ('' if not msg else _(' [was %s]') % msg)
@@ -68,20 +77,20 @@ class GlobalUndoHistory(QAbstractListModel):
             msg = _('[Unnamed state]')
         return msg
 
-    def label_for_container(self, container):
+    def label_for_container(self, container: Container) -> str | None:
         for i, state in enumerate(self.states):
             if state.container is container:
                 return self.label_for_row(i)
 
     @property
-    def current_container(self):
+    def current_container(self) -> Container:
         return self.states[self.pos].container
 
     @property
-    def previous_container(self):
+    def previous_container(self) -> Container:
         return self.states[self.pos - 1].container
 
-    def open_book(self, container) -> None:
+    def open_book(self, container: Container) -> None:
         self.beginResetModel()
         self.states = [State(container)]
         self.pos = 0
@@ -91,12 +100,12 @@ class GlobalUndoHistory(QAbstractListModel):
         extra = self.states[self.pos + 1 :]
         if extra:
             self.beginRemoveRows(ROOT, self.pos + 1, len(self.states) - 1)
-        cleanup(extra)
+        cleanup(s.container for s in extra)
         self.states = self.states[: self.pos + 1]
         if extra:
             self.endRemoveRows()
 
-    def add_savepoint(self, new_container, message) -> None:
+    def add_savepoint(self, new_container: Container, message: str | None) -> None:
         try:
             self.states[self.pos].rewind_message = self.states[self.pos].message
             self.states[self.pos].message = message
@@ -113,12 +122,12 @@ class GlobalUndoHistory(QAbstractListModel):
         if len(self.states) > MAX_SAVEPOINTS:
             num = len(self.states) - MAX_SAVEPOINTS
             self.beginRemoveRows(ROOT, 0, num - 1)
-            cleanup(self.states[:num])
+            cleanup(s.container for s in self.states[:num])
             self.states = self.states[num:]
             self.pos -= num
             self.endRemoveRows()
 
-    def rewind_savepoint(self):
+    def rewind_savepoint(self) -> Container | None:
         """Revert back to the last save point, should only be used immediately
         after a call to add_savepoint. If there are intervening calls to undo
         or redo, behavior is undefined. This is intended to be used in the case
@@ -134,19 +143,19 @@ class GlobalUndoHistory(QAbstractListModel):
             self.states[self.pos].message = self.states[self.pos].rewind_message
             return ans
 
-    def undo(self):
+    def undo(self) -> Container | None:
         if self.pos > 0:
             self.pos -= 1
             self.dataChanged.emit(self.index(self.pos), self.index(self.pos + 1))
             return self.current_container
 
-    def redo(self):
+    def redo(self) -> Container | None:
         if self.pos < len(self.states) - 1:
             self.pos += 1
             self.dataChanged.emit(self.index(self.pos - 1), self.index(self.pos))
             return self.current_container
 
-    def revert_to(self, container):
+    def revert_to(self, container: Container) -> Container | None:
         for i, state in enumerate(self.states):
             if state.container is container:
                 opos = self.pos
@@ -156,32 +165,32 @@ class GlobalUndoHistory(QAbstractListModel):
                 return container
 
     @property
-    def can_undo(self):
+    def can_undo(self) -> bool:
         return self.pos > 0
 
     @property
-    def can_redo(self):
+    def can_redo(self) -> bool:
         return self.pos < len(self.states) - 1
 
     @property
-    def undo_msg(self):
+    def undo_msg(self) -> str:
         if not self.can_undo:
             return ''
         return self.states[self.pos - 1].message or ''
 
     @property
-    def redo_msg(self):
+    def redo_msg(self) -> str:
         if not self.can_redo:
             return ''
         return self.states[self.pos + 1].message or _('[Unnamed state]')
 
-    def update_path_to_ebook(self, path) -> None:
+    def update_path_to_ebook(self, path: str) -> None:
         for state in self.states:
             state.container.path_to_ebook = path
 
 
 class SpacedDelegate(QStyledItemDelegate):
-    def sizeHint(self, option=None, index=None):
+    def sizeHint(self, option: QStyleOptionViewItem | None = None, index: QModelIndex | None = None) -> QSize:
         assert option is not None and index is not None
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 4)
@@ -192,7 +201,7 @@ class CheckpointView(QWidget):
     revert_requested = pyqtSignal(object)
     compare_requested = pyqtSignal(object)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: GlobalUndoHistory, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
@@ -216,7 +225,7 @@ class CheckpointView(QWidget):
         b.clicked.connect(self.compare_clicked)
         l.addWidget(b, 1, 0)
 
-    def data_changed(self, *args) -> None:
+    def data_changed(self, *args: object) -> None:
         self.view.clearSelection()
         m = self.view.model()
         assert isinstance(m, GlobalUndoHistory)
@@ -225,10 +234,10 @@ class CheckpointView(QWidget):
         sm.select(m.index(m.pos, 0), QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(m.index(m.pos, 0))
 
-    def double_clicked(self, index) -> None:
+    def double_clicked(self, index: QModelIndex) -> None:
         pass  # Too much danger of accidental double click
 
-    def revert_clicked(self):
+    def revert_clicked(self) -> int | MessageBox | None:
         m = self.view.model()
         assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()
@@ -238,7 +247,7 @@ class CheckpointView(QWidget):
             return error_dialog(self, _('Cannot revert'), _('Cannot revert to the current state'), show=True)
         self.revert_requested.emit(m.states[row].container)
 
-    def compare_clicked(self):
+    def compare_clicked(self) -> int | MessageBox | None:
         m = self.view.model()
         assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()

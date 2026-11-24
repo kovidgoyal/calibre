@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import partial
 from math import ceil
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -20,6 +21,7 @@ from qt.core import (
     QItemSelection,
     QItemSelectionModel,
     QLabel,
+    QLineEdit,
     QListView,
     QMenu,
     QPushButton,
@@ -48,6 +50,16 @@ from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Sequence
+
+    from _typeshed import SupportsRichComparison
+    from qt.core import QAbstractItemModel, QKeyEvent, QModelIndex, QObject, QPainter, QPoint, QStyleOptionViewItem, QWidget
+
+    from calibre.db.cache import Cache, ExtraFile
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.open_with import Entry
+
 NAME_ROLE = Qt.ItemDataRole.UserRole
 
 
@@ -55,19 +67,21 @@ class Delegate(QStyledItemDelegate):
     rename_requested = pyqtSignal(int, str)
     doc_size = None
 
-    def setModelData(self, editor, model, index) -> None:
+    def setModelData(self, editor: QWidget | None, model: QAbstractItemModel | None, index: QModelIndex) -> None:
+        assert isinstance(editor, QLineEdit)
         newname = editor.text()
         oldname = index.data(NAME_ROLE) or ''
         if newname != oldname:
             self.rename_requested.emit(index.row(), newname)
 
-    def setEditorData(self, editor, index) -> None:
+    def setEditorData(self, editor: QWidget | None, index: QModelIndex) -> None:
+        assert isinstance(editor, QLineEdit)
         name = index.data(NAME_ROLE) or ''
         # We do this because Qt calls selectAll() unconditionally on the
         # editor, and we want only a part of the file name to be selected
         QTimer.singleShot(0, partial(self.set_editor_data, name, editor))
 
-    def set_editor_data(self, name, editor) -> None:
+    def set_editor_data(self, name: str, editor: QLineEdit) -> None:
         if sip.isdeleted(editor):
             return
         editor.setText(name)
@@ -80,14 +94,14 @@ class Delegate(QStyledItemDelegate):
         else:
             editor.selectAll()
 
-    def doc_for_index(self, index):
+    def doc_for_index(self, index: QModelIndex) -> QTextDocument:
         d = QTextDocument()
         d.setDocumentMargin(0)
         lines = (index.data(Qt.ItemDataRole.DisplayRole) or ' \n ').splitlines()
         d.setHtml(f'<b>{prepare_string_for_xml(lines[0])}</b><br><small>{prepare_string_for_xml(lines[1])}')
         return d
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         ans = super().sizeHint(option, index)
         if self.doc_size is None:
             d = self.doc_for_index(index)
@@ -95,7 +109,8 @@ class Delegate(QStyledItemDelegate):
         ans.setHeight(max(int(ceil(self.doc_size.height()) + 2), ans.height()))
         return ans
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        assert painter is not None
         painter.save()
         painter.setClipRect(option.rect)
         if option.state & QStyle.StateFlag.State_Selected:
@@ -116,14 +131,14 @@ class Delegate(QStyledItemDelegate):
 
 
 class Files(QAbstractListModel):
-    def __init__(self, db, book_id, parent=None) -> None:
+    def __init__(self, db: Cache, book_id: int, parent: QObject | None = None) -> None:
         self.db = db
         self.book_id = book_id
         super().__init__(parent=parent)
         self.fi = file_icon_provider()
-        self.files = []
+        self.files: list[ExtraFile] = []
 
-    def refresh(self, key=None, reverse=False) -> None:
+    def refresh(self, key: Callable[[ExtraFile], SupportsRichComparison] | None = None, reverse: bool = False) -> None:
         self.modelAboutToBeReset.emit()
         self.files = sorted(
             self.db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN),
@@ -132,16 +147,16 @@ class Files(QAbstractListModel):
         )
         self.modelReset.emit()
 
-    def file_sort_key(self, ef):
+    def file_sort_key(self, ef: ExtraFile) -> bytes:
         return primary_sort_key(ef.relpath)
 
-    def date_sort_key(self, ef):
+    def date_sort_key(self, ef: ExtraFile) -> float:
         return ef.stat_result.st_mtime
 
-    def size_sort_key(self, ef):
+    def size_sort_key(self, ef: ExtraFile) -> int:
         return ef.stat_result.st_size
 
-    def resort(self, which) -> None:
+    def resort(self, which: int) -> None:
         k, reverse = self.file_sort_key, False
         if which == 1:
             k, reverse = self.date_sort_key, True
@@ -149,24 +164,24 @@ class Files(QAbstractListModel):
             k, reverse = self.size_sort_key, True
         self.refresh(key=k, reverse=reverse)
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.files)
 
-    def file_display_name(self, rownum):
+    def file_display_name(self, rownum: int) -> str:
         ef = self.files[rownum]
         name = ef.relpath.split('/', 1)[1]
         return name.replace('/', os.sep)
 
-    def item_at(self, rownum):
+    def item_at(self, rownum: int) -> ExtraFile:
         return self.files[rownum]
 
-    def rownum_for_relpath(self, relpath):
+    def rownum_for_relpath(self, relpath: str) -> int:
         for i, e in enumerate(self.files):
             if e.relpath == relpath:
                 return i
         return -1
 
-    def data(self, index, role=None):
+    def data(self, index: QModelIndex, role: int | None = None) -> object:
         row = index.row()
         if row >= len(self.files):
             return None
@@ -184,14 +199,14 @@ class Files(QAbstractListModel):
             return self.file_display_name(row)
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
 
 class ListView(QListView):
     files_dropped = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setAcceptDrops(True)
 
@@ -213,10 +228,12 @@ class ListView(QListView):
         if e is not None:
             e.accept()
 
-    def dropEvent(self, e) -> None:
+    def dropEvent(self, e: QDropEvent | None) -> None:
+        assert e is not None
         files = []
         if self.is_drop_event_ok(e):
             md = e.mimeData()
+            assert md is not None
             for url in md.urls():
                 if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
                     files.append(url.toLocalFile())
@@ -225,7 +242,7 @@ class ListView(QListView):
 
 
 class DataFilesManager(Dialog):
-    def __init__(self, db, book_id, parent=None, num_left=0) -> None:
+    def __init__(self, db: LibraryDatabase | Cache, book_id: int, parent: QWidget | None = None, num_left: int = 0) -> None:
         self.db = db.new_api
         self.num_left = num_left
         self.book_title = title = self.db.field_for('title', book_id) or _('Unknown')
@@ -237,7 +254,7 @@ class DataFilesManager(Dialog):
             default_buttons=QDialogButtonBox.StandardButton.Close,
         )
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(400, 500)
 
     def setup_ui(self) -> None:
@@ -314,7 +331,7 @@ class DataFilesManager(Dialog):
         self.num_left = 0
         self.reject()
 
-    def context_menu(self, pos) -> None:
+    def context_menu(self, pos: QPoint) -> None:
         m = QMenu(self)
         idx = self.fview.indexAt(pos)
         if not idx.isValid():
@@ -323,16 +340,16 @@ class DataFilesManager(Dialog):
         rename_ac = m.addAction(QIcon.ic('modified.png'), _('Rename this file'))
         assert rename_ac is not None
         rename_ac.triggered.connect(lambda: self.fview.edit(idx))
-        if e:
-            om = self.open_with_menu(e.file_path)
-            if len(om.actions()) == 1:
-                m.addActions(om.actions())
-            else:
-                m.addMenu(om)
+        om = self.open_with_menu(e.file_path)
+        if len(om.actions()) == 1:
+            m.addActions(om.actions())
+        else:
+            m.addMenu(om)
 
         m.exec(self.fview.mapToGlobal(pos))
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
         return super().keyPressEvent(a0)
@@ -356,7 +373,7 @@ class DataFilesManager(Dialog):
             self.current_label.setText('\xa0')
             self.open_with_label.setVisible(False)
 
-    def open_with_menu(self, file_path):
+    def open_with_menu(self, file_path: str) -> QMenu:
         m = QMenu(_('Open with...'), parent=self)
         fmt = file_path.rpartition('.')[-1].lower()
         populate_menu(m, lambda ac, entry: ac.triggered.connect(partial(self.do_open_with, file_path, entry)), fmt)
@@ -368,12 +385,12 @@ class DataFilesManager(Dialog):
             m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, self))
         return m
 
-    def choose_open_with(self, file_path, fmt) -> None:
+    def choose_open_with(self, file_path: str, fmt: str) -> None:
         entry = choose_program(fmt, self)
         if entry is not None:
             self.do_open_with(file_path, entry)
 
-    def do_open_with(self, path, entry) -> None:
+    def do_open_with(self, path: str, entry: Entry) -> None:
         run_program(entry, path, self)
 
     def open_with(self) -> None:
@@ -385,7 +402,7 @@ class DataFilesManager(Dialog):
         m.exec(QCursor.pos())
 
     @property
-    def current_item(self):
+    def current_item(self) -> ExtraFile | None:
         ci = self.fview.currentIndex()
         try:
             return self.files.item_at(ci.row())
@@ -393,7 +410,7 @@ class DataFilesManager(Dialog):
             return None
 
     @contextmanager
-    def preserve_state(self):
+    def preserve_state(self) -> Generator[None]:
         selected = set()
         vs = self.fview.verticalScrollBar()
         assert vs is not None
@@ -419,7 +436,7 @@ class DataFilesManager(Dialog):
                 if e.relpath in selected:
                     ii = self.files.index(i)
                     s.select(ii, ii)
-            if current_idx is not None:
+            if current_idx is not None and current is not None:
                 flags = QItemSelectionModel.SelectionFlag.Current
                 if current.relpath in selected:
                     flags |= QItemSelectionModel.SelectionFlag.Select
@@ -434,16 +451,17 @@ class DataFilesManager(Dialog):
             return
         self.do_add_files(files)
 
-    def do_add_files(self, files):
+    def do_add_files(self, files: Sequence[str]) -> None:
         q = self.db.are_paths_inside_book_dir(self.book_id, files, DATA_DIR_NAME)
         if q:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Cannot add'),
                 _("Cannot add these data files to the book because they are already in the book's data files folder"),
                 show=True,
                 det_msg='\n'.join(q),
             )
+            return
 
         m = {f'{DATA_DIR_NAME}/{os.path.basename(x)}': x for x in files}
         added = self.db.add_extra_files(self.book_id, m, replace=False, auto_rename=False)
@@ -458,14 +476,15 @@ class DataFilesManager(Dialog):
         with self.preserve_state():
             self.files.refresh()
 
-    def remove_files(self):
+    def remove_files(self) -> None:
         files = []
         sel_model = self.fview.selectionModel()
         assert sel_model is not None
         for idx in sel_model.selectedRows():
             files.append(self.files.item_at(idx.row()))
         if not files:
-            return error_dialog(self, _('Cannot delete'), _('No files selected to remove'), show=True)
+            error_dialog(self, _('Cannot delete'), _('No files selected to remove'), show=True)
+            return
         if len(files) == 1:
             msg = _('Send the file "{}" to the Recycle Bin?').format(files[0].relpath.replace('/', os.sep))
         else:
@@ -477,11 +496,12 @@ class DataFilesManager(Dialog):
         with self.preserve_state():
             self.files.refresh()
 
-    def rename_requested(self, idx, new_name):
+    def rename_requested(self, idx: int, new_name: str) -> None:
         e = self.files.item_at(idx)
         newrelpath = posixpath.normpath(posixpath.join(DATA_DIR_NAME, new_name.replace(os.sep, '/')))
         if not newrelpath.startswith(DATA_DIR_NAME + '/'):
-            return error_dialog(self, _('Invalid name'), _('"{}" is not a valid file name').format(new_name), show=True)
+            error_dialog(self, _('Invalid name'), _('"{}" is not a valid file name').format(new_name), show=True)
+            return
         if e.relpath not in self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=False):
             if question_dialog(
                 self,
@@ -493,14 +513,14 @@ class DataFilesManager(Dialog):
             self.files.refresh()
         row = self.files.rownum_for_relpath(newrelpath)
         if row > -1:
-            idx = self.files.index(row)
-            self.fview.setCurrentIndex(idx)
+            qidx = self.files.index(row)
+            self.fview.setCurrentIndex(qidx)
             fview_sel_model = self.fview.selectionModel()
             assert fview_sel_model is not None
-            fview_sel_model.select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
-            self.fview.scrollTo(idx)
+            fview_sel_model.select(qidx, QItemSelectionModel.SelectionFlag.SelectCurrent)
+            self.fview.scrollTo(qidx)
 
-    def activated(self, idx) -> None:
+    def activated(self, idx: QModelIndex) -> None:
         e = self.files.item_at(idx.row())
         open_local_file(e.file_path)
 

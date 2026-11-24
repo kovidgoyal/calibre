@@ -5,6 +5,8 @@
 @author: Charles Haley
 """
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialogButtonBox, QVBoxLayout
 
 from calibre.constants import iswindows
@@ -13,8 +15,13 @@ from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter_functions import translate_ffml
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
-def general_doc():
+    from calibre.utils.formatter_functions import TranslatedStringWithRaw
+
+
+def general_doc() -> TranslatedStringWithRaw:
     return translate_ffml(r'''
 [LIST]
 [*]`Functions in Single Function Mode templates`
@@ -47,7 +54,7 @@ documentation editor` in the `Miscellaneous` section. There is no default shortc
 ''')
 
 
-def ffml_doc():
+def ffml_doc() -> TranslatedStringWithRaw:
     return translate_ffml(r'''
 Format Function Markup Language (FFML) is a basic markup language used to
 document formatter functions. It is based on a combination of RST used by sphinx
@@ -125,7 +132,7 @@ Note: HTML output contains no CSS and does not start with a tag such as <DIV> or
 
 
 class GeneralInformationDialog(Dialog):
-    def __init__(self, include_general_doc=False, include_ffml_doc=False, parent=None) -> None:
+    def __init__(self, include_general_doc: bool = False, include_ffml_doc: bool = False, parent: QWidget | None = None) -> None:
         self.include_general_doc = include_general_doc
         self.include_ffml_doc = include_ffml_doc
         super().__init__(

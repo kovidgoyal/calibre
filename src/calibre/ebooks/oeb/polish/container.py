@@ -298,6 +298,8 @@ class Container(ContainerBase):  # {{{
     opf_name: str
     #: The absolute path to the folder containing the OPF file
     opf_dir: str
+    #: The path to the book file, implemented by the sub-classes that represent books
+    path_to_ebook: str
 
     @property
     def book_type_for_display(self) -> str:

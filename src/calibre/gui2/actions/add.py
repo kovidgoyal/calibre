@@ -254,9 +254,9 @@ class AddAction(InterfaceAction):
         from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 
         d = ChooseFormatDialog(self.gui, _('Choose format of empty file'), sorted(valid_empty_formats))
-        if d.exec() != QDialog.DialogCode.Accepted or not d.format():
+        if d.exec() != QDialog.DialogCode.Accepted or not (fmt := d.format()):
             return
-        self._add_empty_format(d.format())
+        self._add_empty_format(fmt)
 
     def add_empty_format(self, format_: str) -> None:
         if not self.is_ok_to_add_empty_formats():

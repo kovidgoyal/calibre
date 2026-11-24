@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING, ClassVar, Literal, cast
 
 from qt.core import (
     QAction,
@@ -28,9 +29,12 @@ from calibre.gui2.tweak_book.editor.canvas import Canvas
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QContextMenuEvent, QImage, QWidget
+
 
 class ResizeDialog(QDialog):  # {{{
-    def __init__(self, width, height, parent=None) -> None:
+    def __init__(self, width: int, height: int, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -63,7 +67,7 @@ class ResizeDialog(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addRow(bb)
 
-    def keep_ar(self, which) -> None:
+    def keep_ar(self, which: str) -> None:
         if self.ar.isChecked():
             val = getattr(self, which)
             oval = val / self.aspect_ratio if which == 'width' else val * self.aspect_ratio
@@ -73,19 +77,19 @@ class ResizeDialog(QDialog):  # {{{
             other.blockSignals(False)
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self._width.value()
 
     @width.setter
-    def width(self, val) -> None:
+    def width(self, val: int) -> None:  # ty: ignore[incompatible-property-override]
         self._width.setValue(val)
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self._height.value()
 
     @height.setter
-    def height(self, val) -> None:
+    def height(self, val: int) -> None:  # ty: ignore[incompatible-property-override]
         self._height.setValue(val)
 
 
@@ -93,7 +97,8 @@ class ResizeDialog(QDialog):  # {{{
 
 
 class Editor(QMainWindow):
-    has_line_numbers = False
+    # Literal so that the type checker can use it to tell the editor types apart
+    has_line_numbers: ClassVar[Literal[False]] = False
     action_copy: QAction
     action_paste: QAction
 
@@ -103,7 +108,7 @@ class Editor(QMainWindow):
     cursor_position_changed = pyqtSignal()  # dummy
     copy_available_state_changed = pyqtSignal(object)
 
-    def __init__(self, syntax, parent=None) -> None:
+    def __init__(self, syntax: str, parent: QWidget | None = None) -> None:
         QMainWindow.__init__(self, parent)
         if parent is None:
             self.setWindowFlags(Qt.WindowType.Widget)
@@ -123,30 +128,30 @@ class Editor(QMainWindow):
         self.canvas.selection_state_changed.connect(self.update_clipboard_actions)
 
     @property
-    def is_modified(self):
+    def is_modified(self) -> bool:
         return self._is_modified
 
     @is_modified.setter
-    def is_modified(self, val) -> None:
+    def is_modified(self, val: bool) -> None:
         self._is_modified = val
         self.modification_state_changed.emit(val)
 
     @property
-    def current_editing_state(self):
+    def current_editing_state(self) -> dict[str, tuple[int, int]]:
         return {}
 
     @current_editing_state.setter
-    def current_editing_state(self, val) -> None:
+    def current_editing_state(self, val: dict[str, tuple[int, int]]) -> None:
         pass
 
     @property
-    def undo_available(self):
+    def undo_available(self) -> bool:
         undo_action = self.canvas.undo_action
         assert undo_action is not None
         return undo_action.isEnabled()
 
     @property
-    def redo_available(self):
+    def redo_available(self) -> bool:
         redo_action = self.canvas.redo_action
         assert redo_action is not None
         return redo_action.isEnabled()
@@ -156,38 +161,38 @@ class Editor(QMainWindow):
         return 0
 
     @current_line.setter
-    def current_line(self, val) -> None:
+    def current_line(self, val: int) -> None:
         pass
 
     @property
     def number_of_lines(self) -> int:
         return 0
 
-    def pretty_print(self, name) -> bool:
+    def pretty_print(self, name: str) -> bool:
         return False
 
-    def change_document_name(self, newname) -> None:
+    def change_document_name(self, newname: str) -> None:
         pass
 
-    def get_raw_data(self):
+    def get_raw_data(self) -> bytes | None:
         return self.canvas.get_image_data(quality=self.quality)
 
     @property
-    def data(self):
+    def data(self) -> bytes | None:
         return self.get_raw_data()
 
     @data.setter
-    def data(self, val) -> None:
+    def data(self, val: bytes) -> None:
         self.canvas.load_image(val)
         self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
 
-    def replace_data(self, raw, only_if_different=True) -> None:
+    def replace_data(self, raw: bytes, only_if_different: bool = True) -> None:
         self.canvas.load_image(raw, only_if_different=only_if_different)
 
-    def apply_settings(self, prefs=None, dictionaries_changed=False) -> None:
+    def apply_settings(self, prefs: object = None, dictionaries_changed: bool = False) -> None:
         pass
 
-    def go_to_line(self, *args, **kwargs) -> None:
+    def go_to_line(self, *args: object, **kwargs: object) -> None:
         pass
 
     def save_state(self) -> None:
@@ -218,7 +223,7 @@ class Editor(QMainWindow):
     def copy(self) -> None:
         self.canvas.copy()
 
-    def cut(self):
+    def cut(self) -> int:
         return error_dialog(
             self,
             _('Not allowed'),
@@ -230,16 +235,16 @@ class Editor(QMainWindow):
         self.canvas.paste()
 
     # Search and replace {{{
-    def mark_selected_text(self, *args, **kwargs) -> None:
+    def mark_selected_text(self, *args: object, **kwargs: object) -> None:
         pass
 
-    def find(self, *args, **kwargs):
+    def find(self, *args: object, **kwargs: object) -> bool:  # ty: ignore[incompatible-method-override]
         return False
 
-    def replace(self, *args, **kwargs) -> bool:
+    def replace(self, *args: object, **kwargs: object) -> bool:
         return False
 
-    def all_in_marked(self, *args, **kwargs) -> int:
+    def all_in_marked(self, *args: object, **kwargs: object) -> int:
         return 0
 
     @property
@@ -248,7 +253,7 @@ class Editor(QMainWindow):
 
     # }}}
 
-    def image_changed(self, new_image) -> None:
+    def image_changed(self, new_image: QImage | None) -> None:
         self.is_synced_to_container = False
         self._is_modified = True
         self.copy_available = self.canvas.is_valid
@@ -272,8 +277,9 @@ class Editor(QMainWindow):
         self.cursor_position_changed.disconnect()
         self.copy_available_state_changed.disconnect()
 
-    def contextMenuEvent(self, event) -> None:
-        event.ignore()
+    def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
+        if event is not None:
+            event.ignore()
 
     def create_toolbars(self) -> None:
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
@@ -324,14 +330,14 @@ class Editor(QMainWindow):
             x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
         self.restore_state()
 
-    def toolbar_floated(self, floating) -> None:
+    def toolbar_floated(self, floating: bool) -> None:
         if not floating:
             self.save_state()
             for ed in editors.values():
                 if ed is not self:
                     ed.restore_state()
 
-    def update_clipboard_actions(self, *args) -> None:
+    def update_clipboard_actions(self, *args: object) -> None:
         if self.canvas.has_selection:
             self.action_copy.setText(_('Copy selected region'))
             self.action_paste.setText(_('Paste into selected region'))
@@ -383,10 +389,10 @@ class Editor(QMainWindow):
             self.canvas.oilify_image(radius=val)
 
 
-def launch_editor(path_to_edit, path_is_raw=False) -> None:
+def launch_editor(path_to_edit: str | bytes, path_is_raw: bool = False) -> None:
     app = QApplication([])
     if path_is_raw:
-        raw = path_to_edit
+        raw = cast('bytes', path_to_edit)
     else:
         with open(path_to_edit, 'rb') as f:
             raw = f.read()

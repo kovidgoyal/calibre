@@ -7,7 +7,7 @@ import weakref
 from collections import OrderedDict
 from itertools import groupby
 from operator import attrgetter, itemgetter
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, Literal, NamedTuple, Self, cast, overload
 
 from qt.core import (
     QDialog,
@@ -42,10 +42,23 @@ from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import _, localize_user_manual_link
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
+    from typing import TypedDict
+
+    from qt.core import QKeyEvent
+
     from calibre.gui2.tweak_book.editor.text import TextEdit
 
+    class Snippet(TypedDict, total=False):
+        description: str
+        template: str
+        trigger: str
+        syntaxes: Collection[str]
 
-def string_length(x):
+    SnippetsFunc = Callable[[], Iterable[tuple['SnipKey', Snippet]]]
+
+
+def string_length(x: object) -> int:
     return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode don't work
 
 
@@ -58,18 +71,18 @@ class SnipKey(NamedTuple):
     syntaxes: frozenset[str]
 
 
-def snip_key(trigger, *syntaxes):
+def snip_key(trigger: str, *syntaxes: str) -> SnipKey:
     if '*' in syntaxes:
-        syntaxes = all_text_syntaxes
+        return SnipKey(trigger, frozenset(all_text_syntaxes))
     return SnipKey(trigger, frozenset(syntaxes))
 
 
-def contains(l1, r1, l2, r2):
+def contains(l1: int, r1: int, l2: int, r2: int) -> bool:
     # True iff (l2, r2) if contained in (l1, r1)
     return l2 > l1 and r2 < r1
 
 
-builtin_snippets = {  # {{{
+builtin_snippets: dict[SnipKey, Snippet] = {  # {{{
     snip_key('Lorem', 'html', 'xml'): {
         'description': _('Insert filler text'),
         'template': '''\
@@ -111,19 +124,19 @@ obtain some advantage from it? But.</p>
 escape = unescape = None
 
 
-def escape_funcs():
+def escape_funcs() -> tuple[Callable[[str], str], Callable[[str], str]]:
     global escape, unescape
-    if escape is None:
+    if escape is None or unescape is None:
         escapem = {('\\' + x): chr(i + 1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
 
-        def escape(x):
+        def escape(x: str) -> str:
             return escape_pat.sub(lambda m: escapem[m.group()], x.replace('\\\\', '\x01'))
 
         unescapem = {v: k[1] for k, v in escapem.items()}
         unescape_pat = re.compile('|'.join(unescapem))
 
-        def unescape(x):
+        def unescape(x: str) -> str:
             return unescape_pat.sub(lambda m: unescapem[m.group()], x)
 
     return escape, unescape
@@ -135,9 +148,11 @@ class TabStop(str):
     is_toplevel: bool
     is_mirror: bool
     takes_selection: bool
-    parent: TabStop | None
+    # Note that for tab stops nested in the default text of another tab stop,
+    # __new__() sets this to the TabStop class rather than the parent instance
+    parent: TabStop | type[TabStop] | None
 
-    def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # ruff: ignore[bad-staticmethod-argument]
+    def __new__(self, raw: str, start_offset: int, tab_stops: list[TabStop], is_toplevel: bool = True) -> Self:  # ruff: ignore[bad-staticmethod-argument]
         if raw.endswith('}'):
             unescape = escape_funcs()[1]
             num, default = raw[2:-1].partition(':')[0::2]
@@ -171,7 +186,15 @@ class TabStop(str):
         )
 
 
-def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
+@overload
+def parse_template(
+    template: str, start_offset: int = 0, is_toplevel: bool = True, grouped: Literal[True] = True
+) -> tuple[str, dict[int, tuple[TabStop, ...]]]: ...
+@overload
+def parse_template(template: str, start_offset: int = 0, is_toplevel: bool = True, *, grouped: Literal[False]) -> tuple[str, list[TabStop]]: ...
+def parse_template(
+    template: str, start_offset: int = 0, is_toplevel: bool = True, grouped: bool = True
+) -> tuple[str, dict[int, tuple[TabStop, ...]] | list[TabStop]]:
     escape, unescape = escape_funcs()
     template = escape(template)
     pos, parts, tab_stops = start_offset, [], []
@@ -198,19 +221,19 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
 
 # }}}
 
-_snippets = None
+_snippets: list[tuple[SnipKey, Snippet]] | None = None
 user_snippets = JSONConfig('editor_snippets')
 
 
-def snippets(refresh=False):
+def snippets(refresh: bool = False) -> list[tuple[SnipKey, Snippet]]:
     global _snippets
     if _snippets is None or refresh:
-        _snippets = copy.deepcopy(builtin_snippets)
+        all_snippets = copy.deepcopy(builtin_snippets)
         for snip in user_snippets.get('snippets', []):
             if snip['trigger'] and isinstance(snip['trigger'], str):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
-                _snippets[key] = {'template': snip['template'], 'description': snip['description']}
-        _snippets = sorted(_snippets.items(), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
+                all_snippets[key] = {'template': snip['template'], 'description': snip['description']}
+        _snippets = sorted(all_snippets.items(), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 
@@ -218,7 +241,7 @@ def snippets(refresh=False):
 
 
 class EditorTabStop:
-    def __init__(self, left, tab_stops, editor) -> None:
+    def __init__(self, left: int, tab_stops: Sequence[TabStop], editor: PlainTextEdit) -> None:
         self.editor = weakref.ref(editor)
         tab_stop = tab_stops[0]
         self.num = tab_stop.num
@@ -232,13 +255,13 @@ class EditorTabStop:
         self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
         self.ignore_position_update = False
         self.join_previous_edit = False
-        self.transform = None
+        self.transform: Callable[[str], str] | None = None
         self.has_transform = self.transform is not None
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.join_previous_edit = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.join_previous_edit = False
 
     def __repr__(self) -> str:
@@ -249,7 +272,7 @@ class EditorTabStop:
 
     __str__ = __unicode__ = __repr__
 
-    def apply_selected_text(self, text) -> None:
+    def apply_selected_text(self, text: str) -> None:
         if self.takes_selection and not self.is_deleted:
             with self:
                 self.text = text
@@ -258,7 +281,7 @@ class EditorTabStop:
                     m.text = text
 
     @property
-    def text(self):
+    def text(self) -> str:
         editor = self.editor()
         if editor is None or self.is_deleted:
             return ''
@@ -267,7 +290,7 @@ class EditorTabStop:
         return editor.selected_text_from_cursor(c)
 
     @text.setter
-    def text(self, text) -> None:
+    def text(self, text: str) -> None:
         editor = self.editor()
         if editor is None or self.is_deleted:
             return
@@ -277,19 +300,19 @@ class EditorTabStop:
         c.insertText(text)
         c.endEditBlock()
 
-    def set_editor_cursor(self, editor) -> None:
+    def set_editor_cursor(self, editor: PlainTextEdit) -> None:
         if not self.is_deleted:
             c = editor.textCursor()
             c.setPosition(self.left), c.setPosition(self.right, QTextCursor.MoveMode.KeepAnchor)
             editor.setTextCursor(c)
 
-    def contained_in(self, left, right):
+    def contained_in(self, left: int, right: int) -> bool:
         return contains(left, right, self.left, self.right)
 
-    def contains(self, left, right):
+    def contains(self, left: int, right: int) -> bool:
         return contains(self.left, self.right, left, right)
 
-    def update_positions(self, position, chars_removed, chars_added) -> None:
+    def update_positions(self, position: int, chars_removed: int, chars_added: int) -> None:
         for m in self.mirrors:
             m.update_positions(position, chars_removed, chars_added)
         if position > self.right or self.is_deleted or self.ignore_position_update:
@@ -317,7 +340,7 @@ class Template(list):
     has_tab_stops: bool
     active_tab_stop: EditorTabStop | None
 
-    def __new__(self, tab_stops):  # ruff: ignore[bad-staticmethod-argument]
+    def __new__(self, tab_stops: Iterable[EditorTabStop]) -> Self:  # ruff: ignore[bad-staticmethod-argument]
         self = list.__new__(self)
         self.left_most_ts = self.right_most_ts = None
         self.extend(tab_stops)
@@ -331,20 +354,22 @@ class Template(list):
         return self
 
     @property
-    def left_most_position(self):
+    def left_most_position(self) -> int | None:
         return getattr(self.left_most_ts, 'left', None)
 
     @property
-    def right_most_position(self):
+    def right_most_position(self) -> int | None:
         return getattr(self.right_most_ts, 'right', None)
 
-    def contains_cursor(self, cursor):
+    def contains_cursor(self, cursor: QTextCursor) -> bool:
         if not self.has_tab_stops:
             return False
         pos = cursor.position()
-        return self.left_most_position <= pos <= self.right_most_position
+        left, right = self.left_most_position, self.right_most_position
+        # has_tab_stops guarantees that left and right are not None
+        return left is not None and right is not None and left <= pos <= right
 
-    def jump_to_next(self, editor):
+    def jump_to_next(self, editor: PlainTextEdit) -> EditorTabStop | None:
         if self.active_tab_stop is None:
             self.active_tab_stop = ts = self.find_closest_tab_stop(editor.textCursor().position())
             if ts is not None:
@@ -364,7 +389,7 @@ class Template(list):
                 x.set_editor_cursor(editor)
                 return x
 
-    def remains_active(self):
+    def remains_active(self) -> bool:
         if self.active_tab_stop is None:
             return False
         ts = self.active_tab_stop
@@ -373,7 +398,7 @@ class Template(list):
                 return True
         return bool(ts.mirrors) or ts.has_transform
 
-    def find_closest_tab_stop(self, position):
+    def find_closest_tab_stop(self, position: int) -> EditorTabStop | None:
         ans = dist = None
         for c in self:
             x = min(abs(c.left - position), abs(c.right - position))
@@ -382,7 +407,7 @@ class Template(list):
         return ans
 
 
-def expand_template(editor, trigger, template):
+def expand_template(editor: PlainTextEdit, trigger: str, template: str) -> Template:
     c = editor.textCursor()
     c.beginEditBlock()
     c.setPosition(c.position())
@@ -402,42 +427,45 @@ def expand_template(editor, trigger, template):
     return tl
 
 
-def find_matching_snip(text, syntax=None, snip_func=None):
-    ans_snip = ans_trigger = None
+def find_matching_snip(text: str, syntax: str | None = None, snip_func: SnippetsFunc | None = None) -> tuple[Snippet, str] | tuple[None, None]:
     for key, snip in (snip_func or snippets)():
         if text.endswith(key.trigger) and (syntax in key.syntaxes or syntax is None):
-            ans_snip, ans_trigger = snip, key.trigger
-            break
-    return ans_snip, ans_trigger
+            return snip, key.trigger
+    return None, None
 
 
 class SnippetManager(QObject):
-    def __init__(self, editor) -> None:
+    def __init__(self, editor: PlainTextEdit) -> None:
         QObject.__init__(self, editor)
-        self.active_templates = []
+        self.active_templates: list[Template] = []
         self.last_selected_text = ''
-        editor.document().contentsChange.connect(self.contents_changed)
-        self.snip_func = None
+        doc = editor.document()
+        assert doc is not None
+        doc.contentsChange.connect(self.contents_changed)
+        self.snip_func: SnippetsFunc | None = None
 
-    def contents_changed(self, position, chars_removed, chars_added) -> None:
+    def contents_changed(self, position: int, chars_removed: int, chars_added: int) -> None:
         for template in self.active_templates:
             for ets in template:
                 ets.update_positions(position, chars_removed, chars_added)
 
-    def get_active_template(self, cursor):
+    def get_active_template(self, cursor: QTextCursor) -> Template | None:
         remove = []
         at = None
         pos = cursor.position()
         for template in self.active_templates:
             if at is None and template.contains_cursor(cursor):
                 at = template
-            elif pos > template.right_most_position or pos < template.left_most_position:
-                remove.append(template)
+            else:
+                left, right = template.left_most_position, template.right_most_position
+                # active templates always have tab stops so left and right are never None
+                if left is not None and right is not None and (pos > right or pos < left):
+                    remove.append(template)
         for template in remove:
             self.active_templates.remove(template)
         return at
 
-    def handle_key_press(self, ev) -> bool:
+    def handle_key_press(self, ev: QKeyEvent) -> bool:
         editor_raw = self.parent()
         assert editor_raw is not None
         editor = cast('TextEdit', editor_raw)
@@ -457,7 +485,7 @@ class SnippetManager(QObject):
                 return True
             c, text = get_text_before_cursor(editor)
             snip, trigger = find_matching_snip(text, editor.syntax, self.snip_func)
-            if snip is None:
+            if snip is None or trigger is None:
                 error_dialog(self.parent(), _('No snippet found'), _('No matching snippet was found'), show=True)
                 self.last_selected_text = self.last_selected_text or lst
                 return True
@@ -479,32 +507,36 @@ class SnippetManager(QObject):
 
 
 class SnippetTextEdit(PlainTextEdit):
-    def __init__(self, text, parent=None) -> None:
+    def __init__(self, text: str, parent: QWidget | None = None) -> None:
         PlainTextEdit.__init__(self, parent)
         self.syntax = None
         if text:
             self.setPlainText(text)
         self.snippet_manager = SnippetManager(self)
 
-    def keyPressEvent(self, e) -> None:
-        if self.snippet_manager.handle_key_press(e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        if e is not None and self.snippet_manager.handle_key_press(e):
             return
         PlainTextEdit.keyPressEvent(self, e)
 
 
 class EditSnippet(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
 
-        def add_row(*args) -> None:
+        def add_row(*args: QWidget | str) -> None:
             r = l.rowCount()
             if len(args) == 1:
-                l.addWidget(args[0], r, 0, 1, 2)
+                w = args[0]
+                assert isinstance(w, QWidget)
+                l.addWidget(w, r, 0, 1, 2)
             else:
-                la = QLabel(args[0])
-                l.addWidget(la, r, 0, Qt.AlignmentFlag.AlignRight), l.addWidget(args[1], r, 1)
-                la.setBuddy(args[1])
+                text, w = args
+                assert isinstance(text, str) and isinstance(w, QWidget)
+                la = QLabel(text)
+                l.addWidget(la, r, 0, Qt.AlignmentFlag.AlignRight), l.addWidget(w, r, 1)
+                la.setBuddy(w)
 
         self.heading = la = QLabel('<h2>\xa0')
         add_row(la)
@@ -555,11 +587,11 @@ class EditSnippet(QWidget):
 
         self.creating_snippet = False
 
-    def snip_func(self):
+    def snip_func(self) -> tuple[tuple[SnipKey, Snippet]]:
         key = snip_key(self.trig.text(), '*')
         return ((key, self.snip),)
 
-    def apply_snip(self, snip, creating_snippet=None) -> None:
+    def apply_snip(self, snip: Snippet | None, creating_snippet: bool | None = None) -> None:
         self.creating_snippet = not snip if creating_snippet is None else creating_snippet
         self.heading.setText('<h2>' + (_('Create a snippet') if self.creating_snippet else _('Edit snippet')))
         snip = snip or {}
@@ -580,7 +612,7 @@ class EditSnippet(QWidget):
         (self.name if self.creating_snippet else self.template).setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
-    def snip(self):
+    def snip(self) -> Snippet:
         ftypes = []
         for i in range(self.types.count()):
             i = self.types.item(i)
@@ -595,10 +627,10 @@ class EditSnippet(QWidget):
         }
 
     @snip.setter
-    def snip(self, snip) -> None:
+    def snip(self, snip: Snippet | None) -> None:
         self.apply_snip(snip)
 
-    def validate(self):
+    def validate(self) -> str | None:
         snip = self.snip
         err = None
         if not snip['description']:
@@ -613,7 +645,7 @@ class EditSnippet(QWidget):
 
 
 class UserSnippets(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Create/edit snippets'), 'snippet-editor', parent=parent)
         self.setWindowIcon(QIcon.ic('snippets.png'))
 
@@ -679,7 +711,8 @@ class UserSnippets(Dialog):
         b.clicked.connect(self.change_builtin)
         l.addWidget(b)
 
-        for i, snip in enumerate(sorted(user_snippets.get('snippets', []), key=itemgetter('trigger'))):
+        user_snips: list[Snippet] = user_snippets.get('snippets', [])
+        for i, snip in enumerate(sorted(user_snips, key=itemgetter('trigger'))):
             item = self.snip_to_item(snip)
             if i == 0:
                 self.snip_list.setCurrentItem(item)
@@ -687,21 +720,21 @@ class UserSnippets(Dialog):
         self.edit_snip = es = EditSnippet(self)
         self.stack.addWidget(es)
 
-    def snip_to_text(self, snip):
+    def snip_to_text(self, snip: Snippet) -> str:
         return '{} - {}'.format(snip['trigger'], snip['description'])
 
-    def snip_to_item(self, snip):
+    def snip_to_item(self, snip: Snippet) -> QListWidgetItem:
         i = QListWidgetItem(self.snip_to_text(snip), self.snip_list)
         i.setData(Qt.ItemDataRole.UserRole, copy.deepcopy(snip))
         return i
 
-    def reject(self):
+    def reject(self) -> None:
         if self.stack.currentIndex() > 0:
             self.stack.setCurrentIndex(0)
             return
         return Dialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         if self.stack.currentIndex() > 0:
             err = self.edit_snip.validate()
             if err is None:
@@ -728,26 +761,26 @@ class UserSnippets(Dialog):
         snippets(refresh=True)
         return Dialog.accept(self)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(900, 600)
 
-    def edit_snippet(self, *args):
+    def edit_snippet(self, *args: object) -> int | None:
         item = self.snip_list.currentItem()
         if item is None:
             return error_dialog(self, _('Cannot edit snippet'), _('No snippet selected'), show=True)
         self.stack.setCurrentIndex(1)
         self.edit_snip.snip = item.data(Qt.ItemDataRole.UserRole)
 
-    def add_snippet(self, *args) -> None:
+    def add_snippet(self, *args: object) -> None:
         self.stack.setCurrentIndex(1)
         self.edit_snip.snip = None
 
-    def remove_snippet(self, *args) -> None:
+    def remove_snippet(self, *args: object) -> None:
         item = self.snip_list.currentItem()
         if item is not None:
             self.snip_list.takeItem(self.snip_list.row(item))
 
-    def find_next(self, *args):
+    def find_next(self, *args: object) -> int | None:
         q = self.search_bar.text().strip()
         if not q:
             return

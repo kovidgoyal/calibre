@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -32,12 +33,19 @@ from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
 from calibre.utils.localization import _
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QModelIndex, QPoint, QShowEvent, QStyleOptionViewItem
+
+    from calibre.ebooks.oeb.polish.toc import TOC
+
 
 class TOCEditor(QDialog):
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
-    def __init__(self, title=None, parent=None) -> None:
+    def __init__(self, title: str | None = None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.last_reject_at = self.last_accept_at = -1000
 
@@ -70,10 +78,10 @@ class TOCEditor(QDialog):
         self.read_toc()
         self.restore_geometry(tprefs, 'toc_editor_window_geom')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(950, 630)
 
-    def add_new_item(self, item, where) -> None:
+    def add_new_item(self, item: QTreeWidgetItem | None, where: str | None) -> None:
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(1)
         if ismacos:
@@ -99,7 +107,7 @@ class TOCEditor(QDialog):
             self.save_geometry(tprefs, 'toc_editor_window_geom')
             super().accept()
 
-    def really_accept(self, tb) -> None:
+    def really_accept(self, tb: str | None) -> None:
         self.save_geometry(tprefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(
@@ -143,7 +151,7 @@ FRAG_ROLE = DEST_ROLE + 1
 
 
 class Delegate(QStyledItemDelegate):
-    def sizeHint(self, option=None, index=None):
+    def sizeHint(self, option: QStyleOptionViewItem | None = None, index: QModelIndex | None = None) -> QSize:
         assert option is not None and index is not None
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         return ans + QSize(0, 10)
@@ -153,10 +161,10 @@ class TOCViewer(QWidget):
     navigate_requested = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
-        self.toc_title = None
+        self.toc_title: str | None = None
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
 
@@ -178,10 +186,10 @@ class TOCViewer(QWidget):
         self.refresh_timer = t = QTimer(self)
         t.setInterval(1000), t.setSingleShot(True)
         t.timeout.connect(self.auto_refresh)
-        self.toc_name = None
-        self.currently_editing = None
+        self.toc_name: str | None = None
+        self.currently_editing: str | None = None
 
-    def start_refresh_timer(self, name) -> None:
+    def start_refresh_timer(self, name: str) -> None:
         if self.isVisible() and self.toc_name == name:
             self.refresh_timer.start()
 
@@ -199,11 +207,11 @@ class TOCViewer(QWidget):
         self.refresh_requested.emit()  # Give boss a chance to commit dirty editors to the container
         self.build()
 
-    def item_pressed(self, item) -> None:
+    def item_pressed(self, item: QTreeWidgetItem) -> None:
         if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             QTimer.singleShot(0, self.emit_navigate)
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)
         menu.addAction(actions['edit-toc'])
         menu.addAction(QIcon.ic('plus.png'), _('&Expand all'), self.view.expandAll)
@@ -211,7 +219,7 @@ class TOCViewer(QWidget):
         menu.addAction(self.refresh_action)
         menu.exec(self.view.mapToGlobal(pos))
 
-    def mark_name_as_current(self, name) -> None:
+    def mark_name_as_current(self, name: str | None) -> None:
         if name == self.currently_editing:
             return
         self.currently_editing = name
@@ -220,7 +228,7 @@ class TOCViewer(QWidget):
     def clear_currently_edited_name(self) -> None:
         self.mark_name_as_current(None)
 
-    def apply_currently_editing(self, scroll=False) -> None:
+    def apply_currently_editing(self, scroll: bool = False) -> None:
         font = QFont(self.view.font())
         font.setItalic(True), font.setBold(True)
         current = None
@@ -238,7 +246,7 @@ class TOCViewer(QWidget):
                 parent = parent.parent()
             self.view.scrollToItem(current)
 
-    def iter_items(self, parent=None):
+    def iter_items(self, parent: QTreeWidgetItem | None = None) -> Iterator[QTreeWidgetItem]:
         if parent is None:
             parent = self.view.invisibleRootItem()
             assert parent is not None
@@ -247,7 +255,7 @@ class TOCViewer(QWidget):
             yield child
             yield from self.iter_items(parent=child)
 
-    def emit_navigate(self, *args) -> None:
+    def emit_navigate(self, *args: object) -> None:
         item = self.view.currentItem()
         if item is not None:
             dest = str(item.data(0, DEST_ROLE) or '')
@@ -264,7 +272,7 @@ class TOCViewer(QWidget):
         self.toc_name = getattr(toc, 'toc_file_name', None)
         self.toc_title = toc.toc_title
 
-        def process_node(toc, parent) -> None:
+        def process_node(toc: TOC, parent: QTreeWidgetItem | None) -> None:
             for child in toc:
                 node = QTreeWidgetItem(parent)
                 node.setText(0, child.title or '')
@@ -280,8 +288,8 @@ class TOCViewer(QWidget):
         # the user is typing in an editor
         self.apply_currently_editing()
 
-    def showEvent(self, a0):
-        if self.toc_name is None or not a0.spontaneous():
+    def showEvent(self, a0: QShowEvent | None) -> None:
+        if self.toc_name is None or a0 is None or not a0.spontaneous():
             self.build()
         QTimer.singleShot(0, self.apply_currently_editing_and_scroll)
         return super().showEvent(a0)

@@ -21,7 +21,7 @@ from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from lxml.etree import XPath as XPathType
     from lxml.etree import _Element
@@ -94,7 +94,8 @@ def files_data(container: Container, *args: object) -> Iterator[File]:
 class Image(NamedTuple):
     name: str
     mime_type: str
-    usage: list[LinkLocation]
+    # A tuple when used as a cache key by the Reports tool in the editor
+    usage: Sequence[LinkLocation]
     size: int
     basename: str
     id: int

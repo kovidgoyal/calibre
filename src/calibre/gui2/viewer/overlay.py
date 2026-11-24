@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QFontInfo, QLabel, QPalette, Qt, QVBoxLayout, QWidget
 
 from calibre.gui2.progress_indicator import ProgressIndicator
 
+if TYPE_CHECKING:
+    from qt.core import QHideEvent, QShowEvent
+
 
 class LoadingOverlay(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.pi = ProgressIndicator(self, 96)
@@ -38,7 +43,7 @@ class LoadingOverlay(QWidget):
         l.addWidget(self.label)
         l.addStretch(10)
 
-    def __call__(self, msg=''):
+    def __call__(self, msg: str = '') -> None:
         self.label.setText(msg)
         par = self.parent()
         assert isinstance(par, QWidget)
@@ -49,7 +54,7 @@ class LoadingOverlay(QWidget):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.update()
 
-    def hide(self):
+    def hide(self) -> None:
         par = self.parent()
         assert isinstance(par, QWidget)
         web_view = getattr(par, 'web_view', None)
@@ -58,12 +63,12 @@ class LoadingOverlay(QWidget):
         self.pi.stop()
         return QWidget.hide(self)
 
-    def showEvent(self, a0) -> None:
+    def showEvent(self, a0: QShowEvent | None) -> None:
         # import time
         # self.st = time.monotonic()
         self.pi.start()
 
-    def hideEvent(self, a0) -> None:
+    def hideEvent(self, a0: QHideEvent | None) -> None:
         # import time
         # print(1111111, time.monotonic() - self.st)
         self.pi.stop()

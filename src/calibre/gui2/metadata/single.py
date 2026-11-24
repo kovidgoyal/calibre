@@ -500,6 +500,7 @@ class MetadataSingleDialogBase(QDialog):
     def manage_data_files(self) -> None:
         from calibre.gui2.dialogs.data_files_manager import DataFilesManager
 
+        assert self.db is not None
         d = DataFilesManager(self.db, self.book_id, self)
         d.exec()
         self.update_data_files_button()

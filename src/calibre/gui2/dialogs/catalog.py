@@ -5,6 +5,7 @@ import importlib
 import os
 import sys
 import weakref
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QScrollArea, QSize
 
@@ -14,11 +15,16 @@ from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 class Catalog(QDialog, Ui_Dialog):
     """Catalog Dialog builder"""
 
-    def __init__(self, parent, dbspec, ids, db) -> None:
+    def __init__(self, parent: QWidget | None, dbspec: dict[int, dict[str, object]], ids: list[int], db: LibraryDatabase) -> None:
         import re
 
         from PyQt6.uic import compileUi
@@ -140,7 +146,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.setMaximumWidth(g.width() - 50)
         self.setMaximumHeight(g.height() - 50)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
@@ -148,13 +154,13 @@ class Catalog(QDialog, Ui_Dialog):
         return QSize(nw, nh)
 
     @property
-    def options_widget(self):
+    def options_widget(self) -> QWidget | None:
         ans = self.tabs.widget(1)
         if isinstance(ans, QScrollArea):
             ans = ans.widget()
         return ans
 
-    def show_plugin_tab(self, idx) -> None:
+    def show_plugin_tab(self, idx: int | None) -> None:
         cf = str(self.format.currentText()).lower()
         while self.tabs.count() > 1:
             self.tabs.removeTab(1)
@@ -174,7 +180,7 @@ class Catalog(QDialog, Ui_Dialog):
         else:
             help_button.setVisible(False)
 
-    def format_changed(self, idx) -> None:
+    def format_changed(self, idx: int) -> None:
         cf = str(self.format.currentText())
         if cf in self.sync_enabled_formats:
             self.sync.setEnabled(True)
@@ -188,14 +194,14 @@ class Catalog(QDialog, Ui_Dialog):
         """
         cf = str(self.format.currentText()).lower()
         if cf in ('azw3', 'epub', 'mobi') and hasattr(self.options_widget, 'settings_changed'):
-            self.options_widget.settings_changed('title/format')
+            getattr(self.options_widget, 'settings_changed')('title/format')
 
     @property
-    def fmt_options(self):
+    def fmt_options(self) -> dict[str, object]:
         ans = {}
         if self.tabs.count() > 1:
             w = self.options_widget
-            ans = w.options()
+            ans = getattr(w, 'options')()
         return ans
 
     def save_catalog_settings(self) -> None:
@@ -208,13 +214,13 @@ class Catalog(QDialog, Ui_Dialog):
         self.save_geometry(dynamic, 'catalog_window_geom')
         dynamic.set('catalog_add_to_library', self.add_to_library.isChecked())
 
-    def apply(self, *args) -> None:
+    def apply(self, *args: object) -> None:
         # Store current values without building catalog
         self.save_catalog_settings()
         if self.tabs.count() > 1:
-            self.options_widget.options()
+            getattr(self.options_widget, 'options')()
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_catalog_settings()
         return QDialog.accept(self)
 
@@ -234,7 +240,7 @@ class Catalog(QDialog, Ui_Dialog):
         """
         if self.tabs.count() > 1 and hasattr(self.options_widget, 'show_help'):
             try:
-                self.options_widget.show_help()
+                getattr(self.options_widget, 'show_help')()
             except Exception:
                 info_dialog(
                     self,

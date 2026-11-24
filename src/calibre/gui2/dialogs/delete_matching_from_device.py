@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAbstractItemView, QDialog, Qt, QTableWidgetItem
 
 from calibre import strftime
@@ -9,34 +11,46 @@ from calibre.gui2.dialogs.delete_matching_from_device_ui import Ui_DeleteMatchin
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    import time
+    from collections.abc import Mapping, Sequence
+    from datetime import datetime
+
+    from qt.core import QWidget
+
+    from calibre.devices.usbms.books import Book
+    from calibre.gui2.library.models import DeviceBooksModel
+
 
 class tableItem(QTableWidgetItem):
-    def __init__(self, text) -> None:
+    sort: str | time.struct_time | datetime
+
+    def __init__(self, text: str) -> None:
         QTableWidgetItem.__init__(self, text)
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
         self.sort = text.lower()
 
-    def __ge__(self, other):
-        return self.sort >= other.sort
+    def __ge__(self, other: QTableWidgetItem) -> bool:
+        return self.sort >= getattr(other, 'sort')
 
-    def __lt__(self, other):
-        return self.sort < other.sort
+    def __lt__(self, other: QTableWidgetItem) -> bool:
+        return self.sort < getattr(other, 'sort')
 
 
 class centeredTableItem(tableItem):
-    def __init__(self, text) -> None:
+    def __init__(self, text: str) -> None:
         tableItem.__init__(self, text)
         self.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 class titleTableItem(tableItem):
-    def __init__(self, text) -> None:
+    def __init__(self, text: str) -> None:
         tableItem.__init__(self, text)
         self.sort = title_sort(text.lower())
 
 
 class authorTableItem(tableItem):
-    def __init__(self, book) -> None:
+    def __init__(self, book: Book) -> None:
         tableItem.__init__(self, authors_to_string(book.authors))
         if book.author_sort is not None:
             self.sort = book.author_sort.lower()
@@ -45,7 +59,7 @@ class authorTableItem(tableItem):
 
 
 class dateTableItem(tableItem):
-    def __init__(self, date) -> None:
+    def __init__(self, date: time.struct_time | None) -> None:
         if date is not None:
             tableItem.__init__(self, strftime('%x', date))
             self.sort = date
@@ -55,7 +69,7 @@ class dateTableItem(tableItem):
 
 
 class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog):
-    def __init__(self, parent, items) -> None:
+    def __init__(self, parent: QWidget | None, items: Mapping[str, tuple[DeviceBooksModel, Sequence[tuple[int, Book]]]]) -> None:
         QDialog.__init__(self, parent)
         Ui_DeleteMatchingFromDeviceDialog.__init__(self)
         self.setupUi(self)
@@ -101,7 +115,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.table.sortByColumn(2, Qt.SortOrder.AscendingOrder)
         self.table.setCurrentCell(0, 1)
 
-    def cell_clicked(self, row, col) -> None:
+    def cell_clicked(self, row: int, col: int) -> None:
         if col == 0:
             self.table.setCurrentCell(row, 1)
 

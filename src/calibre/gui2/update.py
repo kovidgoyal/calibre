@@ -168,7 +168,7 @@ class UpdateNotification(QDialog):
     def get_plugins(self) -> None:
         from calibre.gui2.dialogs.plugin_updater import FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
 
-        d = PluginUpdaterDialog(self.parent(), initial_filter=FILTER_UPDATE_AVAILABLE)
+        d = PluginUpdaterDialog(self.parentWidget(), initial_filter=FILTER_UPDATE_AVAILABLE)
         d.exec()
         if d.do_restart:
             QDialog.accept(self)

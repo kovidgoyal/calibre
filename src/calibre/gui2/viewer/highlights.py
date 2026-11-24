@@ -6,6 +6,7 @@ import math
 from collections import defaultdict
 from functools import lru_cache
 from itertools import chain
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -59,13 +60,23 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _, ngettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
-decoration_cache = {}
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Iterator, Mapping
+
+    from qt.core import QEvent, QKeyEvent, QPoint, QUrl
+
+    from calibre.ebooks.epub.cfi.parse import CFISortKey
+    from calibre.gui2.viewer.search import Search
+
+    StyleKey = tuple[tuple[str, object], ...]
+
+decoration_cache: dict[tuple[bool, int, float, StyleKey, bool], QColor | QPixmap | None] = {}
 highlight_role = Qt.ItemDataRole.UserRole
 section_role = highlight_role + 1
 
 
 @lru_cache(maxsize=8)
-def wavy_path(width, height, y_origin):
+def wavy_path(width: int, height: int, y_origin: int) -> QPainterPath:
     half_height = height / 2
     path = QPainterPath()
     pi2 = math.pi * 2
@@ -83,11 +94,11 @@ def wavy_path(width, height, y_origin):
     return path
 
 
-def compute_style_key(style):
+def compute_style_key(style: Mapping[str, object]) -> StyleKey:
     return tuple((k, style[k]) for k in sorted(style))
 
 
-def custom_highlight_styles():
+def custom_highlight_styles() -> dict[str, dict]:
     c = get_session_pref('custom_highlight_styles', [], '')
     ans = {}
     for s in c:
@@ -98,8 +109,8 @@ def custom_highlight_styles():
 
 
 @lru_cache(2)
-def builtin_highlight_styles():
-    ans = {}
+def builtin_highlight_styles() -> dict[str, dict[str, object]]:
+    ans: dict[str, dict[str, object]] = {}
     for which in builtin_colors_light:
         ans[f'color-{which}'] = {'kind': 'color', 'which': which, 'type': 'builtin'}
     for which in builtin_decorations:
@@ -108,7 +119,7 @@ def builtin_highlight_styles():
 
 
 class HighlightColorCombo(QComboBox):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         is_dark = is_dark_theme()
         sz = self.iconSize().width()
@@ -126,7 +137,7 @@ class HighlightColorCombo(QComboBox):
         return self.currentData()
 
     @highlight_style_name.setter
-    def highlight_style_name(self, val) -> None:
+    def highlight_style_name(self, val: str) -> None:
         idx = self.findData(val)
         if idx > -1:
             self.setCurrentIndex(idx)
@@ -141,13 +152,13 @@ def style_definition_for_name(name: str) -> dict[str, object]:
     return next(iter(bs.values()))
 
 
-def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark, as_pixmap_only=False):
+def decoration_for_style(
+    palette: QPalette, style: dict, icon_size: int, device_pixel_ratio: float, is_dark: bool, as_pixmap_only: bool = False
+) -> QColor | QPixmap | None:
     style_key = (is_dark, icon_size, device_pixel_ratio, compute_style_key(style), as_pixmap_only)
-    sentinel = object()
-    ans = decoration_cache.get(style_key, sentinel)
-    if ans is not sentinel:
-        return ans
-    ans = None
+    if style_key in decoration_cache:
+        return decoration_cache[style_key]
+    ans: QColor | QPixmap | None = None
     kind = style.get('kind')
     if kind == 'color':
         key = 'dark' if is_dark else 'light'
@@ -219,7 +230,7 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark,
 
 
 class SwatchList(QListWidget):
-    def __init__(self, all_styles, selected_styles, parent=None) -> None:
+    def __init__(self, all_styles: Iterable[dict], selected_styles: Collection[StyleKey], parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.setViewMode(QListView.ViewMode.IconMode)
@@ -244,11 +255,11 @@ class SwatchList(QListWidget):
                 i.setData(Qt.ItemDataRole.DecorationRole, dec)
             i.setCheckState(Qt.CheckState.Checked if selected_styles and key in selected_styles else Qt.CheckState.Unchecked)
 
-    def toggle_item(self, item) -> None:
+    def toggle_item(self, item: QListWidgetItem) -> None:
         item.setCheckState(Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
 
     @property
-    def selected_styles(self):
+    def selected_styles(self) -> Iterator[StyleKey]:
         for i in range(self.count()):
             item = self.item(i)
             assert item is not None
@@ -269,11 +280,11 @@ class SwatchList(QListWidget):
 
 
 class FilterDialog(Dialog):
-    def __init__(self, all_styles, show_only_styles, parent=None) -> None:
+    def __init__(self, all_styles: Iterable[dict], show_only_styles: Collection[StyleKey], parent: QWidget | None = None) -> None:
         self.all_styles, self.show_only_styles = all_styles, show_only_styles
         super().__init__(_('Filter shown highlights'), 'filter-highlights', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(500, 400)
 
     def setup_ui(self) -> None:
@@ -293,7 +304,7 @@ class FilterDialog(Dialog):
         btn_none.clicked.connect(s.select_none)
 
     @property
-    def selected_styles(self):
+    def selected_styles(self) -> frozenset[StyleKey]:
         return frozenset(self.swatches.selected_styles)
 
 
@@ -301,18 +312,18 @@ class Export(ExportBase):
     prefs = vprefs
     pref_name = 'highlight_export_format'
 
-    def file_type_data(self):
+    def file_type_data(self) -> tuple[str, str]:
         return _('calibre highlights'), 'calibre_highlights'
 
-    def initial_filename(self):
+    def initial_filename(self) -> str:
         return _('highlights')
 
-    def exported_data(self):
+    def exported_data(self) -> str:
         fmt = self.export_format.currentData()
         link_prefix = link_prefix_for_location_links()
 
-        def _generate_markdown():
-            lines = []
+        def _generate_markdown() -> str:
+            lines: list[str] = []
             root = ChapterGroup()
             for a in self.annotations:
                 root.add_annot(a)
@@ -341,7 +352,7 @@ class Export(ExportBase):
             return _generate_markdown()
 
         # plain text
-        lines = []
+        lines: list[str] = []
         root = ChapterGroup()
         for a in self.annotations:
             root.add_annot(a)
@@ -350,10 +361,10 @@ class Export(ExportBase):
 
 
 class ChangeStyleDialog(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, name='change-style-highlights', title=_('Change highlight style'), parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(300, 120)
 
     def setup_ui(self) -> None:
@@ -379,11 +390,11 @@ class Highlights(QTreeWidget):
     export_selected_requested = pyqtSignal()
     change_style_requested = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QTreeWidget.__init__(self, parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.styles_to_show = frozenset()
+        self.styles_to_show: Collection[StyleKey] = frozenset()
         self.default_decoration = QIcon.ic('blank.png')
         self.setHeaderHidden(True)
         self.num_of_items = 0
@@ -391,20 +402,20 @@ class Highlights(QTreeWidget):
         set_no_activate_on_click(self)
         self.itemActivated.connect(self.item_activated)
         self.currentItemChanged.connect(self.current_item_changed)
-        self.uuid_map = {}
+        self.uuid_map: dict[str, tuple[int, int]] = {}
         self.section_font = QFont(self.font())
         self.section_font.setItalic(True)
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-    def viewportEvent(self, event):
+    def viewportEvent(self, event: QEvent | None) -> bool:
         if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
         return super().viewportEvent(event)
 
-    def show_context_menu(self, point) -> bool:
+    def show_context_menu(self, point: QPoint) -> bool:
         index = self.indexAt(point)
         h = index.data(highlight_role)
         selected = list(self.selected_highlights)
@@ -433,10 +444,10 @@ class Highlights(QTreeWidget):
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
-    def current_item_changed(self, current, previous) -> None:
+    def current_item_changed(self, current: QTreeWidgetItem | None, previous: QTreeWidgetItem | None) -> None:
         self.current_highlight_changed.emit(current.data(0, highlight_role) if current is not None else None)
 
-    def load(self, highlights, preserve_state=False) -> None:
+    def load(self, highlights: Iterable[dict], preserve_state: bool = False) -> None:
         s = self.style()
         assert s is not None
         expanded_chapters = set()
@@ -458,7 +469,7 @@ class Highlights(QTreeWidget):
         repeated_short_titles = defaultdict(set)
 
         @lru_cache
-        def tooltip_for(tfam):
+        def tooltip_for(tfam: tuple[str, ...]) -> str:
             tooltip = ''
             if len(tfam) > 1:
                 lines = []
@@ -536,18 +547,18 @@ class Highlights(QTreeWidget):
                 self.num_of_items += 1
         self.apply_filters()
 
-    def sorted_highlights(self, highlights):
+    def sorted_highlights(self, highlights: Iterable[dict]) -> list[dict]:
         def_idx = 999999999999999
         defval = def_idx, cfi_sort_key('/99999999')
 
-        def cfi_key(h):
+        def cfi_key(h: dict) -> tuple[int, CFISortKey]:
             cfi = h.get('start_cfi')
             si = h.get('spine_index', def_idx)
             return (si, cfi_sort_key(cfi)) if cfi else defval
 
         return sorted(highlights, key=cfi_key)
 
-    def refresh(self, highlights) -> None:
+    def refresh(self, highlights: Iterable[dict]) -> None:
         h = self.current_highlight
         self.load(highlights, preserve_state=True)
         if h is not None:
@@ -556,19 +567,21 @@ class Highlights(QTreeWidget):
                 sec_idx, item_idx = idx
                 self.set_current_row(sec_idx, item_idx)
 
-    def iteritems(self):
+    def iteritems(self) -> Iterator[QTreeWidgetItem]:
         root = self.invisibleRootItem()
         assert root is not None
         for i in range(root.childCount()):
             sec = root.child(i)
             assert sec is not None
             for k in range(sec.childCount()):
-                yield sec.child(k)
+                child = sec.child(k)
+                assert child is not None
+                yield child
 
-    def count(self):
+    def count(self) -> int:
         return self.num_of_items
 
-    def find_query(self, query) -> bool:
+    def find_query(self, query: Search) -> bool:
         pat = query.regex
         items = tuple(self.iteritems())
         count = len(items)
@@ -595,14 +608,14 @@ class Highlights(QTreeWidget):
                 return True
         return False
 
-    def find_annot_id(self, annot_id) -> bool:
+    def find_annot_id(self, annot_id: str) -> bool:
         q = self.uuid_map.get(annot_id)
         if q is not None:
             self.set_current_row(*q)
             return True
         return False
 
-    def set_current_row(self, sec_idx, item_idx) -> bool:
+    def set_current_row(self, sec_idx: int, item_idx: int) -> bool:
         sec = self.topLevelItem(sec_idx)
         if sec is not None:
             item = sec.child(item_idx)
@@ -611,29 +624,29 @@ class Highlights(QTreeWidget):
                 return True
         return False
 
-    def item_activated(self, item) -> None:
+    def item_activated(self, item: QTreeWidgetItem) -> None:
         h = item.data(0, highlight_role)
         if h is not None:
             self.jump_to_highlight.emit(h)
 
     @property
-    def current_highlight(self):
+    def current_highlight(self) -> dict | None:
         i = self.currentItem()
         if i is not None:
             return i.data(0, highlight_role)
 
     @property
-    def all_highlights(self):
+    def all_highlights(self) -> Iterator[dict]:
         for item in self.iteritems():
             yield item.data(0, highlight_role)
 
     @property
-    def selected_highlights(self):
+    def selected_highlights(self) -> Iterator[dict]:
         for item in self.selectedItems():
             yield item.data(0, highlight_role)
 
     @property
-    def all_highlight_styles(self):
+    def all_highlight_styles(self) -> Iterator[dict]:
         seen = set()
         for h in self.all_highlights:
             s = h.get('style')
@@ -667,7 +680,8 @@ class Highlights(QTreeWidget):
             else:
                 sec.setHidden(True)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
+        assert event is not None
         if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
             event.accept()
@@ -680,7 +694,7 @@ class Highlights(QTreeWidget):
 
 
 class NotesEditDialog(Dialog):
-    def __init__(self, notes, parent=None) -> None:
+    def __init__(self, notes: str, parent: QWidget | None = None) -> None:
         self.initial_notes = notes
         Dialog.__init__(self, name='edit-notes-highlight', title=_('Edit notes'), parent=parent)
 
@@ -696,20 +710,20 @@ class NotesEditDialog(Dialog):
         l.addWidget(self.bb)
 
     @property
-    def notes(self):
+    def notes(self) -> str:
         return self.qte.toPlainText().rstrip()
 
 
 class NotesDisplay(Details):
     notes_edited = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Details.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
         self.anchorClicked.connect(self.anchor_clicked)
         self.current_notes = ''
 
-    def show_notes(self, text='') -> None:
+    def show_notes(self, text: str = '') -> None:
         text = (text or '').strip()
         self.setVisible(bool(text))
         self.current_notes = text
@@ -721,7 +735,7 @@ class NotesDisplay(Details):
         h = doc.size().height() + 2
         self.setMaximumHeight(int(h))
 
-    def anchor_clicked(self, qurl) -> None:
+    def anchor_clicked(self, qurl: QUrl) -> None:
         if qurl.scheme() == 'edit':
             self.edit_notes()
         else:
@@ -740,7 +754,7 @@ class HighlightsPanel(QWidget):
     toggle_requested = pyqtSignal()
     notes_edited_signal = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.l = l = QVBoxLayout(self)
@@ -771,7 +785,7 @@ class HighlightsPanel(QWidget):
 
         self.h = h = QHBoxLayout()
 
-        def button(icon, text, tt, target):
+        def button(icon: str, text: str, tt: str, target: Callable[[], object]) -> QPushButton:
             b = QPushButton(QIcon.ic(icon), text, self)
             b.setToolTip(tt)
             b.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -795,30 +809,30 @@ class HighlightsPanel(QWidget):
             self.highlights.styles_to_show = d.selected_styles
             self.highlights.apply_filters()
 
-    def notes_edited(self, text) -> None:
+    def notes_edited(self, text: str) -> None:
         h = self.highlights.current_highlight
         if h is not None:
             h['notes'] = text
             self.web_action.emit('set-notes-in-highlight', h)
             self.notes_edited_signal.emit(h['uuid'], text)
 
-    def set_tooltips(self, rmap) -> None:
+    def set_tooltips(self, rmap: dict[str, list[str]]) -> None:
         pass
 
-    def search_requested(self, query) -> None:
+    def search_requested(self, query: Search) -> None:
         if not self.highlights.find_query(query):
             error_dialog(self, _('No matches'), _('No highlights match the search: {}').format(query.text), show=True)
 
     def focus(self) -> None:
         self.highlights.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def jump_to_highlight(self, highlight) -> None:
+    def jump_to_highlight(self, highlight: dict) -> None:
         boss = get_boss()
         if boss.check_for_read_aloud(_('the location of this highlight')):
             return
         self.request_highlight_action.emit(highlight['uuid'], 'goto')
 
-    def current_highlight_changed(self, highlight) -> None:
+    def current_highlight_changed(self, highlight: dict | None) -> None:
         nd = self.notes_display
         if highlight is None or not highlight.get('notes'):
             nd.show_notes()
@@ -828,7 +842,7 @@ class HighlightsPanel(QWidget):
     def no_selected_highlight(self) -> None:
         error_dialog(self, _('No selected highlight'), _('No highlight is currently selected'), show=True)
 
-    def edit_highlight(self):
+    def edit_highlight(self) -> None:
         boss = get_boss()
         if boss.check_for_read_aloud(_('the location of this highlight')):
             return
@@ -840,7 +854,7 @@ class HighlightsPanel(QWidget):
     def edit_notes(self) -> None:
         self.notes_display.edit_notes()
 
-    def remove_highlight(self):
+    def remove_highlight(self) -> None:
         highlights = tuple(self.highlights.selected_highlights)
         if not highlights:
             return self.no_selected_highlight()
@@ -857,19 +871,19 @@ class HighlightsPanel(QWidget):
             for h in highlights:
                 self.request_highlight_action.emit(h['uuid'], 'delete')
 
-    def export(self):
+    def export(self) -> int | None:
         hl = list(self.highlights.all_highlights)
         if not hl:
             return error_dialog(self, _('No highlights'), _('This book has no highlights to export'), show=True)
         Export(hl, self).exec()
 
-    def export_selected(self):
+    def export_selected(self) -> int | None:
         hl = list(self.highlights.selected_highlights)
         if not hl:
             return error_dialog(self, _('No highlights'), _('No highlights selected to export'), show=True)
         Export(hl, self).exec()
 
-    def change_style_of_selected(self):
+    def change_style_of_selected(self) -> None:
         highlights = list(self.highlights.selected_highlights)
         if not highlights:
             return self.no_selected_highlight()
@@ -879,11 +893,12 @@ class HighlightsPanel(QWidget):
             updates = [{'uuid': h['uuid'], 'style': style} for h in highlights]
             self.web_action.emit('set-style-in-highlights', {'updates': updates})
 
-    def selected_text_changed(self, text, annot_id) -> None:
+    def selected_text_changed(self, text: str, annot_id: str | None) -> None:
         if annot_id:
             self.highlights.find_annot_id(annot_id)
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         sc = get_shortcut_for(self, a0)
         if sc == 'toggle_highlights' or a0.key() == Qt.Key.Key_Escape:
             self.toggle_requested.emit()

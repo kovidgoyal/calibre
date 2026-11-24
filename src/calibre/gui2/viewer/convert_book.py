@@ -9,6 +9,7 @@ import tempfile
 import time
 from hashlib import sha1
 from itertools import count
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre import walk
 from calibre.constants import cache_dir, iswindows
@@ -20,6 +21,27 @@ from calibre.utils.serialize import msgpack_dumps
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import as_bytes, as_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+    from io import BufferedRandom
+    from unittest import TestSuite
+
+    from calibre.utils.ipc.simple_worker import PipeWorker
+
+    class CacheInstance(TypedDict):
+        # An entry in the viewer book cache metadata
+        path: str
+        id: str
+        status: str
+        mtime: float
+        atime: float
+        key: str
+        file_mtime: float
+        file_size: int
+        cache_size: int
+        book_path: str
+
+
 if iswindows:
     from calibre_extensions import winutil
 
@@ -28,15 +50,15 @@ VIEWER_VERSION = 1
 td_counter = count()
 
 
-def book_cache_dir():
+def book_cache_dir() -> str:
     return getattr(book_cache_dir, 'override', os.path.join(cache_dir(), 'ev2'))
 
 
-def cache_lock():
+def cache_lock() -> ExclusiveFile:
     return ExclusiveFile(os.path.join(book_cache_dir(), 'metadata.json'), timeout=600)
 
 
-def book_hash(path, size, mtime):
+def book_hash(path: str, size: int, mtime: float) -> str:
     path = os.path.normcase(os.path.abspath(path))
     raw = json.dumps((path, size, mtime, RENDER_VERSION, VIEWER_VERSION))
     if not isinstance(raw, bytes):
@@ -44,7 +66,7 @@ def book_hash(path, size, mtime):
     return as_unicode(sha1(raw).hexdigest())
 
 
-def safe_makedirs(path):
+def safe_makedirs(path: str) -> str:
     try:
         os.makedirs(path)
     except OSError as err:
@@ -53,7 +75,7 @@ def safe_makedirs(path):
     return path
 
 
-def robust_rmtree(x) -> bool:
+def robust_rmtree(x: str) -> bool:
     retries = 2 if iswindows else 1  # retry on windows to get around the idiotic mandatory file locking
     for i in range(retries):
         try:
@@ -95,7 +117,7 @@ def robust_rename(a: str, b: str) -> OSError | None:
     return None
 
 
-def clear_temp(temp_path) -> None:
+def clear_temp(temp_path: str) -> None:
     now = time.time()
     for x in os.listdir(temp_path):
         x = os.path.join(temp_path, x)
@@ -104,7 +126,7 @@ def clear_temp(temp_path) -> None:
             robust_rmtree(x)
 
 
-def expire_cache(path, instances, max_age) -> None:
+def expire_cache(path: str, instances: list[CacheInstance], max_age: float) -> None:
     now = time.time()
     remove = [x for x in instances if now - x['atime'] > max_age and x['status'] == 'finished']
     for instance in remove:
@@ -112,7 +134,7 @@ def expire_cache(path, instances, max_age) -> None:
             instances.remove(instance)
 
 
-def expire_old_versions(path, instances):
+def expire_old_versions(path: str, instances: Iterable[CacheInstance]) -> Iterator[CacheInstance]:
     instances = filter(lambda x: x['status'] == 'finished', instances)
     remove = sorted(instances, key=lambda x: x['atime'], reverse=True)[1:]
     for instance in remove:
@@ -120,7 +142,7 @@ def expire_old_versions(path, instances):
             yield instance
 
 
-def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_expire) -> None:
+def expire_cache_and_temp(temp_path: str, finished_path: str, metadata: dict, max_age: float, force_expire: bool) -> None:
     now = time.time()
     if now - metadata['last_clear_at'] < DAY and max_age >= 0 and not force_expire:
         return
@@ -156,7 +178,7 @@ def expire_cache_and_temp(temp_path, finished_path, metadata, max_age, force_exp
     metadata['last_clear_at'] = now
 
 
-def prepare_convert(temp_path, key, st, book_path):
+def prepare_convert(temp_path: str, key: str, st: os.stat_result, book_path: str) -> CacheInstance:
     tdir = tempfile.mkdtemp(dir=temp_path, prefix=f'c{next(td_counter)}-')
     now = time.time()
     return {
@@ -174,17 +196,17 @@ def prepare_convert(temp_path, key, st, book_path):
 
 
 class ConversionFailure(ValueError):
-    def __init__(self, book_path, worker_output) -> None:
+    def __init__(self, book_path: str, worker_output: str) -> None:
         self.book_path = book_path
         self.worker_output = worker_output
         ValueError.__init__(self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
 
 
-preloaded_worker = None
-running_workers = []
+preloaded_worker: PipeWorker | None = None
+running_workers: list[PipeWorker] = []
 
 
-def create_worker():
+def create_worker() -> PipeWorker:
     import subprocess
 
     return start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stderr=subprocess.STDOUT)
@@ -210,7 +232,7 @@ def initialize_worker() -> None:
         atexit.register(clean_running_workers)
 
 
-def do_convert(path, temp_path, key, instance) -> None:
+def do_convert(path: str, temp_path: str, key: str, instance: CacheInstance) -> None:
     global preloaded_worker
     tdir = os.path.join(temp_path, instance['path'])
     p = preloaded_worker or create_worker()
@@ -236,11 +258,18 @@ def do_convert(path, temp_path, key, instance) -> None:
     instance['cache_size'] = size
 
 
-def save_metadata(metadata, f) -> None:
+def save_metadata(metadata: dict, f: BufferedRandom) -> None:
     f.seek(0), f.truncate(), f.write(as_bytes(json.dumps(metadata, indent=2)))
 
 
-def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, prepare_notify=None, force_expire=False):
+def prepare_book(
+    path: str,
+    convert_func: Callable[[str, str, str, CacheInstance], None] = do_convert,
+    max_age: float = 30 * DAY,
+    force: bool = False,
+    prepare_notify: Callable[[], None] | None = None,
+    force_expire: bool = False,
+) -> str:
     st = os.stat(path)
     key = book_hash(path, st.st_size, st.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
@@ -298,7 +327,7 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
     return ans
 
 
-def update_book(path, old_stat, name_data_map=None) -> None:
+def update_book(path: str, old_stat: os.stat_result, name_data_map: dict[str, bytes] | None = None) -> None:
     old_key = book_hash(path, old_stat.st_size, old_stat.st_mtime)
     finished_path = safe_makedirs(os.path.join(book_cache_dir(), 'f'))
 
@@ -332,7 +361,7 @@ def update_book(path, old_stat, name_data_map=None) -> None:
                 return
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestViewerCache(unittest.TestCase):
@@ -348,13 +377,13 @@ def find_tests():
 
         def test_viewer_cache(self) -> None:
 
-            def convert_mock(path, temp_path, key, instance) -> None:
+            def convert_mock(path: str, temp_path: str, key: str, instance: CacheInstance) -> None:
                 self.ae(instance['status'], 'working')
                 self.ae(instance['key'], key)
                 with open(os.path.join(temp_path, instance['path'], 'sentinel'), 'wb') as f:
                     f.write(b'test')
 
-            def set_data(x) -> None:
+            def set_data(x: str | bytes) -> None:
                 if not isinstance(x, bytes):
                     x = x.encode('utf-8')
                 with open(book_src, 'wb') as f:
@@ -364,7 +393,7 @@ def find_tests():
             set_data('a')
             path = prepare_book(book_src, convert_func=convert_mock)
 
-            def read(x, mode='r'):
+            def read(x: str, mode: str = 'r') -> str | bytes:
                 with open(x, mode) as f:
                     return f.read()
 

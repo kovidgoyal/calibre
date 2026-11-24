@@ -1,13 +1,15 @@
 from collections.abc import Callable
 from typing import Any
 
+from calibre.spell import DictionaryLocale
+
 class Tag:
     name: str
     bold: bool
     italic: bool
-    lang: str | None
+    lang: DictionaryLocale | None
 
-    def __init__(self, name: str, bold: bool | None = None, italic: bool | None = None, lang: str | None = None) -> None:
+    def __init__(self, name: str, bold: bool | None = None, italic: bool | None = None, lang: DictionaryLocale | None = None) -> None:
         "Tag"
         pass
 
@@ -20,11 +22,11 @@ class State:
     tags: list[Tag]
     is_bold: bool
     is_italic: bool
-    current_lang: str | None
+    current_lang: DictionaryLocale | None
     parse: int
     css_formats: Any
     sub_parser_state: Any
-    default_lang: str | None
+    default_lang: DictionaryLocale | None
     attribute_name: str | None
 
     def __init__(
@@ -33,11 +35,11 @@ class State:
         tags: list[Tag] | None = None,
         is_bold: bool = False,
         is_italic: bool = False,
-        current_lang: str | None = None,
+        current_lang: DictionaryLocale | None = None,
         parse: int = 0,
         css_formats: Any = None,
         sub_parser_state: Any = None,
-        default_lang: str | None = None,
+        default_lang: DictionaryLocale | None = None,
         attribute_name: str | None = None,
     ) -> None:
         "State"

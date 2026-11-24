@@ -1,14 +1,21 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QTextCharFormat
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from pygments.token import _TokenType
 
 NULL_FMT = QTextCharFormat()
 
 _pyg_map = None
 
 
-def pygments_map():
+def pygments_map() -> dict[_TokenType, str | None]:
     global _pyg_map
     if _pyg_map is None:
         from pygments.token import Token
@@ -30,7 +37,9 @@ def pygments_map():
     return _pyg_map
 
 
-def format_for_pygments_token(theme, cache, token):
+def format_for_pygments_token(
+    theme: Mapping[str | None, QTextCharFormat], cache: dict[_TokenType | None, QTextCharFormat], token: _TokenType | None
+) -> QTextCharFormat:
     try:
         return cache[token]
     except KeyError:

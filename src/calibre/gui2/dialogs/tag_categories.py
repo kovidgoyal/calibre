@@ -1,7 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import defaultdict
-from typing import NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import QApplication, QDialog, QIcon, QListWidgetItem, Qt
 
@@ -12,6 +12,19 @@ from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_contains, primary_sort_key, strcmp
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import TypedDict
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
+    class CategoryItems(TypedDict):
+        icon: QIcon
+        name: str
+        values: set[str]
 
 
 class TagCategories(QDialog, Ui_TagCategories):
@@ -41,7 +54,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         n: str
         k: str
 
-    def __init__(self, window, db, on_category=None, book_ids=None) -> None:
+    def __init__(self, window: QWidget | None, db: LibraryDatabase, on_category: str | None = None, book_ids: Iterable[int] | None = None) -> None:
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
@@ -58,11 +71,11 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.setWindowIcon(icon)
 
         self.db = db
-        self.applied_items = []
+        self.applied_items: list[TagCategories.ItemTuple] = []
         self.book_ids = book_ids
         self.hide_hidden_categories = False
         self.filter_by_vl = False
-        self.category_labels = []  # The label is the lookup key
+        self.category_labels: list[str] = []  # The label is the lookup key
 
         if self.book_ids is None:
             self.apply_vl_checkbox.setEnabled(False)
@@ -70,17 +83,17 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.cc_icon = QIcon.ic('column.png')
 
         # Build a dict of all available items, used when checking and building user cats
-        self.all_items = {}
+        self.all_items: dict[str, CategoryItems] = {}
         db_categories = self.db.new_api.get_categories()
         for key, tag in db_categories.items():
             self.all_items[key] = {
                 'icon': self.category_icons.get(key, self.cc_icon),
-                'name': self.db.field_metadata[key]['name'],
+                'name': cast('str', self.db.field_metadata[key]['name']),  # categories always have a name
                 'values': {t.original_name for t in tag},
             }
 
         # build the list of all user categories. Filter out keys that no longer exist
-        self.user_categories = {}
+        self.user_categories: dict[str, set[TagCategories.ItemTuple]] = {}
         for cat_name, values in db.new_api.pref('user_categories', {}).items():
             fv = set()
             for v in values:
@@ -89,8 +102,8 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.user_categories[cat_name] = fv
 
         # get the hidden categories
-        hidden_cats = self.db.new_api.pref('tag_browser_hidden_categories', None)
-        self.hidden_categories = set()
+        hidden_cats = cast('Iterable[str]', self.db.new_api.pref('tag_browser_hidden_categories', None))  # set by the Tag browser when the library is opened
+        self.hidden_categories: set[str] = set()
         # strip non-existent field keys from hidden categories (just in case)
         for cat in hidden_cats:
             if cat in self.db.field_metadata:
@@ -113,7 +126,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.apply_vl_checkbox.clicked.connect(self.apply_vl_clicked)
         self.hide_hidden_categories_checkbox.clicked.connect(self.hide_hidden_categories_clicked)
 
-        self.current_cat_name = None
+        self.current_cat_name: str | None = None
         self.initialize_category_lists()
         self.display_filtered_categories()
         self.populate_category_list()
@@ -130,13 +143,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         assert cb is not None
         cb.setText(t)
 
-    def item_tuple(self, key, val):
+    def item_tuple(self, key: str, val: str) -> TagCategories.ItemTuple:
         return self.ItemTuple(val, key)
 
-    def category_name_tuple(self, key, name):
+    def category_name_tuple(self, key: str, name: str) -> TagCategories.CategoryNameTuple:
         return self.CategoryNameTuple(name, key)
 
-    def item_sort_key(self, v):
+    def item_sort_key(self, v: TagCategories.ItemTuple) -> bytes:
         # Add the key so the order of identical items is predictable.
         # The tab ensures that the values sort together regardless of key
         return primary_sort_key(v.v + '\t ' + (v.k.removeprefix('#')))
@@ -147,9 +160,9 @@ class TagCategories(QDialog, Ui_TagCategories):
 
         # get the values for each category taking into account the VL, then
         # populate the lists taking hidden and filtered categories into account
-        self.available_items = {}
-        self.sorted_items = []
-        sorted_categories = []
+        self.available_items: dict[str, set[str]] = {}
+        self.sorted_items: list[TagCategories.ItemTuple] = []
+        sorted_categories: list[TagCategories.CategoryNameTuple] = []
         item_filter = self.item_filter_box.text()
         db_categories = self.db.new_api.get_categories(book_ids=self.book_ids if self.filter_by_vl else None)
         for key, tags in db_categories.items():
@@ -157,7 +170,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 continue
             if self.hide_hidden_categories and key in self.hidden_categories:
                 continue
-            av = set()
+            av: set[str] = set()
             for t in tags:
                 if item_filter and not primary_contains(item_filter, t.original_name):
                     continue
@@ -184,14 +197,14 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.category_box.addItems(sorted(self.user_categories.keys(), key=primary_sort_key))
         self.category_box.blockSignals(False)
 
-    def make_available_list_item(self, key, val):
-        w = QListWidgetItem(cast('QIcon', self.all_items[key]['icon']), val)
+    def make_available_list_item(self, key: str, val: str) -> QListWidgetItem:
+        w = QListWidgetItem(self.all_items[key]['icon'], val)
         w.setData(Qt.ItemDataRole.UserRole, self.item_tuple(key, val))
         w.setToolTip(_('Lookup name: {}').format(key))
         return w
 
-    def make_applied_list_item(self, tup):
-        if tup.v not in cast('set', self.all_items[tup.k]['values']):
+    def make_applied_list_item(self, tup: TagCategories.ItemTuple) -> QListWidgetItem:
+        if tup.v not in self.all_items[tup.k]['values']:
             t = tup.v + ' ' + _('(Not in library)')
         elif tup.k not in self.available_items:
             t = tup.v + ' ' + _('(Hidden in Tag browser)')
@@ -199,23 +212,23 @@ class TagCategories(QDialog, Ui_TagCategories):
             t = tup.v + ' ' + _('(Hidden by Virtual library)')
         else:
             t = tup.v
-        w = QListWidgetItem(cast('QIcon', self.all_items[tup.k]['icon']), t)
+        w = QListWidgetItem(self.all_items[tup.k]['icon'], t)
         w.setData(Qt.ItemDataRole.UserRole, tup)
         w.setToolTip(_('Lookup name: {}').format(tup.k))
         return w
 
-    def hide_hidden_categories_clicked(self, checked) -> None:
+    def hide_hidden_categories_clicked(self, checked: bool) -> None:
         self.hide_hidden_categories = checked
         self.initialize_category_lists()
         self.display_filtered_categories()
         self.fill_applied_items()
 
-    def apply_vl_clicked(self, checked) -> None:
+    def apply_vl_clicked(self, checked: bool) -> None:
         self.filter_by_vl = checked
         self.initialize_category_lists()
         self.fill_applied_items()
 
-    def apply_filter(self, _) -> None:
+    def apply_filter(self, _: str) -> None:
         self.initialize_category_lists()
         self.display_filtered_categories()
 
@@ -248,7 +261,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def apply_button_clicked(self) -> None:
         self.apply_tags(node=None)
 
-    def apply_tags(self, node=None) -> None:
+    def apply_tags(self, node: QListWidgetItem | None = None) -> None:
         if self.current_cat_name is None:
             return
         nodes = self.available_items_box.selectedItems() if node is None else [node]
@@ -263,7 +276,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def unapply_button_clicked(self) -> None:
         self.unapply_tags(node=None)
 
-    def unapply_tags(self, node=None) -> None:
+    def unapply_tags(self, node: QListWidgetItem | None = None) -> None:
         if self.current_cat_name is None:
             return
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
@@ -366,7 +379,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.current_cat_name = None
             self.fill_applied_items()
 
-    def select_category(self, idx) -> None:
+    def select_category(self, idx: int) -> None:
         s = self.category_box.itemText(idx)
         if s:
             self.current_cat_name = str(s)

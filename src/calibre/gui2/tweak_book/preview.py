@@ -7,6 +7,7 @@ from collections import defaultdict
 from functools import lru_cache, partial
 from queue import Empty, Queue
 from threading import Thread
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from qt.core import (
@@ -54,10 +55,21 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile, to_js
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from qt.core import QColor, QContextMenuEvent, QObject
+
+    from calibre.gui2.open_with import Entry
+    from calibre.utils.config import JSONConfig
+
+    #: The line number and the names of the enclosing tags of a location in an HTML file
+    type SourcelineAddress = tuple[int | None, list[str] | None]
+
 shutdown = object()
 
 
-def get_data(name):
+def get_data(name: str) -> str | bytes:
     "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
@@ -67,7 +79,7 @@ def get_data(name):
 # Parsing of html to add linenumbers {{{
 
 
-def parse_html(raw):
+def parse_html(raw: str) -> bytes:
     root = parse(raw, decoder=lambda x: x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
     ans = serialize(root, 'text/html')
     if not isinstance(ans, bytes):
@@ -78,10 +90,11 @@ def parse_html(raw):
 class ParseItem:
     __slots__ = ('fingerprint', 'length', 'name', 'parsed_data', 'parsing_done')
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.length, self.fingerprint = 0, None
-        self.parsed_data = None
+        self.length: int = 0
+        self.fingerprint: int | None = None
+        self.parsed_data: str | bytes | None = None
         self.parsing_done = False
 
     def __repr__(self) -> str:
@@ -99,8 +112,8 @@ class ParseWorker(Thread):
         Thread.__init__(self)
         self.requests = Queue()
         self.request_count = 0
-        self.parse_items = {}
-        self.launch_error = None
+        self.parse_items: dict[str, ParseItem] = {}
+        self.launch_error: str | None = None
 
     def run(self) -> None:
         mod, func = 'calibre.gui2.tweak_book.preview', 'parse_html'
@@ -145,7 +158,7 @@ class ParseWorker(Thread):
                 else:
                     pi.parsed_data = parsed_data
 
-    def add_request(self, name) -> None:
+    def add_request(self, name: str) -> None:
         data = get_data(name)
         ldata, hdata = len(data), hash(data)
         pi = self.parse_items.get(name, None)
@@ -163,13 +176,13 @@ class ParseWorker(Thread):
     def shutdown(self) -> None:
         self.requests.put(shutdown)
 
-    def get_data(self, name):
+    def get_data(self, name: str) -> str | bytes | None:
         return getattr(self.parse_items.get(name, None), 'parsed_data', None)
 
     def clear(self) -> None:
         self.parse_items.clear()
 
-    def is_alive(self):
+    def is_alive(self) -> bool:
         return Thread.is_alive(self) or (hasattr(self, 'worker') and self.worker.is_alive())
 
 
@@ -180,11 +193,12 @@ parse_worker = ParseWorker()
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QWebEngineUrlSchemeHandler.__init__(self, parent)
-        self.requests = defaultdict(list)
+        self.requests: defaultdict[str, list[tuple[str, QWebEngineUrlRequestJob]]] = defaultdict(list)
 
-    def requestStarted(self, a0) -> None:
+    def requestStarted(self, a0: QWebEngineUrlRequestJob | None) -> None:
+        assert a0 is not None
         if bytes(a0.requestMethod()) != b'GET':
             a0.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
             return
@@ -223,7 +237,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             traceback.print_exc()
             a0.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
-    def check_for_parse(self):
+    def check_for_parse(self) -> None:
         remove = []
         for name, requests in self.requests.items():
             data = parse_worker.get_data(name)
@@ -243,7 +257,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 # }}}
 
 
-def uniq(vals):
+def uniq[T](vals: Iterable[T] | None) -> tuple[T, ...]:
     """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
@@ -251,10 +265,10 @@ def uniq(vals):
     return tuple(x for x in vals if x not in seen and not seen_add(x))  # ty: ignore[redundant-condition]
 
 
-def get_editor_settings(tprefs):
+def get_editor_settings(tprefs: JSONConfig) -> dict[str, object]:
     dark = is_dark_theme()
 
-    def get_color(name, dark_val):
+    def get_color(name: str, dark_val: QColor) -> str | None:
         ans = tprefs[name]
         if ans == 'auto' and dark:
             ans = dark_val.name()
@@ -271,7 +285,7 @@ def get_editor_settings(tprefs):
     }
 
 
-def create_dark_mode_script():
+def create_dark_mode_script() -> QWebEngineScript:
     return create_script(
         'dark-mode.js',
         '''
@@ -310,7 +324,7 @@ def create_dark_mode_script():
 
 
 @lru_cache(maxsize=2)
-def create_profile():
+def create_profile() -> QWebEngineProfile:
     ans = QWebEngineProfile(QApplication.instance())
     setup_profile(ans)
     ua = 'calibre-editor-preview ' + __version__
@@ -352,15 +366,15 @@ class PreviewBridge(Bridge):
 
 
 class WebPage(QWebEnginePage):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QObject | None) -> None:
         QWebEnginePage.__init__(self, create_profile(), parent)
         secure_webengine(self, for_viewer=True)
         self.bridge = PreviewBridge(self)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
         prints(f'{sourceID}:{lineNumber}: {message}')
 
-    def acceptNavigationRequest(self, url, type, isMainFrame) -> bool:
+    def acceptNavigationRequest(self, url: QUrl, type: QWebEnginePage.NavigationType, isMainFrame: bool) -> bool:
         if type in (
             QWebEnginePage.NavigationType.NavigationTypeReload,
             QWebEnginePage.NavigationType.NavigationTypeBackForward,
@@ -373,21 +387,21 @@ class WebPage(QWebEnginePage):
         prints('Blocking navigation request to:', url.toString())
         return False
 
-    def go_to_anchor(self, anchor) -> None:
+    def go_to_anchor(self, anchor: str | object | None) -> None:
         if anchor is TOP:
             anchor = ''
         self.bridge.go_to_anchor.emit(anchor or '')
 
-    def runjs(self, src, callback=None) -> None:
+    def runjs(self, src: str, callback: Callable[[object], None] | None = None) -> None:
         if callback is None:
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
-    def go_to_sourceline_address(self, sourceline_address) -> None:
+    def go_to_sourceline_address(self, sourceline_address: SourcelineAddress) -> None:
         if self.bridge.ready:
             lnum, tags = sourceline_address
-            if lnum is None:
+            if lnum is None or tags is None:
                 return
             tags = [x.lower() for x in tags]
             self.bridge.go_to_sourceline_address.emit(lnum, tags, tprefs['preview_sync_context'])
@@ -400,16 +414,16 @@ class WebPage(QWebEnginePage):
         if self.bridge.ready:
             self.bridge.clear_paragraph_highlight.emit()
 
-    def split_mode(self, enabled) -> None:
+    def split_mode(self, enabled: bool) -> None:
         if self.bridge.ready:
             self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
 class Inspector(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWebEngineView | None = None) -> None:
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
-        self.view = None
+        self.view: QWebEngineView | None = None
         h = QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
 
@@ -419,7 +433,7 @@ class Inspector(QWidget):
         if ac.isChecked():
             self.visibility_changed(True)
 
-    def visibility_changed(self, visible) -> None:
+    def visibility_changed(self, visible: bool) -> None:
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
             view_page = self.view.page()
@@ -441,12 +455,12 @@ class Inspector(QWidget):
         if ac.isChecked():
             ac.trigger()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(1280, 600)
 
 
 class WebView(QWebEngineView, OpenWithHandler):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.inspector = Inspector(self)
         screen = self.screen()
@@ -471,7 +485,7 @@ class WebView(QWebEngineView, OpenWithHandler):
             show=True,
         )
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return self._size_hint
 
     def update_settings(self) -> None:
@@ -487,7 +501,7 @@ class WebView(QWebEngineView, OpenWithHandler):
         assert reload_action is not None
         reload_action.trigger()
 
-    def set_url(self, qurl) -> None:
+    def set_url(self, qurl: QUrl) -> None:
         self.update_settings()
         super().setUrl(qurl)
 
@@ -520,7 +534,8 @@ class WebView(QWebEngineView, OpenWithHandler):
         assert inspect_action is not None
         inspect_action.trigger()
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         menu = QMenu(self)
         data = self.lastContextMenuRequest()
         assert data is not None
@@ -553,12 +568,12 @@ class WebView(QWebEngineView, OpenWithHandler):
                                 menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
         menu.exec(a0.globalPos())
 
-    def open_with(self, file_name, fmt, entry) -> None:
+    def open_with(self, file_name: str, fmt: str, entry: Entry) -> None:
         p = self.parent()
         assert isinstance(p, Preview)
         p.open_file_with.emit(file_name, fmt, entry)
 
-    def edit_image(self, resource_name) -> None:
+    def edit_image(self, resource_name: str) -> None:
         p = self.parent()
         assert isinstance(p, Preview)
         p.edit_file.emit(resource_name)
@@ -575,7 +590,7 @@ class Preview(QWidget):
     open_file_with = pyqtSignal(object, object, object)
     edit_file = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -590,15 +605,15 @@ class Preview(QWidget):
         self.view._page.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.view._page.loadFinished.connect(self.load_finished)
         self.view._page.loadStarted.connect(self.load_started)
-        self.pending_go_to_anchor = None
+        self.pending_go_to_anchor: str | None = None
         self.pending_highlight: tuple[str, int, list[str], str] | None = None
         self.highlight_retry_count = 0
         # Whether a paragraph is highlighted in the currently loaded page
         self.highlight_shown = False
         # The last request to sync to the cursor position in the editor and
         # the one made when the pending or shown highlight was requested
-        self.last_sync_request: tuple[str, object] | None = None
-        self.sync_request_at_highlight: tuple[str, object] | None = None
+        self.last_sync_request: tuple[str, SourcelineAddress] | None = None
+        self.sync_request_at_highlight: tuple[str, SourcelineAddress] | None = None
         # Messages sent to the javascript while a page is loading are lost
         self.page_loading = False
         self.inspector = self.view.inspector
@@ -645,12 +660,12 @@ class Preview(QWidget):
 
         actions['preview-dock'].toggled.connect(self.visibility_changed)
 
-        self.current_name = None
+        self.current_name: str | None = None
         self.last_sync_request = None
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.refresh)
         parse_worker.start()
-        self.current_sync_request = None
+        self.current_sync_request: tuple[str, SourcelineAddress] | None = None
 
         self.search = HistoryLineEdit2(self)
         self.search.setClearButtonEnabled(True)
@@ -673,7 +688,7 @@ class Preview(QWidget):
     def clear_clicked(self) -> None:
         self.view._page.findText('')
 
-    def find(self, a0) -> None:
+    def find(self, a0: str) -> None:  # ty: ignore[incompatible-method-override] intentionally shadows QWidget.find()
         text = str(self.search.text())
         self.view._page.findText(text, (QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
 
@@ -683,10 +698,10 @@ class Preview(QWidget):
     def find_prev(self) -> None:
         self.find('prev')
 
-    def go_to_anchor(self, anchor) -> None:
+    def go_to_anchor(self, anchor: str | object | None) -> None:
         self.view._page.go_to_anchor(anchor)
 
-    def request_sync(self, tagname, href, lnum):
+    def request_sync(self, tagname: str, href: str | None, lnum: int) -> None:
         if self.current_name:
             c = current_container()
             if tagname == 'a' and href:
@@ -700,7 +715,7 @@ class Preview(QWidget):
                     return self.link_clicked.emit(name, urlparse(href).fragment or TOP)
             self.sync_requested.emit(self.current_name, lnum)
 
-    def request_split(self, loc, totals):
+    def request_split(self, loc: list[int] | None, totals: list[int] | None) -> int | None:
         actions['split-in-preview'].setChecked(False)
         if not loc or not totals:
             return error_dialog(self, _('Invalid location'), _('Cannot split on the body tag'), show=True)
@@ -708,10 +723,10 @@ class Preview(QWidget):
             self.split_requested.emit(self.current_name, loc, totals)
 
     @property
-    def bridge_ready(self):
+    def bridge_ready(self) -> bool:
         return self.view._page.bridge.ready
 
-    def sync_to_editor(self, name, sourceline_address) -> None:
+    def sync_to_editor(self, name: str, sourceline_address: SourcelineAddress) -> None:
         self.last_sync_request = (name, sourceline_address)
         if self.pending_highlight is not None or self.highlight_shown:
             if self.last_sync_request == self.sync_request_at_highlight:
@@ -725,7 +740,7 @@ class Preview(QWidget):
         self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
 
-    def _sync_to_editor(self):
+    def _sync_to_editor(self) -> None:
         if not actions['sync-preview-to-editor'].isChecked() or self.current_sync_retry_count >= 3000 or self.current_sync_request is None:
             return
         if self.refresh_timer.isActive() or not self.bridge_ready or self.current_sync_request[0] != self.current_name:
@@ -736,7 +751,7 @@ class Preview(QWidget):
         self.current_sync_retry_count = 0
         self.view._page.go_to_sourceline_address(sourceline_address)
 
-    def highlight_paragraph(self, name: str, sourceline_address: tuple[int | None, list[str] | None], text: str) -> None:
+    def highlight_paragraph(self, name: str, sourceline_address: SourcelineAddress, text: str) -> None:
         """Scroll to the paragraph with the specified text and highlight it.
         The paragraph is found from the sourceline address of the innermost
         element containing its start. The highlight stays until
@@ -789,13 +804,13 @@ class Preview(QWidget):
                 show=True,
             )
 
-    def name_to_qurl(self, name=None):
+    def name_to_qurl(self, name: str | None = None) -> QUrl:
         name = str(name or self.current_name)
         qurl = QUrl()
         qurl.setScheme(FAKE_PROTOCOL), qurl.setAuthority(FAKE_HOST), qurl.setPath('/' + name)
         return qurl
 
-    def show(self, name: str = ''):
+    def show(self, name: str = '') -> bool | None:  # ty: ignore[incompatible-method-override] intentionally replaces QWidget.show()
         if not name:
             return
         if name != self.current_name:
@@ -834,11 +849,11 @@ class Preview(QWidget):
         self.current_name = None
 
     @property
-    def is_visible(self):
+    def is_visible(self) -> bool:
         return actions['preview-dock'].isChecked()
 
     @property
-    def live_css_is_visible(self):
+    def live_css_is_visible(self) -> bool:
         try:
             return actions['live-css-dock'].isChecked()
         except KeyError:
@@ -851,7 +866,7 @@ class Preview(QWidget):
     def stop_refresh_timer(self) -> None:
         self.refresh_timer.stop()
 
-    def auto_reload_toggled(self, checked) -> None:
+    def auto_reload_toggled(self, checked: bool) -> None:
         if self.live_css_is_visible and not actions['auto-reload-preview'].isChecked():
             actions['auto-reload-preview'].setChecked(True)
             error_dialog(
@@ -862,16 +877,16 @@ class Preview(QWidget):
             )
         actions['auto-reload-preview'].setToolTip(_('Auto reload preview when text changes in editor') if not checked else _('Disable auto reload of preview'))
 
-    def sync_toggled(self, checked) -> None:
+    def sync_toggled(self, checked: bool) -> None:
         actions['sync-preview-to-editor'].setToolTip(
             _('Disable syncing of preview position to editor position') if checked else _('Enable syncing of preview position to editor position')
         )
 
-    def visibility_changed(self, is_visible) -> None:
+    def visibility_changed(self, is_visible: bool) -> None:
         if is_visible:
             self.refresh()
 
-    def split_toggled(self, checked) -> None:
+    def split_toggled(self, checked: bool) -> None:
         actions['split-in-preview'].setToolTip(
             '<p>'
             + (
@@ -904,7 +919,7 @@ class Preview(QWidget):
     def on_bridge_ready(self) -> None:
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
 
-    def load_finished(self, ok) -> None:
+    def load_finished(self, ok: bool) -> None:
         self.page_loading = False
         self.stack.setCurrentIndex(self.stack.indexOf(self.view))
         if self.pending_go_to_anchor:
@@ -916,7 +931,7 @@ class Preview(QWidget):
             else:
                 self.stop_split()
 
-    def request_live_css_data(self, editor_name, sourceline, tags) -> None:
+    def request_live_css_data(self, editor_name: str, sourceline: int, tags: list[str]) -> None:
         if self.view._page.bridge.ready:
             self.view._page.bridge.live_css(editor_name, sourceline, tags)
 

@@ -4,6 +4,7 @@
 import errno
 import os
 from threading import Event, Thread
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, Qt, QTimer, pyqtSignal
 
@@ -14,12 +15,28 @@ from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2.dialogs.progress import ProgressDialog as PD
 from calibre.utils.localization import _, localize_user_manual_link
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import TypedDict, Unpack
+
+    from qt.core import QIcon, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
+    class ProgressDialogKwargs(TypedDict, total=False):
+        min: int
+        max: int
+        parent: QWidget | None
+        cancelable: bool
+        icon: QIcon | str | None
+        cancel_confirm_msg: str
+
 
 class ProgressDialog(PD):
     on_progress_update = pyqtSignal(object, object, object)
     finished_moving = pyqtSignal()
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: *tuple[str, str], **kwargs: Unpack[ProgressDialogKwargs]) -> None:
         PD.__init__(self, *args, **kwargs)
         self.on_progress_update.connect(self.progressed, type=Qt.ConnectionType.QueuedConnection)
         self.finished_moving.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
@@ -27,17 +44,17 @@ class ProgressDialog(PD):
     def reject(self) -> None:
         return
 
-    def progressed(self, item_name, count, total) -> None:
+    def progressed(self, item_name: str, count: int, total: int) -> None:
         self.max = total
         self.value = count
         self.set_msg(item_name)
 
-    def show_new_progress(self, *args) -> None:
+    def show_new_progress(self, *args: str | int) -> None:
         self.on_progress_update.emit(*args)
 
 
 class ChooseLibrary(QDialog, Ui_Dialog):
-    def __init__(self, db, callback, parent) -> None:
+    def __init__(self, db: LibraryDatabase, callback: Callable[..., None], parent: QWidget | None) -> None:
         super().__init__(parent)
         self.setupUi(self)
         self.nas_warning.setText(
@@ -60,10 +77,10 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.empty_library.toggled.connect(self.empty_library_toggled)
         self.copy_structure.setEnabled(False)
 
-    def empty_library_toggled(self, to_what) -> None:
+    def empty_library_toggled(self, to_what: bool) -> None:
         self.copy_structure.setEnabled(to_what)
 
-    def choose_loc(self, *args) -> None:
+    def choose_loc(self, *args: object) -> None:
         base = get_portable_base()
         if base is None:
             loc = choose_dir(self, 'choose library location', _('Choose location for calibre library'))
@@ -73,7 +90,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         if loc is not None:
             self.location.setText(loc)
 
-    def check_action(self, ac, loc) -> bool:
+    def check_action(self, ac: str, loc: str) -> bool:
         exists = self.db.exists_at(loc)
         base = get_portable_base()
         if patheq(loc, self.db.library_path):
@@ -127,7 +144,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
 
         return True
 
-    def perform_action(self, ac, loc) -> None:
+    def perform_action(self, ac: str, loc: str) -> None:
         if ac in ('new', 'existing'):
             self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
@@ -169,7 +186,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                 return
             self.callback(loc, library_renamed=True)
 
-    def accept(self):
+    def accept(self) -> None:
         action = 'move'
         if self.existing_library.isChecked():
             action = 'existing'
@@ -177,7 +194,8 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             action = 'new'
         text = str(self.location.text()).strip()
         if not text:
-            return error_dialog(self, _('No location'), _('No location selected'), show=True)
+            error_dialog(self, _('No location'), _('No location selected'), show=True)
+            return
         loc = os.path.abspath(text)
         if action == 'move':
             try:
@@ -189,7 +207,8 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             if action == 'new' and not os.path.exists(loc):
                 os.makedirs(loc)
             else:
-                return error_dialog(self, _('Bad location'), _('%s is not an existing folder') % loc, show=True)
+                error_dialog(self, _('Bad location'), _('%s is not an existing folder') % loc, show=True)
+                return
         if not self.check_action(action, loc):
             return
         self.location.save_history()

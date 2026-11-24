@@ -5,6 +5,7 @@ import os
 import sys
 import traceback
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QProgressBar, QStackedLayout, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
 
@@ -14,9 +15,19 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from queue import Queue
+
+    from qt.core import QObject
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+    type DownloadVoices = Callable[[QObject | None], bool]
+
 
 class EngineSettingsWidget(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         from calibre.ebooks.oeb.polish.tts import skip_name
         from calibre.gui2.tts.config import EmbeddingConfig
 
@@ -94,7 +105,7 @@ class TTSEmbed(Dialog):
     worker_done = pyqtSignal(object)
     ensure_voices_downloaded_signal = pyqtSignal(object, object)
 
-    def __init__(self, container, parent=None) -> None:
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         self.container = container
         super().__init__(_('Add Text-to-speech narration'), 'tts-overlay-dialog', parent=parent)
 
@@ -146,13 +157,13 @@ class TTSEmbed(Dialog):
             self.stack.setCurrentIndex(1)
             self.worker_thread.start()
 
-    def do_report_progress(self, a, kw) -> None:
+    def do_report_progress(self, a: tuple[str, str, int, int], kw: dict[str, object]) -> None:
         self.progress(*a, **kw)
 
     def worker(self) -> None:
         from calibre.ebooks.oeb.polish.tts import embed_tts
 
-        def report_progress(*a, **kw):
+        def report_progress(*a: str | int, **kw: object) -> bool:
             self.report_progress.emit(a, kw)
             return self.progress.cancel_requested
 
@@ -163,24 +174,24 @@ class TTSEmbed(Dialog):
             setattr(err, 'det_msg', traceback.format_exc())
         self.worker_done.emit(err)
 
-    def ensure_voices_downloaded(self, callback):
+    def ensure_voices_downloaded(self, callback: DownloadVoices) -> bool:
         from queue import Queue
 
-        queue = Queue()
+        queue: Queue[bool | Exception] = Queue()
         self.ensure_voices_downloaded_signal.emit(callback, queue)
         e = queue.get()
         if isinstance(e, Exception):
             raise e
         return e
 
-    def do_ensure_voices_downloaded(self, callback, queue) -> None:
+    def do_ensure_voices_downloaded(self, callback: DownloadVoices, queue: Queue[bool | Exception]) -> None:
         try:
             queue.put(callback(self))
         except Exception as e:
             setattr(e, 'det_msg', traceback.format_exc())
             queue.put(e)
 
-    def on_worker_done(self, err_or_ok):
+    def on_worker_done(self, err_or_ok: bool | Exception) -> None:
         if isinstance(err_or_ok, Exception):
             error_dialog(
                 self,
@@ -192,7 +203,7 @@ class TTSEmbed(Dialog):
             return super().reject()
         return super().accept() if err_or_ok else super().reject()
 
-    def reject(self):
+    def reject(self) -> None:
         if self.stack.currentIndex() == 0:
             return super().reject()
         with BusyCursor():

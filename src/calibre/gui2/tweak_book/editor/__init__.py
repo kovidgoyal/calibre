@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QTextCharFormat, QTextFormat
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.gui2.tweak_book import EditorType
 
 _xml_types = {
     'application/oebps-page-map+xml',
@@ -14,7 +21,7 @@ _xml_types = {
 _js_types = {'application/javascript', 'application/x-javascript'}
 
 
-def syntax_from_mime(name, mime):
+def syntax_from_mime(name: str, mime: str) -> str | None:
     for syntax, types in (('html', OEB_DOCS), ('css', OEB_STYLES), ('xml', _xml_types)):
         if mime in types:
             return syntax
@@ -31,7 +38,7 @@ def syntax_from_mime(name, mime):
 all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
 
 
-def editor_from_syntax(syntax, parent=None):
+def editor_from_syntax(syntax: str, parent: QWidget | None = None) -> EditorType | None:
     if syntax in all_text_syntaxes:
         from calibre.gui2.tweak_book.editor.widget import Editor
 
@@ -52,7 +59,7 @@ CLASS_ATTRIBUTE_PROPERTY = CSS_PROPERTY + 1
 COLOR_PROPERTY = CLASS_ATTRIBUTE_PROPERTY + 1
 
 
-def syntax_text_char_format(*args):
+def syntax_text_char_format(*args: QTextCharFormat) -> QTextCharFormat:
     ans = QTextCharFormat(*args)
     ans.setProperty(SYNTAX_PROPERTY, True)
     return ans
@@ -64,10 +71,10 @@ class StoreLocale:
     def __init__(self) -> None:
         self.enabled = False
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.enabled = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.enabled = False
 
 

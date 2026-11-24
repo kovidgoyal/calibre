@@ -6,7 +6,7 @@ import operator
 import sys
 import weakref
 from functools import partial
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast, overload
 
 from calibre.db.write import uniq
 from calibre.ebooks.metadata import title_sort
@@ -357,6 +357,10 @@ class View:
         self.full_map_is_sorted = False
         self.add_to_sort_history(fields)
 
+    @overload
+    def search(self, query: str, return_matches: Literal[True], sort_results: bool = True) -> list[int]: ...
+    @overload
+    def search(self, query: str, return_matches: bool = False, sort_results: bool = True) -> list[int] | None: ...
     def search(self, query: str, return_matches: bool = False, sort_results: bool = True) -> list[int] | None:
         ans = self.search_getting_ids(query, self.search_restriction, set_restriction_count=True, sort_results=sort_results)
         if return_matches:

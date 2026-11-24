@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import (
     QAbstractItemView,
     QGroupBox,
@@ -25,9 +27,16 @@ from calibre.gui2.widgets2 import Dialog, HistoryLineEdit2
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QObject, QSize
+
+    from calibre.devices.interface import ModelMetadata
+
 
 class ChooseFolder(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.folder_edit = fe = HistoryLineEdit2(parent=self)
         fe.initialize('connect-to-folder')
@@ -48,11 +57,11 @@ class ChooseFolder(QWidget):
             self.folder_edit.setText(ans)
 
     @property
-    def folder(self):
+    def folder(self) -> str:
         return self.folder_edit.text().strip()
 
     @folder.setter
-    def folder(self, val) -> None:
+    def folder(self, val: str | None) -> None:
         self.folder_edit.setText((val or '').strip())
 
     def on_accept(self) -> None:
@@ -61,11 +70,11 @@ class ChooseFolder(QWidget):
 
 
 class Model(QStandardItemModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent=parent)
         root = self.invisibleRootItem()
         assert root is not None
-        man_map = {}
+        man_map: dict[str, list[ModelMetadata]] = {}
         for cls in usbms_plugins():
             for model in cls.model_metadata():
                 man_map.setdefault(model.manufacturer_name, []).append(model)
@@ -81,7 +90,7 @@ class Model(QStandardItemModel):
                 i.setFlags(i.flags() | Qt.ItemFlag.ItemNeverHasChildren)
                 m.appendRow(i)
 
-    def itermodels(self):
+    def itermodels(self) -> Iterator[QStandardItem]:
         root = self.invisibleRootItem()
         assert root is not None
         for i in range(root.rowCount()):
@@ -90,7 +99,7 @@ class Model(QStandardItemModel):
             for j in range(m.rowCount()):
                 yield m.child(j, 0)
 
-    def item_for_settings_key(self, q: str):
+    def item_for_settings_key(self, q: str) -> QStandardItem | None:
         for m in self.itermodels():
             mm = m.data()
             if mm.settings_key == q:
@@ -98,10 +107,10 @@ class Model(QStandardItemModel):
 
 
 class ConnectToFolder(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(_('Connect to folder'), 'connect-to-folder', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         sz = super().sizeHint()
         sz.setWidth(max(sz.width(), 600))
         return sz
@@ -175,7 +184,7 @@ class ConnectToFolder(Dialog):
         self.status_label.setText(_('Connecting as device: {}').format(name))
 
     @property
-    def model_metadata(self):
+    def model_metadata(self) -> ModelMetadata | None:
         if self.devices_group.isChecked():
             for idx in self.devices.selectedIndexes():
                 idx = self.proxy_model.mapToSource(idx)
@@ -183,14 +192,14 @@ class ConnectToFolder(Dialog):
                 if item is not None:
                     return item.data()
 
-    def accept(self):
+    def accept(self) -> None:
         self.folder_chooser.on_accept()
         m = self.model_metadata
         gprefs.set('last_connected_folder_as_device', None if m is None else m.settings_key)
         return super().accept()
 
     @property
-    def ans(self):
+    def ans(self) -> tuple[str, ModelMetadata | None]:
         return self.folder_chooser.folder, self.model_metadata
 
 

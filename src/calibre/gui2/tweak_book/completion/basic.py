@@ -3,7 +3,7 @@
 
 from collections import OrderedDict
 from threading import Event
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple, Self, overload
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -20,11 +20,25 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
 from calibre.utils.matcher import Matcher
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Container, Mapping, Sequence
+    from multiprocessing.connection import Connection, PipeConnection
+
+    AnyConnection = Connection | PipeConnection
+
+    from lxml.etree import _Element
+
+    # The candidate items, their descriptions and extra keyword arguments for the Matcher
+    CompletionCandidates = tuple[tuple[str, ...], Mapping[str, str | None], dict[str, object]]
+    # The matching items with the positions of the matched characters and the item descriptions
+    CompletionAnswer = tuple[Mapping[str, Sequence[int]], Mapping[str, str | None]]
+
 
 class Request(NamedTuple):
-    id: str | None
+    # The request id is a (request number, file name) pair, see Boss.request_completion()
+    id: tuple[int, str] | None
     type: str
-    data: str | None
+    data: object
     query: str | None
 
 
@@ -33,7 +47,7 @@ file_cache = {}
 
 
 @control
-def clear_caches(cache_type, data_conn) -> None:
+def clear_caches(cache_type: str | None, data_conn: AnyConnection) -> None:
     global names_cache, file_cache
     if cache_type is None:
         names_cache.clear()
@@ -49,20 +63,24 @@ def clear_caches(cache_type, data_conn) -> None:
 
 
 @data
-def names_data(request_data):
+def names_data(request_data: object) -> tuple[dict[str, str], set[str]]:
     c = current_container()
     return c.mime_map, {n for n, is_linear in c.spine_names}
 
 
 @data
-def file_data(name):
+def file_data(name: str) -> str | bytes:
     "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
 
 
-def get_data(data_conn, data_type, data=None):
+@overload
+def get_data(data_conn: AnyConnection, data_type: Literal['names_data'], data: object = None) -> tuple[dict[str, str], set[str]]: ...
+@overload
+def get_data(data_conn: AnyConnection, data_type: Literal['file_data'], data: object = None) -> str | bytes: ...
+def get_data(data_conn: AnyConnection, data_type: str, data: object = None) -> object:
     eintr_retry_call(data_conn.send, Request(None, data_type, data, None))
     result, tb = eintr_retry_call(data_conn.recv)
     if tb:
@@ -74,7 +92,7 @@ class Name(str):
     mime_type: str
     in_spine: bool
 
-    def __new__(cls, name, mime_type, spine_names):
+    def __new__(cls, name: str, mime_type: str, spine_names: Container[str]) -> Self:
         ans = str.__new__(cls, name)
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
@@ -82,7 +100,7 @@ class Name(str):
 
 
 @control
-def complete_names(names_data, data_conn):
+def complete_names(names_data: tuple[str | None, str, str], data_conn: AnyConnection) -> CompletionCandidates:
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
         names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.items())
@@ -110,7 +128,7 @@ def complete_names(names_data, data_conn):
     return items, descriptions, {}
 
 
-def create_anchor_map(root):
+def create_anchor_map(root: _Element) -> dict[str, str | None]:
     ans = {}
     for elem in root.xpath('//*[@id or @name]'):
         anchor = elem.get('id') or elem.get('name')
@@ -120,7 +138,7 @@ def create_anchor_map(root):
 
 
 @control
-def complete_anchor(name, data_conn):
+def complete_anchor(name: str, data_conn: AnyConnection) -> CompletionCandidates | None:
     if name not in file_cache:
         data = raw = get_data(data_conn, 'file_data', name)
         if isinstance(raw, str):
@@ -139,7 +157,7 @@ def complete_anchor(name, data_conn):
 _current_matcher = (None, None, None)
 
 
-def handle_control_request(request, data_conn):
+def handle_control_request(request: Request, data_conn: AnyConnection) -> CompletionAnswer | None:
     global _current_matcher
     ans = control_funcs[request.type](request.data, data_conn)
     if ans is not None:
@@ -167,7 +185,7 @@ class HandleDataRequest(QObject):
         self.called = Event()
         self.call.connect(self.run_func, Qt.ConnectionType.QueuedConnection)
 
-    def run_func(self, func, data) -> None:
+    def run_func(self, func: Callable[[object], object], data: object) -> None:
         try:
             self.result, self.tb = func(data), None
         except Exception:
@@ -177,7 +195,7 @@ class HandleDataRequest(QObject):
         finally:
             self.called.set()
 
-    def __call__(self, request):
+    def __call__(self, request: Request) -> tuple[object, str | None]:
         func = data_funcs[request.type]
         if is_gui_thread():
             try:

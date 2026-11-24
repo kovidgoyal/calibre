@@ -4,6 +4,7 @@
 import os
 import sys
 from functools import partial
+from typing import TYPE_CHECKING, Literal
 
 from qt.core import (
     QAbstractListModel,
@@ -51,11 +52,19 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
+if TYPE_CHECKING:
+    from qt.core import QModelIndex, QPersistentModelIndex, QPoint, QStyleOptionViewItem
+
+    from calibre.ebooks.oeb.polish.container import Container
+
+    # A tree of folder names
+    FolderTree = dict[str, 'FolderTree']
+
 
 class ChooseName(Dialog):  # {{{
     """Chooses the filename for a newly imported file, with error checking"""
 
-    def __init__(self, candidate, parent=None) -> None:
+    def __init__(self, candidate: str, parent: QWidget | None = None) -> None:
         self.candidate = candidate
         self.filename = None
         Dialog.__init__(self, _('Choose file name'), 'choose-file-name', parent=parent)
@@ -75,21 +84,22 @@ class ChooseName(Dialog):  # {{{
         l.addRow(self.err_label)
         l.addRow(self.bb)
 
-    def show_error(self, msg) -> bool:
+    def show_error(self, msg: str) -> bool:
         self.err_label.setText('<p style="color:red">' + msg)
         return False
 
-    def verify(self):
+    def verify(self) -> bool:
         return name_is_ok(str(self.name_edit.text()), self.show_error)
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.verify():
-            return error_dialog(
+            error_dialog(
                 self,
                 _('No name specified'),
                 _('You must specify a file name for the new file, with an extension.'),
                 show=True,
             )
+            return
         n = str(self.name_edit.text()).replace('\\', '/')
         name, ext = n.rpartition('.')[0::2]
         self.filename = name + '.' + ext.lower()
@@ -104,12 +114,12 @@ class ChooseName(Dialog):  # {{{
 class ImageDelegate(QStyledItemDelegate):
     MARGIN = 4
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
         self.current_basic_size = tprefs.get('image-thumbnail-preview-size', [120, 160])
         self.set_dimensions()
 
-    def change_size(self, increase=True) -> None:
+    def change_size(self, increase: bool = True) -> None:
         percent = 10 if increase else -10
         frac = (100 + percent) / 100.0
         self.current_basic_size[0] = min(1200, max(40, int(frac * self.current_basic_size[0])))
@@ -134,10 +144,12 @@ class ImageDelegate(QStyledItemDelegate):
     def calculate_spacing(self) -> None:
         self.spacing = max(10, min(50, int(0.1 * self.item_size.width())))
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return self.item_size
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        if painter is None:
+            return
         QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         cover = self.cover_cache.get(name, None)
@@ -148,10 +160,12 @@ class ImageDelegate(QStyledItemDelegate):
             except Exception:
                 pass
             else:
+                device = painter.device()
+                assert device is not None
                 try:
-                    dpr = painter.device().devicePixelRatioF()
+                    dpr = device.devicePixelRatioF()
                 except AttributeError:
-                    dpr = painter.device().devicePixelRatio()
+                    dpr = device.devicePixelRatio()
                 cover.loadFromData(raw)
                 cover.setDevicePixelRatio(dpr)
                 if not cover.isNull():
@@ -188,7 +202,7 @@ class ImageDelegate(QStyledItemDelegate):
 
 
 class Images(QAbstractListModel):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QListView) -> None:
         QAbstractListModel.__init__(self, parent)
         self.icon_size = parent.iconSize()
         self.build()
@@ -211,10 +225,10 @@ class Images(QAbstractListModel):
         self.build()
         self.endResetModel()
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | QPersistentModelIndex | None = None) -> int:
         return len(self.image_names)
 
-    def data(self, index, role=None):
+    def data(self, index: QModelIndex | QPersistentModelIndex, role: int | None = None) -> str | None:
         try:
             name = self.image_names[index.row()]
         except IndexError:
@@ -227,7 +241,7 @@ class Images(QAbstractListModel):
 class InsertImage(Dialog):
     image_activated = pyqtSignal(object)
 
-    def __init__(self, parent=None, for_browsing=False) -> None:
+    def __init__(self, parent: QWidget | None = None, for_browsing: bool = False) -> None:
         self.for_browsing = for_browsing
         Dialog.__init__(
             self,
@@ -235,10 +249,10 @@ class InsertImage(Dialog):
             'browse-image-dialog' if for_browsing else 'insert-image-dialog',
             parent,
         )
-        self.chosen_image = None
-        self.chosen_image_is_external = False
+        self.chosen_image: str | None = None
+        self.chosen_image_is_external: tuple[str, str] | Literal[False] = False
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def setup_ui(self) -> None:
@@ -361,7 +375,7 @@ class InsertImage(Dialog):
         self.d.change_size(increase=False)
         self.model.beginResetModel(), self.model.endResetModel()
 
-    def paste_image(self):
+    def paste_image(self) -> int | None:
         c = qapplication_or_fail().clipboard()
         assert c is not None
         img = c.image()
@@ -385,11 +399,11 @@ class InsertImage(Dialog):
             self.chosen_image_is_external = (d.filename, t.name)
             self.accept()
 
-    def pressed(self, index) -> None:
+    def pressed(self, index: QModelIndex) -> None:
         if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             self.activated(index)
 
-    def activated(self, index):
+    def activated(self, index: QModelIndex) -> None:
         if self.for_browsing:
             return self.image_activated.emit(str(index.data() or ''))
         self.chosen_image_is_external = False
@@ -399,7 +413,7 @@ class InsertImage(Dialog):
         self.chosen_image = str(self.view.currentIndex().data() or '')
         super().accept()
 
-    def filter_changed(self, *args) -> None:
+    def filter_changed(self, *args: object) -> None:
         f = str(self.filter.text())
         self.fm.setFilterFixedString(f)
 
@@ -407,7 +421,7 @@ class InsertImage(Dialog):
 # }}}
 
 
-def get_resource_data(rtype, parent):
+def get_resource_data(rtype: str, parent: QWidget | None) -> tuple[str | None, tuple[str, str] | Literal[False], bool, bool] | None:
     if rtype == 'image':
         d = InsertImage(parent)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -419,8 +433,8 @@ def get_resource_data(rtype, parent):
             )
 
 
-def create_folder_tree(container):
-    root = {}
+def create_folder_tree(container: Container) -> FolderTree:
+    root: FolderTree = {}
 
     all_folders = {tuple(x.split('/')[:-1]) for x in container.name_path_map}
     all_folders.discard(())
@@ -433,7 +447,7 @@ def create_folder_tree(container):
 
 
 class ChooseFolder(Dialog):  # {{{
-    def __init__(self, msg=None, parent=None) -> None:
+    def __init__(self, msg: str | None = None, parent: QWidget | None = None) -> None:
         self.msg = msg
         Dialog.__init__(self, _('Choose folder'), 'choose-folder', parent=parent)
 
@@ -453,7 +467,7 @@ class ChooseFolder(Dialog):  # {{{
         f.customContextMenuRequested.connect(self.show_context_menu)
         self.root = QTreeWidgetItem(f, ('/',))
 
-        def process(node, parent) -> None:
+        def process(node: FolderTree, parent: QTreeWidgetItem) -> None:
             parent.setIcon(0, QIcon.ic('mimetypes/dir.png'))
             for child in sorted(node, key=numeric_sort_key):
                 c = QTreeWidgetItem(parent, (child,))
@@ -465,7 +479,7 @@ class ChooseFolder(Dialog):  # {{{
 
         l.addWidget(self.bb)
 
-    def show_context_menu(self, point) -> None:
+    def show_context_menu(self, point: QPoint) -> None:
         item = self.folders.itemAt(point)
         if item is None:
             return
@@ -473,7 +487,7 @@ class ChooseFolder(Dialog):  # {{{
         m.addAction(QIcon.ic('mimetypes/dir.png'), _('Create new folder'), partial(self.create_folder, item))
         m.popup(self.folders.mapToGlobal(point))
 
-    def create_folder(self, item) -> None:
+    def create_folder(self, item: QTreeWidgetItem) -> None:
         text, ok = QInputDialog.getText(self, _('Folder name'), _('Enter a name for the new folder'))
         if ok and str(text):
             c = QTreeWidgetItem(item, (str(text),))
@@ -483,15 +497,16 @@ class ChooseFolder(Dialog):  # {{{
             c.setSelected(True)
             self.folders.setCurrentItem(c)
 
-    def folder_path(self, item):
+    def folder_path(self, item: QTreeWidgetItem | None) -> tuple[str, ...]:
         ans = []
         while item is not self.root:
+            assert item is not None
             ans.append(str(item.text(0)))
             item = item.parent()
         return tuple(reversed(ans))
 
     @property
-    def chosen_folder(self):
+    def chosen_folder(self) -> str:
         try:
             return '/'.join(self.folder_path(self.folders.selectedItems()[0]))
         except IndexError:
@@ -502,7 +517,7 @@ class ChooseFolder(Dialog):  # {{{
 
 
 class NewBook(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.fmt = 'epub'
         Dialog.__init__(self, _('Create new book'), 'create-new-book', parent=parent)
 
@@ -533,7 +548,7 @@ class NewBook(Dialog):  # {{{
         assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.set_fmt('azw3'))
 
-    def set_fmt(self, fmt) -> None:
+    def set_fmt(self, fmt: str) -> None:
         self.fmt = fmt
 
     def accept(self) -> None:
@@ -544,7 +559,7 @@ class NewBook(Dialog):  # {{{
         super().accept()
 
     @property
-    def mi(self):
+    def mi(self) -> Metadata:
         mi = Metadata(str(self.title.text()).strip() or _('Unknown'))
         mi.authors = string_to_authors(str(self.authors.text()).strip()) or [_('Unknown')]
         mi.languages = self.languages.lang_codes or [get_lang()]

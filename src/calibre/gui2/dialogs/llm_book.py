@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget
 
@@ -119,7 +119,7 @@ def read_next_action() -> Action:
     raise KeyError('No read next action could be found')
 
 
-def current_actions(include_disabled=False) -> Iterator[Action]:
+def current_actions(include_disabled: bool = False) -> Iterator[Action]:
     p = gprefs.get('llm_book_quick_actions') or {}
     return Action.unserialize(p, default_actions(), include_disabled)
 
@@ -151,7 +151,7 @@ def get_current_db() -> Cache:
 
 
 class MetadataSettings(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         la = QLabel(_('Select which metadata fields to send to the AI from the selected books. Note that title and authors are always sent.'))
@@ -182,9 +182,9 @@ class MetadataSettings(QWidget):
         btn_none.clicked.connect(self.select_none)
         l.addWidget(bb)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[QListWidgetItem]:
         lw = self.list_widget
-        return (lw.item(r) for r in range(lw.count()))
+        return cast('Iterator[QListWidgetItem]', (lw.item(r) for r in range(lw.count())))
 
     def select_all(self) -> None:
         for item in self:
@@ -194,7 +194,7 @@ class MetadataSettings(QWidget):
         for item in self:
             item.setCheckState(Qt.CheckState.Unchecked)
 
-    def toggle_item(self, item) -> None:
+    def toggle_item(self, item: QListWidgetItem) -> None:
         item.setCheckState(Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
 
     def commit(self) -> bool:
@@ -214,7 +214,7 @@ class MetadataSettings(QWidget):
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(title=_('AI Settings'), name='llm-book-settings-dialog', prefs=gprefs, parent=parent)
 
     def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
@@ -259,7 +259,7 @@ class LLMPanel(ConverseWidget):
 
     ready_message = choose_action_message
 
-    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+    def create_initial_messages(self, action_prompt: str, **kwargs: object) -> Iterator[ChatMessage]:
         context_header = format_books_for_query(self.books)
         context_header += ' When you answer the questions use markdown formatting for the answers wherever possible.'
         if len(self.books) > 1:
@@ -297,7 +297,7 @@ class LLMBookDialog(Dialog):
         self.bb.setVisible(False)
         self.llm.result_display.input.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 750)
 
 

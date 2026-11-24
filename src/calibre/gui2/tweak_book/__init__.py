@@ -2,10 +2,18 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import string
+from typing import TYPE_CHECKING, cast
 
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.tweak_book.editor.image import Editor as ImageEditor
+    from calibre.gui2.tweak_book.editor.widget import Editor as TextEditor
+
+    EditorType = TextEditor | ImageEditor
 
 CONTAINER_DND_MIMETYPE = 'application/x-calibre-container-name-list'
 tprefs = JSONConfig('tweak_book_gui')
@@ -144,24 +152,25 @@ del d
 ucase_map = {l: string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
 
 
-def capitalize(x):
+def capitalize(x: str) -> str:
     return ucase_map[x[0]] + x[1:]
 
 
-_current_container = None
+_current_container: Container | None = None
 
 
-def current_container():
-    return _current_container
+def current_container() -> Container:
+    # Callers only use this while a book is open
+    return cast('Container', _current_container)
 
 
-def set_current_container(container) -> None:
+def set_current_container(container: Container | None) -> None:
     global _current_container
     _current_container = container
 
 
 class NonReplaceDict(dict):
-    def __setitem__(self, k, v) -> None:
+    def __setitem__(self, k: object, v: object) -> None:
         if k in self:
             raise ValueError(f'The key {k} is already present')
         dict.__setitem__(self, k, v)
@@ -181,13 +190,13 @@ TOP = object()
 dictionaries = Dictionaries()
 
 
-def editor_name(editor):
+def editor_name(editor: object) -> str | None:
     for n, ed in editors.items():
         if ed is editor:
             return n
 
 
-def set_book_locale(lang) -> None:
+def set_book_locale(lang: str | None) -> None:
     dictionaries.initialize()
     try:
         dictionaries.default_locale = parse_lang_code(lang)
@@ -200,7 +209,7 @@ def set_book_locale(lang) -> None:
     refresh_spell_check_status()
 
 
-def verify_link(url, name=None) -> bool | None:
+def verify_link(url: str, name: str | None = None) -> bool | None:
     if _current_container is None or name is None:
         return None
     try:
@@ -216,9 +225,10 @@ def verify_link(url, name=None) -> bool | None:
     return False
 
 
-def update_mark_text_action(ed=None) -> None:
+def update_mark_text_action(ed: EditorType | None = None) -> None:
     has_mark = False
     if ed is not None and ed.has_line_numbers:
+        # only the text editor has line numbers
         has_mark = bool(ed.selected_text) or not ed.has_marked_text
     ac = actions['mark-selected-text']
     ac.setText(ac.default_text if has_mark else _('&Unmark marked text'))

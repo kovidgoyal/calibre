@@ -10,7 +10,7 @@ import time
 import traceback
 from collections import defaultdict
 from itertools import groupby
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast, overload
 
 from qt.core import (
     QAbstractTableModel,
@@ -55,11 +55,12 @@ from calibre_extensions.imageops import load_from_data_without_gil
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
     from datetime import datetime
-    from typing import Never
+    from typing import Literal, Never
 
     from qt.core import QWidget
 
     from calibre.db.legacy import LibraryDatabase
+    from calibre.devices.usbms.books import Book
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.formatter import TemplateCache
 
@@ -2085,7 +2086,11 @@ class DeviceBooksModel(BooksModel):  # {{{
         except Exception:
             return None
 
-    def paths_for_db_ids(self, db_ids: Collection[int], as_map: bool = False) -> defaultdict[int, list[object]] | list[tuple[int, object]]:
+    @overload
+    def paths_for_db_ids(self, db_ids: Collection[int], as_map: Literal[False] = False) -> list[tuple[int, Book]]: ...
+    @overload
+    def paths_for_db_ids(self, db_ids: Collection[int], as_map: Literal[True]) -> defaultdict[int, list[Book]]: ...
+    def paths_for_db_ids(self, db_ids: Collection[int], as_map: bool = False) -> defaultdict[int, list[Book]] | list[tuple[int, Book]]:
         res = defaultdict(list) if as_map else []
         for r, b in enumerate(self.db):
             if b.application_id in db_ids:

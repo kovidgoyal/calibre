@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING, TypeIs
 
 from qt.core import QAction, QFont, QFontMetrics, QPalette, QStyle, QStyledItemDelegate, Qt, pyqtSignal
 
@@ -9,22 +10,32 @@ from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QContextMenuEvent, QModelIndex, QPainter, QRect, QStyleOptionViewItem, QWidget
+
+    from calibre.gui2.viewer.search import SearchResult
+
+
+def is_search_result(result: object) -> TypeIs[SearchResult]:
+    return hasattr(result, 'is_hidden')
+
 
 class ResultsDelegate(QStyledItemDelegate):  # {{{
     add_ellipsis = True
     emphasize_text = True
     has_icons = False
 
-    def result_data(self, result):
-        if not hasattr(result, 'is_hidden'):
+    def result_data(self, result: object) -> tuple[bool | None, str | None, str | None, str | None, bool | None]:
+        if not is_search_result(result):
             return None, None, None, None, None
         return result.is_hidden, result.before, result.text, result.after, False
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
+        assert painter is not None
         result = index.data(Qt.ItemDataRole.UserRole)
         is_hidden, result_before, result_text, result_after, show_leading_dot = self.result_data(result)
-        if result_text is None:
+        if result_text is None or result_before is None or result_after is None:
             return
         painter.save()
         try:
@@ -90,18 +101,18 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 
     def draw_match(
         self,
-        painter,
-        flags,
-        before,
-        text,
-        after,
-        rect,
-        before_width,
-        match_width,
-        after_width,
-        ellipsis_width,
-        emphasis_font,
-        normal_font,
+        painter: QPainter,
+        flags: int,
+        before: str,
+        text: str,
+        after: str,
+        rect: QRect,
+        before_width: int,
+        match_width: int,
+        after_width: int,
+        ellipsis_width: int,
+        emphasis_font: QFont,
+        normal_font: QFont,
     ) -> None:
         extra_width = int(rect.width() - match_width)
         if before_width < after_width:
@@ -146,7 +157,7 @@ class SearchBox(HistoryComboBox):  # {{{
     history_cleared = pyqtSignal()
     cleared = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.suppress_history = False
         le = self.lineEdit()
@@ -157,7 +168,7 @@ class SearchBox(HistoryComboBox):  # {{{
         if ac is not None:
             ac.triggered.connect(self.cleared)
 
-    def save_history(self):
+    def save_history(self) -> None:
         if self.suppress_history:
             self.suppress_history = False
             return
@@ -165,7 +176,7 @@ class SearchBox(HistoryComboBox):  # {{{
         self.history_saved.emit(self.text(), self.history)
         return ret
 
-    def remove_history_item(self, item) -> None:
+    def remove_history_item(self, item: str) -> None:
         super().remove_history_item(item)
         self.history_pruned.emit(self.history)
 
@@ -173,7 +184,8 @@ class SearchBox(HistoryComboBox):  # {{{
         super().clear_history()
         self.history_cleared.emit()
 
-    def contextMenuEvent(self, e) -> None:
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        assert e is not None
         ctx_le = self.lineEdit()
         assert ctx_le is not None
         menu = ctx_le.createStandardContextMenu()

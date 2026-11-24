@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -19,6 +20,11 @@ from qt.core import (
     pyqtSignal,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QAbstractItemModel, QKeyEvent, QListWidgetItem, QModelIndex, QObject, QStyleOptionViewItem, QWidget
+
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
@@ -30,24 +36,28 @@ from calibre.utils.localization import _
 class ItemDelegate(QStyledItemDelegate):
     edited = pyqtSignal(object)
 
-    def __init__(self, all_authors, parent) -> None:
+    def __init__(self, all_authors: Iterable[str], parent: QObject | None) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.all_authors = all_authors
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return QStyledItemDelegate.sizeHint(self, option, index) + QSize(0, 15)
 
-    def setEditorData(self, editor, index) -> None:
+    def setEditorData(self, editor: QWidget | None, index: QModelIndex) -> None:
+        assert editor is not None
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
-        n = editor.metaObject().userProperty().name()
+        mo = editor.metaObject()
+        assert mo is not None
+        n = mo.userProperty().name()
         editor.setProperty(n, name)
 
-    def setModelData(self, editor, model, index) -> None:
+    def setModelData(self, editor: QWidget | None, model: QAbstractItemModel | None, index: QModelIndex) -> None:
+        assert isinstance(editor, EditWithComplete) and model is not None
         authors = string_to_authors(str(editor.text()))
         model.setData(index, authors[0])
         self.edited.emit(index.row())
 
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent: QWidget | None, option: QStyleOptionViewItem, index: QModelIndex) -> EditWithComplete:
         self.ed = EditWithComplete(parent)
         self.ed.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         init_line_edit(self.ed, self.all_authors)
@@ -55,7 +65,7 @@ class ItemDelegate(QStyledItemDelegate):
 
 
 class List(QListWidget):
-    def __init__(self, all_authors, parent) -> None:
+    def __init__(self, all_authors: Iterable[str], parent: QWidget | None) -> None:
         QListWidget.__init__(self, parent)
         self.setDragEnabled(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -70,20 +80,21 @@ class List(QListWidget):
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.key() == Qt.Key.Key_Delete:
             self.delete_selected()
             e.accept()
             return
         return QListWidget.keyPressEvent(self, e)
 
-    def addItem(self, *args, **kwargs):
+    def addItem(self, aitem: QListWidgetItem | str | None) -> None:
         try:
-            return QListWidget.addItem(self, *args, **kwargs)
+            return QListWidget.addItem(self, aitem)
         finally:
             self.mark_as_editable()
 
-    def addItems(self, labels):
+    def addItems(self, labels: Iterable[str | None] | None) -> None:
         try:
             if labels is not None:
                 return QListWidget.addItems(self, labels)
@@ -96,7 +107,7 @@ class List(QListWidget):
             assert item is not None
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
-    def edited(self, i) -> None:
+    def edited(self, i: int) -> None:
         item = self.item(i)
         assert item is not None
         q = str(item.text())
@@ -113,7 +124,8 @@ class List(QListWidget):
 class Edit(EditWithComplete):
     returnPressed = pyqtSignal()
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             e.accept()
             self.returnPressed.emit()
@@ -121,7 +133,7 @@ class Edit(EditWithComplete):
         return EditWithComplete.keyPressEvent(self, e)
 
 
-def init_line_edit(a, all_authors) -> None:
+def init_line_edit(a: EditWithComplete, all_authors: Iterable[str]) -> None:
     a.set_separator('&')
     a.set_space_before_sep(True)
     a.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -129,7 +141,7 @@ def init_line_edit(a, all_authors) -> None:
 
 
 class AuthorsEdit(QDialog):
-    def __init__(self, all_authors, current_authors, parent=None) -> None:
+    def __init__(self, all_authors: Iterable[str], current_authors: Iterable[str], parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -171,16 +183,16 @@ class AuthorsEdit(QDialog):
         self.restore_geometry(gprefs, 'authors-edit-geometry')
         self.author.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_geometry(gprefs, 'authors-edit-geometry')
         return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(gprefs, 'authors-edit-geometry')
         return QDialog.reject(self)
 
     @property
-    def authors(self):
+    def authors(self) -> list[str]:
         ans = []
         for i in range(self.al.count()):
             al_item = self.al.item(i)

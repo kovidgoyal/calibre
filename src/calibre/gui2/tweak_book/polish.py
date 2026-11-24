@@ -3,6 +3,7 @@
 
 import re
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -38,18 +39,23 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from qt.core import QModelIndex, QPainter, QStyleOptionViewItem
+
 
 class Abort(Exception):
     pass
 
 
-def customize_remove_unused_css(name, parent, ans) -> None:
+def customize_remove_unused_css(name: str, parent: QWidget | None, ans: dict[str, bool]) -> None:
     d = QDialog(parent)
     l = QVBoxLayout()
     d.setLayout(l)
     d.setWindowTitle(_('Remove unused CSS'))
 
-    def label(text):
+    def label(text: str) -> QLabel:
         la = QLabel(text)
         la.setWordWrap(True), l.addWidget(la), la.setMinimumWidth(450)
         l.addWidget(la)
@@ -100,7 +106,7 @@ def customize_remove_unused_css(name, parent, ans) -> None:
         raise Abort()
 
 
-def get_customization(action, name, parent):
+def get_customization(action: str, name: str, parent: QWidget | None) -> dict[str, bool] | None:
     ans = CUSTOMIZATION.copy()
     try:
         if action == 'remove_unused_css':
@@ -126,14 +132,14 @@ def get_customization(action, name, parent):
     return ans
 
 
-def format_report(title, report):
+def format_report(title: str | bytes, report: Iterable[str | bytes]) -> str:
     from markdown import markdown
 
     report = [force_unicode(line) for line in report]
     return markdown(f'# {force_unicode(title)}\n\n' + '\n\n'.join(report), output_format='html4')
 
 
-def show_report(changed, title, report, parent, show_current_diff) -> None:
+def show_report(changed: bool | None, title: str, report: Iterable[str | bytes], parent: QWidget | None, show_current_diff: Callable[..., object]) -> None:
     report = format_report(title, report)
     d = QDialog(parent)
     d.setWindowTitle(_('Action report'))
@@ -178,10 +184,11 @@ def show_report(changed, title, report, parent, show_current_diff) -> None:
 
 
 class ImageItemDelegate(QStyledItemDelegate):
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         return QSize(300, 100)
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        assert painter is not None
         name = index.data(Qt.ItemDataRole.DisplayRole)
         sz = human_readable(index.data(Qt.ItemDataRole.UserRole))
         pmap = index.data(Qt.ItemDataRole.UserRole + 1)
@@ -192,7 +199,9 @@ class ImageItemDelegate(QStyledItemDelegate):
             scaled, nwidth, nheight = fit_image(pmap.width(), pmap.height(), irect.width(), irect.height())
             if scaled:
                 pmap = pmap.scaled(nwidth, nheight, transformMode=Qt.TransformationMode.SmoothTransformation)
-            index.model().setData(index, pmap, Qt.ItemDataRole.UserRole + 1)
+            model = index.model()
+            assert model is not None
+            model.setData(index, pmap, Qt.ItemDataRole.UserRole + 1)
         x, y = (irect.width() - pmap.width()) // 2, (irect.height() - pmap.height()) // 2
         r = irect.adjusted(x, y, -x, -y)
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -207,7 +216,7 @@ class ImageItemDelegate(QStyledItemDelegate):
 
 
 class LossyCompression(QWidget):
-    def __init__(self, image_type, default_compression=80, parent=None) -> None:
+    def __init__(self, image_type: str, default_compression: int = 80, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         image_type = image_type.upper()
@@ -239,7 +248,7 @@ class LossyCompression(QWidget):
 
 
 class CompressImages(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Compress images'), 'compress-images', parent=parent)
 
     def setup_ui(self) -> None:
@@ -346,17 +355,17 @@ class CompressImages(Dialog):
         tprefs.set('compress_images_gif_to_format', self.gif_conv.currentData())
 
     @property
-    def names(self):
+    def names(self) -> set[str]:
         return {item.text() for item in self.images.selectedItems()}
 
     @property
-    def jpeg_quality(self):
+    def jpeg_quality(self) -> int | None:
         if not self.jpeg.enable_lossy.isChecked():
             return None
         return self.jpeg.jq.value()
 
     @property
-    def webp_quality(self):
+    def webp_quality(self) -> int | None:
         if not self.webp.enable_lossy.isChecked():
             return None
         return self.webp.jq.value()
@@ -366,11 +375,11 @@ class CompressImages(Dialog):
         return not self.disable_png.isChecked()
 
     @property
-    def png_to_format(self):
+    def png_to_format(self) -> str | None:
         return self.png_conv.currentData() or None
 
     @property
-    def gif_to_format(self):
+    def gif_to_format(self) -> str | None:
         return self.gif_conv.currentData() or None
 
 
@@ -378,7 +387,16 @@ class CompressImagesProgress(Dialog):
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, gif_to_format=None, parent=None) -> None:
+    def __init__(
+        self,
+        names: Iterable[str] | None = None,
+        jpeg_quality: int | None = None,
+        webp_quality: int | None = None,
+        compress_png: bool = True,
+        png_to_format: str | None = None,
+        gif_to_format: str | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
         self.names, self.jpeg_quality = names, jpeg_quality
         self.webp_quality = webp_quality
         self.compress_png = compress_png
@@ -448,11 +466,11 @@ class CompressImagesProgress(Dialog):
         cancel_btn.setEnabled(False)
         Dialog.reject(self)
 
-    def progress_callback(self, num, total, name):
+    def progress_callback(self, num: int, total: int, name: str) -> bool:
         self.gui_loop.emit(num, total, name)
         return self.keep_going
 
-    def update_progress(self, num, total, name) -> None:
+    def update_progress(self, num: int, total: int, name: str) -> None:
         self.progress.setMaximum(total), self.progress.setValue(num)
         self.msg.setText(name)
 

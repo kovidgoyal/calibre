@@ -7,6 +7,10 @@ from typing import TYPE_CHECKING
 from qt.core import QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
 
 if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
     from calibre.gui2.library.notes import NoteDisplay
 
 from calibre import prepare_string_for_xml
@@ -32,10 +36,10 @@ class Display(HTMLDisplay):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.anchor_clicked.connect(self.handle_link_click)
 
-    def handle_link_click(self, qurl) -> None:
+    def handle_link_click(self, qurl: QUrl) -> None:
         safe_open_url(qurl)
 
-    def loadResource(self, type, name):
+    def loadResource(self, type: int, name: QUrl) -> object:
         if name.scheme() == RESOURCE_URL_SCHEME and int(type) == int(QTextDocument.ResourceType.ImageResource):
             db = self._parent.db
             resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
@@ -46,7 +50,7 @@ class Display(HTMLDisplay):
 
 
 class ShowNoteDialog(Dialog):
-    def __init__(self, field, item_id, db, parent=None) -> None:
+    def __init__(self, field: str, item_id: int, db: Cache | LibraryDatabase, parent: QWidget | None = None) -> None:
         self.db = db.new_api
         self.item_val = self.db.get_item_name(field, item_id)
         self.has_links = self.db.has_link_map(field)
@@ -115,10 +119,10 @@ class ShowNoteDialog(Dialog):
 
         l.addWidget(self.bb)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 620)
 
-    def open_item_link(self, url) -> None:
+    def open_item_link(self, url: str) -> None:
         safe_open_url(url)
 
     def copy_url(self) -> None:

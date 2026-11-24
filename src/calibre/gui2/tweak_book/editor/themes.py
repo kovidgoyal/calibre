@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from qt.core import (
     QBrush,
@@ -37,12 +37,19 @@ from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    # The JSON serializable form of a Highlight, as stored in custom themes in
+    # tprefs. The type of the values depends on the key.
+    HighlightData = dict[str, Any]
+
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
 _default_theme = None
 
 
-def default_theme():
+def default_theme() -> str:
     global _default_theme
     if _default_theme is None:
         isdark = qapplication_or_fail().palette().color(QPalette.ColorRole.WindowText).lightness() > 128
@@ -242,7 +249,7 @@ THEMES = {
 }
 
 
-def read_color(col):
+def read_color(col: str) -> QBrush | None:
     if QColor.isValidColor(col):
         return QBrush(QColor(col))
     if col.startswith('rgb('):
@@ -265,7 +272,11 @@ class Highlight(NamedTuple):
     underline_color: QBrush | None
 
 
-def read_theme(raw):
+if TYPE_CHECKING:
+    Theme = dict[str, Highlight]
+
+
+def read_theme(raw: str) -> Theme:
     ans = {}
     for line in raw.splitlines():
         line = line.strip()
@@ -299,7 +310,7 @@ def read_theme(raw):
 THEMES: dict[str, dict[str, Highlight]] = {k: read_theme(raw) for k, raw in THEMES.items()}
 
 
-def u(x):
+def u(x: str) -> str:
     x = {'spell': 'SpellCheck', 'dash_dot': 'DashDot', 'dash_dot_dot': 'DashDotDot'}.get(x, x.capitalize())
     if 'Dot' in x:
         return x + 'Line'
@@ -309,32 +320,31 @@ def u(x):
 underline_styles: dict[str, QTextCharFormat.UnderlineStyle] = {x: getattr(QTextCharFormat.UnderlineStyle, u(x)) for x in underline_styles}
 
 
-def to_highlight(data):
+def to_highlight(data: HighlightData) -> Highlight:
     data = data.copy()
     for c in ('fg', 'bg', 'underline_color'):
         data[c] = read_color(data[c]) if data.get(c, None) is not None else None
     return Highlight(**data)
 
 
-def read_custom_theme(data):
+def read_custom_theme(data: Mapping[str, HighlightData]) -> Theme:
     dt = THEMES[default_theme()].copy()
     dt.update({k: to_highlight(v) for k, v in data.items()})
     return dt
 
 
-def get_theme(name):
-    try:
+def get_theme(name: str | None) -> Theme:
+    if name is not None and name in THEMES:
         return THEMES[name]
+    try:
+        ans = tprefs['custom_themes'][name]
     except KeyError:
-        try:
-            ans = tprefs['custom_themes'][name]
-        except KeyError:
-            return THEMES[default_theme()]
-        else:
-            return read_custom_theme(ans)
+        return THEMES[default_theme()]
+    else:
+        return read_custom_theme(ans)
 
 
-def highlight_to_char_format(h):
+def highlight_to_char_format(h: Highlight) -> QTextCharFormat:
     ans = syntax_text_char_format()
     if h.bold:
         ans.setFontWeight(QFont.Weight.Bold)
@@ -351,14 +361,14 @@ def highlight_to_char_format(h):
     return ans
 
 
-def theme_color(theme, name, attr):
+def theme_color(theme: Mapping[str, Highlight], name: str, attr: str) -> QColor:
     try:
         return getattr(theme[name], attr).color()
     except KeyError, AttributeError:
         return getattr(THEMES[default_theme()][name], attr).color()
 
 
-def theme_format(theme, name):
+def theme_format(theme: Mapping[str, Highlight], name: str) -> QTextCharFormat:
     try:
         h = theme[name]
     except KeyError:
@@ -366,15 +376,15 @@ def theme_format(theme, name):
     return highlight_to_char_format(h)
 
 
-def custom_theme_names():
+def custom_theme_names() -> tuple[str, ...]:
     return tuple(tprefs['custom_themes'])
 
 
-def builtin_theme_names():
+def builtin_theme_names() -> tuple[str, ...]:
     return tuple(THEMES)
 
 
-def all_theme_names():
+def all_theme_names() -> tuple[str, ...]:
     return builtin_theme_names() + custom_theme_names()
 
 
@@ -382,7 +392,7 @@ def all_theme_names():
 
 
 class CreateNewTheme(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Create custom theme'), 'custom-theme-create', parent=parent)
 
     def setup_ui(self) -> None:
@@ -403,36 +413,40 @@ class CreateNewTheme(Dialog):
         l.addRow(self.bb)
 
     @property
-    def theme_name(self):
+    def theme_name(self) -> str:
         return str(self._name.text()).strip()
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.theme_name:
-            return error_dialog(self, _('No name specified'), _('You must specify a name for your theme'), show=True)
+            error_dialog(self, _('No name specified'), _('You must specify a name for your theme'), show=True)
+            return
         if '*' + self.theme_name in custom_theme_names():
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Name already used'),
                 _('A custom theme with the name %s already exists') % self.theme_name,
                 show=True,
             )
-        return Dialog.accept(self)
+            return
+        Dialog.accept(self)
 
 
-def col_to_string(color):
+def col_to_string(color: QColor) -> str:
     return '{:02X}{:02X}{:02X}'.format(*color.getRgb()[:3])
 
 
 class ColorButton(QPushButton):
     changed = pyqtSignal()
 
-    def __init__(self, data, name, text, parent) -> None:
+    def __init__(self, data: HighlightData, name: str, text: str, parent: QWidget | None) -> None:
         QPushButton.__init__(self, text, parent)
         self.ic = QPixmap(self.iconSize())
         color = data[name]
         self.data, self.name = data, name
         if color is not None:
-            self.current_color = read_color(color).color()
+            brush = read_color(color)
+            assert brush is not None
+            self.current_color = brush.color()
             self.ic.fill(self.current_color)
         else:
             self.ic.fill(Qt.GlobalColor.transparent)
@@ -463,7 +477,7 @@ class ColorButton(QPushButton):
         self.setToolTip(_('Red: {0} Green: {1} Blue: {2}').format(*self.current_color.getRgb()[:3]) if self.current_color else _('No color'))
 
     @property
-    def value(self):
+    def value(self) -> str | None:
         if self.current_color is None:
             return None
         return col_to_string(self.current_color)
@@ -472,25 +486,25 @@ class ColorButton(QPushButton):
 class Bool(QCheckBox):
     changed = pyqtSignal()
 
-    def __init__(self, data, key, text, parent) -> None:
+    def __init__(self, data: HighlightData, key: str, text: str, parent: QWidget | None) -> None:
         QCheckBox.__init__(self, text, parent)
         self.data, self.key = data, key
         self.setChecked(data.get(key, False))
         self.stateChanged.connect(self._changed)
 
-    def _changed(self, state) -> None:
+    def _changed(self, state: int) -> None:
         self.data[self.key] = self.value
         self.changed.emit()
 
     @property
-    def value(self):
+    def value(self) -> bool:
         return self.checkState() == Qt.CheckState.Checked
 
 
 class Property(QWidget):
     changed = pyqtSignal()
 
-    def __init__(self, name, data, parent=None) -> None:
+    def __init__(self, name: str, data: HighlightData, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
@@ -498,7 +512,7 @@ class Property(QWidget):
         l.addWidget(self.label)
         self.data = data
 
-        def create_color_button(key, text):
+        def create_color_button(key: str, text: str) -> QHBoxLayout:
             b = ColorButton(data, key, text, self)
             b.changed.connect(self.changed), l.addWidget(b)
             bc = QToolButton(self)
@@ -611,7 +625,7 @@ p.someclass {{
 
 
 class ThemeEditor(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor', parent=parent)
 
     def setup_ui(self) -> None:
@@ -685,7 +699,7 @@ class ThemeEditor(Dialog):
         if self.theme.count() > 0:
             self.show_theme()
 
-    def update_theme(self, name):
+    def update_theme(self, name: str) -> dict[str, HighlightData]:
         data = tprefs['custom_themes'][name]
         extra = set(data) - set(THEMES[default_theme()])
         missing = set(THEMES[default_theme()]) - set(data)
@@ -725,7 +739,7 @@ class ThemeEditor(Dialog):
         self.preview.apply_theme(read_custom_theme(data))
 
     @property
-    def theme_name(self):
+    def theme_name(self) -> str:
         return str(self.theme.currentText())
 
     def changed(self) -> None:
@@ -763,7 +777,7 @@ class ThemeEditor(Dialog):
             self.block_show = False
             self.show_theme()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         screen = self.screen()
         assert screen is not None
         g = screen.availableSize()

@@ -3,7 +3,7 @@
 
 import os
 import sys
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QButtonGroup,
@@ -41,11 +41,19 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _
 from calibre.utils.short_uuid import uuid4
 
+if TYPE_CHECKING:
+    from collections.abc import ValuesView
+
+    from lxml.etree import _Element
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+
 IMAGE_EXTENSIONS = 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'
 
 
 class AskLink(Dialog):  # {{{
-    def __init__(self, initial_name='', parent=None) -> None:
+    def __init__(self, initial_name: str = '', parent: QWidget | None = None) -> None:
         super().__init__(_('Create link'), 'create-link-for-notes', parent=parent)
         self.setWindowIcon(QIcon.ic('insert-link.png'))
         if initial_name:
@@ -70,11 +78,11 @@ class AskLink(Dialog):  # {{{
         self.url_edit.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
-    def link_name(self):
+    def link_name(self) -> str:
         return self.name_edit.text().strip()
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self.url_edit.text().strip()
 
 
@@ -91,7 +99,7 @@ class ImageResource(NamedTuple):
 
 
 class AskImage(Dialog):
-    def __init__(self, local_images, db, parent=None) -> None:
+    def __init__(self, local_images: dict[str, ImageResource], db: Cache | LibraryDatabase | None, parent: QWidget | None = None) -> None:
         self.local_images = local_images
         self.db = db
         self.current_digest = ''
@@ -163,7 +171,7 @@ class AskImage(Dialog):
         vr.addStretch(10)
         self.add_file_button.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def image_pasted_or_dropped(self, cover_data) -> None:
+    def image_pasted_or_dropped(self, cover_data: bytes) -> None:
         digest = hash_data(cover_data)
         if digest in self.local_images:
             ir = self.local_images[digest]
@@ -172,7 +180,7 @@ class AskImage(Dialog):
         self.name_edit.setText(ir.name)
         self.current_digest = digest
 
-    def add_file(self):
+    def add_file(self) -> None:
         files = choose_images(self, 'choose-image-for-notes', _('Choose image'), formats=IMAGE_EXTENSIONS)
         if files:
             with open(files[0], 'rb') as f:
@@ -180,7 +188,8 @@ class AskImage(Dialog):
             digest = hash_data(data)
             p = QPixmap()
             if not p.loadFromData(data) or p.isNull():
-                return error_dialog(self, _('Bad image'), _('Failed to render the image in {}').format(files[0]), show=True)
+                error_dialog(self, _('Bad image'), _('Failed to render the image in {}').format(files[0]), show=True)
+                return
             ir = ImageResource(os.path.basename(files[0]), digest, path=files[0])
             self.local_images[digest] = ir
             self.image_preview.set_pixmap(p)
@@ -188,9 +197,9 @@ class AskImage(Dialog):
             self.current_digest = digest
             self.bb.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def paste_image(self):
+    def paste_image(self) -> None:
         if not self.image_preview.paste_from_clipboard():
-            return error_dialog(self, _('Could not paste'), _('No image is present in the system clipboard'), show=True)
+            error_dialog(self, _('Could not paste'), _('No image is present in the system clipboard'), show=True)
 
     @property
     def image_layout(self) -> QTextFrameFormat.Position:
@@ -216,18 +225,21 @@ class AskImage(Dialog):
 
 class NoteEditorWidget(EditorWidget):
     insert_images_separately = True
-    db = field = item_id = item_val = None
+    db: Cache | None = None
+    field: str | None = None
+    item_id: int | None = None
+    item_val: str | None = None
     images: dict[str, ImageResource] | None = None
     searchable_text: str = ''
     referenced_resources: set[str]
     can_store_images = True
 
-    def resource_digest_from_qurl(self, qurl) -> str:
+    def resource_digest_from_qurl(self, qurl: QUrl) -> str:
         alg = qurl.host()
         digest = qurl.path()[1:]
         return f'{alg}:{digest}'
 
-    def get_resource(self, digest):
+    def get_resource(self, digest: str) -> dict | None:
         images = self.images
         assert images is not None
         ir = images.get(digest)
@@ -241,7 +253,7 @@ class NoteEditorWidget(EditorWidget):
         assert db is not None
         return db.get_notes_resource(digest)
 
-    def add_resource(self, path_or_data, name):
+    def add_resource(self, path_or_data: str | bytes, name: str) -> str:
         assert self.images is not None
         if isinstance(path_or_data, str):
             with open(path_or_data, 'rb') as f:
@@ -254,7 +266,7 @@ class NoteEditorWidget(EditorWidget):
         return digest
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
-    def loadResource(self, type, name):
+    def loadResource(self, type: int, name: QUrl) -> object:
         if self.db is None or self.images is None or name.scheme() != RESOURCE_URL_SCHEME or int(type) != int(QTextDocument.ResourceType.ImageResource):
             return
         digest = self.resource_digest_from_qurl(name)
@@ -266,7 +278,7 @@ class NoteEditorWidget(EditorWidget):
             doc.addResource(type, name, r)  # cache the resource
             return r
 
-    def commit_downloaded_image(self, data, suggested_filename):
+    def commit_downloaded_image(self, data: bytes, suggested_filename: str) -> str:
         assert self.images is not None
         digest = hash_data(data)
         if digest in self.images:
@@ -276,7 +288,7 @@ class NoteEditorWidget(EditorWidget):
         alg, digest = ir.digest.split(':', 1)
         return RESOURCE_URL_SCHEME + f'://{alg}/{digest}?placement={uuid4()}'
 
-    def get_html_callback(self, root, text) -> None:
+    def get_html_callback(self, root: _Element, text: str) -> None:
         self.searchable_text = text.replace(OBJECT_REPLACEMENT_CHAR, '')
         self.referenced_resources = set()
         doc = self.document()
@@ -288,7 +300,7 @@ class NoteEditorWidget(EditorWidget):
                     digest = self.resource_digest_from_qurl(name)
                     self.referenced_resources.add(digest)
 
-    def ask_link(self):
+    def ask_link(self) -> tuple[str, str, bool]:
         c = self.textCursor()
         selected_text = c.selection().toPlainText().replace('\n', ' ')
         d = AskLink(selected_text, parent=self)
@@ -321,7 +333,7 @@ class NoteEditor(Editor):
     editor_class = NoteEditorWidget
     editor: NoteEditorWidget
 
-    def get_doc(self):
+    def get_doc(self) -> tuple[str, str, set[str], ValuesView[ImageResource]]:
         self.editor.referenced_resources = set()
         self.editor.searchable_text = ''
         idx = self.tabs.currentIndex()
@@ -331,11 +343,11 @@ class NoteEditor(Editor):
         assert self.editor.images is not None
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
-    def export_note(self):
+    def export_note(self) -> str:
         html = self.get_doc()[0]
         return export_note(html, self.editor.get_resource)
 
-    def import_note(self, path_to_html_file) -> None:
+    def import_note(self, path_to_html_file: str) -> None:
         self.editor.images = {}
         self.editor.setPlainText('')
         with open(path_to_html_file, 'rb') as f:
@@ -344,7 +356,7 @@ class NoteEditor(Editor):
 
 
 class EditNoteWidget(QWidget):
-    def __init__(self, db, field, item_id, item_val, parent=None) -> None:
+    def __init__(self, db: Cache, field: str, item_id: int, item_val: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -354,14 +366,14 @@ class EditNoteWidget(QWidget):
         l.addWidget(e)
         e.html = db.notes_for(field, item_id) or ''
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def commit(self) -> bool:
         doc, searchable_text, resources, resources_to_add = self.editor.get_doc()
         s = self.editor.editor
         db = s.db
-        assert db is not None
+        assert db is not None and s.field is not None and s.item_id is not None
         for ir in resources_to_add:
             db.add_notes_resource(ir.data or ir.path, ir.name)
         db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
@@ -369,7 +381,7 @@ class EditNoteWidget(QWidget):
 
 
 class EditNoteDialog(Dialog):
-    def __init__(self, field, item_id, db, parent=None) -> None:
+    def __init__(self, field: str, item_id: int, db: LibraryDatabase | Cache, parent: QWidget | None = None) -> None:
         self.db = db.new_api
         self.field, self.item_id = field, item_id
         self.item_val = self.db.get_item_name(field, item_id)
@@ -415,7 +427,7 @@ class EditNoteDialog(Dialog):
         if dest:
             self.edit_note_widget.editor.import_note(dest[0])
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 620)
 
     def accept(self) -> None:

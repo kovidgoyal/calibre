@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, Qt, QVBoxLayout
 
@@ -13,8 +13,13 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
-def commit_searches(searches) -> None:
+    from qt.core import QKeyEvent, QListWidgetItem, QWidget
+
+
+def commit_searches(searches: Mapping[str, str | None]) -> None:
     from calibre.gui2.ui import get_gui
 
     db = get_gui(fail_if_absent=True).current_db
@@ -22,7 +27,14 @@ def commit_searches(searches) -> None:
 
 
 class AddSavedSearch(Dialog):
-    def __init__(self, parent=None, search=None, commit_changes=True, label=None, validate=None) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        search: str | None = None,
+        commit_changes: bool = True,
+        label: str | None = None,
+        validate: Callable[[str, str], str | None] | None = None,
+    ) -> None:
         self.initial_search = search
         self.validate = validate
         self.label = label
@@ -31,7 +43,7 @@ class AddSavedSearch(Dialog):
         from calibre.gui2.ui import get_gui
 
         db = get_gui(fail_if_absent=True).current_db
-        self.searches = {}
+        self.searches: dict[str, str | None] = {}
         for name in db.saved_search_names():
             self.searches[name] = db.saved_search_lookup(name)
         self.search_names = {icu_lower(n): n for n in db.saved_search_names()}
@@ -64,25 +76,29 @@ class AddSavedSearch(Dialog):
         n.setFocus(Qt.FocusReason.OtherFocusReason)
         l.addRow(self.bb)
 
-    def accept(self):
+    def accept(self) -> None:
         name = self.sname.text().strip()
         if not name:
-            return error_dialog(self, _('No search name'), _('You must specify a name for the Saved search'), show=True)
+            error_dialog(self, _('No search name'), _('You must specify a name for the Saved search'), show=True)
+            return
         if '"' in name:
-            return error_dialog(self, _('Invalid search name'), _('Saved search names cannot contain " (quote) characters.'), show=True)
+            error_dialog(self, _('Invalid search name'), _('Saved search names cannot contain " (quote) characters.'), show=True)
+            return
         expression = self.search.toPlainText().strip()
         if not expression:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('No search expression'),
                 _('You must specify a search expression for the Saved search'),
                 show=True,
             )
+            return
         self.accepted_data = name, expression
         if self.validate is not None:
             err = self.validate(name, expression)
             if err:
-                return error_dialog(self, _('Invalid saved search'), err, show=True)
+                error_dialog(self, _('Invalid saved search'), err, show=True)
+                return
         Dialog.accept(self)
         if self.commit_changes:
             if icu_lower(name) in self.search_names:
@@ -92,7 +108,7 @@ class AddSavedSearch(Dialog):
 
 
 class SavedSearchEditor(Dialog):
-    def __init__(self, parent, initial_search=None) -> None:
+    def __init__(self, parent: QWidget | None, initial_search: str | None = None) -> None:
         self.initial_search = initial_search
         Dialog.__init__(self, _('Manage Saved searches'), 'manage-saved-searches', parent)
 
@@ -139,15 +155,15 @@ class SavedSearchEditor(Dialog):
         self.setMinimumWidth(600)
 
     @property
-    def current_search_name(self):
+    def current_search_name(self) -> str | None:
         i = self.slist.currentItem()
         if i is not None:
             ans = i.text()
             if ans in self.searches:
                 return ans
 
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0 is not None and a0.key() == Qt.Key.Key_Delete:
             self.del_search()
             return
         return Dialog.keyPressEvent(self, a0)
@@ -201,24 +217,24 @@ class SavedSearchEditor(Dialog):
         self.searches[name] = expression
         self.current_index_changed(self.slist.currentItem())
 
-    def duplicate_msg(self, name):
+    def duplicate_msg(self, name: str) -> str:
         return _('A saved search with the name {} already exists. Choose another name').format(name)
 
-    def validate_edit(self, name, expression):
+    def validate_edit(self, name: str, expression: str) -> str | None:
         q = self.current_search_name
         if icu_lower(name) in {icu_lower(n) for n in self.searches if n != q}:
             return self.duplicate_msg(name)
 
-    def validate_add(self, name, expression):
+    def validate_add(self, name: str, expression: str) -> str | None:
         if icu_lower(name) in {icu_lower(n) for n in self.searches}:
             return self.duplicate_msg(name)
 
-    def select_search(self, name) -> None:
+    def select_search(self, name: str) -> None:
         items = self.slist.findItems(name, Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive)
         if items:
             self.slist.setCurrentItem(items[0])
 
-    def current_index_changed(self, item) -> None:
+    def current_index_changed(self, item: QListWidgetItem | None) -> None:
         n = self.current_search_name
         if n:
             t = self.searches[n]

@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QCheckBox,
@@ -27,15 +28,20 @@ from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from qt.core import QSize, QUrl
 
-def get_data(name):
+    from calibre.gui2.tweak_book import EditorType
+
+
+def get_data(name: str) -> str | bytes:
     "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
 
 
-def set_data(name, val) -> None:
+def set_data(name: str, val: str | bytes) -> None:
     if name in editors:
         editors[name].replace_data(val, only_if_different=False)
     else:
@@ -49,11 +55,11 @@ def set_data(name, val) -> None:
 class CheckExternalLinks(Dialog):
     progress_made = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Check external links'), 'check-external-links-dialog', parent)
         self.progress_made.connect(self.on_progress_made, type=Qt.ConnectionType.QueuedConnection)
 
-    def show(self):
+    def show(self) -> None:
         rb = self.rb
         assert rb is not None
         if rb.isEnabled():
@@ -106,7 +112,7 @@ class CheckExternalLinks(Dialog):
     def anchors_changed(self) -> None:
         tprefs.set('check_external_link_anchors', self.check_anchors.isChecked())
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setHeight(600)
         ans.setWidth(max(ans.width(), 800))
@@ -125,7 +131,7 @@ class CheckExternalLinks(Dialog):
             self.tb = traceback.format_exc()
         self.progress_made.emit(None, None)
 
-    def on_progress_made(self, curr, total):
+    def on_progress_made(self, curr: int | None, total: int | None) -> int | None:
         if curr is None:
             self.results.setText('')
             self.stack.setCurrentIndex(1)
@@ -145,10 +151,10 @@ class CheckExternalLinks(Dialog):
                 self.results.setText(_('No broken links found'))
             else:
                 self.populate_results()
-        else:
+        elif total is not None:
             self.pb.setMaximum(total), self.pb.setValue(curr)
 
-    def populate_results(self, preserve_pos=False) -> None:
+    def populate_results(self, preserve_pos: bool = False) -> None:
         num = len(self.errors) - len(self.fixed_errors)
         text = '<h3>{}</h3><ol>'.format(ngettext('Found a broken link', 'Found {} broken links', num).format(num))
         for i, (locations, err, url) in enumerate(self.errors):
@@ -160,7 +166,7 @@ class CheckExternalLinks(Dialog):
             text += '</ul></li><hr>'
         self.results.setHtml(text)
 
-    def anchor_clicked(self, qurl) -> None:
+    def anchor_clicked(self, qurl: QUrl) -> None:
         url = qurl.toString()
         if url.startswith('err:'):
             errnum = int(url[4:])
@@ -174,6 +180,7 @@ class CheckExternalLinks(Dialog):
 
             for name, hrefs in nmap.items():
                 raw = oraw = get_data(name)
+                assert isinstance(raw, str)  # only text files contain links
                 for href in hrefs:
                     raw = raw.replace(href, newurl)
                 if raw != oraw:
@@ -183,7 +190,7 @@ class CheckExternalLinks(Dialog):
         elif url.startswith('loc:'):
             lnum, name = url[4:].partition(',')[::2]
             lnum = int(lnum or 1)
-            editor = get_boss().edit_file(name)
+            editor = cast('EditorType | None', get_boss().edit_file(name))
             if lnum and editor is not None and editor.has_line_numbers:
                 editor.current_line = lnum
 

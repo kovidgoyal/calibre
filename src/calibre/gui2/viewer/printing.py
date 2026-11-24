@@ -6,6 +6,7 @@ import subprocess
 import sys
 from functools import partial
 from threading import Thread
+from typing import TYPE_CHECKING, TypedDict
 
 from qt.core import (
     QCheckBox,
@@ -36,6 +37,24 @@ from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.localization import _
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
+if TYPE_CHECKING:
+    from subprocess import Popen
+
+    from qt.core import QWidget
+
+    class PrintData(TypedDict, total=False):
+        output: str
+        paper_size: str
+        page_numbers: bool
+        show_file: bool
+        margin_left: float
+        margin_top: float
+        margin_right: float
+        margin_bottom: float
+        margin_unit: str
+        input: str
+
+
 vprefs = JSONConfig('viewer')
 # Number of inches per unit for margin units
 MARGIN_UNITS = {
@@ -51,7 +70,7 @@ MAX_MARGIN_INCHES = 3
 class PrintDialog(Dialog):
     OUTPUT_NAME = 'print-to-pdf-choose-file'
 
-    def __init__(self, book_title, parent=None, prefs=vprefs) -> None:
+    def __init__(self, book_title: str, parent: QWidget | None = None, prefs: JSONConfig = vprefs) -> None:
         self.book_title = book_title
         self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
         self.paper_size_map = {a: getattr(QPageSize.PageSizeId, a.capitalize()) for a in PAPER_SIZES}
@@ -157,20 +176,20 @@ class PrintDialog(Dialog):
         self.current_margin_unit = new_unit
 
     @property
-    def data(self):
+    def data(self) -> PrintData:
         fpath = self.file_name.text().strip()
         head, tail = os.path.split(fpath)
         tail = sanitize_file_name(tail)
         fpath = tail
         if head:
             fpath = os.path.join(head, tail)
-        ans = {
+        ans: PrintData = {
             'output': fpath,
             'paper_size': self.paper_size.get_value_for_config,
             'page_numbers': self.pnum.isChecked(),
             'show_file': self.show_file.isChecked(),
         }
-        for edge in 'left top right bottom'.split():
+        for edge in ('left', 'top', 'right', 'bottom'):
             ans['margin_' + edge] = self.margin_inches[edge]
         ans['margin_unit'] = self.current_margin_unit
         return ans
@@ -193,33 +212,38 @@ class PrintDialog(Dialog):
         vprefs['print-to-pdf-page-numbers'] = data['page_numbers']
         vprefs['print-to-pdf-show-file'] = data['show_file']
         vprefs['print-to-pdf-margin-unit'] = data['margin_unit']
-        for edge in 'left top right bottom'.split():
+        for edge in ('left', 'top', 'right', 'bottom'):
             vprefs[f'print-to-pdf-{edge}-margin'] = data['margin_' + edge]
 
-    def accept(self):
+    def accept(self) -> None:
         fname = self.file_name.text().strip()
         if not fname:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('No filename specified'),
                 _('You must specify a filename for the PDF file to generate'),
                 show=True,
             )
+            return
         if not fname.lower().endswith('.pdf'):
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Incorrect filename specified'),
                 _('The filename for the PDF file must end with .pdf'),
                 show=True,
             )
+            return
         self.save_used_values()
         return Dialog.accept(self)
 
 
 class DoPrint(Thread):
     daemon = True
+    tb: str | None
+    log: str | None
+    worker: Popen[bytes]
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: PrintData) -> None:
         Thread.__init__(self, name='DoPrint')
         self.data = data
         self.tb = self.log = None
@@ -279,7 +303,7 @@ def do_print() -> None:
 
 
 class Printing(QProgressDialog):
-    def __init__(self, thread, show_file, parent=None) -> None:
+    def __init__(self, thread: DoPrint, show_file: bool, parent: QWidget | None = None) -> None:
         QProgressDialog.__init__(self, _('Printing, this will take a while, please wait...'), _('&Cancel'), 0, 0, parent)
         self.show_file = show_file
         self.setWindowTitle(_('Printing...'))
@@ -318,7 +342,7 @@ class Printing(QProgressDialog):
         self.reject()
 
 
-def print_book(path_to_book, parent=None, book_title=None) -> None:
+def print_book(path_to_book: str, parent: QWidget | None = None, book_title: str | None = None) -> None:
     book_title = book_title or os.path.splitext(os.path.basename(path_to_book))[0]
     d = PrintDialog(book_title, parent)
     if d.exec() == QDialog.DialogCode.Accepted:

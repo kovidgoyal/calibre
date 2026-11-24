@@ -1,13 +1,20 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QIcon, QModelIndex, QTreeWidgetItem
 
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDialog
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
 
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
-    def __init__(self, window, msg, formats) -> None:
+    def __init__(self, window: QWidget | None, msg: str, formats: Iterable[tuple[str, str, bool]]) -> None:
         """
         formats is a list of tuples: [(format, exists, convertible)].
             format: Lower case format identifier. E.G. mobi
@@ -41,13 +48,13 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
         fmt_header.resizeSection(0, fmt_header.sectionSize(0) * 2)
         self._format = None
 
-    def activated_slot(self, *args) -> None:
+    def activated_slot(self, *args: object) -> None:
         self.accept()
 
-    def format(self):
+    def format(self) -> str | None:
         return self._format
 
-    def accept(self):
+    def accept(self) -> None:
         fmt_item = self.formats.currentItem()
         assert fmt_item is not None
         self._format = str(fmt_item.text(0))

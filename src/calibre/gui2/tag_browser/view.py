@@ -722,6 +722,7 @@ class TagsView(QTreeView):  # {{{
 
         try:
             if action == 'edit_note':
+                assert category is not None and isinstance(extra, int)
                 if EditNoteDialog(category, extra, self.db).exec() == QDialog.DialogCode.Accepted:
                     get_gui(fail_if_absent=True).do_field_item_value_changed()
                 return

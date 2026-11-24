@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QDialogButtonBox, QLabel, QProgressBar, QSize, Qt, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre import force_unicode
@@ -8,11 +10,17 @@ from calibre.constants import filesystem_encoding
 from calibre.gui2 import error_dialog, info_dialog, question_dialog, warning_dialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.db.restore import Restore
+
 
 class DBRestore(QDialog):
     update_signal = pyqtSignal(object, object)
 
-    def __init__(self, parent, library_path, wait_time=2) -> None:
+    def __init__(self, parent: QWidget | None, library_path: str, wait_time: int = 2) -> None:
         QDialog.__init__(self, parent)
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -64,7 +72,7 @@ class DBRestore(QDialog):
         ):
             self.reject()
 
-    def update(self, *args, **kwargs) -> None:
+    def update(self, *args: object, **kwargs: object) -> None:
         assert self.restorer is not None
         if self.restorer.is_alive():
             QTimer.singleShot(10, self.update)
@@ -72,10 +80,10 @@ class DBRestore(QDialog):
             self.restorer.progress_callback = lambda x, y: x
             self.accept()
 
-    def __call__(self, msg, step):
+    def __call__(self, msg: str | None, step: int) -> None:
         self.update_signal.emit(msg, step)
 
-    def do_update(self, msg, step) -> None:
+    def do_update(self, msg: str | None, step: int) -> None:
         if msg is None:
             self.pb.setMaximum(step)
         else:
@@ -83,7 +91,7 @@ class DBRestore(QDialog):
             self.pb.setValue(step)
 
 
-def _show_success_msg(restorer, parent=None) -> None:
+def _show_success_msg(restorer: Restore, parent: QWidget | None = None) -> None:
     r = restorer
     olddb = _('The old database was saved as: %s') % force_unicode(r.olddb, filesystem_encoding)
     if r.errors_occurred:
@@ -98,7 +106,7 @@ def _show_success_msg(restorer, parent=None) -> None:
         info_dialog(parent, _('Success'), _('Restoring database was successful. %s') % olddb, show=True, show_copy_button=False)
 
 
-def restore_database(db, parent=None) -> bool:
+def restore_database(db: LibraryDatabase, parent: QWidget | None = None) -> bool:
     if not question_dialog(
         parent,
         _('Are you sure?'),
@@ -139,7 +147,7 @@ def restore_database(db, parent=None) -> bool:
     return True
 
 
-def repair_library_at(library_path, parent=None, wait_time=2) -> bool:
+def repair_library_at(library_path: str, parent: QWidget | None = None, wait_time: int = 2) -> bool:
     d = DBRestore(parent, library_path, wait_time=wait_time)
     d.exec()
     if d.was_rejected:

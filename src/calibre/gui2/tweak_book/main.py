@@ -5,6 +5,7 @@ import importlib
 import os
 import sys
 import time
+from typing import cast
 
 from qt.core import QIcon, sip
 
@@ -16,7 +17,7 @@ from calibre.utils.config import OptionParser
 from calibre.utils.localization import _
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = OptionParser(
         _(
             '''\
@@ -32,11 +33,12 @@ files inside the book which will be opened for editing automatically.
     return parser
 
 
-def gui_main(path=None, notify=None) -> None:
-    _run(['ebook-edit', path], notify=notify)
+def gui_main(path: str | None = None, notify: str | None = None) -> None:
+    # path is always specified by callers, a None path would fail in parse_args()
+    _run(cast('list[str]', ['ebook-edit', path]), notify=notify)
 
 
-def _run(args, notify=None) -> None:
+def _run(args: list[str], notify: str | None = None) -> None:
     from calibre.utils.webengine import setup_fake_protocol
 
     # Ensure we can continue to function if GUI is closed
@@ -100,7 +102,7 @@ def _run(args, notify=None) -> None:
     gc.collect(), gc.collect()
 
 
-def main(args=sys.argv) -> None:
+def main(args: list[str] = sys.argv) -> None:
     try:
         _run(args)
     finally:

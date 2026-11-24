@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QDialog, QLineEdit, Qt
 
 from calibre.gui2 import error_dialog
@@ -8,15 +10,20 @@ from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.localization import _
 from calibre.utils.mdns import get_all_ips
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
-def ipaddr_sort_key(ipaddr):
+
+def ipaddr_sort_key(ipaddr: str) -> tuple[int, tuple[int, ...]]:
     if '.' in ipaddr:
         parts = tuple(map(int, ipaddr.split('.')))
         is_private = parts[0] in (192, 170, 10)
         return (0 if is_private else 1), parts
+    # Only IPv4 addresses have a broadcast address, so this is never reached
+    return 2, ()
 
 
-def get_all_ip_addresses():
+def get_all_ip_addresses() -> list[str]:
     ipaddrs = []
     for iface in get_all_ips().values():
         for addrs in iface:
@@ -27,7 +34,7 @@ def get_all_ip_addresses():
 
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: Main) -> None:
         QDialog.__init__(self, parent)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
@@ -92,12 +99,13 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         if self.device_manager.get_option('smartdevice', 'autostart'):
             self.autostart_box.setChecked(True)
 
-        pw = self.device_manager.get_option('smartdevice', 'password')
+        # The smartdevice options are str for text options and bool for checkbox options
+        pw = cast('str | None', self.device_manager.get_option('smartdevice', 'password'))
         if pw:
             self.password_box.setText(pw)
 
-        self.orig_fixed_port = self.device_manager.get_option('smartdevice', 'use_fixed_port')
-        self.orig_port_number = self.device_manager.get_option('smartdevice', 'port_number')
+        self.orig_fixed_port = cast('bool', self.device_manager.get_option('smartdevice', 'use_fixed_port'))
+        self.orig_port_number = cast('str | None', self.device_manager.get_option('smartdevice', 'port_number'))
         self.fixed_port.setText(self.orig_port_number)
         self.use_fixed_port.setChecked(self.orig_fixed_port)
         if not self.orig_fixed_port:
@@ -106,7 +114,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         if pw:
             self.password_box.setText(pw)
 
-        forced_ip = self.device_manager.get_option('smartdevice', 'force_ip_address')
+        forced_ip = cast('str | None', self.device_manager.get_option('smartdevice', 'force_ip_address'))
         if forced_ip:
             self.ip_addresses.setText(forced_ip)
         else:
@@ -114,10 +122,10 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
 
         self.resize(self.sizeHint())
 
-    def use_fixed_port_changed(self, state) -> None:
+    def use_fixed_port_changed(self, state: int) -> None:
         self.fixed_port.setEnabled(Qt.CheckState(state) == Qt.CheckState.Checked)
 
-    def toggle_password(self, state) -> None:
+    def toggle_password(self, state: int) -> None:
         self.password_box.setEchoMode(QLineEdit.EchoMode.Password if state == Qt.CheckState.Unchecked else QLineEdit.EchoMode.Normal)
 
     def accept(self) -> None:

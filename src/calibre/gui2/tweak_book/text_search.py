@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
+from lxml import etree
 from lxml.etree import tostring
 from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QSizePolicy, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
@@ -15,11 +18,19 @@ from calibre.utils.icu import utf16_length
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
+    from calibre.gui2.dialogs.message_box import MessageBox
+    from calibre.gui2.tweak_book import EditorType
+    from calibre.gui2.tweak_book.editor.text import RegexPattern
+    from calibre.gui2.tweak_book.search import SearchableNames, SearchState
+
 # UI {{{
 
 
 class ModeBox(QComboBox):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QComboBox.__init__(self, parent)
         self.addItems([_('Normal'), _('Regex')])
         self.setToolTip(
@@ -36,16 +47,16 @@ class ModeBox(QComboBox):
         )
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         return ('normal', 'regex')[self.currentIndex()]
 
     @mode.setter
-    def mode(self, val) -> None:
+    def mode(self, val: str) -> None:
         self.setCurrentIndex({'regex': 1}.get(val, 0))
 
 
 class WhereBox(QComboBox):
-    def __init__(self, parent, emphasize=False) -> None:
+    def __init__(self, parent: QWidget | None, emphasize: bool = False) -> None:
         QComboBox.__init__(self)
         self.addItems([_('Current file'), _('All text files'), _('Selected files'), _('Open files')])
         self.setToolTip(
@@ -73,12 +84,12 @@ class WhereBox(QComboBox):
             self.setFont(f)
 
     @property
-    def where(self):
+    def where(self) -> str:
         wm = {0: 'current', 1: 'text', 2: 'selected', 3: 'open'}
         return wm[self.currentIndex()]
 
     @where.setter
-    def where(self, val) -> None:
+    def where(self, val: str) -> None:
         wm = {0: 'current', 1: 'text', 2: 'selected', 3: 'open'}
         self.setCurrentIndex({v: k for k, v in wm.items()}[val])
 
@@ -97,7 +108,7 @@ class WhereBox(QComboBox):
 class TextSearch(QWidget):
     find_text = pyqtSignal(object)
 
-    def __init__(self, ui) -> None:
+    def __init__(self, ui: QWidget | None) -> None:
         QWidget.__init__(self, ui)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('&Find:'))
@@ -139,7 +150,7 @@ class TextSearch(QWidget):
         self.state = state or {}
 
     @property
-    def state(self):
+    def state(self) -> SearchState:
         return {
             'mode': self.mode.mode,
             'where': self.where_box.where,
@@ -148,7 +159,7 @@ class TextSearch(QWidget):
         }
 
     @state.setter
-    def state(self, val) -> None:
+    def state(self, val: SearchState) -> None:
         self.mode.mode = val.get('mode', 'normal')
         self.where_box.where = val.get('where', 'current')
         self.cs.setChecked(bool(val.get('case_sensitive')))
@@ -157,7 +168,7 @@ class TextSearch(QWidget):
     def save_state(self) -> None:
         tprefs['text_search_widget_state'] = self.state
 
-    def do_search(self, direction='down') -> None:
+    def do_search(self, direction: str = 'down') -> None:
         state = self.state
         state['find'] = self.find_widget.text()
         state['direction'] = direction
@@ -170,16 +181,25 @@ class TextSearch(QWidget):
 # }}}
 
 
-def file_matches_pattern(fname, pat):
+def file_matches_pattern(fname: str, pat: RegexPattern) -> bool:
     root = current_container().parsed(fname)
-    if hasattr(root, 'xpath'):
+    if isinstance(root, etree._Element):
         raw = tostring(root, method='text', encoding='unicode', with_tail=True)
     else:
         raw = current_container().raw_data(fname)
+        assert isinstance(raw, str)
     return pat.search(raw) is not None
 
 
-def run_text_search(search, current_editor, current_editor_name, searchable_names, gui_parent, show_editor, edit_file):
+def run_text_search(
+    search: SearchState,
+    current_editor: EditorType | None,
+    current_editor_name: str | None,
+    searchable_names: SearchableNames,
+    gui_parent: QWidget | None,
+    show_editor: Callable[[str], object],
+    edit_file: Callable[[str, str | None], object],
+) -> bool | int | MessageBox:
     try:
         pat = get_search_regex(search)
     except InvalidRegex as e:
@@ -191,7 +211,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
         )
     editor, where, files, do_all, marked = initialize_search_request(search, 'count', current_editor, current_editor_name, searchable_names)
     with BusyCursor():
-        if editor is not None:
+        if editor is not None and editor.has_line_numbers:  # only text editors can be searched for text
             if editor.find_text(pat):
                 return True
             if not files and editor.find_text(pat, wrap=True):
@@ -211,14 +231,14 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
     return error_dialog(gui_parent, _('Not found'), msg, show=True)
 
 
-def find_text_in_chunks(pat, chunks):
+def find_text_in_chunks(pat: RegexPattern, chunks: Sequence[tuple[str, int]]) -> tuple[int, int]:
     text = ''.join(x[0] for x in chunks)
     m = pat.search(text)
     if m is None:
         return -1, -1
     start, after = m.span()
 
-    def contains(clen, pt):
+    def contains(clen: int, pt: int) -> bool:
         return offset <= pt < offset + clen
 
     offset = 0

@@ -277,6 +277,7 @@ class ViewAction(InterfaceAction):
         if d.exec() == QDialog.DialogCode.Accepted:
             formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
             fmt = d.format()
+            assert fmt is not None
             orig_num = len(rows)
             rows = [rows[i] for i in range(len(rows)) if formats[i] and fmt in formats[i]]
             if self._view_check(len(rows)):

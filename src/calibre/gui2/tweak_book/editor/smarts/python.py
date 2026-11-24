@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import Qt
 
@@ -9,28 +10,33 @@ from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import get_leading_whitespace_on_block as lw
 from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor, smart_backspace, smart_home, smart_tab
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent
 
-def get_leading_whitespace_on_block(editor, previous=False):
+    from calibre.gui2.tweak_book.editor.text import TextEdit
+
+
+def get_leading_whitespace_on_block(editor: TextEdit, previous: bool = False) -> str:
     return expand_tabs(lw(editor, previous=previous))
 
 
 tw = 4  # The tab width (hardcoded to the pep8 value)
 
 
-def expand_tabs(text):
+def expand_tabs(text: str) -> str:
     return text.replace('\t', ' ' * tw)
 
 
 class Smarts(NullSmarts):
     override_tab_stop_width = tw
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: TextEdit, **kwargs: TextEdit) -> None:
         NullSmarts.__init__(self, *args, **kwargs)
         c = re.compile
         self.escape_scope_pat = c(r'\s+(continue|break|return|pass)(\s|$)')
         self.dedent_pat = c(r'\s+(else|elif|except)(\(|\s|$)')
 
-    def handle_key_press(self, ev, editor) -> bool:
+    def handle_key_press(self, ev: QKeyEvent, editor: TextEdit) -> bool:
         key = ev.key()
 
         if key in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):

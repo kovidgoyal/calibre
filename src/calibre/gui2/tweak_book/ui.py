@@ -4,6 +4,7 @@
 import os
 from functools import partial
 from itertools import product
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAction,
@@ -14,6 +15,7 @@ from qt.core import (
     QLabel,
     QMenu,
     QMenuBar,
+    QMouseEvent,
     QSize,
     QStackedWidget,
     Qt,
@@ -58,6 +60,17 @@ from calibre.utils.icu import ord_string, sort_key
 from calibre.utils.localization import _, localize_user_manual_link, localize_website_link, pgettext
 from calibre.utils.unicode_names import character_name_from_code
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from optparse import Values
+
+    from qt.core import QCloseEvent, QContextMenuEvent, QObject, QResizeEvent, QToolBar
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.tweak_book import EditorType
+    from calibre.gui2.tweak_book.search import SearchState
+
 
 def open_donate() -> None:
     open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
@@ -69,7 +82,7 @@ class Central(QStackedWidget):  # {{{
     current_editor_changed = pyqtSignal()
     close_requested = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QStackedWidget.__init__(self, parent)
         self.welcome = w = QLabel('<p>' + _('Double click a file in the left panel to start editing it.'))
         self.addWidget(w)
@@ -96,18 +109,18 @@ class Central(QStackedWidget):  # {{{
         assert tab_bar is not None
         tab_bar.installEventFilter(self)
 
-    def _close_requested(self, index) -> None:
+    def _close_requested(self, index: int) -> None:
         editor = self.editor_tabs.widget(index)
         self.close_requested.emit(editor)
 
-    def add_editor(self, name, editor) -> None:
+    def add_editor(self, name: str, editor: EditorType) -> None:
         fname = name.rpartition('/')[2]
         index = self.editor_tabs.addTab(editor, fname)
         self.editor_tabs.setTabToolTip(index, _('Full path:') + ' ' + name)
         editor.modification_state_changed.connect(self.editor_modified)
 
     @property
-    def tab_order(self):
+    def tab_order(self) -> list[str]:
         ans = []
         rmap = {v: k for k, v in editors.items()}
         for i in range(self.editor_tabs.count()):
@@ -116,18 +129,18 @@ class Central(QStackedWidget):  # {{{
                 ans.append(name)
         return ans
 
-    def rename_editor(self, editor, name) -> None:
+    def rename_editor(self, editor: EditorType, name: str) -> None:
         for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 fname = name.rpartition('/')[2]
                 self.editor_tabs.setTabText(i, fname)
                 self.editor_tabs.setTabToolTip(i, _('Full path:') + ' ' + name)
 
-    def show_editor(self, editor) -> None:
+    def show_editor(self, editor: EditorType) -> None:
         self.setCurrentIndex(1)
         self.editor_tabs.setCurrentWidget(editor)
 
-    def close_editor(self, editor) -> bool:
+    def close_editor(self, editor: EditorType) -> bool:
         for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 self.editor_tabs.removeTab(i)
@@ -136,7 +149,7 @@ class Central(QStackedWidget):  # {{{
                 return True
         return False
 
-    def editor_modified(self, *args) -> None:
+    def editor_modified(self, *args: object) -> None:
         tb = self.editor_tabs.tabBar()
         assert tb is not None
         for i in range(self.editor_tabs.count()):
@@ -155,7 +168,7 @@ class Central(QStackedWidget):  # {{{
     def close_to_right_of_current_editor(self) -> None:
         self.close_to_right(self.current_editor)
 
-    def close_all_but(self, ed) -> None:
+    def close_all_but(self, ed: QWidget | None) -> None:
         close = []
         if ed is not None:
             for i in range(self.editor_tabs.count()):
@@ -165,7 +178,7 @@ class Central(QStackedWidget):  # {{{
         for q in close:
             self.close_requested.emit(q)
 
-    def close_to_right(self, ed) -> None:
+    def close_to_right(self, ed: QWidget | None) -> None:
         close = []
         if ed is not None:
             found = False
@@ -179,8 +192,9 @@ class Central(QStackedWidget):  # {{{
             self.close_requested.emit(q)
 
     @property
-    def current_editor(self):
-        return self.editor_tabs.currentWidget()
+    def current_editor(self) -> EditorType | None:
+        # The only widgets in the tabs are editors
+        return cast('EditorType | None', self.editor_tabs.currentWidget())
 
     def save_state(self) -> None:
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
@@ -197,13 +211,14 @@ class Central(QStackedWidget):  # {{{
     def show_find(self) -> None:
         self.search_panel.show_panel()
 
-    def pre_fill_search(self, text) -> None:
+    def pre_fill_search(self, text: str) -> None:
         self.search_panel.pre_fill(text)
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         base = super()
         if (
             a0 is not self.editor_tabs.tabBar()
+            or not isinstance(a1, QMouseEvent)
             or a1.type() != QEvent.Type.MouseButtonPress
             or a1.button() not in (Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton)
         ):
@@ -235,7 +250,7 @@ class Central(QStackedWidget):  # {{{
 
 
 class CursorPositionWidget(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout(self)
         self.setLayout(self.l)
@@ -246,7 +261,7 @@ class CursorPositionWidget(QWidget):  # {{{
         f.setBold(False)
         self.la.setFont(f)
 
-    def update_position(self, line=None, col=None, character=None) -> None:
+    def update_position(self, line: int | None = None, col: int | None = None, character: str | None = None) -> None:
         if line is None:
             self.la.setText('')
         else:
@@ -266,6 +281,7 @@ class CursorPositionWidget(QWidget):  # {{{
 
 
 def install_new_plugins() -> None:
+    from calibre.customize import EditBookToolPlugin
     from calibre.utils.config import JSONConfig
 
     prefs = JSONConfig('newly-installed-editor-plugins')
@@ -273,7 +289,7 @@ def install_new_plugins() -> None:
     if pl:
         for name in pl:
             plugin = find_plugin(name)
-            if plugin is not None:
+            if isinstance(plugin, EditBookToolPlugin):
                 install_plugin(plugin)
         prefs['newly_installed_plugins'] = []
 
@@ -282,8 +298,19 @@ class Main(MainWindow):
     APP_NAME = _('Edit book')
     STATE_VERSION = 0
     undo_requested = pyqtSignal(object)
+    # The dock widgets, set in create_docks()
+    files_browser_dock: QDockWidget
+    preview_dock: QDockWidget
+    live_css_dock: QDockWidget
+    check_book_dock: QDockWidget
+    inspector_dock: QDockWidget
+    toc_viewer_dock: QDockWidget
+    text_search_dock: QDockWidget
+    rewrite_suggestions_dock: QDockWidget
+    checkpoints_dock: QDockWidget
+    saved_searches_dock: QDockWidget
 
-    def __init__(self, opts, notify=None) -> None:
+    def __init__(self, opts: Values, notify: str | None = None) -> None:
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
         self.message_popup = MessagePopup(self)
         self.message_popup.undo_requested.connect(self.undo_requested)
@@ -298,9 +325,9 @@ class Main(MainWindow):
         if not ismacos:
             self.setWindowIcon(qapplication_or_fail().windowIcon())
         self.opts = opts
-        self.path_to_ebook = None
-        self.container = None
-        self.current_metadata = None
+        self.path_to_ebook: str | None = None
+        self.container: Container | None = None
+        self.current_metadata: Metadata | None = None
         self.blocking_job = BlockingJob(self)
         self.keyboard = KeyboardManager(self, config_name='shortcuts/tweak_book')
 
@@ -357,29 +384,37 @@ class Main(MainWindow):
         for bar in (self.global_bar, self.tools_bar, self.plugins_bar):
             bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
-    def show_status_message(self, msg, timeout=5) -> None:
+    def show_status_message(self, msg: str, timeout: float = 5) -> None:
         status_bar = self.status_bar
         assert status_bar is not None
         status_bar.showMessage(msg, int(timeout * 1000))
 
-    def update_status_bar_default_message(self, path='') -> None:
+    def update_status_bar_default_message(self, path: str = '') -> None:
         m = self.status_bar_default_msg
         if path:
             m.setText(getattr(m, 'editing_template').format(path=path))
         else:
             m.setText(getattr(m, 'base_template'))
 
-    def elided_text(self, text, width=300):
+    def elided_text(self, text: str, width: float = 300) -> str:
         return elided_text(text, font=self.font(), width=width)
 
     @property
-    def editor_tabs(self):
+    def editor_tabs(self) -> QTabWidget:
         return self.central.editor_tabs
 
     def create_actions(self) -> None:
         group = _('Global actions')
 
-        def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
+        def reg(
+            icon: str | QIcon | None,
+            text: str,
+            target: Callable[..., object] | None,
+            sid: str,
+            keys: str | Iterable[str],
+            description: str | None,
+            toolbar_allowed: bool = False,
+        ) -> QAction:
             if not isinstance(icon, QIcon):
                 icon = QIcon.ic(icon)
             ac = actions[sid] = QAction(icon, text, self) if icon else QAction(text, self)
@@ -394,7 +429,9 @@ class Main(MainWindow):
             self.addAction(ac)
             return ac
 
-        def treg(icon, text, target, sid, keys, description):
+        def treg(
+            icon: str | QIcon | None, text: str, target: Callable[..., object] | None, sid: str, keys: str | Iterable[str], description: str | None
+        ) -> QAction:
             return reg(icon, text, target, sid, keys, description, toolbar_allowed=icon is not None)
 
         self.action_new_file = treg(
@@ -677,7 +714,7 @@ class Main(MainWindow):
             _('Add audio narration for all the book text using Text-to-speech generation'),
         )
 
-        def ereg(icon, text, target, sid, keys, description):
+        def ereg(icon: str | QIcon | None, text: str, target: tuple[str, ...], sid: str, keys: str | Iterable[str], description: str | None) -> QAction:
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
 
         register_text_editor_actions(ereg, self.palette())
@@ -775,7 +812,15 @@ class Main(MainWindow):
             _('Show the Find/replace panel'),
         )
 
-        def sreg(name, text, action, overrides=None, keys=(), description=None, icon=None):
+        def sreg(
+            name: str,
+            text: str,
+            action: str,
+            overrides: SearchState | None = None,
+            keys: str | Iterable[str] = (),
+            description: str | None = None,
+            icon: str | QIcon | None = None,
+        ) -> QAction:
             if overrides is None:
                 overrides = {}
             return reg(
@@ -823,7 +868,7 @@ class Main(MainWindow):
             ('Ctrl+Shift+M',),
             _('Mark selected text or unmark already marked text'),
         )
-        self.action_mark.default_text = self.action_mark.text()
+        setattr(self.action_mark, 'default_text', self.action_mark.text())
         self.action_go_to_line = reg(
             None,
             _('Go to &line'),
@@ -1147,9 +1192,10 @@ class Main(MainWindow):
             m.addAction(self.elided_text(path, width=500), partial(self.boss.open_book, path=path))
 
     def create_toolbars(self) -> None:
-        def create(text, name):
+        def create(text: str, name: str) -> QToolBar:
             name += '-bar'
             b = self.addToolBar(text)
+            assert b is not None
             b.setObjectName(name)  # Needed for saveState
             actions[name] = b.toggleViewAction()
             b.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
@@ -1160,10 +1206,10 @@ class Main(MainWindow):
         self.plugins_bar = create(_('Plugins tool bar'), 'plugins')
         self.populate_toolbars(animate=True)
 
-    def populate_toolbars(self, animate=False) -> None:
+    def populate_toolbars(self, animate: bool = False) -> None:
         self.global_bar.clear(), self.tools_bar.clear(), self.plugins_bar.clear()
 
-        def add(bar, ac) -> None:
+        def add(bar: QToolBar, ac: str | None) -> None:
             if ac is None:
                 bar.addSeparator()
             elif ac == 'donate':
@@ -1193,7 +1239,7 @@ class Main(MainWindow):
 
     def create_docks(self) -> None:
 
-        def create(name, oname):
+        def create(name: str, oname: str) -> QDockWidget:
             oname += '-dock'
             d = QDockWidget(name, self)
             d.setObjectName(oname)  # Needed for saveState
@@ -1309,7 +1355,8 @@ class Main(MainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        assert a0 is not None
         self.blocking_job.resize(a0.size())
         return super().resizeEvent(a0)
 
@@ -1323,7 +1370,8 @@ class Main(MainWindow):
         else:
             self.setWindowTitle(self.APP_NAME)
 
-    def closeEvent(self, a0) -> None:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        assert a0 is not None
         if self.boss.quit():
             a0.accept()
         else:
@@ -1345,5 +1393,6 @@ class Main(MainWindow):
         self.central.restore_state()
         self.saved_searches.restore_state()
 
-    def contextMenuEvent(self, event) -> None:
+    def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
+        assert event is not None
         event.ignore()

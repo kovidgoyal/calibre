@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
+from typing import TYPE_CHECKING, overload
+
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QMenu, Qt, QVBoxLayout
 
 from calibre import confirm_config_name
@@ -8,20 +10,27 @@ from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from qt.core import QWidget
+
+    from calibre.utils.config import DynamicConfig, XMLConfig
+
 
 class Dialog(QDialog):
     def __init__(
         self,
-        msg,
-        name,
-        parent,
-        config_set=dynamic,
-        icon='dialog_warning.png',
-        title=None,
-        confirm_msg=None,
-        show_cancel_button=True,
-        extra_button=None,
-        extra_button_choices=None,
+        msg: str,
+        name: str,
+        parent: QWidget | None,
+        config_set: DynamicConfig | XMLConfig = dynamic,
+        icon: str = 'dialog_warning.png',
+        title: str | None = None,
+        confirm_msg: str | None = None,
+        show_cancel_button: bool = True,
+        extra_button: str | None = None,
+        extra_button_choices: Mapping[str, str] | None = None,
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(title or _('Are you sure?'))
@@ -60,11 +69,13 @@ class Dialog(QDialog):
         self.extra_button_choice = None
         if extra_button:
             b = bb.addButton(extra_button, QDialogButtonBox.ButtonRole.AcceptRole)
+            assert b is not None
             if extra_button_choices:
                 m = QMenu()
                 b.setMenu(m)
                 for acname, text in extra_button_choices.items():
                     ac = m.addAction(text)
+                    assert ac is not None
                     ac.setObjectName(acname)
                     ac.triggered.connect(self.on_extra_choice_click)
             else:
@@ -88,22 +99,63 @@ class Dialog(QDialog):
         self.extra_button_choice = ac.objectName()
         self.accept()
 
-    def toggle(self, *args) -> None:
+    def toggle(self, *args: object) -> None:
         self.config_set[confirm_config_name(self.name)] = self.again.isChecked()
 
 
+@overload
 def confirm(
-    msg,
-    name,
-    parent=None,
-    pixmap='dialog_warning.png',
-    title=None,
-    show_cancel_button=True,
-    confirm_msg=None,
-    config_set=None,
-    extra_button=None,
-    extra_button_choices=None,
-):
+    msg: str,
+    name: str,
+    parent: QWidget | None = None,
+    pixmap: str = 'dialog_warning.png',
+    title: str | None = None,
+    show_cancel_button: bool = True,
+    confirm_msg: str | None = None,
+    config_set: DynamicConfig | XMLConfig | None = None,
+    extra_button: None = None,
+    extra_button_choices: None = None,
+) -> bool: ...
+@overload
+def confirm(
+    msg: str,
+    name: str,
+    parent: QWidget | None = None,
+    pixmap: str = 'dialog_warning.png',
+    title: str | None = None,
+    show_cancel_button: bool = True,
+    confirm_msg: str | None = None,
+    config_set: DynamicConfig | XMLConfig | None = None,
+    *,
+    extra_button: str,
+    extra_button_choices: Mapping[str, str],
+) -> tuple[bool, str | None]: ...
+@overload
+def confirm(
+    msg: str,
+    name: str,
+    parent: QWidget | None = None,
+    pixmap: str = 'dialog_warning.png',
+    title: str | None = None,
+    show_cancel_button: bool = True,
+    confirm_msg: str | None = None,
+    config_set: DynamicConfig | XMLConfig | None = None,
+    *,
+    extra_button: str,
+    extra_button_choices: None = None,
+) -> tuple[bool, bool]: ...
+def confirm(
+    msg: str,
+    name: str,
+    parent: QWidget | None = None,
+    pixmap: str = 'dialog_warning.png',
+    title: str | None = None,
+    show_cancel_button: bool = True,
+    confirm_msg: str | None = None,
+    config_set: DynamicConfig | XMLConfig | None = None,
+    extra_button: str | None = None,
+    extra_button_choices: Mapping[str, str] | None = None,
+) -> bool | tuple[bool, str | None] | tuple[bool, bool]:
     config_set = config_set or dynamic
     if not config_set.get(confirm_config_name(name), True):
         if extra_button:

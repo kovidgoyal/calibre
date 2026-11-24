@@ -882,6 +882,7 @@ class LayoutMixin:  # {{{
         else:
             ofmt = 'ORIGINAL_' + fmt
         path1, path2 = db.format_abspath(book_id, ofmt), db.format_abspath(book_id, fmt)
+        assert path1 is not None and path2 is not None
         from calibre.gui2.tweak_book.diff.main import compare_books
 
         compare_books(

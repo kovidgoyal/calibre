@@ -1,17 +1,32 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal kovid@kovidgoyal.net
 
+from typing import TYPE_CHECKING
+
 from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QFontMetrics, QHBoxLayout, QIcon, QLabel, QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import elided_text, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent, QWidget
+
 
 class ProgressDialog(QDialog):
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None, cancel_confirm_msg='') -> None:
+    def __init__(
+        self,
+        title: str,
+        msg: str = '\u00a0',
+        min: int = 0,
+        max: int = 99,
+        parent: QWidget | None = None,
+        cancelable: bool = True,
+        icon: QIcon | str | None = None,
+        cancel_confirm_msg: str = '',
+    ) -> None:
         QDialog.__init__(self, parent)
         self.cancel_confirm_msg = cancel_confirm_msg
         if icon is None:
@@ -62,60 +77,60 @@ class ProgressDialog(QDialog):
         self.cancelable = cancelable
         self.resize(self.sizeHint())
 
-    def set_msg(self, msg='') -> None:
+    def set_msg(self, msg: str = '') -> None:
         self.msg = msg
 
-    def set_value(self, val) -> None:
+    def set_value(self, val: int) -> None:
         self.value = val
 
     @property
-    def value(self):
+    def value(self) -> int:
         return self.bar.value()
 
     @value.setter
-    def value(self, val) -> None:
+    def value(self, val: int) -> None:
         self.bar.setValue(val)
 
-    def set_min(self, min) -> None:
+    def set_min(self, min: int) -> None:
         self.min = min
 
-    def set_max(self, max) -> None:
+    def set_max(self, max: int) -> None:
         self.max = max
 
     @property
-    def max(self):
+    def max(self) -> int:
         return self.bar.maximum()
 
     @max.setter
-    def max(self, val) -> None:
+    def max(self, val: int) -> None:
         self.bar.setMaximum(val)
 
     @property
-    def min(self):
+    def min(self) -> int:
         return self.bar.minimum()
 
     @min.setter
-    def min(self, val) -> None:
+    def min(self, val: int) -> None:
         self.bar.setMinimum(val)
 
     @property
-    def title(self):
+    def title(self) -> str:
         return self.title_label.text()
 
     @title.setter
-    def title(self, val) -> None:
+    def title(self, val: str | None) -> None:
         self.title_label.setText(str(val or ''))
 
     @property
-    def msg(self):
+    def msg(self) -> str:
         return self.message.text()
 
     @msg.setter
-    def msg(self, val) -> None:
+    def msg(self, val: str | None) -> None:
         val = str(val or '')
         self.message.setText(elided_text(val, self.font(), self.message.minimumWidth() - 10))
 
-    def _canceled(self, *args) -> None:
+    def _canceled(self, *args: object) -> None:
         if self.cancel_confirm_msg:
             if not question_dialog(
                 self,
@@ -136,7 +151,8 @@ class ProgressDialog(QDialog):
             return
         QDialog.reject(self)
 
-    def keyPressEvent(self, a0) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.key() == Qt.Key.Key_Escape:
             if self.cancelable:
                 self._canceled()
@@ -145,7 +161,7 @@ class ProgressDialog(QDialog):
 
 
 class BlockingBusy(QDialog):
-    def __init__(self, msg, parent=None, window_title=_('Working')) -> None:
+    def __init__(self, msg: str, parent: QWidget | None = None, window_title: str = _('Working')) -> None:
         QDialog.__init__(self, parent)
 
         self._layout = QVBoxLayout()
@@ -170,7 +186,7 @@ class BlockingBusy(QDialog):
     def stop(self) -> None:
         self.pi.stopAnimation()
 
-    def accept(self):
+    def accept(self) -> None:
         self.stop()
         return QDialog.accept(self)
 

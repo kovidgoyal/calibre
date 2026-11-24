@@ -7,6 +7,7 @@ from collections import OrderedDict, defaultdict
 from functools import partial
 from itertools import chain
 from threading import Thread
+from typing import TYPE_CHECKING
 
 import regex
 from qt.core import (
@@ -78,14 +79,30 @@ from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize
 from calibre.utils.resources import get_path as P
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from _typeshed import SupportsRichComparison
+    from qt.core import QContextMenuEvent, QKeyEvent, QObject
+
+    from calibre.ebooks.oeb.polish.spell import Location, UndoCache
+    from calibre.gui2.dialogs.message_box import MessageBox
+    from calibre.gui2.tweak_book import EditorType
+    from calibre.spell.dictionary import Dictionary, OnlineDictionary, UserDictionary
+
+    #: A word and the locale it is in
+    type WordKey = tuple[str, DictionaryLocale]
+    #: A request to change a word to a new word
+    type ChangeRequest = tuple[WordKey, str]
+
 LANG = 0
 COUNTRY = 1
 DICTIONARY = 2
 
-_country_map = None
+_country_map: dict[str, dict[str, str]] | None = None
 
 
-def country_map():
+def country_map() -> dict[str, dict[str, str]]:
     global _country_map
     if _country_map is None:
         from calibre.utils.serialize import msgpack_loads
@@ -94,7 +111,7 @@ def country_map():
     return _country_map
 
 
-def current_languages_dictionaries(reread=False):
+def current_languages_dictionaries(reread: bool = False) -> defaultdict[str, defaultdict[str | None, set[Dictionary]]]:
     all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
     languages = defaultdict(lambda: defaultdict(set))
     for d in all_dictionaries:
@@ -104,7 +121,7 @@ def current_languages_dictionaries(reread=False):
 
 
 class AddDictionary(QDialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Add a dictionary'))
         l = QVBoxLayout(self)
@@ -148,7 +165,7 @@ class AddDictionary(QDialog):  # {{{
         c.addItem('', None)
         languages = current_languages_dictionaries(reread=False)
 
-        def k(dictionary):
+        def k(dictionary: OnlineDictionary) -> bytes | tuple[int, int]:
             return sort_key(calibre_langcode_to_name(dictionary['primary_locale'].langcode))
 
         for data in sorted(catalog_online_dictionaries(), key=k):
@@ -199,7 +216,7 @@ class AddDictionary(QDialog):  # {{{
         n.setPlaceholderText(_('Choose a nickname for this dictionary'))
         l.addRow(_('&Nickname:'), n)
 
-    def tab_changed(self, idx) -> None:
+    def tab_changed(self, idx: int) -> None:
         if idx == 0:
             self.combobox_online.setFocus(Qt.FocusReason.OtherFocusReason)
         elif idx == 1:
@@ -221,10 +238,10 @@ class AddDictionary(QDialog):  # {{{
                 self.nick.setText(n.rpartition('.')[0])
 
     @property
-    def nickname(self):
+    def nickname(self) -> str:
         return str(self.nick.text()).strip()
 
-    def _process_oxt_import(self):
+    def _process_oxt_import(self) -> int | None:
         nick = self.nickname
         if not nick:
             return error_dialog(self, _('Must specify nickname'), _('You must specify a nickname for this dictionary'), show=True)
@@ -251,7 +268,7 @@ class AddDictionary(QDialog):  # {{{
         if num == 0:
             return error_dialog(self, _('No dictionaries'), _('No dictionaries were found in %s') % oxt, show=True)
 
-    def _process_online_download(self):
+    def _process_online_download(self) -> int | None:
         data = self.combobox_online.currentData()
         nick = 'online-' + data['name']
         directory = data['directory']
@@ -293,10 +310,11 @@ class AddDictionary(QDialog):  # {{{
 
 
 class UserWordList(QListWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QListWidget.__init__(self, parent)
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         m = QMenu(self)
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
         m.addAction(_('Select all words'), self.select_all)
@@ -318,7 +336,8 @@ class UserWordList(QListWidget):
             assert cb is not None
             cb.setText('\n'.join(words))
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e == QKeySequence.StandardKey.Copy:
             self.copy_to_clipboard()
             e.accept()
@@ -327,7 +346,7 @@ class UserWordList(QListWidget):
 
 
 class ManageUserDictionaries(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.dictionaries_changed = False
         Dialog.__init__(self, _('Manage user dictionaries'), 'manage-user-dictionaries', parent=parent)
 
@@ -385,10 +404,10 @@ class ManageUserDictionaries(Dialog):
 
         self.show_current_dictionary()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return Dialog.sizeHint(self) + QSize(30, 100)
 
-    def build_dictionaries(self, current=None) -> None:
+    def build_dictionaries(self, current: str | None = None) -> None:
         self.dictionaries.clear()
         for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d: sort_key(d.name)):
             i = QListWidgetItem(dic.name, self.dictionaries)
@@ -400,7 +419,7 @@ class ManageUserDictionaries(Dialog):
         if current is None and self.dictionaries.count() > 0:
             self.dictionaries.setCurrentRow(0)
 
-    def new_dictionary(self):
+    def new_dictionary(self) -> int | None:
         name, ok = QInputDialog.getText(self, _('New dictionary'), _('Name of the new dictionary'))
         if ok:
             name = str(name)
@@ -420,7 +439,7 @@ class ManageUserDictionaries(Dialog):
             self.dictionaries_changed = True
             self.show_current_dictionary()
 
-    def rename_dictionary(self):
+    def rename_dictionary(self) -> int | None:
         d = self.current_dictionary
         if d is None:
             return
@@ -437,7 +456,7 @@ class ManageUserDictionaries(Dialog):
                 self.show_current_dictionary()
 
     @property
-    def current_dictionary(self):
+    def current_dictionary(self) -> UserDictionary | None:
         d = self.dictionaries.currentItem()
         if d is None:
             return
@@ -453,7 +472,7 @@ class ManageUserDictionaries(Dialog):
                 d = item.data(Qt.ItemDataRole.UserRole)
                 item.setData(Qt.ItemDataRole.FontRole, self.emph_font if d.is_active else None)
 
-    def show_current_dictionary(self, *args) -> None:
+    def show_current_dictionary(self, *args: object) -> None:
         d = self.current_dictionary
         if d is None:
             return
@@ -486,8 +505,10 @@ class ManageUserDictionaries(Dialog):
         lang = (loc.lang_codes or [canonicalize_lang(get_lang()) or 'eng'])[0]
         if not word:
             return
-        if (word, lang) not in self.current_dictionary.words:
-            dictionaries.add_to_user_dictionary(self.current_dictionary.name, word, DictionaryLocale(lang, None))
+        current_dictionary = self.current_dictionary
+        assert current_dictionary is not None
+        if (word, lang) not in current_dictionary.words:
+            dictionaries.add_to_user_dictionary(current_dictionary.name, word, DictionaryLocale(lang, None))
             dictionaries.clear_caches()
             self.show_current_dictionary()
             self.dictionaries_changed = True
@@ -495,7 +516,7 @@ class ManageUserDictionaries(Dialog):
         if idx > -1:
             self.words.scrollToItem(self.words.item(idx))
 
-    def import_words(self):
+    def import_words(self) -> int | None:
         d = QDialog(self)
         l = QFormLayout(d)
         d.setWindowTitle(_('Import list of words'))
@@ -524,8 +545,10 @@ class ManageUserDictionaries(Dialog):
             return error_dialog(self, _('Must specify language'), _('You must specify a language to import words'), show=True)
         words = set(filter(None, [x.strip() for x in str(w.toPlainText()).splitlines()]))
         lang = lc[0]
-        words_with_lang = {(w, lang) for w in words} - self.current_dictionary.words
-        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words_with_lang, DictionaryLocale(lang, None)):
+        current_dictionary = self.current_dictionary
+        assert current_dictionary is not None
+        words_with_lang = {(w, lang) for w in words} - current_dictionary.words
+        if dictionaries.add_to_user_dictionary(current_dictionary.name, words_with_lang, DictionaryLocale(lang, None)):
             dictionaries.clear_caches()
             self.show_current_dictionary()
             self.dictionaries_changed = True
@@ -535,12 +558,13 @@ class ManageUserDictionaries(Dialog):
         if words:
             kwords = [(w, DictionaryLocale(l, None)) for w, l in words]
             d = self.current_dictionary
+            assert d is not None
             if dictionaries.remove_from_user_dictionary(d.name, kwords):
                 dictionaries.clear_caches()
                 self.show_current_dictionary()
                 self.dictionaries_changed = True
 
-    def find_word(self, word, lang):
+    def find_word(self, word: str, lang: str) -> int:
         key = (word, lang)
         for i in range(self.words.count()):
             wi = self.words.item(i)
@@ -559,10 +583,10 @@ class ManageUserDictionaries(Dialog):
 
 
 class ManageDictionaries(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Manage dictionaries'), 'manage-dictionaries', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setWidth(ans.width() + 250)
         ans.setHeight(ans.height() + 200)
@@ -625,13 +649,13 @@ class ManageDictionaries(Dialog):  # {{{
         if d.dictionaries_changed:
             self.dictionaries_changed = True
 
-    def data_changed(self, item, column) -> None:
+    def data_changed(self, item: QTreeWidgetItem, column: int) -> None:
         if column == 0 and item.type() == DICTIONARY:
             d = item.data(0, Qt.ItemDataRole.UserRole)
             if not d.builtin and str(item.text(0)) != d.name:
                 rename_dictionary(d, str(item.text(0)))
 
-    def build_dictionaries(self, reread=False) -> None:
+    def build_dictionaries(self, reread: bool = False) -> None:
         languages = current_languages_dictionaries(reread=reread)
         bf = QFont(self.dictionaries.font())
         bf.setBold(True)
@@ -644,7 +668,7 @@ class ManageDictionaries(Dialog):  # {{{
             i.setText(0, calibre_langcode_to_name(lc))
             i.setData(0, Qt.ItemDataRole.UserRole, lc)
             best_country = getattr(best_locale_for_language(lc), 'countrycode', None)
-            for countrycode in sorted(languages[lc], key=lambda x: country_map()['names'].get(x, x)):
+            for countrycode in sorted(languages[lc], key=lambda x: country_map()['names'].get(x, x) or ''):
                 j = QTreeWidgetItem(i, COUNTRY)
                 j.setText(0, country_map()['names'].get(countrycode, countrycode))
                 j.setData(0, Qt.ItemDataRole.UserRole, countrycode)
@@ -689,7 +713,7 @@ class ManageDictionaries(Dialog):  # {{{
             elif item.type() == DICTIONARY:
                 self.init_dictionary(item)
 
-    def init_language(self, item) -> None:
+    def init_language(self, item: QTreeWidgetItem) -> None:
         self.helpl.setText(
             _(
                 '''<p>You can change the dictionaries used for any specified language.</p>
@@ -704,7 +728,7 @@ class ManageDictionaries(Dialog):  # {{{
             )
         )
 
-    def init_country(self, item) -> None:
+    def init_country(self, item: QTreeWidgetItem) -> None:
         pc = self.pcb
         font = item.data(0, Qt.ItemDataRole.FontRole)
         preferred = bool(font and font.bold())
@@ -730,7 +754,7 @@ class ManageDictionaries(Dialog):  # {{{
         pl[lc] = f'{lc}-{item.data(0, Qt.ItemDataRole.UserRole)}'
         dprefs['preferred_locales'] = pl
 
-    def init_dictionary(self, item) -> None:
+    def init_dictionary(self, item: QTreeWidgetItem) -> None:
         saf = self.fb
         font = item.data(0, Qt.ItemDataRole.FontRole)
         preferred = bool(font and font.italic())
@@ -773,15 +797,15 @@ class WordsModel(QAbstractTableModel):
     word_ignored = pyqtSignal(object, object)
     counts_changed = pyqtSignal()
 
-    def __init__(self, parent=None, show_only_misspelt=True) -> None:
+    def __init__(self, parent: QObject | None = None, show_only_misspelt: bool = True) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.counts = (0, 0)
         self.all_caps = self.with_numbers = self.camel_case = self.snake_case = False
-        self.words = {}  # Map of (word, locale) to location data for the word
-        self.spell_map = {}  # Map of (word, locale) to dictionaries.recognized(word, locale)
+        self.words: dict[WordKey, list[Location]] = {}  # Map of (word, locale) to location data for the word
+        self.spell_map: dict[WordKey, bool] = {}  # Map of (word, locale) to dictionaries.recognized(word, locale)
         self.sort_on = (0, False)
-        self.items = []  # The currently displayed items
-        self.filter_expression = None
+        self.items: list[WordKey] = []  # The currently displayed items
+        self.filter_expression: str | None = None
         self.show_only_misspelt = show_only_misspelt
         self.headers = (_('Word'), _('Count'), _('Language'), _('Misspelled?'))
         self.alignments = (
@@ -794,7 +818,7 @@ class WordsModel(QAbstractTableModel):
         self.camel_case_pat = regex.compile(r'[a-z][A-Z]', flags=regex.UNICODE)
         self.snake_case_pat = regex.compile(r'\w_\w', flags=regex.UNICODE)
 
-    def to_csv(self):
+    def to_csv(self) -> str:
         from csv import writer as csv_writer
         from io import StringIO
 
@@ -807,10 +831,10 @@ class WordsModel(QAbstractTableModel):
             w.writerow(items)
         return buf.getvalue()
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.items)
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return len(self.headers)
 
     def clear(self) -> None:
@@ -820,7 +844,7 @@ class WordsModel(QAbstractTableModel):
         self.items = []
         self.endResetModel()
 
-    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if orientation == Qt.Orientation.Horizontal:
             if role == Qt.ItemDataRole.DisplayRole:
                 try:
@@ -832,12 +856,12 @@ class WordsModel(QAbstractTableModel):
             elif role == Qt.ItemDataRole.TextAlignmentRole:
                 return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[section])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
-    def misspelled_text(self, w):
+    def misspelled_text(self, w: WordKey) -> str:
         if self.spell_map[w]:
             return _('Ignored') if dictionaries.is_word_ignored(*w) else ''
         return '✓'
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         try:
             word, locale = self.items[index.row()]
         except IndexError:
@@ -859,7 +883,7 @@ class WordsModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.TextAlignmentRole:
             return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
         reverse = order != Qt.SortOrder.AscendingOrder
         self.sort_on = (column, reverse)
         self.beginResetModel()
@@ -868,13 +892,13 @@ class WordsModel(QAbstractTableModel):
 
     def filter(
         self,
-        filter_text,
+        filter_text: str | None,
         *,
-        all_caps=False,
-        with_numbers=False,
-        camel_case=False,
-        snake_case=False,
-        show_only_misspelt=True,
+        all_caps: bool = False,
+        with_numbers: bool = False,
+        camel_case: bool = False,
+        snake_case: bool = False,
+        show_only_misspelt: bool = True,
     ) -> None:
         self.filter_expression = filter_text or None
         self.all_caps, self.with_numbers = all_caps, with_numbers
@@ -885,21 +909,21 @@ class WordsModel(QAbstractTableModel):
         self.do_sort()
         self.endResetModel()
 
-    def sort_key(self, col):
+    def sort_key(self, col: int) -> Callable[[WordKey], SupportsRichComparison]:
         if col == 0:
             f = (lambda x: x) if tprefs['spell_check_case_sensitive_sort'] else primary_sort_key
 
-            def key(w):
+            def key(w: WordKey) -> SupportsRichComparison:
                 return f(w[0])
 
         elif col == 1:
 
-            def key(w):
+            def key(w: WordKey) -> SupportsRichComparison:
                 return len(self.words[w])
 
         elif col == 2:
 
-            def key(w):
+            def key(w: WordKey) -> SupportsRichComparison:
                 locale = w[1]
                 return (calibre_langcode_to_name(locale.langcode) or ''), (locale.countrycode or '')
 
@@ -911,7 +935,7 @@ class WordsModel(QAbstractTableModel):
         col, reverse = self.sort_on
         self.items.sort(key=self.sort_key(col), reverse=reverse)
 
-    def set_data(self, words, spell_map) -> None:
+    def set_data(self, words: dict[WordKey, list[Location]], spell_map: dict[WordKey, bool]) -> None:
         self.words, self.spell_map = words, spell_map
         self.beginResetModel()
         self.do_filter()
@@ -919,12 +943,12 @@ class WordsModel(QAbstractTableModel):
         self.update_counts(emit_signal=False)
         self.endResetModel()
 
-    def update_counts(self, emit_signal=True) -> None:
+    def update_counts(self, emit_signal: bool = True) -> None:
         self.counts = (len([None for w, recognized in self.spell_map.items() if not recognized]), len(self.words))
         if emit_signal:
             self.counts_changed.emit()
 
-    def filter_item(self, x) -> bool:
+    def filter_item(self, x: WordKey) -> bool:
         if self.show_only_misspelt and self.spell_map[x]:
             return False
         func = contains if tprefs['spell_check_case_sensitive_search'] else primary_contains
@@ -945,7 +969,7 @@ class WordsModel(QAbstractTableModel):
         self.items = list(filter(self.filter_item, self.words))
         self.counts_changed.emit()
 
-    def toggle_ignored(self, row) -> None:
+    def toggle_ignored(self, row: int) -> None:
         w = self.word_for_row(row)
         if w is not None:
             ignored = dictionaries.is_word_ignored(*w)
@@ -955,9 +979,8 @@ class WordsModel(QAbstractTableModel):
             self.word_ignored.emit(*w)
             self.update_counts()
 
-    def ignore_words(self, rows) -> None:
-        words = {self.word_for_row(r) for r in rows}
-        words.discard(None)
+    def ignore_words(self, rows: Iterable[int]) -> None:
+        words = {w for r in rows if (w := self.word_for_row(r)) is not None}
         for w in words:
             ignored = dictionaries.is_word_ignored(*w)
             (dictionaries.unignore_word if ignored else dictionaries.ignore_word)(*w)
@@ -966,7 +989,7 @@ class WordsModel(QAbstractTableModel):
             self.word_ignored.emit(*w)
             self.update_counts()
 
-    def add_word(self, row, udname) -> None:
+    def add_word(self, row: int, udname: str) -> None:
         w = self.word_for_row(row)
         if w is not None:
             if dictionaries.add_to_user_dictionary(udname, *w):
@@ -975,9 +998,8 @@ class WordsModel(QAbstractTableModel):
                 self.word_ignored.emit(*w)
                 self.update_counts()
 
-    def add_words(self, dicname, rows) -> None:
-        words = {self.word_for_row(r) for r in rows}
-        words.discard(None)
+    def add_words(self, dicname: str, rows: Iterable[int]) -> None:
+        words = {w for r in rows if (w := self.word_for_row(r)) is not None}
         for w in words:
             if not dictionaries.add_to_user_dictionary(dicname, *w):
                 dictionaries.remove_from_user_dictionary(dicname, [w])
@@ -986,7 +1008,7 @@ class WordsModel(QAbstractTableModel):
             self.word_ignored.emit(*w)
             self.update_counts()
 
-    def remove_word(self, row) -> None:
+    def remove_word(self, row: int) -> None:
         w = self.word_for_row(row)
         if w is not None:
             if dictionaries.remove_from_user_dictionaries(*w):
@@ -994,7 +1016,7 @@ class WordsModel(QAbstractTableModel):
                 self.update_word(w)
                 self.update_counts()
 
-    def replace_word(self, w, new_word):
+    def replace_word(self, w: WordKey, new_word: str) -> WordKey:
         # Hack to deal with replacement words that are actually multiple words,
         # ignore all words except the first
         try:
@@ -1023,7 +1045,7 @@ class WordsModel(QAbstractTableModel):
         self.words.pop(w, None)
         return new_key
 
-    def update_word(self, w) -> None:
+    def update_word(self, w: WordKey) -> None:
         should_be_filtered = not self.filter_item(w)
         row = self.row_for_word(w)
         if should_be_filtered and row != -1:
@@ -1038,13 +1060,13 @@ class WordsModel(QAbstractTableModel):
             self.endInsertRows()
         self.dataChanged.emit(self.index(row, 3), self.index(row, 3))
 
-    def word_for_row(self, row):
+    def word_for_row(self, row: int) -> WordKey | None:
         try:
             return self.items[row]
         except IndexError:
             pass
 
-    def row_for_word(self, word):
+    def row_for_word(self, word: WordKey) -> int:
         try:
             return self.items.index(word)
         except ValueError:
@@ -1057,7 +1079,7 @@ class WordsView(QTableView):
     change_to = pyqtSignal(object, object)
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QTableView.__init__(self, parent)
         self.setSortingEnabled(True), self.setShowGrid(False), self.setAlternatingRowColors(True)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
@@ -1066,7 +1088,7 @@ class WordsView(QTableView):
         assert vh is not None
         vh.close()
 
-    def change_current_word_by(self, delta=1) -> None:
+    def change_current_word_by(self, delta: int = 1) -> None:
         wv_model = self.model()
         assert wv_model is not None
         rc = wv_model.rowCount()
@@ -1081,7 +1103,8 @@ class WordsView(QTableView):
     def previous_word(self) -> None:
         self.change_current_word_by(-1)
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e == QKeySequence.StandardKey.Copy:
             self.copy_to_clipboard()
             e.accept()
@@ -1093,7 +1116,7 @@ class WordsView(QTableView):
             self.scrollTo(after)
         return ret
 
-    def highlight_row(self, row) -> None:
+    def highlight_row(self, row: int) -> None:
         wv_model = self.model()
         assert wv_model is not None
         idx = wv_model.index(row, 0)
@@ -1102,13 +1125,15 @@ class WordsView(QTableView):
             self.setCurrentIndex(idx)
             self.scrollTo(idx)
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         m = QMenu(self)
         wv_model = self.model()
         assert isinstance(wv_model, WordsModel)
         w = wv_model.word_for_row(self.currentIndex().row())
         if w is not None:
             a = m.addAction(_('Change %s to') % w[0])
+            assert a is not None
             cm = QMenu(self)
             a.setMenu(cm)
             cm.addAction(_('Specify replacement manually'), partial(self.change_to.emit, w, None))
@@ -1132,30 +1157,28 @@ class WordsView(QTableView):
         rows = {i.row() for i in self.selectedIndexes()}
         wv_model2 = self.model()
         assert isinstance(wv_model2, WordsModel)
-        words = {wv_model2.word_for_row(r) for r in rows}
-        words.discard(None)
-        words = sorted({w[0] for w in words}, key=sort_key)
+        words = sorted({w[0] for r in rows if (w := wv_model2.word_for_row(r)) is not None}, key=sort_key)
         if words:
             cb = QApplication.clipboard()
             assert cb is not None
             cb.setText('\n'.join(words))
 
-    def currentChanged(self, current, previous) -> None:
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         self.current_changed.emit(current, previous)
 
     @property
-    def current_word(self):
+    def current_word(self) -> WordKey | None:
         wv_model3 = self.model()
         assert isinstance(wv_model3, WordsModel)
         return wv_model3.word_for_row(self.currentIndex().row())
 
 
 class ManageExcludedFiles(Dialog):
-    def __init__(self, parent, excluded_files) -> None:
+    def __init__(self, parent: QWidget | None, excluded_files: Iterable[str]) -> None:
         self.orig_excluded_files = frozenset(excluded_files)
         super().__init__(_('Exclude files from spell check'), 'spell-check-exclude-files2', parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(500, 600)
 
     def setup_ui(self) -> None:
@@ -1183,7 +1206,7 @@ class ManageExcludedFiles(Dialog):
         l.addWidget(self.bb)
 
     @property
-    def excluded_files(self):
+    def excluded_files(self) -> set[str]:
         return {item.text() for item in self.files.selectedItems()}
 
 
@@ -1205,19 +1228,19 @@ class SpellCheck(Dialog):
     word_ignored = pyqtSignal(object, object)
     change_requested = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
-        self.__current_word = None
+    def __init__(self, parent: QWidget | None = None) -> None:
+        self.__current_word: WordKey | None = None
         self.refresh_thread: Thread | None = None
         self.cancel = False
         dictionaries.initialize()
         self.current_word_changed_timer = t = QTimer()
         t.timeout.connect(self.do_current_word_changed)
         t.setSingleShot(True), t.setInterval(100)
-        self.excluded_files = set()
+        self.excluded_files: set[str] = set()
         Dialog.__init__(self, _('Check spelling'), 'spell-check', parent)
         self.work_finished.connect(self.work_done, type=Qt.ConnectionType.QueuedConnection)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
-        self.undo_cache = {}
+        self.undo_cache: UndoCache = {}
 
     def setup_ui(self) -> None:
         self.state_name = 'spell-check-table-state-' + QT_VERSION_STR.partition('.')[0]
@@ -1236,7 +1259,7 @@ class SpellCheck(Dialog):
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
 
-        def action_button(text):
+        def action_button(text: str) -> QPushButton:
             b = QPushButton(text, self)
             b.setAutoDefault(False)
             ab.addWidget(b)
@@ -1284,7 +1307,7 @@ class SpellCheck(Dialog):
         h.addWidget(QLabel(_('Also hide words:')))
         any_hide_checked = False
 
-        def hw(name, title, tooltip):
+        def hw(name: str, title: str, tooltip: str) -> QCheckBox:
             nonlocal any_hide_checked
             ac = QCheckBox(title)
             pref_name = f'spell-check-hide-words-{name}'
@@ -1397,7 +1420,7 @@ class SpellCheck(Dialog):
         a.setShortcut(QKeySequence(Qt.Key.Key_Up))
         self.addAction(a)
 
-        def button_action(sc, tt, button):
+        def button_action(sc: str, tt: str, button: QPushButton) -> QAction:
             a = QAction(self)
             self.addAction(a)
             a.setShortcut(QKeySequence(sc, QKeySequence.SequenceFormat.PortableText))
@@ -1410,7 +1433,7 @@ class SpellCheck(Dialog):
         if any_hide_checked:
             QTimer.singleShot(0, self.do_filter)
 
-    def hide_words_toggled(self, checked) -> None:
+    def hide_words_toggled(self, checked: bool) -> None:
         cb = self.sender()
         assert cb is not None
         pref_name = cb.objectName()
@@ -1429,7 +1452,8 @@ class SpellCheck(Dialog):
         v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
         v.previous_word()
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             a0.accept()
             return
@@ -1490,7 +1514,7 @@ class SpellCheck(Dialog):
     def show_next_occurrence(self) -> None:
         self.word_activated(self.words_view.currentIndex())
 
-    def word_activated(self, index) -> None:
+    def word_activated(self, index: QModelIndex) -> None:
         w = self.words_model.word_for_row(index.row())
         if w is None:
             return
@@ -1506,7 +1530,7 @@ class SpellCheck(Dialog):
         self.user_dictionaries.setVisible(self.user_dictionaries.count() > 0)
         self.user_dictionaries_missing_label.setVisible(not self.user_dictionaries.isVisible())
 
-    def current_word_changed(self, *args) -> None:
+    def current_word_changed(self, *args: object) -> None:
         self.current_word_changed_timer.start(self.current_word_changed_timer.interval())
 
     def do_current_word_changed(self) -> None:
@@ -1526,6 +1550,7 @@ class SpellCheck(Dialog):
                 current_word = w[0]
                 if recognized:
                     in_user_dictionary = dictionaries.word_in_user_dictionary(*w)
+            assert w is not None
             suggestions = dictionaries.suggestions(*w)
             self.suggested_list.clear()
             word_suggested = False
@@ -1557,11 +1582,9 @@ class SpellCheck(Dialog):
             b.setToolTip(getattr(b, 'remove_tt') if in_user_dictionary else getattr(b, 'add_tt'))
             self.user_dictionaries.setVisible(not in_user_dictionary)
 
-    def current_suggestion_changed(self, item) -> None:
-        try:
+    def current_suggestion_changed(self, item: QListWidgetItem | None) -> None:
+        if item is not None:
             self.suggested_word.setText(item.text())
-        except AttributeError:
-            pass  # item is None
 
     def change_word(self) -> None:
         current = self.words_view.currentIndex()
@@ -1574,17 +1597,17 @@ class SpellCheck(Dialog):
         new_word = str(self.suggested_word.text())
         self.change_requested.emit(w, new_word)
 
-    def change_word_after_update(self, w, new_word) -> None:
+    def change_word_after_update(self, w: WordKey, new_word: str) -> None:
         self.refresh(change_request=(w, new_word))
 
-    def change_to(self, w, new_word) -> None:
+    def change_to(self, w: WordKey, new_word: str | None) -> None:
         if new_word is None:
             self.suggested_word.setFocus(Qt.FocusReason.OtherFocusReason)
             self.suggested_word.clear()
             return
         self.change_requested.emit(w, new_word)
 
-    def do_change_word(self, w, new_word) -> None:
+    def do_change_word(self, w: WordKey, new_word: str) -> None:
         current_row = self.words_view.currentIndex().row()
         self.undo_cache.clear()
         changed_files = replace_word(current_container(), new_word, self.words_model.words[w], w[1], undo_cache=self.undo_cache)
@@ -1599,7 +1622,7 @@ class SpellCheck(Dialog):
             if row > -1:
                 self.words_view.highlight_row(row)
 
-    def undo_last_change(self):
+    def undo_last_change(self) -> int | MessageBox | None:
         if not self.undo_cache:
             return error_dialog(self, _('No changed word'), _('There is no spelling replacement to undo'), show=True)
         changed_files = undo_replace_word(current_container(), self.undo_cache)
@@ -1621,7 +1644,7 @@ class SpellCheck(Dialog):
         if rows:
             self.words_model.ignore_words(rows)
 
-    def add_all(self, dicname) -> None:
+    def add_all(self, dicname: str) -> None:
         sm = self.words_view.selectionModel()
         assert sm is not None
         rows = {i.row() for i in sm.selectedRows()}
@@ -1638,11 +1661,11 @@ class SpellCheck(Dialog):
             else:
                 self.words_model.remove_word(current.row())
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         idx = self.words_view.currentIndex().row()
         self.__current_word = self.words_model.word_for_row(idx)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         if self.__current_word is not None:
             row = self.words_model.row_for_word(self.__current_word)
             self.words_view.highlight_row(max(0, row))
@@ -1660,7 +1683,7 @@ class SpellCheck(Dialog):
                 show_only_misspelt=self.show_only_misspelt.isChecked(),
             )
 
-    def refresh(self, change_request=None) -> None:
+    def refresh(self, change_request: ChangeRequest | None = None) -> None:
         if not self.isVisible():
             return
         self.cancel = True
@@ -1674,7 +1697,7 @@ class SpellCheck(Dialog):
         self.cancel = False
         self.refresh_thread.start()
 
-    def get_words(self, change_request=None) -> None:
+    def get_words(self, change_request: ChangeRequest | None = None) -> None:
         try:
             words = get_all_words(current_container(), dictionaries.default_locale, excluded_files=self.excluded_files)
             spell_map = {w: dictionaries.recognized(*w) for w in words}
@@ -1695,7 +1718,9 @@ class SpellCheck(Dialog):
         self.progress_indicator.stopAnimation()
         self.words_model.clear()
 
-    def work_done(self, words, spell_map, change_request):
+    def work_done(
+        self, words: dict[WordKey, list[Location]] | str, spell_map: dict[WordKey, bool], change_request: ChangeRequest | None
+    ) -> int | MessageBox | None:
         row = self.words_view.rowAt(5)
         before_word = self.words_view.current_word
         self.end_work()
@@ -1710,7 +1735,7 @@ class SpellCheck(Dialog):
         if not self.isVisible():
             return
         self.words_model.set_data(words, spell_map)
-        wrow = self.words_model.row_for_word(before_word)
+        wrow = -1 if before_word is None else self.words_model.row_for_word(before_word)
         if 0 <= wrow < self.words_model.rowCount():
             row = wrow
         if row < 0 or row >= self.words_model.rowCount():
@@ -1750,7 +1775,7 @@ class SpellCheck(Dialog):
         else:
             self.setWindowTitle(_('Spellcheck showing: {0} misspelled of {1} total words').format(misspelled, total))
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(1000, 650)
 
     def show(self) -> None:
@@ -1787,7 +1812,15 @@ class SpellCheck(Dialog):
 # Find next occurrence {{{
 
 
-def find_next(word, locations, current_editor, current_editor_name, gui_parent, show_editor, edit_file) -> bool:
+def find_next(
+    word: WordKey,
+    locations: Iterable[Location],
+    current_editor: EditorType | None,
+    current_editor_name: str | None,
+    gui_parent: QWidget | None,
+    show_editor: Callable[[str], object],
+    edit_file: Callable[[str], object],
+) -> bool:
     files = OrderedDict()
     for l in locations:
         try:
@@ -1795,9 +1828,9 @@ def find_next(word, locations, current_editor, current_editor_name, gui_parent, 
         except KeyError:
             files[l.file_name] = [l]
 
-    if current_editor_name not in files:
+    if current_editor_name is None or current_editor_name not in files:
         current_editor_name = None
-        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.items()]
+        search_locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.items()]
     else:
         # Re-order the list of locations to search so that we search in the
         # current editor first
@@ -1805,11 +1838,11 @@ def find_next(word, locations, current_editor, current_editor_name, gui_parent, 
         idx = lfiles.index(current_editor_name)
         before, after = lfiles[:idx], lfiles[idx + 1 :]
         lfiles = after + before + [current_editor_name]
-        locations = [(current_editor_name, {l.original_word for l in files[current_editor_name]}, True)]
+        search_locations = [(current_editor_name, {l.original_word for l in files[current_editor_name]}, True)]
         for fname in lfiles:
-            locations.append((fname, {l.original_word for l in files[fname]}, False))
+            search_locations.append((fname, {l.original_word for l in files[fname]}, False))
 
-    for file_name, original_words, from_cursor in locations:
+    for file_name, original_words, from_cursor in search_locations:
         ed = editors.get(file_name, None)
         if ed is None:
             edit_file(file_name)
@@ -1820,7 +1853,14 @@ def find_next(word, locations, current_editor, current_editor_name, gui_parent, 
     return False
 
 
-def find_next_error(current_editor, current_editor_name, gui_parent, show_editor, edit_file, close_editor) -> bool:
+def find_next_error(
+    current_editor: EditorType | None,
+    current_editor_name: str | None,
+    gui_parent: QWidget | None,
+    show_editor: Callable[[str], object],
+    edit_file: Callable[[str], object],
+    close_editor: Callable[[str], object],
+) -> bool:
     files = get_checkable_file_names(current_container())[0]
     if current_editor_name not in files:
         current_editor_name = None

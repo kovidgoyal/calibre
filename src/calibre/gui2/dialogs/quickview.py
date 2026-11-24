@@ -3,6 +3,7 @@
 
 import traceback
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -30,22 +31,38 @@ from calibre.utils.icu import sort_key
 from calibre.utils.iso8601 import UNDEFINED_DATE
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from datetime import datetime
+    from typing import TypeGuard
+
+    from _typeshed import SupportsAllComparisons
+    from qt.core import QKeyEvent, QKeySequence, QListWidget, QModelIndex, QPoint, QResizeEvent, QTableWidget, pyqtBoundSignal
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.ui import Main
+    from calibre.library.field_metadata import FieldMetadata
+
+    # display value, sort value, secondary sort value
+    type ItemData = tuple[object, object, object]
+
 
 class TableItem(QTableWidgetItem):
     """
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     """
 
-    def __init__(self, getter=None) -> None:
-        self.val = ''
-        self.sort = None
-        self.sort_idx = 0
+    def __init__(self, getter: Callable[[], ItemData] | None = None) -> None:
+        self.val: object = ''
+        self.sort: SupportsAllComparisons | None = None
+        self.sort_idx: float = 0
         self.getter = getter
         self.resolved = False
         QTableWidgetItem.__init__(self, '')
         self.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
 
-    def __ge__(self, other):
+    def __ge__(self, other: QTableWidgetItem) -> bool:
+        other = cast('TableItem', other)  # the books table contains only TableItems
         self.get_data()
         other.get_data()
         if self.sort is None:
@@ -65,12 +82,13 @@ class TableItem(QTableWidgetItem):
             l = self.sort
             r = other.sort
         if l > r:
-            return 1
+            return True
         if l == r:
             return self.sort_idx >= other.sort_idx
-        return 0
+        return False
 
-    def __lt__(self, other):
+    def __lt__(self, other: QTableWidgetItem) -> bool:
+        other = cast('TableItem', other)  # the books table contains only TableItems
         self.get_data()
         other.get_data()
         if self.sort is None:
@@ -90,17 +108,18 @@ class TableItem(QTableWidgetItem):
             l = self.sort
             r = other.sort
         if l < r:
-            return 1
+            return True
         if l == r:
             return self.sort_idx < other.sort_idx
-        return 0
+        return False
 
     def get_data(self) -> None:
         if not self.resolved and self.getter:
             self.resolved = True
-            self.val, self.sort, self.sort_idx = self.getter()
+            # The sort values are always mutually comparable
+            self.val, self.sort, self.sort_idx = cast('tuple[object, SupportsAllComparisons | None, float]', self.getter())
 
-    def data(self, role):
+    def data(self, role: int) -> object:
         self.get_data()
         if role == Qt.ItemDataRole.DisplayRole:
             return self.val
@@ -118,8 +137,8 @@ IN_WIDGET_CLOSE = 5
 class BooksTableFilter(QObject):
     return_pressed_signal = pyqtSignal()
 
-    def eventFilter(self, a0, a1) -> bool:
-        if a1.type() == QEvent.Type.KeyPress and a1.key() == Qt.Key.Key_Return:
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a1 is not None and a1.type() == QEvent.Type.KeyPress and cast('QKeyEvent', a1).key() == Qt.Key.Key_Return:
             self.return_pressed_signal.emit()
             return True
         return False
@@ -128,24 +147,24 @@ class BooksTableFilter(QObject):
 class WidgetFocusFilter(QObject):
     focus_entered_signal = pyqtSignal(object)
 
-    def eventFilter(self, a0, a1) -> bool:
-        if a1.type() == QEvent.Type.FocusIn:
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a1 is not None and a1.type() == QEvent.Type.FocusIn:
             self.focus_entered_signal.emit(a0)
         return False
 
 
 class WidgetTabFilter(QObject):
-    def __init__(self, attach_to_Class, which_widget, tab_signal) -> None:
+    def __init__(self, attach_to_Class: QObject | None, which_widget: int, tab_signal: pyqtBoundSignal) -> None:
         QObject.__init__(self, attach_to_Class)
         self.tab_signal = tab_signal
         self.which_widget = which_widget
 
-    def eventFilter(self, a0, a1) -> bool:
-        if a1.type() == QEvent.Type.KeyPress:
-            if a1.key() == Qt.Key.Key_Tab:
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a1 is not None and a1.type() == QEvent.Type.KeyPress:
+            if cast('QKeyEvent', a1).key() == Qt.Key.Key_Tab:
                 self.tab_signal.emit(self.which_widget, True)
                 return True
-            if a1.key() == Qt.Key.Key_Backtab:
+            if cast('QKeyEvent', a1).key() == Qt.Key.Key_Backtab:
                 self.tab_signal.emit(self.which_widget, False)
                 return True
         return False
@@ -156,7 +175,7 @@ class Quickview(QDialog, Ui_Quickview):
     tab_pressed_signal = pyqtSignal(object, object)
     quickview_closed = pyqtSignal()
 
-    def __init__(self, gui, row, toggle_shortcut, focus_booklist_shortcut=None) -> None:
+    def __init__(self, gui: Main, row: QModelIndex, toggle_shortcut: QKeySequence, focus_booklist_shortcut: QKeySequence | None = None) -> None:
         self.is_pane = gprefs.get('quickview_is_pane', False)
         if not self.is_pane:
             QDialog.__init__(self, None, flags=Qt.WindowType.Window)
@@ -185,16 +204,17 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = self.view.model().db
         self.gui = gui
         self.is_closed = False
-        self.current_book_id = None  # the db id of the book used to fill the lh pane
-        self.current_column = None  # current logical column in books list
-        self.current_key = None  # current lookup key in books list
-        self.last_search = None
+        self.current_book_id: int | None = None  # the db id of the book used to fill the lh pane
+        self.current_column: int | None = None  # current logical column in books list
+        self.current_key: str | None = None  # current lookup key in books list
+        self.last_search: str | None = None
         self.no_valid_items = False
         self.follow_library_view = True
 
         self.apply_vls.setCheckState(Qt.CheckState.Checked if gprefs['qv_respects_vls'] else Qt.CheckState.Unchecked)
         self.apply_vls.stateChanged.connect(self.vl_box_changed)
 
+        assert self.db is not None
         self.fm = self.db.field_metadata
 
         self.items.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -326,7 +346,7 @@ class Quickview(QDialog, Ui_Quickview):
         gui.activateWindow()
         gui.focus_current_view()
 
-    def delayed_slave(self, current, func=None, dex=None) -> None:
+    def delayed_slave[T](self, current: T, func: Callable[[T], None] | None = None, dex: int | None = None) -> None:
         assert func is not None and dex is not None
         self.slave_timers[dex].stop()
         t = self.slave_timers[dex] = QTimer(self)
@@ -335,16 +355,18 @@ class Quickview(QDialog, Ui_Quickview):
         t.setInterval(200)
         t.start()
 
-    def item_doubleclicked(self, item) -> None:
+    def item_doubleclicked(self, item: QListWidgetItem | None) -> None:
         gui = self.gui
         assert gui is not None
         tb = gui.tb_widget
         tb.set_focus_to_find_box()
         if self.current_key is not None:
-            tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
+            le = tb.item_search.lineEdit()
+            assert le is not None and item is not None
+            le.setText(self.current_key + ':=' + item.text())
         tb.do_find()
 
-    def show_item_context_menu(self, point) -> None:
+    def show_item_context_menu(self, point: QPoint) -> None:
         item = self.items.currentItem()
         self.context_menu = QMenu(self)
         self.context_menu.addAction(self.search_icon, _('Find item in the Tag browser'), partial(self.item_doubleclicked, item))
@@ -352,7 +374,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.context_menu.popup(self.items.mapToGlobal(point))
         self.context_menu = QMenu(self)
 
-    def show_context_menu(self, point) -> bool:
+    def show_context_menu(self, point: QPoint) -> bool:
         index = self.books_table.indexAt(point)
         row = index.row()
         column = index.column()
@@ -385,8 +407,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.context_menu.popup(self.books_table.mapToGlobal(point))
         return True
 
-    def lock_qv_changed(self, state) -> None:
-        self.refresh_button.setEnabled(state)
+    def lock_qv_changed(self, state: int) -> None:
+        self.refresh_button.setEnabled(bool(state))
 
     def add_columns_to_widget(self) -> None:
         """
@@ -410,19 +432,19 @@ class Quickview(QDialog, Ui_Quickview):
         assert view is not None
         self.refresh(view.currentIndex(), ignore_lock=True)
 
-    def set_search_text(self, txt) -> None:
+    def set_search_text(self, txt: str | None) -> None:
         self.last_search = txt
 
-    def focus_entered(self, obj) -> None:
+    def focus_entered(self, obj: QTableWidget | QListWidget) -> None:
         if obj == self.books_table:
             self.books_table_set_search_string(self.books_table.currentRow(), self.books_table.currentColumn())
-        elif obj.currentItem():
-            self.item_selected(obj.currentItem().text())
+        elif ci := obj.currentItem():
+            self.item_selected(ci.text())
 
-    def books_table_cell_changed(self, cur_row, cur_col, prev_row, prev_col) -> None:
+    def books_table_cell_changed(self, cur_row: int, cur_col: int, prev_row: int, prev_col: int) -> None:
         self.books_table_set_search_string(cur_row, cur_col)
 
-    def books_table_set_search_string(self, current_row, current_col) -> None:
+    def books_table_set_search_string(self, current_row: int, current_col: int) -> None:
         """
         Given the contents of a cell, compute a search string that will find
         that book and any others with identical contents in the cell.
@@ -448,7 +470,7 @@ class Quickview(QDialog, Ui_Quickview):
             mi = db.get_metadata(book_id, index_is_id=True, get_user_categories=False)
             t = mi.get(col)
             if t:
-                self.set_search_text(col + ':="' + t + '"')
+                self.set_search_text(f'{col}:="{t}"')
             else:
                 self.set_search_text(None)
         elif self.fm[col]['is_multiple']:
@@ -457,7 +479,7 @@ class Quickview(QDialog, Ui_Quickview):
         else:
             self.set_search_text(col + ':"=' + current.text() + '"')
 
-    def tab_pressed(self, in_widget, isForward) -> None:
+    def tab_pressed(self, in_widget: int, isForward: bool) -> None:
         if isForward:
             in_widget += 1
             if in_widget >= len(self.tab_order_widgets):
@@ -480,7 +502,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.reopen_after_dock_change.emit()
 
     # search button
-    def do_search(self, follow_library_view=True) -> None:
+    def do_search(self, follow_library_view: bool = True) -> None:
         if self.no_valid_items:
             return
         if self.last_search is not None:
@@ -492,7 +514,7 @@ class Quickview(QDialog, Ui_Quickview):
             finally:
                 self.follow_library_view = True
 
-    def book_was_changed(self, mi) -> None:
+    def book_was_changed(self, mi: Metadata) -> None:
         """
         Called when book information is changed in the library view. Make that
         book info current. This means that prev and next in edit metadata will move
@@ -516,7 +538,7 @@ class Quickview(QDialog, Ui_Quickview):
             pass
 
     # clicks on the items listWidget
-    def item_selected(self, txt) -> None:
+    def item_selected(self, txt: str) -> None:
         if self.no_valid_items:
             return
         self.fill_in_books_box(str(txt))
@@ -527,7 +549,7 @@ class Quickview(QDialog, Ui_Quickview):
         gprefs['qv_respects_vls'] = self.apply_vls.isChecked()
         self._refresh(self.current_book_id, self.current_key)
 
-    def refresh(self, idx, ignore_lock=False) -> None:
+    def refresh(self, idx: QModelIndex, ignore_lock: bool = False) -> None:
         """
         Given a cell in the library view, display the information. This method
         converts the index into the lookup key
@@ -558,13 +580,13 @@ class Quickview(QDialog, Ui_Quickview):
             traceback.print_exc()
             self.indicate_no_items()
 
-    def is_category(self, key):
+    def is_category(self, key: str | None) -> TypeGuard[str]:
         return key is not None and (
             self.fm[key]['table'] is not None
             and (self.fm[key]['is_category'] or (self.fm[key]['datatype'] == 'composite' and self.fm[key]['display'].get('make_category', False)))
         )
 
-    def _refresh(self, book_id, key) -> None:
+    def _refresh(self, book_id: int | None, key: str | None) -> None:
         """
         Actually fill in the left-hand panel from the information in the
         selected column of the selected book
@@ -585,8 +607,10 @@ class Quickview(QDialog, Ui_Quickview):
 
         db = self.db
         assert db is not None
+        assert book_id is not None  # current_book_id is only None when current_key is None
         mi = db.new_api.get_proxy_metadata(book_id)
-        vals = db.new_api.split_if_is_multiple_composite(key, mi.get(key, None))
+        # The values of category fields are str or list of str, except ratings which are numbers
+        vals = cast('str | list[str] | None', db.new_api.split_if_is_multiple_composite(key, mi.get(key, None)))
         try:
             # Check if we are in the GridView and there are no values for the
             # selected column. In this case switch the column to 'authors'
@@ -595,10 +619,12 @@ class Quickview(QDialog, Ui_Quickview):
             if not vals:
                 gui = self.gui
                 assert gui is not None
-                is_grid_view = gui.current_view().alternate_views.current_view != gui.current_view().alternate_views.main_view
+                cv = gui.current_view()
+                assert cv is not None
+                is_grid_view = cv.alternate_views.current_view != cv.alternate_views.main_view
                 if is_grid_view:
                     key = 'authors'
-                    vals = mi.get(key, None)
+                    vals = cast('list[str]', mi.get(key, None))
         except Exception:
             traceback.print_exc()
 
@@ -609,10 +635,11 @@ class Quickview(QDialog, Ui_Quickview):
         if vals:
             self.no_valid_items = False
             if self.fm[key]['datatype'] == 'rating':
+                rating = cast('int', vals)
                 if self.fm[key]['display'].get('allow_half_stars', False):
-                    vals = str(vals / 2.0)
+                    vals = str(rating / 2.0)
                 else:
-                    vals = str(vals // 2)
+                    vals = str(rating // 2)
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)
@@ -639,7 +666,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.addItem(QListWidgetItem(_('**No items found**')))
         self.books_label.setText(_('Click in a column  in the library view to see the information for that book'))
 
-    def fill_in_books_box(self, selected_item) -> None:
+    def fill_in_books_box(self, selected_item: str) -> None:
         """
         Given the selected row in the left-hand box, fill in the grid with
         the books that contain that data.
@@ -654,7 +681,7 @@ class Quickview(QDialog, Ui_Quickview):
         db = self.db
         assert db is not None
         if self.apply_vls.isChecked():
-            books = db.search(sv, return_matches=True, sort_results=False)
+            books = cast('list[int]', db.search(sv, return_matches=True, sort_results=False))
         else:
             books = db.new_api.search(sv)
 
@@ -695,7 +722,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.books_table.scrollToItem(select_item, QAbstractItemView.ScrollHint.PositionAtCenter)
         self.set_search_text(sv)
 
-    def get_item_data(self, book_id, col):
+    def get_item_data(self, book_id: int, col: str) -> ItemData:
         db = self.db
         assert db is not None
         mi = db.new_api.get_proxy_metadata(book_id)
@@ -724,7 +751,7 @@ class Quickview(QDialog, Ui_Quickview):
                 d = mi.get(col)
                 if d is None:
                     d = UNDEFINED_DATE
-                return v, timestampfromdt(d), 0
+                return v, timestampfromdt(cast('datetime', d)), 0
             elif self.fm[col]['datatype'] in ('float', 'int'):
                 v = mi.format_field(col)[1]
                 sort_val = mi.get(col)
@@ -738,7 +765,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, a0=None) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None = None) -> None:
         QDialog.resizeEvent(self, a0)
 
         if self.books_table_column_widths is not None:
@@ -756,7 +783,8 @@ class Quickview(QDialog, Ui_Quickview):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
 
-    def key_to_table_widget_column(self, key):
+    def key_to_table_widget_column(self, key: str | None) -> int:
+        assert key is not None
         return self.column_order.index(key)
 
     def return_pressed(self) -> None:
@@ -779,7 +807,7 @@ class Quickview(QDialog, Ui_Quickview):
             show_copy_button=False,
         )
 
-    def book_displayed_in_library_view(self, book_id) -> bool:
+    def book_displayed_in_library_view(self, book_id: int) -> bool:
         try:
             db = self.db
             assert db is not None
@@ -788,10 +816,10 @@ class Quickview(QDialog, Ui_Quickview):
         except Exception:
             return False
 
-    def quickview_item(self, row, column) -> None:
+    def quickview_item(self, row: int, column: int) -> None:
         self.select_book_and_qv(row, column)
 
-    def book_doubleclicked(self, row, column) -> None:
+    def book_doubleclicked(self, row: int, column: int) -> None:
         if self.no_valid_items:
             return
         try:
@@ -803,7 +831,7 @@ class Quickview(QDialog, Ui_Quickview):
             traceback.print_exc()
             self.book_not_in_view_error()
 
-    def edit_metadata(self, book_id, follow_library_view=True) -> None:
+    def edit_metadata(self, book_id: int, follow_library_view: bool = True) -> None:
         try:
             self.follow_library_view = follow_library_view
             view = self.view
@@ -815,13 +843,13 @@ class Quickview(QDialog, Ui_Quickview):
         finally:
             self.follow_library_view = True
 
-    def show_book_details(self, book_id) -> None:
+    def show_book_details(self, book_id: int) -> None:
         try:
             self.show_details_plugin.show_book_info(book_id=book_id, locked=True)
         finally:
             pass
 
-    def select_book(self, book_id) -> None:
+    def select_book(self, book_id: int) -> None:
         """
         Select a book in the library view without changing the QV lists
         """
@@ -831,11 +859,12 @@ class Quickview(QDialog, Ui_Quickview):
             assert view is not None
             db = self.db
             assert db is not None
+            assert self.current_column is not None
             view.select_cell(db.data.id_to_index(book_id), self.current_column)
         finally:
             self.follow_library_view = True
 
-    def select_book_and_qv(self, row, column) -> None:
+    def select_book_and_qv(self, row: int, column: int) -> None:
         """
         row and column both refer the qv table. In particular, column is not
         the logical column in the book list.
@@ -870,14 +899,14 @@ class Quickview(QDialog, Ui_Quickview):
         self.activateWindow()
         self.books_table.setFocus()
 
-    def column_slave(self, current) -> None:
+    def column_slave(self, current: QModelIndex) -> None:
         """
         called when the column is changed on the booklist
         """
         if self.follow_library_view and gprefs['qv_follows_column']:
             self.slave(current)
 
-    def slave(self, current) -> None:
+    def slave(self, current: QModelIndex) -> None:
         """
         called when a book is clicked on the library view
         """
@@ -888,7 +917,7 @@ class Quickview(QDialog, Ui_Quickview):
         assert view is not None
         view.activateWindow()
 
-    def section_resized(self, logicalIndex, oldSize, newSize) -> None:
+    def section_resized(self, logicalIndex: int, oldSize: int, newSize: int) -> None:
         self.save_state()
 
     def save_state(self) -> None:
@@ -927,7 +956,7 @@ class Quickview(QDialog, Ui_Quickview):
         QDialog.reject(self)
 
 
-def get_qv_field_list(fm, use_defaults=False):
+def get_qv_field_list(fm: FieldMetadata, use_defaults: bool = False) -> list[tuple[str, bool]]:
     from calibre.gui2.ui import get_gui
 
     db = get_gui(fail_if_absent=True).current_db

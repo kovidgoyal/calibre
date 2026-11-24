@@ -765,7 +765,9 @@ class Text(Base):
             get_gui(fail_if_absent=True).do_tags_list_edit(None, self.key)
             self.initialize(cast('int', self.book_id))
         else:
-            d = TagEditor(self.parent, self.db, self.book_id, self.key)
+            db = self.db
+            assert db is not None
+            d = TagEditor(self.parent, db, self.book_id, self.key)
             if d.exec() == QDialog.DialogCode.Accepted:
                 self.setter(d.tags)
 
@@ -1817,7 +1819,9 @@ class BulkText(BulkBase):
             if d in (QMessageBox.StandardButton.Cancel, QMessageBox.StandardButton.No):
                 return
             widget.setText('')
-        d = TagEditor(self.parent, self.db, key=('#' + self.col_metadata['label']))
+        db = self.db
+        assert db is not None
+        d = TagEditor(self.parent, db, key=('#' + self.col_metadata['label']))
         if d.exec() == QDialog.DialogCode.Accepted:
             val = d.tags
             if not val:
