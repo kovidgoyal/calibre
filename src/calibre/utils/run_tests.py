@@ -892,6 +892,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.gui2.library.test_annotations import find_tests
 
         a(find_tests())
+        from calibre.gui2.tweak_book.test_undo import find_tests
+
+        a(find_tests())
         from calibre.gui2.tag_mapper import find_tests
 
         a(find_tests())
