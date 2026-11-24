@@ -133,7 +133,9 @@ def background_image(encoded_fname: str = '') -> tuple[str, bytes]:
         img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=iswindows)
     except ValueError, UnicodeDecodeError:
         return 'image/jpeg', b''
-    mt = guess_type(fname)[0] or 'image/jpeg'
+    mt = guess_type(fname)
+    if mt == 'application/octet-stream':
+        mt = 'image/jpeg'
     try:
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
