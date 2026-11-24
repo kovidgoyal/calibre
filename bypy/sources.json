@@ -71,6 +71,17 @@
     },
 
     {
+        "name": "pkg-config 0.29.2",
+        "os": "macos",
+		"type": "build",
+        "unix": {
+            "file_extension": "tar.gz",
+            "hash": "sha256:6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591",
+            "urls": ["https://pkgconfig.freedesktop.org/releases/{filename}"]
+        }
+    },
+
+    {
         "name": "easylzma 3b53709da1f2c57b9695019266bca338d7cdb734",
         "os": "windows",
 		"type": "build",
