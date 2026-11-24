@@ -1945,7 +1945,7 @@ def suite() -> unittest.TestSuite:
             )
             self.opf = OPF(self.stream, os.getcwd())
 
-        def testReading(self, opf: OPF | None = None) -> None:
+        def test_reading(self, opf: OPF | None = None) -> None:
             if opf is None:
                 opf = self.opf
             self.assertEqual(opf.title, 'A Cool & \xa9 \xdf Title')
@@ -1961,7 +1961,7 @@ def suite() -> unittest.TestSuite:
             self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
             self.assertEqual(opf.get_identifiers(), {'isbn': '123456789', 'dummy': 'dummy'})
 
-        def testWriting(self) -> None:
+        def test_writing(self) -> None:
             for test in [
                 ('title', 'New & Title'),
                 ('authors', ['One', 'Two']),
@@ -1978,16 +1978,16 @@ def suite() -> unittest.TestSuite:
 
             self.opf.render()
 
-        def testCreator(self) -> None:
+        def test_creator(self) -> None:
             opf = OPFCreator(os.getcwd(), self.opf)
             buf = io.BytesIO()
             opf.render(buf)
             raw = buf.getvalue()
-            self.testReading(opf=OPF(io.BytesIO(raw), os.getcwd()))
+            self.test_reading(opf=OPF(io.BytesIO(raw), os.getcwd()))
 
-        def testSmartUpdate(self) -> None:
+        def test_smart_update(self) -> None:
             self.opf.smart_update(MetaInformation(self.opf))
-            self.testReading()
+            self.test_reading()
 
         def test_opf_identifiers_are_escaped(self) -> None:
             evil = 'x</dc:identifier><dc:title>injected</dc:title><dc:identifier>&amp;'
