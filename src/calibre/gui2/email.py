@@ -9,7 +9,7 @@ from collections import defaultdict
 from functools import partial
 from itertools import repeat
 from threading import Thread
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Unpack
 
 from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, Qt
 
@@ -28,15 +28,27 @@ from calibre.utils.smtp import config as email_config
 from polyglot.binary import from_hex_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
+    from threading import Event
+
+    from qt.core import QWidget
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.jobs import JobManager
     from calibre.gui2.ui import Main
+    from calibre.utils.logging import GUILog, PrintKwargs
+
+    # (email address, formats, subject)
+    type Recipient = tuple[str, tuple[str, ...], str]
 
 
 class Worker(Thread):
-    def __init__(self, func, args) -> None:
+    def __init__(self, func: Callable[..., object], args: Sequence[object]) -> None:
         super().__init__(name='EmailWorker', daemon=True, target=self.do_work, args=(func, args))
-        self.exception = self.tb = None
+        self.exception: Exception | None = None
+        self.tb: str | None = None
 
-    def do_work(self, func, args) -> None:
+    def do_work(self, func: Callable[..., object], args: Sequence[object]) -> None:
         # time.sleep(1000)
         try:
             func(*args)
@@ -65,7 +77,17 @@ class Sendmail:
                     self.rate_limit = tweaks['public_smtp_relay_delay']
                     break
 
-    def __call__(self, attachment, aname, to, subject, text, log=None, abort=None, notifications=None):
+    def __call__(
+        self,
+        attachment: str,
+        aname: str,
+        to: str,
+        subject: str,
+        text: str,
+        log: GUILog | None = None,
+        abort: Event | None = None,
+        notifications: object = None,
+    ) -> None:
 
         try_count = 0
         while True:
@@ -96,7 +118,7 @@ class Sendmail:
             if try_count > self.MAX_RETRIES:
                 raise worker.exception
 
-    def sendmail(self, attachment, aname, to, subject, text, log) -> None:
+    def sendmail(self, attachment: str, aname: str, to: str, subject: str, text: str, log: GUILog) -> None:
         logged = False
         while time.time() - self.last_send_time <= self.rate_limit:
             if not logged and self.rate_limit > 0:
@@ -115,7 +137,7 @@ class Sendmail:
             for x in to.split(','):
                 eto.append(extract_email_address(x.strip()))
 
-            def safe_debug(*args, **kwargs):
+            def safe_debug(*args: object, **kwargs: Unpack[PrintKwargs]) -> None:
                 try:
                     return log.debug(*args, **kwargs)
                 except Exception:
@@ -146,11 +168,20 @@ class Sendmail:
 gui_sendmail = Sendmail()
 
 
-def is_for_kindle(to):
+def is_for_kindle(to: object) -> bool:
     return isinstance(to, str) and ('@kindle.com' in to or '@kindle.cn' in to or '@free.kindle.com' in to or '@free.kindle.cn' in to)
 
 
-def send_mails(jobnames, callback, attachments, to_s, subjects, texts, attachment_names, job_manager) -> None:
+def send_mails(
+    jobnames: Iterable[str],
+    callback: Callable[[ThreadedJob], object],
+    attachments: Iterable[str],
+    to_s: Iterable[str],
+    subjects: Iterable[str],
+    texts: Iterable[str],
+    attachment_names: Iterable[str],
+    job_manager: JobManager,
+) -> None:
     for name, attachment, to, subject, text, aname in zip(jobnames, attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         if isinstance(to, str) and (is_for_kindle(to) or '@pbsync.com' in to):
@@ -180,7 +211,13 @@ def send_mails(jobnames, callback, attachments, to_s, subjects, texts, attachmen
         job_manager.run_threaded_job(job)
 
 
-def email_news(mi, remove, get_fmts, done, job_manager):
+def email_news(
+    mi: Metadata,
+    remove: list[int],
+    get_fmts: Callable[[list[str]], Iterable[str | None]],
+    done: Callable[..., object],
+    job_manager: JobManager,
+) -> list[str]:
     opts = email_config().parse()
     accounts = [(account, [x.strip().lower() for x in x[0].split(',')]) for account, x in opts.accounts.items() if x[1]]
     sent_mails = []
@@ -221,7 +258,7 @@ plugboard_email_formats = ['epub', 'mobi', 'azw3']
 
 
 class SelectRecipients(QDialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self._layout = l = QGridLayout(self)
         self.setLayout(l)
@@ -272,7 +309,7 @@ class SelectRecipients(QDialog):  # {{{
         self.resize(self.sizeHint())
         self.init_list()
 
-    def add_recipient(self):
+    def add_recipient(self) -> int | None:
         to = str(self.address.text()).strip()
         if not to:
             return error_dialog(self, _('Need address'), _('You must specify an address'), show=True)
@@ -300,7 +337,7 @@ class SelectRecipients(QDialog):  # {{{
             c.set('subjects', opts.subjects)
         self.create_item(alias or to, to, checked=True)
 
-    def create_item(self, alias, key, checked=False) -> None:
+    def create_item(self, alias: str, key: str, checked: bool = False) -> None:
         i = QListWidgetItem(alias, self.recipients)
         i.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
         i.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
@@ -309,23 +346,24 @@ class SelectRecipients(QDialog):  # {{{
 
     def init_list(self) -> None:
         opts = email_config().parse()
-        self.items = []
+        self.items: list[QListWidgetItem] = []
 
-        def sk(account):
+        def sk(account: str) -> bytes:
             return primary_sort_key(opts.aliases.get(account) or account)
 
         for key in sorted(opts.accounts or (), key=sk):
             self.create_item(opts.aliases.get(key, key), key)
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.ans:
-            return error_dialog(self, _('No recipients'), _('You must select at least one recipient'), show=True)
+            error_dialog(self, _('No recipients'), _('You must select at least one recipient'), show=True)
+            return
         QDialog.accept(self)
 
     @property
-    def ans(self):
+    def ans(self) -> list[Recipient]:
         opts = email_config().parse()
-        ans = []
+        ans: list[Recipient] = []
         for i in self.items:
             if i.checkState() == Qt.CheckState.Checked:
                 to = str(i.data(Qt.ItemDataRole.UserRole) or '')
@@ -335,7 +373,7 @@ class SelectRecipients(QDialog):  # {{{
         return ans
 
 
-def select_recipients(parent=None):
+def select_recipients(parent: QWidget | None = None) -> list[Recipient] | tuple[()]:
     d = SelectRecipients(parent)
     if d.exec() == QDialog.DialogCode.Accepted:
         return d.ans
@@ -346,7 +384,7 @@ def select_recipients(parent=None):
 
 
 class EmailMixin:  # {{{
-    def send_multiple_by_mail(self: Main, recipients, delete_from_library) -> None:
+    def send_multiple_by_mail(self: Main, recipients: Iterable[tuple[str, Sequence[str], str]], delete_from_library: bool) -> None:
         sm = self.library_view.selectionModel()
         assert sm is not None
         ids = {self.library_view._model.id(r) for r in sm.selectedRows()}
@@ -401,7 +439,16 @@ class EmailMixin:  # {{{
                 show=True,
             )
 
-    def send_by_mail(self: Main, to, fmts, delete_from_library, subject='', send_ids=None, do_auto_convert=True, specific_format=None) -> None:
+    def send_by_mail(
+        self: Main,
+        to: str,
+        fmts: Sequence[str],
+        delete_from_library: bool,
+        subject: str = '',
+        send_ids: Collection[int] | None = None,
+        do_auto_convert: bool = True,
+        specific_format: str | None = None,
+    ) -> None:
         ids = [self.library_view._model.id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
             return
@@ -530,7 +577,7 @@ class EmailMixin:  # {{{
             )
             d.exec()
 
-    def email_sent(self: Main, job, remove=None) -> None:
+    def email_sent(self: Main, job: ThreadedJob, remove: list[int] | None = None) -> None:
         if remove is None:
             remove = []
         if job.failed:
@@ -550,11 +597,11 @@ class EmailMixin:  # {{{
                 # to delete the book is not catastrophic
                 traceback.print_exc()
 
-    def email_news(self: Main, id_) -> None:
+    def email_news(self: Main, id_: int) -> None:
         mi = self.current_db.get_metadata(id_, index_is_id=True)
         remove = [id_] if config['delete_news_from_library_on_upload'] else []
 
-        def get_fmts(fmts):
+        def get_fmts(fmts: list[str]) -> list[str | None]:
             files, auto = self.library_view._model.get_preferred_formats_from_ids(
                 [id_],
                 fmts,

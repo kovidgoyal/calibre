@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QAbstractAnimation, QBrush, QColor, QEasingCurve, QPainter, QPainterPath, QPalette, QPoint, QPointF, QPropertyAnimation, QRect, Qt, QWidget
 
 from calibre.gui2 import config
 
+if TYPE_CHECKING:
+    from qt.core import QPaintEvent
+
+    from calibre.gui2.ui import Main
+
 
 class Pointer(QWidget):
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         QWidget.__init__(self, gui)
         self.setObjectName('jobs_pointer')
         self.setVisible(False)
@@ -37,21 +44,21 @@ class Pointer(QWidget):
         # QTimer.singleShot(1000, self.start)
 
     @property
-    def gui(self):
-        return self.parent()
+    def gui(self) -> Main:
+        return cast('Main', self.parent())
 
-    def point_at(self, frac):
+    def point_at(self, frac: float) -> QPoint:
         return self.path.pointAtPercent(frac).toPoint() - QPoint(self.rect().center().x(), self.height())
 
-    def rect_at(self, frac):
+    def rect_at(self, frac: float) -> QRect:
         return QRect(self.point_at(frac), self.size())
 
-    def abspos(self, widget):
+    def abspos(self, widget: QWidget) -> QPoint:
         pos = widget.pos()
-        parent = widget.parent()
+        parent = cast('QWidget', widget.parent())
         while parent is not self.gui:
             pos += parent.pos()
-            parent = parent.parent()
+            parent = cast('QWidget', parent.parent())
         return pos
 
     def start(self) -> None:
@@ -74,7 +81,7 @@ class Pointer(QWidget):
             self.animation.setKeyValueAt(i, self.rect_at(i))
         self.animation.start()
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing)
         p.setBrush(self.brush)

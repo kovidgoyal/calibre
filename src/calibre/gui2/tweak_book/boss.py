@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 from functools import partial, wraps
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
 from qt.core import (
@@ -95,11 +95,12 @@ from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
+    from calibre.ebooks.html_transform_rules import SerializedRule
     from calibre.gui2.tweak_book.editor.text import TextEdit
 
 _diff_dialogs = []
 last_used_transform_rules = []
-last_used_html_transform_rules = []
+last_used_html_transform_rules: list[SerializedRule] = []
 
 
 def get_container(*args, **kwargs):
@@ -781,7 +782,7 @@ class Boss(QObject):
         d.rules = last_used_html_transform_rules
         d.transform_scope = tprefs['html_transform_scope']
         ret = d.exec()
-        last_used_html_transform_rules = d.rules
+        last_used_html_transform_rules = cast('list[SerializedRule]', d.rules)
         scope = d.transform_scope
         tprefs.set('html_transform_scope', scope)
         if ret != QDialog.DialogCode.Accepted:
@@ -1919,7 +1920,7 @@ class Boss(QObject):
                 shutil.copyfileobj(src, dest)
         from calibre.gui2.open_with import run_program
 
-        run_program(entry, dest.name, self)
+        run_program(entry, dest.name, self.gui)
         if question_dialog(
             self.gui,
             _('File opened'),

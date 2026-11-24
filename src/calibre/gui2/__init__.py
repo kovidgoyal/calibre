@@ -11,7 +11,7 @@ import threading
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from threading import Lock, RLock
-from typing import cast
+from typing import TYPE_CHECKING, Literal, Protocol, TypedDict, cast, overload
 
 from qt.core import (
     QApplication,
@@ -101,6 +101,34 @@ try:
 except ImportError:
     pass  # for people running from source
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable, Sequence
+    from optparse import OptionParser
+    from types import FrameType, TracebackType
+
+    from qt.core import QFileOpenEvent, QImage, QPainter, QPixmap, QRect
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.dialogs.message_box import MessageBox
+
+    class IconThemeMetadata(TypedDict, total=False):
+        title: str
+        author: str
+        color_palette: str
+        version: int
+        description: str
+        number: int
+        date: str
+        name: str
+        license: str
+        url: str | None
+
+    class UnixSignalReceiver(Protocol):
+        signal_notifier: QSocketNotifier
+        signal_received: Callable[..., object]
+
+
 del pqc, geometry_for_restore_as_dict
 timed_print  # ruff: ignore[useless-expression] # for plugin compat
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
@@ -108,19 +136,23 @@ BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visua
 
 
 class IconResourceManager:
+    override_items: dict[str, frozenset[str]]
+
     def __init__(self) -> None:
-        self.override_icon_path = None
+        self.override_icon_path: str | None = None
         self.initialized = False
         self.dark_theme_name = self.default_dark_theme_name = 'calibre-default-dark'
         self.light_theme_name = self.default_light_theme_name = 'calibre-default-light'
-        self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
-        self.registered_user_resource_files = ()
-        self.icon_cache = {}
+        self.user_any_theme_name: str | None = None
+        self.user_dark_theme_name: str | None = None
+        self.user_light_theme_name: str | None = None
+        self.registered_user_resource_files: tuple[str, ...] = ()
+        self.icon_cache: dict[str, QIcon] = {}
 
-    def user_theme_resource_file(self, which):
+    def user_theme_resource_file(self, which: str) -> str:
         return os.path.join(config_dir, f'icons-{which}.rcc')
 
-    def remove_user_theme(self, which) -> None:
+    def remove_user_theme(self, which: str) -> None:
         path = self.user_theme_resource_file(which)
         if path in self.registered_user_resource_files:
             QResource.unregisterResource(path)
@@ -148,7 +180,7 @@ class IconResourceManager:
         # self.dump_available_icon_resource_names()
 
     @lru_cache(maxsize=4)  # ruff: ignore[cached-instance-method]
-    def user_icon_theme_metadata(self, which):
+    def user_icon_theme_metadata(self, which: str) -> IconThemeMetadata:
         path = self.user_theme_resource_file(which)
         if path not in self.registered_user_resource_files:
             return {}
@@ -163,7 +195,7 @@ class IconResourceManager:
             f.close()
 
     @property
-    def active_user_theme_metadata(self):
+    def active_user_theme_metadata(self) -> IconThemeMetadata:
         q = QIcon.themeName()
         if q in (self.default_dark_theme_name, self.default_light_theme_name):
             return {}
@@ -174,11 +206,11 @@ class IconResourceManager:
         return self.user_icon_theme_metadata('any')
 
     @property
-    def user_theme_title(self):
+    def user_theme_title(self) -> str:
         return self.active_user_theme_metadata.get('title', _('Default icons'))
 
     @property
-    def user_theme_name(self):
+    def user_theme_name(self) -> str:
         return self.active_user_theme_metadata.get('name', 'default')
 
     def dump_available_icon_resource_names(self) -> None:
@@ -215,7 +247,7 @@ class IconResourceManager:
                 self.override_items[k] = items
         self.register_user_resource_files()
 
-    def migrate_legacy_icon_theme(self, legacy_theme_metadata) -> None:
+    def migrate_legacy_icon_theme(self, legacy_theme_metadata: str) -> None:
         import shutil
 
         from calibre.utils.rcc import compile_icon_dir_as_themes
@@ -261,7 +293,7 @@ class IconResourceManager:
                     dark = os.path.join(p, subfolder, sq)
         return either, light, dark
 
-    def cached_icon(self, name=''):
+    def cached_icon(self, name: str = '') -> QIcon:
         """
         Keep these icons in a cache. This is intended to be used in dialogs like
         manage categories where thousands of icon instances can be needed.
@@ -289,7 +321,7 @@ class IconResourceManager:
         ans = icon_from_name(icon_name, fallback)
         return ans
 
-    def icon_as_png(self, name, as_bytearray=False, compression_level=0):
+    def icon_as_png(self, name: str, as_bytearray: bool = False, compression_level: int = 0) -> QByteArray | bytes:
         ans = self(name)
         ba = QByteArray()
         if ans.availableSizes():
@@ -317,7 +349,7 @@ QIcon.cached_icon = icon_resource_manager.cached_icon  # type: ignore
 qtb_init = QToolBar.__init__
 
 
-def configure_toolbar_extension_button(self, parent=None) -> None:
+def configure_toolbar_extension_button(self: QToolBar, parent: QWidget | None = None) -> None:
     qtb_init(self, parent)
     if teb := self.findChild(QToolButton, name='qt_toolbar_ext_button'):
         teb.setToolTip(_('Show more buttons'))
@@ -668,7 +700,7 @@ def create_defs() -> None:
         if isinstance(vhv := gprefs.get('bookshelf_variable_height'), bool):
             gprefs['bookshelf_variable_height'] = 'variable' if vhv else 'constant'
 
-        def migrate_tweak(tweak_name, pref_name) -> None:
+        def migrate_tweak(tweak_name: str, pref_name: str) -> None:
             # If the tweak has been changed then leave the tweak in the file so
             # that the user can bounce between versions with and without the
             # migration. For versions before the migration the tweak wins. For
@@ -707,7 +739,7 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher', 'tags', 'series', 'pubdate']
 
 
-def _config():  # {{{
+def _config() -> ConfigProxy:  # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt(
         'send_to_storage_card_by_default',
@@ -824,46 +856,46 @@ QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.SystemScope, confi
 QSettings.setDefaultFormat(QSettings.Format.IniFormat)
 
 
-def default_author_link():
+def default_author_link() -> str:
     from calibre.ebooks.metadata.book.render import resolve_default_author_link
 
     return resolve_default_author_link(gprefs.get('default_author_link'))
 
 
-def available_heights():
+def available_heights() -> tuple[int, ...]:
     return tuple(s.availableSize().height() for s in QGuiApplication.screens())
 
 
-def available_height():
+def available_height() -> int:
     screen = qapplication_or_fail().primaryScreen()
     assert screen is not None
     return screen.availableSize().height()
 
 
-def available_width():
+def available_width() -> int:
     screen = qapplication_or_fail().primaryScreen()
     assert screen is not None
     return screen.availableSize().width()
 
 
-def max_available_height():
+def max_available_height() -> int:
     return max(available_heights())
 
 
-def min_available_height():
+def min_available_height() -> int:
     return min(available_heights())
 
 
-def get_screen_dpi():
+def get_screen_dpi() -> tuple[float, float]:
     s = qapplication_or_fail().primaryScreen()
     assert s is not None
     return s.logicalDotsPerInchX(), s.logicalDotsPerInchY()
 
 
-_is_widescreen = None
+_is_widescreen: bool | None = None
 
 
-def is_widescreen():
+def is_widescreen() -> bool:
     global _is_widescreen
     if _is_widescreen is None:
         try:
@@ -873,11 +905,25 @@ def is_widescreen():
     return _is_widescreen
 
 
-def extension(path):
+def extension(path: str) -> str:
     return os.path.splitext(path)[1][1:].lower()
 
 
-def warning_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=True):
+@overload
+def warning_dialog(
+    parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: Literal[False] = False, show_copy_button: bool = True
+) -> MessageBox: ...
+@overload
+def warning_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None = '', *, show: Literal[True], show_copy_button: bool = True) -> int: ...
+@overload
+def warning_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None, show: Literal[True], show_copy_button: bool = True) -> int: ...
+@overload
+def warning_dialog(
+    parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: bool = False, show_copy_button: bool = True
+) -> MessageBox | int: ...
+def warning_dialog(
+    parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: bool = False, show_copy_button: bool = True
+) -> MessageBox | int:
     from calibre.gui2.dialogs.message_box import MessageBox
 
     d = MessageBox(MessageBox.WARNING, _('WARNING:') + ' ' + title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
@@ -886,7 +932,19 @@ def warning_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=
     return d
 
 
-def error_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=True):
+@overload
+def error_dialog(
+    parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: Literal[False] = False, show_copy_button: bool = True
+) -> MessageBox: ...
+@overload
+def error_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None = '', *, show: Literal[True], show_copy_button: bool = True) -> int: ...
+@overload
+def error_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None, show: Literal[True], show_copy_button: bool = True) -> int: ...
+@overload
+def error_dialog(
+    parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: bool = False, show_copy_button: bool = True
+) -> MessageBox | int: ...
+def error_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: bool = False, show_copy_button: bool = True) -> MessageBox | int:
     from calibre.gui2.dialogs.message_box import MessageBox
 
     d = MessageBox(MessageBox.ERROR, _('ERROR:') + ' ' + title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
@@ -900,31 +958,31 @@ class Aborted(Exception):
 
 
 def question_dialog(
-    parent,
-    title,
-    msg,
-    det_msg='',
-    show_copy_button=False,
-    default_yes=True,
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None = '',
+    show_copy_button: bool = False,
+    default_yes: bool = True,
     # Skippable dialogs
     # Set skip_dialog_name to a unique name for this dialog
     # Set skip_dialog_msg to a message displayed to the user
-    skip_dialog_name=None,
-    skip_dialog_msg=_('Show this confirmation again'),
-    skip_dialog_skipped_value=True,
-    skip_dialog_skip_precheck=True,
+    skip_dialog_name: str | None = None,
+    skip_dialog_msg: str = _('Show this confirmation again'),
+    skip_dialog_skipped_value: bool = True,
+    skip_dialog_skip_precheck: bool = True,
     # Override icon (QIcon to be used as the icon for this dialog or string for QIcon.ic())
-    override_icon=None,
+    override_icon: QIcon | str | None = None,
     # Change the text/icons of the yes and no buttons.
     # The icons must be QIcon objects or strings for QIcon.ic()
-    yes_text=None,
-    no_text=None,
-    yes_icon=None,
-    no_icon=None,
+    yes_text: str | None = None,
+    no_text: str | None = None,
+    yes_icon: QIcon | str | None = None,
+    no_icon: QIcon | str | None = None,
     # Add an Abort button which if clicked will cause this function to raise
     # the Aborted exception
-    add_abort_button=False,
-):
+    add_abort_button: bool = False,
+) -> bool:
     from calibre.gui2.dialogs.message_box import MessageBox
 
     prefs = gui_prefs()
@@ -972,7 +1030,56 @@ def question_dialog(
     return ret
 
 
-def info_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=True, only_copy_details=False):
+@overload
+def info_dialog(
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None = '',
+    show: Literal[False] = False,
+    show_copy_button: bool = True,
+    only_copy_details: bool = False,
+) -> MessageBox: ...
+@overload
+def info_dialog(
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None = '',
+    *,
+    show: Literal[True],
+    show_copy_button: bool = True,
+    only_copy_details: bool = False,
+) -> int: ...
+@overload
+def info_dialog(
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None,
+    show: Literal[True],
+    show_copy_button: bool = True,
+    only_copy_details: bool = False,
+) -> int: ...
+@overload
+def info_dialog(
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None = '',
+    show: bool = False,
+    show_copy_button: bool = True,
+    only_copy_details: bool = False,
+) -> MessageBox | int: ...
+def info_dialog(
+    parent: QObject | None,
+    title: str,
+    msg: str,
+    det_msg: str | None = '',
+    show: bool = False,
+    show_copy_button: bool = True,
+    only_copy_details: bool = False,
+) -> MessageBox | int:
     from calibre.gui2.dialogs.message_box import MessageBox
 
     d = MessageBox(
@@ -990,23 +1097,25 @@ def info_dialog(parent, title, msg, det_msg='', show=False, show_copy_button=Tru
     return d
 
 
-def show_restart_warning(msg, parent=None):
+def show_restart_warning(msg: str, parent: QWidget | None = None) -> bool:
     d = warning_dialog(parent, _('Restart needed'), msg, show_copy_button=False)
     b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
+    assert b is not None
     b.setIcon(QIcon.ic('lt.png'))
-    d.do_restart = False
+    do_restart = False
 
     def rf() -> None:
-        d.do_restart = True
+        nonlocal do_restart
+        do_restart = True
 
     b.clicked.connect(rf)
     d.set_details('')
     d.exec()
     b.clicked.disconnect()
-    return d.do_restart
+    return do_restart
 
 
-class Dispatcher(QObject):
+class Dispatcher[**P](QObject):
     """
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
@@ -1018,22 +1127,22 @@ class Dispatcher(QObject):
 
     dispatch_signal = pyqtSignal(object, object)
 
-    def __init__(self, func, queued=True, parent=None) -> None:
+    def __init__(self, func: Callable[P, object], queued: bool | None = True, parent: QObject | None = None) -> None:
         QObject.__init__(self, parent)
-        self.func = func
+        self.func: Callable[..., object] = func
         typ = Qt.ConnectionType.QueuedConnection
         if not queued:
             typ = Qt.ConnectionType.AutoConnection if queued is None else Qt.ConnectionType.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> None:
         self.dispatch_signal.emit(args, kwargs)
 
-    def dispatch(self, args, kwargs) -> None:
+    def dispatch(self, args: tuple[object, ...], kwargs: dict[str, object]) -> None:
         self.func(*args, **kwargs)
 
 
-class FunctionDispatcher(QObject):
+class FunctionDispatcher[R](QObject):
     """
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
@@ -1044,7 +1153,7 @@ class FunctionDispatcher(QObject):
 
     dispatch_signal = pyqtSignal(object, object, object)
 
-    def __init__(self, func, queued=True, parent=None) -> None:
+    def __init__(self, func: Callable[..., R], queued: bool | None = True, parent: QObject | None = None) -> None:
         global gui_thread
         if gui_thread is None:
             gui_thread = QThread.currentThread()
@@ -1052,28 +1161,26 @@ class FunctionDispatcher(QObject):
             raise ValueError('You can only create a FunctionDispatcher in the GUI thread')
 
         QObject.__init__(self, parent)
-        self.func = func
-        try:
-            self.func_name = func.__name__
-        except Exception:
-            self.func_name = 'unnamed_function'
+        self.func: Callable[..., R] | None = func
+        self.func_name: str = getattr(func, '__name__', 'unnamed_function')
         typ = Qt.ConnectionType.QueuedConnection
         if not queued:
             typ = Qt.ConnectionType.AutoConnection if queued is None else Qt.ConnectionType.DirectConnection
         self.dispatch_signal.connect(self.dispatch, type=typ)
-        self.q = queue.Queue()
+        self.q: queue.Queue[R | None] = queue.Queue()
         self.lock = threading.Lock()
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: object, **kwargs: object) -> R | None:
         if is_gui_thread():
+            assert self.func is not None
             return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)
             res = self.q.get()
         return res
 
-    def dispatch(self, q, args, kwargs) -> None:
-        res = None
+    def dispatch(self, q: queue.Queue[R | None], args: tuple[object, ...], kwargs: dict[str, object]) -> None:
+        res: R | None = None
         if (f := self.func) is not None:
             try:
                 res = f(*args, **kwargs)
@@ -1101,26 +1208,30 @@ class GetMetadata(QObject):
         self.edispatch.connect(self._get_metadata, type=Qt.ConnectionType.QueuedConnection)
         self.idispatch.connect(self._from_formats, type=Qt.ConnectionType.QueuedConnection)
 
-    def __call__(self, id, *args, **kwargs):
+    def __call__(self, id: object, *args: object, **kwargs: object) -> None:
         self.edispatch.emit(id, args, kwargs)
 
-    def from_formats(self, id, *args, **kwargs) -> None:
+    def from_formats(self, id: object, *args: object, **kwargs: object) -> None:
         self.idispatch.emit(id, args, kwargs)
 
-    def _from_formats(self, id, args, kwargs) -> None:
+    def _from_formats(self, id: object, args: tuple[object, ...], kwargs: dict[str, object]) -> None:
         from calibre.ebooks.metadata.meta import metadata_from_formats
 
+        # args and kwargs are opaque values passed through a Qt signal
+        reader = cast('Callable[..., Metadata]', metadata_from_formats)
         try:
-            mi = metadata_from_formats(*args, **kwargs)
+            mi = reader(*args, **kwargs)
         except Exception:
             mi = MetaInformation('', [_('Unknown')])
         self.metadataf.emit(id, mi)
 
-    def _get_metadata(self, id, args, kwargs) -> None:
+    def _get_metadata(self, id: object, args: tuple[object, ...], kwargs: dict[str, object]) -> None:
         from calibre.ebooks.metadata.meta import get_metadata
 
+        # args and kwargs are opaque values passed through a Qt signal
+        reader = cast('Callable[..., Metadata]', get_metadata)
         try:
-            mi = get_metadata(*args, **kwargs)
+            mi = reader(*args, **kwargs)
         except Exception:
             mi = MetaInformation('', [_('Unknown')])
         self.metadata.emit(id, mi)
@@ -1137,7 +1248,7 @@ class FileIconProvider(QFileIconProvider):
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon.ic(str(self.icons[i]))
 
-    def key_from_ext(self, ext):
+    def key_from_ext(self, ext: str) -> str:
         key = ext if ext in self.icons else 'default'
         if key == 'default' and '.' in ext:
             ext = ext.rpartition('.')[2]
@@ -1149,26 +1260,26 @@ class FileIconProvider(QFileIconProvider):
             key = ext
         return key
 
-    def cached_icon(self, key):
+    def cached_icon(self, key: str) -> QIcon:
         candidate = self.icons.get(key)
         if isinstance(candidate, QIcon):
             return candidate
         candidate = candidate or f'mimetypes/{key}.png'
         icon = QIcon.ic(candidate)
         if not icon.is_ok():
-            icon = self.icons['default']
+            icon = cast('QIcon', self.icons['default'])
         self.icons[key] = icon
         return icon
 
-    def icon_from_ext(self, ext):
+    def icon_from_ext(self, ext: str | None) -> QIcon:
         key = self.key_from_ext(ext.lower() if ext else '')
         return self.cached_icon(key)
 
-    def load_icon(self, fileinfo):
+    def load_icon(self, fileinfo: QFileInfo) -> QIcon:
         key = 'default'
         if fileinfo.isSymLink():
             if not fileinfo.exists():
-                return self.icons['zero']
+                return cast('QIcon', self.icons['zero'])
             fileinfo = QFileInfo(fileinfo.symLinkTarget())
         if fileinfo.isDir():
             key = 'dir'
@@ -1177,18 +1288,17 @@ class FileIconProvider(QFileIconProvider):
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 
-    def icon(self, *args, **kwargs):
-        arg = args[0] if args else None
+    def icon(self, arg: QFileIconProvider.IconType | QFileInfo, /) -> QIcon:
         if isinstance(arg, QFileInfo):
             return self.load_icon(arg)
         if arg == QFileIconProvider.IconType.Folder:
-            return self.icons['dir']
+            return cast('QIcon', self.icons['dir'])
         if arg == QFileIconProvider.IconType.File:
-            return self.icons['default']
-        return QFileIconProvider.icon(self, *args, **kwargs)
+            return cast('QIcon', self.icons['default'])
+        return QFileIconProvider.icon(self, arg)
 
 
-_file_icon_provider = None
+_file_icon_provider: FileIconProvider | None = None
 
 
 def initialize_file_icon_provider() -> None:
@@ -1197,9 +1307,10 @@ def initialize_file_icon_provider() -> None:
         _file_icon_provider = FileIconProvider()
 
 
-def file_icon_provider():
+def file_icon_provider() -> FileIconProvider:
     global _file_icon_provider
     initialize_file_icon_provider()
+    assert _file_icon_provider is not None
     return _file_icon_provider
 
 
@@ -1220,7 +1331,14 @@ else:
     from calibre.gui2.qt_file_dialogs import choose_dir, choose_files, choose_images, choose_save_file  # ruff: ignore[unused-import]
 
 
-def choose_files_and_remember_all_files(window, name, title, filters=None, select_only_single_file=False, default_dir='~'):
+def choose_files_and_remember_all_files(
+    window: QWidget | None,
+    name: str,
+    title: str,
+    filters: Iterable[tuple[str, Sequence[str]]] | None = None,
+    select_only_single_file: bool = False,
+    default_dir: str = '~',
+) -> Sequence[str] | None:
     if filters is None:
         filters = []
     pref_name = f'{name}-last-used-filter-spec-all-files'
@@ -1240,7 +1358,7 @@ def choose_files_and_remember_all_files(window, name, title, filters=None, selec
     return paths
 
 
-def is_dark_theme():
+def is_dark_theme() -> bool:
     app = cast('QApplication', QApplication.instance())
     if app is not None:
         pal = app.palette()
@@ -1248,7 +1366,7 @@ def is_dark_theme():
     return False
 
 
-def choose_osx_app(window, name, title, default_dir='/Applications'):
+def choose_osx_app(window: QWidget | None, name: str, title: str, default_dir: str = '/Applications') -> tuple[str, ...] | None:
     fd = FileDialog(title=title, parent=window, name=name, mode=QFileDialog.FileMode.ExistingFile, default_dir=default_dir)
     app = fd.get_files()
     fd.setParent(None)
@@ -1256,7 +1374,7 @@ def choose_osx_app(window, name, title, default_dir='/Applications'):
         return app
 
 
-def pixmap_to_data(pixmap, format='JPEG', quality=None):
+def pixmap_to_data(pixmap: QPixmap | QImage, format: str = 'JPEG', quality: int | None = None) -> bytes:
     """
     Return the QPixmap pixmap as a string saved in the specified format.
     """
@@ -1276,7 +1394,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
     return ba.data()
 
 
-def decouple(prefix) -> None:
+def decouple(prefix: str) -> None:
     "Ensure that config files used by utility code are not the same as those used by the main calibre GUI"
     dynamic.decouple(prefix)
     from calibre.gui2.widgets import history
@@ -1287,11 +1405,11 @@ def decouple(prefix) -> None:
 _gui_prefs = gprefs
 
 
-def gui_prefs():
+def gui_prefs() -> JSONConfig:
     return _gui_prefs
 
 
-def set_gui_prefs(prefs) -> None:
+def set_gui_prefs(prefs: JSONConfig) -> None:
     global _gui_prefs
     _gui_prefs = prefs
 
@@ -1300,7 +1418,7 @@ class ResizableDialog(QDialog):
     # This class is present only for backwards compat with third party plugins
     # that might use it. Do not use it in new code.
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: *tuple[QWidget | None, *tuple[Qt.WindowType, ...]], **kwargs: object) -> None:
         QDialog.__init__(self, *args)
         if s := getattr(self, 'setupUi', None):
             s(self)
@@ -1313,12 +1431,12 @@ class ResizableDialog(QDialog):
         self.resize(nw, nh)
 
 
-gui_thread = None
-qt_app = None
+gui_thread: QThread | None = None
+qt_app: Application | None = None
 builtin_fonts_loaded = False
 
 
-def calibre_font_files():
+def calibre_font_files() -> list[str]:
     return glob.glob(P('fonts/liberation/*.?tf')) + [P('fonts/calibreSymbols.otf')] + glob.glob(os.path.join(config_dir, 'fonts', '*.?tf'))
 
 
@@ -1342,7 +1460,7 @@ def load_builtin_fonts() -> None:
                         _rating_font = 'calibre Symbols'
 
 
-def setup_gui_option_parser(parser) -> None:
+def setup_gui_option_parser(parser: OptionParser) -> None:
     if islinux:
         parser.add_option(
             '--detach',
@@ -1352,7 +1470,7 @@ def setup_gui_option_parser(parser) -> None:
         )
 
 
-def show_temp_dir_error(err) -> None:
+def show_temp_dir_error(err: OSError) -> None:
     import traceback
 
     extra = _('Click "Show details" for more information.')
@@ -1367,7 +1485,7 @@ def show_temp_dir_error(err) -> None:
     )
 
 
-def setup_unix_signals(self):
+def setup_unix_signals(self: QObject) -> dict[signal.Signals, Callable[[int, FrameType | None], object] | int | None]:
     if hasattr(os, 'pipe2'):
         read_fd, write_fd = os.pipe2(os.O_CLOEXEC | os.O_NONBLOCK)
     else:
@@ -1383,14 +1501,16 @@ def setup_unix_signals(self):
             if flags != -1:
                 fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
-    original_handlers = {}
+    original_handlers: dict[signal.Signals, Callable[[int, FrameType | None], object] | int | None] = {}
     for sig in (signal.SIGINT, signal.SIGTERM):
         original_handlers[sig] = signal.signal(sig, lambda x, y: None)
         signal.siginterrupt(sig, False)
     signal.set_wakeup_fd(write_fd)
-    self.signal_notifier = QSocketNotifier(sip.voidptr(read_fd), QSocketNotifier.Type.Read, self)
-    self.signal_notifier.setEnabled(True)
-    self.signal_notifier.activated.connect(self.signal_received, type=Qt.ConnectionType.QueuedConnection)
+    # self must have a signal_received() method and is given a signal_notifier attribute
+    receiver = cast('UnixSignalReceiver', self)
+    receiver.signal_notifier = QSocketNotifier(sip.voidptr(read_fd), QSocketNotifier.Type.Read, self)
+    receiver.signal_notifier.setEnabled(True)
+    receiver.signal_notifier.activated.connect(receiver.signal_received, type=Qt.ConnectionType.QueuedConnection)
     return original_handlers
 
 
@@ -1425,13 +1545,13 @@ class Application(QApplication):
 
     def __init__(
         self,
-        args=(),
-        force_calibre_style=False,
-        override_program_name=None,
-        headless=False,
-        color_prefs=gprefs,
-        windows_app_uid=None,
-        should_handle_calibre_urls=False,
+        args: Sequence[str] = (),
+        force_calibre_style: bool = False,
+        override_program_name: str | None = None,
+        headless: bool = False,
+        color_prefs: JSONConfig = gprefs,
+        windows_app_uid: str | None = None,
+        should_handle_calibre_urls: bool = False,
     ) -> None:
         if not args:
             args = sys.argv[:1]
@@ -1440,12 +1560,12 @@ class Application(QApplication):
         QNetworkProxyFactory.setUseSystemConfiguration(True)
         setup_to_run_webengine()
         if iswindows:
-            self.windows_app_uid = None
+            self.windows_app_uid: str | None = None
             if windows_app_uid:
                 windows_app_uid = str(windows_app_uid)
                 if set_app_uid(windows_app_uid):
                     self.windows_app_uid = windows_app_uid
-        self.file_event_hook = None
+        self.file_event_hook: Callable[[list[str]], object] | None = None
         if override_program_name:
             args = [override_program_name] + args[1:]
         self.palette_manager = PaletteManager(force_calibre_style, headless)
@@ -1465,7 +1585,7 @@ class Application(QApplication):
         from calibre_extensions import progress_indicator
 
         self.pi = progress_indicator
-        self._file_open_paths = []
+        self._file_open_paths: list[str] = []
         self._file_open_lock = RLock()
         QApplication.setOrganizationName('calibre-ebook.com')
         QApplication.setOrganizationDomain(QApplication.organizationName())
@@ -1574,11 +1694,11 @@ class Application(QApplication):
         return self.palette_manager.using_calibre_style
 
     @property
-    def is_dark_theme(self):
+    def is_dark_theme(self) -> bool:
         return self.palette_manager.is_dark_theme
 
     @property
-    def emphasis_window_background_color(self):
+    def emphasis_window_background_color(self) -> str:
         return (builtin_colors_dark if self.is_dark_theme else builtin_colors_light)['yellow']
 
     @property
@@ -1590,10 +1710,10 @@ class Application(QApplication):
         return '#00b000' if self.is_dark_theme else 'green'
 
     @pyqtSlot(int, result='QIcon')
-    def get_qt_standard_icon(self, standard_pixmap):
+    def get_qt_standard_icon(self, standard_pixmap: int) -> QIcon:
         return self.palette_manager.get_qt_standard_icon(standard_pixmap)
 
-    def safe_restore_geometry(self, widget, geom):
+    def safe_restore_geometry(self, widget: QWidget, geom: QByteArray | bytes | bytearray | None) -> bool | None:
         # See https://bugreports.qt.io/browse/QTBUG-77385
         if not geom:
             return
@@ -1601,8 +1721,10 @@ class Application(QApplication):
         self.ensure_window_on_screen(widget)
         return restored
 
-    def ensure_window_on_screen(self, widget) -> None:
-        screen_rect = widget.screen().availableGeometry()
+    def ensure_window_on_screen(self, widget: QWidget) -> None:
+        screen = widget.screen()
+        assert screen is not None
+        screen_rect = screen.availableGeometry()
         g = widget.geometry()
         w = min(screen_rect.width(), g.width())
         h = min(screen_rect.height(), g.height())
@@ -1643,7 +1765,7 @@ class Application(QApplication):
 
             traceback.print_exc()
 
-    def load_builtin_fonts(self, scan_for_fonts=False) -> None:
+    def load_builtin_fonts(self, scan_for_fonts: bool = False) -> None:
         if scan_for_fonts:
             # Start scanning the users computer for fonts
             from calibre.utils.fonts.scanner import font_scanner  # ruff: ignore[unused-import]
@@ -1651,11 +1773,11 @@ class Application(QApplication):
         load_builtin_fonts()
 
     @lru_cache(maxsize=256)  # ruff: ignore[cached-instance-method]
-    def cached_qimage(self, name, device_pixel_ratio=0):
+    def cached_qimage(self, name: str, device_pixel_ratio: float = 0) -> QImage:
         return self.cached_qpixmap(name, device_pixel_ratio).toImage()
 
     @lru_cache(maxsize=256)  # ruff: ignore[cached-instance-method]
-    def cached_qpixmap(self, name, device_pixel_ratio=0):
+    def cached_qpixmap(self, name: str, device_pixel_ratio: float = 0) -> QPixmap:
         # get the actual size of the image since QIcon does not tell us this for
         # icons loaded from a theme
         path = I(name, allow_user_override=False)
@@ -1674,7 +1796,7 @@ class Application(QApplication):
                     self.file_event_hook(self._file_open_paths)
                 self._file_open_paths = []
 
-    def get_pending_file_open_events(self):
+    def get_pending_file_open_events(self) -> list[str]:
         with self._file_open_lock:
             ans = self._file_open_paths
             self._file_open_paths = []
@@ -1683,11 +1805,11 @@ class Application(QApplication):
     def load_translations(self) -> None:
         install_qt_translator()
 
-    def event(self, a0):
-        etype = a0.type()
+    def event(self, a0: QEvent | None) -> bool:
+        etype = None if a0 is None else a0.type()
         if etype == QEvent.Type.FileOpen:
             added_event = False
-            qurl = a0.url()
+            qurl = cast('QFileOpenEvent', a0).url()
             if qurl.isLocalFile():
                 with self._file_open_lock:
                     path = qurl.toLocalFile()
@@ -1706,24 +1828,24 @@ class Application(QApplication):
             return QApplication.event(self, a0)
 
     @pyqtSlot(QUrl)
-    def handle_calibre_url(self, qurl) -> None:
+    def handle_calibre_url(self, qurl: QUrl) -> None:
         url = qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)
         with self._file_open_lock:
             self._file_open_paths.append(url)
         QTimer.singleShot(100, self._send_file_open_events)
 
     @pyqtSlot(QUrl)
-    def handle_http_url(self, qurl) -> None:
+    def handle_http_url(self, qurl: QUrl) -> None:
         safe_open_url(qurl)
 
     @property
-    def current_custom_colors(self):
+    def current_custom_colors(self) -> list[tuple[int, int, int, int]]:
         from qt.core import QColorDialog
 
         return [col.getRgb() for col in (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
     @current_custom_colors.setter
-    def current_custom_colors(self, colors) -> None:
+    def current_custom_colors(self, colors: Sequence[Sequence[int]]) -> None:
         from qt.core import QColorDialog
 
         num = min(len(colors), QColorDialog.customCount())
@@ -1741,10 +1863,10 @@ class Application(QApplication):
         if colors != self.color_prefs.get('custom_colors_for_color_dialog', None):
             self.color_prefs.set('custom_colors_for_color_dialog', colors)
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.setQuitOnLastWindowClosed(False)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type: object, value: object, traceback: object) -> None:
         self.setQuitOnLastWindowClosed(True)
 
     def setup_unix_signals(self) -> None:
@@ -1763,7 +1885,7 @@ _store_app: QApplication | None = None
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 
-def open_url(qurl) -> None:
+def open_url(qurl: QUrl | str) -> None:
     if isinstance(qurl, (str, bytes)):
         qurl = QUrl(qurl)
     scheme = qurl.scheme().lower() or 'file'
@@ -1779,7 +1901,7 @@ def open_url(qurl) -> None:
                     opener = shlex.split(spec)
                     break
 
-    def run_cmd(cmd) -> None:
+    def run_cmd(cmd: list[str]) -> None:
         import subprocess
 
         subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -1829,7 +1951,7 @@ def safe_open_url(qurl: QUrl | str | bytes) -> None:
     open_url(qurl)
 
 
-def get_current_db():
+def get_current_db() -> LibraryDatabase:
     """
     This method will try to return the current database in use by the user as
     efficiently as possible, i.e. without constructing duplicate
@@ -1845,7 +1967,7 @@ def get_current_db():
     return db()
 
 
-def open_local_file(path) -> None:
+def open_local_file(path: str) -> None:
     if iswindows:
         with sanitize_env_vars():
             os.startfile(os.path.normpath(path))
@@ -1857,11 +1979,11 @@ def open_local_file(path) -> None:
 _ea_lock = Lock()
 
 
-def simple_excepthook(t, v, tb):
+def simple_excepthook(t: type[BaseException], v: BaseException, tb: TracebackType | None) -> None:
     return sys.__excepthook__(t, v, tb)
 
 
-def ensure_app(headless=True) -> QApplication:
+def ensure_app(headless: bool = True) -> QApplication:
     global _store_app
     with _ea_lock:
         if _store_app is None:
@@ -1917,11 +2039,11 @@ def destroy_app() -> None:
     _store_app = None
 
 
-def app_is_headless():
+def app_is_headless() -> bool:
     return getattr(_store_app, 'headless', False)
 
 
-def must_use_qt(headless=True) -> None:
+def must_use_qt(headless: bool = True) -> None:
     """This function should be called if you want to use Qt for some non-GUI
     task like rendering HTML/SVG or using a headless browser. It will raise a
     RuntimeError if using Qt is not possible, which will happen if the current
@@ -1943,7 +2065,7 @@ def is_ok_to_use_qt() -> bool:
     return True
 
 
-def is_gui_thread():
+def is_gui_thread() -> bool:
     global gui_thread
     return gui_thread is QThread.currentThread()
 
@@ -1951,12 +2073,12 @@ def is_gui_thread():
 _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
 
 
-def rating_font():
+def rating_font() -> str:
     global _rating_font
     return _rating_font
 
 
-def elided_text(text, font=None, width=300, pos='middle'):
+def elided_text(text: str, font: QFont | QFontMetrics | None = None, width: float = 300, pos: str = 'middle') -> str:
     """Return a version of text that is no wider than width pixels when
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
@@ -1969,7 +2091,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     delta = 4
     ellipsis = '…'
 
-    def remove_middle(x):
+    def remove_middle(x: str) -> str:
         mid = len(x) // 2
         return x[: max(0, mid - (delta // 2))] + ellipsis + x[mid + (delta // 2) :]
 
@@ -1985,7 +2107,7 @@ if is_running_from_develop and not isworker:
     build_forms(os.path.abspath(os.environ['CALIBRE_DEVELOP_FROM']), check_for_migration=True)
 
 
-def event_type_name(ev_or_etype):
+def event_type_name(ev_or_etype: QEvent | QEvent.Type) -> str:
     etype = ev_or_etype.type() if isinstance(ev_or_etype, QEvent) else ev_or_etype
     for name, num in vars(QEvent).items():
         if num == etype:
@@ -1997,7 +2119,7 @@ empty_model = QStringListModel([''])
 empty_index = empty_model.index(0)
 
 
-def set_app_uid(val) -> bool:
+def set_app_uid(val: str) -> bool:
     import ctypes
     from ctypes import HRESULT, wintypes
 
@@ -2015,14 +2137,14 @@ def set_app_uid(val) -> bool:
     return True
 
 
-def add_to_recent_docs(path) -> None:
+def add_to_recent_docs(path: str) -> None:
     from calibre_extensions import winutil
 
     app = qapplication_or_fail()
     winutil.add_to_recent_docs(str(path), app.windows_app_uid)
 
 
-def make_view_use_window_background(view):
+def make_view_use_window_background[T: QWidget](view: T) -> T:
     p = view.palette()
     p.setColor(QPalette.ColorRole.Base, p.color(QPalette.ColorRole.Window))
     p.setColor(QPalette.ColorRole.AlternateBase, p.color(QPalette.ColorRole.Window))
@@ -2060,7 +2182,7 @@ QWidget.raise_without_focus = raise_without_focus
 
 
 @contextmanager
-def clip_border_radius(painter, rect):
+def clip_border_radius(painter: QPainter, rect: QRect | QRectF) -> Generator[None]:
     painter.save()
     r = gprefs['cover_corner_radius']
     if r > 0:
@@ -2078,7 +2200,11 @@ def clip_border_radius(painter, rect):
         painter.restore()
 
 
-def resolve_custom_background(name: str, which='color', for_dark: bool | None = None, use_defaults: bool = False):
+@overload
+def resolve_custom_background(name: str, which: Literal['color'] = 'color', for_dark: bool | None = None, use_defaults: bool = False) -> Sequence[int]: ...
+@overload
+def resolve_custom_background(name: str, which: Literal['texture'], for_dark: bool | None = None, use_defaults: bool = False) -> str | None: ...
+def resolve_custom_background(name: str, which: str = 'color', for_dark: bool | None = None, use_defaults: bool = False) -> Sequence[int] | str | None:
     if use_defaults:
         s = gprefs.defaults[name]
     else:
@@ -2101,9 +2227,19 @@ def resolve_custom_background(name: str, which='color', for_dark: bool | None = 
     return s[f'{key}_texture']
 
 
-def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+@overload
+def resolve_grid_color(which: Literal['color'] = 'color', for_dark: bool | None = None, use_defaults: bool = False) -> Sequence[int]: ...
+@overload
+def resolve_grid_color(which: Literal['texture'], for_dark: bool | None = None, use_defaults: bool = False) -> str | None: ...
+def resolve_grid_color(which: Literal['color', 'texture'] = 'color', for_dark: bool | None = None, use_defaults: bool = False) -> Sequence[int] | str | None:
     return resolve_custom_background('cover_grid_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
 
 
-def resolve_bookshelf_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+@overload
+def resolve_bookshelf_color(which: Literal['color'] = 'color', for_dark: bool | None = None, use_defaults: bool = False) -> Sequence[int]: ...
+@overload
+def resolve_bookshelf_color(which: Literal['texture'], for_dark: bool | None = None, use_defaults: bool = False) -> str | None: ...
+def resolve_bookshelf_color(
+    which: Literal['color', 'texture'] = 'color', for_dark: bool | None = None, use_defaults: bool = False
+) -> Sequence[int] | str | None:
     return resolve_custom_background('bookshelf_custom_background', which=which, for_dark=for_dark, use_defaults=use_defaults)

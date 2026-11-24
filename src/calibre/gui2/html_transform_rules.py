@@ -3,7 +3,7 @@
 
 from typing import TYPE_CHECKING, Any
 
-from qt.core import QComboBox, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QPushButton, QScrollArea, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QComboBox, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QPushButton, QScrollArea, QSize, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.html_transform_rules import ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules, transform_html, validate_rule
@@ -18,7 +18,9 @@ from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator, Mapping
+
+    from calibre.ebooks.html_transform_rules import SerializedAction, SerializedRule
 
 # Classes for rule edit widget {{{
 
@@ -26,7 +28,7 @@ if TYPE_CHECKING:
 class TagAction(QWidget):
     remove_action = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -69,11 +71,11 @@ class TagAction(QWidget):
         self.remove_action.emit(self)
 
     @property
-    def as_dict(self):
+    def as_dict(self) -> SerializedAction:
         return {'type': self.action_type.currentData(), 'data': self.action_data.text()}
 
     @as_dict.setter
-    def as_dict(self, val) -> None:
+    def as_dict(self, val: SerializedAction) -> None:
         self.action_data.setText(val.get('data') or '')
         at = val.get('type')
         if at:
@@ -93,17 +95,17 @@ class TagAction(QWidget):
 
 
 class ActionsContainer(QScrollArea):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWidgetResizable(True)
         self.w = w = QWidget()
         self.setWidget(w)
         self.w_layout = QVBoxLayout(w)
         self.w_layout.addStretch(1)
-        self.all_actions = []
+        self.all_actions: list[TagAction] = []
         self.new_action()
 
-    def new_action(self):
+    def new_action(self) -> TagAction:
         a = TagAction(self)
         self.all_actions.append(a)
         l = self.w_layout
@@ -112,23 +114,23 @@ class ActionsContainer(QScrollArea):
         a.action_type.setFocus(Qt.FocusReason.OtherFocusReason)
         return a
 
-    def remove_action(self, ac) -> None:
+    def remove_action(self, ac: TagAction) -> None:
         if ac in self.all_actions:
             self.w_layout.removeWidget(ac)
             del self.all_actions[self.all_actions.index(ac)]
             ac.deleteLater()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = super().sizeHint()
         ans.setHeight(ans.height() + 200)
         return ans
 
     @property
-    def as_list(self):
+    def as_list(self) -> list[SerializedAction]:
         return [t.as_dict for t in self.all_actions]
 
     @as_list.setter
-    def as_list(self, val) -> None:
+    def as_list(self, val: Iterable[SerializedAction]) -> None:
         for ac in tuple(self.all_actions):
             self.remove_action(ac)
         for entry in val:
@@ -136,21 +138,21 @@ class ActionsContainer(QScrollArea):
 
 
 class GenericEdit(QLineEdit):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setClearButtonEnabled(True)
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self.text()
 
     @value.setter
-    def value(self, val) -> None:
+    def value(self, val: object) -> None:
         self.setText(str(val))
 
 
 class CSSEdit(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -163,11 +165,11 @@ class CSSEdit(QWidget):
         self.setPlaceholderText = self.edit.setPlaceholderText
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self.edit.value
 
     @value.setter
-    def value(self, val) -> None:
+    def value(self, val: object) -> None:
         self.edit.value = val
 
 
@@ -177,7 +179,7 @@ class CSSEdit(QWidget):
 class RuleEdit(QWidget):  # {{{
     MSG = _('Create the rule to transform HTML tags below')
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -217,14 +219,14 @@ class RuleEdit(QWidget):  # {{{
         l.addWidget(b)
         self.update_state()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         a = QWidget.sizeHint(self)
         a.setHeight(a.height() + 375)
         a.setWidth(a.width() + 125)
         return a
 
     @property
-    def current_query_widget(self):
+    def current_query_widget(self) -> GenericEdit | CSSEdit | XPathEdit:
         return {'css': self.css_query, 'xpath': self.xpath_query}.get(self.match_type.currentData(), self.generic_query)
 
     def update_state(self) -> None:
@@ -235,7 +237,7 @@ class RuleEdit(QWidget):  # {{{
         self.current_query_widget.setPlaceholderText(MATCH_TYPE_MAP[mt].placeholder)
 
     @property
-    def rule(self):
+    def rule(self) -> SerializedRule:
         try:
             return {
                 'match_type': self.match_type.currentData(),
@@ -249,8 +251,8 @@ class RuleEdit(QWidget):  # {{{
             raise
 
     @rule.setter
-    def rule(self, rule) -> None:
-        def sc(name) -> None:
+    def rule(self, rule: SerializedRule) -> None:
+        def sc(name: str) -> None:
             c = getattr(self, name)
             c.setCurrentIndex(max(0, c.findData(str(rule.get(name, '')))))
 
@@ -290,7 +292,7 @@ class RuleItem(RuleItemBase):  # {{{
                 yield val
 
     @staticmethod
-    def text_from_rule(rule, parent):
+    def text_from_rule(rule: Mapping[str, Any], parent: QWidget) -> str:
         try:
             query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
             text = _('If the tag <b>{match_type}</b> <b>{query}</b>').format(
@@ -328,8 +330,9 @@ class Tester(TesterBase):  # {{{
     LABEL = _('Enter an HTML document below and click the "Test" button')
     SYNTAX = 'html'
     RESULTS = '<!-- {} -->\n\n'.format(_('Resulting HTML'))
+    rules: Iterable[SerializedRule]
 
-    def compile_rules(self, rules):
+    def compile_rules(self, rules: Iterable[SerializedRule]) -> Iterable[SerializedRule]:  # ty: ignore[incompatible-method-override] HTML rules are not compiled, unlike CSS rules
         return rules
 
     def do_test(self) -> None:
@@ -347,7 +350,7 @@ class RulesDialog(RulesDialogBase):  # {{{
     RulesClass = Rules
     TesterClass = Tester
 
-    def extra_bottom_widget(self):
+    def extra_bottom_widget(self) -> QComboBox:
         self.scope_cb = cb = QComboBox()
         cb.addItem(_('Current HTML file'), 'current')
         cb.addItem(_('All HTML files'), 'all')
@@ -356,11 +359,11 @@ class RulesDialog(RulesDialogBase):  # {{{
         return cb
 
     @property
-    def transform_scope(self):
+    def transform_scope(self) -> str:
         return self.scope_cb.currentData()
 
     @transform_scope.setter
-    def transform_scope(self, val) -> None:
+    def transform_scope(self, val: str) -> None:
         idx = self.scope_cb.findData(val)
         self.scope_cb.setCurrentIndex(max(0, idx))
 

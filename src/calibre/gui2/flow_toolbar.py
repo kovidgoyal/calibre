@@ -1,27 +1,32 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QToolBar, QToolButton, QWidget, pyqtSignal
+
+if TYPE_CHECKING:
+    from qt.core import QAction, QLayout, QObject, QPaintEvent
 
 
 class Separator(QWidget):
-    def __init__(self, icon_size, parent=None) -> None:
+    def __init__(self, icon_size: QSize, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.desired_height = icon_size.height() * 0.85
 
-    def style_option(self):
+    def style_option(self) -> QStyleOption:
         opt = QStyleOption()
         opt.initFrom(self)
         opt.state |= QStyle.StateFlag.State_Horizontal
         return opt
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         style = self.style()
         assert style is not None
         width = style.pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         p = QStylePainter(self)
         p.drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option())
 
@@ -29,7 +34,7 @@ class Separator(QWidget):
 class Button(QToolButton):
     layout_needed = pyqtSignal()
 
-    def __init__(self, action, parent=None) -> None:
+    def __init__(self, action: QAction, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.action = action
         self.setAutoRaise(True)
@@ -55,11 +60,11 @@ class Button(QToolButton):
 
 
 class SingleLineToolBar(QToolBar):
-    def __init__(self, parent=None, icon_size=18) -> None:
+    def __init__(self, parent: QWidget | None = None, icon_size: int = 18) -> None:
         super().__init__(parent)
         self.setIconSize(QSize(icon_size, icon_size))
 
-    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
+    def add_action(self, ac: QAction, popup_mode: QToolButton.ToolButtonPopupMode = QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
         self.addAction(ac)
         w = self.widgetForAction(ac)
         assert isinstance(w, QToolButton)
@@ -70,7 +75,7 @@ class SingleLineToolBar(QToolBar):
 
 
 class LayoutItem:
-    def __init__(self, w) -> None:
+    def __init__(self, w: Button) -> None:
         self.widget = w
         self.sz = sz = w.sizeHint()
         self.width = sz.width()
@@ -78,8 +83,8 @@ class LayoutItem:
 
 
 class Group:
-    def __init__(self, parent=None, leading_separator=None) -> None:
-        self.items = []
+    def __init__(self, parent: QObject | None = None, leading_separator: Separator | None = None) -> None:
+        self.items: list[LayoutItem] = []
         self.width = self.height = 0
         self.parent = parent
         self.leading_separator = leading_separator
@@ -87,26 +92,31 @@ class Group:
     def __bool__(self) -> bool:
         return bool(self.items)
 
-    def smart_spacing(self, horizontal=True):
+    def smart_spacing(self, horizontal: bool = True) -> int:
         p = self.parent
         if p is None:
             return -1
         if p.isWidgetType():
+            w = cast('QWidget', p)
             which = QStyle.PixelMetric.PM_LayoutHorizontalSpacing if horizontal else QStyle.PixelMetric.PM_LayoutVerticalSpacing
-            return p.style().pixelMetric(which, None, p)
-        return p.spacing()
+            style = w.style()
+            assert style is not None
+            return style.pixelMetric(which, None, w)
+        return cast('QLayout', p).spacing()
 
-    def layout_spacing(self, wid, horizontal=True):
+    def layout_spacing(self, wid: QWidget, horizontal: bool = True) -> int:
         ans = self.smart_spacing(horizontal)
         if ans != -1:
             return ans
-        return wid.style().layoutSpacing(
+        style = wid.style()
+        assert style is not None
+        return style.layoutSpacing(
             QSizePolicy.ControlType.ToolButton,
             QSizePolicy.ControlType.ToolButton,
             Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical,
         )
 
-    def add_widget(self, w) -> None:
+    def add_widget(self, w: Button) -> None:
         item = LayoutItem(w)
         self.items.append(item)
         hs, vs = self.layout_spacing(w), self.layout_spacing(w, False)
@@ -117,15 +127,15 @@ class Group:
 
 
 class FlowToolBar(QWidget):
-    def __init__(self, parent=None, icon_size=18) -> None:
+    def __init__(self, parent: QWidget | None = None, icon_size: int = 18) -> None:
         super().__init__(parent)
         self.icon_size = QSize(icon_size, icon_size)
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        self.items = []
-        self.button_map = {}
+        self.items: list[Button | Separator] = []
+        self.button_map: dict[QAction, Button] = {}
         self.applied_geometry = QRect(0, 0, 0, 0)
 
-    def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
+    def add_action(self, ac: QAction, popup_mode: QToolButton.ToolButtonPopupMode = QToolButton.ToolButtonPopupMode.DelayedPopup) -> None:
         w = Button(ac, self)
         w.setPopupMode(popup_mode)
         w.setIconSize(self.icon_size)
@@ -141,10 +151,10 @@ class FlowToolBar(QWidget):
     def hasHeightForWidth(self) -> bool:
         return True
 
-    def heightForWidth(self, a0):
+    def heightForWidth(self, a0: int) -> int:
         return self.do_layout(QRect(0, 0, a0, 0), apply_geometry=False)
 
-    def minimumSize(self):
+    def minimumSize(self) -> QSize:
         size = QSize()
         for item in self.items:
             size = size.expandedTo(item.minimumSize())
@@ -152,16 +162,17 @@ class FlowToolBar(QWidget):
 
     sizeHint = minimumSize
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.applied_geometry != self.rect():
             self.do_layout(self.rect(), apply_geometry=True)
         super().paintEvent(a0)
 
-    def do_layout(self, rect, apply_geometry=False):
+    def do_layout(self, rect: QRect, apply_geometry: bool = False) -> int:
         line_height = 0
 
-        lines, current_line = [], []
-        gmap = {}
+        lines: list[tuple[int, list[QWidget]]] = []
+        current_line: list[QWidget] = []
+        gmap: dict[QWidget, tuple[int, int, QSize]] = {}
         if apply_geometry:
             for item in self.items:
                 if isinstance(item, Separator):
@@ -173,7 +184,7 @@ class FlowToolBar(QWidget):
             if current_line:
                 lines.append((line_height, current_line))
 
-        groups = []
+        groups: list[Group] = []
         current_group = Group(self.parent())
         for wid in self.items:
             if not wid.isVisible() or (not current_group and isinstance(wid, Separator)):
@@ -227,7 +238,7 @@ class FlowToolBar(QWidget):
         return y + line_height - rect.y()
 
 
-def create_flow_toolbar(parent=None, icon_size=18, restrict_to_single_line=False):
+def create_flow_toolbar(parent: QWidget | None = None, icon_size: int = 18, restrict_to_single_line: bool = False) -> SingleLineToolBar | FlowToolBar:
     if restrict_to_single_line:
         return SingleLineToolBar(parent, icon_size)
     return FlowToolBar(parent, icon_size)

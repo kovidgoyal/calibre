@@ -85,13 +85,17 @@ class MetadataBackup(Thread):  # {{{
                 break
 
             try:
-                path, mi, sequence = get_metadata_for_dump(id_)
+                ans = get_metadata_for_dump(id_)
+                assert ans is not None
+                path, mi, sequence = ans
             except Exception:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi, sequence = get_metadata_for_dump(id_)
+                    ans = get_metadata_for_dump(id_)
+                    assert ans is not None
+                    path, mi, sequence = ans
                 except Exception:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()

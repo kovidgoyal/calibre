@@ -44,12 +44,17 @@ from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _, localize_user_manual_link, ngettext
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
+    from unittest import TestSuite
+
+    from qt.core import QContextMenuEvent, QKeyEvent, QModelIndex, QPainter, QStyleOptionViewItem
+
+    from calibre.ebooks.metadata.tag_mapper import Rule
 
 tag_maps = JSONConfig('tag-map-rules')
 
 
-def intelligent_strip(action, val):
+def intelligent_strip(action: str, val: str) -> str:
     ans = val.strip()
     if not ans and action == 'split':
         ans = ' '
@@ -57,7 +62,9 @@ def intelligent_strip(action, val):
 
 
 class QueryEdit(QLineEdit):
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        if a0 is None:
+            return
         menu = self.createStandardContextMenu()
         assert menu is not None
         _p = self.parent()
@@ -67,7 +74,7 @@ class QueryEdit(QLineEdit):
 
 
 class SingleTagEdit(EditWithComplete):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__(parent)
         self.set_separator(None)
         gui = get_gui()
@@ -112,7 +119,7 @@ class RuleEdit(QWidget):
     REGEXP_HELP_TEXT = _('For help with regex pattern matching, see the <a href="%s">User Manual</a>')
     SINGLE_EDIT_FIELD_NAME = 'tags'
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -157,14 +164,14 @@ class RuleEdit(QWidget):
         self.la3.setVisible(False), self.replace.setVisible(False)
         self.update_state()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         a = QWidget.sizeHint(self)
         a.setHeight(a.height() + 75)
         a.setWidth(a.width() + 100)
         return a
 
     @property
-    def can_use_tag_editor(self):
+    def can_use_tag_editor(self) -> bool:
         return self.SUBJECT is RuleEdit.SUBJECT and 'matches' not in self.match_type.currentData() and get_gui() is not None
 
     def update_state(self) -> None:
@@ -185,7 +192,7 @@ class RuleEdit(QWidget):
         self.query.setToolTip(tt)
         self.replace.setToolTip(textwrap.fill(self.SPLIT_TOOLTIP if split else self.REPLACE_TOOLTIP))
 
-    def specialise_context_menu(self, menu) -> None:
+    def specialise_context_menu(self, menu: QMenu) -> None:
         if self.can_use_tag_editor:
             menu.addAction(_('Use the Tag editor to edit the list of tags'), self.edit_tags)
 
@@ -201,7 +208,7 @@ class RuleEdit(QWidget):
             self.query.setText(', '.join(d.tags))
 
     @property
-    def rule(self):
+    def rule(self) -> dict[str, str]:
         ac = self.action.currentData()
         return {
             'action': ac,
@@ -211,8 +218,8 @@ class RuleEdit(QWidget):
         }
 
     @rule.setter
-    def rule(self, rule) -> None:
-        def sc(name) -> None:
+    def rule(self, rule: Rule) -> None:
+        def sc(name: str) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -242,7 +249,7 @@ class RuleEditDialog(Dialog):
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=None)
 
     def setup_ui(self) -> None:
@@ -276,7 +283,7 @@ class RuleSearchEdit(QLineEdit):
     # Handle Enter here, as QLineEdit passes it on to the dialog, which would accept it
     find_requested = pyqtSignal(bool)
 
-    def keyPressEvent(self, a0) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0 is not None and a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             a0.accept()
             self.find_requested.emit(not a0.modifiers() & Qt.KeyboardModifier.ShiftModifier)
@@ -293,7 +300,7 @@ class RuleItem(QListWidgetItem):
                 yield val
 
     @staticmethod
-    def text_from_rule(rule, parent):
+    def text_from_rule(rule: Mapping[str, Any], parent: QWidget) -> str:
         query = rule['query']
         text = _('<b>{action}</b> the tag, if it <i>{match_type}</i>: <b>{query}</b>').format(
             action=RuleEdit.ACTION_MAP[rule['action']],
@@ -306,7 +313,7 @@ class RuleItem(QListWidgetItem):
             text += '<br>' + _('on the character:') + ' <b>{}</b>'.format(rule['replace'])
         return '<div style="white-space: nowrap">' + text + '</div>'
 
-    def __init__(self, rule, parent) -> None:
+    def __init__(self, rule: Mapping[str, Any], parent: QListWidget) -> None:
         QListWidgetItem.__init__(self, '', parent)
         st = self.text_from_rule(rule, parent)
         self.setData(RENDER_ROLE, st)
@@ -316,7 +323,7 @@ class RuleItem(QListWidgetItem):
 class Delegate(QStyledItemDelegate):
     MARGIN = 16
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         st = QStaticText(index.data(RENDER_ROLE))
         _p = self.parent()
         assert isinstance(_p, QWidget)
@@ -327,8 +334,10 @@ class Delegate(QStyledItemDelegate):
         br = st.size()
         return QSize(int(br.width() + self.MARGIN), int(br.height() + self.MARGIN))
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
+        if painter is None:
+            return
         pal = option.palette
         color = pal.color(QPalette.ColorRole.HighlightedText if option.state & QStyle.StateFlag.State_Selected else QPalette.ColorRole.Text).name()
         text = f'<div style="color:{color}">{index.data(RENDER_ROLE)}</div>'
@@ -349,7 +358,7 @@ class Rules(QWidget):
         ' "remove" or a "keep" rule matches.'
     )
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
@@ -454,7 +463,7 @@ class Rules(QWidget):
     def find_previous_rule(self) -> None:
         self.find_rule(False)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def add_rule(self) -> None:
@@ -483,7 +492,7 @@ class Rules(QWidget):
         if changed:
             self.changed.emit()
 
-    def move_selected(self, delta=-1) -> None:
+    def move_selected(self, delta: int = -1) -> None:
         current_item = self.rule_list.currentItem()
         items = self.rule_list.selectedItems()
         if current_item is None or not items or not len(items):
@@ -510,8 +519,8 @@ class Rules(QWidget):
         self.move_selected(1)
 
     @property
-    def rules(self):
-        ans = []
+    def rules(self) -> list[Mapping[str, Any]]:
+        ans: list[Mapping[str, Any]] = []
         for r in range(self.rule_list.count()):
             rule_item = self.rule_list.item(r)
             assert rule_item is not None
@@ -519,7 +528,7 @@ class Rules(QWidget):
         return ans
 
     @rules.setter
-    def rules(self, rules) -> None:
+    def rules(self, rules: Iterable[Mapping[str, Any]] | None) -> None:
         self.rule_list.clear()
         for rule in rules or ():
             if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
@@ -534,7 +543,7 @@ class Tester(Dialog):
     PLACEHOLDER = _('Enter tags and click the "Test" button')
     EMPTY_RESULT = '<p>&nbsp;<br>&nbsp;</p>'
 
-    def __init__(self, rules, parent=None) -> None:
+    def __init__(self, rules: Sequence[Mapping[str, Any]], parent: QWidget | None = None) -> None:
         self.rules = rules
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
@@ -559,7 +568,7 @@ class Tester(Dialog):
         l.addWidget(self.bb)
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self.tags.text()
 
     def do_test(self) -> None:
@@ -567,7 +576,7 @@ class Tester(Dialog):
         tags = map_tags(tags, self.rules)
         self.result_widget.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setWidth(ans.width() + 150)
         return ans
@@ -628,7 +637,7 @@ class SaveLoadMixin:
         self.loaded_ruleset = name
         self.ruleset_changed.emit()  # type: ignore
 
-    def delete_ruleset(self: SaveLoadSelf, name) -> None:
+    def delete_ruleset(self: SaveLoadSelf, name: str) -> None:
         del self.PREFS_OBJECT[name]
         if self.loaded_ruleset == name:
             self.loaded_ruleset = ''
@@ -643,7 +652,7 @@ class RulesDialog(Dialog, SaveLoadMixin):
     TesterClass = Tester
     PREFS_OBJECT = tag_maps
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.loaded_ruleset = None
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
@@ -680,31 +689,31 @@ class RulesDialog(Dialog, SaveLoadMixin):
             else:
                 self.setWindowTitle(self.base_window_title)
 
-    def exec(self):
+    def exec(self) -> int:
         self.base_window_title = self.windowTitle()
         return super().exec()
 
-    def extra_bottom_widget(self) -> None:
-        pass
+    def extra_bottom_widget(self) -> QWidget | None:
+        return None
 
     @property
-    def rules(self):
+    def rules(self) -> list[Mapping[str, Any]]:
         return self.edit_widget.rules
 
     @rules.setter
-    def rules(self, rules) -> None:
+    def rules(self, rules: Iterable[Mapping[str, Any]] | None) -> None:
         self.edit_widget.rules = rules
 
     def test_rules(self) -> None:
         self.TesterClass(self.rules, self).exec()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = super().sizeHint()
         ans.setWidth(ans.width() + 100)
         return ans
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestRuleSearch(unittest.TestCase):

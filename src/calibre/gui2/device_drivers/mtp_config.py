@@ -36,6 +36,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.device import DeviceMixin
 
 if TYPE_CHECKING:
+    from calibre.devices.mtp.driver import MTP_DEVICE
     from calibre.gui2.ui import Main
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -640,7 +641,7 @@ class SendError(QDialog):
         QDialog.accept(self)
         p = self.parent()
         assert isinstance(p, DeviceMixin)
-        dev = p.device_manager.connected_device
+        dev = cast('MTP_DEVICE | None', p.device_manager.connected_device)
         assert dev is not None
         dev.highlight_ignored_folders = True
         cast('Main', p).configure_connected_device()

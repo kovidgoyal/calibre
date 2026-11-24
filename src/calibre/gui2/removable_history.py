@@ -8,7 +8,7 @@ web browsers: hovering over an entry shows a small remove button at the right
 edge of the entry and Shift+Delete removes the entry under the mouse cursor.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -34,6 +34,8 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from qt.core import QHelpEvent, QKeyEvent, QModelIndex, QPainter, QSinglePointEvent
+
 MARGIN = 2
 
 # PyQt destroys the Python part of an object as soon as the last reference to
@@ -53,13 +55,13 @@ class RemovableItemDelegate(QStyledItemDelegate):  # {{{
         super().__init__(remover.view)
         self.remover = remover
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         ans = super().sizeHint(option, index)
         if isinstance(ans, QSize):
             ans.setWidth(ans.width() + ans.height() + 2 * MARGIN)
         return ans
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         opt = QStyleOptionViewItem(option)
         self.initStyleOption(opt, index)
         # Match the behavior of the delegate QCompleter uses for its popup,
@@ -239,10 +241,10 @@ class HistoryItemRemover(QObject):
         self.refresh_hovered_row()
         self.update_view()
 
-    def is_remove_key(self, event) -> bool:
+    def is_remove_key(self, event: QEvent) -> bool:
         try:
-            key = event.key()
-            mods = event.modifiers()
+            key = cast('QKeyEvent', event).key()
+            mods = cast('QKeyEvent', event).modifiers()
         except AttributeError:
             return False
         if key != Qt.Key.Key_Delete or not (mods & Qt.KeyboardModifier.ShiftModifier):
@@ -251,7 +253,7 @@ class HistoryItemRemover(QObject):
         # state, such as Keypad and GroupSwitch
         return not (mods & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier))
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a0 is None or a1 is None or sip.isdeleted(self.view):
             return False
         etype = a1.type()
@@ -272,42 +274,45 @@ class HistoryItemRemover(QObject):
                 return True
         return False
 
-    def filter_viewport_event(self, viewport: QWidget, etype: QEvent.Type, event) -> bool:
+    def filter_viewport_event(self, viewport: QWidget, etype: QEvent.Type, event: QEvent) -> bool:
+        # The concrete event class is determined by etype
+        pe = cast('QSinglePointEvent', event)
         if etype == QEvent.Type.Paint:
             # Mouse events alone are not enough, as the popup is often shown,
             # re-populated or scrolled under a stationary mouse cursor, which
             # moves a different entry under the mouse without any mouse event
             self.refresh_hovered_row()
         elif etype in (QEvent.Type.MouseMove, QEvent.Type.HoverMove, QEvent.Type.HoverEnter):
-            pos = event.position().toPoint()
+            pos = pe.position().toPoint()
             self.remember_mouse_pos(viewport, pos)
             self.set_hovered_row(self.row_at(pos))
         elif etype in (QEvent.Type.Leave, QEvent.Type.HoverLeave):
             self.set_hovered_row(-1)
         elif etype == QEvent.Type.MouseButtonPress:
-            if event.button() == Qt.MouseButton.LeftButton:
-                row = self.row_for_button_at(event.position().toPoint())
+            if pe.button() == Qt.MouseButton.LeftButton:
+                row = self.row_for_button_at(pe.position().toPoint())
                 if row > -1:
                     self.pressed_row = row
                     self.update_view()
-                    event.accept()
+                    pe.accept()
                     return True
         elif etype == QEvent.Type.MouseButtonDblClick:
-            if self.row_for_button_at(event.position().toPoint()) > -1:
-                event.accept()
+            if self.row_for_button_at(pe.position().toPoint()) > -1:
+                pe.accept()
                 return True
         elif etype == QEvent.Type.MouseButtonRelease:
             row, self.pressed_row = self.pressed_row, -1
             if row > -1:
                 self.update_view()
-                if event.button() == Qt.MouseButton.LeftButton and self.row_for_button_at(event.position().toPoint()) == row:
+                if pe.button() == Qt.MouseButton.LeftButton and self.row_for_button_at(pe.position().toPoint()) == row:
                     self.remove_row(row)
-                event.accept()
+                pe.accept()
                 return True
         elif etype == QEvent.Type.ToolTip:
-            if self.row_for_button_at(event.pos()) > -1:
-                QToolTip.showText(event.globalPos(), self.tooltip_text, viewport)
-                event.accept()
+            help_event = cast('QHelpEvent', event)
+            if self.row_for_button_at(help_event.pos()) > -1:
+                QToolTip.showText(help_event.globalPos(), self.tooltip_text, viewport)
+                help_event.accept()
                 return True
         return False
 

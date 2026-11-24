@@ -3,7 +3,7 @@
 
 from html import escape
 from math import ceil
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QFont,
@@ -30,6 +30,9 @@ from calibre.utils.localization import _
 from calibre.utils.logging import INFO, WARN
 from calibre.utils.resources import get_image_path
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent, QResizeEvent
+
 
 class Browser(QTextBrowser):
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -50,7 +53,7 @@ class Browser(QTextBrowser):
     def sizeHint(self) -> QSize:
         return QSize(600, 500)
 
-    def setHtml(self, text) -> None:
+    def setHtml(self, text: str | None) -> None:
         super().setHtml(text)
         doc = self.document()
         assert doc is not None
@@ -116,8 +119,8 @@ class InputEdit(QTextEdit):
         self.maximum_height = val
         self.adjust_height()
 
-    def keyPressEvent(self, e) -> None:
-        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        if e is not None and e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             mods = e.modifiers() & (
                 Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
             )
@@ -151,7 +154,7 @@ class Input(QWidget):
         b.clicked.connect(self.send_requested)
         l.addWidget(b, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def setFocus(self, reason=Qt.FocusReason.OtherFocusReason) -> None:
+    def setFocus(self, reason: Qt.FocusReason = Qt.FocusReason.OtherFocusReason) -> None:
         self.text_input.setFocus(reason)
 
     @property
@@ -201,7 +204,7 @@ class ChatWidget(QWidget):
         self.line_spacing = self.browser.fontMetrics().lineSpacing()
         self.disclaimer_label.setVisible(False)
 
-    def setFocus(self, reason=...) -> None:
+    def setFocus(self, reason: Qt.FocusReason = Qt.FocusReason.OtherFocusReason) -> None:
         self.input.setFocus(reason)
 
     def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:
@@ -245,7 +248,7 @@ class ChatWidget(QWidget):
 
     # }}}
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         super().resizeEvent(a0)
         self.input.set_max_height(ceil(self.height() * 0.25))
 

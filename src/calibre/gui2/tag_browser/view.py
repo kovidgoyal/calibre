@@ -943,11 +943,13 @@ class TagsView(QTreeView):  # {{{
             if action == 'edit_open_with_apps':
                 from calibre.gui2.open_with import edit_programs
 
+                assert key is not None
                 edit_programs(key, self)
                 return
             if action == 'add_open_with_apps':
                 from calibre.gui2.open_with import choose_program
 
+                assert key is not None
                 choose_program(key, self)
                 return
 

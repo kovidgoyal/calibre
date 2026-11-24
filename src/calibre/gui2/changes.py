@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.srv.changes import BooksAdded, BooksDeleted, FormatsAdded, FormatsRemoved, MetadataChanged, SavedSearchesChanged, VirtualLibrariesChanged
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-def handle_changes(changes, gui=None) -> None:
+    from calibre.gui2.ui import Main
+    from calibre.srv.changes import ChangeEvent
+
+
+def handle_changes(changes: Sequence[ChangeEvent], gui: Main | None = None) -> None:
     if not changes:
         return
     if gui is None:
@@ -45,7 +53,9 @@ def handle_changes(changes, gui=None) -> None:
             gui.iactions['Add Books'].refresh_gui(len(added), recount=False)
             position_based_recount = False
         if removed:
-            next_id = gui.current_view().next_id
+            cv = gui.current_view()
+            assert cv is not None
+            next_id = cv.next_id
             m = gui.library_view._model
             m.ids_deleted(removed)
             gui.iactions['Remove Books'].library_ids_deleted2(removed, next_id=next_id)

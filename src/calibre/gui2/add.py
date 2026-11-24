@@ -12,7 +12,7 @@ from collections import OrderedDict
 from io import BytesIO
 from queue import Empty
 from threading import Thread
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -35,8 +35,16 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator, Sequence
 
-def validate_source(source, parent=None) -> bool:  # {{{
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.utils.ipc.pool import Result
+
+
+def validate_source(source: str | bytes | Sequence[str], parent: QWidget | None = None) -> bool:  # {{{
     if isinstance(source, (str, bytes)):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _('The path %s does not exist') % source, show=True)
@@ -65,7 +73,7 @@ def validate_source(source, parent=None) -> bool:  # {{{
 # }}}
 
 
-def resolve_windows_links(paths, hwnd=None):
+def resolve_windows_links(paths: Iterable[str], hwnd: int | None = None) -> Iterator[str]:
     from calibre_extensions.winutil import resolve_lnk
 
     for x in paths:
@@ -86,13 +94,13 @@ class Adder(QObject):
 
     def __init__(
         self,
-        source,
-        single_book_per_directory=True,
-        db=None,
-        parent=None,
-        callback=None,
-        pool=None,
-        list_of_archives=False,
+        source: str | Iterable[str],
+        single_book_per_directory: bool = True,
+        db: LibraryDatabase | None = None,
+        parent: QWidget | None = None,
+        callback: Callable[[Adder], object] | None = None,
+        pool: Pool | None = None,
+        list_of_archives: bool = False,
     ) -> None:
         if isinstance(source, str):
             source = make_long_path_useable(source)
@@ -114,11 +122,11 @@ class Adder(QObject):
         self.do_one_signal.connect(self.tick, type=Qt.ConnectionType.QueuedConnection)
         self.pool = pool
         self.pd = ProgressDialog(_('Adding books...'), _('Scanning for files...'), min=0, max=0, parent=parent, icon='add_book.png')
-        self.win_id = None
+        self.win_id: int | None = None
         if parent is not None and hasattr(parent, 'effectiveWinId'):
-            self.win_id = parent.effectiveWinId()
-            if self.win_id is not None:
-                self.win_id = int(self.win_id)
+            win_id = parent.effectiveWinId()
+            if win_id is not None:
+                self.win_id = int(win_id)
         self.db = getattr(db, 'new_api', None)
         if self.db is not None:
             self.dbref = weakref.ref(db)
@@ -190,7 +198,7 @@ class Adder(QObject):
 
         if iswindows or ismacos:
 
-            def find_files(root) -> None:
+            def find_files(root: str) -> None:
                 for dirpath, dirnames, filenames in os.walk(root):
                     for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
                         if self.abort_scan:
@@ -202,7 +210,7 @@ class Adder(QObject):
 
         else:
 
-            def find_files(root) -> None:
+            def find_files(root: str | bytes) -> None:
                 if isinstance(root, str):
                     root = root.encode(filesystem_encoding)
                 for dirpath, dirnames, filenames in os.walk(root):
@@ -216,7 +224,7 @@ class Adder(QObject):
                             return
                         file_groups[len(file_groups)] = files
 
-        def extract(source):
+        def extract(source: str) -> str:
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
             if source.lower().endswith('.zip'):
                 from calibre.utils.zipfile import extractall
@@ -416,7 +424,7 @@ class Adder(QObject):
 
         self.do_one_signal.emit()
 
-    def report_metadata_failure(self, group_id, details):
+    def report_metadata_failure(self, group_id: int, details: str | None) -> Metadata:
         a = self.report.append
         file_groups = self.file_groups
         assert file_groups is not None
@@ -430,7 +438,7 @@ class Adder(QObject):
         mi.read_metadata_failed = False
         return mi
 
-    def process_result(self, group_id, result) -> None:
+    def process_result(self, group_id: int, result: Result) -> None:
         file_groups = self.file_groups
         assert file_groups is not None
         pd = self.pd
@@ -443,7 +451,8 @@ class Adder(QObject):
             has_cover = False
             duplicate_info = set() if self.add_formats_to_existing else False
         else:
-            paths, opf, has_cover, duplicate_info = result.value
+            # See calibre.ebooks.metadata.worker.read_metadata() for the type of result.value
+            paths, opf, has_cover, duplicate_info = cast('tuple[list[str], bytes, bool, bool | str | None]', result.value)
             try:
                 mi = OPF(BytesIO(opf), basedir=cast('str', self.tdir), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
                 mi.read_metadata_failed = False
@@ -503,7 +512,7 @@ class Adder(QObject):
         else:
             self.add_book(mi, cover_path, paths)
 
-    def merge_books(self, mi, cover_path, paths, identical_book_ids) -> None:
+    def merge_books(self, mi: Metadata, cover_path: str | None, paths: Sequence[str], identical_book_ids: Iterable[int]) -> None:
         merged_books = self.merged_books
         assert merged_books is not None
         merged_books.add((mi.title, ' & '.join(mi.authors)))
@@ -538,7 +547,7 @@ class Adder(QObject):
             except Exception:
                 pass
 
-    def add_book(self, mi, cover_path, paths) -> None:
+    def add_book(self, mi: Metadata, cover_path: str | None, paths: Sequence[str]) -> None:
         if DEBUG:
             st = time.time()
         try:
@@ -554,7 +563,8 @@ class Adder(QObject):
             assert dbref is not None
             db_inst = dbref()
             assert db_inst is not None
-            book_id = db_inst.create_book_entry(mi, cover=cdata)
+            # create_book_entry() only returns None when add_duplicates is False
+            book_id = cast('int', db_inst.create_book_entry(mi, cover=cdata))
             self.added_book_ids.add(book_id)
         except Exception:
             a = self.report.append
@@ -580,7 +590,7 @@ class Adder(QObject):
         if DEBUG:
             prints('Added', mi.title, f'to db in: {time.time() - st:.1f}')
 
-    def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False) -> None:
+    def add_formats(self, book_id: int, paths: Iterable[str], mi: Metadata, replace: bool = True, is_an_add: bool = False) -> None:
         fmap = {p.rpartition(os.path.extsep)[-1].lower(): p for p in paths}
         fmt_map = {}
         db = self.db
@@ -671,5 +681,5 @@ class Adder(QObject):
             self.break_cycles()
 
     @property
-    def number_of_books_added(self):
+    def number_of_books_added(self) -> int:
         return len(self.added_book_ids)

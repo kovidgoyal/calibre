@@ -5,7 +5,7 @@
 # our own restore geometry
 
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 from qt.core import QRect, QScreen, QSize, Qt, QWidget
 
@@ -14,17 +14,53 @@ from calibre.utils.config_base import Prefs, tweaks
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from unittest import TestSuite
 
 
-def geometry_pref_name(name) -> str:
+class SizeDict(TypedDict):
+    width: int
+    height: int
+
+
+class RectDict(TypedDict):
+    x: int
+    y: int
+    width: int
+    height: int
+
+
+class ScreenDict(TypedDict):
+    name: str
+    serial: str
+    manufacturer: str
+    model: str
+    depth: int
+    device_pixel_ratio: float
+    size_in_logical_pixels: SizeDict
+    geometry_in_logical_pixels: RectDict
+    virtual_geometry: RectDict
+    index_in_screens_list: int
+
+
+class GeometryDict(TypedDict, total=False):
+    screen: ScreenDict
+    geometry: RectDict
+    frame_geometry: RectDict
+    normal_geometry: RectDict
+    maximized: bool
+    full_screened: bool
+    qt: bytearray
+
+
+def geometry_pref_name(name: str) -> str:
     return f'geometry-of-{name}'
 
 
-def is_debugging():
+def is_debugging() -> bool | None:
     return _is_debugging() and tweaks.get('show_geometry_debug_output')
 
 
-def debug(*a, **kw) -> None:
+def debug(*a: object, **kw: object) -> None:
     if is_debugging():
         from pprint import pformat
 
@@ -36,23 +72,23 @@ def debug(*a, **kw) -> None:
         print(*items)
 
 
-def size_as_dict(self: QSize):
+def size_as_dict(self: QSize) -> SizeDict:
     return {'width': self.width(), 'height': self.height()}
 
 
-def dict_as_size(x: dict) -> QSize:
+def dict_as_size(x: SizeDict) -> QSize:
     return QSize(x['width'], x['height'])
 
 
-def rect_as_dict(self: QRect):
+def rect_as_dict(self: QRect) -> RectDict:
     return {'x': self.left(), 'y': self.top(), 'width': self.width(), 'height': self.height()}
 
 
-def dict_as_rect(g: dict) -> QRect:
+def dict_as_rect(g: RectDict) -> QRect:
     return QRect(g['x'], g['y'], g['width'], g['height'])
 
 
-def screen_as_dict(self: QScreen):
+def screen_as_dict(self: QScreen) -> ScreenDict:
     from calibre.gui2 import qapplication_or_fail
 
     try:
@@ -73,11 +109,11 @@ def screen_as_dict(self: QScreen):
     }
 
 
-def geometry_for_restore_as_dict(self: QWidget):
+def geometry_for_restore_as_dict(self: QWidget) -> GeometryDict:
     s = self.screen()
     if s is None:
         return {}
-    ans = {
+    ans: GeometryDict = {
         'screen': screen_as_dict(s),
         'geometry': rect_as_dict(self.geometry()),
         'frame_geometry': rect_as_dict(self.frameGeometry()),
@@ -102,7 +138,7 @@ def save_geometry(self: QWidget, prefs: Prefs, name: str) -> None:
         prefs.set(geometry_pref_name(name), x)
 
 
-def find_matching_screen(screen_as_dict):
+def find_matching_screen(screen_as_dict: ScreenDict) -> QScreen | None:
     from calibre.gui2 import qapplication_or_fail
 
     screens = qapplication_or_fail().screens()
@@ -115,7 +151,7 @@ def find_matching_screen(screen_as_dict):
             if q.serialNumber() == screen_as_dict['serial']:
                 return q
 
-    def match(key, val):
+    def match(key: Literal['name', 'manufacturer', 'model'], val: str) -> bool:
         v = screen_as_dict[key]
         return bool(not v or v == val)
 
@@ -124,6 +160,7 @@ def find_matching_screen(screen_as_dict):
             return q
     if len(screens_of_matching_size) == 1:
         return screens_of_matching_size[0]
+    return None
 
 
 def _do_restore(self: QWidget, s: QScreen, geometry: QRect, saved_data: dict) -> bool:
@@ -250,14 +287,14 @@ QWidget.save_geometry = save_geometry
 QWidget.restore_geometry = restore_geometry
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
     class TestSavedGeometrySanity(unittest.TestCase):
         def test_saved_geometry_sanity(self) -> None:
             virtual_geometry = QRect(0, 0, 1920, 1080)
 
-            def sane(x, y, width, height):
+            def sane(x: int, y: int, width: int, height: int) -> bool:
                 return saved_geometry_is_sane(QRect(x, y, width, height), virtual_geometry)
 
             self.assertTrue(sane(10, 10, 800, 600))

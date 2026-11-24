@@ -39,7 +39,13 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Collection, Iterable, Iterator
+
+    from qt.core import QModelIndex, QPainter, QPoint, QStyleOptionViewItem
+
+    from calibre.db.legacy import LibraryDatabase
+
+    type Failure = tuple[TrashEntry, Exception, str]
 
 THUMBNAIL_SIZE = 60, 80
 MARGIN_SIZE = 8
@@ -65,17 +71,18 @@ def entry_text(entry: TrashEntry) -> str:
 
 
 class TrashItemDelegate(QStyledItemDelegate):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__(parent)
-        self.pixmap_cache = {}
+        self.pixmap_cache: dict[str, QPixmap] = {}
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)
         text_height = (entry_text(entry).count('\n') + 1) * option.fontMetrics.lineSpacing()
         return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, max(THUMBNAIL_SIZE[1], text_height) + MARGIN_SIZE)
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         super().paint(painter, option, index)
+        assert painter is not None
         painter.save()
         entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)
         if option is not None and option.state & QStyle.StateFlag.State_Selected:
@@ -135,10 +142,10 @@ class TrashList(QListWidget):
         for i in self.selectedItems():
             yield i.data(Qt.ItemDataRole.UserRole)
 
-    def double_clicked(self, item) -> None:
+    def double_clicked(self, item: QListWidgetItem) -> None:
         self.restore_item.emit(self, item)
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         item = self.itemAt(pos)
         if item is None:
             return
@@ -175,10 +182,10 @@ class TrashList(QListWidget):
 class TrashView(Dialog):
     books_restored = pyqtSignal(object)
 
-    def __init__(self, db, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QWidget | None = None) -> None:
         self.db = db.new_api
         self.expire_on_close = False
-        self.formats_restored = set()
+        self.formats_restored: set[int] = set()
         super().__init__(
             _('Recently deleted books'),
             'trash-view-for-library',
@@ -265,7 +272,7 @@ class TrashView(Dialog):
         entries = tuple(cw.selected_entries)
         self.restore_button.setEnabled(not entries or any(e.restorable for e in entries))
 
-    def mark_formats_restorable(self, book_ids) -> None:
+    def mark_formats_restorable(self, book_ids: Collection[int]) -> None:
         # Removed formats of a book become restorable once the book itself is restored
         for row in range(self.formats.count()):
             item = self.formats.item(row)
@@ -290,7 +297,7 @@ class TrashView(Dialog):
         self.tabs.setTabText(0, _('&Books ({})').format(self.books.count()))
         self.tabs.setTabText(1, _('&Formats ({})').format(self.formats.count()))
 
-    def trash_expiry_time_changed(self, val) -> None:
+    def trash_expiry_time_changed(self, val: int) -> None:
         self.db.set_pref('expire_old_trash_after', 86400 * self.auto_delete.value())
         self.expire_on_close = True
 
@@ -298,15 +305,16 @@ class TrashView(Dialog):
         if self.expire_on_close:
             self.db.expire_old_trash()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(530, 650)
 
-    def do_operation_on_selected(self, func):
-        ok_items, failed_items = [], []
+    def do_operation_on_selected(self, func: Callable[[TrashEntry], None]) -> tuple[list[QListWidgetItem], list[Failure]]:
+        ok_items: list[QListWidgetItem] = []
+        failed_items: list[Failure] = []
         cw = self.tabs.currentWidget()
         assert isinstance(cw, TrashList)
         for i in cw.selectedItems():
-            entry = i.data(Qt.ItemDataRole.UserRole)
+            entry: TrashEntry = i.data(Qt.ItemDataRole.UserRole)
             try:
                 func(entry)
             except Exception as e:
@@ -316,12 +324,12 @@ class TrashView(Dialog):
         return ok_items, failed_items
 
     @property
-    def books_tab_is_selected(self):
+    def books_tab_is_selected(self) -> bool:
         return self.tabs.currentWidget() is self.books
 
-    def restore_item(self, which, item) -> None:
+    def restore_item(self, which: TrashList, item: QListWidgetItem) -> None:
         is_books = which is self.books
-        entry = item.data(Qt.ItemDataRole.UserRole)
+        entry: TrashEntry = item.data(Qt.ItemDataRole.UserRole)
         if is_books:
             self.db.move_book_from_trash(entry.book_id)
             self.books_restored.emit({entry.book_id})
@@ -336,8 +344,8 @@ class TrashView(Dialog):
 
     def restore_selected(self) -> None:
         is_books = self.books_tab_is_selected
-        done = set()
-        not_restorable = []
+        done: set[int] = set()
+        not_restorable: list[TrashEntry] = []
         if not is_books:
             for i in self.formats.selectedItems():
                 entry: TrashEntry = i.data(Qt.ItemDataRole.UserRole)
@@ -345,7 +353,7 @@ class TrashView(Dialog):
                     not_restorable.append(entry)
                     i.setSelected(False)
 
-        def f(entry) -> None:
+        def f(entry: TrashEntry) -> None:
             if is_books:
                 self.db.move_book_from_trash(entry.book_id)
                 done.add(entry.book_id)
@@ -362,7 +370,7 @@ class TrashView(Dialog):
         if not_restorable:
             self.show_not_restorable(not_restorable)
 
-    def remove_entries(self, remove) -> None:
+    def remove_entries(self, remove: Iterable[QListWidgetItem]) -> None:
         w = self.tabs.currentWidget()
         assert isinstance(w, TrashList)
         for i in remove:
@@ -373,17 +381,17 @@ class TrashView(Dialog):
     def delete_selected(self) -> None:
         category = 'b' if self.books_tab_is_selected else 'f'
 
-        def f(entry) -> None:
+        def f(entry: TrashEntry) -> None:
             self.db.delete_trash_entry(entry.book_id, category)
 
         ok, failed = self.do_operation_on_selected(f)
         self.remove_entries(ok)
         self.show_failures(failed, _('delete'))
 
-    def show_failures(self, failures, operation) -> None:
+    def show_failures(self, failures: list[Failure], operation: str) -> None:
         if not failures:
             return
-        det_msg = []
+        det_msg: list[str] = []
         for entry, exc, tb in failures:
             det_msg.append(_('Failed for the book {} with error:').format(entry.title))
             det_msg.append(tb)

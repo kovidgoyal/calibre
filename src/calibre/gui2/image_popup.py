@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import (
     QAction,
     QCheckBox,
@@ -30,8 +32,13 @@ from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_availa
 from calibre.gui2.palette import dark_palette
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QMouseEvent, QObject, QPoint, QResizeEvent, QWheelEvent, QWidget
 
-def render_svg(widget, path):
+    from calibre.utils.config import JSONConfig
+
+
+def render_svg(widget: QWidget, path: str) -> QPixmap:
     from qt.core import QSvgRenderer
 
     img = QPixmap()
@@ -41,7 +48,7 @@ def render_svg(widget, path):
         sz = rend.defaultSize()
         h = max_available_height() - 50
         w = int(h * sz.height() / float(sz.width()))
-        pd = QImage(w * dpr, h * dpr, QImage.Format.Format_RGB32)
+        pd = QImage(int(w * dpr), int(h * dpr), QImage.Format.Format_RGB32)
         pd.fill(Qt.GlobalColor.white)
         p = QPainter(pd)
         rend.render(p)
@@ -55,7 +62,7 @@ class Label(QLabel):
     toggle_fit = pyqtSignal()
     zoom_requested = pyqtSignal(bool)
 
-    def __init__(self, scrollarea) -> None:
+    def __init__(self, scrollarea: ScrollArea) -> None:
         super().__init__(scrollarea)
         scrollarea.zoom_requested.connect(self.zoom_requested)
         self.setBackgroundRole(QPalette.ColorRole.NoRole)
@@ -63,39 +70,43 @@ class Label(QLabel):
         self.setScaledContents(True)
         self.default_cursor = self.cursor()
         self.in_drag = False
-        self.prev_drag_position = None
+        self.prev_drag_position: QPoint | None = None
         self.scrollarea = scrollarea
 
     @property
-    def is_pannable(self):
-        return self.scrollarea.verticalScrollBar().isVisible() or self.scrollarea.horizontalScrollBar().isVisible()
+    def is_pannable(self) -> bool:
+        vs, hs = self.scrollarea.verticalScrollBar(), self.scrollarea.horizontalScrollBar()
+        assert vs is not None and hs is not None
+        return vs.isVisible() or hs.isVisible()
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton and self.is_pannable:
+    def mousePressEvent(self, ev: QMouseEvent | None) -> None:
+        if ev is not None and ev.button() == Qt.MouseButton.LeftButton and self.is_pannable:
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self.in_drag = True
-            self.prev_drag_position = ev.globalPos()
+            self.prev_drag_position = ev.globalPosition().toPoint()
         return super().mousePressEvent(ev)
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton and self.in_drag:
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+        if ev is not None and ev.button() == Qt.MouseButton.LeftButton and self.in_drag:
             self.setCursor(self.default_cursor)
             self.in_drag = False
             self.prev_drag_position = None
         return super().mousePressEvent(ev)
 
-    def mouseMoveEvent(self, ev):
-        if self.prev_drag_position is not None:
+    def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
+        if self.prev_drag_position is not None and ev is not None:
             p = self.prev_drag_position
-            self.prev_drag_position = pos = ev.globalPos()
+            self.prev_drag_position = pos = ev.globalPosition().toPoint()
             self.dragged(pos.x() - p.x(), pos.y() - p.y())
         return super().mouseMoveEvent(ev)
 
-    def dragged(self, dx, dy) -> None:
+    def dragged(self, dx: int, dy: int) -> None:
         h = self.scrollarea.horizontalScrollBar()
+        assert h is not None
         if h.isVisible():
             h.setValue(h.value() - dx)
         v = self.scrollarea.verticalScrollBar()
+        assert v is not None
         if v.isVisible():
             v.setValue(v.value() - dy)
 
@@ -105,12 +116,12 @@ class ScrollArea(QScrollArea):
     zoom_requested = pyqtSignal(bool)
     current_wheel_angle_delta = 0
 
-    def mouseDoubleClickEvent(self, a0) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        if a0 is not None and a0.button() == Qt.MouseButton.LeftButton:
             self.toggle_fit.emit()
 
-    def wheelEvent(self, a0) -> None:
-        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+        if a0 is not None and a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             ad = a0.angleDelta().y()
             if ad * self.current_wheel_angle_delta < 0:
                 self.current_wheel_angle_delta = 0
@@ -124,7 +135,14 @@ class ScrollArea(QScrollArea):
 
 
 class ImageView(QDialog):
-    def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry', prefs=gprefs) -> None:
+    def __init__(
+        self,
+        parent: QObject | None,
+        current_img: QPixmap,
+        current_url: QUrl | str,
+        geom_name: str = 'viewer_image_popup_geometry',
+        prefs: JSONConfig = gprefs,
+    ) -> None:
         QDialog.__init__(self)
         self.prefs = prefs
         self.current_image_name = ''
@@ -233,7 +251,7 @@ class ImageView(QDialog):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
 
-    def context_menu(self, pos) -> None:
+    def context_menu(self, pos: QPoint) -> None:
         m = QMenu(self)
         m.addAction(self.reset_zoom_action)
         m.addAction(self.zoom_in_action)
@@ -258,18 +276,18 @@ class ImageView(QDialog):
         img_size.setWidth(nw), img_size.setHeight(nh)
         self.label.resize(img_size)
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
 
-    def factor_from_fit(self):
+    def factor_from_fit(self) -> float:
         scaled_height = self.label.size().height()
         actual_height = self.current_img.size().height()
         if actual_height:
             return scaled_height / actual_height
         return 1.0
 
-    def zoom_requested(self, zoom_out) -> None:
+    def zoom_requested(self, zoom_out: bool) -> None:
         zo_button = self.zo_button
         assert zo_button is not None
         zi_button = self.zi_button
@@ -301,7 +319,8 @@ class ImageView(QDialog):
         self.adjust_image(0.8)
 
     def save_image(self) -> None:
-        is_svg = self.current_image_is_svg and hasattr(self, 'current_url') and self.current_url.isLocalFile()
+        url = self.current_url
+        is_svg = self.current_image_is_svg and isinstance(url, QUrl) and url.isLocalFile()
         filters = [('Images', ['svg'] if is_svg else ['png', 'jpeg', 'jpg'])]
         f = choose_save_file(
             self,
@@ -315,7 +334,8 @@ class ImageView(QDialog):
             if is_svg:
                 import shutil
 
-                shutil.copyfile(self.current_url.toLocalFile(), f)
+                assert isinstance(url, QUrl)
+                shutil.copyfile(url.toLocalFile(), f)
             else:
                 from calibre.utils.img import save_image
 
@@ -345,7 +365,7 @@ class ImageView(QDialog):
     def toggle_fit(self) -> None:
         self.fit_image.toggle()
 
-    def adjust_image(self, factor) -> None:
+    def adjust_image(self, factor: float) -> None:
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
             return
@@ -361,7 +381,7 @@ class ImageView(QDialog):
         self.reset_zoom_action.setEnabled(self.factor != 1)
         self.adjust_scrollbars(factor)
 
-    def adjust_scrollbars(self, factor) -> None:
+    def adjust_scrollbars(self, factor: float) -> None:
         for sb in (self.scrollarea.horizontalScrollBar(), self.scrollarea.verticalScrollBar()):
             assert sb is not None
             sb.setValue(int(factor * sb.value()) + int((factor - 1) * sb.pageStep() / 2))
@@ -375,16 +395,16 @@ class ImageView(QDialog):
         self.label.setPixmap(pm)
         self.adjust_image(self.factor)
 
-    def __call__(self, use_exec=False):
+    def __call__(self, use_exec: bool = False) -> None:
         self.transformed = False
         geom = self.avail_geom
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
         self.resize(QSize(int(geom.width() / 2.5), geom.height() - 50))
         self.restore_geometry(self.prefs, self.geom_name)
-        try:
+        if isinstance(self.current_url, QUrl):
             self.current_image_name = str(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
-        except AttributeError:
+        else:
             self.current_image_name = self.current_url
         reso = ''
         if self.current_img and not self.current_img.isNull():
@@ -397,7 +417,7 @@ class ImageView(QDialog):
         else:
             self.show()
 
-    def done(self, a0):
+    def done(self, a0: int) -> None:
         self.save_geometry(self.prefs, self.geom_name)
         return QDialog.done(self, a0)
 
@@ -413,15 +433,15 @@ class ImageView(QDialog):
 
 
 class ImagePopup:
-    def __init__(self, parent, prefs=gprefs) -> None:
+    def __init__(self, parent: QObject | None, prefs: JSONConfig = gprefs) -> None:
         self.current_img = QPixmap()
         self.current_url = QUrl()
         self.current_image_is_svg = False
         self.parent = parent
-        self.dialogs = []
+        self.dialogs: list[ImageView] = []
         self.prefs = prefs
 
-    def __call__(self):
+    def __call__(self) -> None:
         if self.current_img.isNull():
             return
         d = ImageView(self.parent, self.current_img, self.current_url, prefs=self.prefs)
@@ -436,7 +456,7 @@ class ImagePopup:
                 self.dialogs.remove(d)
 
 
-def show_image(path=None) -> None:
+def show_image(path: str | None = None) -> None:
     if path is None:
         import sys
 

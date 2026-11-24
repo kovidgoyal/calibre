@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import functools
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAction,
@@ -42,13 +42,19 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, localize_website_link, ngettext
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping, Sequence
+
+    from qt.core import QContextMenuEvent, QMouseEvent, QPaintEvent, QSystemTrayIcon, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.library.models import BooksModel, DeviceBooksModel
     from calibre.gui2.ui import Main
 
-_keep_refs = []
+_keep_refs: list[object] = []
 
 
-def partial(*args, **kwargs):
-    ans = functools.partial(*args, **kwargs)
+def partial[T](func: Callable[..., T], /, *args: object, **kwargs: object) -> functools.partial[T]:
+    ans = functools.partial(func, *args, **kwargs)
     _keep_refs.append(ans)
     return ans
 
@@ -56,7 +62,7 @@ def partial(*args, **kwargs):
 class LibraryViewMixin:  # {{{
     library_view: BooksView
 
-    def init_library_view_mixin(self: Main, db) -> None:
+    def init_library_view_mixin(self: Main, db: LibraryDatabase) -> None:
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.add_column_signal.connect(
@@ -92,13 +98,13 @@ class LibraryViewMixin:  # {{{
 
         self.library_view._model.set_highlight_only(config['highlight_search_matches'])
 
-    def context_menu_action_hovered(self, ac) -> None:
+    def context_menu_action_hovered(self: Main, ac: QAction) -> None:
         ac.showStatusText(self)
 
     def build_context_menus(self: Main) -> None:
         from calibre.gui2.bars import populate_menu
 
-        def connect_hovered(menu) -> None:
+        def connect_hovered(menu: QMenu) -> None:
             menu.hovered.connect(self.context_menu_action_hovered)
             for action in menu.actions():
                 if m := action.menu():
@@ -125,7 +131,7 @@ class LibraryViewMixin:  # {{{
             connect_hovered(cm)
             self.cover_flow.set_context_menu(cm)
 
-    def search_done(self: Main, view, ok) -> None:
+    def search_done(self: Main, view: BooksView, ok: bool) -> None:
         if view is self.current_view():
             self.search.search_done(ok)
             self.set_number_of_books_shown()
@@ -141,11 +147,11 @@ class LibraryViewMixin:  # {{{
 
 
 class UpdateLabel(QLabel):  # {{{
-    def __init__(self, *args, **kwargs) -> None:
-        QLabel.__init__(self, *args, **kwargs)
+    def __init__(self, text: str, parent: QWidget | None = None) -> None:
+        QLabel.__init__(self, text, parent)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-    def contextMenuEvent(self, ev) -> None:
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         pass
 
 
@@ -153,20 +159,21 @@ class UpdateLabel(QLabel):  # {{{
 
 
 class VersionLabel(QLabel):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QLabel.__init__(self, parent)
         self.mouse_over = False
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(_("See what's new in this calibre release"))
 
-    def mouseReleaseEvent(self, ev):
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         open_url(localize_website_link('https://calibre-ebook.com/whats-new'))
-        ev.accept()
+        if ev is not None:
+            ev.accept()
         return QLabel.mouseReleaseEvent(self, ev)
 
-    def event(self, e):
+    def event(self, e: QEvent | None) -> bool:
         m = None
-        et = e.type()
+        et = e.type() if e is not None else None
         if et == QEvent.Type.Enter:
             m = True
         elif et == QEvent.Type.Leave:
@@ -176,7 +183,7 @@ class VersionLabel(QLabel):  # {{{
             self.update()
         return QLabel.event(self, e)
 
-    def paintEvent(self, a0):
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.mouse_over:
             p = QStylePainter(self)
             tool = QStyleOption()
@@ -192,7 +199,7 @@ class VersionLabel(QLabel):  # {{{
 
 
 class StatusBar(QStatusBar):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QStatusBar.__init__(self, parent)
         self.version = get_version()
         self.base_msg = f'{get_appname_for_display()} {self.version}'
@@ -205,15 +212,15 @@ class StatusBar(QStatusBar):  # {{{
         self.addWidget(self.defmsg)
         self.set_label()
 
-    def initialize(self, systray=None) -> None:
+    def initialize(self, systray: QSystemTrayIcon | None = None) -> None:
         self.systray = systray
         self.notifier = get_notifier(systray)
 
-    def device_connected(self, devname) -> None:
+    def device_connected(self, devname: str) -> None:
         self.device_string = _('Connected ') + devname
         self.set_label()
 
-    def update_state(self, library_total, total, current, selected) -> None:
+    def update_state(self, library_total: int, total: int, current: int, selected: int) -> None:
         self.library_total = library_total
         self.total, self.current, self.selected = total, current, selected
         self.set_label()
@@ -249,7 +256,7 @@ class StatusBar(QStatusBar):  # {{{
         self.device_string = ''
         self.set_label()
 
-    def show_message(self, msg, timeout=0, show_notification=True) -> None:
+    def show_message(self, msg: str, timeout: int = 0, show_notification: bool = True) -> None:
         self.showMessage(msg, timeout)
         if self.notifier is not None and not config['disable_tray_notification'] and show_notification:
             self.notifier(msg)
@@ -262,11 +269,11 @@ class StatusBar(QStatusBar):  # {{{
 
 
 class AlternateViewsButtons(LayoutButton):  # {{{
-    buttons = set()
+    buttons: set[AlternateViewsButtons] = set()
     ignore_toggles = False
     needs_group_by = False
 
-    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: Main, shortcut=None, config_key=None) -> None:
+    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: Main, shortcut: str | None = None, config_key: str | None = None) -> None:
         super().__init__(name, icon, label, gui.layout_container, shortcut=shortcut)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
@@ -289,10 +296,10 @@ class AlternateViewsButtons(LayoutButton):  # {{{
         self.buttons.add(self)
 
     @property
-    def is_visible(self):
+    def is_visible(self) -> bool:
         return self.isChecked()
 
-    def update_state(self, *args) -> None:
+    def update_state(self, *args: object) -> None:
         checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
@@ -306,7 +313,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
         if gprefs.get(f'{self.ck} visible', False):
             self.toggle()
 
-    def toggle_view(self, show) -> None:
+    def toggle_view(self, show: bool) -> None:
         if AlternateViewsButtons.ignore_toggles:
             return
         AlternateViewsButtons.ignore_toggles = True
@@ -325,7 +332,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
 
 
 class GridViewButton(AlternateViewsButtons):  # {{{
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         super().__init__(
             'cover_grid',
             'grid.png',
@@ -343,7 +350,7 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
     needs_group_by = True
 
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         super().__init__(
             'bookshelf_view',
             'bookshelf.png',
@@ -359,7 +366,7 @@ class BookshelfViewButton(AlternateViewsButtons):  # {{{
 
 
 class SearchBarButton(LayoutButton):  # {{{
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         sc = 'Alt+Shift+F'
         LayoutButton.__init__(self, 'search', 'search.png', _('Search bar'), gui, shortcut=sc)
         self.set_state_to_hide()
@@ -378,10 +385,10 @@ class SearchBarButton(LayoutButton):  # {{{
         self.update_shortcut()
 
     @property
-    def is_visible(self):
+    def is_visible(self) -> bool:
         return self.isChecked()
 
-    def update_state(self, *args) -> None:
+    def update_state(self, *args: object) -> None:
         checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
@@ -399,7 +406,7 @@ class SearchBarButton(LayoutButton):  # {{{
 
 
 class VLTabs(QTabBar):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: Main) -> None:
         QTabBar.__init__(self, parent)
         self.setDocumentMode(True)
         self.setDrawBase(False)
@@ -432,7 +439,7 @@ class VLTabs(QTabBar):  # {{{
             description=_('Switch to the previous Virtual library in the Virtual library tab bar'),
         )
 
-    def next_tab(self, delta=1) -> None:
+    def next_tab(self, delta: int = 1) -> None:
         if self.count() > 1 and self.isVisible():
             idx = (self.currentIndex() + delta) % self.count()
             self.setCurrentIndex(idx)
@@ -476,23 +483,23 @@ class VLTabs(QTabBar):  # {{{
                         btn.setVisible(False)
                 break
 
-    def tab_changed(self, idx) -> None:
+    def tab_changed(self, idx: int) -> None:
         if self.ignore_tab_changed:
             return
         vl = str(self.tabData(idx) or '').strip() or None
         self.gui.apply_virtual_library(vl, update_tabs=False)
 
-    def tab_moved(self, from_, to) -> None:
+    def tab_moved(self, from_: int, to: int) -> None:
         self.current_db.new_api.set_pref('virt_libs_order', [str(self.tabData(i) or '') for i in range(self.count())])
 
-    def tab_close(self, index) -> None:
+    def tab_close(self, index: int) -> None:
         vl = str(self.tabData(index) or '')
         if vl:  # Don't allow closing the All Books tab
             self.current_db.new_api.set_pref('virt_libs_hidden', list(self.current_db.new_api.pref('virt_libs_hidden', ())) + [vl])
             self.removeTab(index)
 
     @property
-    def current_db(self):
+    def current_db(self) -> LibraryDatabase:
         return self.gui.current_db
 
     def rebuild(self) -> None:
@@ -546,10 +553,12 @@ class VLTabs(QTabBar):  # {{{
     def update_current(self) -> None:
         self.rebuild()
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        if a0 is None:
+            return
         m = QMenu(self)
         m.addAction(QIcon.ic('sort.png'), _('Sort tabs alphabetically'), self.sort_alphabetically)
-        hidden = self.current_db.new_api.pref('virt_libs_hidden')
+        hidden = cast('Sequence[str] | None', self.current_db.new_api.pref('virt_libs_hidden'))
         if hidden:
             s = m.addMenu(_('Restore hidden tabs'))
             assert s is not None
@@ -574,7 +583,7 @@ class VLTabs(QTabBar):  # {{{
         self.current_db.new_api.set_pref('virt_libs_order', ())
         self.rebuild()
 
-    def restore(self, x) -> None:
+    def restore(self, x: str) -> None:
         h = self.current_db.new_api.pref('virt_libs_hidden', ())
         self.current_db.new_api.set_pref('virt_libs_hidden', list(set(h) - {x}))
         self.rebuild()
@@ -584,7 +593,7 @@ class VLTabs(QTabBar):  # {{{
 
 
 class StatusBarButton(QToolButton):
-    def __init__(self, parent, action_name, pref_name, on_click) -> None:
+    def __init__(self, parent: Main, action_name: str, pref_name: str, on_click: str) -> None:
         super().__init__(parent=parent)
         act = parent.iactions[action_name]
         self.action_name = action_name
@@ -744,19 +753,19 @@ class LayoutMixin:  # {{{
             m.current_changed(self.library_view.currentIndex(), self.library_view.currentIndex())
         self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def show_panel(self, name) -> None:
+    def show_panel(self: Main, name: str) -> None:
         if name == 'search_bar':
             self.search_bar_button.setChecked(True)
             return
         self.layout_container.show_panel(name)
 
-    def hide_panel(self, name) -> None:
+    def hide_panel(self: Main, name: str) -> None:
         if name == 'search_bar':
             self.search_bar_button.setChecked(False)
             return
         self.layout_container.hide_panel(name)
 
-    def set_search_string_with_append(self: Main, expression, append='') -> None:
+    def set_search_string_with_append(self: Main, expression: str, append: str = '') -> None:
         current = self.search.text().strip()
         if append:
             expr = f'{current} {append} {expression}' if current else expression
@@ -776,14 +785,14 @@ class LayoutMixin:  # {{{
             db.set_field('identifiers', {book_id: identifiers})
             self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})
 
-    def manage_category_triggerred(self: Main, field, value) -> None:
+    def manage_category_triggerred(self: Main, field: str, value: str) -> None:
         if field and value:
             if field == 'authors':
                 self.do_author_sort_edit(self, value, select_sort=False, select_link=False, lookup_author=True)
             elif field:
                 self.do_tags_list_edit(value, field)
 
-    def find_in_tag_browser_triggered(self: Main, field, value) -> None:
+    def find_in_tag_browser_triggered(self: Main, field: str, value: str) -> None:
         if field and value:
             tb = self.tb_widget
             tb.set_focus_to_find_box()
@@ -792,16 +801,16 @@ class LayoutMixin:  # {{{
             le.setText(field + ':=' + value)
             tb.do_find()
 
-    def toggle_search_bar(self: Main, show) -> None:
+    def toggle_search_bar(self: Main, show: bool) -> None:
         self.search_bar.setVisible(show)
         if show:
             self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def bd_cover_changed(self: Main, id_, cdata) -> None:
+    def bd_cover_changed(self: Main, id_: int, cdata: bytes) -> None:
         self.current_db.set_cover(id_, cdata)
         self.refresh_cover_browser()
 
-    def bd_open_cover_with(self: Main, book_id, entry) -> None:
+    def bd_open_cover_with(self: Main, book_id: int, entry: Mapping[str, object] | None) -> None:
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
         if cpath:
             if entry is None:
@@ -825,7 +834,7 @@ class LayoutMixin:  # {{{
 
             run_program(entry, cpath, self)
 
-    def bd_open_fmt_with(self: Main, book_id, fmt, entry) -> None:
+    def bd_open_fmt_with(self: Main, book_id: int, fmt: str, entry: Mapping[str, object]) -> None:
         path = self.current_db.new_api.format_abspath(book_id, fmt)
         if path:
             from calibre.gui2.open_with import run_program
@@ -840,13 +849,13 @@ class LayoutMixin:  # {{{
                 show=True,
             )
 
-    def bd_edit_book(self: Main, book_id, fmt) -> None:
+    def bd_edit_book(self: Main, book_id: int, fmt: str) -> None:
         from calibre.gui2.widgets import BusyCursor
 
         with BusyCursor():
             self.iactions['Tweak ePub'].ebook_edit_format(book_id, fmt)
 
-    def open_with_action_triggerred(self: Main, fmt, entry, *args) -> None:
+    def open_with_action_triggerred(self: Main, fmt: str, entry: Mapping[str, object], *args: object) -> None:
         book_id = self.library_view.current_book
         if book_id is not None:
             if fmt == 'cover_image':
@@ -854,17 +863,17 @@ class LayoutMixin:  # {{{
             else:
                 self.bd_open_fmt_with(book_id, fmt, entry)
 
-    def bd_cover_removed(self: Main, id_) -> None:
+    def bd_cover_removed(self: Main, id_: int) -> None:
         self.current_db.remove_cover(id_, commit=True, notify=False)
         self.refresh_cover_browser()
 
-    def bd_copy_link(self, url) -> None:
+    def bd_copy_link(self, url: str) -> None:
         if url:
             clipboard = QApplication.clipboard()
             assert clipboard is not None
             clipboard.setText(url)
 
-    def compare_format(self: Main, book_id, fmt) -> None:
+    def compare_format(self: Main, book_id: int, fmt: str) -> None:
         db = self.current_db.new_api
         ofmt = fmt
         if fmt.startswith('ORIGINAL_'):
@@ -902,11 +911,14 @@ class LayoutMixin:  # {{{
         self.bookshelf_view_button.restore_state()
         self.search_bar_button.restore_state()
 
-    def update_status_bar(self: Main, *args) -> None:
+    def update_status_bar(self: Main, *args: object) -> None:
         v = self.current_view()
-        selected = len(v.selectionModel().selectedRows())
+        assert v is not None
+        sm = v.selectionModel()
+        assert sm is not None
+        selected = len(sm.selectedRows())
         try:
-            library_total, total, current = v.model().counts()
+            library_total, total, current = cast('BooksModel | DeviceBooksModel', v.model()).counts()
         except AttributeError:  # happens during shutdown
             if self.shutting_down:
                 return

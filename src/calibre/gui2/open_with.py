@@ -6,6 +6,7 @@ import uuid
 from contextlib import suppress
 from functools import partial
 from threading import Thread
+from typing import TYPE_CHECKING, Any, Literal, overload
 
 from qt.core import (
     QAction,
@@ -38,10 +39,21 @@ from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
+    from qt.core import QImage, QMenu
+
+    from calibre.gui2.dialogs.message_box import MessageBox
+    from calibre.gui2.ui import Main
+
+    # The keys in an entry are platform dependent and the values are JSON serializable data
+    type Entry = dict[str, Any]
+
 ENTRY_ROLE = Qt.ItemDataRole.UserRole
 
 
-def pixmap_to_data(pixmap):
+def pixmap_to_data(pixmap: QPixmap | QImage) -> bytearray:
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QIODevice.OpenModeFlag.WriteOnly)
@@ -49,7 +61,7 @@ def pixmap_to_data(pixmap):
     return bytearray(ba.data())
 
 
-def run_program(entry, path, parent):
+def run_program(entry: Mapping[str, Any], path: str, parent: QWidget | None) -> MessageBox | None:
     import subprocess
 
     cmdline = entry_to_cmdline(entry, path)
@@ -67,9 +79,14 @@ def run_program(entry, path, parent):
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
     t.start()
+    return None
 
 
-def entry_to_icon_text(entry, only_text=False):
+@overload
+def entry_to_icon_text(entry: Mapping[str, Any], only_text: Literal[False] = False) -> tuple[QIcon, str]: ...
+@overload
+def entry_to_icon_text(entry: Mapping[str, Any], only_text: Literal[True]) -> str: ...
+def entry_to_icon_text(entry: Mapping[str, Any], only_text: bool = False) -> tuple[QIcon, str] | str:
     if only_text:
         return entry.get('name', entry.get('Name')) or _('Unknown')
     data = entry.get('icon_data')
@@ -100,10 +117,10 @@ if iswindows:
 
     oprefs = JSONConfig('windows_open_with')
 
-    def entry_sort_key(entry):
+    def entry_sort_key(entry: Mapping[str, Any]) -> bytes:
         return sort_key(entry.get('name') or '')
 
-    def icon_for_entry(entry, delete_icon_resource=False, as_data=False):
+    def icon_for_entry(entry: Entry, delete_icon_resource: bool = False, as_data: bool = False) -> QPixmap | bytes | None:
         res = entry.pop('icon_resource', None) if delete_icon_resource else entry.get('icon_resource')
         if res is None:
             return load_icon_for_cmdline(entry['cmdline'], as_data=as_data)
@@ -115,7 +132,7 @@ if iswindows:
             traceback.print_exc()
         return load_icon_for_cmdline(entry['cmdline'], as_data=as_data)
 
-    def finalize_entry(entry):
+    def finalize_entry(entry: Entry) -> Entry:
         try:
             data = icon_for_entry(entry, delete_icon_resource=True, as_data=True)
         except Exception:
@@ -127,10 +144,10 @@ if iswindows:
             entry['icon_data'] = data
         return entry
 
-    def change_name_in_entry(entry, newname) -> None:
+    def change_name_in_entry(entry: Entry, newname: str) -> None:
         entry['name'] = newname
 
-    def entry_to_item(entry, parent) -> None:
+    def entry_to_item(entry: Entry, parent: QListWidget) -> None:
         try:
             icon = icon_for_entry(entry)
         except Exception:
@@ -144,7 +161,7 @@ if iswindows:
         ans.setData(ENTRY_ROLE, entry)
         ans.setToolTip(_('Command line:') + '\n' + entry['cmdline'])
 
-    def choose_manually(filetype, parent):
+    def choose_manually(filetype: str, parent: QWidget | None) -> Entry | None:
         ans = choose_files(
             parent,
             'choose-open-with-program-manually-win',
@@ -161,7 +178,7 @@ if iswindows:
             name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
             return {'cmdline': f'"{qans}" "%1"', 'name': name}
 
-    def entry_to_cmdline(entry, path):
+    def entry_to_cmdline(entry: Mapping[str, Any], path: str) -> str:
         cmdline = entry['cmdline']
         qpath = path.replace('"', r'\"')
         if '%1' not in cmdline:
@@ -170,7 +187,7 @@ if iswindows:
 
     del run_program
 
-    def run_program(entry, path, parent):
+    def run_program(entry: Mapping[str, Any], path: str, parent: QWidget | None) -> MessageBox | None:
         cmdline = entry_to_cmdline(entry, path)
         argv = winutil.parse_cmdline(cmdline)  # ty: ignore[invalid-argument-type]
         exe = argv[0]
@@ -194,20 +211,20 @@ elif ismacos:
     oprefs = JSONConfig('osx_open_with')
     from calibre.utils.open_with.osx import entry_to_cmdline, find_programs, get_bundle_data, get_icon
 
-    def entry_sort_key(entry):
+    def entry_sort_key(entry: Mapping[str, Any]) -> bytes:
         return sort_key(entry.get('name') or '')
 
-    def finalize_entry(entry):
+    def finalize_entry(entry: Entry) -> Entry:
         entry['extensions'] = tuple(entry.get('extensions', ()))
         data = get_icon(entry.pop('icon_file', None), as_data=True, pixmap_to_data=pixmap_to_data)
         if data:
             entry['icon_data'] = data
         return entry
 
-    def change_name_in_entry(entry, newname) -> None:
+    def change_name_in_entry(entry: Entry, newname: str) -> None:
         entry['name'] = newname
 
-    def entry_to_item(entry, parent) -> None:
+    def entry_to_item(entry: Entry, parent: QListWidget) -> None:
         icon = get_icon(entry.get('icon_file'), as_data=False)
         if icon is None:
             icon = entry_to_icon_text(entry)[0]
@@ -217,7 +234,7 @@ elif ismacos:
         ans.setData(ENTRY_ROLE, entry)
         ans.setToolTip(_('Application path:') + '\n' + entry['path'])
 
-    def choose_manually(filetype, parent):
+    def choose_manually(filetype: str, parent: QWidget | None) -> Entry | None:
         ans = choose_osx_app(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper())
         if ans:
             ans = ans[0]
@@ -245,10 +262,10 @@ else:
     oprefs = JSONConfig('xdg_open_with')
     from calibre.utils.open_with.linux import entry_sort_key, entry_to_cmdline, find_programs
 
-    def change_name_in_entry(entry, newname) -> None:
+    def change_name_in_entry(entry: Entry, newname: str) -> None:
         entry['Name'] = newname
 
-    def entry_to_item(entry, parent) -> None:
+    def entry_to_item(entry: Entry, parent: QListWidget) -> None:
         icon_path = entry.get('Icon') or I('blank.png')
         if not isinstance(icon_path, (str, bytes)):
             icon_path = I('blank.png')
@@ -259,7 +276,7 @@ else:
             comment += '\n'
         ans.setToolTip(comment + _('Command line:') + '\n' + (' '.join(entry['Exec'])))
 
-    def choose_manually(filetype, parent):
+    def choose_manually(filetype: str, parent: QWidget | None) -> Entry | None:
         dd = '/usr/bin' if os.path.isdir('/usr/bin') else '~'
         ans = choose_files(
             parent,
@@ -275,7 +292,7 @@ else:
                 return
             return {'Exec': [ans, '%f'], 'Name': os.path.basename(ans)}
 
-    def finalize_entry(entry):
+    def finalize_entry(entry: Entry) -> Entry:
         icon_path = entry.get('Icon')
         if icon_path:
             ic = QIcon(icon_path)
@@ -294,7 +311,7 @@ else:
 class ChooseProgram(Dialog):  # {{{
     found = pyqtSignal()
 
-    def __init__(self, file_type='jpeg', parent=None, prefs=oprefs) -> None:
+    def __init__(self, file_type: str = 'jpeg', parent: QWidget | None = None, prefs: JSONConfig = oprefs) -> None:
         self.file_type = file_type
         self.programs = self.find_error = self.selected_entry = None
         self.select_manually = False
@@ -334,7 +351,7 @@ class ChooseProgram(Dialog):  # {{{
         b.clicked.connect(self.manual)
         l.addWidget(self.bb)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 500)
 
     def find_programs(self) -> None:
@@ -346,7 +363,7 @@ class ChooseProgram(Dialog):  # {{{
             self.find_error = traceback.print_exc()
         self.found.emit()
 
-    def programs_found(self):
+    def programs_found(self) -> None:
         if self.find_error is not None:
             error_dialog(
                 self,
@@ -364,7 +381,7 @@ class ChooseProgram(Dialog):  # {{{
             entry_to_item(entry, self.plist)
         self.stacks.setCurrentIndex(1)
 
-    def accept(self):
+    def accept(self) -> None:
         ci = self.plist.currentItem()
         if ci is not None:
             self.selected_entry = ci.data(ENTRY_ROLE)
@@ -378,7 +395,7 @@ class ChooseProgram(Dialog):  # {{{
 oprefs.defaults['entries'] = {}
 
 
-def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
+def choose_program(file_type: str = 'jpeg', parent: QWidget | None = None, prefs: JSONConfig = oprefs) -> Entry | None:
     oft = file_type = file_type.lower()
     file_type = {'cover_image': 'jpeg'}.get(oft, oft)
     d = ChooseProgram(file_type, parent, prefs)
@@ -397,7 +414,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     return entry
 
 
-def populate_menu(menu, connect_action, file_type):
+def populate_menu(menu: QMenu, connect_action: Callable[[QAction, Entry], object], file_type: str) -> QMenu:
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
         icon, text = entry_to_icon_text(entry)
@@ -406,6 +423,7 @@ def populate_menu(menu, connect_action, file_type):
         if sa is not None:
             text += '\t' + sa.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
         ac = menu.addAction(icon, text)
+        assert ac is not None
         connect_action(ac, entry)
     return menu
 
@@ -414,7 +432,7 @@ def populate_menu(menu, connect_action, file_type):
 
 
 class EditPrograms(Dialog):  # {{{
-    def __init__(self, file_type='jpeg', parent=None) -> None:
+    def __init__(self, file_type: str = 'jpeg', parent: QWidget | None = None) -> None:
         self.file_type = file_type.lower()
         Dialog.__init__(
             self,
@@ -443,7 +461,7 @@ class EditPrograms(Dialog):  # {{{
 
         self.populate()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 400)
 
     def populate(self) -> None:
@@ -451,7 +469,7 @@ class EditPrograms(Dialog):  # {{{
         for entry in oprefs['entries'].get(self.file_type, ()):
             entry_to_item(entry, self.plist)
 
-    def change_icon(self):
+    def change_icon(self) -> int | None:
         ci = self.plist.currentItem()
         if ci is None:
             return error_dialog(self, _('No selection'), _('No application selected'), show=True)
@@ -467,8 +485,9 @@ class EditPrograms(Dialog):  # {{{
                 ci.setData(ENTRY_ROLE, entry)
                 self.update_stored_config()
                 ci.setIcon(ic)
+        return None
 
-    def change_name(self):
+    def change_name(self) -> int | None:
         ci = self.plist.currentItem()
         if ci is None:
             return error_dialog(self, _('No selection'), _('No application selected'), show=True)
@@ -480,8 +499,9 @@ class EditPrograms(Dialog):  # {{{
             ci.setData(ENTRY_ROLE, entry)
             self.update_stored_config()
             ci.setData(Qt.ItemDataRole.DisplayRole, name)
+        return None
 
-    def remove(self):
+    def remove(self) -> int | None:
         ci = self.plist.currentItem()
         if ci is None:
             return error_dialog(self, _('No selection'), _('No application selected'), show=True)
@@ -489,9 +509,10 @@ class EditPrograms(Dialog):  # {{{
         self.plist.takeItem(row)
         self.update_stored_config()
         register_keyboard_shortcuts(finalize=True)
+        return None
 
     def update_stored_config(self) -> None:
-        entries = []
+        entries: list[Entry] = []
         for i in range(self.plist.count()):
             plist_item = self.plist.item(i)
             assert plist_item is not None
@@ -500,17 +521,17 @@ class EditPrograms(Dialog):  # {{{
         oprefs['entries'] = oprefs['entries']
 
 
-def edit_programs(file_type, parent) -> None:
+def edit_programs(file_type: str, parent: QWidget | None) -> None:
     d = EditPrograms(file_type, parent)
     d.exec()
 
 
 # }}}
 
-registered_shortcuts = {}
+registered_shortcuts: dict[str, QAction] = {}
 
 
-def register_keyboard_shortcuts(gui=None, finalize=False) -> None:
+def register_keyboard_shortcuts(gui: Main | None = None, finalize: bool = False) -> None:
     if gui is None:
         from calibre.gui2.ui import get_gui
 

@@ -12,7 +12,7 @@ import textwrap
 from collections import OrderedDict, deque
 from io import BytesIO
 from queue import Empty, Queue
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, Literal, cast, overload
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -49,7 +49,7 @@ from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.jobs import JobManager, JobsButton, JobsDialog
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.layout import MainWindowMixin
-from calibre.gui2.library.models import BooksModel
+from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.listener import Listener
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.open_with import register_keyboard_shortcuts
@@ -68,7 +68,21 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from optparse import Values
+    from types import TracebackType
+
+    from qt.core import QCloseEvent, QResizeEvent, QWidget
+
+    from calibre.customize import InterfaceActionBase, StoreBase
+    from calibre.devices.interface import BookList
+    from calibre.gui2.actions import InterfaceAction
+    from calibre.gui2.library.views import BooksView
+    from calibre.gui2.store import StorePlugin
     from calibre.gui2.tag_browser.view import TagsView
+    from calibre.srv.changes import ChangeEvent
+    from calibre.utils.config import JSONConfig
+    from calibre.utils.ipc.job import BaseJob
 
 
 @overload
@@ -86,7 +100,7 @@ def get_gui(fail_if_absent: bool = False) -> Main | None:
     return ans
 
 
-def add_quick_start_guide(library_view, refresh_cover_browser=None) -> None:
+def add_quick_start_guide(library_view: BooksView, refresh_cover_browser: Callable[[], object] | None = None) -> None:
     from calibre.ebooks.covers import calibre_cover2
     from calibre.ebooks.metadata.meta import get_metadata
     from calibre.ptempfile import PersistentTemporaryFile
@@ -109,12 +123,15 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None) -> None:
     mi = get_metadata(buf, 'epub')
     with PersistentTemporaryFile('.epub') as tmp:
         tmp.write(buf.getvalue())
-    library_view.model().db.add_books([tmp.name], ['epub'], [mi])
+    model = library_view.model()
+    assert isinstance(model, BooksModel)
+    assert model.db is not None
+    model.db.add_books([tmp.name], ['epub'], [mi])
     os.remove(tmp.name)
-    library_view.model().books_added(1)
+    model.books_added(1)
     if refresh_cover_browser is not None:
         refresh_cover_browser()
-    if library_view.model().rowCount(None) < 3:
+    if model.rowCount() < 3:
         library_view.resizeColumnsToContents()
 
 
@@ -147,7 +164,7 @@ class Main(
 
     search: SearchBox2
 
-    def __init__(self, opts, parent=None, gui_debug=None) -> None:
+    def __init__(self, opts: Values, parent: QWidget | None = None, gui_debug: str | None = None) -> None:
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.setVisible(False)
         if not ismacos:
@@ -184,7 +201,7 @@ class Main(
             self.add_iaction(ac)
         self.load_store_plugins()
 
-    def init_iaction(self, action):
+    def init_iaction(self, action: InterfaceActionBase) -> InterfaceAction:
         ac = action.load_actual_plugin(self)
         ac.plugin_path = action.plugin_path
         ac.interface_action_base_plugin = action
@@ -192,7 +209,7 @@ class Main(
         action.actual_iaction_plugin_loaded = True
         return ac
 
-    def add_iaction(self, ac) -> None:
+    def add_iaction(self, ac: InterfaceAction) -> None:
         acmap = self.iactions
         if ac.name in acmap:
             if ac.priority >= acmap[ac.name].priority:
@@ -218,7 +235,7 @@ class Main(
                 continue
         self.istores.builtins_loaded()
 
-    def init_istore(self, store):
+    def init_istore(self, store: StoreBase) -> StorePlugin:
         st = store.load_actual_plugin(self)
         st.plugin_path = store.plugin_path
         st.installation_type = store.installation_type
@@ -226,29 +243,30 @@ class Main(
         store.actual_istore_plugin_loaded = True
         return st
 
-    def add_istore(self, st) -> None:
+    def add_istore(self, st: StorePlugin) -> None:
         stmap = self.istores
         if st.name in stmap:
+            assert st.base_plugin is not None
             if st.base_plugin.priority >= stmap[st.name].base_plugin.priority:
                 stmap[st.name] = st
         else:
             stmap[st.name] = st
 
-    def add_db_listener(self, callback) -> None:
+    def add_db_listener(self, callback: Callable[..., object]) -> None:
         self.library_broker.start_listening_for_db_events()
         self.event_in_db.connect(callback)
 
-    def remove_db_listener(self, callback) -> None:
+    def remove_db_listener(self, callback: Callable[..., object]) -> None:
         self.event_in_db.disconnect(callback)
 
-    def initialize(self, library_path, db, actions, show_gui=True) -> None:
+    def initialize(self, library_path: str, db: LibraryDatabase, actions: tuple[QAction, ...], show_gui: bool = True) -> None:
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
         self.library_broker = GuiLibraryBroker(db)
         self.content_server = None
         self.server_change_notification_timer = t = QTimer(self)
-        self.server_changes = Queue()
+        self.server_changes: Queue[tuple[str, ChangeEvent]] = Queue()
         t.setInterval(1000), t.timeout.connect(self.handle_changes_from_server_debounced), t.setSingleShot(True)
         self._spare_pool = None
         self.must_restart_before_config = False
@@ -417,7 +435,7 @@ class Main(
 
         # ######################## Search Restriction ##########################
         if db.new_api.pref('virtual_lib_on_startup'):
-            self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
+            self.apply_virtual_library(cast('str', db.new_api.pref('virtual_lib_on_startup')))
         self.rebuild_vl_tabs()
 
         # ########################## Cover Flow ################################
@@ -469,7 +487,7 @@ class Main(
                 traceback.print_exc()
                 if ac.installation_type is PluginInstallationType.BUILTIN:
                     raise
-        self.set_current_library_information(current_library_name(), db.library_id, db.field_metadata)
+        self.set_current_library_information(current_library_name() or '', db.library_id, db.field_metadata)
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
@@ -510,7 +528,7 @@ class Main(
             show=True,
         )
 
-    def esc(self, *args) -> None:
+    def esc(self, *args: object) -> None:
         self.search.clear()
 
     def open_ff_doc_editor(self) -> None:
@@ -521,6 +539,7 @@ class Main(
         if view is self.library_view:
             self.focus_library_view()
         else:
+            assert view is not None
             view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     shift_esc = focus_current_view
@@ -556,7 +575,7 @@ class Main(
                 )
         self.iactions['Connect Share'].set_smartdevice_action_state()
 
-    def start_content_server(self, check_started=True) -> None:
+    def start_content_server(self, check_started: bool = True) -> None:
         from calibre.srv.embedded import Server
 
         if not gprefs.get('server3_warning_done', False):
@@ -583,7 +602,7 @@ class Main(
             self.content_server.start_failure_callback = Dispatcher(self.content_server_start_failed)
         self.content_server.start()
 
-    def handle_changes_from_server(self, library_path, change_event) -> None:
+    def handle_changes_from_server(self, library_path: str, change_event: ChangeEvent) -> None:
         if DEBUG:
             prints(f'Received server change event: {change_event} for {library_path}')
         if self.library_broker.is_gui_library(library_path):
@@ -604,7 +623,7 @@ class Main(
         if changes:
             handle_changes(changes, self)
 
-    def content_server_start_failed(self, msg) -> None:
+    def content_server_start_failed(self, msg: str) -> None:
         self.content_server = None
         error_dialog(
             self,
@@ -613,28 +632,28 @@ class Main(
             show=True,
         )
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         MainWindow.resizeEvent(self, a0)
         self.search.setMaximumWidth(self.width() - 150)
 
-    def create_spare_pool(self, *args) -> None:
+    def create_spare_pool(self, *args: object) -> None:
         if self._spare_pool is None:
             num = min(detect_ncpus(), config['worker_limit'] // 2)
             self._spare_pool = Pool(max_workers=num, name='GUIPool')
 
-    def spare_pool(self):
+    def spare_pool(self) -> Pool | None:
         ans, self._spare_pool = self._spare_pool, None
         QTimer.singleShot(1000, self.create_spare_pool)
         return ans
 
-    def do_proceed(self, func, payload) -> None:
+    def do_proceed(self, func: Callable[[object], object] | None, payload: object) -> None:
         if callable(func):
             func(payload)
 
-    def no_op(self, *args) -> None:
+    def no_op(self, *args: object) -> None:
         pass
 
-    def system_tray_icon_activated(self, r=False) -> None:
+    def system_tray_icon_activated(self, r: QSystemTrayIcon.ActivationReason | bool = False) -> None:
         if r in (QSystemTrayIcon.ActivationReason.Trigger, QSystemTrayIcon.ActivationReason.MiddleClick, False):
             if self.isVisible():
                 if self.isMinimized():
@@ -647,19 +666,19 @@ class Main(
                     self.showNormal()
 
     @property
-    def is_minimized_to_tray(self):
+    def is_minimized_to_tray(self) -> bool:
         return getattr(self, '__systray_minimized', False)
 
     def ask_a_yes_no_question(
         self,
-        title,
-        msg,
-        det_msg='',
-        show_copy_button=False,
-        ans_when_user_unavailable=True,
-        skip_dialog_name=None,
-        skipped_value=True,
-    ):
+        title: str,
+        msg: str,
+        det_msg: str = '',
+        show_copy_button: bool = False,
+        ans_when_user_unavailable: bool = True,
+        skip_dialog_name: str | None = None,
+        skipped_value: bool = True,
+    ) -> bool:
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
         return question_dialog(
@@ -672,7 +691,7 @@ class Main(
             skip_dialog_skipped_value=skipped_value,
         )
 
-    def update_toggle_to_tray_action(self, *args) -> None:
+    def update_toggle_to_tray_action(self, *args: object) -> None:
         if hasattr(self, 'toggle_to_tray_action'):
             toggle_to_tray_action = self.toggle_to_tray_action
             assert toggle_to_tray_action is not None
@@ -685,19 +704,20 @@ class Main(
                 setattr(window, '__systray_minimized', True)
         self.update_toggle_to_tray_action()
 
-    def show_windows(self, *args) -> None:
+    def show_windows(self, *args: object) -> None:
         for window in QApplication.topLevelWidgets():
             if getattr(window, '__systray_minimized', False):
                 window.show()
                 setattr(window, '__systray_minimized', False)
         self.update_toggle_to_tray_action()
 
-    def changeEvent(self, a0):
+    def changeEvent(self, a0: QEvent | None) -> None:
         # Handle bug in Qt 6 that causes the window to be shown as blank if it was first
         # maximized and then closed to system tray, when remote desktop is
         # reconnected: https://bugreports.qt.io/browse/QTBUG-124177
         if (
             iswindows
+            and a0 is not None
             and a0.type() == QEvent.Type.ActivationChange
             and self.is_minimized_to_tray
             and self.isMaximized()
@@ -707,7 +727,7 @@ class Main(
             QTimer.singleShot(0, self.show_windows)
         return super().changeEvent(a0)
 
-    def test_server(self, *args) -> None:
+    def test_server(self, *args: object) -> None:
         if self.content_server is not None and self.content_server.exception is not None:
             error_dialog(self, _('Failed to start Content server'), str(self.content_server.exception)).exec()
 
@@ -726,14 +746,14 @@ class Main(
         m.research()
         self.tags_view.recount()
 
-    def handle_cli_args(self, args) -> None:
+    def handle_cli_args(self, args: str | Iterable[str]) -> None:
         from urllib.parse import parse_qs, unquote, urlparse
 
         from calibre.gui2.main import ADD_AND_DELETE_PREFIX
         from calibre.ptempfile import is_in_system_tempdir
         from calibre.utils.safe_atexit import remove_file_atexit
 
-        if isinstance(args, (str, bytes)):
+        if isinstance(args, str):
             args = [args]
         files, urls, temp_files = [], [], []
         for p in args:
@@ -784,22 +804,22 @@ class Main(
 
             QTimer.singleShot(10, doit)
 
-    def handle_url_action(self, action, path, query) -> None:
+    def handle_url_action(self, action: str, path: str, query: dict[str, list[str]]) -> None:
         import posixpath
 
-        def decode_library_id(x):
+        def decode_library_id(x: str) -> str:
             if x == '_':
                 return getattr(self.current_db.new_api, 'server_library_id', None) or '_'
             if x.startswith('_hex_-'):
                 return bytes.fromhex(x[6:]).decode('utf-8')
             return x
 
-        def get_virtual_library(query):
-            vl = None
-            if query.get('encoded_virtual_library'):
-                vl = bytes.fromhex(query.get('encoded_virtual_library')[0]).decode('utf-8')
-            elif query.get('virtual_library'):
-                vl = query.get('virtual_library')[0]
+        def get_virtual_library(query: dict[str, list[str]]) -> str | None:
+            vl: str | None = None
+            if evl := query.get('encoded_virtual_library'):
+                vl = bytes.fromhex(evl[0]).decode('utf-8')
+            elif pvl := query.get('virtual_library'):
+                vl = pvl[0]
             if vl == '-':
                 vl = None
             return vl
@@ -941,13 +961,11 @@ class Main(
             library_path = self.library_broker.path_for_library_id(library_id)
             if library_path is None:
                 return
-            sq = query.get('eq')
-            if sq:
-                sq = bytes.fromhex(sq[0]).decode('utf-8')
-            else:
-                sq = query.get('q')
-                if sq:
-                    sq = sq[0]
+            sq = ''
+            if eq := query.get('eq'):
+                sq = bytes.fromhex(eq[0]).decode('utf-8')
+            elif q := query.get('q'):
+                sq = q[0]
             sq = sq or ''
             vl = get_virtual_library(query)
 
@@ -958,14 +976,14 @@ class Main(
 
             self.perform_url_action(library_id, library_path, doit)
 
-    def perform_url_action(self, library_id, library_path, func) -> None:
+    def perform_url_action(self, library_id: str, library_path: str, func: Callable[[], object]) -> None:
         if not db_matches(self.current_db, library_id, library_path):
             self.library_moved(library_path)
             QTimer.singleShot(0, func)
         else:
             func()
 
-    def message_from_another_instance(self, msg) -> None:
+    def message_from_another_instance(self, msg: str | bytes) -> None:
         if isinstance(msg, bytes):
             msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
@@ -1070,7 +1088,7 @@ class Main(
         else:
             prints(f'Ignoring unknown message from other instance: {msg[:20]!r}')
 
-    def current_view(self):
+    def current_view(self) -> BooksView | None:
         """Convenience method that returns the currently visible view"""
         try:
             idx = self.stack.currentIndex()
@@ -1088,19 +1106,19 @@ class Main(
     def show_library_view(self) -> None:
         self.location_manager.library_action.trigger()
 
-    def booklists(self):
+    def booklists(self) -> tuple[BookList, BookList, BookList]:
         mem_model = self.memory_view.model()
         assert mem_model is not None
-        assert isinstance(mem_model, BooksModel)
+        assert isinstance(mem_model, DeviceBooksModel)
         card_a_model = self.card_a_view.model()
         assert card_a_model is not None
-        assert isinstance(card_a_model, BooksModel)
+        assert isinstance(card_a_model, DeviceBooksModel)
         card_b_model = self.card_b_view.model()
         assert card_b_model is not None
-        assert isinstance(card_b_model, BooksModel)
+        assert isinstance(card_b_model, DeviceBooksModel)
         return mem_model.db, card_a_model.db, card_b_model.db
 
-    def library_moved(self, newloc, copy_structure=False, allow_rebuild=False) -> None:
+    def library_moved(self, newloc: str | None, copy_structure: bool = False, allow_rebuild: bool = False) -> None:
         if newloc is None:
             return
         with self.library_broker:
@@ -1192,7 +1210,7 @@ class Main(
                 self.memory_view.reset()
                 self.card_a_view.reset()
                 self.card_b_view.reset()
-            self.set_current_library_information(current_library_name(), db.library_id, db.field_metadata)
+            self.set_current_library_information(current_library_name() or '', db.library_id, db.field_metadata)
             self.library_view.set_current_row(0)
         # Run a garbage collection now so that it does not freeze the
         # interface later
@@ -1211,7 +1229,7 @@ class Main(
         title = '{} — || {}{} ||'.format(__appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
 
-    def location_selected(self, location) -> None:
+    def location_selected(self, location: str) -> None:
         """
         Called when a location icon is clicked (e.g. Library)
         """
@@ -1232,14 +1250,18 @@ class Main(
             self.highlight_only_button.setEnabled(False)
             self.vl_tabs.setEnabled(False)
             # Reset the view in case something changed while it was invisible
-            self.current_view().reset()
-        self.current_view().refresh_book_details()
+            cv = self.current_view()
+            assert cv is not None
+            cv.reset()
+        cv = self.current_view()
+        assert cv is not None
+        cv.refresh_book_details()
         self.set_number_of_books_shown()
         self.update_status_bar()
 
-    def job_exception(self, job, dialog_title=_('Conversion error'), retry_func=None) -> None:
+    def job_exception(self, job: BaseJob, dialog_title: str = _('Conversion error'), retry_func: Callable[[], object] | None = None) -> None:
         if not hasattr(self, '_modeless_dialogs'):
-            self._modeless_dialogs = []
+            self._modeless_dialogs: list[QDialog] = []
         minz = self.is_minimized_to_tray
         if self.isVisible():
             for x in list(self._modeless_dialogs):
@@ -1334,7 +1356,7 @@ class Main(
                 retry_func=retry_func,
             )
 
-    def _save_tb_state(self, gprefs) -> None:
+    def _save_tb_state(self, gprefs: JSONConfig) -> None:
         self.tb_widget.save_state(gprefs)
         if gprefs['tag_browser_restore_tree_expansion'] and self.current_db is not None:
             tv_saved_expansions = gprefs.get('tags_view_saved_expansions', {})
@@ -1367,7 +1389,14 @@ class Main(
     def restart(self) -> None:
         self.quit(restart=True)
 
-    def quit(self, checked=True, restart=False, debug_on_restart=False, confirm_quit=True, no_plugins_on_restart=False) -> None:
+    def quit(
+        self,
+        checked: bool = True,
+        restart: bool = False,
+        debug_on_restart: bool = False,
+        confirm_quit: bool = True,
+        no_plugins_on_restart: bool = False,
+    ) -> None:
         if self.shutting_down:
             return
         if confirm_quit and not self.confirm_quit():
@@ -1386,7 +1415,7 @@ class Main(
             self.system_tray_icon.setVisible(False)
         qapplication_or_fail().exit()
 
-    def _jobs_auto_close(self, nnum) -> None:
+    def _jobs_auto_close(self, nnum: int) -> None:
         if nnum == 0 and self.jobs_dialog.auto_close_calibre.isChecked():
             self.jobs_dialog.auto_close_calibre.setChecked(False)
             if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
@@ -1400,7 +1429,7 @@ class Main(
             if AutoCloseNotification(parent=parent).exec() == QDialog.DialogCode.Accepted:
                 self.quit(confirm_quit=False)
 
-    def donate(self, *args) -> None:
+    def donate(self, *args: object) -> None:
         from calibre.utils.localization import localize_website_link
 
         open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
@@ -1420,20 +1449,24 @@ class Main(
 
             d = warning_dialog(self, _('Active jobs'), msg, show_copy_button=False)
             b = d.bb.addButton(_('Quit after jobs &finish'), QDialogButtonBox.ButtonRole.RejectRole)
+            assert b is not None
             b.setIcon(QIcon.ic('jobs.png'))
-            d.bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('Quit anyway'))
+            ok_button = d.bb.button(QDialogButtonBox.StandardButton.Ok)
+            assert ok_button is not None
+            ok_button.setText(_('Quit anyway'))
             d.bb.addButton(_('&Cancel'), QDialogButtonBox.ButtonRole.RejectRole)
-            d.after_jobs_finish = False
+            after_jobs_finish = False
 
             def jf() -> None:
-                d.after_jobs_finish = True
+                nonlocal after_jobs_finish
+                after_jobs_finish = True
 
             b.clicked.connect(jf)
-            d.bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(False)
-            d.bb.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon.ic('dialog_warning.png'))
+            ok_button.setAutoDefault(False)
+            ok_button.setIcon(QIcon.ic('dialog_warning.png'))
             b.setDefault(True)
             if d.exec() != QDialog.DialogCode.Accepted:
-                if d.after_jobs_finish:
+                if after_jobs_finish:
                     self.jobs_dialog.auto_close_calibre.setChecked(True)
                 return False
 
@@ -1444,7 +1477,7 @@ class Main(
 
         return True
 
-    def shutdown(self, write_settings=True) -> bool:
+    def shutdown(self, write_settings: bool = True) -> bool:
         from time import monotonic
 
         from calibre.utils.mdns import stop_server_with_joinable
@@ -1509,7 +1542,7 @@ class Main(
         # call abort() on unhandled exceptions
         import traceback
 
-        def eh(t, v, tb) -> None:
+        def eh(t: type[BaseException], v: BaseException, tb: TracebackType | None) -> None:
             try:
                 traceback.print_exception(t, v, tb, file=sys.stderr)
             except Exception:
@@ -1575,7 +1608,7 @@ class Main(
             pass
         return True
 
-    def run_wizard(self, *args) -> None:
+    def run_wizard(self, *args: object) -> None:
         if self.confirm_quit():
             self.run_wizard_b4_shutdown = True
             self.restart_after_quit = True
@@ -1585,8 +1618,8 @@ class Main(
                 pass
             qapplication_or_fail().quit()
 
-    def closeEvent(self, a0) -> None:
-        if self.shutting_down:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        if self.shutting_down or a0 is None:
             return
         self.write_settings()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible():

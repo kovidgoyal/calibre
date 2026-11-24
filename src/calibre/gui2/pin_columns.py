@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView
 
@@ -9,7 +9,10 @@ from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
 
 if TYPE_CHECKING:
+    from qt.core import QContextMenuEvent, QKeyEvent, QWidget
+
     from calibre.gui2.library.models import BooksModel
+    from calibre.gui2.library.views import BooksView
 from calibre.gui2.library.delegates import (
     CcBoolDelegate,
     CcCommentsDelegate,
@@ -32,6 +35,13 @@ from calibre.gui2.library.delegates import (
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 
 
+class PinViewState(TypedDict, total=False):
+    hidden_columns: list[str]
+    sort_history: list[tuple[str, bool]]
+    column_positions: dict[str, int]
+    column_sizes: dict[str, int]
+
+
 class ColumnHeaderMenu(QMenu):
     bl_split_action: QAction | None = None
 
@@ -45,7 +55,7 @@ class TableView(MomentumScrollMixin, QTableView):
         @property
         def column_map(self) -> list[str]: ...
 
-    def closeEditor(self, editor, hint) -> None:
+    def closeEditor(self, editor: QWidget | None, hint: QAbstractItemDelegate.EndEditHint) -> None:
         # We want to implement our own go to next/previous cell behavior
         delta = 0
         if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
@@ -135,7 +145,7 @@ class TableView(MomentumScrollMixin, QTableView):
         assert m is not None
         bm = cast('BooksModel', m)
 
-        def set_item_delegate(colhead, delegate) -> None:
+        def set_item_delegate(colhead: str, delegate: QAbstractItemDelegate) -> None:
             idx = self.column_map.index(colhead)
             self.setItemDelegateForColumn(idx, delegate)
 
@@ -193,9 +203,10 @@ class TableView(MomentumScrollMixin, QTableView):
         if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
             self.cc_template_delegate.allow_one_edit()
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
         from calibre.gui2.library.alternate_views import handle_enter_press
 
+        assert e is not None
         if handle_enter_press(self, e):
             return
         if e.key() == Qt.Key.Key_F2:
@@ -206,26 +217,26 @@ class TableView(MomentumScrollMixin, QTableView):
 class PinTableView(TableView):
     disable_save_state = False
 
-    def __init__(self, books_view, parent=None) -> None:
+    def __init__(self, books_view: BooksView, parent: QWidget | None = None) -> None:
         QTableView.__init__(self, parent)
         self.books_view = books_view
         vh = self.verticalHeader()
         assert vh is not None
         vh.close()
-        self.splitter = None
+        self.splitter: PinContainer | None = None
 
     @property
-    def column_map(self):
+    def column_map(self) -> list[str]:
         return self.books_view.column_map
 
-    def set_context_menu(self, menu) -> None:
+    def set_context_menu(self, menu: QMenu) -> None:
         self.context_menu = menu
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.books_view.show_context_menu(self.context_menu, a0)
 
-    def get_default_state(self):
-        old_state = {
+    def get_default_state(self) -> PinViewState:
+        old_state: PinViewState = {
             'hidden_columns': ['last_modified', 'languages'],
             'sort_history': [DEFAULT_SORT],
             'column_positions': {},
@@ -242,10 +253,10 @@ class PinTableView(TableView):
                     old_state['column_sizes'][name] += 12
         return old_state
 
-    def apply_state(self, state) -> None:
+    def apply_state(self, state: PinViewState) -> None:
         self.disable_save_state = True  # moveSection() can cause save_state() to be called
         h = self.column_header
-        cmap = {}
+        cmap: dict[str, int] = {}
         hidden = state.get('hidden_columns', [])
         for i, c in enumerate(self.column_map):
             cmap[c] = i
@@ -253,7 +264,7 @@ class PinTableView(TableView):
                 h.setSectionHidden(i, c in hidden)
 
         positions = state.get('column_positions', {})
-        pmap = {}
+        pmap: dict[int, str] = {}
         for col, pos in positions.items():
             if col in cmap:
                 pmap[pos] = col
@@ -286,10 +297,10 @@ class PinTableView(TableView):
                 h.resizeSection(i, sz)
         self.disable_save_state = False
 
-    def get_state(self):
+    def get_state(self) -> PinViewState:
         h = self.column_header
         cm = self.column_map
-        state = {}
+        state: PinViewState = {}
         state['hidden_columns'] = [cm[i] for i in range(h.count()) if h.isSectionHidden(i) and cm[i] != 'ondevice']
         state['column_positions'] = {}
         state['column_sizes'] = {}
@@ -319,7 +330,7 @@ class PinTableView(TableView):
 
 
 class PinContainer(QSplitter):
-    def __init__(self, books_view, parent=None) -> None:
+    def __init__(self, books_view: BooksView, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setChildrenCollapsible(False)
         self.books_view = books_view
@@ -328,11 +339,11 @@ class PinContainer(QSplitter):
         books_view.pin_view.splitter = self
 
     @property
-    def splitter_state(self):
+    def splitter_state(self) -> bytearray:
         return bytearray(self.saveState())
 
     @splitter_state.setter
-    def splitter_state(self, val) -> None:
+    def splitter_state(self, val: bytes | bytearray | None) -> None:
         if val is not None:
             self.restoreState(val)
 

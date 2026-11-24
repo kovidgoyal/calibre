@@ -2,12 +2,18 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
 
 from calibre.ebooks.oeb.base import ENTITY_RE
 from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.palette import dark_link_color, light_link_color
+
+if TYPE_CHECKING:
+    from qt.core import QTextBlockFormat, QTextDocument
+
+type Theme = dict[str, dict[str, str]]
 
 
 class MarkdownHighlighter(QSyntaxHighlighter):
@@ -91,14 +97,14 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'entity': {'color': '#ff82ac'},
     }
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QTextDocument | None) -> None:
         super().__init__(parent)
         theme = self.dark_theme if qapplication_or_fail().is_dark_theme else self.light_theme
         self.setTheme(theme)
 
-    def setTheme(self, theme) -> None:
+    def setTheme(self, theme: Theme) -> None:
         self.theme = theme
-        self.MARKDOWN_KWS_FORMAT = {}
+        self.MARKDOWN_KWS_FORMAT: dict[str, QTextCharFormat] = {}
 
         for k in ['Bold', 'Italic', 'BoldItalic']:
             # generate dynamically keys and theme for EntityBold, EntityItalic, EntityBoldItalic
@@ -121,12 +127,14 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         self.rehighlight()
 
-    def highlightBlock(self, text) -> None:
+    def highlightBlock(self, text: str | None) -> None:
         self.offset = 0
+        if text is None:
+            return
         self.highlightMarkdown(text)
         self.highlightHtml(text)
 
-    def highlightMarkdown(self, text) -> None:
+    def highlightMarkdown(self, text: str) -> None:
         cursor = QTextCursor(self.document())
         bf = cursor.blockFormat()
 
@@ -159,7 +167,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         self.highlightCodeBlock(text, cursor, bf)
 
-    def highlightBlockQuote(self, text, cursor, bf):
+    def highlightBlockQuote(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         mo = re.match(self.MARKDOWN_KEYS_REGEX['BlockQuote'], text)
         if mo:
@@ -170,11 +178,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightEmptyLine(self, text, cursor, bf) -> bool:
+    def highlightEmptyLine(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         textAscii = str(text.replace('\u2029', '\n'))
         return not textAscii.strip()
 
-    def highlightHorizontalLine(self, text, cursor, bf):
+    def highlightHorizontalLine(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderLine'], text):
@@ -201,7 +209,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightHeader(self, text, cursor, bf):
+    def highlightHeader(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'], text):
             # bf.setBackground(QBrush(QColor(7,54,65)))
@@ -211,7 +219,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightList(self, text, cursor, bf):
+    def highlightList(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['UnorderedList'], text):
             self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['UnorderedList'])
@@ -222,7 +230,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightLink(self, text, cursor, bf):
+    def highlightLink(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'], text):
             self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Link'])
@@ -233,21 +241,21 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightImage(self, text, cursor, bf):
+    def highlightImage(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Image'], text):
             self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Image'])
             found = True
         return found
 
-    def highlightCodeSpan(self, text, cursor, bf):
+    def highlightCodeSpan(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeSpan'], text):
             self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeSpan'])
             found = True
         return found
 
-    def highlightBoldEmphasis(self, text, cursor, bf):
+    def highlightBoldEmphasis(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         mo = re.match(self.MARKDOWN_KEYS_REGEX['UnorderedListStar'], text)
         if mo:
             offset = mo.end()
@@ -255,11 +263,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             offset = 0
         return self._highlightBoldEmphasis(text[offset:], cursor, bf, offset, False, False)
 
-    def _highlightBoldEmphasis(self, text, cursor, bf, offset, bold, emphasis):
+    def _highlightBoldEmphasis(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat, offset: int, bold: bool, emphasis: bool) -> bool:
         # detect and apply imbricated Bold/Emphasis
         found = False
 
-        def apply(match, bold, emphasis) -> None:
+        def apply(match: re.Match[str], bold: bool, emphasis: bool) -> None:
             if bold and emphasis:
                 self.setFormat(
                     self.offset + offset + match.start(),
@@ -275,7 +283,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     self.MARKDOWN_KWS_FORMAT['Italic'],
                 )
 
-        def recursive(match, extra_offset, bold, emphasis) -> None:
+        def recursive(match: re.Match[str], extra_offset: int, bold: bool, emphasis: bool) -> None:
             apply(match, bold, emphasis)
             if bold and emphasis:
                 return  # max deep => return, do not process extra Bold/Italic
@@ -307,7 +315,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         return found
 
-    def highlightCodeBlock(self, text, cursor, bf):
+    def highlightCodeBlock(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'], text):
             stripped = text.lstrip()
@@ -316,7 +324,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 found = True
         return found
 
-    def highlightEntity(self, text, cursor, bf):
+    def highlightEntity(self, text: str, cursor: QTextCursor, bf: QTextBlockFormat) -> bool:
         found = False
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Entity'], text):
             charformat = self.format(self.offset + mo.start())
@@ -334,6 +342,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             found = True
         return found
 
-    def highlightHtml(self, text) -> None:
+    def highlightHtml(self, text: str) -> None:
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Html'], text):
             self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Html'])

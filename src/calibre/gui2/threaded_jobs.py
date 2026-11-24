@@ -7,14 +7,29 @@ import tempfile
 import time
 from queue import Queue
 from threading import Event, RLock, Thread
+from typing import TYPE_CHECKING
 
 from calibre.ptempfile import base_dir
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
 
 class ThreadedJob(BaseJob):
-    def __init__(self, type_, description, func, args, kwargs, callback, max_concurrent_count=1, killable=True, log=None) -> None:
+    def __init__(
+        self,
+        type_: str,
+        description: str,
+        func: Callable[..., object],
+        args: Sequence[object],
+        kwargs: dict[str, object],
+        callback: Callable[[ThreadedJob], object],
+        max_concurrent_count: int = 1,
+        killable: bool = True,
+        log: GUILog | None = None,
+    ) -> None:
         """
         A job that is run in its own thread in the calibre main process
 
@@ -54,15 +69,17 @@ class ThreadedJob(BaseJob):
         self.killable = killable
         self.callback = callback
         self.abort = Event()
-        self.exception = None
+        self.exception: Exception | None = None
 
         kwargs['notifications'] = self.notifications
         kwargs['abort'] = self.abort
-        self.log = GUILog() if log is None else log
+        self.log: GUILog | None = GUILog() if log is None else log
         kwargs['log'] = self.log
 
-        self.func, self.args, self.kwargs = func, args, kwargs
-        self.consolidated_log = None
+        self.func: Callable[..., object] | None = func
+        self.args: Sequence[object] | None = args
+        self.kwargs: dict[str, object] | None = kwargs
+        self.consolidated_log: str | None = None
 
     def start_work(self) -> None:
         self.start_time = time.time()
@@ -132,13 +149,13 @@ class ThreadedJob(BaseJob):
         self.consolidated_log = path
         self.log = None
 
-    def read_consolidated_log(self):
+    def read_consolidated_log(self) -> list[str]:
         assert self.consolidated_log is not None
         with open(self.consolidated_log, 'rb') as f:
             return json.loads(f.read().decode('utf-8'))
 
     @property
-    def details(self):
+    def details(self) -> str:
         if self.consolidated_log is None:
             log = self.log
             assert log is not None
@@ -146,7 +163,7 @@ class ThreadedJob(BaseJob):
         return self.read_consolidated_log()[1]
 
     @property
-    def html_details(self):
+    def html_details(self) -> str:
         if self.consolidated_log is None:
             log = self.log
             assert log is not None
@@ -155,7 +172,7 @@ class ThreadedJob(BaseJob):
 
 
 class ThreadedJobWorker(Thread):
-    def __init__(self, job) -> None:
+    def __init__(self, job: ThreadedJob) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.job = job
@@ -178,15 +195,15 @@ class ThreadedJobServer(Thread):
         self.daemon = True
         self.lock = RLock()
 
-        self.queued_jobs = []
-        self.running_jobs = set()
-        self.changed_jobs = Queue()
+        self.queued_jobs: list[ThreadedJob] = []
+        self.running_jobs: set[ThreadedJobWorker] = set()
+        self.changed_jobs: Queue[ThreadedJob] = Queue()
         self.keep_going = True
 
     def close(self) -> None:
         self.keep_going = False
 
-    def add_job(self, job) -> None:
+    def add_job(self, job: ThreadedJob) -> None:
         with self.lock:
             self.queued_jobs.append(job)
 
@@ -226,21 +243,21 @@ class ThreadedJobServer(Thread):
                 self.changed_jobs.put(job)
                 self.queued_jobs.remove(job)
 
-    def kill_job(self, job) -> None:
+    def kill_job(self, job: ThreadedJob) -> None:
         with self.lock:
             if job in self.queued_jobs:
                 self.queued_jobs.remove(job)
-            elif job in self.running_jobs:
-                self.running_jobs.remove(job)
+            # Running jobs are left in self.running_jobs, their worker is
+            # removed by run_once() once it notices the abort and exits
         job.kill()
         self.changed_jobs.put(job)
 
-    def running_jobs_of_type(self, type_):
+    def running_jobs_of_type(self, type_: str) -> int:
         return len([w for w in self.running_jobs if w.job.type == type_])
 
-    def get_startable_jobs(self):
-        queued_types = []
-        ans = []
+    def get_startable_jobs(self) -> list[ThreadedJob]:
+        queued_types: list[str] = []
+        ans: list[ThreadedJob] = []
         for job in self.queued_jobs:
             num = self.running_jobs_of_type(job.type)
             num += queued_types.count(job.type)

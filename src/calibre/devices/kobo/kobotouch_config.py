@@ -744,7 +744,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
             device.get_pref('letterbox_fs_covers'),
         )
 
-        self.letterbox_fs_covers_color_button = ColorButton(self.options_layout)
+        self.letterbox_fs_covers_color_button = ColorButton()
         self.letterbox_fs_covers_color_button.setToolTip(_('Choose the color to use when letterboxing the cover. The default color is black (#000000)'))
         self.letterbox_fs_covers_color_button.color = device.get_pref('letterbox_fs_covers_color')
 

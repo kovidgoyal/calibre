@@ -3,6 +3,7 @@
 
 import os
 import shutil
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -39,8 +40,15 @@ from calibre.gui2 import choose_files, empty_index, error_dialog, info_dialog
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-def add_fonts(parent):
+    from qt.core import QKeyEvent, QModelIndex, QPainter, QStyleOptionViewItem
+
+    from calibre.utils.fonts.metadata import FontFace
+
+
+def add_fonts(parent: QWidget | None) -> list[str] | None:
     files = choose_files(
         parent,
         'add fonts to calibre',
@@ -68,7 +76,7 @@ def add_fonts(parent):
     return families
 
 
-def writing_system_for_font(font):
+def writing_system_for_font(font: QFont) -> tuple[QFontDatabase.WritingSystem, bool]:
     has_latin = True
     systems = QFontDatabase.writingSystems(font.family())
 
@@ -113,21 +121,22 @@ def writing_system_for_font(font):
 
 
 class FontFamilyDelegate(QStyledItemDelegate):
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         try:
             return self.do_size_hint(option, index)
         except Exception:
             return QSize(300, 50)
 
-    def do_size_hint(self, option, index):
+    def do_size_hint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         text = index.data(Qt.ItemDataRole.DisplayRole) or ''
         font = QFont(option.font)
         font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
         m = QFontMetrics(font)
         return QSize(m.boundingRect(text).width(), m.height())
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, empty_index)
+        assert painter is not None
         painter.save()
         try:
             self.do_paint(painter, option, index)
@@ -137,7 +146,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
             traceback.print_exc()
         painter.restore()
 
-    def do_paint(self, painter, option, index) -> None:
+    def do_paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         text = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
         font = QFont(option.font)
         font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
@@ -175,14 +184,14 @@ class FontFamilyDelegate(QStyledItemDelegate):
 
 
 class Typefaces(QLabel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QLabel.__init__(self, parent)
         self.setMinimumWidth(400)
         self.base_msg = '<h3>' + _('Choose a font family') + '</h3>'
         self.setText(self.base_msg)
         self.setWordWrap(True)
 
-    def show_family(self, family, faces) -> None:
+    def show_family(self, family: str | None, faces: Sequence[FontFace] | None) -> None:
         if not family:
             self.setText(self.base_msg)
             return
@@ -193,7 +202,7 @@ class Typefaces(QLabel):
         </dl>
         ''' % (_('Available faces for %s') % family)
         entries = []
-        for font in faces:
+        for font in faces or ():
             sf = font['wws_subfamily_name'] or font['preferred_subfamily_name'] or font['subfamily_name']
             entries.append(
                 '''
@@ -210,20 +219,20 @@ class Typefaces(QLabel):
 class FontsView(QListView):
     changed = pyqtSignal()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QListView.__init__(self, parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAlternatingRowColors(True)
         self.d = FontFamilyDelegate(self)
         self.setItemDelegate(self.d)
 
-    def currentChanged(self, current, previous) -> None:
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         self.changed.emit()
         QListView.currentChanged(self, current, previous)
 
 
 class FontFamilyDialog(QDialog):
-    def __init__(self, current_family, parent=None) -> None:
+    def __init__(self, current_family: str | None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose font family'))
         self.setWindowIcon(QIcon.ic('font.png'))
@@ -277,15 +286,15 @@ class FontFamilyDialog(QDialog):
 
         self.resize(800, 600)
 
-    def set_current(self, i) -> None:
+    def set_current(self, i: int) -> None:
         self.view.setCurrentIndex(self.m.index(i))
 
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Return:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0 is not None and a0.key() == Qt.Key.Key_Return:
             return
         return QDialog.keyPressEvent(self, a0)
 
-    def _find(self, backwards=False) -> None:
+    def _find(self, backwards: bool = False) -> None:
         i = self.view.currentIndex().row()
         i = max(i, 0)
         q = icu_lower(str(self.search.text())).strip()
@@ -334,7 +343,7 @@ class FontFamilyDialog(QDialog):
         info_dialog(self, _('Added fonts'), _('Added font families: %s') % (', '.join(families)), show=True)
 
     @property
-    def font_family(self):
+    def font_family(self) -> str | None:
         idx = self.view.currentIndex().row()
         if idx == 0:
             return None
@@ -348,7 +357,7 @@ class FontFamilyDialog(QDialog):
 class FontFamilyChooser(QWidget):
     family_changed = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
@@ -370,18 +379,18 @@ class FontFamilyChooser(QWidget):
     def toolTip(self) -> str:
         return self.button.toolTip()
 
-    def setToolTip(self, a0) -> None:
+    def setToolTip(self, a0: str | None) -> None:
         self.button.setToolTip(a0)
 
     def clear_family(self) -> None:
         self.font_family = None
 
     @property
-    def font_family(self):
+    def font_family(self) -> str | None:
         return self._current_family
 
     @font_family.setter
-    def font_family(self, val) -> None:
+    def font_family(self, val: str | None) -> None:
         if not val:
             val = None
         self._current_family = val

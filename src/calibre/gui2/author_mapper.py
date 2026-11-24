@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
@@ -14,6 +15,11 @@ from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.gui2.tag_mapper import Tester as TesterBase
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.ebooks.metadata.tag_mapper import Rule
 
 author_maps = JSONConfig('author-mapping-rules')
 
@@ -53,7 +59,7 @@ class RuleEdit(RuleEditBase):
         self.regex_help.setVisible(is_match)
 
     @property
-    def rule(self):
+    def rule(self) -> dict[str, str]:
         return {
             'action': self.action.currentData(),
             'match_type': self.match_type.currentData(),
@@ -62,8 +68,8 @@ class RuleEdit(RuleEditBase):
         }
 
     @rule.setter
-    def rule(self, rule) -> None:
-        def sc(name) -> None:
+    def rule(self, rule: Rule) -> None:
+        def sc(name: str) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -81,7 +87,7 @@ class RuleEditDialog(RuleEditDialogBase):
 
 class RuleItem(RuleItemBase):
     @staticmethod
-    def text_from_rule(rule, parent):
+    def text_from_rule(rule: Rule, parent: QWidget) -> str:
         query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
         text = _('<b>{action}</b> the author name, if it <i>{match_type}</i>: <b>{query}</b>').format(
             action=RuleEdit.ACTION_MAP[rule['action']],

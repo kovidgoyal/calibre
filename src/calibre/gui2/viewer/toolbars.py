@@ -390,12 +390,14 @@ class ActionsToolBar(ToolBar):
                 if _web_view_module._book_pathtoebook is not None and path == os.path.abspath(_web_view_module._book_pathtoebook):
                     continue
                 if os.path.exists(path):
-                    m.addAction(
+                    ac = m.addAction(
                         '{}\t {}'.format(
                             elided_text(entry['title'], pos='right', width=250),
                             elided_text(os.path.basename(path), width=250),
                         )
-                    ).triggered.connect(partial(self.open_book_at_path.emit, path))
+                    )
+                    assert ac is not None
+                    ac.triggered.connect(partial(self.open_book_at_path.emit, path))
                 else:
                     self.web_view.remove_recently_opened(path)
         if len(m.actions()) > 0:

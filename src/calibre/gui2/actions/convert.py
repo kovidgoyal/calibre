@@ -169,7 +169,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 out_format=output_fmt or prefs['output_format'],
                 args=(rows, previous, self.book_converted),
             )
-            if self.__bulk_queue is None:
+            if self.__bulk_queue is None or isinstance(self.__bulk_queue, tuple):
                 return
             num = len(self.__bulk_queue.book_ids)
         else:
@@ -180,6 +180,8 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 out_format=output_fmt or prefs['output_format'],
                 auto_conversion=auto_conversion,
             )
+            if jobs is None:
+                return
             self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_converted)
             num = len(jobs)
 

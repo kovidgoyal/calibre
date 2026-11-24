@@ -4,6 +4,7 @@
 from collections import OrderedDict, defaultdict
 from functools import partial
 from operator import itemgetter
+from typing import TYPE_CHECKING, NotRequired, TypedDict, cast, overload
 
 from qt.core import (
     QAbstractItemDelegate,
@@ -48,6 +49,26 @@ from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import _, pgettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
+
+    from qt.core import QAction, QPainter, QPoint, QStyleOptionViewItem
+
+
+class Shortcut(TypedDict):
+    name: str
+    desc: str | None
+    action: QAction | None
+    default_keys: tuple[str, ...]
+    persist_shortcut: bool
+    set_to_default: NotRequired[bool]
+    resolved_keys: NotRequired[list[QKeySequence]]
+    # The following are only present in the copies used by ConfigModel
+    keys: NotRequired[tuple[QKeySequence, ...]]
+    unique_name: NotRequired[str]
+    group: NotRequired[str]
+
+
 ROOT = QModelIndex()
 
 
@@ -55,7 +76,7 @@ class NameConflict(ValueError):
     pass
 
 
-def keysequence_from_event(ev: QKeyEvent):  # {{{
+def keysequence_from_event(ev: QKeyEvent) -> QKeySequence | None:  # {{{
     kc = ev.keyCombination()
     k, mods = kc.key(), kc.keyboardModifiers()
     if k in (
@@ -70,7 +91,7 @@ def keysequence_from_event(ev: QKeyEvent):  # {{{
         Qt.Key.Key_NumLock,
         Qt.Key.Key_ScrollLock,
     ):
-        return
+        return None
     letter = QKeySequence(k).toString(QKeySequence.SequenceFormat.PortableText)
     if mods & Qt.KeyboardModifier.ShiftModifier and letter.lower() == letter.upper():
         # Something like Shift+* or Shift+> we have to remove the shift,
@@ -82,7 +103,7 @@ def keysequence_from_event(ev: QKeyEvent):  # {{{
 # }}}
 
 
-def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
+def finalize(shortcuts: Mapping[str, Shortcut], custom_keys_map: Mapping[str, Sequence[str]] | None = None) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
     """
     Resolve conflicts and assign keys to every action in shortcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
@@ -94,7 +115,7 @@ def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, .
         custom_keys_map = {}
     for unique_name, shortcut in shortcuts.items():
         shortcut['set_to_default'] = unique_name in custom_keys_map
-    keys_map = defaultdict(list)
+    keys_map: defaultdict[str, list[Shortcut]] = defaultdict(list)
     # First pass map key sequences to shortcuts
     for unique_name, shortcut in shortcuts.items():
         custom_keys = custom_keys_map.get(unique_name, None)
@@ -121,7 +142,7 @@ def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, .
                 )
         shortcuts_with_key[0]['resolved_keys'].append(QKeySequence(key, QKeySequence.SequenceFormat.PortableText))
     # Second pass, assign resolved keys to actions.
-    unique_name_to_keys = {}
+    unique_name_to_keys: dict[str, tuple[QKeySequence, ...]] = {}
     for unique_name, shortcut in shortcuts.items():
         ac = shortcut['action']
         rkeys = unique_name_to_keys[unique_name] = tuple(shortcut.pop('resolved_keys'))
@@ -137,15 +158,24 @@ def finalize(shortcuts, custom_keys_map=None) -> dict[str, tuple[QKeySequence, .
 
 
 class Manager(QObject):  # {{{
-    def __init__(self, parent=None, config_name='shortcuts/main') -> None:
+    def __init__(self, parent: QObject | None = None, config_name: str = 'shortcuts/main') -> None:
         QObject.__init__(self, parent)
 
         self.config = JSONConfig(config_name)
-        self.shortcuts = OrderedDict()
-        self.keys_map = {}
-        self.groups = {}
+        self.shortcuts: OrderedDict[str, Shortcut] = OrderedDict()
+        self.keys_map: dict[str, tuple[QKeySequence, ...]] = {}
+        self.groups: dict[str, list[str]] = {}
 
-    def register_shortcut(self, unique_name, name, default_keys=(), description=None, action=None, group=None, persist_shortcut=False) -> None:
+    def register_shortcut(
+        self,
+        unique_name: str,
+        name: str,
+        default_keys: Iterable[str] = (),
+        description: str | None = None,
+        action: QAction | None = None,
+        group: str | None = None,
+        persist_shortcut: bool = False,
+    ) -> None:
         '''
         Register a shortcut with calibre. calibre will manage the shortcut,
         automatically resolving conflicts and allowing the user to customize
@@ -172,7 +202,7 @@ class Manager(QObject):  # {{{
         if unique_name in self.shortcuts:
             name = self.shortcuts[unique_name]['name']
             raise NameConflict(f'Shortcut for {unique_name!r} already registered by {name}')
-        shortcut = {
+        shortcut: Shortcut = {
             'name': name,
             'desc': description,
             'action': action,
@@ -183,7 +213,7 @@ class Manager(QObject):  # {{{
         group = group or pgettext('keyboard shortcuts', 'Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
-    def unregister_shortcut(self, unique_name) -> None:
+    def unregister_shortcut(self, unique_name: str) -> None:
         """
         Remove a registered shortcut. You need to call finalize() after you are
         done unregistering.
@@ -199,7 +229,7 @@ class Manager(QObject):  # {{{
         custom_keys_map = {un: tuple(keys) for un, keys in self.config.get('map', {}).items()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
-    def replace_action(self, unique_name, new_action) -> None:
+    def replace_action(self, unique_name: str, new_action: QAction | None) -> None:
         """
         Replace the action associated with a shortcut.
         Once you're done calling replace_action() for all shortcuts you want
@@ -216,31 +246,39 @@ class Manager(QObject):  # {{{
 
 
 class Node:
-    def __init__(self, group_map, shortcut_map, name=None, shortcut=None) -> None:
-        self.data = name if name is not None else shortcut
+    def __init__(
+        self,
+        group_map: Mapping[str, Sequence[str]] | None,
+        shortcut_map: Mapping[str, Shortcut] | None,
+        name: str | None = None,
+        shortcut: Shortcut | None = None,
+    ) -> None:
+        # Group nodes have the group name as data, shortcut nodes the shortcut
+        self.data: str | Shortcut | None = name if name is not None else shortcut
         self.is_shortcut = shortcut is not None
-        self.children = []
+        self.children: list[Node] = []
         if name is not None:
+            assert group_map is not None and shortcut_map is not None
             self.children = [Node(None, None, shortcut=shortcut_map[uname]) for uname in group_map[name]]
 
     def __len__(self) -> int:
         return len(self.children)
 
-    def __getitem__(self, row):
+    def __getitem__(self, row: int) -> Node:
         return self.children[row]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Node]:
         yield from self.children
 
 
 class ConfigModel(SearchQueryParser, QAbstractItemModel):
-    def __init__(self, keyboard, parent=None) -> None:
+    def __init__(self, keyboard: Manager, parent: QObject | None = None) -> None:
         QAbstractItemModel.__init__(self, parent)
         SearchQueryParser.__init__(self, ['all'])
 
         self.keyboard = keyboard
         groups = sorted(keyboard.groups, key=sort_key)
-        shortcut_map = {k: v.copy() for k, v in self.keyboard.shortcuts.items()}
+        shortcut_map: dict[str, Shortcut] = {k: v.copy() for k, v in self.keyboard.shortcuts.items()}
         for un, s in shortcut_map.items():
             s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
@@ -251,20 +289,20 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         self.root_nodes = [Node(group_map, shortcut_map, group) for group in groups]
 
     @property
-    def all_shortcuts(self):
+    def all_shortcuts(self) -> Iterator[Node]:
         for group in self.root_nodes:
             yield from group
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         ip = parent.internalPointer()
         if ip is None:
             return len(self.root_nodes)
         return len(ip)
 
-    def columnCount(self, parent=ROOT) -> int:
+    def columnCount(self, parent: QModelIndex = ROOT) -> int:
         return 1
 
-    def index(self, row, column, parent=ROOT):
+    def index(self, row: int, column: int, parent: QModelIndex = ROOT) -> QModelIndex:
         ip = parent.internalPointer()
         if ip is None:
             ip = self.root_nodes
@@ -274,7 +312,11 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             pass
         return ROOT
 
-    def parent(self, child=QModelIndex()):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()) -> QModelIndex | QObject | None:
         ip = child.internalPointer()
         if ip is None or not ip.is_shortcut:
             return ROOT
@@ -284,13 +326,13 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                 return self.index(i, 0)
         return ROOT
 
-    def data(self, index, role: int = Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Node | None:
         ip = index.internalPointer()
         if ip is not None and role == Qt.ItemDataRole.UserRole:
             return ip
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         ans = QAbstractItemModel.flags(self, index)
         ip = index.internalPointer()
         if getattr(ip, 'is_shortcut', False):
@@ -298,14 +340,14 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         return ans
 
     def restore_defaults(self) -> None:
-        shortcut_map = {}
+        shortcut_map: dict[str, Shortcut] = {}
         for node in self.all_shortcuts:
-            sc = node.data
+            sc = cast('Shortcut', node.data)
             shortcut_map[sc['unique_name']] = sc
         shortcuts = OrderedDict([(un, shortcut_map[un]) for un in self.keyboard.shortcuts])
         keys_map = finalize(shortcuts)
         for node in self.all_shortcuts:
-            s = node.data
+            s = cast('Shortcut', node.data)
             s['keys'] = tuple(keys_map[s['unique_name']])
         for r in range(self.rowCount()):
             group = self.index(r, 0)
@@ -324,7 +366,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             if options_map.get(un, {}).get('persist_shortcut', False):
                 kmap[un] = keys
         for node in self.all_shortcuts:
-            sc = node.data
+            sc = cast('Shortcut', node.data)
             un = sc['unique_name']
             if sc['set_to_default']:
                 kmap.pop(un, None)
@@ -339,28 +381,28 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             self.keyboard.config['map'] = kmap
             self.keyboard.config['options_map'] = options_map
 
-    def universal_set(self):
-        ans = set()
+    def universal_set(self) -> set[tuple[int, int]]:
+        ans: set[tuple[int, int]] = set()
         for i, group in enumerate(self.root_nodes):
             ans.add((i, -1))
             for j, sc in enumerate(group.children):
                 ans.add((i, j))
         return ans
 
-    def get_matches(self, location, query, candidates=None):
+    def get_matches(self, location: str, query: str, candidates: set[tuple[int, int]] | None = None) -> set[tuple[int, int]]:
         if candidates is None:
             candidates = self.universal_set()
-        ans = set()
+        ans: set[tuple[int, int]] = set()
         if not query:
             return ans
         query = lower(query)
         for c, p in candidates:
             if p < 0:
-                if query in lower(self.root_nodes[c].data):
+                if query in lower(cast('str', self.root_nodes[c].data)):
                     ans.add((c, p))
             else:
                 try:
-                    sc = self.root_nodes[c].children[p].data
+                    sc = cast('Shortcut', self.root_nodes[c].children[p].data)
                 except Exception:
                     continue
                 if query in lower(sc['name']) or query in lower(sc.get('desc') or ''):
@@ -372,7 +414,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                             break
         return ans
 
-    def find(self, query):
+    def find(self, query: str) -> QModelIndex:
         query = query.strip()
         if not query:
             return ROOT
@@ -386,7 +428,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             return cat_idx
         return self.index(p, 0, cat_idx)
 
-    def find_next(self, idx, query, backwards=False):
+    def find_next(self, idx: QModelIndex, query: str, backwards: bool = False) -> QModelIndex:
         query = query.strip()
         if not query:
             return idx
@@ -412,17 +454,18 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
         return self.index(ans[0], 0) if ans[1] < 0 else self.index(ans[1], 0, self.index(ans[0], 0))
 
-    def index_for_group(self, name):
+    def index_for_group(self, name: str) -> QModelIndex | None:
         for i in range(self.rowCount()):
             node = self.root_nodes[i]
             if node.data == name:
                 return self.index(i, 0)
+        return None
 
     @property
-    def group_names(self):
+    def group_names(self) -> Iterator[str]:
         for i in range(self.rowCount()):
             node = self.root_nodes[i]
-            yield node.data
+            yield cast('str', node.data)
 
 
 # }}}
@@ -433,7 +476,7 @@ class Editor(QFrame):  # {{{
     button1: QPushButton
     button2: QPushButton
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QFrame.__init__(self, parent)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAutoFillBackground(True)
@@ -483,7 +526,7 @@ class Editor(QFrame):  # {{{
 
         self.custom_toggled(False)
 
-    def initialize(self, shortcut, all_shortcuts) -> None:
+    def initialize(self, shortcut: Shortcut, all_shortcuts: list[Shortcut]) -> None:
         self.header.setText('<b>{}: {}</b>'.format(_('Customize'), shortcut['name']))
         self.all_shortcuts = all_shortcuts
         self.shortcut = shortcut
@@ -509,25 +552,25 @@ class Editor(QFrame):  # {{{
                 button.setText(ns.replace('&', '&&'))
                 button.setObjectName(ns)
 
-    def custom_toggled(self, checked) -> None:
+    def custom_toggled(self, checked: bool) -> None:
         for w in ('1', '2'):
             for o in ('label', 'button', 'clear'):
                 getattr(self, o + w).setEnabled(checked)
 
-    def capture_clicked(self, which=1) -> None:
+    def capture_clicked(self, which: int = 1) -> None:
         self.capture = which
         button = getattr(self, f'button{which}')
         button.setText(_('Press a key...'))
         button.setFocus(Qt.FocusReason.OtherFocusReason)
         button.setStyleSheet('QPushButton { font-weight: bold}')
 
-    def clear_clicked(self, which=0) -> None:
+    def clear_clicked(self, which: int = 0) -> None:
         button = getattr(self, f'button{which}')
         button.setText(_('None'))
         button.setObjectName(_('None'))
 
-    def eventFilter(self, a0, a1):
-        if self.capture and a0 in (self.button1, self.button2):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if self.capture and a1 is not None and a0 in (self.button1, self.button2):
             t = a1.type()
             if t == QEvent.Type.ShortcutOverride:
                 a1.accept()
@@ -537,7 +580,7 @@ class Editor(QFrame):  # {{{
                 return True
         return QFrame.eventFilter(self, a0, a1)
 
-    def key_press_event(self, ev, which=0):
+    def key_press_event(self, ev: QKeyEvent, which: int = 0) -> None:
         if self.capture == 0:
             return QWidget.keyPressEvent(self, ev)
         sequence = keysequence_from_event(ev)
@@ -561,19 +604,20 @@ class Editor(QFrame):  # {{{
             )
             self.clear_clicked(which=which)
 
-    def dup_check(self, sequence):
+    def dup_check(self, sequence: QKeySequence) -> str | None:
         for sc in self.all_shortcuts:
             if sc is self.shortcut:
                 continue
             for k in sc['keys']:
                 if k == sequence:
                     return sc['name']
+        return None
 
     @property
-    def custom_keys(self):
+    def custom_keys(self) -> tuple[QKeySequence, ...] | None:
         if self.use_default.isChecked():
             return None
-        ans = []
+        ans: list[QKeySequence] = []
         for which in (1, 2):
             button = getattr(self, f'button{which}')
             t = button.objectName()
@@ -591,12 +635,13 @@ class Editor(QFrame):  # {{{
 class Delegate(QStyledItemDelegate):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QStyledItemDelegate.__init__(self, parent)
-        self.editing_index = None
+        self.editing_index: QModelIndex | None = None
+        self.current_editor: Editor | None = None
         self.closeEditor.connect(self.editing_done)
 
-    def to_doc(self, index):
+    def to_doc(self, index: QModelIndex) -> QTextDocument:
         data = index.data(Qt.ItemDataRole.UserRole)
         if data is None:
             html = _('<b>This shortcut no longer exists</b>')
@@ -616,13 +661,15 @@ class Delegate(QStyledItemDelegate):  # {{{
         doc.setHtml(html)
         return doc
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         if index == self.editing_index:
             return QSize(200, 200)
         ans = self.to_doc(index).size().toSize()
         return ans
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        if painter is None:
+            return
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         if hasattr(QStyle, 'CE_ItemViewItem'):
@@ -635,7 +682,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         self.to_doc(index).drawContents(painter)
         painter.restore()
 
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent: QWidget | None, option: QStyleOptionViewItem, index: QModelIndex) -> Editor:
         w = Editor(parent=parent)
         w.editing_done.connect(self.editor_done)
         self.editing_index = index
@@ -646,16 +693,19 @@ class Delegate(QStyledItemDelegate):  # {{{
     def accept_changes(self) -> None:
         self.editor_done(self.current_editor)
 
-    def editor_done(self, editor) -> None:
+    def editor_done(self, editor: QWidget | None) -> None:
         self.commitData.emit(editor)
 
-    def setEditorData(self, editor, index) -> None:
-        all_shortcuts = [x.data for x in index.model().all_shortcuts]
+    def setEditorData(self, editor: QWidget | None, index: QModelIndex) -> None:
+        model = index.model()
+        assert isinstance(model, ConfigModel) and isinstance(editor, Editor)
+        all_shortcuts = [cast('Shortcut', x.data) for x in model.all_shortcuts]
         shortcut = index.internalPointer().data
         editor.initialize(shortcut, all_shortcuts)
 
-    def setModelData(self, editor, model, index) -> None:
+    def setModelData(self, editor: QWidget | None, model: QAbstractItemModel | None, index: QModelIndex) -> None:
         self.closeEditor.emit(editor, QAbstractItemDelegate.EndEditHint.NoHint)
+        assert isinstance(editor, Editor)
         custom_keys = editor.custom_keys
         sc = index.data(Qt.ItemDataRole.UserRole).data
         if custom_keys is None:
@@ -680,10 +730,11 @@ class Delegate(QStyledItemDelegate):  # {{{
         sc['keys'] = candidates
         self.changed_signal.emit()
 
-    def updateEditorGeometry(self, editor, option, index) -> None:
-        editor.setGeometry(option.rect)
+    def updateEditorGeometry(self, editor: QWidget | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        if editor is not None:
+            editor.setGeometry(option.rect)
 
-    def editing_done(self, *args) -> None:
+    def editing_done(self, *args: object) -> None:
         self.current_editor = None
         idx = self.editing_index
         self.editing_index = None
@@ -697,7 +748,7 @@ class Delegate(QStyledItemDelegate):  # {{{
 class ShortcutConfig(QWidget):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self._layout = l = QVBoxLayout(self)
         self.header = QLabel(_('Double click on any entry to change the keyboard shortcuts associated with it'))
@@ -726,7 +777,7 @@ class ShortcutConfig(QWidget):  # {{{
         h.addWidget(self.nb), h.addWidget(self.pb)
         h.setStretch(0, 100)
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         menu = QMenu(self)
         menu.addAction(QIcon.ic('plus.png'), _('Expand all'), self.view.expandAll)
         menu.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.view.collapseAll)
@@ -741,18 +792,18 @@ class ShortcutConfig(QWidget):  # {{{
             self.delegate.accept_changes()
         self._model.commit()
 
-    def initialize(self, keyboard) -> None:
+    def initialize(self, keyboard: Manager) -> None:
         self._model = ConfigModel(keyboard, parent=self)
         self.view.setModel(self._model)
 
-    def editor_opened(self, index) -> None:
+    def editor_opened(self, index: QModelIndex) -> None:
         self.view.scrollTo(index, QAbstractItemView.ScrollHint.EnsureVisible)
 
     @property
-    def is_editing(self):
+    def is_editing(self) -> bool:
         return self.view.state() == QAbstractItemView.State.EditingState
 
-    def find(self, a0) -> None:
+    def find(self, a0: str) -> None:  # ty: ignore[incompatible-method-override] shadows the static QWidget.find(), renaming would break API
         if not a0:
             return
         try:
@@ -772,7 +823,7 @@ class ShortcutConfig(QWidget):  # {{{
             return
         self.highlight_index(idx)
 
-    def highlight_index(self, idx) -> None:
+    def highlight_index(self, idx: QModelIndex) -> None:
         self.view.scrollTo(idx)
         sel_model = self.view.selectionModel()
         assert sel_model is not None
@@ -780,21 +831,21 @@ class ShortcutConfig(QWidget):  # {{{
         self.view.setCurrentIndex(idx)
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def find_next(self, *args) -> None:
+    def find_next(self, *args: object) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx, str(self.search.currentText()))
         self.highlight_index(idx)
 
-    def find_previous(self, *args) -> None:
+    def find_previous(self, *args: object) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0, 0)
         idx = self._model.find_next(idx, str(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
-    def highlight_group(self, group_name) -> None:
+    def highlight_group(self, group_name: str) -> None:
         model = self.view.model()
         assert isinstance(model, ConfigModel)
         idx = model.index_for_group(group_name)

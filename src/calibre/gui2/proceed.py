@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import (
     QAbstractScrollArea,
@@ -41,11 +41,13 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from qt.core import QHideEvent, QObject, QPaintEvent, QShowEvent
+
 
 class Question(NamedTuple):
-    payload: Any
-    callback: Callable[[Any], bool | None]
-    cancel_callback: Callable[[Any], bool | None] | None
+    payload: object
+    callback: Callable[..., object] | None
+    cancel_callback: Callable[..., object] | None
     title: str
     msg: str
     html_log: str
@@ -55,36 +57,38 @@ class Question(NamedTuple):
     show_copy_button: bool
     checkbox_msg: str | None
     checkbox_checked: bool
-    action_callback: Callable[[Any], bool | None] | None
+    action_callback: Callable[..., object] | None
     action_label: str | None
     action_icon: QIcon | None
     focus_action: bool
     show_det: bool
     show_ok: bool
-    icon: QIcon | None
+    icon: QIcon | str | None
     log_viewer_unique_name: str | None
     auto_hide_after: int
 
 
 class Icon(QWidget):
+    icon: QPixmap
+
     @pyqtProperty(float)
-    def fraction(self):
+    def fraction(self) -> float:
         return self._fraction
 
     @fraction.setter
-    def fraction(self, val) -> None:
+    def fraction(self, val: float) -> None:
         self._fraction = max(0, min(2, float(val)))
         self.update()
 
-    def showEvent(self, a0):
+    def showEvent(self, a0: QShowEvent | None) -> None:
         self.animation.start()
         return QWidget.showEvent(self, a0)
 
-    def hideEvent(self, a0):
+    def hideEvent(self, a0: QHideEvent | None) -> None:
         self.animation.stop()
         return QWidget.hideEvent(self, a0)
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.set_icon('dialog_question.png')
@@ -94,7 +98,7 @@ class Icon(QWidget):
         a.setDuration(2000), a.setEasingCurve(QEasingCurve.Type.Linear)
         a.setStartValue(0.0), a.setEndValue(2.0), a.setLoopCount(10)
 
-    def set_icon(self, icon) -> None:
+    def set_icon(self, icon: QIcon | str | None) -> None:
         if isinstance(icon, QIcon):
             self.icon = icon.pixmap(self.sizeHint())
         elif icon is None:
@@ -103,10 +107,10 @@ class Icon(QWidget):
             self.icon = QIcon.ic(icon).pixmap(self.sizeHint())
         self.update()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(64, 64)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         p = QPainter(self)
         p.setOpacity(min(1, abs(1 - self._fraction)))
         p.drawPixmap(self.rect(), self.icon)
@@ -114,7 +118,7 @@ class Icon(QWidget):
 
 
 class PlainTextEdit(QPlainTextEdit):
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         fm = QFontMetrics(self.font())
         ans = QPlainTextEdit.sizeHint(self)
         ans.setWidth(fm.averageCharWidth() * 50)
@@ -125,18 +129,18 @@ class ProceedQuestion(QWidget):
     ask_question = pyqtSignal(object, object, object)
 
     @pyqtProperty(float)
-    def show_fraction(self):
+    def show_fraction(self) -> float:
         return self._show_fraction
 
     @show_fraction.setter
-    def show_fraction(self, val) -> None:
+    def show_fraction(self, val: float) -> None:
         self._show_fraction = max(0, min(1, float(val)))
         self.update()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QMainWindow) -> None:
         QWidget.__init__(self, parent)
         self.setVisible(False)
-        self.auto_hide_timer = None
+        self.auto_hide_timer: QTimer | None = None
         parent.installEventFilter(self)
 
         self._show_fraction = 0.0
@@ -144,9 +148,9 @@ class ProceedQuestion(QWidget):
         a.setDuration(1000), a.setEasingCurve(QEasingCurve.Type.OutQuad)
         a.setStartValue(0.0), a.setEndValue(1.0)
         a.finished.connect(self.stop_show_animation)
-        self.rendered_pixmap = None
+        self.rendered_pixmap: QPixmap | None = None
 
-        self.questions = []
+        self.questions: list[Question] = []
 
         self.icon = ic = Icon(self)
         self.msg_label = msg = QLabel('some random filler text')
@@ -205,8 +209,8 @@ class ProceedQuestion(QWidget):
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
-    def eventFilter(self, a0, a1) -> bool:
-        if a1.type() == QEvent.Type.Resize and self.isVisible():
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a1 is not None and a1.type() == QEvent.Type.Resize and self.isVisible():
             self.resize_timer.start()
         return False
 
@@ -214,7 +218,7 @@ class ProceedQuestion(QWidget):
         if self.isVisible():
             self.do_resize()
 
-    def copy_to_clipboard(self, *args) -> None:
+    def copy_to_clipboard(self, *args: object) -> None:
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         clipboard.setText(f'calibre, version {__version__}\n{self.windowTitle()!s}: {self.msg_label.text()!s}\n\n{self.det_msg.toPlainText()!s}')
@@ -250,15 +254,15 @@ class ProceedQuestion(QWidget):
             self.ask_question.emit(cancel_callback, payload, cb)
         self.hide()
 
-    def do_ask_question(self, callback, payload, checkbox_checked) -> None:
+    def do_ask_question(self, callback: Callable[..., object] | None, payload: object, checkbox_checked: bool | None) -> None:
         if callable(callback):
-            args = [payload]
+            args: list[object] = [payload]
             if checkbox_checked is not None:
                 args.append(checkbox_checked)
             callback(*args)
         self.show_question()
 
-    def toggle_det_msg(self, *args) -> None:
+    def toggle_det_msg(self, *args: object) -> None:
         det_msg_toggle = self.det_msg_toggle
         assert det_msg_toggle is not None
         vis = str(det_msg_toggle.text()) == self.hide_det_msg
@@ -396,7 +400,7 @@ class ProceedQuestion(QWidget):
         self.show()
         self.position_widget()
 
-    def dummy_question(self, action_label=None, auto_hide_after=0) -> None:
+    def dummy_question(self, action_label: str | None = None, auto_hide_after: int = 0) -> None:
         self(
             lambda *args: args,
             (),
@@ -413,29 +417,29 @@ class ProceedQuestion(QWidget):
 
     def __call__(
         self,
-        callback,
-        payload,
-        html_log,
-        log_viewer_title,
-        title,
-        msg,
-        det_msg='',
-        show_copy_button=False,
-        cancel_callback=None,
-        log_is_file=False,
-        checkbox_msg=None,
-        checkbox_checked=False,
-        auto_hide_after=0,
-        action_callback=None,
-        action_label=None,
-        action_icon=None,
-        focus_action=False,
-        show_det=False,
-        show_ok=False,
-        icon=None,
-        log_viewer_unique_name=None,
-        **kw,
-    ):
+        callback: Callable[..., object],
+        payload: object,
+        html_log: str,
+        log_viewer_title: str,
+        title: str,
+        msg: str,
+        det_msg: str = '',
+        show_copy_button: bool = False,
+        cancel_callback: Callable[..., object] | None = None,
+        log_is_file: bool = False,
+        checkbox_msg: str | None = None,
+        checkbox_checked: bool = False,
+        auto_hide_after: int = 0,
+        action_callback: Callable[..., object] | None = None,
+        action_label: str | None = None,
+        action_icon: QIcon | None = None,
+        focus_action: bool = False,
+        show_det: bool = False,
+        show_ok: bool = False,
+        icon: QIcon | str | None = None,
+        log_viewer_unique_name: str | None = None,
+        **kw: object,
+    ) -> None:
         """
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -508,7 +512,7 @@ class ProceedQuestion(QWidget):
                     log = f.read().decode('utf-8')
             self.log_viewer = ViewLog(q.log_viewer_title, log, parent=self, unique_name=q.log_viewer_unique_name)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
@@ -520,11 +524,12 @@ class ProceedQuestion(QWidget):
         finally:
             painter.end()
 
-    def animated_paint(self, painter) -> None:
+    def animated_paint(self, painter: QPainter) -> None:
+        assert self.rendered_pixmap is not None
         top = (1 - self._show_fraction) * self.height()
         painter.drawPixmap(0, int(top), self.rendered_pixmap)
 
-    def paint_background(self, painter) -> None:
+    def paint_background(self, painter: QPainter) -> None:
         br = 12  # border_radius
         bw = 1  # border_width
         pal = self.palette()

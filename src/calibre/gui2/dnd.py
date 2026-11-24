@@ -7,6 +7,7 @@ import re
 from contextlib import suppress
 from queue import Empty, Queue
 from threading import Thread
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from qt.core import QDialog, QDialogButtonBox, QImageReader, QLabel, QMimeData, QPixmap, QProgressBar, Qt, QTimer, QUrl, QVBoxLayout
@@ -19,6 +20,13 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Iterator
+
+    from qt.core import QWidget
+
+    type Progress = tuple[int, int, int]
 
 _image_extensions: list[str] | None = None
 
@@ -35,12 +43,13 @@ IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, url, fpath, rq) -> None:
+    def __init__(self, url: str, fpath: str, rq: Queue[Progress]) -> None:
         Thread.__init__(self)
         self.url, self.fpath = url, fpath
         self.daemon = True
         self.rq = rq
-        self.err = self.tb = None
+        self.err: str | None = None
+        self.tb: str | None = None
 
     def run(self) -> None:
         try:
@@ -52,7 +61,7 @@ class Worker(Thread):  # {{{
 
             self.tb = traceback.format_exc()
 
-    def callback(self, a, b, c) -> None:
+    def callback(self, a: int, b: int, c: int) -> None:
         self.rq.put((a, b, c))
 
 
@@ -60,7 +69,7 @@ class Worker(Thread):  # {{{
 
 
 class DownloadDialog(QDialog):  # {{{
-    def __init__(self, url, fname, parent) -> None:
+    def __init__(self, url: str, fname: str, parent: QWidget | None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Download %s') % fname)
         self.l = QVBoxLayout(self)
@@ -82,7 +91,7 @@ class DownloadDialog(QDialog):  # {{{
         fpath.close()
         self.fpath = fpath.name
 
-        self.worker = Worker(url, self.fpath, Queue())
+        self.worker = Worker(url, self.fpath, Queue[Progress]())
         self._download_rejected = False
 
     def reject(self) -> None:
@@ -102,7 +111,7 @@ class DownloadDialog(QDialog):  # {{{
                 show=True,
             )
 
-    def update(self, *args, **kwargs):
+    def update(self, *args: object, **kwargs: object) -> None:
         if self._download_rejected:
             return
 
@@ -117,7 +126,7 @@ class DownloadDialog(QDialog):  # {{{
             return self.accept()
         QTimer.singleShot(50, self.update)
 
-    def update_pb(self, progress) -> None:
+    def update_pb(self, progress: Progress) -> None:
         transferred, block_size, total = progress
         if total == -1:
             self.pb.setMaximum(0)
@@ -129,19 +138,19 @@ class DownloadDialog(QDialog):  # {{{
             self.pb.setValue(so_far)
 
     @property
-    def err(self):
+    def err(self) -> str | None:
         return self.worker.err
 
 
 # }}}
 
 
-def dnd_has_image(md):
+def dnd_has_image(md: QMimeData) -> bool:
     # Chromium puts image data into application/octet-stream
     return md.hasImage() or (md.hasFormat('application/octet-stream') and what(None, bytes(md.data('application/octet-stream'))) in image_extensions())
 
 
-def data_as_string(f, md):
+def data_as_string(f: str, md: QMimeData) -> bytes | str:
     raw = bytes(md.data(f))
     if '/x-moz' in f:
         try:
@@ -154,7 +163,7 @@ def data_as_string(f, md):
 remote_protocols = {'http', 'https', 'ftp'}
 
 
-def urls_from_md(md):
+def urls_from_md(md: QMimeData) -> list[QUrl]:
     ans = list(md.urls())
     if md.hasText():
         # Chromium returns the url as text/plain on drag and drop of image
@@ -166,7 +175,7 @@ def urls_from_md(md):
     return ans
 
 
-def path_from_qurl(qurl, allow_remote=False):
+def path_from_qurl(qurl: QUrl, allow_remote: bool = False) -> str:
     lf = qurl.toLocalFile()
     if lf:
         if iswindows:
@@ -185,17 +194,17 @@ def path_from_qurl(qurl, allow_remote=False):
     return ''
 
 
-def remote_urls_from_qurl(qurls, allowed_exts):
+def remote_urls_from_qurl(qurls: Iterable[QUrl], allowed_exts: Collection[str]) -> Iterator[tuple[str, str]]:
     for qurl in qurls:
         if qurl.scheme() in remote_protocols and posixpath.splitext(qurl.path())[1][1:].lower() in allowed_exts:
             yield bytes(qurl.toEncoded()).decode('utf-8'), posixpath.basename(qurl.path())
 
 
-def extension(path):
+def extension(path: str) -> str:
     return path.rpartition('.')[-1].lower()
 
 
-def dnd_has_extension(md, extensions, allow_all_extensions=False, allow_remote=False):
+def dnd_has_extension(md: QMimeData, extensions: Collection[str], allow_all_extensions: bool = False, allow_remote: bool = False) -> bool:
     if DEBUG:
         prints('\nDebugging DND event')
         for f in md.formats():
@@ -219,7 +228,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False, allow_remote=F
     return bool(exts.intersection(frozenset(extensions)))
 
 
-def dnd_get_local_image_and_pixmap(md, image_exts=None):
+def dnd_get_local_image_and_pixmap(md: QMimeData, image_exts: Collection[str] | None = None) -> tuple[QPixmap, bytes] | tuple[None, None]:
     if md.hasImage():
         for x in md.formats():
             x = str(x)
@@ -259,7 +268,7 @@ def dnd_get_local_image_and_pixmap(md, image_exts=None):
     return None, None
 
 
-def dnd_get_image(md, image_exts=None):
+def dnd_get_image(md: QMimeData, image_exts: Collection[str] | None = None) -> tuple[QPixmap, None] | tuple[str, str] | tuple[None, None]:
     """
     Get the image in the QMimeData object md.
 
@@ -286,7 +295,9 @@ def dnd_get_image(md, image_exts=None):
     return None, None
 
 
-def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
+def dnd_get_files(
+    md: QMimeData, exts: Collection[str], allow_all_extensions: bool = False, filter_exts: Collection[str] = ()
+) -> tuple[list[str], None] | tuple[list[str], list[str]] | tuple[None, None]:
     """
     Get the file in the QMimeData object md with an extension that is one of
     the extensions in exts.
@@ -300,7 +311,7 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
     # First look for a local file
     local_files = [path_from_qurl(x) for x in urls]
 
-    def is_ok(path):
+    def is_ok(path: str) -> bool:
         ext = extension(path)
         if allow_all_extensions and ext and ext not in filter_exts:
             return True
@@ -319,7 +330,8 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
         return [rurl], [fname]
 
     # Look through all remaining URLs
-    rurls, filenames = [], []
+    rurls: list[str] = []
+    filenames: list[str] = []
     for rurl, fname in remote_urls_from_qurl(urls, exts):
         rurls.append(rurl), filenames.append(fname)
     if rurls:
@@ -328,7 +340,7 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
     return None, None
 
 
-def _get_firefox_pair(md, exts, url, fname):
+def _get_firefox_pair(md: QMimeData, exts: Collection[str], url: str, fname: str) -> tuple[str, str] | tuple[None, None]:
     url = bytes(md.data(url)).decode('utf-16')
     fname = bytes(md.data(fname)).decode('utf-16')
     while url.endswith('\x00'):
@@ -344,11 +356,11 @@ def _get_firefox_pair(md, exts, url, fname):
     if DEBUG:
         prints('Firefox file promise:', url, fname)
     if ext not in exts:
-        fname = url = None
+        return None, None
     return url, fname
 
 
-def get_firefox_rurl(md, exts):
+def get_firefox_rurl(md: QMimeData, exts: Collection[str]) -> tuple[str | None, str | None]:
     formats = frozenset(str(x) for x in md.formats())
     url = fname = None
     if 'application/x-moz-file-promise-url' in formats and 'application/x-moz-file-promise-dest-filename' in formats:
@@ -388,7 +400,7 @@ def get_firefox_rurl(md, exts):
     return url, fname
 
 
-def has_firefox_ext(md, exts):
+def has_firefox_ext(md: QMimeData, exts: Collection[str]) -> bool:
     return bool(get_firefox_rurl(md, exts)[0])
 
 

@@ -704,9 +704,11 @@ class WorldEditWidget(QWidget):
         # that has just been described or edited, or, when the world already
         # has a cast that fits it, go straight on to it.
         if not self.title_edit.text().strip():
-            return error_dialog(self, _('No title'), _('The world must have a title.'), show=True)
+            error_dialog(self, _('No title'), _('The world must have a title.'), show=True)
+            return
         if not self.world_edit.markdown:
-            return error_dialog(self, _('No world description'), _('The world must have a description.'), show=True)
+            error_dialog(self, _('No world description'), _('The world must have a description.'), show=True)
+            return
         if self.characters and self.world_edit.markdown == self.cast_source:
             self.show_character_page()
             return
@@ -989,7 +991,8 @@ class WorldEditWidget(QWidget):
     def save_world(self) -> None:
         w = self.current_world
         if not w.title:
-            return error_dialog(self, _('No title'), _('The world must have a title to be saved.'), show=True)
+            error_dialog(self, _('No title'), _('The world must have a title to be saved.'), show=True)
+            return
         if not self.world_id:
             # A world saved for the first time under a title that is already
             # taken is assumed to be a re-generation of that world, so the
@@ -1018,16 +1021,19 @@ class WorldEditWidget(QWidget):
         w = self.current_world
         row = self.player_character_index
         if not w.characters or not (-1 < row < len(w.characters)):
-            return error_dialog(self, _('No character selected'), _('Check the character you will play as.'), show=True)
+            error_dialog(self, _('No character selected'), _('Check the character you will play as.'), show=True)
+            return
         if not w.characters[row].name:
-            return error_dialog(self, _('No character name'), _('The character you play as must have a name.'), show=True)
+            error_dialog(self, _('No character name'), _('The character you play as must have a name.'), show=True)
+            return
         # A character with no name can neither be referred to by the AI nor be
         # matched with their entry in the story summary as the story changes
         # them, see calibre.ai.cyoa.updated_characters().
         for i, npc in enumerate(w.npcs):
             if not npc.name:
                 self.select_character(len(w.characters) + i)
-                return error_dialog(self, _('No character name'), _('Every character of the world must have a name.'), show=True)
+                error_dialog(self, _('No character name'), _('Every character of the world must have a name.'), show=True)
+                return
         self.start_requested.emit(w, row)
 
 

@@ -36,7 +36,15 @@ from calibre_extensions import pictureflow
 
 MIN_SIZE = QSize(300, 150)
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qt.core import QCloseEvent, QContextMenuEvent, QMenu, QModelIndex, QWheelEvent, QWidget
+
+    from calibre.db.cache import Cache
+    from calibre.gui2.central import LayoutButton
+    from calibre.gui2.library.models import BooksModel
     from calibre.gui2.ui import Main
+    from calibre.utils.formatter import TemplateCache
 
 
 class EmptyImageList(pictureflow.FlowImages):
@@ -45,11 +53,11 @@ class EmptyImageList(pictureflow.FlowImages):
 
 
 class FileSystemImages(pictureflow.FlowImages):
-    def __init__(self, dirpath) -> None:
+    def __init__(self, dirpath: str) -> None:
         pictureflow.FlowImages.__init__(self)
-        self.images = []
-        self.captions = []
-        self.subtitles = []
+        self.images: list[QImage] = []
+        self.captions: list[str] = []
+        self.subtitles: list[str] = []
         for f in os.listdir(dirpath):
             f = os.path.join(dirpath, f)
             img = QImage(f)
@@ -58,19 +66,19 @@ class FileSystemImages(pictureflow.FlowImages):
                 self.captions.append(os.path.basename(f))
                 self.subtitles.append(f'{os.stat(f).st_size} bytes')
 
-    def count(self):
+    def count(self) -> int:
         return len(self.images)
 
-    def image(self, index):
+    def image(self, index: int) -> QImage:
         return self.images[index]
 
-    def caption(self, index):
+    def caption(self, index: int) -> str:
         return self.captions[index]
 
-    def subtitle(self, index):
+    def subtitle(self, index: int) -> str:
         return self.subtitles[index]
 
-    def currentChanged(self, index) -> None:
+    def currentChanged(self, index: int) -> None:
         print('current changed:', index)
 
 
@@ -82,57 +90,59 @@ class DummyImageList(pictureflow.FlowImages):
         i1.fill(Qt.GlobalColor.green), i2.fill(Qt.GlobalColor.blue)
         self.images = [i1, i2]
 
-    def count(self):
+    def count(self) -> int:
         return self.num
 
-    def image(self, index):
+    def image(self, index: int) -> QImage:
         return self.images[index % 2]
 
-    def caption(self, index) -> str:
+    def caption(self, index: int) -> str:
         return f'Number: {index}'
 
-    def subtitle(self, index) -> str:
+    def subtitle(self, index: int) -> str:
         return ''
 
 
 class DatabaseImages(pictureflow.FlowImages):
-    def __init__(self, model, is_cover_browser_visible) -> None:
+    def __init__(self, model: BooksModel, is_cover_browser_visible: Callable[[], bool]) -> None:
         pictureflow.FlowImages.__init__(self)
         self.model = model
         self.is_cover_browser_visible = is_cover_browser_visible
         self.model.modelReset.connect(self.reset, type=Qt.ConnectionType.QueuedConnection)
         self.ignore_image_requests = True
-        self.dbref = lambda: None
+        self.dbref: Callable[[], Cache | None] = lambda: None
         self.template_inited = False
         self.subtitle_error_reported = False
 
-    def init_template(self, db) -> None:
+    def init_template(self, db: Cache) -> None:
         if self.template_inited and self.dbref() == db:
             return
         self.dbref = weakref.ref(db)
-        self.template_cache = {}
+        self.template_cache: TemplateCache = {}
         self.template_error_reported = False
         self.template = db.pref('cover_browser_title_template', '{title}') or ''
         self.template_is_title = self.template == '{title}'
         self.template_is_empty = not self.template.strip()
         self.template_inited = True
 
-    def count(self):
+    def count(self) -> int:
         return self.model.count()
 
-    def render_template(self, template, index, db):
+    def render_template(self, template: str, index: int, db: Cache) -> str:
         from calibre.utils.formatter import TEMPLATE_ERROR
 
         book_id = self.model.id(index)
         mi = db.get_proxy_metadata(book_id)
         return mi.formatter.safe_format(template, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
 
-    def caption(self, index):
+    def caption(self, index: int) -> str:
         if self.ignore_image_requests:
             return ''
         ans = ''
         try:
-            db = self.model.db.new_api
+            mdb = self.model.db
+            assert mdb is not None
+            db = mdb.new_api
             self.init_template(db)
             if self.template_is_title:
                 ans = self.model.title(index)
@@ -153,9 +163,11 @@ class DatabaseImages(pictureflow.FlowImages):
             return ''
         return ans
 
-    def subtitle(self, index):
+    def subtitle(self, index: int) -> str:
         try:
-            db = self.model.db.new_api
+            mdb = self.model.db
+            assert mdb is not None
+            db = mdb.new_api
             self.init_template(db)
             field = db.pref('cover_browser_subtitle_field', 'rating')
             if field and field != 'none':
@@ -195,7 +207,7 @@ class DatabaseImages(pictureflow.FlowImages):
     def endResetModel(self) -> None:
         pass
 
-    def image(self, index):
+    def image(self, index: int) -> QImage:
         if self.ignore_image_requests:
             return QImage()
         return self.model.cover(index)
@@ -205,14 +217,14 @@ class CoverFlow(pictureflow.PictureFlow):
     dc_signal = pyqtSignal()
     context_menu_requested = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         pictureflow.PictureFlow.__init__(self, parent, config['cover_flow_queue_length'] + 1)
         self.created_at = time.monotonic()
         self.setMinimumSize(MIN_SIZE)
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
         self.dc_signal.connect(self._data_changed, type=Qt.ConnectionType.QueuedConnection)
-        self.context_menu = None
+        self.context_menu: QMenu | None = None
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         if not gprefs['cover_browser_reflections']:
@@ -227,17 +239,17 @@ class CoverFlow(pictureflow.PictureFlow):
         else:
             self.showNext()
 
-    def set_subtitle_font(self, for_ratings=True) -> None:
+    def set_subtitle_font(self, for_ratings: bool = True) -> None:
         if for_ratings:
             self.setSubtitleFont(QFont(rating_font()))
         else:
             self.setSubtitleFont(self.font())
 
-    def set_context_menu(self, cm) -> None:
+    def set_context_menu(self, cm: QMenu) -> None:
         self.context_menu = cm
 
-    def contextMenuEvent(self, a0) -> None:
-        if self.context_menu is not None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        if self.context_menu is not None and a0 is not None:
             from calibre.gui2.main_window import clone_menu
 
             self.context_menu_requested.emit()
@@ -245,10 +257,12 @@ class CoverFlow(pictureflow.PictureFlow):
             m.popup(a0.globalPos())
             a0.accept()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return self.minimumSize()
 
-    def wheelEvent(self, a0) -> None:
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+        if a0 is None:
+            return
         if abs(a0.angleDelta().x()) > abs(a0.angleDelta().y()):
             d = a0.angleDelta().x()
         else:
@@ -263,14 +277,14 @@ class CoverFlow(pictureflow.PictureFlow):
     def _data_changed(self) -> None:
         pictureflow.PictureFlow.dataChanged(self)
 
-    def setCurrentSlide(self, index) -> None:
+    def setCurrentSlide(self, index: int) -> None:
         pictureflow.PictureFlow.setCurrentSlide(self, index)
 
 
 class CBDialog(QDialog):
     closed = pyqtSignal()
 
-    def __init__(self, gui, cover_flow) -> None:
+    def __init__(self, gui: Main, cover_flow: CoverFlow) -> None:
         QDialog.__init__(self, gui)
         self._layout = QStackedLayout()
         self.setLayout(self._layout)
@@ -289,7 +303,7 @@ class CBDialog(QDialog):
         self.addAction(a)
         a.setShortcuts([QKeySequence('Esc', QKeySequence.SequenceFormat.PortableText)])
 
-        self.pre_fs_geom = None
+        self.pre_fs_geom: bytearray | None = None
         cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         iactions = gui.iactions
 
@@ -318,7 +332,7 @@ class CBDialog(QDialog):
         a.setShortcuts(list(iactions['Send To Device'].menuless_qaction.shortcuts()))
         a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         _screen = self.screen()
         assert _screen is not None
         sz = _screen.availableSize()
@@ -326,7 +340,7 @@ class CBDialog(QDialog):
         sz.setWidth(int(sz.width() / 1.5))
         return sz
 
-    def closeEvent(self, a0=...) -> None:
+    def closeEvent(self, a0: QCloseEvent | None = None) -> None:
         if not self.isFullScreen():
             self.save_geometry(gprefs, 'cover_browser_dialog_geometry')
         self.closed.emit()
@@ -341,7 +355,7 @@ class CBDialog(QDialog):
         self.pre_fs_geom = bytearray(self.saveGeometry())
         self.showFullScreen()
 
-    def toggle_fullscreen(self, *args) -> None:
+    def toggle_fullscreen(self, *args: object) -> None:
         if self.isFullScreen():
             self.show_normal()
         else:
@@ -352,7 +366,7 @@ class CoverFlowMixin:
     disable_cover_browser_refresh = False
 
     @property
-    def cb_button(self: Main):
+    def cb_button(self: Main) -> LayoutButton:
         return self.layout_container.cover_browser_button
 
     def one_auto_scroll(self: Main) -> None:
@@ -377,8 +391,8 @@ class CoverFlowMixin:
             self.auto_scroll_timer.stop()
             self.toggle_auto_scroll()
 
-    def __init__(self: Main, *a, **kw) -> None:
-        self.cf_last_updated_at = None
+    def __init__(self: Main, *a: object, **kw: object) -> None:
+        self.cf_last_updated_at: float | None = None
         self.cover_flow_syncing_enabled = False
         self.cover_flow_sync_flag = True
         self.separate_cover_browser = config['separate_cover_flow']
@@ -388,7 +402,7 @@ class CoverFlowMixin:
         sm = self.library_view.selectionModel()
         assert sm is not None
         sm.currentRowChanged.connect(self.sync_cf_to_listview)
-        self.db_images = DatabaseImages(self.library_view.model(), self.is_cover_browser_visible)
+        self.db_images = DatabaseImages(self.library_view._model, self.is_cover_browser_visible)
         self.cover_flow.setImages(self.db_images)
         self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_calibre_book)
         self.update_cover_flow_subtitle_font()
@@ -413,14 +427,14 @@ class CoverFlowMixin:
         if hasattr(self.cover_flow, 'set_subtitle_font'):
             self.cover_flow.set_subtitle_font(is_rating)
 
-    def toggle_cover_browser(self: Main, *args) -> None:
+    def toggle_cover_browser(self: Main, *args: object) -> None:
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             self.hide_cover_browser()
         else:
             self.show_cover_browser()
 
-    def cover_browser_toggled(self: Main, *args) -> None:
+    def cover_browser_toggled(self: Main, *args: object) -> None:
         if self.cb_button.isChecked():
             self.cover_browser_shown()
         else:
@@ -458,17 +472,17 @@ class CoverFlowMixin:
         self.cb_dialog = d
         self.cb_button.set_state_to_hide()
 
-    def cover_browser_closed(self: Main, *args) -> None:
+    def cover_browser_closed(self: Main, *args: object) -> None:
         self.cb_button.set_state_to_show()
 
-    def hide_cover_browser(self: Main, *args) -> None:
+    def hide_cover_browser(self: Main, *args: object) -> None:
         cbd = getattr(self, 'cb_dialog', None)
         if cbd is not None:
             cbd.accept()
             self.cb_dialog = None
         self.cb_button.set_state_to_show()
 
-    def is_cover_browser_visible(self: Main):
+    def is_cover_browser_visible(self: Main) -> bool:
         try:
             if self.separate_cover_browser:
                 return self.cover_flow.isVisible()
@@ -486,7 +500,7 @@ class CoverFlowMixin:
         except AttributeError:
             pass  # called before init_cover_flow_mixin
 
-    def sync_cf_to_listview(self: Main, current, previous) -> None:
+    def sync_cf_to_listview(self: Main, current: QModelIndex, previous: QModelIndex) -> None:
         if self.cover_flow_sync_flag and self.is_cover_browser_visible() and self.cover_flow.currentSlide() != current.row():
             self.cover_flow.setCurrentSlide(current.row())
         self.cover_flow_sync_flag = True
@@ -518,7 +532,7 @@ class CoverFlowMixin:
         if self.cover_flow_syncing_enabled:
             QTimer.singleShot(500, self.cover_flow_do_sync)
 
-    def sync_listview_to_cf(self: Main, row) -> None:
+    def sync_listview_to_cf(self: Main, row: int) -> None:
         self.cf_last_updated_at = time.time()
 
 
@@ -539,7 +553,7 @@ def test() -> None:
     sys.exit(app.exec())
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     return 0
 
 

@@ -531,17 +531,19 @@ def notify_on_successful_install(parent, plugin):
         show_copy_button=False,
     )
     b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
+    assert b is not None
     b.setIcon(QIcon.ic('lt.png'))
-    d.do_restart = False
+    do_restart = False
 
     def rf() -> None:
-        d.do_restart = True
+        nonlocal do_restart
+        do_restart = True
 
     b.clicked.connect(rf)
     d.set_details('')
     d.exec()
     b.clicked.disconnect()
-    return d.do_restart
+    return do_restart
 
 
 class PluginUpdaterDialog(SizePersistedDialog):

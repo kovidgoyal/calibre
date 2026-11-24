@@ -8,14 +8,20 @@ import sys
 from contextlib import closing
 from functools import partial
 from itertools import count
+from typing import TYPE_CHECKING
 
-from qt.core import QAbstractSocket, QLocalServer, pyqtSignal
+from qt.core import QAbstractSocket, QLocalServer, pyqtSignal, sip
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import gui_socket_address, socket_address
 
+if TYPE_CHECKING:
+    import unittest
 
-def unix_socket(timeout=10):
+    from qt.core import QLocalSocket, QObject
+
+
+def unix_socket(timeout: float = 10) -> socket.socket:
     ans = socket.socket(socket.AF_UNIX)  # created as non-inheritable by Python
     ans.settimeout(timeout)
     return ans
@@ -24,21 +30,21 @@ def unix_socket(timeout=10):
 class Listener(QLocalServer):
     message_received = pyqtSignal(object)
 
-    def __init__(self, address=None, parent=None) -> None:
+    def __init__(self, address: str | None = None, parent: QObject | None = None) -> None:
         QLocalServer.__init__(self, parent)
         self.address = address or gui_socket_address()
         self.uses_filesystem = self.address[0] not in '\0\\'
         self.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
         self.newConnection.connect(self.on_new_connection)
         self.connection_id = count()
-        self.pending_messages = {}
+        self.pending_messages: dict[int, bytes] = {}
 
     def start_listening(self) -> None:
         if self.address.startswith('\0'):
             s = unix_socket()
             s.bind(self.address)
             s.listen(16)
-            if not self.listen(s.detach()):
+            if not self.listen(sip.voidptr(s.detach())):
                 raise OSError(f'Could not start Listener for IPC at address @{self.address[1:]} with error: {self.errorString()}')
         elif not self.listen(self.address):  # Qt sets bhandleInteritable = False so not inheritable
             if self.serverError() == QAbstractSocket.SocketError.AddressInUseError and self.uses_filesystem:
@@ -60,12 +66,12 @@ class Listener(QLocalServer):
             s.readyRead.connect(partial(self.on_ready_read, cid, s))
             s.disconnected.connect(partial(self.on_disconnect, cid, s))
 
-    def on_ready_read(self, connection_id, q_local_socket) -> None:
+    def on_ready_read(self, connection_id: int, q_local_socket: QLocalSocket) -> None:
         num = q_local_socket.bytesAvailable()
         if num > 0:
             self.pending_messages[connection_id] += bytes(q_local_socket.readAll())
 
-    def on_disconnect(self, connection_id, q_local_socket) -> None:
+    def on_disconnect(self, connection_id: int, q_local_socket: QLocalSocket) -> None:
         self.on_ready_read(connection_id, q_local_socket)
         q_local_socket.close()
         q_local_socket.readyRead.disconnect()
@@ -74,7 +80,7 @@ class Listener(QLocalServer):
         self.message_received.emit(self.pending_messages.pop(connection_id, b''))
 
 
-def send_message_in_process(msg, address=None, timeout=5) -> None:
+def send_message_in_process(msg: str | bytes, address: str | None = None, timeout: float = 5) -> None:
     address = address or gui_socket_address()
     if isinstance(msg, str):
         msg = msg.encode('utf-8')
@@ -89,12 +95,12 @@ def send_message_in_process(msg, address=None, timeout=5) -> None:
         ps.close()
 
 
-def send_message_in_worker(address, timeout) -> None:
+def send_message_in_worker(address: str | None, timeout: float) -> None:
     msg = sys.stdin.buffer.read()
     send_message_in_process(msg, address, timeout)
 
 
-def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=True):
+def send_message_via_worker(msg: str | bytes, address: str | None = None, timeout: float = 5, wait_till_sent: bool = True) -> bool | None:
     # On Windows sending a message in a process that also is listening on the
     # same named pipe in a different thread deadlocks, so we do the actual sending in
     # a simple worker process
@@ -109,14 +115,14 @@ def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=True):
         return p.wait(timeout=timeout + 2) == 0
 
 
-def listener_for_test(address) -> None:
+def listener_for_test(address: str) -> None:
     from qt.core import QCoreApplication, QTimer
 
     app = QCoreApplication([])
     s = Listener(address=address, parent=app)
     s.start_listening()
 
-    def got_message(msg) -> None:
+    def got_message(msg: bytes) -> None:
         if msg == b'quit':
             app.quit()
             return
@@ -129,7 +135,7 @@ def listener_for_test(address) -> None:
     app.exec()
 
 
-def winkill_main(hang=True) -> None:
+def winkill_main(hang: bool = True) -> None:
     import atexit
     import time
 
@@ -142,7 +148,7 @@ def winkill_main(hang=True) -> None:
     atexit.register(exit_sequence)
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
     import unittest
 
     class TestIPC(unittest.TestCase):
@@ -187,7 +193,7 @@ def test() -> None:
     l.setText('Waiting for message...')
     m = '123456789' * 8192 * 10
 
-    def show_message(msg) -> None:
+    def show_message(msg: bytes) -> None:
         q = msg.decode()
         if q != m:
             print(f'Received incorrect message of length: {len(q)} expecting length: {len(m)}', file=sys.stderr)

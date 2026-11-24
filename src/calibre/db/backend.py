@@ -2226,7 +2226,7 @@ class DB:
         if callable(getattr(data, 'save', None)):
             from calibre.gui2 import pixmap_to_data
 
-            data = pixmap_to_data(data)
+            data = pixmap_to_data(cast('QImage | QPixmap', data))
         elif callable(getattr(data, 'read', None)):
             data = data.read()  # ty: ignore[missing-union-attribute]
         if data is None:

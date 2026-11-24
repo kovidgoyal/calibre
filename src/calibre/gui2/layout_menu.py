@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QBoxLayout,
@@ -23,12 +23,17 @@ from qt.core import (
 
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QEnterEvent, QKeyEvent, QMouseEvent, QObject, QPaintEvent, QPixmap
+
+    from calibre.gui2.central import LayoutButton
+
 
 class LayoutItem(QWidget):
     mouse_over = False
     VMARGIN = 4
 
-    def __init__(self, button, parent=None) -> None:
+    def __init__(self, button: LayoutButton, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.button = button
@@ -40,32 +45,32 @@ class LayoutItem(QWidget):
         self.setToolTip(self.button.toolTip())
         self.setStatusTip(self.button.statusTip())
 
-    def bright_icon(self, height):
+    def bright_icon(self, height: int) -> QPixmap:
         return self.button.icon().pixmap(height, height)
 
-    def dull_icon(self, height):
+    def dull_icon(self, height: int) -> QPixmap:
         return self.button.icon().pixmap(height, height, mode=QIcon.Mode.Disabled)
 
-    def enterEvent(self, event) -> None:
+    def enterEvent(self, event: QEnterEvent | None) -> None:
         super().enterEvent(event)
         if not self.mouse_over:
             self.mouse_over = True
             self.update()
 
-    def leaveEvent(self, a0) -> None:
+    def leaveEvent(self, a0: QEvent | None) -> None:
         super().leaveEvent(a0)
         if self.mouse_over:
             self.mouse_over = False
             self.update()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ICON_SZ = 64
         br = self.fm.boundingRect(self.text)
         w = max(br.width(), ICON_SZ) + 10
         h = 2 * self.fm.lineSpacing() + ICON_SZ + 2 * self.VMARGIN
         return QSize(w, h)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         shown = self.button.isChecked()
         ls = self.fm.lineSpacing()
         painter = QStylePainter(self)
@@ -92,15 +97,15 @@ class LayoutItem(QWidget):
 
 
 class LayoutMenuInner(QWidget):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__(parent)
         self.l = l = QHBoxLayout(self)
         l.setSpacing(20)
-        self.items = []
+        self.items: list[LayoutItem] = []
         self.initialized = False
 
     @property
-    def gui(self):
+    def gui(self) -> QObject | None:
         _parent = self.parent()
         assert _parent is not None
         return _parent.parent()
@@ -110,35 +115,37 @@ class LayoutMenuInner(QWidget):
             self.initialized = True
             gui = self.gui
             if not hasattr(gui, 'layout_buttons'):
-                buttons = [QPushButton(QIcon.ic(i + '.png'), i, self) for i in 'search tags cover_flow grid book'.split()]
+                # Stand-ins for LayoutButton, used only when running this module standalone
+                buttons = cast('list[LayoutButton]', [QPushButton(QIcon.ic(i + '.png'), i, self) for i in 'search tags cover_flow grid book'.split()])
                 for b in buttons:
                     b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
                     setattr(b, 'label', b.text().capitalize())
             else:
-                buttons = gui.layout_buttons
+                buttons = cast('list[LayoutButton]', gui.layout_buttons)
             l = self.layout()
             assert l is not None
             for b in buttons:
                 self.items.append(LayoutItem(b, self))
                 cast('QBoxLayout', l).addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
-        self.current_item = None
+        self.current_item: LayoutItem | None = None
         for x in self.items:
             x.update_tips()
         self.resize(self.sizeHint())
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         painter = QPainter(self)
         col = self.palette().window().color()
         col.setAlphaF(0.9)
         painter.fillRect(self.rect(), col)
         super().paintEvent(a0)
 
-    def item_for_ev(self, ev):
+    def item_for_ev(self, ev: QMouseEvent) -> LayoutItem | None:
         for item in self.items:
             if item.geometry().contains(ev.pos()):
                 return item
 
-    def mousePressEvent(self, a0) -> None:
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return
@@ -148,7 +155,8 @@ class LayoutMenuInner(QWidget):
         else:
             a0.ignore()
 
-    def mouseReleaseEvent(self, a0) -> None:
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return
@@ -161,15 +169,15 @@ class LayoutMenuInner(QWidget):
             menu_parent.hide()
             item.button.click()
 
-    def handle_key_press(self, ev) -> None:
+    def handle_key_press(self, ev: QKeyEvent) -> None:
         q = QKeySequence(ev.keyCombination())
         for item in self.items:
             sc = item.button.shortcut
-            if callable(sc):
-                sc = item.button.shortcut()
-            else:
-                sc = QKeySequence.fromString(sc)
-            if sc.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
+            if isinstance(sc, str) or sc is None:
+                ks = QKeySequence.fromString(sc)
+            else:  # QPushButton.shortcut() when running standalone
+                ks = sc()
+            if ks.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
                 menu_parent = self.parent()
                 assert menu_parent is not None
                 assert isinstance(menu_parent, QWidget)
@@ -180,7 +188,7 @@ class LayoutMenuInner(QWidget):
 
 
 class LayoutMenu(QWidget):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__(parent)
         self.setVisible(False)
         self.inner = LayoutMenuInner(self)
@@ -209,18 +217,20 @@ class LayoutMenu(QWidget):
         self.raise_()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def event(self, a0):
-        if a0.type() == QEvent.Type.ShortcutOverride and self.isVisible():
+    def event(self, a0: QEvent | None) -> bool:
+        if a0 is not None and a0.type() == QEvent.Type.ShortcutOverride and self.isVisible():
             a0.accept()
         return super().event(a0)
 
-    def keyPressEvent(self, a0) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.matches(QKeySequence.StandardKey.Cancel):
             self.hide()
         else:
             self.inner.handle_key_press(a0)
 
-    def mousePressEvent(self, a0) -> None:
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         if a0.button() != Qt.MouseButton.LeftButton:
             a0.ignore()
             return

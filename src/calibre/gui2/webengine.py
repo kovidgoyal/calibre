@@ -1,24 +1,29 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QApplication, QEvent, QObject, QPoint, Qt, pyqtSignal
 from qt.webengine import QWebEnginePage, QWebEngineView
 
 from calibre import prints
 from calibre.utils.monotonic import monotonic
 
+if TYPE_CHECKING:
+    from qt.core import QMouseEvent, QWidget
+
 
 class RestartingWebEngineView(QWebEngineView):
     render_process_restarted = pyqtSignal()
     render_process_failed = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWebEngineView.__init__(self, parent)
-        self._last_reload_at = None
+        self._last_reload_at: float | None = None
         self.renderProcessTerminated.connect(self.render_process_terminated)
         self.render_process_restarted.connect(self.reload, type=Qt.ConnectionType.QueuedConnection)
 
-    def render_process_terminated(self, termination_type, exit_code) -> None:
+    def render_process_terminated(self, termination_type: QWebEnginePage.RenderProcessTerminationStatus, exit_code: int) -> None:
         if termination_type == QWebEnginePage.RenderProcessTerminationStatus.NormalTerminationStatus:
             return
         self.webengine_crash_message = f'The Qt WebEngine Render process crashed with termination type: {termination_type} and exit code: {exit_code}'
@@ -53,12 +58,12 @@ class SelectPopupFixer(QObject):
     # item rather than a click on the combobox. Same value as QComboBox uses.
     DRAG_THRESHOLD = 9  # pixels
 
-    def __init__(self, view) -> None:
+    def __init__(self, view: QWebEngineView) -> None:
         super().__init__(view)
-        self.view = view
+        self.view: QWebEngineView | None = view
         self.press_pos = QPoint()
         self.press_at = 0.0
-        self.popup = None
+        self.popup: QWidget | None = None
         self.ignore_release_until = 0.0
         view.destroyed.connect(self.view_destroyed)
         qapp = QApplication.instance()
@@ -75,34 +80,37 @@ class SelectPopupFixer(QObject):
         if qapp is not None:
             qapp.removeEventFilter(self)
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a0 is None or a1 is None:
+            return False
         etype = a1.type()
         if etype in (QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonDblClick):
-            self.mouse_pressed(a0, a1)
+            self.mouse_pressed(a0, cast('QMouseEvent', a1))
         elif etype == QEvent.Type.Show:
             self.widget_shown(a0)
         elif self.ignore_release_until:
             if etype == QEvent.Type.MouseButtonRelease:
-                return self.is_click_through(a0, a1)
-            if etype == QEvent.Type.MouseMove and (a1.globalPosition().toPoint() - self.press_pos).manhattanLength() > self.DRAG_THRESHOLD:
+                return self.is_click_through(a0, cast('QMouseEvent', a1))
+            if etype == QEvent.Type.MouseMove and (cast('QMouseEvent', a1).globalPosition().toPoint() - self.press_pos).manhattanLength() > self.DRAG_THRESHOLD:
                 # The user is dragging onto an item rather than clicking on the
                 # combobox, so the release is meaningful after all.
                 self.ignore_release_until = 0.0
         return False
 
-    def mouse_pressed(self, obj, ev) -> None:
+    def mouse_pressed(self, obj: QObject, ev: QMouseEvent) -> None:
         # A press while a popup of ours is open is the user actually choosing
         # an item, so its release must be allowed through.
         self.ignore_release_until = 0.0
         if self.view is None or ev.button() != Qt.MouseButton.LeftButton or not obj.isWidgetType():
             return
-        if obj is self.view or self.view.isAncestorOf(obj):
+        if obj is self.view or self.view.isAncestorOf(cast('QWidget', obj)):
             self.press_pos = ev.globalPosition().toPoint()
             self.press_at = monotonic()
 
-    def widget_shown(self, obj) -> None:
+    def widget_shown(self, obj: QObject) -> None:
         if not self.press_at or monotonic() - self.press_at > self.MAX_POPUP_DELAY or not obj.isWidgetType():
             return
+        obj = cast('QWidget', obj)
         if (obj.windowFlags() & Qt.WindowType.WindowType_Mask) == Qt.WindowType.Popup:
             # The geometry of the popup is not final at this point, the
             # windowing system can still move it to fit on screen, so whether
@@ -111,7 +119,7 @@ class SelectPopupFixer(QObject):
             self.ignore_release_until = monotonic() + QApplication.doubleClickInterval() / 1000
             self.press_at = 0.0
 
-    def is_click_through(self, obj, ev):
+    def is_click_through(self, obj: QObject, ev: QMouseEvent) -> bool:
         if self.popup is None or monotonic() > self.ignore_release_until:
             self.ignore_release_until = 0.0
             return False

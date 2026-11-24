@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QFileDialog, QObject
 
@@ -9,8 +10,15 @@ from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def select_initial_dir(q):
+    from qt.core import QUrl, QWidget
+
+    from calibre.gui2.linux_file_dialogs import FileFilters
+
+
+def select_initial_dir(q: str) -> str:
     while q:
         c = os.path.dirname(q)
         if c == q:
@@ -22,26 +30,26 @@ def select_initial_dir(q):
 
 
 class Dummy:
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         pass
 
 
 class FileDialog(QObject):
     def __init__(
         self,
-        title=_('Choose files'),
-        filters=None,
-        add_all_files_filter=True,
-        parent=None,
-        modal=True,
-        name='',
-        mode=QFileDialog.FileMode.ExistingFiles,
-        default_dir='~',
-        no_save_dir=False,
-        combine_file_and_saved_dir=False,
+        title: str = _('Choose files'),
+        filters: FileFilters | None = None,
+        add_all_files_filter: bool = True,
+        parent: QWidget | None = None,
+        modal: bool = True,
+        name: str | None = '',
+        mode: QFileDialog.FileMode = QFileDialog.FileMode.ExistingFiles,
+        default_dir: str = '~',
+        no_save_dir: bool = False,
+        combine_file_and_saved_dir: bool = False,
     ) -> None:
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
@@ -69,8 +77,8 @@ class FileDialog(QObject):
         ftext = ftext.removesuffix(';;')
 
         self.dialog_name = dialog_name(name, title)
-        self.selected_files = None
-        self.fd = None
+        self.selected_files: list[str] | None = None
+        self.fd: QFileDialog | None = None
 
         if combine_file_and_saved_dir:
             bn = os.path.basename(default_dir)
@@ -94,7 +102,7 @@ class FileDialog(QObject):
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
 
-        def create_dialog(title, ftext='', for_saving=False):
+        def create_dialog(title: str, ftext: str = '', for_saving: bool = False) -> tuple[str, ...]:
             from calibre.gui2 import file_icon_provider
 
             ans = QFileDialog(parent, title, initial_dir)
@@ -111,7 +119,7 @@ class FileDialog(QObject):
             if ret != QDialog.DialogCode.Accepted:
                 return ()
 
-            def c(url):
+            def c(url: QUrl) -> str:
                 if url.isLocalFile() or url.isEmpty():
                     return url.toLocalFile()
                 return url.toString()
@@ -173,7 +181,7 @@ class FileDialog(QObject):
                 dynamic[self.dialog_name] = saved_loc
         self.accepted = bool(self.selected_files)
 
-    def get_files(self):
+    def get_files(self) -> tuple[str, ...]:
         if self.selected_files is None:
             fd = self.fd
             assert fd is not None
@@ -181,7 +189,7 @@ class FileDialog(QObject):
         return tuple(self.selected_files)
 
 
-def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
+def choose_dir(window: QWidget | None, name: str | None, title: str, default_dir: str = '~', no_save_dir: bool = False) -> str | None:
     fd = FileDialog(
         title=title,
         filters=[],
@@ -196,9 +204,19 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     fd.setParent(None)
     if dir:
         return dir[0]
+    return None
 
 
-def choose_files(window, name, title, filters=None, all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
+def choose_files(
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    select_only_single_file: bool = False,
+    default_dir: str = '~',
+    no_save_dir: bool = False,
+) -> tuple[str, ...] | None:
     """
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
@@ -229,7 +247,15 @@ def choose_files(window, name, title, filters=None, all_files=True, select_only_
     return None
 
 
-def choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
+def choose_save_file(
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    initial_path: str | None = None,
+    initial_filename: str | None = None,
+) -> str | None:
     """
     Ask user to choose a file to save to. Can be a non-existent file.
     :param filters: list of allowable extensions. Each element of the list
@@ -242,31 +268,37 @@ def choose_save_file(window, name, title, filters=None, all_files=True, initial_
     """
     if filters is None:
         filters = []
-    kwargs = dict(
+    no_save_dir = combine_file_and_saved_dir = False
+    default_dir = '~'
+    if initial_path is not None:
+        no_save_dir = True
+        default_dir = initial_path
+    elif initial_filename is not None:
+        combine_file_and_saved_dir = True
+        default_dir = initial_filename
+    fd = FileDialog(
         title=title,
         name=name,
         filters=filters,
         parent=window,
         add_all_files_filter=all_files,
         mode=QFileDialog.FileMode.AnyFile,
+        default_dir=default_dir,
+        no_save_dir=no_save_dir,
+        combine_file_and_saved_dir=combine_file_and_saved_dir,
     )
-    if initial_path is not None:
-        kwargs['no_save_dir'] = True
-        kwargs['default_dir'] = initial_path
-    elif initial_filename is not None:
-        kwargs['combine_file_and_saved_dir'] = True
-        kwargs['default_dir'] = initial_filename
-    fd = FileDialog(**kwargs)
     fd.setParent(None)
     ans = None
     if fd.accepted:
-        ans = fd.get_files()
-        if ans:
-            ans = ans[0]
+        files = fd.get_files()
+        if files:
+            ans = files[0]
     return ans
 
 
-def choose_images(window, name, title, select_only_single_file=True, formats=None):
+def choose_images(
+    window: QWidget | None, name: str | None, title: str, select_only_single_file: bool = True, formats: Iterable[str] | None = None
+) -> tuple[str, ...] | None:
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     if formats is None:
         formats = image_extensions()

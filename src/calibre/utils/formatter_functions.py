@@ -3050,7 +3050,7 @@ on a device has its own device name. The ``storage_location_key`` names are
                 info = info['info'][4]
                 if storage_location not in info:
                     return ''
-                return info[storage_location]['device_name']
+                return cast('str', info[storage_location]['device_name'])
             except Exception:
                 traceback.print_exc()
                 raise
@@ -3094,7 +3094,7 @@ only in the GUI.
                 info = info['info'][4]
                 if storage_location not in info:
                     return ''
-                return info[storage_location]['device_store_uuid']
+                return cast('str', info[storage_location]['device_store_uuid'])
             except Exception:
                 traceback.print_exc()
                 raise
@@ -4257,7 +4257,9 @@ This function can be used only in the GUI.
         g = get_gui()
         if g is None:
             return ''
-        book_ids = g.current_view().get_selected_ids()
+        cv = g.current_view()
+        assert cv is not None
+        book_ids = cv.get_selected_ids()
         return ', '.join([str(book_id) for book_id in book_ids])
 
 
@@ -4323,6 +4325,7 @@ This function can be used only in the GUI.
         if g is None:
             return ''
         v = g.current_view()
+        assert v is not None
         idx = v.currentIndex()
         if idx.isValid():
             key = v.column_map[idx.column()]

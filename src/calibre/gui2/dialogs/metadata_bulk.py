@@ -51,6 +51,7 @@ from calibre.utils.titlecase import titlecase
 from polyglot.builtins import error_message
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from datetime import datetime
 
 null = object()
@@ -85,7 +86,7 @@ class Settings(NamedTuple):
     clear_languages: bool
     restore_original: bool
     comments: str | object
-    generate_cover_settings: dict | None
+    generate_cover_settings: Mapping[str, object] | None
     read_file_metadata: bool
     casing_algorithm: str
     do_compress_cover: bool
@@ -1441,9 +1442,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.__custom_col_layouts = [layout]
         ans = self.custom_column_widgets
         for i in range(len(ans) - 1):
-            w.setTabOrder(ans[i].widgets[-1], ans[i + 1].widgets[1])
-            for c in range(2, len(ans[i].widgets), 2):
-                w.setTabOrder(ans[i].widgets[c - 1], ans[i].widgets[c + 1])
+            cur, nxt = ans[i].widgets, ans[i + 1].widgets
+            assert cur is not None and nxt is not None
+            w.setTabOrder(cur[-1], nxt[1])
+            for c in range(2, len(cur), 2):
+                w.setTabOrder(cur[c - 1], cur[c + 1])
 
     def initialize_combos(self) -> None:
         self.initalize_authors()
@@ -1643,7 +1646,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         del bb._worker
 
         if bb.error is not None:
-            return error_dialog(self, _('Failed'), bb.error[0], det_msg=bb.error[1], show=True)
+            return error_dialog(self, _('Failed'), str(bb.error[0]), det_msg=bb.error[1], show=True)
 
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         gprefs.set('bulk-mde-casing-algorithm', args.casing_algorithm)

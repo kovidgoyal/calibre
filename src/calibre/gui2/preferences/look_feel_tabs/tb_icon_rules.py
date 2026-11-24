@@ -4,6 +4,7 @@
 import copy
 import os
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -36,6 +37,9 @@ from calibre.gui2.preferences.look_feel_tabs.tb_icon_rules_ui import Ui_Form
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
 DELETED_COLUMN = 0
 CATEGORY_COLUMN = 1
@@ -250,7 +254,7 @@ class IconColumnDelegate(QStyledItemDelegate):
             return
 
         path = choose_files(
-            self.parent(),
+            cast('QWidget | None', self.parent()),
             'choose_category_icon',
             _('Change icon for: %s') % value_item.text(),
             filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
@@ -439,7 +443,7 @@ class AddItemDialog(QDialog):
 
     def choose_icon(self) -> None:
         path = choose_files(
-            self.parent,
+            self.parentWidget(),
             'choose_category_icon',
             _('Change icon for: %s') % self.value_box.currentText(),
             filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],

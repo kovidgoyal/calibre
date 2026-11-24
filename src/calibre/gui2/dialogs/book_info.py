@@ -74,6 +74,7 @@ class Cover(CoverView):
         ans = CoverView.build_context_menu(self)
         create_open_cover_with_menu(self, ans)
         download = ans.addAction(QIcon.ic('download-metadata.png'), _('Download cover from internet'))
+        assert download is not None
         download.triggered.connect(self.download_cover)
         return ans
 

@@ -20,6 +20,7 @@ from qt.core import (
     QGraphicsScene,
     QGraphicsView,
     QIcon,
+    QKeyEvent,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -55,14 +56,21 @@ from calibre.utils.config import XMLConfig, prefs
 from calibre.utils.localization import _, localize_user_manual_link
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Collection, Iterable, Iterator
+
+    from qt.core import QBrush, QDragEnterEvent, QDragMoveEvent, QDropEvent, QFocusEvent, QMouseEvent, QObject, QPaintEvent, QSplitter, QStyleOptionGraphicsItem
+
+    class LabelledSplitter(QSplitter):
+        label: str
+        double_clicked = pyqtSignal(object)
+
 
 history = XMLConfig('history')
 
 
 class ProgressIndicator(QWidget):  # {{{
-    def __init__(self, *args) -> None:
-        QWidget.__init__(self, *args)
+    def __init__(self, parent: QWidget | None = None) -> None:
+        QWidget.__init__(self, parent)
         self.setGeometry(0, 0, 300, 350)
         self.pi = _ProgressIndicator(self)
         self.status = QLabel(self)
@@ -71,7 +79,7 @@ class ProgressIndicator(QWidget):  # {{{
         self.setVisible(False)
         self.current_pos: tuple[int, int] | None = None
 
-    def start(self, msg='') -> None:
+    def start(self, msg: str = '') -> None:
         view = self.parent()
         assert isinstance(view, QWidget)
         pwidth, pheight = view.size().width(), view.size().height()
@@ -99,7 +107,7 @@ class ProgressIndicator(QWidget):  # {{{
 class FilenamePattern(QWidget, Ui_Form):  # {{{
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -115,11 +123,11 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         connect_lambda(re_line_edit.textChanged, self, lambda self, x: self.changed_signal.emit())
         enable_item_removal_for_combobox(self.re, self.remove_history_item)
 
-    def remove_history_item(self, item) -> None:
+    def remove_history_item(self, item: str) -> None:
         if remove_item_from_combobox(self.re, item):
             gprefs['filename_pattern_history'] = [str(self.re.itemText(i)) for i in range(self.re.count())]
 
-    def initialize(self, defaults=False) -> None:
+    def initialize(self, defaults: bool = False) -> None:
         # Get all items in the combobox. If we are resetting
         # to defaults we don't want to lose what the user
         # has added.
@@ -150,7 +158,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
                 self.re.addItem(v)
         self.re.setCurrentIndex(0)
 
-    def do_test(self):
+    def do_test(self) -> int | None:
         from calibre.ebooks.metadata import authors_to_string
         from calibre.ebooks.metadata.meta import metadata_from_filename
 
@@ -202,17 +210,17 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
         self.comments.setText(mi.comments or _('No match'))
 
-    def pattern(self):
+    def pattern(self) -> re.Pattern[str]:
         re_line_edit = self.re.lineEdit()
         assert re_line_edit is not None
         pat = str(re_line_edit.text())
         return re.compile(pat)
 
-    def commit(self):
+    def commit(self) -> str:
         pat = self.pattern().pattern
         prefs['filename_pattern'] = pat
 
-        history = []
+        history: list[str] = []
         re_line_edit = self.re.lineEdit()
         assert re_line_edit is not None
         history_pats = [str(re_line_edit.text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
@@ -233,14 +241,18 @@ class FormatList(QListWidget):  # {{{
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
 
-    def dragEnterEvent(self, e) -> None:
+    def dragEnterEvent(self, e: QDragEnterEvent | None) -> None:
+        assert e is not None
         md = e.mimeData()
+        assert md is not None
         if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True):
             e.acceptProposedAction()
 
-    def dropEvent(self, event) -> None:
+    def dropEvent(self, event: QDropEvent | None) -> None:
+        assert event is not None
         event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
+        assert md is not None
         # Now look for ebook files
         urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True)
         if not urls:
@@ -257,11 +269,12 @@ class FormatList(QListWidget):  # {{{
             if d.err is None:
                 self.formats_dropped.emit(event, [d.fpath])
 
-    def dragMoveEvent(self, e) -> None:
+    def dragMoveEvent(self, e: QDragMoveEvent | None) -> None:
+        assert e is not None
         e.acceptProposedAction()
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        if e is not None and e.key() == Qt.Key.Key_Delete:
             self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, e)
@@ -298,15 +311,19 @@ class ImageDropMixin:
     def __init__(self: ImageDropWidgetProtocol) -> None:
         self.setAcceptDrops(True)
 
-    def dragEnterEvent(self, event, /) -> None:
+    def dragEnterEvent(self, event: QDragEnterEvent | None, /) -> None:
+        assert event is not None
         md = event.mimeData()
+        assert md is not None
         exts = self.DROPABBLE_EXTENSIONS or image_extensions()
         if dnd_has_extension(md, exts) or dnd_has_image(md):
             event.acceptProposedAction()
 
-    def dropEvent(self: ImageDropWidgetProtocol, event, /) -> None:
+    def dropEvent(self: ImageDropWidgetProtocol, event: QDropEvent | None, /) -> None:
+        assert event is not None
         event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
+        assert md is not None
         pmap, data = dnd_get_local_image_and_pixmap(md)
         if pmap is not None:
             self.handle_image_drop(pmap, data)
@@ -316,12 +333,13 @@ class ImageDropMixin:
         if x is not None:
             # We have an image, set cover
             event.accept()
-            if y is None:
+            if isinstance(x, QPixmap):
                 # Local image
                 self.handle_image_drop(x)
             else:
+                assert y is not None
                 # Remote files, use the first file
-                d = DownloadDialog(x, y, self)
+                d = DownloadDialog(x, y, cast('QWidget', self))
                 d.start_download()
                 if d.err is None:
                     pmap = QPixmap()
@@ -331,11 +349,12 @@ class ImageDropMixin:
                     if not pmap.isNull():
                         self.handle_image_drop(pmap, data=data)
 
-    def handle_image_drop(self: ImageDropWidgetProtocol, pmap, data=None) -> None:
+    def handle_image_drop(self: ImageDropWidgetProtocol, pmap: QPixmap, data: bytes | None = None) -> None:
         self.set_pixmap(pmap)
         self.cover_changed.emit(data or pixmap_to_data(pmap, format='PNG'))
 
-    def dragMoveEvent(self, event, /) -> None:
+    def dragMoveEvent(self, event: QDragMoveEvent | None, /) -> None:
+        assert event is not None
         event.acceptProposedAction()
 
     def get_pixmap(self) -> QPixmap:
@@ -344,7 +363,7 @@ class ImageDropMixin:
     def set_pixmap(self, pixmap: QPixmap) -> None:
         self.setPixmap(pixmap)
 
-    def build_context_menu(self):
+    def build_context_menu(self) -> QMenu:
         cm = QMenu(self)  # type: ignore
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
         assert paste is not None
@@ -360,7 +379,8 @@ class ImageDropMixin:
         paste.triggered.connect(cast('ImageDropWidgetProtocol', self).paste_from_clipboard)
         return cm
 
-    def contextMenuEvent(self, a0, /) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None, /) -> None:
+        assert a0 is not None
         self.build_context_menu().exec(a0.globalPos())
 
     def copy_to_clipboard(self) -> None:
@@ -388,7 +408,7 @@ class ImageDropMixin:
 # ImageView {{{
 
 
-def draw_size(p, rect, w, h) -> None:
+def draw_size(p: QPainter, rect: QRect, w: int, h: int) -> None:
     rect = rect.adjusted(0, 0, 0, -4)
     f = p.font()
     f.setBold(True)
@@ -406,7 +426,7 @@ class ImageView(QWidget, ImageDropMixin):
     cover_changed = pyqtSignal(object)
     draw_empty_border = False
 
-    def __init__(self, parent=None, show_size_pref_name=None, default_show_size=False) -> None:
+    def __init__(self, parent: QWidget | None = None, show_size_pref_name: str | None = None, default_show_size: bool = False) -> None:
         QWidget.__init__(self, parent)
         self.show_size_pref_name = ('show_size_on_cover_' + show_size_pref_name) if show_size_pref_name else None
         self._pixmap = QPixmap()
@@ -417,23 +437,23 @@ class ImageView(QWidget, ImageDropMixin):
         if self.show_size_pref_name:
             self.show_size = gprefs.get(self.show_size_pref_name, default_show_size)
 
-    def dragEnterEvent(self, a0) -> None:
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         ImageDropMixin.dragEnterEvent(self, a0)
 
-    def dragMoveEvent(self, a0) -> None:
+    def dragMoveEvent(self, a0: QDragMoveEvent | None) -> None:
         ImageDropMixin.dragMoveEvent(self, a0)
 
-    def dropEvent(self, a0) -> None:
+    def dropEvent(self, a0: QDropEvent | None) -> None:
         ImageDropMixin.dropEvent(self, a0)
 
-    def setPixmap(self, pixmap) -> None:
+    def setPixmap(self, pixmap: QPixmap) -> None:
         if not isinstance(pixmap, QPixmap):
             raise TypeError('Must use a QPixmap')
         self._pixmap = pixmap
         self.updateGeometry()
         self.update()
 
-    def build_context_menu(self):
+    def build_context_menu(self) -> QMenu:
         m = ImageDropMixin.build_context_menu(self)
         if self.show_size_pref_name:
             text = _('Hide size in corner') if self.show_size else _('Show size in corner')
@@ -446,15 +466,15 @@ class ImageView(QWidget, ImageDropMixin):
             gprefs[self.show_size_pref_name] = self.show_size
         self.update()
 
-    def pixmap(self):
+    def pixmap(self) -> QPixmap:
         return self._pixmap
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         if self._pixmap.isNull():
             return self.minimumSize()
         return self._pixmap.size()
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         QWidget.paintEvent(self, a0)
         pmap = self._pixmap
         p = QPainter(self)
@@ -508,7 +528,8 @@ class ImageView(QWidget, ImageDropMixin):
 
 
 class RoundedPixmap(QGraphicsPixmapItem):
-    def paint(self, painter, option, widget) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionGraphicsItem | None, widget: QWidget | None = None) -> None:
+        assert painter is not None
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         target = self.boundingRect().toAlignedRect()
         with clip_border_radius(painter, target):
@@ -518,8 +539,8 @@ class RoundedPixmap(QGraphicsPixmapItem):
 class CoverView(QGraphicsView, ImageDropMixin):
     cover_changed = pyqtSignal(object)
 
-    def __init__(self, *args, **kwargs) -> None:
-        self.show_size = kwargs.pop('show_size', False)
+    def __init__(self, *args: QWidget | None, show_size: bool = False, **kwargs: QWidget | None) -> None:
+        self.show_size = show_size
         QGraphicsView.__init__(self, *args, **kwargs)
         ImageDropMixin.__init__(self)
         self.pixmap_size = 0, 0
@@ -528,7 +549,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.set_background()
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event: QContextMenuEvent | None) -> None:
         return ImageDropMixin.contextMenuEvent(self, event)
 
     def get_pixmap(self) -> QPixmap:
@@ -549,10 +570,10 @@ class CoverView(QGraphicsView, ImageDropMixin):
     def setPixmap(self, pixmap: QPixmap) -> None:
         self.set_pixmap(pixmap)
 
-    def set_background(self, brush=None) -> None:
+    def set_background(self, brush: QBrush | None = None) -> None:
         self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
 
-    def paintEvent(self, event) -> None:
+    def paintEvent(self, event: QPaintEvent | None) -> None:
         QGraphicsView.paintEvent(self, event)
         if self.show_size:
             v = self.viewport()
@@ -567,18 +588,19 @@ class CoverView(QGraphicsView, ImageDropMixin):
 
 
 class BasicListItem(QListWidgetItem):
-    def __init__(self, text, user_data=None) -> None:
+    def __init__(self, text: str, user_data: object = None) -> None:
         QListWidgetItem.__init__(self, text)
         self.user_data = user_data
 
-    def __eq__(self, other):
-        if hasattr(other, 'text'):
-            return self.text() == other.text()
+    def __eq__(self, other: object) -> bool:
+        text = getattr(other, 'text', None)
+        if text is not None:
+            return self.text() == text()
         return False
 
 
 class BasicList(QListWidget):
-    def add_item(self, text, user_data=None, replace=False) -> None:
+    def add_item(self, text: str, user_data: object = None, replace: bool = False) -> None:
         item = BasicListItem(text, user_data)
 
         for oitem in self.items():
@@ -590,11 +612,11 @@ class BasicList(QListWidget):
 
         self.addItem(item)
 
-    def remove_selected_items(self, *args) -> None:
+    def remove_selected_items(self, *args: object) -> None:
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
-    def items(self, data=None):
+    def items(self, data: object = None) -> Iterator[QListWidgetItem | None]:  # ty: ignore[incompatible-method-override] shadows QListWidget.items(), renaming would break API
         for i in range(self.count()):
             yield self.item(i)
 
@@ -706,10 +728,11 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
     Includes an extended content menu.
     """
 
-    def event(self, a0):
+    def event(self, a0: QEvent | None) -> bool:
+        assert a0 is not None
         # See https://bugreports.qt.io/browse/QTBUG-46911
         if a0.type() == QEvent.Type.ShortcutOverride and (
-            hasattr(a0, 'key')
+            isinstance(a0, QKeyEvent)
             and a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right)
             and (a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier
         ):
@@ -738,14 +761,14 @@ def setup_status_actions(self: LineEditIndicatorsProtocol) -> None:
     self.status_actions[1].setVisible(False)
 
 
-def stylesheet_for_lineedit(ok, selector='QLineEdit') -> str:
+def stylesheet_for_lineedit(ok: bool | None, selector: str = 'QLineEdit') -> str:
     if ok is None:
         return ''
     col = '#50c878' if ok else '#FF2400'
     return f'{selector} {{ border: 2px solid {col}; border-radius: 3px }}'
 
 
-def update_status_actions(self: LineEditIndicatorsProtocol, ok, tooltip: str = '') -> None:
+def update_status_actions(self: LineEditIndicatorsProtocol, ok: bool | None, tooltip: str = '') -> None:
     self.status_actions[0].setVisible(bool(ok))
     self.status_actions[1].setVisible(not ok)
     if ok:
@@ -763,7 +786,7 @@ class LineEditIndicators:
     def setup_status_actions(self: LineEditIndicatorsProtocol) -> None:
         setup_status_actions(self)
 
-    def update_status_actions(self: LineEditIndicatorsProtocol, ok, tooltip='') -> None:
+    def update_status_actions(self: LineEditIndicatorsProtocol, ok: bool | None, tooltip: str = '') -> None:
         update_status_actions(self, ok, tooltip)
 
 
@@ -776,11 +799,11 @@ class ItemsCompleter(QCompleter):  # {{{
     with a CompleterLineEdit.
     """
 
-    def __init__(self, parent, all_items) -> None:
+    def __init__(self, parent: QObject | None, all_items: Collection[str]) -> None:
         QCompleter.__init__(self, all_items, parent)
         self.all_items = set(all_items)
 
-    def update(self, text_items, completion_prefix) -> None:
+    def update(self, text_items: Iterable[str], completion_prefix: str) -> None:
         items = list(self.all_items.difference(text_items))
         model = QStringListModel(items, self)
         self.setModel(model)
@@ -789,7 +812,7 @@ class ItemsCompleter(QCompleter):  # {{{
         if completion_prefix.strip():
             self.complete()
 
-    def update_items_cache(self, items) -> None:
+    def update_items_cache(self, items: Collection[str]) -> None:
         self.all_items = set(items)
         model = QStringListModel(items, self)
         self.setModel(model)
@@ -803,7 +826,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
     A QLineEdit that can complete parts of text separated by separator.
     """
 
-    def __init__(self, parent=None, complete_items=None, sep=',', space_before_sep=False) -> None:
+    def __init__(self, parent: QWidget | None = None, complete_items: Collection[str] | None = None, sep: str = ',', space_before_sep: bool = False) -> None:
         if complete_items is None:
             complete_items = []
         EnLineEdit.__init__(self, parent)
@@ -820,21 +843,21 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
         self.items_completer.setWidget(self)
 
-    def update_items_cache(self, complete_items) -> None:
+    def update_items_cache(self, complete_items: Collection[str]) -> None:
         self.items_completer.update_items_cache(complete_items)
 
-    def set_separator(self, sep) -> None:
+    def set_separator(self, sep: str) -> None:
         self.separator = sep
 
-    def set_space_before_sep(self, space_before) -> None:
+    def set_space_before_sep(self, space_before: bool) -> None:
         self.space_before_sep = space_before
 
-    def text_changed(self, text) -> None:
+    def text_changed(self, text: str) -> None:
         all_text = str(text)
         text = all_text[: self.cursorPosition()]
         prefix = text.split(self.separator)[-1].strip()
 
-        text_items = []
+        text_items: list[str] = []
         for t in all_text.split(self.separator):
             t1 = str(t).strip()
             if t1:
@@ -842,7 +865,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         text_items = list(set(text_items))
         self.items_completer.update(text_items, prefix)
 
-    def complete_text(self, text) -> None:
+    def complete_text(self, text: str) -> None:
         cursor_pos = self.cursorPosition()
         before_text = str(self.text())[:cursor_pos]
         after_text = str(self.text())[cursor_pos:]
@@ -867,7 +890,7 @@ class EnComboBox(QComboBox):  # {{{
     Includes an extended context menu.
     """
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: QWidget | None) -> None:
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
         _completer = self.completer()
@@ -875,10 +898,10 @@ class EnComboBox(QComboBox):  # {{{
         _completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
-    def text(self):
+    def text(self) -> str:
         return str(self.currentText())
 
-    def setText(self, text) -> None:
+    def setText(self, text: str) -> None:
         idx = self.findText(text, Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive)
         if idx == -1:
             self.insertItem(0, text)
@@ -890,23 +913,23 @@ class EnComboBox(QComboBox):  # {{{
 
 
 class CompleteComboBox(EnComboBox):  # {{{
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: QWidget | None) -> None:
         EnComboBox.__init__(self, *args)
         self.setLineEdit(CompleteLineEdit(self))
 
-    def update_items_cache(self, complete_items) -> None:
+    def update_items_cache(self, complete_items: Collection[str]) -> None:
         le = self.lineEdit()
         assert le is not None
         assert isinstance(le, CompleteLineEdit)
         le.update_items_cache(complete_items)
 
-    def set_separator(self, sep) -> None:
+    def set_separator(self, sep: str) -> None:
         le = self.lineEdit()
         assert le is not None
         assert isinstance(le, CompleteLineEdit)
         le.set_separator(sep)
 
-    def set_space_before_sep(self, space_before) -> None:
+    def set_space_before_sep(self, space_before: bool) -> None:
         le = self.lineEdit()
         assert le is not None
         assert isinstance(le, CompleteLineEdit)
@@ -919,7 +942,7 @@ class CompleteComboBox(EnComboBox):  # {{{
 class HistoryLineEdit(QComboBox):  # {{{
     lost_focus = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QComboBox.__init__(self, parent)
         self.setEditable(True)
         self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
@@ -929,12 +952,13 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.setClearButtonEnabled = _line_edit.setClearButtonEnabled
         self.textChanged = self.editTextChanged
 
-    def setPlaceholderText(self, placeholderText):
+    def setPlaceholderText(self, placeholderText: str | None) -> None:
         line_edit = self.lineEdit()
         assert line_edit is not None
         return line_edit.setPlaceholderText(placeholderText)
 
-    def contextMenuEvent(self, e) -> None:
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        assert e is not None
         _line_edit = self.lineEdit()
         assert _line_edit is not None
         menu = _line_edit.createStandardContextMenu()
@@ -948,10 +972,10 @@ class HistoryLineEdit(QComboBox):  # {{{
         history.set(self.store_name, [])
 
     @property
-    def store_name(self):
+    def store_name(self) -> str:
         return 'lineedit_history_' + self._name
 
-    def initialize(self, name) -> None:
+    def initialize(self, name: str) -> None:
         self._name = name
         self.addItems(history.get(self.store_name, []))
         self.setEditText('')
@@ -960,12 +984,12 @@ class HistoryLineEdit(QComboBox):  # {{{
         _line_edit.editingFinished.connect(self.save_history)
         enable_item_removal_for_combobox(self, self.remove_history_item)
 
-    def remove_history_item(self, item) -> None:
+    def remove_history_item(self, item: str) -> None:
         if remove_item_from_combobox(self, item):
             history.set(self.store_name, [str(self.itemText(i)) for i in range(self.count())])
 
     def save_history(self) -> None:
-        items = []
+        items: list[str] = []
         ct = str(self.currentText())
         if ct:
             items.append(ct)
@@ -989,16 +1013,16 @@ class HistoryLineEdit(QComboBox):  # {{{
             except ValueError:
                 pass
 
-    def setText(self, t) -> None:
+    def setText(self, t: str) -> None:
         self.setEditText(t)
         line_edit = self.lineEdit()
         assert line_edit is not None
         line_edit.setCursorPosition(0)
 
-    def text(self):
+    def text(self) -> str:
         return self.currentText()
 
-    def focusOutEvent(self, e) -> None:
+    def focusOutEvent(self, e: QFocusEvent | None) -> None:
         QComboBox.focusOutEvent(self, e)
         view = self.view()
         assert view is not None
@@ -1016,13 +1040,13 @@ class ComboBoxWithHelp(QComboBox):  # {{{
     that pass a string, because they will not correct the text.
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QComboBox.__init__(self, parent)
         self.currentIndexChanged.connect(self.index_changed)
         self.help_text = ''
         self.state_set = False
 
-    def initialize(self, help_text=_('Search')) -> None:
+    def initialize(self, help_text: str = _('Search')) -> None:
         self.help_text = help_text
         self.set_state()
 
@@ -1035,16 +1059,16 @@ class ComboBoxWithHelp(QComboBox):  # {{{
                 self.setItemText(0, '')
                 self.setStyleSheet('QComboBox { color: black }')
 
-    def index_changed(self, index) -> None:
+    def index_changed(self, index: int) -> None:
         self.state_set = False
         self.set_state()
 
-    def currentText(self):
+    def currentText(self) -> str:
         if self.currentIndex() == 0:
             return ''
         return QComboBox.currentText(self)
 
-    def itemText(self, index):
+    def itemText(self, index: int) -> str:
         if index == 0:
             return ''
         return QComboBox.itemText(self, index)
@@ -1096,7 +1120,7 @@ class EncodingComboBox(QComboBox):  # {{{
         'shift_jis',
     ]
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QComboBox.__init__(self, parent)
         self.setEditable(True)
         self.setLineEdit(EnLineEdit(self))
@@ -1109,8 +1133,8 @@ class EncodingComboBox(QComboBox):  # {{{
 
 
 class PythonHighlighter(QSyntaxHighlighter):  # {{{
-    Rules = ()
-    Formats = {}
+    Rules: tuple[tuple[re.Pattern[str], str], ...] = ()
+    Formats: dict[str, QTextCharFormat] = {}
 
     KEYWORDS = [
         'and',
@@ -1216,17 +1240,17 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     CONSTANTS = ['False', 'True', 'None', 'NotImplemented', 'Ellipsis']
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        if not self.Rules:  # ty: ignore[redundant-condition]
+        if not self.Rules:
             self.initialize_class_members()
 
     @classmethod
     def initialize_class_members(cls) -> None:
         cls.initializeFormats()
-        r = []
+        r: list[tuple[re.Pattern[str], str]] = []
 
-        def a(a, b) -> None:
+        def a(a: re.Pattern[str], b: str) -> None:
             r.append((a, b))
 
         a(re.compile('|'.join([rf'\b{keyword}\b' for keyword in cls.KEYWORDS])), 'keyword')
@@ -1277,7 +1301,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 fmt.setFontItalic(italic)
             cls.Formats[name] = fmt
 
-    def highlightBlock(self, text) -> None:
+    def highlightBlock(self, text: str | None) -> None:
+        assert text is not None
         NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
 
         textLength = len(text)
@@ -1306,7 +1331,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         elif text[0] == '#':
             self.setFormat(0, len(text), self.Formats['comment'])
         else:
-            stack = []
+            stack: list[str] = []
             for i, c in enumerate(text):
                 if c in ('"', "'"):
                     if stack and stack[-1] == c:
@@ -1350,14 +1375,14 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 class SplitterHandle(QSplitterHandle):
     double_clicked = pyqtSignal(object)
 
-    def __init__(self, orientation, splitter) -> None:
+    def __init__(self, orientation: Qt.Orientation, splitter: LabelledSplitter) -> None:
         super().__init__(orientation, splitter)
         splitter.splitterMoved.connect(self.splitter_moved, type=Qt.ConnectionType.QueuedConnection)
         self.double_clicked.connect(splitter.double_clicked, type=Qt.ConnectionType.QueuedConnection)
         self.highlight = False
         self.setToolTip(_('Drag to resize') + ' ' + splitter.label)
 
-    def splitter_moved(self, *args) -> None:
+    def splitter_moved(self, *args: object) -> None:
         oh = self.highlight
         splitter = self.splitter()
         assert splitter is not None
@@ -1365,14 +1390,14 @@ class SplitterHandle(QSplitterHandle):
         if oh != self.highlight:
             self.update()
 
-    def mouseDoubleClickEvent(self, a0) -> None:
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.double_clicked.emit(self)
 
 
 class PaperSizes(QComboBox):  # {{{
     system_default_paper_size = None
 
-    def initialize(self, choices=None) -> None:
+    def initialize(self, choices: Iterable[str] | None = None) -> None:
         from calibre.utils.icu import numeric_sort_key
 
         if self.system_default_paper_size is None:
@@ -1394,11 +1419,11 @@ class PaperSizes(QComboBox):  # {{{
             self.addItem(name, a)
 
     @property
-    def get_value_for_config(self):
+    def get_value_for_config(self) -> str:
         return self.currentData()
 
     @get_value_for_config.setter
-    def set_value_for_config(self, val) -> None:
+    def set_value_for_config(self, val: str | None) -> None:
         idx = self.findData(val or PaperSizes.system_default_paper_size)
         if idx == -1:
             idx = self.findData('a4')
@@ -1409,10 +1434,10 @@ class PaperSizes(QComboBox):  # {{{
 
 
 class BusyCursor:  # {{{
-    def __enter__(self):
+    def __enter__(self) -> None:
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         QApplication.restoreOverrideCursor()
 
 

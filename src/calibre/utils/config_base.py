@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     import unittest
     from collections.abc import Callable, Sequence
     from optparse import OptionContainer
-    from types import TracebackType
 
     from calibre.utils.config import OptionParser
 
@@ -29,11 +28,9 @@ plugin_dir = os.path.join(config_dir, 'plugins')
 
 class Prefs(Protocol):
     def set(self, key: str, val: Any) -> None: ...  # ruff: ignore[any-type]
-    def get(self, key: str) -> Any: ...  # ruff: ignore[any-type]
+    def get(self, key: str, /) -> Any: ...  # ruff: ignore[any-type]
     def __getitem__(self, key: str) -> Any: ...  # ruff: ignore[any-type]
     def __setitem__(self, key: str, val: Any) -> None: ...  # ruff: ignore[any-type]
-    def __enter__(self) -> None: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None: ...
 
 
 def parse_old_style(src: str | bytes) -> dict[str, Any]:

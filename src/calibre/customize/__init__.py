@@ -755,6 +755,8 @@ class InterfaceActionBase(Plugin):  # {{{
 
     #: Import path of the actual interface action class as module:class
     actual_plugin: str | None = None
+    # Set by the GUI once the actual plugin has been loaded
+    actual_iaction_plugin_loaded: bool
 
     def __init__(self, plugin_path: str | None) -> None:
         Plugin.__init__(self, plugin_path)
@@ -849,6 +851,8 @@ class StoreBase(Plugin):  # {{{
 
     #: Import path of the actual store plugin class as module:class
     actual_plugin: str | None = None
+    # Set by the GUI once the actual plugin has been loaded
+    actual_istore_plugin_loaded: bool
 
     # Does the store only distribute e-books without DRM.
     drm_free_only = False

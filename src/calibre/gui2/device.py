@@ -11,7 +11,7 @@ import time
 import traceback
 import weakref
 from threading import Event, Thread
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Protocol, Self, TypedDict, cast
 
 from qt.core import (
     QAction,
@@ -73,25 +73,63 @@ from calibre.utils.ipc.job import BaseJob
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
+
+    from calibre.devices.interface import BookList, DetectedDevice, DriveInfo, ModelMetadata, OpenPopupMessage
+    from calibre.devices.usbms.device import AnnotationPathInfo
+    from calibre.devices.usbms.device import Device as UsbmsDevice
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.jobs import JobManager
     from calibre.gui2.ui import Main
+    from calibre.library.field_metadata import FieldMetadata
     from calibre.library.save_to_disk import Plugboards
+
+    type DoneCallback = Callable[[DeviceJob], object]
+
+    type DeviceInfoTuple = tuple[str, str, str, str, DriveInfo]
+
+    class DeviceInformationDict(TypedDict):
+        info: DeviceInfoTuple
+        prefixes: tuple[str | None, str | None]
+        freespace: tuple[int, int, int]
+
+    class RebuildableBookList(Protocol):
+        def rebuild_collections(self, booklist: Self, oncard: str | None, /) -> object: ...
+
+    class ValidatingWidget(Protocol):
+        def validate(self) -> bool | None: ...
+
+    class TitleCacheEntry(TypedDict):
+        authors: dict[str, int]
+        author_sort: dict[str, int]
+        db_ids: dict[int, int]
 # }}}
 
 
 class DeviceJob(BaseJob):  # {{{
-    def __init__(self, func, done, job_manager, args=None, kwargs=None, description='') -> None:
+    def __init__(
+        self,
+        func: Callable[..., object],
+        done: DoneCallback | None,
+        job_manager: JobManager,
+        args: Iterable[object] | None = None,
+        kwargs: Mapping[str, object] | None = None,
+        description: str = '',
+    ) -> None:
         if kwargs is None:
             kwargs = {}
         if args is None:
             args = []
         BaseJob.__init__(self, description)
         self.func = func
-        self.callback_on_done = done
-        if not isinstance(self.callback_on_done, (Dispatcher, FunctionDispatcher)):
-            self.callback_on_done = FunctionDispatcher(self.callback_on_done)
+        self.callback_on_done: DoneCallback | Dispatcher | FunctionDispatcher
+        if isinstance(done, (Dispatcher, FunctionDispatcher)):
+            self.callback_on_done = done
+        else:
+            self.callback_on_done = FunctionDispatcher(done if done is not None else lambda job: None)
 
         self.args, self.kwargs = args, kwargs
-        self.exception = None
+        self.exception: BaseException | None = None
         self.job_manager = job_manager
         self._details = _('No details available.')
         self._aborted = False
@@ -116,7 +154,7 @@ class DeviceJob(BaseJob):  # {{{
             prints('DeviceJob:', self.id, self.description, 'callback returned')
         self.job_manager.changed_queue.put(self)
 
-    def report_progress(self, percent, msg='') -> None:
+    def report_progress(self, percent: float, msg: str = '') -> None:
         self.notifications.put((percent, msg))
         self.job_manager.changed_queue.put(self)
 
@@ -136,7 +174,7 @@ class DeviceJob(BaseJob):  # {{{
         finally:
             self.job_done()
 
-    def abort(self, err) -> None:
+    def abort(self, err: BaseException) -> None:
         call_job_done = False
         if self.run_state == self.WAITING:
             self.start_work()
@@ -149,7 +187,7 @@ class DeviceJob(BaseJob):  # {{{
             self.job_done()
 
     @property
-    def log_file(self):
+    def log_file(self) -> io.BytesIO:
         return io.BytesIO(self._details.encode('utf-8'))
 
     # }}}
@@ -188,20 +226,20 @@ def show_device_stopped_responding_error(parent: QWidget | None, exc: BaseExcept
     return True
 
 
-def device_name_for_plugboards(device_class):
+def device_name_for_plugboards(device_class: object) -> str:
     if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
-        return device_class.DEVICE_PLUGBOARD_NAME
+        return cast('str', device_class.DEVICE_PLUGBOARD_NAME)
     return device_class.__class__.__name__
 
 
-def convert_open_popup(opm, skip_key):
+def convert_open_popup(opm: OpenPopupMessage, skip_key: str) -> OpenFeedback:
     class OPM(OpenFeedback):
-        def __init__(self, opm) -> None:
+        def __init__(self, opm: OpenPopupMessage) -> None:
             super().__init__('placeholder')
             self.opm = opm
             self.skip_key = skip_key
 
-        def custom_dialog(self, parent):
+        def custom_dialog(self, parent: QWidget | None) -> QDialog:
             from calibre.gui2.dialogs.message_box import MessageBox
 
             class M(MessageBox):
@@ -233,13 +271,13 @@ def convert_open_popup(opm, skip_key):
 class DeviceManager(Thread):  # {{{
     def __init__(
         self,
-        connected_slot,
-        job_manager,
-        open_feedback_slot,
-        open_feedback_msg,
-        allow_connect_slot,
-        after_callback_feedback_slot,
-        sleep_time=2,
+        connected_slot: Callable[[bool, str | None], object],
+        job_manager: JobManager,
+        open_feedback_slot: Callable[[str], object],
+        open_feedback_msg: Callable[[str, OpenFeedback | OpenActionNeeded], object],
+        allow_connect_slot: Callable[[str, str | None], object],
+        after_callback_feedback_slot: Callable[[Mapping[str, str]], object],
+        sleep_time: float = 2,
     ) -> None:
         """
         :sleep_time: Time to sleep between device probes in secs
@@ -253,44 +291,49 @@ class DeviceManager(Thread):  # {{{
         self.sleep_time = sleep_time
         self.connected_slot = connected_slot  # see DeviceMixin.device_connected()
         self.allow_connect_slot = allow_connect_slot
-        self.jobs = queue.Queue(0)
-        self.job_steps = queue.Queue(0)
+        self.jobs: queue.Queue[DeviceJob] = queue.Queue(0)
+        self.job_steps: queue.Queue[DeviceJob] = queue.Queue(0)
         self.shutdown_event = Event()
         self.job_manager = job_manager
-        self.reported_errors = set()
-        self.shown_open_popups = set()
-        self.current_job = None
+        self.reported_errors: set[str] = set()
+        self.shown_open_popups: set[str] = set()
+        self.current_job: DeviceJob | None = None
         self.scanner = DeviceScanner()
-        self.connected_device = None
-        self.connected_device_kind = None
-        self.ejected_devices = set()
-        self.mount_connection_requests = queue.Queue(0)
+        self.connected_device: DevicePlugin | None = None
+        self.connected_device_kind: str | None = None
+        self.ejected_devices: set[DevicePlugin] = set()
+        self.mount_connection_requests: queue.Queue[tuple[type[DevicePlugin] | None, str, str, ModelMetadata | None]] = queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
-        self.open_feedback_only_once_seen = set()
+        self.open_feedback_only_once_seen: set[Hashable] = set()
         self.after_callback_feedback_slot = after_callback_feedback_slot
         self.open_feedback_msg = open_feedback_msg
-        self._device_information = None
-        self.current_library_uuid = None
+        self._device_information: DeviceInformationDict | None = None
+        self.current_library_uuid: str | None = None
         self.call_shutdown_on_disconnect = False
         self.devices_initialized = Event()
-        self.dynamic_plugins = {}
+        self.dynamic_plugins: dict[str, DevicePlugin] = {}
 
-    def report_progress(self, *args) -> None:
+    def report_progress(self, *args: object) -> None:
         pass
 
     @property
-    def is_device_connected(self):
+    def is_device_connected(self) -> bool:
         return self.connected_device is not None
 
     @property
-    def is_device_present(self):
+    def is_device_present(self) -> bool:
         return self.connected_device is not None and self.connected_device not in self.ejected_devices
 
     @property
-    def device(self):
+    def device(self) -> DevicePlugin | None:
         return self.connected_device
 
-    def do_connect(self, connected_devices, device_kind) -> bool:
+    def device_or_fail(self) -> DevicePlugin:
+        dev = self.connected_device
+        assert dev is not None, 'No device is connected'
+        return dev
+
+    def do_connect(self, connected_devices: Iterable[tuple[DevicePlugin, DetectedDevice | None]], device_kind: str) -> bool:
         for dev, detected_device in connected_devices:
             if dev.OPEN_FEEDBACK_MESSAGE is not None:
                 self.open_feedback_slot(dev.OPEN_FEEDBACK_MESSAGE)
@@ -321,7 +364,7 @@ class DeviceManager(Thread):  # {{{
             return True
         return False
 
-    def after_device_connect(self, dev, device_kind) -> None:
+    def after_device_connect(self, dev: DevicePlugin, device_kind: str) -> None:
         allow_connect = True
         try:
             uid = dev.get_device_uid()
@@ -333,7 +376,7 @@ class DeviceManager(Thread):  # {{{
                 allow_connect = False
             asked.append(uid)
             gprefs.set('ask_to_manage_device', asked)
-        if not allow_connect:
+        if not allow_connect and uid:
             dev.ignore_connected_device(uid)
             return
 
@@ -377,7 +420,7 @@ class DeviceManager(Thread):  # {{{
     def detect_device(self) -> None:
         if self.is_device_connected and self.connected_device_kind in {'folder', 'folder-as-device'}:
             assert self.connected_device is not None
-            if not self.connected_device.is_folder_still_available():
+            if not cast('UsbmsDevice', self.connected_device).is_folder_still_available():
                 self.connected_device_removed()
             return
         self.scanner.scan()
@@ -448,11 +491,11 @@ class DeviceManager(Thread):  # {{{
     # Mount devices that don't use USB, such as the folder device
     # This will be called on the GUI thread. Because of this, we must store
     # information that the scanner thread will use to do the real work.
-    def mount_device(self, kls, kind, path, model_metadata=None) -> None:
+    def mount_device(self, kls: type[DevicePlugin] | None, kind: str, path: str, model_metadata: ModelMetadata | None = None) -> None:
         self.mount_connection_requests.put((kls, kind, path, model_metadata))
 
     # disconnect a device
-    def umount_device(self, *args) -> None:
+    def umount_device(self, *args: object) -> None:
         if self.is_device_connected and not self.job_manager.has_device_jobs():
             if self.connected_device_kind in {'unmanaged-device', 'device'}:
                 assert self.connected_device is not None
@@ -460,12 +503,12 @@ class DeviceManager(Thread):  # {{{
                 if self.connected_device_kind != 'unmanaged-device':
                     self.ejected_devices.add(self.connected_device)
                 self.connected_slot(False, None)
-            elif hasattr(self.connected_device, 'unmount_device'):
+            elif callable(unmount_device := getattr(self.connected_device, 'unmount_device', None)):
                 # As we are on the wrong thread, this call must *not* do
                 # anything besides set a flag that the right thread will see.
-                self.connected_device.unmount_device()
+                unmount_device()
 
-    def next_job(self):
+    def next_job(self) -> DeviceJob | None:
         if not self.job_steps.empty():
             try:
                 return self.job_steps.get_nowait()
@@ -478,7 +521,7 @@ class DeviceManager(Thread):  # {{{
             except queue.Empty:
                 pass
 
-    def run_startup(self, dev) -> None:
+    def run_startup(self, dev: DevicePlugin) -> None:
         name = 'unknown'
         try:
             name = dev.__class__.__name__
@@ -512,12 +555,12 @@ class DeviceManager(Thread):  # {{{
                     else:
                         # new device instance so run startup and set flag to
                         # run shutdown on disconnect
-                        dev = initialize_plugin(model_metadata.driver_class)
+                        dev = initialize_plugin(cast('type[DevicePlugin]', model_metadata.driver_class))
                         self.run_startup(dev)
                         self.call_shutdown_on_disconnect = True
                     self.do_connect(
                         [
-                            [dev, model_metadata.detected_device(folder_path)],
+                            (dev, model_metadata.detected_device(folder_path)),
                         ],
                         device_kind=device_kind,
                     )
@@ -534,7 +577,7 @@ class DeviceManager(Thread):  # {{{
                     self.call_shutdown_on_disconnect = True
                     self.do_connect(
                         [
-                            [dev, None],
+                            (dev, None),
                         ],
                         device_kind=device_kind,
                     )
@@ -555,7 +598,7 @@ class DeviceManager(Thread):  # {{{
                     self.current_job.run()
                     self.current_job = None
                     feedback = getattr(self.device, 'user_feedback_after_callback', None)
-                    if feedback is not None:
+                    if feedback is not None and self.device is not None:
                         self.device.user_feedback_after_callback = None
                         self.after_callback_feedback_slot(feedback)
                 else:
@@ -570,7 +613,15 @@ class DeviceManager(Thread):  # {{{
             except Exception:
                 pass
 
-    def create_job_step(self, func, done, description, to_job, args=None, kwargs=None):
+    def create_job_step(
+        self,
+        func: Callable[..., object],
+        done: DoneCallback | None,
+        description: str,
+        to_job: DeviceJob | None,
+        args: Iterable[object] | None = None,
+        kwargs: Mapping[str, object] | None = None,
+    ) -> DeviceJob:
         if kwargs is None:
             kwargs = {}
         if args is None:
@@ -583,49 +634,65 @@ class DeviceManager(Thread):  # {{{
             self.jobs.put(job)
         return job
 
-    def create_job(self, func, done, description, args=None, kwargs=None):
+    def create_job(
+        self,
+        func: Callable[..., object],
+        done: DoneCallback | None,
+        description: str,
+        args: Iterable[object] | None = None,
+        kwargs: Mapping[str, object] | None = None,
+    ) -> DeviceJob:
         if kwargs is None:
             kwargs = {}
         if args is None:
             args = []
         return self.create_job_step(func, done, description, None, args, kwargs)
 
-    def has_card(self):
+    def has_card(self) -> bool:
         try:
-            return bool(self.device.card_prefix())
+            return bool(self.device_or_fail().card_prefix())
         except Exception:
             return False
 
-    def _debug_detection(self):
+    def _debug_detection(self) -> str | None:
         from calibre.devices import debug
 
         raw = debug(plugins=self.devices, disabled_plugins=self.disabled_device_plugins)
         return raw
 
-    def debug_detection(self, done) -> None:
+    def debug_detection(self, done: DoneCallback) -> None:
         if self.is_device_connected:
             raise ValueError('Device is currently detected in calibre, cannot debug device detection')
         self.create_job(self._debug_detection, done, _('Debug device detection'))
 
-    def _get_device_information(self):
-        info = self.device.get_device_information(end_session=False)
-        if len(info) < 5:
-            info = tuple(list(info) + [{}])
-        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, str) else i for i in info]
-        cp = self.device.card_prefix(end_session=False)
-        fs = self.device.free_space()
+    def _get_device_information(self) -> tuple[DeviceInfoTuple, tuple[str | None, str | None], tuple[int, int, int]]:
+        dev = self.device_or_fail()
+        raw: tuple[object, ...] = dev.get_device_information(end_session=False)
+        if len(raw) < 5:
+            raw = (*raw, {})
+        # Third party drivers may return non-string values, leave those as is
+        info = cast('DeviceInfoTuple', tuple(i.replace('\x00', '').replace('\x01', '') if isinstance(i, str) else i for i in raw))
+        cp = dev.card_prefix(end_session=False)
+        fs = dev.free_space()
         self._device_information = {'info': info, 'prefixes': cp, 'freespace': fs}
         return info, cp, fs
 
-    def get_device_information(self, done, add_as_step_to_job=None):
+    def get_device_information(self, done: DoneCallback | None, add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         """Get device information and free space on device"""
         return self.create_job_step(self._get_device_information, done, description=_('Get device information'), to_job=add_as_step_to_job)
 
-    def _set_library_information(self, library_name, library_uuid, field_metadata) -> None:
+    def _set_library_information(self, library_name: str, library_uuid: str, field_metadata: FieldMetadata) -> None:
         """Give the device the current library information"""
-        self.device.set_library_info(library_name, library_uuid, field_metadata)
+        self.device_or_fail().set_library_info(library_name, library_uuid, field_metadata)
 
-    def set_library_information(self, done, library_name, library_uuid, field_metadata, add_as_step_to_job=None):
+    def set_library_information(
+        self,
+        done: DoneCallback | None,
+        library_name: str,
+        library_uuid: str,
+        field_metadata: FieldMetadata,
+        add_as_step_to_job: DeviceJob | None = None,
+    ) -> DeviceJob:
         """Give the device the current library information"""
         return self.create_job_step(
             self._set_library_information,
@@ -640,29 +707,28 @@ class DeviceManager(Thread):  # {{{
         device indicates that getting driveinfo is slow"""
         assert self._device_information is not None
         info = self._device_information['info']
-        if not info[4] and self.device.SLOW_DRIVEINFO:
-            info = list(info)
-            info[4] = self.device.get_driveinfo()
-            self._device_information['info'] = tuple(info)
+        if not info[4] and (dev := self.device_or_fail()).SLOW_DRIVEINFO:
+            self._device_information['info'] = (info[0], info[1], info[2], info[3], dev.get_driveinfo())
 
-    def get_current_device_information(self):
+    def get_current_device_information(self) -> DeviceInformationDict | None:
         return self._device_information if self.is_device_present else None
 
-    def _books(self):
+    def _books(self) -> tuple[BookList, BookList, BookList]:
         """Get metadata from device"""
-        mainlist = self.device.books(oncard=None, end_session=False)
-        cardalist = self.device.books(oncard='carda')
-        cardblist = self.device.books(oncard='cardb')
+        dev = self.device_or_fail()
+        mainlist = dev.books(oncard=None, end_session=False)
+        cardalist = dev.books(oncard='carda')
+        cardblist = dev.books(oncard='cardb')
         return mainlist, cardalist, cardblist
 
-    def books(self, done, add_as_step_to_job=None):
+    def books(self, done: DoneCallback | None, add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         """Return callable that returns the list of books on device as two booklists"""
         return self.create_job_step(self._books, done, description=_('Get list of books on device'), to_job=add_as_step_to_job)
 
-    def _prepare_addable_books(self, paths):
-        return self.device.prepare_addable_books(paths)
+    def _prepare_addable_books(self, paths: list[str]) -> Sequence[str | tuple[str, Exception, str]]:
+        return self.device_or_fail().prepare_addable_books(paths)
 
-    def prepare_addable_books(self, done, paths, add_as_step_to_job=None):
+    def prepare_addable_books(self, done: DoneCallback | None, paths: list[str], add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         return self.create_job_step(
             self._prepare_addable_books,
             done,
@@ -671,10 +737,10 @@ class DeviceManager(Thread):  # {{{
             to_job=add_as_step_to_job,
         )
 
-    def _annotations(self, path_map):
-        return self.device.get_annotations(path_map)
+    def _annotations(self, path_map: dict[int, AnnotationPathInfo]) -> dict[int | str, DevicePlugin.UserAnnotation]:
+        return cast('UsbmsDevice', self.device_or_fail()).get_annotations(path_map)
 
-    def annotations(self, done, path_map, add_as_step_to_job=None):
+    def annotations(self, done: DoneCallback | None, path_map: dict[int, AnnotationPathInfo], add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         """Return mapping of ids to annotations. Each annotation is of the
         form (type, location_info, content). path_map is a mapping of
         ids to paths on the device."""
@@ -686,12 +752,19 @@ class DeviceManager(Thread):  # {{{
             to_job=add_as_step_to_job,
         )
 
-    def _sync_booklists(self, booklists):
+    def _sync_booklists(self, booklists: Sequence[BookList | None]) -> tuple[tuple[str | None, str | None], tuple[int, int, int]]:
         """Sync metadata to device"""
-        self.device.sync_booklists(booklists, end_session=False)
-        return self.device.card_prefix(end_session=False), self.device.free_space()
+        dev = self.device_or_fail()
+        dev.sync_booklists(booklists, end_session=False)
+        return dev.card_prefix(end_session=False), dev.free_space()
 
-    def sync_booklists(self, done, booklists, plugboards, add_as_step_to_job=None):
+    def sync_booklists(
+        self,
+        done: DoneCallback | None,
+        booklists: Sequence[BookList | None],
+        plugboards: dict[str, dict[str, object]],
+        add_as_step_to_job: DeviceJob | None = None,
+    ) -> DeviceJob:
         if hasattr(self.connected_device, 'set_plugboards') and callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)
         return self.create_job_step(
@@ -702,7 +775,9 @@ class DeviceManager(Thread):  # {{{
             to_job=add_as_step_to_job,
         )
 
-    def upload_collections(self, done, booklist, on_card, add_as_step_to_job=None):
+    def upload_collections(
+        self, done: DoneCallback | None, booklist: RebuildableBookList, on_card: str | None, add_as_step_to_job: DeviceJob | None = None
+    ) -> DeviceJob:
         return self.create_job_step(
             booklist.rebuild_collections,
             done,
@@ -711,11 +786,18 @@ class DeviceManager(Thread):  # {{{
             to_job=add_as_step_to_job,
         )
 
-    def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
+    def _upload_books(
+        self,
+        files: Sequence[str],
+        names: Sequence[str],
+        on_card: str | None = None,
+        metadata: Sequence[Metadata] | None = None,
+        plugboards: dict[str, dict[str, object]] | None = None,
+    ) -> Sequence[tuple[object, ...]]:
         """Upload books to device:"""
         from calibre.ebooks.metadata.meta import set_metadata
 
-        if hasattr(self.connected_device, 'set_plugboards') and callable(self.connected_device.set_plugboards):
+        if plugboards is not None and hasattr(self.connected_device, 'set_plugboards') and callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)
         if metadata and files and len(metadata) == len(files):
             for f, mi in zip(files, metadata):
@@ -741,7 +823,7 @@ class DeviceManager(Thread):  # {{{
                                 prints(traceback.format_exc(), file=sys.__stdout__)
 
         try:
-            return self.device.upload_books(files, names, on_card, metadata=metadata, end_session=False)
+            return self.device_or_fail().upload_books(files, names, on_card, metadata=metadata, end_session=False)
         finally:
             if metadata:
                 for mi in metadata:
@@ -751,7 +833,17 @@ class DeviceManager(Thread):  # {{{
                     except Exception:
                         pass
 
-    def upload_books(self, done, files, names, on_card=None, titles=None, metadata=None, plugboards=None, add_as_step_to_job=None):
+    def upload_books(
+        self,
+        done: DoneCallback | None,
+        files: Sequence[str],
+        names: Sequence[str],
+        on_card: str | None = None,
+        titles: Iterable[str] | None = None,
+        metadata: Sequence[Metadata] | None = None,
+        plugboards: dict[str, dict[str, object]] | None = None,
+        add_as_step_to_job: DeviceJob | None = None,
+    ) -> DeviceJob:
         desc = ngettext('Upload one book to the device', 'Upload {} books to the device', len(names)).format(len(names))
         if titles:
             desc += ': ' + ', '.join(titles)
@@ -764,29 +856,29 @@ class DeviceManager(Thread):  # {{{
             description=desc,
         )
 
-    def add_books_to_metadata(self, locations, metadata, booklists) -> None:
-        self.device.add_books_to_metadata(locations, metadata, booklists)
+    def add_books_to_metadata(self, locations: Sequence[tuple[object, ...]], metadata: Sequence[Metadata], booklists: Sequence[BookList]) -> None:
+        self.device_or_fail().add_books_to_metadata(locations, metadata, booklists)
 
-    def _delete_books(self, paths) -> None:
+    def _delete_books(self, paths: Sequence[str]) -> None:
         """Remove books from device"""
-        self.device.delete_books(paths, end_session=True)
+        self.device_or_fail().delete_books(paths, end_session=True)
 
-    def delete_books(self, done, paths, add_as_step_to_job=None):
+    def delete_books(self, done: DoneCallback | None, paths: Sequence[str], add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         return self.create_job_step(self._delete_books, done, args=[paths], description=_('Delete books from device'), to_job=add_as_step_to_job)
 
-    def remove_books_from_metadata(self, paths, booklists) -> None:
-        self.device.remove_books_from_metadata(paths, booklists)
+    def remove_books_from_metadata(self, paths: Sequence[str], booklists: Sequence[BookList]) -> None:
+        self.device_or_fail().remove_books_from_metadata(paths, booklists)
 
-    def _save_books(self, paths, target) -> None:
+    def _save_books(self, paths: Iterable[str], target: str) -> None:
         """Copy books from device to disk"""
         for path in paths:
             name = sanitize_file_name(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
                 with open(dest, 'wb') as f:
-                    self.device.get_file(path, f)
+                    self.device_or_fail().get_file(path, f)
 
-    def save_books(self, done, paths, target, add_as_step_to_job=None):
+    def save_books(self, done: DoneCallback | None, paths: Iterable[str], target: str, add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         return self.create_job_step(
             self._save_books,
             done,
@@ -795,25 +887,25 @@ class DeviceManager(Thread):  # {{{
             to_job=add_as_step_to_job,
         )
 
-    def _view_book(self, path, target):
+    def _view_book(self, path: str, target: str) -> str:
         with open(target, 'wb') as f:
-            self.device.get_file(path, f)
+            self.device_or_fail().get_file(path, f)
         return target
 
-    def view_book(self, done, path, target, add_as_step_to_job=None):
+    def view_book(self, done: DoneCallback | None, path: str, target: str, add_as_step_to_job: DeviceJob | None = None) -> DeviceJob:
         return self.create_job_step(self._view_book, done, args=[path, target], description=_('View book on device'), to_job=add_as_step_to_job)
 
-    def set_current_library_uuid(self, uuid) -> None:
+    def set_current_library_uuid(self, uuid: str | None) -> None:
         self.current_library_uuid = uuid
 
-    def set_driveinfo_name(self, location_code, name) -> None:
+    def set_driveinfo_name(self, location_code: str, name: str) -> None:
         if self.connected_device:
             self.connected_device.set_driveinfo_name(location_code, name)
 
     # dynamic plugin interface
 
     # This is a helper function that handles queueing with the device manager
-    def _call_request(self, name, method, *args, **kwargs):
+    def _call_request(self, name: str, method: str, *args: object, **kwargs: object) -> object:
         d = self.dynamic_plugins.get(name, None)
         if d:
             return getattr(d, method)(*args, **kwargs)
@@ -822,22 +914,22 @@ class DeviceManager(Thread):  # {{{
     # The dynamic plugin methods below must be called on the GUI thread. They
     # will switch to the device thread before calling the plugin.
 
-    def start_plugin(self, name):
+    def start_plugin(self, name: str) -> object:
         return self._call_request(name, 'start_plugin')
 
-    def stop_plugin(self, name) -> None:
+    def stop_plugin(self, name: str) -> None:
         self._call_request(name, 'stop_plugin')
 
-    def get_option(self, name, opt_string, default=None):
+    def get_option(self, name: str, opt_string: str, default: object = None) -> object:
         return self._call_request(name, 'get_option', opt_string, default=default)
 
-    def set_option(self, name, opt_string, opt_value) -> None:
+    def set_option(self, name: str, opt_string: str, opt_value: object) -> None:
         self._call_request(name, 'set_option', opt_string, opt_value)
 
-    def is_running(self, name):
+    def is_running(self, name: str) -> bool:
         return bool(self._call_request(name, 'is_running'))
 
-    def is_enabled(self, name) -> bool:
+    def is_enabled(self, name: str) -> bool:
         try:
             d = self.dynamic_plugins.get(name, None)
             if d:
@@ -852,14 +944,14 @@ class DeviceManager(Thread):  # {{{
 class DeviceAction(QAction):  # {{{
     a_s = pyqtSignal(object)
 
-    def __init__(self, dest, delete, specific, icon_path, text, parent=None) -> None:
+    def __init__(self, dest: str, delete: bool, specific: bool, icon_path: str, text: str, parent: QObject | None = None) -> None:
         QAction.__init__(self, QIcon.ic(icon_path), text, parent)
         self.dest = dest
         self.delete = delete
         self.specific = specific
         self.triggered.connect(self.emit_triggered)
 
-    def emit_triggered(self, *args) -> None:
+    def emit_triggered(self, *args: object) -> None:
         self.a_s.emit(self)
 
     def __repr__(self) -> str:
@@ -873,11 +965,11 @@ class DeviceMenu(QMenu):  # {{{
     disconnect_mounted_device = pyqtSignal()
     sync = pyqtSignal(object, object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QMenu.__init__(self, parent)
         self.group = QActionGroup(self)
-        self._actions = []
-        self._memory = []
+        self._actions: list[DeviceAction] = []
+        self._memory: list[QObject] = []
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
         self.set_default_menu.setIcon(QIcon.ic('config.png'))
@@ -969,21 +1061,21 @@ class DeviceMenu(QMenu):  # {{{
         self.annotation_action = annot
         self.enable_device_actions(False)
 
-    def change_default_action(self, action) -> None:
+    def change_default_action(self, action: QAction) -> None:
         config['default_send_to_device_action'] = repr(action)
         action.setChecked(True)
 
-    def action_triggered(self, action) -> None:
+    def action_triggered(self, action: DeviceAction) -> None:
         self.sync.emit(action.dest, action.delete, action.specific)
 
-    def trigger_default(self, *args) -> None:
+    def trigger_default(self, *args: object) -> None:
         r = config['default_send_to_device_action']
         for action in self._actions:
             if repr(action) == r:
                 self.action_triggered(action)
                 break
 
-    def enable_device_actions(self, enable, card_prefix=(None, None), device=None) -> None:
+    def enable_device_actions(self, enable: bool, card_prefix: tuple[str | None, str | None] | None = (None, None), device: DevicePlugin | None = None) -> None:
         for action in self._actions:
             if action.dest in ('main:', 'carda:0', 'cardb:0'):
                 if not enable:
@@ -1048,7 +1140,7 @@ class DeviceMixin:  # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
-    def allow_connect(self: Main, name, icon):
+    def allow_connect(self: Main, name: str, icon: str | None) -> bool:
         return question_dialog(
             self,
             _('Manage the %s?') % name,
@@ -1057,27 +1149,27 @@ class DeviceMixin:  # {{{
             override_icon=QIcon.ic(icon),
         )
 
-    def after_callback_feedback(self: Main, feedback) -> None:
+    def after_callback_feedback(self: Main, feedback: Mapping[str, str]) -> None:
         title, msg, det_msg = feedback
         info_dialog(self, feedback['title'], feedback['msg'], det_msg=feedback['det_msg']).show()
 
-    def debug_detection(self: Main, done) -> None:
+    def debug_detection(self: Main, done: DoneCallback) -> None:
         self.debug_detection_callback = weakref.ref(done)
         self.device_manager.debug_detection(FunctionDispatcher(self.debug_detection_done))
 
-    def debug_detection_done(self: Main, job) -> None:
+    def debug_detection_done(self: Main, job: DeviceJob) -> None:
         d = self.debug_detection_callback()
         if d is not None:
             d(job)
 
-    def show_open_feedback(self: Main, devname, e) -> None:
+    def show_open_feedback(self: Main, devname: str, e: OpenFeedback | OpenActionNeeded) -> None:
         try:
             self.__of_dev_mem__ = d = e.custom_dialog(self)
         except NotImplementedError:
             self.__of_dev_mem__ = d = info_dialog(self, devname, e.feedback_msg)
         d.show()
 
-    def auto_convert_question(self: Main, msg, autos):
+    def auto_convert_question(self: Main, msg: str, autos: Iterable[object]) -> bool:
         autos = '\n'.join(map(str, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
             _('No suitable formats'),
@@ -1087,12 +1179,12 @@ class DeviceMixin:  # {{{
             skip_dialog_name='auto_convert_before_send',
         )
 
-    def set_default_thumbnail(self: Main, height) -> None:
+    def set_default_thumbnail(self: Main, height: int) -> None:
         ratio = height / float(cprefs['cover_height'])
         self.default_thumbnail_prefs = prefs = override_prefs(cprefs)
         scale_cover(prefs, ratio)
 
-    def connect_to_folder_named(self: Main, folder, model_metadata=None) -> None:
+    def connect_to_folder_named(self: Main, folder: str, model_metadata: ModelMetadata | None = None) -> None:
         if os.path.exists(folder) and os.path.isdir(folder):
             if model_metadata is not None:
                 self.device_manager.mount_device(kls=None, kind='folder-as-device', path=folder, model_metadata=model_metadata)
@@ -1112,23 +1204,24 @@ class DeviceMixin:  # {{{
     def disconnect_mounted_device(self: Main) -> None:
         self.device_manager.umount_device()
 
-    def configure_connected_device(self: Main):
+    def configure_connected_device(self: Main) -> None:
         if not self.device_manager.is_device_connected:
             return
         if self.job_manager.has_device_jobs(queued_also=True):
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Running jobs'),
                 _('Cannot configure the device while there are running device jobs.'),
                 show=True,
             )
+            return
         dev = self.device_manager.connected_device
         assert dev is not None
         cw = dev.config_widget()
 
         class ValidatingDialog(QDialog):
             def accept(self) -> None:
-                if cw.validate():
+                if cast('ValidatingWidget', cw).validate():
                     super().accept()
 
         config_dialog = ValidatingDialog(self)
@@ -1153,7 +1246,7 @@ class DeviceMixin:  # {{{
             if do_restart:
                 self.quit(restart=True)
 
-    def _sync_action_triggered(self: Main, *args) -> None:
+    def _sync_action_triggered(self: Main, *args: object) -> None:
         m = getattr(self, '_sync_menu', None)
         if m is not None:
             ids = self.library_view.get_selected_ids(as_set=True)
@@ -1204,18 +1297,18 @@ class DeviceMixin:  # {{{
         else:
             dma.setEnabled(False)
 
-    def device_job_exception(self: Main, job):
+    def device_job_exception(self: Main, job: DeviceJob) -> None:
         """
         Handle exceptions in threaded device jobs.
         """
-        if isinstance(getattr(job, 'exception', None), UserFeedback):
-            ex = job.exception
+        if isinstance(ex := getattr(job, 'exception', None), UserFeedback):
             func = {
                 UserFeedback.ERROR: error_dialog,
                 UserFeedback.WARNING: warning_dialog,
                 UserFeedback.INFO: info_dialog,
             }[ex.level]
-            return func(self, _('Failed'), ex.msg, det_msg=ex.details or '', show=True)
+            func(self, _('Failed'), ex.msg, det_msg=ex.details or '', show=True)
+            return
 
         try:
             if 'Could not read 32 bytes on the control bus.' in str(job.details):
@@ -1233,7 +1326,8 @@ class DeviceMixin:  # {{{
             try:
                 from calibre.gui2.device_drivers.mtp_config import SendError
 
-                return SendError(self, job.exception).exec()
+                SendError(self, job.exception).exec()
+                return
             except Exception:
                 traceback.print_exc()
         try:
@@ -1246,20 +1340,21 @@ class DeviceMixin:  # {{{
 
     # Device connected {{{
 
-    def set_device_menu_items_state(self: Main, connected) -> None:
+    def set_device_menu_items_state(self: Main, connected: bool) -> None:
         self.iactions['Connect Share'].set_state(connected, self.device_manager.device)
         dma = self._sync_menu.disconnect_mounted_device_action
         assert dma is not None and self.eject_action is not None
         if connected:
             dma.setEnabled(True)
-            self._sync_menu.enable_device_actions(True, self.device_manager.device.card_prefix(), self.device_manager.device)
+            dev = self.device_manager.device_or_fail()
+            self._sync_menu.enable_device_actions(True, dev.card_prefix(), dev)
             self.eject_action.setEnabled(True)
         else:
             dma.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
 
-    def device_detected(self: Main, connected, device_kind) -> None:
+    def device_detected(self: Main, connected: bool, device_kind: str | None) -> None:
         """
         Called when a device is connected to the computer.
 
@@ -1273,8 +1368,9 @@ class DeviceMixin:  # {{{
         if connected:
             self.device_connected = device_kind
             self.device_manager.get_device_information(FunctionDispatcher(self.info_read))
-            self.set_default_thumbnail(self.device_manager.device.THUMBNAIL_HEIGHT)
-            self.status_bar.show_message(_('Device: ') + self.device_manager.device.get_gui_name() + _(' detected.'), 3000)
+            dev = self.device_manager.device_or_fail()
+            self.set_default_thumbnail(dev.THUMBNAIL_HEIGHT)
+            self.status_bar.show_message(_('Device: ') + dev.get_gui_name() + _(' detected.'), 3000)
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice(reset_only=True)
         else:
@@ -1299,21 +1395,22 @@ class DeviceMixin:  # {{{
             QTimer.singleShot(0, self.refresh_ondevice)
         device_signals.device_connection_changed.emit(connected)
 
-    def info_read(self: Main, job):
+    def info_read(self: Main, job: DeviceJob) -> None:
         """
         Called once device information has been read.
         """
         if job.failed:
-            return self.device_job_exception(job)
-        info, cp, fs = job.result
-        self.location_manager.update_devices(cp, fs, self.device_manager.device.icon)
+            self.device_job_exception(job)
+            return
+        info, cp, fs = cast('tuple[DeviceInfoTuple, tuple[str | None, str | None], tuple[int, int, int]]', job.result)
+        self.location_manager.update_devices(cp, fs, self.device_manager.device_or_fail().icon)
         self.bars_manager.update_bars(reveal_bar=True)
         self.status_bar.device_connected(info[0])
         db = self.current_db
         self.device_manager.set_library_information(None, os.path.basename(db.library_path), db.library_id, db.field_metadata, add_as_step_to_job=job)
         self.device_manager.books(FunctionDispatcher(self.metadata_downloaded), add_as_step_to_job=job)
 
-    def metadata_downloaded(self: Main, job) -> None:
+    def metadata_downloaded(self: Main, job: DeviceJob) -> None:
         """
         Called once metadata has been read for all books on the device.
         """
@@ -1324,16 +1421,18 @@ class DeviceMixin:  # {{{
 
         # set_books_in_library might schedule a sync_booklists job
         debug_print('DeviceJob: metadata_downloaded: Starting set_books_in_library')
-        self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
+        booklists = cast('tuple[BookList, BookList, BookList]', job.result)
+        self.set_books_in_library(booklists, reset=True, add_as_step_to_job=job)
 
         debug_print('DeviceJob: metadata_downloaded: updating views')
-        mainlist, cardalist, cardblist = job.result
+        mainlist, cardalist, cardblist = booklists
         self.memory_view.set_database(mainlist)
-        self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA, self.device_manager.device.BACKLOADING_ERROR_MESSAGE is None)
+        dev = self.device_manager.device_or_fail()
+        self.memory_view.set_editable(dev.CAN_SET_METADATA, dev.BACKLOADING_ERROR_MESSAGE is None)
         self.card_a_view.set_database(cardalist)
-        self.card_a_view.set_editable(self.device_manager.device.CAN_SET_METADATA, self.device_manager.device.BACKLOADING_ERROR_MESSAGE is None)
+        self.card_a_view.set_editable(dev.CAN_SET_METADATA, dev.BACKLOADING_ERROR_MESSAGE is None)
         self.card_b_view.set_database(cardblist)
-        self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA, self.device_manager.device.BACKLOADING_ERROR_MESSAGE is None)
+        self.card_b_view.set_editable(dev.CAN_SET_METADATA, dev.BACKLOADING_ERROR_MESSAGE is None)
         debug_print('DeviceJob: metadata_downloaded: syncing')
         self.sync_news()
         self.sync_catalogs()
@@ -1344,7 +1443,7 @@ class DeviceMixin:  # {{{
         debug_print('DeviceJob: metadata_downloaded: sending metadata_available signal')
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self: Main, reset_only=False) -> None:
+    def refresh_ondevice(self: Main, reset_only: bool = False) -> None:
         """
         Force the library view to refresh, taking into consideration new
         device books information
@@ -1357,14 +1456,15 @@ class DeviceMixin:  # {{{
 
     # }}}
 
-    def remove_paths(self: Main, paths):
+    def remove_paths(self: Main, paths: Sequence[str]) -> DeviceJob:
         return self.device_manager.delete_books(FunctionDispatcher(self.books_deleted), paths)
 
-    def books_deleted(self: Main, job) -> None:
+    def books_deleted(self: Main, job: DeviceJob) -> None:
         """
         Called once deletion is done on the device
         """
         cv, row = self.current_view(), -1
+        assert cv is not None
         if cv is not self.library_view:
             row = cv.currentIndex().row()
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
@@ -1391,13 +1491,15 @@ class DeviceMixin:  # {{{
         if row > -1:
             cv.set_current_row(row)
         try:
-            if not self.current_view().currentIndex().isValid():
-                self.current_view().set_current_row()
-            self.current_view().refresh_book_details()
+            v = self.current_view()
+            assert v is not None
+            if not v.currentIndex().isValid():
+                v.set_current_row()
+            v.refresh_book_details()
         except Exception:
             traceback.print_exc()
 
-    def dispatch_sync_event(self: Main, dest, delete, specific) -> None:
+    def dispatch_sync_event(self: Main, dest: str, delete: bool, specific: bool) -> None:
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             error_dialog(self, _('No books'), _('No books') + ' ' + _('selected to send')).exec()
@@ -1420,7 +1522,7 @@ class DeviceMixin:  # {{{
                             format_count[f] += 1
                         else:
                             format_count[f] = 1
-            for f in self.device_manager.device.settings().format_map:
+            for f in self.device_manager.device_or_fail().settings().format_map:
                 if f in format_count.keys():
                     formats.append((
                         f,
@@ -1466,27 +1568,29 @@ class DeviceMixin:  # {{{
             if data:
                 self.send_multiple_by_mail(data, delete)
 
-    def cover_to_thumbnail(self: Main, data):
-        if self.device_manager.device and hasattr(self.device_manager.device, 'THUMBNAIL_WIDTH'):
+    def cover_to_thumbnail(self: Main, data: bytes) -> tuple[int, int, bytes] | None:
+        dev = self.device_manager.device
+        if dev and hasattr(dev, 'THUMBNAIL_WIDTH'):
             try:
                 return scale_image(
                     data,
-                    self.device_manager.device.THUMBNAIL_WIDTH,
-                    self.device_manager.device.THUMBNAIL_HEIGHT,
+                    cast('int', dev.THUMBNAIL_WIDTH),
+                    dev.THUMBNAIL_HEIGHT,
                     preserve_aspect_ratio=False,
                 )
             except Exception:
                 pass
             return
-        ht = self.device_manager.device.THUMBNAIL_HEIGHT if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
+        dev = dev or DevicePlugin
+        ht = dev.THUMBNAIL_HEIGHT
         try:
-            return scale_image(data, ht, ht, compression_quality=self.device_manager.device.THUMBNAIL_COMPRESSION_QUALITY)
+            return scale_image(data, ht, ht, compression_quality=dev.THUMBNAIL_COMPRESSION_QUALITY)
         except Exception:
             pass
 
-    def sync_catalogs(self: Main, send_ids=None, do_auto_convert=True) -> None:
+    def sync_catalogs(self: Main, send_ids: Iterable[int] | None = None, do_auto_convert: bool = True) -> None:
         if self.device_connected:
-            settings = self.device_manager.device.settings()
+            settings = self.device_manager.device_or_fail().settings()
             ids = list(dynamic.get('catalogs_to_be_synced', set())) if send_ids is None else send_ids
             ids = [id for id in ids if self.current_db.has_id(id)]
             with BusyCursor():
@@ -1530,11 +1634,11 @@ class DeviceMixin:  # {{{
                     self.location_manager.free[2]: 'cardb',
                 }
                 on_card = space.get(max(space.keys()), None)
-                self.upload_books(files, names, metadata, on_card=on_card, memory=[files, remove])
+                self.upload_books(files, names, metadata, on_card=on_card, memory=(files, remove))
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
 
     @property
-    def news_to_be_synced(self: Main):
+    def news_to_be_synced(self: Main) -> set[int]:
         "Set of ids to be sent to device"
         ans = []
         try:
@@ -1546,7 +1650,7 @@ class DeviceMixin:  # {{{
         return set(ans)
 
     @news_to_be_synced.setter
-    def news_to_be_synced(self: Main, ids) -> None:
+    def news_to_be_synced(self: Main, ids: Iterable[int]) -> None:
         try:
             self.current_db.new_api.set_pref('news_to_be_synced', list(ids))
         except Exception:
@@ -1554,10 +1658,10 @@ class DeviceMixin:  # {{{
 
             traceback.print_exc()
 
-    def sync_news(self: Main, send_ids=None, do_auto_convert=True) -> None:
+    def sync_news(self: Main, send_ids: Iterable[int] | None = None, do_auto_convert: bool = True) -> None:
         if self.device_connected:
             del_on_upload = config['delete_news_from_library_on_upload']
-            settings = self.device_manager.device.settings()
+            settings = self.device_manager.device_or_fail().settings()
             ids = list(self.news_to_be_synced) if send_ids is None else send_ids
             ids = [book_id for book_id in ids if self.current_db.has_id(book_id)]
             with BusyCursor():
@@ -1618,15 +1722,22 @@ class DeviceMixin:  # {{{
                     # as some devices like the Nook Color cannot handle
                     # periodicals on SD cards properly
                     on_card = loc if loc in ('carda', 'cardb') else None
-                self.upload_books(files, names, metadata, on_card=on_card, memory=[files, remove])
+                self.upload_books(files, names, metadata, on_card=on_card, memory=(files, remove))
                 self.status_bar.show_message(_('Sending news to device.'), 5000)
 
-    def sync_to_device(self: Main, on_card, delete_from_library, specific_format=None, send_ids=None, do_auto_convert=True) -> None:
+    def sync_to_device(
+        self: Main,
+        on_card: str | None,
+        delete_from_library: bool,
+        specific_format: str | None = None,
+        send_ids: Sequence[int] | None = None,
+        do_auto_convert: bool = True,
+    ) -> None:
         ids = [self.library_view._model.id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0 or not self.device_manager.is_device_connected:
             return
 
-        settings = self.device_manager.device.settings()
+        settings = self.device_manager.device_or_fail().settings()
 
         with BusyCursor():
             _files, _auto_ids = self.library_view._model.get_preferred_formats_from_ids(
@@ -1724,7 +1835,7 @@ class DeviceMixin:  # {{{
         plugboards = self.current_db.new_api.pref('plugboards', {})
         self.device_manager.sync_booklists(Dispatcher(lambda x: x), self.booklists(), plugboards)
 
-    def upload_booklists(self: Main, add_as_step_to_job=None) -> None:
+    def upload_booklists(self: Main, add_as_step_to_job: DeviceJob | None = None) -> None:
         """
         Upload metadata to device.
         """
@@ -1736,18 +1847,19 @@ class DeviceMixin:  # {{{
             add_as_step_to_job=add_as_step_to_job,
         )
 
-    def metadata_synced(self: Main, job) -> None:
+    def metadata_synced(self: Main, job: DeviceJob) -> None:
         """
         Called once metadata has been uploaded.
         """
         if job.failed:
             self.device_job_exception(job)
             return
-        cp, fs = job.result
-        self.location_manager.update_devices(cp, fs, self.device_manager.device.icon)
+        cp, fs = cast('tuple[tuple[str | None, str | None], tuple[int, int, int]]', job.result)
+        self.location_manager.update_devices(cp, fs, self.device_manager.device_or_fail().icon)
         # reset the views so that up-to-date info is shown. These need to be
         # here because some drivers update collections in sync_booklists
         cv, row = self.current_view(), -1
+        assert cv is not None
         if cv is not self.library_view:
             row = cv.currentIndex().row()
         self.memory_view.reset()
@@ -1756,14 +1868,21 @@ class DeviceMixin:  # {{{
         if row > -1:
             cv.set_current_row(row)
 
-    def _upload_collections(self: Main, job) -> None:
+    def _upload_collections(self: Main, job: DeviceJob) -> None:
         if job.failed:
             self.device_job_exception(job)
 
-    def upload_collections(self: Main, booklist, view=None, oncard=None):
+    def upload_collections(self: Main, booklist: RebuildableBookList, view: object = None, oncard: str | None = None) -> DeviceJob:
         return self.device_manager.upload_collections(self._upload_collections, booklist, oncard)
 
-    def upload_books(self: Main, files, names, metadata, on_card=None, memory=None) -> None:
+    def upload_books(
+        self: Main,
+        files: Sequence[str],
+        names: Sequence[str],
+        metadata: Sequence[Metadata],
+        on_card: str | None = None,
+        memory: tuple[Sequence[str | None], Sequence[int]] | None = None,
+    ) -> None:
         """
         Upload books to device.
         :param files: List of either paths to files or file like objects
@@ -1781,7 +1900,7 @@ class DeviceMixin:  # {{{
         )
         self.upload_memory[job] = (metadata, on_card, memory, files)
 
-    def books_uploaded(self: Main, job) -> None:
+    def books_uploaded(self: Main, job: DeviceJob) -> None:
         """
         Called once books have been uploaded.
         """
@@ -1804,7 +1923,7 @@ class DeviceMixin:  # {{{
             return
 
         try:
-            self.device_manager.add_books_to_metadata(job.result, metadata, self.booklists())
+            self.device_manager.add_books_to_metadata(cast('Sequence[tuple[object, ...]]', job.result), metadata, self.booklists())
         except Exception:
             traceback.print_exc()
             raise
@@ -1841,12 +1960,12 @@ class DeviceMixin:  # {{{
         self.set_books_in_library(self.booklists(), reset=True, force_send=True)
         self.refresh_ondevice()
 
-    def set_current_library_information(self: Main, library_name, library_uuid, field_metadata) -> None:
+    def set_current_library_information(self: Main, library_name: str, library_uuid: str, field_metadata: FieldMetadata) -> None:
         self.device_manager.set_current_library_uuid(library_uuid)
         if self.device_manager.is_device_connected:
             self.device_manager.set_library_information(None, library_name, library_uuid, field_metadata)
 
-    def book_on_device(self: Main, id, reset=False):
+    def book_on_device(self: Main, id: int | None, reset: bool = False) -> list[object] | None:
         """
         Return an indication of whether the given book represented by its db id
         is on the currently connected device. It returns a 5 element list. The
@@ -1856,7 +1975,8 @@ class DeviceMixin:  # {{{
         the memory locations. The fifth is a set of paths to the
         matching books on the device.
         """
-        loc = [None, None, None, 0, set()]
+        paths: set[str] = set()
+        loc: list[object] = [None, None, None, 0, paths]
 
         if reset:
             self.book_db_id_cache = None
@@ -1891,10 +2011,10 @@ class DeviceMixin:  # {{{
             if id in self.book_db_id_cache[i]:
                 loc[i] = True
                 loc[3] = self.book_db_id_counts.get(id, 0)
-                loc[4] |= self.book_db_uuid_path_map[id]  # type: ignore
+                paths |= self.book_db_uuid_path_map[id]
         return loc
 
-    def update_thumbnail(self: Main, book) -> None:
+    def update_thumbnail(self: Main, book: Metadata) -> None:
         if book.cover and os.access(book.cover, os.R_OK):
             with open(book.cover, 'rb') as f:
                 book.thumbnail = self.cover_to_thumbnail(f.read())
@@ -1902,7 +2022,14 @@ class DeviceMixin:  # {{{
             cprefs = self.default_thumbnail_prefs
             book.thumbnail = (cprefs['cover_width'], cprefs['cover_height'], generate_cover(book, prefs=cprefs))
 
-    def set_books_in_library(self: Main, booklists, reset=False, add_as_step_to_job=None, force_send=False, do_device_sync=True):
+    def set_books_in_library(
+        self: Main,
+        booklists: Sequence[BookList],
+        reset: bool = False,
+        add_as_step_to_job: DeviceJob | None = None,
+        force_send: bool = False,
+        do_device_sync: bool = True,
+    ) -> bool:
         """
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
@@ -1923,7 +2050,7 @@ class DeviceMixin:  # {{{
         # Define the cleaning function
         string_pat = re.compile(r'(?u)\W|[_]')
 
-        def clean_string(x):
+        def clean_string(x: str | None) -> str:
             try:
                 # Convert to lowercase if x is not None or empty
                 x = x.lower() if x else ''
@@ -1937,15 +2064,16 @@ class DeviceMixin:  # {{{
         get_covers = False
         desired_thumbnail_height = 0
         if update_metadata and self.device_manager.is_device_connected:
-            if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+            dev = self.device_manager.device_or_fail()
+            if dev.WANTS_UPDATED_THUMBNAILS:
                 get_covers = True
-                desired_thumbnail_height = self.device_manager.device.THUMBNAIL_HEIGHT
+                desired_thumbnail_height = dev.THUMBNAIL_HEIGHT
 
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
-            db_book_title_cache = {}
-            db_book_uuid_cache = {}
+            db_book_title_cache: dict[str, TitleCacheEntry] = {}
+            db_book_uuid_cache: dict[str | None, int] = {}
 
             for id_ in db.data.iterallids():
                 title = clean_string(db.new_api.field_for('title', id_))
@@ -1972,7 +2100,7 @@ class DeviceMixin:  # {{{
         books_with_future_dates = []
         first_call_to_synchronize_with_db = [True]
 
-        def update_book(id_, book) -> None:
+        def update_book(id_: int, book: Metadata) -> None:
             if not update_metadata:
                 return
             mi = db.get_metadata(id_, index_is_id=True, get_cover=get_covers)
@@ -1980,13 +2108,13 @@ class DeviceMixin:  # {{{
             if get_covers and desired_thumbnail_height != 0:
                 self.update_thumbnail(book)
 
-        def updateq(id_, book):
+        def updateq(id_: int, book: Metadata) -> bool:
             try:
                 if not update_metadata:
                     return False
 
-                if do_device_sync and self.device_manager.device is not None:
-                    set_of_ids, (fmt_name, date_bad) = self.device_manager.device.synchronize_with_db(db, id_, book, first_call_to_synchronize_with_db[0])
+                if do_device_sync and (dev := self.device_manager.device) is not None:
+                    set_of_ids, (fmt_name, date_bad) = dev.synchronize_with_db(db, id_, book, first_call_to_synchronize_with_db[0])
                     first_call_to_synchronize_with_db[0] = False
                     if date_bad:
                         books_with_future_dates.append(book.title)
@@ -1997,12 +2125,12 @@ class DeviceMixin:  # {{{
                         return True
 
                 return db.new_api.field_for('last_modified', id_) != getattr(book, 'last_modified', None) or (
-                    isinstance(getattr(book, 'thumbnail', None), (list, tuple)) and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
+                    isinstance(thumbnail := getattr(book, 'thumbnail', None), (list, tuple)) and max(thumbnail[0], thumbnail[1]) != desired_thumbnail_height
                 )
             except Exception:
                 return True
 
-        def get_by_author(book, d, author) -> bool:
+        def get_by_author(book: Metadata, d: TitleCacheEntry, author: str) -> bool:
             book_id = d['authors'].get(author)
             if book_id is not None:
                 book.in_library = 'AUTHOR'
@@ -2070,9 +2198,9 @@ class DeviceMixin:  # {{{
                         # At this point we know that the title matches. The book
                         # will match if any of the db_id, author, or author_sort
                         # also match.
-                        if getattr(book, 'application_id', None) in d['db_ids']:
-                            id_ = getattr(book, 'application_id', None)
-                            update_book(id_, book)
+                        app_id = getattr(book, 'application_id', None)
+                        if app_id is not None and app_id in d['db_ids']:
+                            update_book(app_id, book)
                             book.in_library = 'APP_ID'
                             # app_id already matches a db_id. No need to set it.
                             continue

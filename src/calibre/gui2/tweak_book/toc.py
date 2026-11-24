@@ -241,6 +241,7 @@ class TOCViewer(QWidget):
     def iter_items(self, parent=None):
         if parent is None:
             parent = self.view.invisibleRootItem()
+            assert parent is not None
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child

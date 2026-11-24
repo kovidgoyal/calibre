@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QComboBox
 
 from calibre.gui2 import gui_prefs
@@ -8,9 +10,16 @@ from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
+    from calibre.utils.config import JSONConfig
+
 
 class LanguagesEdit(EditWithComplete):
-    def __init__(self, parent=None, db=None, prefs=None) -> None:
+    def __init__(self, parent: QWidget | None = None, db: object = None, prefs: JSONConfig | None = None) -> None:
         self.prefs = prefs or gui_prefs()
         self.refresh_recently_used()
         EditWithComplete.__init__(self, parent, sort_func=self.sort_language_items_key)
@@ -28,7 +37,7 @@ class LanguagesEdit(EditWithComplete):
         assert isinstance(line_edit, LineEdit)
         line_edit.set_use_startswith_search(False)
 
-    def init_langs(self, db) -> None:
+    def init_langs(self, db: object) -> None:
         self.update_items_cache(self._lang_map.values())
 
     def refresh_recently_used(self) -> None:
@@ -45,12 +54,12 @@ class LanguagesEdit(EditWithComplete):
                 recently_used.insert(0, x)
         self.prefs.set('recently_used_languages', recently_used[:5])
 
-    def sort_language_items_key(self, val):
+    def sort_language_items_key(self, val: str) -> tuple[int, bytes | tuple[int, int]]:
         idx = self.recently_used.get(val, 100000)
         return (idx, sort_key(val))
 
     @property
-    def vals(self):
+    def vals(self) -> list[str]:
         line_edit = self.lineEdit()
         assert line_edit is not None
         raw = str(line_edit.text())
@@ -60,9 +69,9 @@ class LanguagesEdit(EditWithComplete):
         return [self.comma_rmap.get(x, x) for x in parts]
 
     @property
-    def lang_codes(self):
+    def lang_codes(self) -> list[str]:
         vals = self.vals
-        ans = []
+        ans: list[str] = []
         for name in vals:
             if name:
                 code = self._rmap.get(lower(name), None)
@@ -71,16 +80,16 @@ class LanguagesEdit(EditWithComplete):
         return ans
 
     @lang_codes.setter
-    def lang_codes(self, lang_codes) -> None:
+    def lang_codes(self, lang_codes: Iterable[str | None]) -> None:
         self.set_lang_codes(lang_codes, allow_undo=False)
 
-    def set_lang_codes(self, lang_codes, allow_undo=True) -> None:
-        ans = []
+    def set_lang_codes(self, lang_codes: Iterable[str | None], allow_undo: bool = True) -> None:
+        names: list[str] = []
         for lc in lang_codes:
             name = self._lang_map.get(lc, None)
             if name is not None:
-                ans.append(name)
-        ans = ', '.join(ans)
+                names.append(name)
+        ans = ', '.join(names)
 
         if allow_undo:
             orig, self.disable_popup = self.disable_popup, True
@@ -93,9 +102,9 @@ class LanguagesEdit(EditWithComplete):
         else:
             self.setEditText(ans)
 
-    def validate(self):
+    def validate(self) -> list[str]:
         vals = self.vals
-        bad = []
+        bad: list[str] = []
         for name in vals:
             if name:
                 code = self._rmap.get(lower(name), None)

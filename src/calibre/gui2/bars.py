@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING, Literal, cast
 
 from qt.core import (
     QAction,
@@ -32,9 +33,19 @@ from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
+
+    from qt.core import QContextMenuEvent, QDragEnterEvent, QDragMoveEvent, QDropEvent, QMimeData, QPaintEvent, QResizeEvent
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.actions import InterfaceAction
+    from calibre.gui2.layout import LocationManager
+    from calibre.gui2.ui import Main
+
 
 class RevealBar(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.setVisible(False)
         self._animated_size = 1.0
@@ -45,26 +56,26 @@ class RevealBar(QWidget):  # {{{
         self.animation.finished.connect(self.animation_done)
 
     @pyqtProperty(float)
-    def animated_size(self):
+    def animated_size(self) -> float:
         return self._animated_size
 
     @animated_size.setter
-    def animated_size(self, val) -> None:
+    def animated_size(self, val: float) -> None:
         self._animated_size = val
 
-    def animation_value_changed(self, *args) -> None:
+    def animation_value_changed(self, *args: object) -> None:
         self.update()
 
     def animation_done(self) -> None:
         self.setVisible(False)
         self.update()
 
-    def start(self, bar) -> None:
+    def start(self, bar: QWidget) -> None:
         self.setGeometry(bar.geometry())
         self.setVisible(True)
         self.animation.start()
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self._animated_size < 1.0:
             rect = self.rect()
             painter = QPainter(self)
@@ -78,10 +89,10 @@ class RevealBar(QWidget):  # {{{
 # }}}
 
 MAX_TEXT_LENGTH = 10
-connected_pairs = set()
+connected_pairs: set[tuple[int, int]] = set()
 
 
-def wrap_button_text(text, max_len=MAX_TEXT_LENGTH):
+def wrap_button_text(text: str, max_len: int = MAX_TEXT_LENGTH) -> str:
     parts = text.split()
     ans = ''
     broken = False
@@ -113,17 +124,18 @@ def wrap_button_text(text, max_len=MAX_TEXT_LENGTH):
     return ans
 
 
-def rewrap_button(w) -> None:
-    if not sip.isdeleted(w) and w.defaultAction() is not None:
-        w.setText(wrap_button_text(w.defaultAction().text()))
+def rewrap_button(w: QToolButton) -> None:
+    if not sip.isdeleted(w) and (ac := w.defaultAction()) is not None:
+        w.setText(wrap_button_text(ac.text()))
 
 
-def wrap_all_button_texts(all_buttons) -> None:
+def wrap_all_button_texts(all_buttons: Sequence[QToolButton]) -> None:
     if not all_buttons:
         return
     for w in all_buttons:
         if hasattr(w, 'defaultAction'):
             ac = w.defaultAction()
+            assert ac is not None
             text = ac.text()
             key = id(w), id(ac)
             if key not in connected_pairs:
@@ -134,7 +146,7 @@ def wrap_all_button_texts(all_buttons) -> None:
         w.setText(wrap_button_text(text))
 
 
-def create_donate_button(action):
+def create_donate_button(action: QAction) -> ThrobbingButton:
     ans = ThrobbingButton()
     ans.setAutoRaise(True)
     ans.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -146,7 +158,7 @@ def create_donate_button(action):
 
 
 class ToolBar(QToolBar):  # {{{
-    def __init__(self, donate_action, location_manager, parent) -> None:
+    def __init__(self, donate_action: QAction, location_manager: LocationManager, parent: Main) -> None:
         QToolBar.__init__(self, parent)
         self.setMovable(False)
         self.setFloatable(False)
@@ -156,14 +168,15 @@ class ToolBar(QToolBar):  # {{{
         self.preferred_width = self.sizeHint().width()
         self.gui = parent
         self.donate_action = donate_action
-        self.donate_button = None
-        self.added_actions = []
+        self.donate_button: ThrobbingButton | None = None
+        self.added_actions: list[QAction] = []
+        self.all_widgets: list[QToolButton] = []
 
         self.location_manager = location_manager
         self.setAcceptDrops(True)
         self.showing_donate = False
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         QToolBar.resizeEvent(self, a0)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
@@ -172,7 +185,7 @@ class ToolBar(QToolBar):  # {{{
             assert donate_button is not None
             donate_button.setToolButtonStyle(style)
 
-    def get_text_style(self):
+    def get_text_style(self) -> Qt.ToolButtonStyle:
         style = Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         s = gprefs['toolbar_icon_size']
         if s != 'off':
@@ -183,7 +196,8 @@ class ToolBar(QToolBar):  # {{{
                 style = Qt.ToolButtonStyle.ToolButtonIconOnly
         return style
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         ac = self.actionAt(a0.pos())
         if ac is None:
             return
@@ -198,7 +212,7 @@ class ToolBar(QToolBar):  # {{{
             if ac in self.location_manager.all_actions:
                 ac.setVisible(ac in self.location_manager.available_actions)
 
-    def init_bar(self, actions) -> None:
+    def init_bar(self, actions: Iterable[str | None]) -> None:
         self.showing_donate = False
         for ac in self.added_actions:
             m = ac.menu()
@@ -235,14 +249,16 @@ class ToolBar(QToolBar):  # {{{
         self.preferred_width = self.sizeHint().width()
         self.all_widgets = []
 
-    def setup_tool_button(self, bar, ac, menu_mode=None):
+    def setup_tool_button(self, bar: QToolBar, ac: QAction, menu_mode: QToolButton.ToolButtonPopupMode | None = None) -> QWidget | None:
         ch = bar.widgetForAction(ac)
         # if ch is None:
         #     ch = self.child_bar.widgetForAction(ac)
+        assert ch is not None
         ch.setCursor(Qt.CursorShape.PointingHandCursor)
         if hasattr(ch, 'setText') and hasattr(ch, 'text'):
-            self.all_widgets.append(ch)
+            self.all_widgets.append(cast('QToolButton', ch))
         if hasattr(ch, 'setAutoRaise'):  # is a QToolButton or similar
+            ch = cast('QToolButton', ch)
             ch.setAutoRaise(True)
             m = ac.menu()
             if m is not None:
@@ -251,7 +267,7 @@ class ToolBar(QToolBar):  # {{{
             return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins
-    def check_iactions_for_drag(self, event, md, func) -> bool:
+    def check_iactions_for_drag(self, event: QDropEvent, md: QMimeData, func: str) -> bool:
         if self.added_actions:
             pos = event.position().toPoint()
             for iac in self.gui.iactions.values():
@@ -265,8 +281,10 @@ class ToolBar(QToolBar):  # {{{
                         return True
         return False
 
-    def dragEnterEvent(self, a0) -> None:
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        assert a0 is not None
         md = a0.mimeData()
+        assert md is not None
         if md.hasFormat('application/calibre+from_library') or md.hasFormat('application/calibre+from_device'):
             a0.setDropAction(Qt.DropAction.CopyAction)
             a0.accept()
@@ -277,16 +295,18 @@ class ToolBar(QToolBar):  # {{{
         else:
             a0.ignore()
 
-    def dragMoveEvent(self, a0) -> None:
+    def dragMoveEvent(self, a0: QDragMoveEvent | None) -> None:
+        assert a0 is not None
         allowed = False
         md = a0.mimeData()
+        assert md is not None
         # Drop is only allowed in the location manager widget's different from the selected one
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
             if w is not None:
                 if (
                     (md.hasFormat('application/calibre+from_library') or md.hasFormat('application/calibre+from_device'))
-                    and w.geometry().contains(a0.pos())
+                    and w.geometry().contains(a0.position().toPoint())
                     and isinstance(w, QToolButton)
                     and not w.isChecked()
                 ):
@@ -301,15 +321,17 @@ class ToolBar(QToolBar):  # {{{
         else:
             a0.ignore()
 
-    def dropEvent(self, a0) -> None:
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        assert a0 is not None
         md = a0.mimeData()
+        assert md is not None
         mime = 'application/calibre+from_library'
         if md.hasFormat(mime):
             ids = list(map(int, md.data(mime).data().split()))
             tgt = None
             for ac in self.location_manager.available_actions:
                 w = self.widgetForAction(ac)
-                if w is not None and w.geometry().contains(a0.pos()):
+                if w is not None and w.geometry().contains(a0.position().toPoint()):
                     tgt = ac.property('calibre_name') or ''
             if tgt is not None:
                 if tgt == 'main':
@@ -337,7 +359,7 @@ class ToolBar(QToolBar):  # {{{
 
 
 class MenuAction(QAction):  # {{{
-    def __init__(self, clone, parent) -> None:
+    def __init__(self, clone: QAction, parent: QObject | None) -> None:
         QAction.__init__(self, clone.text(), parent)
         self.clone = clone
         clone.changed.connect(self.clone_changed)
@@ -359,7 +381,7 @@ if ismacos:
         text_changed = pyqtSignal()
         visibility_changed = pyqtSignal()
 
-        def __init__(self, clone, parent, is_top_level=False, clone_shortcuts=True) -> None:
+        def __init__(self, clone: QAction, parent: QObject | None, is_top_level: bool = False, clone_shortcuts: bool = True) -> None:
             QAction.__init__(self, clone.text().replace('&&', '&'), parent)
             self.setMenuRole(QAction.MenuRole.NoRole)  # ensure this action is not moved around by Qt
             self.is_top_level = is_top_level
@@ -373,7 +395,9 @@ if ismacos:
             m = self.menu()
             assert m is not None
             m.clear()
-            for ac in QMenu.actions(self.clone.menu()):
+            cm = self.clone.menu()
+            assert cm is not None
+            for ac in QMenu.actions(cm):
                 if ac.isSeparator():
                     m.addSeparator()
                 else:
@@ -420,11 +444,11 @@ if ismacos:
             if before != after:
                 self.clone_menu()
 
-        def do_trigger(self, checked=False) -> None:
+        def do_trigger(self, checked: bool = False) -> None:
             if not sip.isdeleted(self.clone):
                 self.clone.trigger()
 
-    def populate_menu(m, items, iactions) -> None:
+    def populate_menu(m: QMenu, items: Iterable[str | None], iactions: Mapping[str, InterfaceAction]) -> None:
         for what in items:
             if what is None:
                 m.addSeparator()
@@ -437,11 +461,12 @@ if ismacos:
                 m.addAction(CloneAction(ac, m))
 
     class MenuBar(QObject):
-        is_native_menubar = True
+        is_native_menubar: Literal[True] = True
 
         @property
-        def native_menubar(self):
+        def native_menubar(self) -> QMenuBar:
             mb = self.gui.native_menubar
+            assert mb is not None
             if mb.parent() is None:
                 # Without this the menubar does not update correctly with Qt >=
                 # 5.6. See the last couple of lines in updateMenuBarImmediately
@@ -449,12 +474,12 @@ if ismacos:
                 mb.setParent(self.gui)
             return mb
 
-        def __init__(self, location_manager, parent) -> None:
+        def __init__(self, location_manager: LocationManager, parent: Main) -> None:
             QObject.__init__(self, parent)
             self.gui = parent
             self.location_manager = location_manager
-            self.added_actions = []
-            self.last_actions = []
+            self.added_actions: list[QAction] = []
+            self.last_actions: Sequence[str | None] = []
 
             self.donate_action = QAction(_('Donate'), self)
             self.donate_menu = QMenu()
@@ -463,9 +488,9 @@ if ismacos:
             self.refresh_timer = t = QTimer(self)
             t.setInterval(200), t.setSingleShot(True), t.timeout.connect(self.refresh_bar)
 
-        def adapt_for_dialog(self, enter) -> None:
+        def adapt_for_dialog(self, enter: bool) -> None:
 
-            def ac(text, key, role=QAction.MenuRole.TextHeuristicRole):
+            def ac(text: str, key: QKeySequence.StandardKey, role: QAction.MenuRole = QAction.MenuRole.TextHeuristicRole) -> QAction:
                 ans = QAction(text, self)
                 ans.setMenuRole(role)
                 ans.setShortcut(QKeySequence(key))
@@ -486,7 +511,7 @@ if ismacos:
             else:
                 self.refresh_bar()
 
-        def clear_bar(self, mb) -> None:
+        def clear_bar(self, mb: QMenuBar) -> None:
             for ac in self.added_actions:
                 m = ac.menu()
                 if m is not None:
@@ -499,7 +524,7 @@ if ismacos:
                     ac.deleteLater()
             self.added_actions = []
 
-        def init_bar(self, actions) -> None:
+        def init_bar(self, actions: Sequence[str | None]) -> None:
             mb = self.native_menubar
             self.last_actions = actions
             self.clear_bar(mb)
@@ -516,7 +541,7 @@ if ismacos:
                     action = self.gui.iactions[what]
                     self.build_menu(action.qaction)
 
-        def build_menu(self, ac):
+        def build_menu(self, ac: QAction) -> CloneAction:
             ans = CloneAction(ac, self.native_menubar, is_top_level=True)
             if ans.menu() is None:
                 m = QMenu()
@@ -532,7 +557,7 @@ if ismacos:
             self.added_actions.append(ans)
             return ans
 
-        def setVisible(self, yes) -> None:
+        def setVisible(self, yes: bool) -> None:
             pass  # no-op on OS X since menu bar is always visible
 
         def update_lm_actions(self) -> None:
@@ -543,7 +568,7 @@ if ismacos:
 
 else:
 
-    def populate_menu(m, items, iactions) -> None:
+    def populate_menu(m: QMenu, items: Iterable[str | None], iactions: Mapping[str, InterfaceAction]) -> None:
         for what in items:
             if what is None:
                 m.addSeparator()
@@ -556,9 +581,9 @@ else:
                 m.addAction(ac)
 
     class MenuBar(QObject):
-        is_native_menubar = False
+        is_native_menubar: Literal[False] = False
 
-        def __init__(self, location_manager, parent) -> None:
+        def __init__(self, location_manager: LocationManager, parent: Main) -> None:
             QObject.__init__(self, parent)
             self.menu_bar = QMenuBar(parent)
             setattr(self.menu_bar, 'is_native_menubar', False)
@@ -566,23 +591,23 @@ else:
             self.gui = parent
 
             self.location_manager = location_manager
-            self.added_actions = []
+            self.added_actions: list[QAction] = []
 
             self.donate_action = QAction(_('Donate'), self)
             self.donate_menu = QMenu()
             self.donate_menu.addAction(self.gui.donate_action)
             self.donate_action.setMenu(self.donate_menu)
 
-        def addAction(self, *args) -> None:
+        def addAction(self, *args: *tuple[QAction]) -> None:
             self.menu_bar.addAction(*args)
 
-        def setVisible(self, visible) -> None:
+        def setVisible(self, visible: bool) -> None:
             self.menu_bar.setVisible(visible)
 
         def clear(self) -> None:
             self.menu_bar.clear()
 
-        def init_bar(self, actions) -> None:
+        def init_bar(self, actions: Iterable[str | None]) -> None:
             for ac in self.added_actions:
                 m = ac.menu()
                 if m is not None:
@@ -608,7 +633,7 @@ else:
                     self.addAction(ac)
                     self.added_actions.append(ac)
 
-        def build_menu(self, action):
+        def build_menu(self, action: QAction) -> MenuAction:
             m = action.menu()
             ac = MenuAction(action, self)
             if m is None:
@@ -627,14 +652,14 @@ else:
 
 
 class AdaptMenuBarForDialog:
-    def __init__(self, menu_bar) -> None:
+    def __init__(self, menu_bar: MenuBar) -> None:
         self.menu_bar = menu_bar
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         if ismacos and self.menu_bar.is_native_menubar:
             self.menu_bar.adapt_for_dialog(True)
 
-    def __exit__(self, *a):
+    def __exit__(self, *a: object) -> None:
         if ismacos and self.menu_bar.is_native_menubar:
             self.menu_bar.adapt_for_dialog(False)
 
@@ -644,14 +669,14 @@ class SearchToolBar(QHBoxLayout):
     # actions. The tool buttons are fixed size and the text is either gone or to
     # the right.
 
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         QHBoxLayout.__init__(self)
         self.search_tool_bar_widgets: list[QFrame | RightClickButton] = []
         self.gui = gui
         self.has_sort_by_button = False
         self.donate_button = None
 
-    def init_bar(self, actions) -> None:
+    def init_bar(self, actions: Iterable[str | None]) -> None:
         for widget in self.search_tool_bar_widgets:
             self.removeWidget(widget)
 
@@ -659,7 +684,7 @@ class SearchToolBar(QHBoxLayout):
         self.setSpacing(0)
 
         self.search_tool_bar_widgets = []
-        self.search_tool_bar_actions = []
+        self.search_tool_bar_actions: list[QAction | None] = []
         self.has_sort_by_button = False
         for what in gprefs['action-layout-searchbar']:
             if what is None:
@@ -689,19 +714,20 @@ class SearchToolBar(QHBoxLayout):
                 self.search_tool_bar_actions.append(qact)
                 self.setup_tool_button(self, qact, act.popup_type)
 
-    def widgetForAction(self, action):
+    def widgetForAction(self, action: QAction | None) -> QFrame | RightClickButton | None:
         try:
             dex = self.search_tool_bar_actions.index(action)
             return self.search_tool_bar_widgets[dex]
         except Exception:
             return None
 
-    def setup_tool_button(self, bar, ac, menu_mode=None):
+    def setup_tool_button(self, bar: SearchToolBar, ac: QAction, menu_mode: QToolButton.ToolButtonPopupMode | None = None) -> QWidget | None:
         widget = self.widgetForAction(ac)
         if widget is None:
             return
         widget.setCursor(Qt.CursorShape.PointingHandCursor)
         if hasattr(widget, 'setAutoRaise'):  # is a QToolButton or similar
+            widget = cast('QToolButton', widget)
             widget.setAutoRaise(True)
             m = ac.menu()
             if m is not None:
@@ -709,19 +735,19 @@ class SearchToolBar(QHBoxLayout):
                     widget.setPopupMode(QToolButton.ToolButtonPopupMode(menu_mode))
             return widget
 
-    def setIconSize(self, *args) -> None:
+    def setIconSize(self, *args: object) -> None:
         pass
 
-    def setToolButtonStyle(self, *args) -> None:
+    def setToolButtonStyle(self, *args: object) -> None:
         pass
 
     def isVisible(self) -> bool:
         return True
 
-    def setVisible(self, toWhat) -> None:
+    def setVisible(self, toWhat: bool) -> None:
         pass
 
-    def update_lm_actions(self, *args) -> None:
+    def update_lm_actions(self, *args: object) -> None:
         pass
 
     @property
@@ -729,12 +755,12 @@ class SearchToolBar(QHBoxLayout):
         return False
 
     @property
-    def added_actions(self):
+    def added_actions(self) -> list[QAction | None]:
         return self.search_tool_bar_actions
 
 
 class BarsManager(QObject):
-    def __init__(self, donate_action, location_manager, parent) -> None:
+    def __init__(self, donate_action: QAction, location_manager: LocationManager, parent: Main) -> None:
         self.gui = parent
         QObject.__init__(self, parent)
         self.location_manager = location_manager
@@ -745,7 +771,7 @@ class BarsManager(QObject):
         self.reveal_bar = RevealBar(parent)
         self.search_tool_bar = SearchToolBar(parent)
 
-        self.menu_bar = MenuBar(self.location_manager, self.parent())
+        self.menu_bar = MenuBar(self.location_manager, self.gui)
         is_native_menubar = self.menu_bar.is_native_menubar
         self.adapt_menu_bar_for_dialog = AdaptMenuBarForDialog(self.menu_bar)
         self.menubar_fallback = native_menubar_defaults['action-layout-menubar'] if is_native_menubar else ()
@@ -755,21 +781,23 @@ class BarsManager(QObject):
         self.search_tool_bar_actions = []
         self.init_bars()
 
-    def database_changed(self, db) -> None:
+    def database_changed(self, db: LibraryDatabase | None) -> None:
         pass
 
     @property
-    def bars(self):
+    def bars(self) -> Iterator[ToolBar | SearchToolBar]:
         yield from self.main_bars + self.child_bars + (self.search_tool_bar,)
 
     @property
-    def showing_donate(self):
+    def showing_donate(self) -> bool:
         return any(b.isVisible() and b.showing_donate for b in self.bars)
 
     def start_animation(self) -> bool | None:
         for b in self.bars:
             if b.isVisible() and b.showing_donate:
-                b.donate_button.start_animation()
+                donate_button = b.donate_button
+                assert donate_button is not None
+                donate_button.start_animation()
                 return True
 
     def init_bars(self) -> None:
@@ -786,7 +814,7 @@ class BarsManager(QObject):
         # Build the layout containing the buttons to go into the search bar
         self.search_tool_bar.init_bar(gprefs['action-layout-searchbar'])
 
-    def update_bars(self, reveal_bar=False) -> None:
+    def update_bars(self, reveal_bar: bool = False) -> None:
         """
         This shows the correct main toolbar and rebuilds the menubar based on
         whether a device is connected or not. Note that the toolbars are
@@ -822,6 +850,6 @@ class BarsManager(QObject):
         for bar in self.bars:
             bar.setIconSize(QSize(sz, sz))
             bar.setToolButtonStyle(style)
-            if bar.donate_button:
+            if isinstance(bar, ToolBar) and bar.donate_button:
                 bar.donate_button.setIconSize(bar.iconSize())
                 bar.donate_button.setToolButtonStyle(style)

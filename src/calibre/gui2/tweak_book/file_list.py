@@ -7,6 +7,7 @@ import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
 from functools import lru_cache, partial
+from typing import cast
 
 from qt.core import (
     QAbstractItemView,
@@ -311,14 +312,14 @@ class OpenWithHandler:  # {{{
         else:
             m.addSeparator()
             m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, file_name, fmt))
-            m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, self))
+            m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, cast('QWidget', self)))
             menu.addMenu(m)
             menu.ow = m
 
     def choose_open_with(self, file_name, fmt) -> None:
         from calibre.gui2.open_with import choose_program
 
-        entry = choose_program(fmt, self)
+        entry = choose_program(fmt, cast('QWidget', self))
         if entry is not None:
             self.open_with(file_name, fmt, entry)
 

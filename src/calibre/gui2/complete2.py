@@ -3,6 +3,7 @@
 
 from contextlib import suppress
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -32,16 +33,35 @@ from calibre.spell.break_iterator import get_word_break_iterator_with_extra_char
 from calibre.utils.config import tweaks
 from calibre.utils.icu import primary_collator, primary_contains, primary_find, primary_sort_key, primary_startswith, sort_key, word_prefix_find
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from types import EllipsisType
+    from typing import TypedDict, Unpack
 
-def containsq(x, prefix):
+    from _typeshed import SupportsRichComparison
+    from qt.core import QInputMethodQueryEvent, QKeyEvent, QMouseEvent, pyqtBoundSignal
+
+    from calibre.gui2.removable_history import HistoryItemRemover
+    from calibre.spell.break_iterator import BreakIterator
+    from calibre_extensions.icu import Collator
+
+    type SortFunc = Callable[[str], SupportsRichComparison]
+
+    class EditWithCompleteKwargs(TypedDict, total=False):
+        parent: QWidget | None
+        sort_func: SortFunc
+        strip_completion_entries: bool
+
+
+def containsq(x: str, prefix: str) -> bool:
     return primary_contains(prefix, x)
 
 
-def hierarchy_startswith(x, prefix, sep='.'):
+def hierarchy_startswith(x: str, prefix: str, sep: str = '.') -> bool:
     return primary_startswith(x, prefix) or primary_contains(sep + prefix, x)
 
 
-def word_prefix_matcher(collator, it, x, prefix):
+def word_prefix_matcher(collator: Collator, it: BreakIterator, x: str, prefix: str) -> bool:
     return word_prefix_find(collator, it, x, prefix) >= 0
 
 
@@ -53,11 +73,12 @@ def get_completion_mode() -> str:
 
 
 class CompleteModel(QAbstractListModel):  # {{{
-    def __init__(self, parent=None, sort_func=sort_key, strip_completion_entries=True) -> None:
+    def __init__(self, parent: QObject | None = None, sort_func: SortFunc = sort_key, strip_completion_entries: bool = True) -> None:
         QAbstractListModel.__init__(self, parent)
         self.strip_completion_entries = strip_completion_entries
         self.sort_func = sort_func
-        self.all_items = self.current_items = ()
+        self.all_items: tuple[str, ...] = ()
+        self.current_items: tuple[str, ...] = ()
         self.current_prefix = ''
         completion_mode = get_completion_mode()
         self.use_startswith_search = completion_mode == 'prefix'
@@ -65,18 +86,18 @@ class CompleteModel(QAbstractListModel):  # {{{
         ewbc = str(tweaks['extra_word_break_chars'] or '')
         self.extra_word_break_chars = ''.join(set(ewbc))
 
-    def set_items(self, items) -> None:
+    def set_items(self, items: Iterable[object]) -> None:
         if self.strip_completion_entries:
-            items = (str(x).strip() for x in items if x)
+            gen = (str(x).strip() for x in items if x)
         else:
-            items = (str(x) for x in items if x)
-        items = tuple(sorted(items, key=self.sort_func))
+            gen = (str(x) for x in items if x)
+        sorted_items = tuple(sorted(gen, key=self.sort_func))
         self.beginResetModel()
-        self.all_items = self.current_items = items
+        self.all_items = self.current_items = sorted_items
         self.current_prefix = ''
         self.endResetModel()
 
-    def set_completion_prefix(self, prefix, hierarchy_separator: str = '') -> None:
+    def set_completion_prefix(self, prefix: str, hierarchy_separator: str = '') -> None:
         old_prefix = self.current_prefix
         self.current_prefix = prefix
         if prefix == old_prefix:
@@ -92,6 +113,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         word_iterator = get_word_break_iterator_with_extra_chars(extra_break_chars=extra_break_chars)
         collator = primary_collator()
         word_prefix_match = partial(word_prefix_matcher, collator, word_iterator)
+        func: Callable[[str, str], bool]
         if self.use_word_prefix_search:
             func = word_prefix_match
         else:
@@ -105,7 +127,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.current_items = tuple(x for x in universe if func(x, prefix))
         if func is containsq:
 
-            def skey(x):
+            def skey(x: str) -> tuple[int, bytes | tuple[int, int]]:
                 sk = primary_sort_key(x)
                 x = x.lower()
                 try:
@@ -119,7 +141,7 @@ class CompleteModel(QAbstractListModel):  # {{{
             self.current_items = tuple(sorted(self.current_items, key=skey))
         elif func is word_prefix_match:
 
-            def skey(x):
+            def skey(x: str) -> tuple[int, bytes | tuple[int, int]]:
                 sk = primary_sort_key(x)
                 pos = word_prefix_find(collator, word_iterator, x, prefix)
                 return (pos if pos >= 0 else len(x) + 10), sk
@@ -127,10 +149,10 @@ class CompleteModel(QAbstractListModel):  # {{{
             self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.current_items)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         if role == Qt.ItemDataRole.DisplayRole:
             with suppress(IndexError):
                 ans = self.current_items[index.row()].replace('\n', ' ')
@@ -146,7 +168,7 @@ class CompleteModel(QAbstractListModel):  # {{{
             with suppress(IndexError):
                 return self.current_items[index.row()]
 
-    def index_for_prefix(self, prefix):
+    def index_for_prefix(self, prefix: str) -> QModelIndex | None:
         for i, item in enumerate(self.current_items):
             if primary_startswith(item, prefix):
                 return self.index(i)
@@ -161,9 +183,9 @@ class Completer(QListView):  # {{{
     apply_current_text = pyqtSignal()
     relayout_needed = pyqtSignal()
 
-    def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key, strip_completion_entries=True) -> None:
+    def __init__(self, completer_widget: QWidget, max_visible_items: int = 7, sort_func: SortFunc = sort_key, strip_completion_entries: bool = True) -> None:
         QListView.__init__(self, completer_widget)
-        self.item_remover = None
+        self.item_remover: HistoryItemRemover | None = None
         self.disable_popup = False
         self.setWindowFlags(Qt.WindowType.Popup)
         self.max_visible_items = max_visible_items
@@ -197,7 +219,7 @@ class Completer(QListView):  # {{{
         assert isinstance(m, CompleteModel)
         return m
 
-    def item_chosen(self, index) -> None:
+    def item_chosen(self, index: QModelIndex) -> None:
         if not self.isVisible():
             return
         self.hide()
@@ -205,17 +227,17 @@ class Completer(QListView):  # {{{
         text = m.data(index, Qt.ItemDataRole.UserRole)
         self.item_selected.emit(str(text))
 
-    def set_items(self, items) -> None:
+    def set_items(self, items: Iterable[object]) -> None:
         self._complete_model().set_items(items)
         if self.isVisible():
             self.relayout_needed.emit()
 
-    def set_completion_prefix(self, prefix, hierarchy_separator: str = '') -> None:
+    def set_completion_prefix(self, prefix: str, hierarchy_separator: str = '') -> None:
         self._complete_model().set_completion_prefix(prefix, hierarchy_separator=hierarchy_separator)
         if self.isVisible():
             self.relayout_needed.emit()
 
-    def next_match(self, previous=False) -> None:
+    def next_match(self, previous: bool = False) -> None:
         c = self.currentIndex()
         m = self.model()
         assert m is not None
@@ -227,13 +249,13 @@ class Completer(QListView):  # {{{
         index = m.index(r % m.rowCount(), 0)
         self.setCurrentIndex(index)
 
-    def scroll_to(self, orig) -> None:
+    def scroll_to(self, orig: str | None) -> None:
         if orig:
             index = self._complete_model().index_for_prefix(orig)
             if index is not None and index.isValid():
                 self.setCurrentIndex(index)
 
-    def popup(self, select_first=True) -> None:
+    def popup(self, select_first: bool = True) -> None:
         if self.disable_popup:
             return
         p = self
@@ -276,14 +298,15 @@ class Completer(QListView):  # {{{
         if not p.isVisible():
             p.show()
 
-    def debug_event(self, ev) -> None:
+    def debug_event(self, ev: QEvent) -> None:
         from calibre.gui2 import event_type_name
 
         print('Event:', event_type_name(ev))
         if ev.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride, QEvent.Type.KeyRelease):
-            print('\tkey:', QKeySequence(ev.key()).toString())
+            print('\tkey:', QKeySequence(cast('QKeyEvent', ev).key()).toString())
 
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, e: QMouseEvent | None) -> None:
+        assert e is not None
         idx = self.indexAt(e.pos())
         if idx.isValid():
             ci = self.currentIndex()
@@ -291,10 +314,12 @@ class Completer(QListView):  # {{{
                 self.setCurrentIndex(idx)
         return QListView.mouseMoveEvent(self, e)
 
-    def eventFilter(self, object, event):
+    def eventFilter(self, object: QObject | None, event: QEvent | None) -> bool:
         "Redirect key presses from the popup to the widget"
         widget = self.parent()
         if widget is None or sip.isdeleted(widget) or not isinstance(widget, QWidget):
+            return False
+        if event is None:
             return False
         etype = event.type()
         if object is not self:
@@ -303,15 +328,16 @@ class Completer(QListView):  # {{{
         # self.debug_event(event)
 
         if etype == QEvent.Type.KeyPress:
+            kev = cast('QKeyEvent', event)
             try:
-                key = event.key()
+                key = kev.key()
             except AttributeError:
                 return QObject.eventFilter(self, object, event)
             if key == Qt.Key.Key_Escape:
                 self.hide()
                 event.accept()
                 return True
-            if key == Qt.Key.Key_F4 and event.modifiers() & Qt.KeyboardModifier.AltModifier:
+            if key == Qt.Key.Key_F4 and kev.modifiers() & Qt.KeyboardModifier.AltModifier:
                 self.hide()
                 event.accept()
                 return True
@@ -332,7 +358,7 @@ class Completer(QListView):  # {{{
                 elif self.tab_accepts_uncompleted_text:
                     self.hide()
                     self.apply_current_text.emit()
-                elif self.model().rowCount() > 0:
+                elif self._complete_model().rowCount() > 0:
                     self.next_match()
                 event.accept()
                 return True
@@ -345,7 +371,7 @@ class Completer(QListView):  # {{{
                 return True
             # Send to widget
             setattr(widget, 'eat_focus_out', False)
-            widget.keyPressEvent(event)
+            widget.keyPressEvent(kev)
             setattr(widget, 'eat_focus_out', True)
             if not widget.hasFocus():
                 # Widget lost focus hide the popup
@@ -355,7 +381,7 @@ class Completer(QListView):  # {{{
         elif (
             ismacos
             and etype == QEvent.Type.InputMethodQuery
-            and event.queries() == (Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled)
+            and cast('QInputMethodQueryEvent', event).queries() == (Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled)
             and self.isVisible()
         ):
             # In Qt 5 the Esc key causes this event and the line edit does not
@@ -363,7 +389,11 @@ class Completer(QListView):  # {{{
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
             event.accept()
             return True
-        elif etype == QEvent.Type.MouseButtonPress and hasattr(event, 'globalPos') and not self.rect().contains(self.mapFromGlobal(event.globalPos())):
+        elif (
+            etype == QEvent.Type.MouseButtonPress
+            and hasattr(event, 'globalPos')
+            and not self.rect().contains(self.mapFromGlobal(cast('QMouseEvent', event).globalPosition().toPoint()))
+        ):
             # A click outside the popup, close it
             if isinstance(widget, QComboBox):
                 # This workaround is needed to ensure clicking on the drop down
@@ -372,7 +402,8 @@ class Completer(QListView):  # {{{
                 widget.initStyleOption(opt)
                 widget_style = widget.style()
                 assert widget_style is not None
-                sc = widget_style.hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(event.globalPos()), widget)
+                gpos = cast('QMouseEvent', event).globalPosition().toPoint()
+                sc = widget_style.hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(gpos), widget)
                 if sc == QStyle.SubControl.SC_ComboBoxArrow:
                     QTimer.singleShot(0, self.hide)
                     event.accept()
@@ -401,15 +432,21 @@ class LineEdit(QLineEdit, LineEditECM):
 
     item_selected = pyqtSignal(object)
 
-    def __init__(self, parent=None, completer_widget=None, sort_func=sort_key, strip_completion_entries=True) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        completer_widget: QWidget | None = None,
+        sort_func: SortFunc = sort_key,
+        strip_completion_entries: bool = True,
+    ) -> None:
         QLineEdit.__init__(self, parent)
         self.setClearButtonEnabled(True)
 
-        self.sep = ','
+        self.sep: str | None = ','
         self.space_before_sep = False
         self.add_separator = True
         self.hierarchy_separator = ''
-        self.original_cursor_pos = None
+        self.original_cursor_pos: int | None = None
         completer_widget = self if completer_widget is None else completer_widget
 
         self.mcompleter = Completer(completer_widget, sort_func=sort_func, strip_completion_entries=strip_completion_entries)
@@ -420,50 +457,50 @@ class LineEdit(QLineEdit, LineEditECM):
         self.textEdited.connect(self.text_edited)
         self.cursorPositionChanged.connect(self.cursor_position_changed)
         self.no_popup = False
-        self.remove_completion_item_callback = None
+        self.remove_completion_item_callback: Callable[[str], object] | None = None
 
     # Interface {{{
     def set_use_startswith_search(self, yes: bool) -> None:
         self.mcompleter._complete_model().use_startswith_search = yes
 
-    def set_sort_func(self, sort_func) -> None:
+    def set_sort_func(self, sort_func: SortFunc) -> None:
         self.mcompleter._complete_model().sort_func = sort_func
 
-    def update_items_cache(self, complete_items) -> None:
+    def update_items_cache(self, complete_items: Iterable[object]) -> None:
         self.all_items = complete_items
 
-    def set_separator(self, sep) -> None:
+    def set_separator(self, sep: str | None) -> None:
         self.sep = sep
 
     def set_hierarchy_separator(self, sep: str = '') -> None:
         self.hierarchy_separator = sep
 
-    def set_space_before_sep(self, space_before) -> None:
+    def set_space_before_sep(self, space_before: bool) -> None:
         self.space_before_sep = space_before
 
-    def set_add_separator(self, what) -> None:
+    def set_add_separator(self, what: object) -> None:
         self.add_separator = bool(what)
 
     @property
-    def all_items(self):
+    def all_items(self) -> tuple[str, ...]:
         return self.mcompleter._complete_model().all_items
 
     @all_items.setter
-    def all_items(self, items) -> None:
+    def all_items(self, items: Iterable[object]) -> None:
         self.mcompleter._complete_model().set_items(items)
 
     @property
-    def disable_popup(self):
+    def disable_popup(self) -> bool:
         return self.mcompleter.disable_popup
 
     @disable_popup.setter
-    def disable_popup(self, val) -> None:
+    def disable_popup(self, val: object) -> None:
         self.mcompleter.disable_popup = bool(val)
 
-    def set_elide_mode(self, val) -> None:
+    def set_elide_mode(self, val: Qt.TextElideMode) -> None:
         self.mcompleter.setTextElideMode(val)
 
-    def enable_history_item_removal(self, callback) -> None:
+    def enable_history_item_removal(self, callback: Callable[[str], object]) -> None:
         """
         Allow the user to remove individual entries from the completion popup
         with Shift+Delete or the remove button shown when hovering over an
@@ -488,19 +525,20 @@ class LineEdit(QLineEdit, LineEditECM):
         if cm.rowCount() > 0:
             self.relayout()
 
-    def event(self, a0):
+    def event(self, a0: QEvent | None) -> bool:
         # See https://bugreports.qt.io/browse/QTBUG-46911
         try:
-            if a0.type() == QEvent.Type.ShortcutOverride and (
-                a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right)
-                and (a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier
+            kev = cast('QKeyEvent', a0)
+            if kev.type() == QEvent.Type.ShortcutOverride and (
+                kev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right)
+                and (kev.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier
             ):
-                a0.accept()
+                kev.accept()
         except AttributeError:
             pass
         return QLineEdit.event(self, a0)
 
-    def complete(self, show_all=False, select_first=True) -> None:
+    def complete(self, show_all: bool = False, select_first: bool = True) -> None:
         orig = None
         cm = self.mcompleter._complete_model()
         if show_all:
@@ -517,12 +555,12 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.popup()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def text_edited(self, *args) -> None:
+    def text_edited(self, *args: object) -> None:
         if self.no_popup:
             return
         self._update_and_complete()
 
-    def cursor_position_changed(self, old, new) -> None:
+    def cursor_position_changed(self, old: int, new: int) -> None:
         if self.no_popup:
             return
         if self.mcompleter.isVisible():
@@ -545,7 +583,7 @@ class LineEdit(QLineEdit, LineEditECM):
             complete_prefix = prefix.split(self.sep)[-1].lstrip()
         self.mcompleter.set_completion_prefix(complete_prefix, self.hierarchy_separator)
 
-    def get_completed_text(self, text):
+    def get_completed_text(self, text: str) -> tuple[str, str]:
         "Get completed text in before and after parts"
         if self.sep is None:
             return text, ''
@@ -574,7 +612,7 @@ class LineEdit(QLineEdit, LineEditECM):
                 completed_text = text
             return before_text + completed_text, after_text
 
-    def completion_selected(self, text) -> None:
+    def completion_selected(self, text: str) -> None:
         before_text, after_text = self.get_completed_text(str(text))
         self.setText(before_text + after_text)
         self.setCursorPosition(len(before_text))
@@ -592,7 +630,7 @@ class LineEdit(QLineEdit, LineEditECM):
 class EditWithComplete(EnComboBox):
     item_selected = pyqtSignal(object)
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: QWidget | None, **kwargs: Unpack[EditWithCompleteKwargs]) -> None:
         EnComboBox.__init__(self, *args)
         self.setLineEdit(
             LineEdit(
@@ -614,7 +652,7 @@ class EditWithComplete(EnComboBox):
 
     # Interface {{{
 
-    def set_sort_func(self, sort_func) -> None:
+    def set_sort_func(self, sort_func: SortFunc) -> None:
         self._line_edit().set_sort_func(sort_func)
 
     def showPopup(self) -> None:
@@ -625,7 +663,8 @@ class EditWithComplete(EnComboBox):
         finally:
             self.disable_popup = orig
 
-    def keyPressEvent(self, e) -> None:
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         le = self._line_edit()
         if e.key() in (Qt.Key.Key_Down, Qt.Key.Key_Up) and not le.text() and not self.disable_popup:
             e.accept()
@@ -633,57 +672,57 @@ class EditWithComplete(EnComboBox):
             return
         super().keyPressEvent(e)
 
-    def update_items_cache(self, complete_items) -> None:
+    def update_items_cache(self, complete_items: Iterable[object]) -> None:
         self._line_edit().update_items_cache(complete_items)
 
-    def set_separator(self, sep) -> None:
+    def set_separator(self, sep: str | None) -> None:
         self._line_edit().set_separator(sep)
 
-    def set_hierarchy_separator(self, sep) -> None:
+    def set_hierarchy_separator(self, sep: str) -> None:
         self._line_edit().set_hierarchy_separator(sep)
 
-    def set_space_before_sep(self, space_before) -> None:
+    def set_space_before_sep(self, space_before: bool) -> None:
         self._line_edit().set_space_before_sep(space_before)
 
-    def set_add_separator(self, what) -> None:
+    def set_add_separator(self, what: object) -> None:
         self._line_edit().set_add_separator(what)
 
-    def show_initial_value(self, what) -> None:
+    def show_initial_value(self, what: str | None) -> None:
         what = str(what) if what else ''
         self.setText(what)
         self._line_edit().selectAll()
 
     @property
-    def all_items(self):
+    def all_items(self) -> tuple[str, ...]:
         return self._line_edit().all_items
 
     @all_items.setter
-    def all_items(self, val) -> None:
+    def all_items(self, val: Iterable[object]) -> None:
         self._line_edit().all_items = val
 
     @property
-    def disable_popup(self):
+    def disable_popup(self) -> bool:
         return self._line_edit().disable_popup
 
     @disable_popup.setter
-    def disable_popup(self, val) -> None:
+    def disable_popup(self, val: object) -> None:
         self._line_edit().disable_popup = bool(val)
 
-    def set_elide_mode(self, val) -> None:
+    def set_elide_mode(self, val: Qt.TextElideMode) -> None:
         self._line_edit().set_elide_mode(val)
 
-    def set_clear_button_enabled(self, val=True) -> None:
+    def set_clear_button_enabled(self, val: bool = True) -> None:
         self._line_edit().setClearButtonEnabled(bool(val))
 
-    def enable_history_item_removal(self, callback) -> None:
+    def enable_history_item_removal(self, callback: Callable[[str], object]) -> None:
         self._line_edit().enable_history_item_removal(callback)
 
     # }}}
 
-    def text(self):
+    def text(self) -> str:
         return self._line_edit().text()
 
-    def set_current_text(self, text) -> None:
+    def set_current_text(self, text: str) -> None:
         self.setText(text)
         self.selectAll()
 
@@ -695,30 +734,32 @@ class EditWithComplete(EnComboBox):
     def selectAll(self) -> None:
         self._line_edit().selectAll()
 
-    def setText(self, text) -> None:
+    def setText(self, text: str | None) -> None:
         le = self._line_edit()
         le.no_popup = True
         le.setText(text)
         le.no_popup = False
 
-    def home(self, mark=False) -> None:
+    def home(self, mark: bool = False) -> None:
         self._line_edit().home(mark)
 
-    def setCursorPosition(self, *args) -> None:
+    def setCursorPosition(self, *args: int) -> None:
         self._line_edit().setCursorPosition(*args)
 
     @property
-    def textChanged(self):
+    def textChanged(self) -> pyqtBoundSignal:
         return self._line_edit().textChanged
 
     def clear(self) -> None:
         self._line_edit().clear()
         EnComboBox.clear(self)
 
-    def eventFilter(self, a0, a1):
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         try:
             c = self._line_edit().mcompleter
         except AttributeError:
+            return False
+        if a1 is None:
             return False
         etype = a1.type()
         if self.eat_focus_out and self is a0 and etype == QEvent.Type.FocusOut:

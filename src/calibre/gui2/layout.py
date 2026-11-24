@@ -32,6 +32,8 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from calibre.gui2.ui import Main
 
 
@@ -42,20 +44,20 @@ class LocationManager(QObject):  # {{{
     configure_device = pyqtSignal()
     update_device_metadata = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QObject.__init__(self, parent)
         self.free = [-1, -1, -1]
         self.count = 0
         self.location_actions = QActionGroup(self)
         self.location_actions.setExclusive(True)
         self.current_location = 'library'
-        self._mem = []
-        self.tooltips = {}
+        self._mem: list[QObject] = []
+        self.tooltips: dict[str, str] = {}
 
-        self.all_actions = []
+        self.all_actions: list[QAction] = []
 
-        def ac(name, text, icon, tooltip) -> QAction:
-            icon = QIcon.ic(icon)
+        def ac(name: str, text: str, icon_name: str, tooltip: str) -> QAction:
+            icon = QIcon.ic(icon_name)
             ac = self.location_actions.addAction(icon, text)
             assert ac is not None
             ac.setAutoRepeat(False)
@@ -97,7 +99,14 @@ class LocationManager(QObject):  # {{{
         self.location_carda = ac('carda', _('Card A'), 'sd.png', _('Show books in storage card A'))
         self.location_cardb = ac('cardb', _('Card B'), 'sd.png', _('Show books in storage card B'))
 
-    def set_switch_actions(self, quick_actions, rename_actions, delete_actions, switch_actions, choose_action) -> None:
+    def set_switch_actions(
+        self,
+        quick_actions: Sequence[QAction | None],
+        rename_actions: Sequence[QAction | None],
+        delete_actions: Sequence[QAction | None],
+        switch_actions: Sequence[QAction | None],
+        choose_action: QAction | None,
+    ) -> None:
         self.switch_menu = self.library_action.menu()
         if self.switch_menu:
             self.switch_menu.addSeparator()
@@ -105,7 +114,7 @@ class LocationManager(QObject):  # {{{
             self.switch_menu = QMenu()
 
         self.switch_menu.addAction(choose_action)
-        self.cs_menus = []
+        self.cs_menus: list[QMenu] = []
         for t, acs in [
             (_('Quick switch'), quick_actions),
             (_('Rename library'), rename_actions),
@@ -123,19 +132,24 @@ class LocationManager(QObject):  # {{{
         if self.switch_menu != self.library_action.menu():
             self.library_action.setMenu(self.switch_menu)
 
-    def _location_selected(self, location, *args) -> None:
+    def _location_selected(self, location: str, *args: object) -> None:
         if location != self.current_location and hasattr(self, 'location_' + location):
             self.current_location = location
             self.location_selected.emit(location)
             getattr(self, 'location_' + location).setChecked(True)
 
-    def _eject_requested(self, *args) -> None:
+    def _eject_requested(self, *args: object) -> None:
         self.unmount_device.emit()
 
     def _configure_requested(self) -> None:
         self.configure_device.emit()
 
-    def update_devices(self, cp=(None, None), fs=None, icon=None) -> None:
+    def update_devices(
+        self,
+        cp: tuple[str | bytes | None, str | bytes | None] | str | bytes | None = (None, None),
+        fs: Sequence[int] | None = None,
+        icon: str | None = None,
+    ) -> None:
         if fs is None:
             fs = [-1, -1, -1]
         self.location_main.setIcon(QIcon.ic(icon or 'reader.png'))
@@ -170,11 +184,11 @@ class LocationManager(QObject):  # {{{
             ac.setStatusTip(t)
 
     @property
-    def has_device(self):
+    def has_device(self) -> bool:
         return max(self.free) > -1
 
     @property
-    def available_actions(self):
+    def available_actions(self) -> list[QAction]:
         ans = [self.location_library]
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             if self.free[i] > -1:
@@ -185,7 +199,7 @@ class LocationManager(QObject):  # {{{
 # }}}
 
 
-def search_as_url(text):
+def search_as_url(text: str) -> str | None:
     if text:
         from calibre.gui2.ui import get_gui
 
@@ -339,7 +353,7 @@ class SearchBar(QFrame):  # {{{
 
 
 class Spacer(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
@@ -402,7 +416,7 @@ class MainWindowMixin:  # {{{
         smw.setVisible(False)
         smw.setAutoFillBackground(True)
 
-    def show_shutdown_message(self: Main, message='') -> None:
+    def show_shutdown_message(self: Main, message: str = '') -> None:
         smw = self.shutdown_message_widget
         bg, fg = 200, 'black'
         if qapplication_or_fail().is_dark_theme:

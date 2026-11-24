@@ -26,7 +26,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.sections_view.customContextMenuRequested.connect(self.show_context_menu_for_section)
 
-        self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
+        cw = self.tabWidget.currentWidget()
+        assert cw is not None
+        cw.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def initial_tab_changed(self) -> None:
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())

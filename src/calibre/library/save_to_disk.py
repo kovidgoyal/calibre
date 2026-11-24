@@ -512,7 +512,7 @@ def save_to_disk(
             failed, id, title = save_book_to_disk(x, db, root, opts, length)
             tb = _('Requested formats not available')
         except Exception:
-            failed, id, title = True, x, db.title(x, index_is_id=True)  # ty: ignore[missing-attribute] legacy getter added dynamically in calibre.db.legacy
+            failed, id, title = True, x, db.title(x, index_is_id=True)
             tb = traceback.format_exc()
         if failed:
             failures.append((id, title, tb))

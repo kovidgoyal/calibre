@@ -7,7 +7,7 @@ import re
 import sys
 import time
 import traceback
-from typing import Never
+from typing import TYPE_CHECKING, Never, cast
 
 import apsw
 from qt.core import QCoreApplication, QIcon, QObject, QTimer, sip
@@ -25,6 +25,15 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_image_path as I
 from polyglot.builtins import as_bytes, environ_item
 
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from qt.core import QAction
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+    from calibre.utils.config import OptionParser
+
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
 if iswindows:
     from calibre_extensions import winutil
@@ -34,7 +43,7 @@ class AbortInit(Exception):
     pass
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     parser = _option_parser(
         _('''\
 %prog [options] [path_to_ebook or calibre url ...]
@@ -138,7 +147,7 @@ def find_portable_library() -> None:
         os.mkdir(lib)
 
 
-def init_qt(args):
+def init_qt(args: list[str]) -> tuple[Application, Values, list[str]]:
     parser = option_parser()
     opts, args = parser.parse_args(args)
     from calibre.customize import ignore_custom_plugins, set_ignore_custom_plugins
@@ -179,7 +188,7 @@ def init_qt(args):
     return app, opts, args
 
 
-def get_default_library_path():
+def get_default_library_path() -> str:
     fname = _('Calibre Library')
     if iswindows:
         fname = 'Calibre Library'
@@ -197,7 +206,7 @@ def get_default_library_path():
     return x
 
 
-def try_other_known_library_paths():
+def try_other_known_library_paths() -> str | None:
     stats = gprefs.get('library_usage_stats', {})
     if stats:
         for candidate in sorted(stats.keys(), key=stats.__getitem__, reverse=True):
@@ -206,7 +215,7 @@ def try_other_known_library_paths():
                 return candidate
 
 
-def get_library_path(gui_runner):
+def get_library_path(gui_runner: GuiRunner) -> str | None:
     library_path = prefs['library_path']
     if library_path is None:  # Need to migrate to new database layout
         base = os.path.expanduser('~')
@@ -235,13 +244,13 @@ def get_library_path(gui_runner):
     return library_path
 
 
-def repair_library(library_path):
+def repair_library(library_path: str) -> bool:
     from calibre.gui2.dialogs.restore_library import repair_library_at
 
     return repair_library_at(library_path)
 
 
-def windows_repair(library_path=None) -> None:
+def windows_repair(library_path: str | None = None) -> None:
     import subprocess
 
     from calibre.utils.serialize import json_dumps, json_loads
@@ -275,9 +284,9 @@ def windows_repair(library_path=None) -> None:
 
 class EventAccumulator:
     def __init__(self) -> None:
-        self.events = []
+        self.events: list[list[str]] = []
 
-    def __call__(self, ev):
+    def __call__(self, ev: list[str]) -> None:
         self.events.append(ev)
 
 
@@ -285,18 +294,18 @@ class GuiRunner(QObject):
     """Make sure an event loop is running before starting the main work of
     initialization"""
 
-    def __init__(self, opts, args, actions, app, gui_debug=None) -> None:
+    def __init__(self, opts: Values, args: list[str], actions: tuple[QAction, ...], app: Application, gui_debug: str | None = None) -> None:
         self.startup_time = monotonic()
         timed_print('Starting up...')
         self.opts, self.args, self.app = opts, args, app
         self.gui_debug = gui_debug
         self.actions = actions
-        self.main = None
+        self.main: Main | None = None
         QObject.__init__(self)
-        self.splash_screen = None
+        self.splash_screen: SplashScreen | None = None
         self.timer = QTimer.singleShot(1, self.initialize)
 
-    def start_gui(self, db) -> None:
+    def start_gui(self, db: LibraryDatabase) -> None:
         from calibre.gui2.ui import Main
 
         timed_print('Constructing main UI...')
@@ -317,11 +326,11 @@ class GuiRunner(QObject):
         main.set_exception_handler()
         if len(self.args) > 1:
             main.handle_cli_args(self.args[1:])
-        for event in self.app.file_event_hook.events:
+        for event in cast('EventAccumulator', self.app.file_event_hook).events:
             main.handle_cli_args(event)
         self.app.file_event_hook = main.handle_cli_args
 
-    def choose_dir(self, initial_dir):
+    def choose_dir(self, initial_dir: str) -> str | None:
         self.hide_splash_screen()
         return choose_dir(
             self.splash_screen,
@@ -330,7 +339,7 @@ class GuiRunner(QObject):
             default_dir=initial_dir,
         )
 
-    def show_error(self, title, msg, det_msg='') -> None:
+    def show_error(self, title: str, msg: str, det_msg: str = '') -> None:
         print(det_msg, file=sys.stderr)
         self.hide_splash_screen()
         with self.app:
@@ -341,7 +350,7 @@ class GuiRunner(QObject):
         QCoreApplication.exit(1)
         raise SystemExit(1)
 
-    def initialize_db_stage2(self, db, tb) -> None:
+    def initialize_db_stage2(self, db: LibraryDatabase | None, tb: str | None) -> None:
         from calibre.db.legacy import LibraryDatabase
 
         if db is None and tb is not None:
@@ -430,12 +439,13 @@ class GuiRunner(QObject):
             self.splash_screen.hide()
         self.splash_screen = None
 
-    def initialize(self, *args) -> None:
+    def initialize(self, *args: object) -> None:
         if gprefs['show_splash_screen'] and not self.opts.start_in_tray:
             self.show_splash_screen()
-        self.library_path = get_library_path(self)
-        if not self.library_path:
+        library_path = get_library_path(self)
+        if not library_path:
             self.initialization_failed()
+        self.library_path = library_path
 
         self.initialize_db()
 
@@ -451,7 +461,7 @@ def run_in_debug_mode() -> None:
         run_calibre_debug('--gui-debug', logpath, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
 
 
-def run_gui(opts, args, app, gui_debug=None) -> int | None:
+def run_gui(opts: Values, args: list[str], app: Application, gui_debug: str | None = None) -> int | None:
     with SingleInstance('db') as si:
         if not si:
             ext = '.exe' if iswindows else ''
@@ -503,7 +513,7 @@ def workaround_windows_shutdown_hang(timeout: float = 1.0, exit_code: int = 0) -
             kernel32.CloseHandle(handle)
 
 
-def run_gui_(opts, args, app, gui_debug=None):
+def run_gui_(opts: Values, args: list[str], app: Application, gui_debug: str | None = None) -> int:
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
@@ -544,6 +554,7 @@ def run_gui_(opts, args, app, gui_debug=None):
         _main_ref = runner.main
         assert _main_ref is not None
         debugfile = _main_ref.gui_debug
+        assert debugfile is not None
         from calibre.gui2 import open_local_file
 
         if iswindows:
@@ -571,7 +582,7 @@ class FailedToCommunicate(Exception):
     pass
 
 
-def send_message(msg) -> bool:
+def send_message(msg: str | bytes) -> bool:
     fail_err = None
     try:
         send_message_in_process(msg)
@@ -615,7 +626,7 @@ def shutdown_other() -> None:
         raise SystemExit(_('Failed to shutdown running calibre instance'))
 
 
-def communicate(opts, args) -> Never:
+def communicate(opts: Values, args: list[str]) -> Never:
     if opts.shutdown_running_calibre:
         shutdown_other()
     else:
@@ -668,7 +679,7 @@ def restart_after_quit() -> None:
         subprocess.Popen(cmd)
 
 
-def main(args=sys.argv) -> int | None:
+def main(args: list[str] = sys.argv) -> int | None:
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
         return 0
@@ -694,7 +705,7 @@ def main(args=sys.argv) -> int | None:
     gc.collect(), gc.collect()
 
 
-def run_main(app, opts, args, gui_debug, si):
+def run_main(app: Application, opts: Values, args: list[str], gui_debug: str | None, si: bool) -> int | None:
     if si:
         return run_gui(opts, args, app, gui_debug=gui_debug)
     communicate(opts, args)

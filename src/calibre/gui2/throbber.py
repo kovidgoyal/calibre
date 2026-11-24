@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import (
     QAbstractAnimation,
     QIcon,
@@ -19,17 +21,20 @@ from qt.core import (
 
 from calibre.gui2 import config
 
+if TYPE_CHECKING:
+    from qt.core import QEnterEvent, QEvent, QPaintEvent
+
 
 class ThrobbingButton(QToolButton):
     @pyqtProperty(int)
-    def icon_size(self):
+    def icon_size(self) -> int:
         return self._icon_size
 
     @icon_size.setter
-    def icon_size(self, value) -> None:
+    def icon_size(self, value: int) -> None:
         self._icon_size = value
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: QWidget | None) -> None:
         QToolButton.__init__(self, *args)
         # vertically size policy must be expanding for it to align inside a
         # toolbar
@@ -47,13 +52,13 @@ class ThrobbingButton(QToolButton):
     def animation_finished(self) -> None:
         self.icon_size = self.iconSize().width()
 
-    def enterEvent(self, a0) -> None:
+    def enterEvent(self, a0: QEnterEvent | None) -> None:
         self.start_animation()
 
-    def leaveEvent(self, a0) -> None:
+    def leaveEvent(self, a0: QEvent | None) -> None:
         self.stop_animation()
 
-    def value_changed(self, val) -> None:
+    def value_changed(self, val: object) -> None:
         self.update()
 
     def start_animation(self) -> None:
@@ -73,7 +78,7 @@ class ThrobbingButton(QToolButton):
         self.animation.stop()
         self.animation_finished()
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         size = self._icon_size if self._icon_size > 10 else self.iconSize().width()
         size = size or max(0, self.width() - 4)
         p = QPainter(self)

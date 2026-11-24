@@ -1106,8 +1106,10 @@ class GameWidget(QWidget):
         should_retry = [False]
         should_wait = [False]
         retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert retry_btn is not None
         retry_btn.setIcon(QIcon.ic('view-refresh.png'))
         wait_btn = d.bb.addButton(_('&Wait longer'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert wait_btn is not None
         wait_btn.setIcon(QIcon.ic('jobs.png'))
 
         timeout_widget = QWidget(d)
@@ -1257,6 +1259,7 @@ class GameWidget(QWidget):
             )
             should_retry = [False]
             retry_btn = d.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert retry_btn is not None
             retry_btn.setIcon(QIcon.ic('view-refresh.png'))
 
             def on_retry() -> None:

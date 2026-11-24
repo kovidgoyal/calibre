@@ -4,27 +4,35 @@
 import sys
 from contextlib import suppress
 from functools import lru_cache
+from typing import TYPE_CHECKING, Literal, overload
 
 from calibre.constants import DEBUG, MAIN_APP_UID, __appname__, get_osx_version, islinux, ismacos, iswindows
 from calibre.utils.resources import get_image_path as I
+
+if TYPE_CHECKING:
+    from qt.core import QSystemTrayIcon
 
 
 class Notifier:
     DEFAULT_TIMEOUT = 5000
 
-    def get_msg_parms(self, timeout, body, summary):
+    def get_msg_parms(self, timeout: int, body: str, summary: str | None) -> tuple[int, str, str]:
         if summary is None:
             summary = 'calibre'
         if timeout == 0:
             timeout = self.DEFAULT_TIMEOUT
         return timeout, body, summary
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         raise NotImplementedError('implement in subclass')
 
 
+@overload
+def icon(data: Literal[False] = False) -> str: ...
+@overload
+def icon(data: Literal[True]) -> bytes: ...
 @lru_cache(maxsize=2)
-def icon(data=False):
+def icon(data: bool = False) -> str | bytes:
     return I('lt.png', data=data)
 
 
@@ -57,7 +65,7 @@ class DBUSNotifier(Notifier):
         else:
             print('Failed to connect to Portal Notifications service', file=sys.stderr)
 
-    def initialize_fdo(self):
+    def initialize_fdo(self) -> bool:
         from jeepney import DBusAddress, MessageType, new_method_call
 
         self.address = DBusAddress(
@@ -70,7 +78,7 @@ class DBUSNotifier(Notifier):
         reply = self.connection.send_and_get_reply(msg)
         return bool(reply and reply.header.message_type is MessageType.method_return)
 
-    def initialize_portal(self):
+    def initialize_portal(self) -> bool:
         from jeepney import DBusAddress, MessageType, Properties
 
         self.address = DBusAddress(
@@ -83,7 +91,7 @@ class DBUSNotifier(Notifier):
         reply = self.connection.send_and_get_reply(msg)
         return bool(reply and reply.header.message_type is MessageType.method_return and reply.body[0][1] >= 1)
 
-    def fdo_notify(self, body, summary=None, replaces_id=None, timeout=0) -> None:
+    def fdo_notify(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         from jeepney import new_method_call
 
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
@@ -109,7 +117,7 @@ class DBUSNotifier(Notifier):
 
             traceback.print_exc()
 
-    def portal_notify(self, body, summary=None, replaces_id=None, timeout=0) -> None:
+    def portal_notify(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         from jeepney import new_method_call
 
         _, body, summary = self.get_msg_parms(timeout, body, summary)
@@ -147,7 +155,7 @@ class DBUSNotifier(Notifier):
 
             traceback.print_exc()
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         self.initialize()
         if not self.ok:
             if DEBUG:
@@ -157,11 +165,11 @@ class DBUSNotifier(Notifier):
 
 
 class QtNotifier(Notifier):
-    def __init__(self, systray=None) -> None:
+    def __init__(self, systray: QSystemTrayIcon | None = None) -> None:
         self.systray = systray
         self.ok = self.systray is not None and self.systray.supportsMessages()
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         from qt.core import QSystemTrayIcon
 
@@ -211,7 +219,7 @@ class WinToastNotifier(Notifier):
             self.dispatcher = dispatcher()
             self.dispatcher.dispatch.connect(self.do_notify, type=Qt.ConnectionType.QueuedConnection)
 
-    def do_notify(self, title, message) -> None:
+    def do_notify(self, title: str, message: str) -> None:
         from calibre_extensions.wintoast import notify
 
         try:
@@ -219,7 +227,7 @@ class WinToastNotifier(Notifier):
         except Exception as err:
             print('Failed to send toast notification with error:', err, file=sys.stderr)
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         if summary:
             title, message = summary, body
@@ -231,7 +239,7 @@ class WinToastNotifier(Notifier):
 class DummyNotifier(Notifier):
     ok = True
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         pass
 
 
@@ -242,14 +250,14 @@ class AppleNotifier(Notifier):
         self.cocoa = cocoa
         self.ok = True
 
-    def notify(self, body, summary) -> None:
+    def notify(self, body: str, summary: str | None) -> None:
         if summary:
             title, informative_text = summary, body
         else:
             title, informative_text = body, None
         self.cocoa.send_notification(None, title, informative_text)
 
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+    def __call__(self, body: str, summary: str | None = None, replaces_id: int | None = None, timeout: int = 0) -> None:
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         if self.ok:
             try:
@@ -260,8 +268,8 @@ class AppleNotifier(Notifier):
                 traceback.print_exc()
 
 
-def get_notifier(systray=None):
-    ans = None
+def get_notifier(systray: QSystemTrayIcon | None = None) -> Notifier | None:
+    ans: Notifier | None = None
     if islinux:
         ans = DBUSNotifier()
     elif ismacos:
@@ -286,6 +294,7 @@ def get_notifier(systray=None):
 
 def hello() -> None:
     n = get_notifier()
+    assert n is not None
     n('hello')
 
 

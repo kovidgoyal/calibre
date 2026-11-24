@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 from threading import Thread
+from typing import TYPE_CHECKING, Any
 
 _kdialog_supports_desktopfile: bool | None = None
 _linux_native_dialog_failed: bool = False
@@ -20,14 +21,22 @@ from calibre.utils.config import dynamic
 from calibre.utils.localization import _
 from polyglot.builtins import reraise
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
 
-def dialog_name(name, title):
+    from qt.core import QWidget, sip
+
+    type FileFilters = Sequence[tuple[str, Sequence[str]]]
+
+
+def dialog_name(name: str | None, title: str) -> str:
     return name or 'dialog_' + title
 
 
-def get_winid(widget=None):
+def get_winid(widget: QWidget | None = None) -> sip.voidptr | None:
     if widget is not None:
         return widget.effectiveWinId()
+    return None
 
 
 def to_known_dialog_provider_name(q: str) -> str:
@@ -39,7 +48,7 @@ def to_known_dialog_provider_name(q: str) -> str:
     return ''
 
 
-def detect_desktop_environment():
+def detect_desktop_environment() -> str:
     de = os.getenv('XDG_CURRENT_DESKTOP')
     if de:
         for x in de.split(':'):
@@ -56,18 +65,18 @@ def detect_desktop_environment():
     return ''
 
 
-def is_executable_present(name):
+def is_executable_present(name: str) -> bool:
     PATH = os.getenv('PATH') or ''
     return any(os.access(os.path.join(path, name), os.X_OK) for path in PATH.split(os.pathsep))
 
 
-def process_path(x):
+def process_path(x: str | bytes) -> str:
     if isinstance(x, bytes):
         x = x.decode(filesystem_encoding)
     return os.path.abspath(os.path.expanduser(x))
 
 
-def ensure_dir(path, default='~'):
+def ensure_dir(path: str, default: str = '~') -> str:
     while path and path != '/' and not os.path.isdir(path):
         path = os.path.dirname(path)
     if path == '/':
@@ -75,7 +84,7 @@ def ensure_dir(path, default='~'):
     return path or os.path.expanduser(default)
 
 
-def get_initial_dir(name, title, default_dir, no_save_dir):
+def get_initial_dir(name: str | None, title: str, default_dir: str, no_save_dir: bool) -> str:
     if no_save_dir:
         return ensure_dir(process_path(default_dir))
     key = dialog_name(name, title)
@@ -87,7 +96,7 @@ def get_initial_dir(name, title, default_dir, no_save_dir):
     return ensure_dir(process_path(default_dir))
 
 
-def save_initial_dir(name, title, ans, no_save_dir, is_file=False) -> None:
+def save_initial_dir(name: str | None, title: str, ans: str | None, no_save_dir: bool, is_file: bool = False) -> None:
     if ans and not no_save_dir:
         if is_file:
             ans = os.path.dirname(os.path.abspath(ans))
@@ -95,7 +104,7 @@ def save_initial_dir(name, title, ans, no_save_dir, is_file=False) -> None:
         dynamic.set(key, ans)
 
 
-def encode_arg(title):
+def encode_arg(title: str | bytes) -> bytes:
     if isinstance(title, str):
         try:
             title = title.encode(preferred_encoding)
@@ -104,13 +113,13 @@ def encode_arg(title):
     return title
 
 
-def image_extensions():
+def image_extensions() -> list[str]:
     from calibre.gui2.dnd import image_extensions
 
     return image_extensions()
 
 
-def decode_output(raw):
+def decode_output(raw: bytes | None) -> str:
     raw = raw or b''
     try:
         return raw.decode(preferred_encoding)
@@ -118,7 +127,7 @@ def decode_output(raw):
         return force_unicode(raw, 'utf-8')
 
 
-def run(cmd):
+def run(cmd: Sequence[str]) -> tuple[int, str, str]:
     from calibre.gui2 import sanitize_env_vars
 
     if DEBUG:
@@ -150,7 +159,7 @@ def kdialog_supports_desktopfile() -> bool:
     return _kdialog_supports_desktopfile
 
 
-def kde_cmd(window, title, *rest):
+def kde_cmd(window: QWidget | None, title: str, *rest: str) -> list[str]:
     ans = ['kdialog', '--title', title]
     if kdialog_supports_desktopfile():
         ans += ['--desktopfile', 'calibre-gui']
@@ -160,17 +169,17 @@ def kde_cmd(window, title, *rest):
     return ans + list(rest)
 
 
-def run_kde(cmd):
+def run_kde(cmd: Sequence[str]) -> list[str] | None:
     ret, stdout, stderr = run(cmd)
     if ret == 1:
-        return  # canceled
+        return None  # canceled
     if ret != 0:
         raise ValueError(f'KDE file dialog aborted with return code: {ret} and stderr: {stderr}')
     ans = stdout.splitlines()
     return ans
 
 
-def kdialog_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
+def kdialog_choose_dir(window: QWidget | None, name: str | None, title: str, default_dir: str = '~', no_save_dir: bool = False) -> str | None:
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
     ans = run_kde(kde_cmd(window, title, '--getexistingdirectory', initial_dir))
     ans = None if ans is None else ans[0]
@@ -178,7 +187,7 @@ def kdialog_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     return ans
 
 
-def kdialog_filters(filters, all_files=True):
+def kdialog_filters(filters: FileFilters, all_files: bool = True) -> str:
     ans = []
     for name, exts in filters:
         if not exts or (len(exts) == 1 and exts[0] == '*'):
@@ -191,15 +200,15 @@ def kdialog_filters(filters, all_files=True):
 
 
 def kdialog_choose_files(
-    window,
-    name,
-    title,
-    filters=None,
-    all_files=True,
-    select_only_single_file=False,
-    default_dir='~',
-    no_save_dir=False,
-):
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    select_only_single_file: bool = False,
+    default_dir: str = '~',
+    no_save_dir: bool = False,
+) -> list[str] | None:
     if filters is None:
         filters = []
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
@@ -213,7 +222,15 @@ def kdialog_choose_files(
     return ans
 
 
-def kdialog_choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
+def kdialog_choose_save_file(
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    initial_path: str | None = None,
+    initial_filename: str | None = None,
+) -> str | None:
     if filters is None:
         filters = []
     if initial_path is not None:
@@ -230,7 +247,9 @@ def kdialog_choose_save_file(window, name, title, filters=None, all_files=True, 
     return ans
 
 
-def kdialog_choose_images(window, name, title, select_only_single_file=True, formats=None):
+def kdialog_choose_images(
+    window: QWidget | None, name: str | None, title: str, select_only_single_file: bool = True, formats: Iterable[str] | None = None
+) -> list[str] | None:
     return kdialog_choose_files(
         window,
         name,
@@ -246,7 +265,7 @@ def kdialog_choose_images(window, name, title, select_only_single_file=True, for
 # GTK {{{
 
 
-def zenity_cmd(window, title, *rest):
+def zenity_cmd(window: QWidget | None, title: str, *rest: str) -> list[str]:
     ans = ['zenity', '--modal', '--file-selection', '--title=' + title, '--separator=\n']
     winid = get_winid(window)
     if winid is not None:
@@ -254,17 +273,17 @@ def zenity_cmd(window, title, *rest):
     return ans + list(rest)
 
 
-def run_zenity(cmd):
+def run_zenity(cmd: Sequence[str]) -> list[str] | None:
     ret, stdout, stderr = run(cmd)
     if ret == 1:
-        return  # canceled
+        return None  # canceled
     if ret != 0:
         raise ValueError(f'GTK file dialog aborted with return code: {ret} and stderr: {stderr}')
     ans = stdout.splitlines()
     return ans
 
 
-def zenity_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
+def zenity_choose_dir(window: QWidget | None, name: str | None, title: str, default_dir: str = '~', no_save_dir: bool = False) -> str | None:
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
     ans = run_zenity(zenity_cmd(window, title, '--directory', '--filename', initial_dir))
     ans = None if ans is None else ans[0]
@@ -272,7 +291,7 @@ def zenity_choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     return ans
 
 
-def zenity_filters(filters, all_files=True):
+def zenity_filters(filters: FileFilters, all_files: bool = True) -> list[str]:
     ans = []
     for name, exts in filters:
         if not exts or (len(exts) == 1 and exts[0] == '*'):
@@ -285,15 +304,15 @@ def zenity_filters(filters, all_files=True):
 
 
 def zenity_choose_files(
-    window,
-    name,
-    title,
-    filters=None,
-    all_files=True,
-    select_only_single_file=False,
-    default_dir='~',
-    no_save_dir=False,
-):
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    select_only_single_file: bool = False,
+    default_dir: str = '~',
+    no_save_dir: bool = False,
+) -> list[str] | None:
     if filters is None:
         filters = []
     initial_dir = get_initial_dir(name, title, default_dir, no_save_dir)
@@ -307,7 +326,15 @@ def zenity_choose_files(
     return ans
 
 
-def zenity_choose_save_file(window, name, title, filters=None, all_files=True, initial_path=None, initial_filename=None):
+def zenity_choose_save_file(
+    window: QWidget | None,
+    name: str | None,
+    title: str,
+    filters: FileFilters | None = None,
+    all_files: bool = True,
+    initial_path: str | None = None,
+    initial_filename: str | None = None,
+) -> str | None:
     if filters is None:
         filters = []
     if initial_path is not None:
@@ -324,7 +351,9 @@ def zenity_choose_save_file(window, name, title, filters=None, all_files=True, i
     return ans
 
 
-def zenity_choose_images(window, name, title, select_only_single_file=True, formats=None):
+def zenity_choose_images(
+    window: QWidget | None, name: str | None, title: str, select_only_single_file: bool = True, formats: Iterable[str] | None = None
+) -> list[str] | None:
     return zenity_choose_files(
         window,
         name,
@@ -338,12 +367,12 @@ def zenity_choose_images(window, name, title, select_only_single_file=True, form
 # }}}
 
 
-def linux_native_dialog(name):
+def linux_native_dialog(name: str) -> Callable[..., Any]:
     prefix = check_for_linux_native_dialogs()
     func = globals()[f'{prefix}_choose_{name}']
 
     @functools.wraps(func)
-    def looped(window, *args, **kwargs):
+    def looped(window: QWidget | None, *args: object, **kwargs: object) -> object:
         global _linux_native_dialog_failed
         if _linux_native_dialog_failed:
             import importlib

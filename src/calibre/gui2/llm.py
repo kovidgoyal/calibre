@@ -18,11 +18,13 @@ from qt.core import (
     QGroupBox,
     QHBoxLayout,
     QIcon,
+    QKeyEvent,
     QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QLocale,
+    QObject,
     QPlainTextEdit,
     QPushButton,
     QSize,
@@ -54,9 +56,10 @@ from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
     from calibre.customize import AIProviderPlugin
+    from calibre.utils.config import JSONConfig
 
 prompt_sep = '\n\n------\n\n'
 reasoning_icon = 'reports.png'
@@ -187,11 +190,11 @@ class ConversationHistory:
         return f'{header}\n\n{main_response}\n\n{record_header}\n\n{record_body}'
 
 
-class ConverseWidget(QWidget):
+class ConverseWidget[ActionT: ActionData](QWidget):
     response_received = pyqtSignal(int, object)
     close_requested = pyqtSignal()
 
-    def __init__(self, parent=None, add_close_button=False) -> None:
+    def __init__(self, parent: QWidget | None = None, add_close_button: bool = False) -> None:
         super().__init__(parent)
         self.counter = count(start=1)
         self.hid = hid = uuid4().lower()
@@ -219,7 +222,7 @@ class ConverseWidget(QWidget):
         vl.addWidget(rd)
 
         self.response_actions_layout = QHBoxLayout()
-        self.response_buttons = {}
+        self.response_buttons: dict[str, QPushButton] = {}
         self.add_buttons()
         self.response_actions_layout.addStretch()
         vl.addLayout(self.response_actions_layout)
@@ -245,14 +248,14 @@ class ConverseWidget(QWidget):
         self.show_initial_message()
         self.update_cost()
 
-    def setFocus(self, reason=...) -> None:
+    def setFocus(self, reason: Qt.FocusReason = Qt.FocusReason.OtherFocusReason) -> None:
         self.result_display.setFocus(reason)
 
     def language_instruction(self) -> str:
         lang = ui_language_as_english()
         return f'If you can speak in {lang}, then respond in {lang}.'
 
-    def quick_actions_as_html(self, actions) -> str:
+    def quick_actions_as_html(self, actions: Iterable[ActionT]) -> str:
         actions = sorted(actions, key=lambda a: primary_sort_key(a.human_name))
         if not actions:
             return ''
@@ -350,7 +353,7 @@ class ConverseWidget(QWidget):
     def scroll_to_bottom(self) -> None:
         self.result_display.scroll_to_bottom()
 
-    def start_api_call(self, action_prompt: str, **kwargs: Any) -> None:
+    def start_api_call(self, action_prompt: str, **kwargs: object) -> None:
         if not self.is_ready_for_use:
             self.show_error(
                 f'''<b>{_('AI provider not configured.')}</b> <a href="http://{self.configure_ai_hostname}">{_('Configure AI provider')}</a>''',
@@ -495,7 +498,7 @@ class ConverseWidget(QWidget):
             return
         safe_open_url(qurl)
 
-    def set_all_inputs_enabled(self, enabled) -> None:
+    def set_all_inputs_enabled(self, enabled: bool) -> None:
         # for i in range(self.quick_actions_layout.count()):
         #     widget = self.quick_actions_layout.itemAt(i).widget()
         #     if widget:
@@ -527,7 +530,7 @@ class ConverseWidget(QWidget):
     def handle_chat_link(self, qurl: QUrl) -> bool:
         raise NotImplementedError('implement in subclass')
 
-    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+    def create_initial_messages(self, action_prompt: str, **kwargs: object) -> Iterator[ChatMessage]:
         raise NotImplementedError('implement in sub class')
 
     def ready_message(self) -> str:
@@ -536,7 +539,7 @@ class ConverseWidget(QWidget):
     def choose_action_message(self) -> str:
         raise NotImplementedError('implement in sub class')
 
-    def prompt_text_for_action(self, action) -> str:
+    def prompt_text_for_action(self, action: ActionT) -> str:
         raise NotImplementedError('implement in sub class')
 
     def start_new_conversation(self) -> None:
@@ -565,7 +568,7 @@ class ActionData(NamedTuple):
         return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
 
     @classmethod
-    def unserialize(cls, p: dict[str, Any], default_actions: tuple[Self, ...], include_disabled=False) -> Iterator[Self]:
+    def unserialize(cls, p: dict[str, Any], default_actions: tuple[Self, ...], include_disabled: bool = False) -> Iterator[Self]:
         dd = p.get('disabled_default_actions', ())
         for x in default_actions:
             x = x._replace(is_disabled=x.name in dd)
@@ -578,7 +581,7 @@ class ActionData(NamedTuple):
 
 
 class ActionEditDialog(QDialog):
-    def __init__(self, help_text: str, action: ActionData | None = None, parent=None) -> None:
+    def __init__(self, help_text: str, action: ActionData | None = None, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle(_('Edit Quick action') if action else _('Add Quick action'))
         fl = QFormLayout(self)
@@ -606,8 +609,8 @@ class ActionEditDialog(QDialog):
         ans.setWidth(max(500, ans.width()))
         return ans
 
-    def eventFilter(self, a0, a1):
-        if a1.type() == QEvent.Type.KeyPress:
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if isinstance(a1, QKeyEvent) and a1.type() == QEvent.Type.KeyPress:
             if a0 is self.name_edit and a1.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
                 self.prompt_edit.setFocus()
                 return True
@@ -624,9 +627,11 @@ class ActionEditDialog(QDialog):
     def accept(self) -> None:
         ac = self.get_action()
         if not ac.human_name:
-            return error_dialog(self, _('No name specified'), _('You must specify a name for the Quick action'), show=True)
+            error_dialog(self, _('No name specified'), _('You must specify a name for the Quick action'), show=True)
+            return
         if not ac.prompt_template:
-            return error_dialog(self, _('No prompt specified'), _('You must specify a prompt for the Quick action'), show=True)
+            error_dialog(self, _('No prompt specified'), _('You must specify a prompt for the Quick action'), show=True)
+            return
         super().accept()
 
 
@@ -651,14 +656,14 @@ class LocalisedResults(QCheckBox):
 
 
 class LLMActionsSettingsWidget(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setMinimumWidth(550)
         vl = QVBoxLayout(self)
         api_model_layout = QFormLayout()
         api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        self.custom_widgets = []
+        self.custom_widgets: list[QWidget] = []
         for title, w in self.create_custom_widgets():
             if title:
                 api_model_layout.addRow(title, w)
@@ -712,18 +717,19 @@ class LLMActionsSettingsWidget(QWidget):
             if action.human_name and action.prompt_template:
                 self.action_as_item(action)
 
-    def edit_action(self):
+    def edit_action(self) -> None:
         item = self.actions_list.currentItem()
         if not item:
             return
         action = item.data(Qt.ItemDataRole.UserRole)
         if action.is_builtin:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Cannot edit'),
                 _('Cannot edit builtin actions. Instead uncheck this action and create a new action with the same name.'),
                 show=True,
             )
+            return
         dialog = ActionEditDialog(self.action_edit_help_text, action, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             new_action = dialog.get_action()
@@ -731,18 +737,19 @@ class LLMActionsSettingsWidget(QWidget):
                 item.setText(new_action.human_name)
                 item.setData(Qt.ItemDataRole.UserRole, new_action)
 
-    def remove_action(self):
+    def remove_action(self) -> None:
         item = self.actions_list.currentItem()
         if not item:
             return
         action = item.data(Qt.ItemDataRole.UserRole)
         if action.is_builtin:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Cannot remove'),
                 _('Cannot remove builtin actions. Instead simply uncheck it to prevent it from showing up as a button.'),
                 show=True,
             )
+            return
         if item and confirm(
             _('Remove the {} action?').format(item.text()),
             'confirm_remove_llm_action',
@@ -793,7 +800,7 @@ class LLMActionsSettingsWidget(QWidget):
 class LLMSettingsDialogBase(Dialog):
     ai_purpose = AICapabilities.text_to_text
 
-    def __init__(self, name, prefs, title='', parent=None) -> None:
+    def __init__(self, name: str, prefs: JSONConfig, title: str = '', parent: QWidget | None = None) -> None:
         super().__init__(title=title or _('AI Settings'), name=name, prefs=prefs, parent=parent)
 
     def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
@@ -828,7 +835,7 @@ class FakeAIProvider:
         return model_name or _('Assistant')
 
 
-class StreamingDemoWidget(ConverseWidget):
+class StreamingDemoWidget(ConverseWidget[ActionData]):
     def __init__(self, title: str, throttle_streaming: bool, parent: QWidget | None = None) -> None:
         self.demo_title = title
         self.throttle_streaming = throttle_streaming
@@ -849,7 +856,7 @@ class StreamingDemoWidget(ConverseWidget):
         self.update_render_count()
         self.original_re_render()
 
-    def update_render_count(self, reset=False) -> None:
+    def update_render_count(self, reset: bool = False) -> None:
         if reset:
             self.render_count = 0
         self.render_count_label.setText(_('Full document renders: {}').format(self.render_count))
@@ -863,13 +870,13 @@ class StreamingDemoWidget(ConverseWidget):
     def handle_chat_link(self, qurl: QUrl) -> bool:
         return False
 
-    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+    def create_initial_messages(self, action_prompt: str, **kwargs: object) -> Iterator[ChatMessage]:
         yield ChatMessage(action_prompt)
 
     def choose_action_message(self) -> str:
         return ''
 
-    def prompt_text_for_action(self, action) -> str:
+    def prompt_text_for_action(self, action: ActionData) -> str:
         return ''
 
     def ready_message(self) -> str:
@@ -1003,7 +1010,7 @@ class StreamingRenderDemo(QDialog):
         return '\n\n'.join(block for _ in range(3))
 
 
-def develop(auto_close: bool = False):
+def develop(auto_close: bool = False) -> dict[str, int] | None:
     from calibre.gui2 import Application
 
     app = Application([])

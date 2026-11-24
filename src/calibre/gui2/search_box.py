@@ -4,7 +4,7 @@
 import re
 import time
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from qt.core import QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent, QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot
 
@@ -17,13 +17,18 @@ from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, pgettext
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qt.core import QContextMenuEvent, QDropEvent, QFocusEvent, QMenu, QMouseEvent, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
     from calibre.gui2.ui import Main
 
 
 class AsYouType(str):
     as_you_type: bool
 
-    def __new__(cls, text):
+    def __new__(cls, text: str) -> Self:
         self = str.__new__(cls, text)
         self.as_you_type = True
         return self
@@ -32,21 +37,22 @@ class AsYouType(str):
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
     clear_history = pyqtSignal()
-    select_on_mouse_press = None
-    as_url = None
+    select_on_mouse_press: float | None = None
+    as_url: Callable[[str], str | None] | None = None
 
-    def keyPressEvent(self, a0) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         self.key_pressed.emit(a0)
         QLineEdit.keyPressEvent(self, a0)
 
-    def dropEvent(self, a0):
+    def dropEvent(self, a0: QDropEvent | None) -> None:
         p = self.parent()
         assert p is not None
         assert isinstance(p, SearchBox2)
         p.normalize_state()
         return QLineEdit.dropEvent(self, a0)
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         p = self.parent()
         assert p is not None
         assert isinstance(p, SearchBox2)
@@ -107,18 +113,18 @@ class SearchLineEdit(QLineEdit):  # {{{
         self.keyPressEvent(ev)
 
     @pyqtSlot()
-    def paste(self, *args):
+    def paste(self, *args: object) -> None:
         p = self.parent()
         assert p is not None
         assert isinstance(p, SearchBox2)
         p.normalize_state()
         return QLineEdit.paste(self)
 
-    def focusInEvent(self, a0):
+    def focusInEvent(self, a0: QFocusEvent | None) -> None:
         self.select_on_mouse_press = time.time()
         return QLineEdit.focusInEvent(self, a0)
 
-    def mousePressEvent(self, a0) -> None:
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         QLineEdit.mousePressEvent(self, a0)
         if self.select_on_mouse_press is not None and abs(time.time() - self.select_on_mouse_press) < 0.2:
             self.selectAll()
@@ -152,7 +158,7 @@ class SearchBox2(QComboBox):  # {{{
     changed = pyqtSignal()
     focus_to_library = pyqtSignal()
 
-    def __init__(self, parent=None, add_clear_action=True, as_url=None) -> None:
+    def __init__(self, parent: QWidget | None = None, add_clear_action: bool = True, as_url: Callable[[str], str | None] | None = None) -> None:
         QComboBox.__init__(self, parent)
         self.line_edit = SearchLineEdit(self)
         self.line_edit.as_url = as_url
@@ -185,16 +191,18 @@ class SearchBox2(QComboBox):  # {{{
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
-        self.parse_error_action = None
+        self.parse_error_action: QAction | None = None
 
-    def add_action(self, icon, position=QLineEdit.ActionPosition.TrailingPosition):
+    def add_action(self, icon: QIcon | str, position: QLineEdit.ActionPosition = QLineEdit.ActionPosition.TrailingPosition) -> QAction:
         if not isinstance(icon, QIcon):
             icon = QIcon.ic(icon)
         le = self.lineEdit()
         assert le is not None
-        return le.addAction(icon, position)
+        ac = le.addAction(icon, position)
+        assert ac is not None
+        return ac
 
-    def initialize(self, opt_name, colorize=False, help_text=_('Search'), as_you_type=None) -> None:
+    def initialize(self, opt_name: str, colorize: bool = False, help_text: str = _('Search'), as_you_type: bool | None = None) -> None:
         self.as_you_type = config['search_as_you_type'] if as_you_type is None else as_you_type
         self.opt_name = opt_name
         items = []
@@ -216,7 +224,7 @@ class SearchBox2(QComboBox):  # {{{
         if popup is not None:
             HistoryItemRemover(popup, partial(self.remove_history_item, refresh_completer=True), hide_popup=popup.hide, restore_current_row=False)
 
-    def remove_history_item(self, item, refresh_completer=False) -> None:
+    def remove_history_item(self, item: str, refresh_completer: bool = False) -> None:
         if remove_item_from_combobox(self, item):
             config[self.opt_name] = [str(self.itemText(i)) for i in range(self.count())]
         if refresh_completer:
@@ -249,10 +257,10 @@ class SearchBox2(QComboBox):  # {{{
         self.setStyleSheet('')
         self.show_parse_error_action(False)
 
-    def text(self):
+    def text(self) -> str:
         return self.currentText()
 
-    def clear(self, emit_search=True) -> None:
+    def clear(self, emit_search: bool = True) -> None:
         self.show_parse_error_action(False)
         self.normalize_state()
         self.setEditText('')
@@ -261,16 +269,16 @@ class SearchBox2(QComboBox):  # {{{
         self._in_a_search = False
         self.cleared.emit()
 
-    def clear_clicked(self, *args) -> None:
+    def clear_clicked(self, *args: object) -> None:
         self.clear()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def show_parse_error_action(self, to_show, tooltip='') -> None:
+    def show_parse_error_action(self, to_show: bool, tooltip: str = '') -> None:
         if self.parse_error_action is not None:
             self.parse_error_action.setVisible(to_show)
             self.parse_error_action.setToolTip(tooltip)
 
-    def search_done(self, ok) -> None:
+    def search_done(self, ok: bool | str) -> None:
         if isinstance(ok, (str, bytes)):
             self.setToolTip(ok)
             self.show_parse_error_action(True, tooltip=ok)
@@ -286,7 +294,7 @@ class SearchBox2(QComboBox):  # {{{
             self.setStyleSheet('')
 
     # Comes from the lineEdit control
-    def key_pressed(self, event) -> None:
+    def key_pressed(self, event: QKeyEvent) -> None:
         k = event.key()
         if k in (
             Qt.Key.Key_Left,
@@ -311,7 +319,8 @@ class SearchBox2(QComboBox):  # {{{
             self.timer.start(1500)
 
     # Comes from the combobox itself
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         self.show_parse_error_action(False)
         k = e.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
@@ -329,7 +338,7 @@ class SearchBox2(QComboBox):  # {{{
             QComboBox.keyPressEvent(self, e)
         self.blockSignals(False)
 
-    def completer_used(self, text) -> None:
+    def completer_used(self, text: str) -> None:
         self.timer.stop()
         self.normalize_state()
 
@@ -338,11 +347,11 @@ class SearchBox2(QComboBox):  # {{{
         # since this is an automatic search keep focus
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def history_selected(self, text) -> None:
+    def history_selected(self, text: str) -> None:
         self.changed.emit()
         self.do_search()
 
-    def _do_search(self, store_in_history=True, as_you_type=False):
+    def _do_search(self, store_in_history: bool = True, as_you_type: bool = False) -> None:
         self.hide_completer_popup()
         text = str(self.currentText()).strip()
         if not text:
@@ -365,15 +374,15 @@ class SearchBox2(QComboBox):  # {{{
             history = [str(self.itemText(i)) for i in range(self.count())]
             config[self.opt_name] = history
 
-    def do_search(self, *args) -> None:
+    def do_search(self, *args: object) -> None:
         self._do_search()
         self.timer.stop()
 
-    def block_signals(self, yes) -> None:
+    def block_signals(self, yes: bool) -> None:
         self.blockSignals(yes)
         self.line_edit.blockSignals(yes)
 
-    def set_search_string(self, txt, store_in_history=False, emit_changed=True) -> None:
+    def set_search_string(self, txt: str, store_in_history: bool = False, emit_changed: bool = True) -> None:
         if not store_in_history:
             self.textActivated.disconnect()
         try:
@@ -399,14 +408,14 @@ class SearchBox2(QComboBox):  # {{{
                 # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
                 self.textActivated.connect(self.history_selected, type=Qt.ConnectionType.QueuedConnection)
 
-    def search_as_you_type(self, enabled) -> None:
+    def search_as_you_type(self, enabled: bool) -> None:
         self.as_you_type = enabled
 
-    def in_a_search(self):
+    def in_a_search(self) -> bool:
         return self._in_a_search
 
     @property
-    def current_text(self):
+    def current_text(self) -> str:
         le = self.lineEdit()
         assert le is not None
         return str(le.text())
@@ -435,7 +444,7 @@ class SearchBoxMixin:  # {{{
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'
-        tt += config.help('highlight_search_matches')
+        tt += config.help('highlight_search_matches') or ''
         self.highlight_only_button.setToolTip(tt)
         self.highlight_only_action = ac = QAction(self)
         self.addAction(ac), ac.triggered.connect(self.highlight_only_clicked)
@@ -451,7 +460,7 @@ class SearchBoxMixin:  # {{{
             self.search_bar.search_button.setText(None)
             self.search_bar.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
-    def highlight_only_clicked(self: Main, state) -> None:
+    def highlight_only_clicked(self: Main, state: bool) -> None:
         if not config['highlight_search_matches'] and not question_dialog(
             self,
             _('Are you sure?'),
@@ -489,7 +498,7 @@ class SearchBoxMixin:  # {{{
         self.highlight_only_button.setVisible(gprefs['show_highlight_toggle_button'])
         self.library_view._model.set_highlight_only(config['highlight_search_matches'])
 
-    def focus_search_box(self: Main, *args) -> None:
+    def focus_search_box(self: Main, *args: object) -> None:
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
         le = self.search.lineEdit()
         if le:
@@ -502,7 +511,7 @@ class SearchBoxMixin:  # {{{
     def search_box_changed(self: Main) -> None:
         self.tags_view.conditional_clear(self.search.current_text)
 
-    def do_advanced_search(self: Main, *args) -> None:
+    def do_advanced_search(self: Main, *args: object) -> None:
         d = SearchDialog(self, self.current_db)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.search.set_search_string(d.search_string(), store_in_history=True)
@@ -521,16 +530,18 @@ class SavedSearchBoxMixin:  # {{{
     def init_saved_seach_box_mixin(self: Main) -> None:
         pass
 
-    def add_saved_searches_to_menu(self: Main, menu, db, add_action_func=None) -> None:
-        def add_action(current_menu, whole_name, last_component, func=None):
+    def add_saved_searches_to_menu(self: Main, menu: QMenu, db: LibraryDatabase, add_action_func: Callable[[QMenu, str, str], QAction] | None = None) -> None:
+        def add_action(current_menu: QMenu, whole_name: str, last_component: str, func: Callable[[], None] | None = None) -> QAction:
             if add_action_func is None:
-                return current_menu.addAction(last_component, func)
+                ac = current_menu.addAction(last_component, func)
+                assert ac is not None
+                return ac
             return add_action_func(current_menu, whole_name, last_component)
 
         folder_icon = QIcon.ic('folder_saved_search.png')
         search_icon = QIcon.ic('search.png')
         use_hierarchy = 'search' in db.new_api.pref('categories_using_hierarchy', [])
-        submenus = {}
+        submenus: dict[str, QMenu] = {}
         for name in sorted(db.saved_search_names(), key=lambda x: primary_sort_key(x.strip())):
             display_name = name.replace('&', '&&')
             current_menu = menu
@@ -542,7 +553,9 @@ class SavedSearchBoxMixin:  # {{{
                 for i, c in enumerate(hierarchy, start=1):
                     hierarchical_prefix = '.'.join(hierarchy[:i])
                     if hierarchical_prefix not in submenus:
-                        current_menu = current_menu.addMenu(c.replace('&', '&&'))
+                        submenu = current_menu.addMenu(c.replace('&', '&&'))
+                        assert submenu is not None
+                        current_menu = submenu
                         current_menu.setIcon(folder_icon)
                         submenus[hierarchical_prefix] = current_menu
                     else:
@@ -563,7 +576,7 @@ class SavedSearchBoxMixin:  # {{{
             if ac.icon().isNull():
                 ac.setIcon(search_icon)
 
-    def populate_add_saved_search_menu(self: Main, to_menu) -> None:
+    def populate_add_saved_search_menu(self: Main, to_menu: QMenu) -> None:
         m = to_menu
         m.clear()
         m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
@@ -572,14 +585,14 @@ class SavedSearchBoxMixin:  # {{{
         m.addSeparator()
         self.add_saved_searches_to_menu(m, self.current_db)
 
-    def saved_searches_changed(self: Main, set_restriction=None, recount=True) -> None:
+    def saved_searches_changed(self: Main, set_restriction: str | None = None, recount: bool = True) -> None:
         self.build_search_restriction_list()
         if recount:
             self.tags_view.recount()
         if set_restriction:  # redo the search restriction if there was one
             self.apply_named_search_restriction(set_restriction)
 
-    def do_saved_search_edit(self: Main, search) -> None:
+    def do_saved_search_edit(self: Main, search: str | None) -> None:
         d = SavedSearchEditor(self, search)
         d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
@@ -596,7 +609,7 @@ class SavedSearchBoxMixin:  # {{{
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 
-    def get_saved_search_text(self: Main, search_name=None) -> None:
+    def get_saved_search_text(self: Main, search_name: str | None = None) -> None:
         db = self.current_db
         try:
             current_search = search_name or self.search.currentText()

@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import deque
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, TypedDict, Unpack
 
 from qt.core import (
     QAbstractScrollArea,
@@ -57,6 +57,21 @@ class MomentumSettings(NamedTuple):
     y_multiplier: float = 1
     # Synthesize momentum for mouse wheels or trackpads that send NoScrollPhase events
     synthesize_without_gestures: bool = False
+
+
+class MomentumSettingsUpdate(TypedDict, total=False):
+    friction: float
+    min_velocity: float
+    max_velocity: float
+    boost_factor: float
+    velocity_scale: float
+    timer_interval_ms: int
+    momentum_detection_delay_ms: int
+    enable_x: bool
+    enable_y: bool
+    x_multiplier: float
+    y_multiplier: float
+    synthesize_without_gestures: bool
 
 
 class MomentumScroller:
@@ -336,7 +351,7 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
     def default_wheel_event_handler(self, event: QWheelEvent) -> None:
         super().wheelEvent(event)
 
-    def wheelEvent(self, a0: QWheelEvent | None):
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
         assert a0 is not None
         event = a0
         self._ensure_momentum_scroller()
@@ -353,7 +368,7 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
         if self._momentum_scroller:
             self._momentum_scroller.stop()
 
-    def update_momentum_scroll_settings(self, **kw) -> None:
+    def update_momentum_scroll_settings(self, **kw: Unpack[MomentumSettingsUpdate]) -> None:
         self._ensure_momentum_scroller()
         scroller = self._momentum_scroller
         assert scroller is not None
@@ -367,7 +382,7 @@ if __name__ == '__main__':
     class MomentumListView(QListView, MomentumScrollMixin):
         """QListView with momentum scrolling enabled."""
 
-        def wheelEvent(self, e) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
+        def wheelEvent(self, e: QWheelEvent | None) -> None:  # ty: ignore[lost-keyword-for-regular-parameter]
             MomentumScrollMixin.wheelEvent(self, e)
 
     class DemoWindow(QMainWindow):
@@ -431,13 +446,13 @@ if __name__ == '__main__':
 
             layout.addWidget(tuning_box)
 
-        def _update_friction(self, value) -> None:
+        def _update_friction(self, value: int) -> None:
             friction = value / 100
             self.friction_label.setText(f'{friction:value}%')
             if self.list_view._momentum_scroller:
                 self.list_view._momentum_scroller.settings = self.list_view._momentum_scroller.settings._replace(friction=friction)
 
-        def _update_velocity(self, value) -> None:
+        def _update_velocity(self, value: int) -> None:
             velocity = value / 100.0
             self.velocity_label.setText(f'{velocity:.2f}')
             if self.list_view._momentum_scroller:

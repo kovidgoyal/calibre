@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QBrush, QColor, QFont, QFontMetrics, QPainter, QPen, QPixmap, QSplashScreen, Qt
 
 from calibre.constants import __appname__, numeric_version
@@ -8,6 +10,9 @@ from calibre.gui2 import qapplication_or_fail
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_image_path as I
+
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent
 
 
 class SplashScreen(QSplashScreen):
@@ -17,7 +22,7 @@ class SplashScreen(QSplashScreen):
     LOGO_SIZE = 96  # px
     WIDTH = 550  # px
 
-    def __init__(self, develop=False) -> None:
+    def __init__(self, develop: bool = False) -> None:
         self.drawn_once = False
         self.develop = develop
         self.title_font = f = QFont()
@@ -52,7 +57,8 @@ class SplashScreen(QSplashScreen):
         QSplashScreen.__init__(self, pmap)
         self.setWindowTitle(__appname__)
 
-    def drawContents(self, painter) -> None:
+    def drawContents(self, painter: QPainter | None) -> None:
+        assert painter is not None
         self.drawn_once = True
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
@@ -120,7 +126,7 @@ class SplashScreen(QSplashScreen):
 
         painter.restore()
 
-    def show_message(self, msg) -> None:
+    def show_message(self, msg: str) -> None:
         self.showMessage(msg)
         self.wait_for_draw()
 
@@ -131,10 +137,11 @@ class SplashScreen(QSplashScreen):
         while not self.drawn_once and (monotonic() - st < 0.1):
             qapplication_or_fail().processEvents()
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if not self.develop:
             return QSplashScreen.keyPressEvent(self, a0)
-        a0.accept()
+        if a0 is not None:
+            a0.accept()
         qapplication_or_fail().exit()
 
 

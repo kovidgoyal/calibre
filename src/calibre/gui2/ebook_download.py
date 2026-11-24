@@ -4,7 +4,7 @@ import os
 import shutil
 import time
 from contextlib import closing
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from mechanize import MozillaCookieJar
 
@@ -20,11 +20,21 @@ from calibre.web import get_download_filename_from_response
 from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from threading import Event
+
+    from qt.core import QWidget
+
+    from calibre.gui2.jobs import JobManager
+    from calibre.gui2.library.models import BooksModel
     from calibre.gui2.ui import Main
+    from calibre.utils.browser import Browser
+    from calibre.utils.logging import GUILog
+    from calibre.web import DownloadResponse
 
 
 class DownloadInfo(MessageBox):
-    def __init__(self, filename, parent=None) -> None:
+    def __init__(self, filename: str, parent: QWidget | None = None) -> None:
         MessageBox.__init__(
             self,
             MessageBox.INFO,
@@ -43,13 +53,13 @@ class DownloadInfo(MessageBox):
         gprefs.set('show_get_books_download_info', self.toggle_checkbox.isChecked())
 
 
-def show_download_info(filename, parent=None) -> None:
+def show_download_info(filename: str, parent: QWidget | None = None) -> None:
     if not gprefs.get('show_get_books_download_info', True):
         return
     DownloadInfo(filename, parent).exec()
 
 
-def get_download_filename(response):
+def get_download_filename(response: DownloadResponse) -> str:
     filename = get_download_filename_from_response(response)
     filename, ext = os.path.splitext(filename)
     filename = filename[:60] + ext
@@ -57,7 +67,7 @@ def get_download_filename(response):
     return filename
 
 
-def download_file(url, cookie_file=None, filename=None, create_browser=None):
+def download_file(url: str, cookie_file: str | None = None, filename: str | None = None, create_browser: Callable[[], Browser] | None = None) -> str:
     if url.startswith('//'):
         url = 'https:' + url
     try:
@@ -83,18 +93,18 @@ def download_file(url, cookie_file=None, filename=None, create_browser=None):
 class EbookDownload:
     def __call__(
         self,
-        gui,
-        cookie_file=None,
-        url='',
-        filename='',
-        save_loc='',
-        add_to_lib=True,
-        tags=None,
-        create_browser=None,
-        log=None,
-        abort=None,
-        notifications=None,
-    ):
+        gui: Main,
+        cookie_file: str | None = None,
+        url: str = '',
+        filename: str = '',
+        save_loc: str = '',
+        add_to_lib: bool = True,
+        tags: Iterable[str] | None = None,
+        create_browser: Callable[[], Browser] | None = None,
+        log: GUILog | None = None,
+        abort: Event | None = None,
+        notifications: object = None,
+    ) -> None:
         if tags is None:
             tags = []
         dfilename = ''
@@ -109,7 +119,7 @@ class EbookDownload:
             except Exception:
                 pass
 
-    def _download(self, cookie_file, url, filename, save_loc, add_to_lib, create_browser):
+    def _download(self, cookie_file: str | None, url: str, filename: str, save_loc: str, add_to_lib: bool, create_browser: Callable[[], Browser] | None) -> str:
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
@@ -117,7 +127,7 @@ class EbookDownload:
             return ''
         return download_file(url, cookie_file, filename, create_browser=create_browser)
 
-    def _add(self, filename, gui, add_to_lib, tags) -> None:
+    def _add(self, filename: str, gui: Main, add_to_lib: bool, tags: Iterable[str]) -> None:
         if not add_to_lib or not filename:
             return
 
@@ -148,10 +158,11 @@ class EbookDownload:
                     mi.authors = new_authors
                     mi.author_sort = db.new_api.author_sort_from_authors(mi.authors)
             book_id = db.create_book_entry(mi)
+            assert book_id is not None  # add_duplicates is True so a book is always created
             db.new_api.add_format(book_id, ext.upper(), path)
-        gui.library_view.model().books_added(1)
+        cast('BooksModel', gui.library_view.model()).books_added(1)
 
-    def _save_as(self, dfilename, save_loc) -> None:
+    def _save_as(self, dfilename: str, save_loc: str) -> None:
         if not save_loc or not dfilename:
             return
         shutil.copy(dfilename, save_loc)
@@ -161,16 +172,16 @@ gui_ebook_download = EbookDownload()
 
 
 def start_ebook_download(
-    callback,
-    job_manager,
-    gui,
-    cookie_file=None,
-    url='',
-    filename='',
-    save_loc='',
-    add_to_lib=True,
-    tags=None,
-    create_browser=None,
+    callback: Callable[[ThreadedJob], object],
+    job_manager: JobManager,
+    gui: Main,
+    cookie_file: str | None = None,
+    url: str = '',
+    filename: str = '',
+    save_loc: str = '',
+    add_to_lib: bool = True,
+    tags: Iterable[str] | None = None,
+    create_browser: Callable[[], Browser] | None = None,
 ) -> None:
     if tags is None:
         tags = []
@@ -189,7 +200,16 @@ def start_ebook_download(
 
 
 class EbookDownloadMixin:
-    def download_ebook(self: Main, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=None, create_browser=None) -> None:
+    def download_ebook(
+        self: Main,
+        url: str = '',
+        cookie_file: str | None = None,
+        filename: str = '',
+        save_loc: str = '',
+        add_to_lib: bool = True,
+        tags: str | list[str] | tuple[str, ...] | None = None,
+        create_browser: Callable[[], Browser] | None = None,
+    ) -> None:
         if tags is None:
             tags = []
         if tags:
@@ -209,7 +229,7 @@ class EbookDownloadMixin:
         )
         self.status_bar.show_message(_('Downloading') + ' ' + as_unicode(filename or url, errors='replace'), 3000)
 
-    def downloaded_ebook(self: Main, job) -> None:
+    def downloaded_ebook(self: Main, job: ThreadedJob) -> None:
         if job.failed:
             self.job_exception(job, dialog_title=_('Failed to download e-book'))
             return

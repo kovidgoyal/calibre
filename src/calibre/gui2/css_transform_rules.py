@@ -27,13 +27,15 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _, localize_user_manual_link
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
+
+    from calibre.ebooks.css_transform_rules import Rule, SerializedRule
 
 
 class RuleEdit(QWidget):  # {{{
     MSG = _('Create the rule below, the rule can be used to transform style properties')
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
@@ -98,7 +100,7 @@ class RuleEdit(QWidget):  # {{{
 
         self.update_state()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         a = QWidget.sizeHint(self)
         a.setHeight(a.height() + 75)
         a.setWidth(a.width() + 100)
@@ -135,7 +137,7 @@ class RuleEdit(QWidget):  # {{{
         self.regex_help.setVisible('matches' in mt)
 
     @property
-    def rule(self):
+    def rule(self) -> dict[str, str]:
         return {
             'property': self.property_widget.text().strip().lower(),
             'match_type': self.match_type.currentData(),
@@ -145,8 +147,8 @@ class RuleEdit(QWidget):  # {{{
         }
 
     @rule.setter
-    def rule(self, rule) -> None:
-        def sc(name) -> None:
+    def rule(self, rule: SerializedRule) -> None:
+        def sc(name: str) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -187,7 +189,7 @@ class RuleItem(RuleItemBase):  # {{{
                 yield val
 
     @staticmethod
-    def text_from_rule(rule, parent):
+    def text_from_rule(rule: SerializedRule, parent: QWidget) -> str:
         try:
             query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
             text = _('If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
@@ -227,11 +229,11 @@ class Tester(Dialog):  # {{{
     SYNTAX = 'css'
     RESULTS = '/* {} */\n\n'.format(_('Resulting stylesheet'))
 
-    def __init__(self, rules, parent=None) -> None:
+    def __init__(self, rules: Iterable[SerializedRule], parent: QWidget | None = None) -> None:
         self.rules = self.compile_rules(rules)
         Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
-    def compile_rules(self, rules):
+    def compile_rules(self, rules: Iterable[SerializedRule]) -> list[Rule]:
         return compile_rules(rules)
 
     def setup_ui(self) -> None:
@@ -259,7 +261,7 @@ class Tester(Dialog):  # {{{
         l.addWidget(self.bb)
 
     @property
-    def value(self):
+    def value(self) -> str:
         return self.css.toPlainText()
 
     def do_test(self) -> None:
@@ -270,10 +272,10 @@ class Tester(Dialog):  # {{{
             css = css.decode('utf-8')
         self.set_result(css)
 
-    def set_result(self, css) -> None:
+    def set_result(self, css: str) -> None:
         self.result_widget.load_text(self.RESULTS + css, self.SYNTAX)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
 
@@ -287,7 +289,7 @@ class RulesDialog(RulesDialogBase):  # {{{
     RulesClass = Rules
     TesterClass = Tester
 
-    def __init__(self, *args, **kw) -> None:
+    def __init__(self, *args: QWidget | None, **kw: QWidget | None) -> None:
         # This has to be loaded on instantiation as it can be shared by
         # multiple processes
         self.PREFS_OBJECT = JSONConfig(self.PREFS_OBJECT_NAME)
@@ -307,7 +309,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
     TesterClass = Tester
     RulesClass = Rules
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.loaded_ruleset = None
         QWidget.__init__(self, parent)
         self.PREFS_OBJECT = JSONConfig(self.PREFS_NAME)
@@ -341,7 +343,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         h.addWidget(b)
         self.build_load_menu()
 
-    def export_rules(self):
+    def export_rules(self) -> int | None:
         rules = self.rules_widget.rules
         if not rules:
             return error_dialog(self, _('No rules'), _('There are no rules to export'), show=True)
@@ -361,7 +363,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             self.rules_widget.rules = list(rules) + list(self.rules_widget.rules)
             self.changed.emit()
 
-    def load_ruleset(self, name) -> None:
+    def load_ruleset(self, name: str) -> None:
         SaveLoadMixin.load_ruleset(self, name)
         self.changed.emit()
 
@@ -369,11 +371,11 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
         self.TesterClass(self.rules_widget.rules, self).exec()
 
     @property
-    def rules(self):
+    def rules(self) -> list[SerializedRule]:
         return self.rules_widget.rules
 
     @rules.setter
-    def rules(self, val) -> None:
+    def rules(self, val: Iterable[SerializedRule] | None) -> None:
         try:
             self.rules_widget.rules = val or []
         except Exception:

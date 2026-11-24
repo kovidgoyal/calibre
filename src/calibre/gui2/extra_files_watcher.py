@@ -2,11 +2,17 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 from time import monotonic
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import QObject, QTimer, pyqtSignal
 
 from calibre.db.constants import DATA_FILE_PATTERN
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from calibre.gui2.library.models import BooksModel
+    from calibre.gui2.ui import Main
 
 
 class ExtraFile(NamedTuple):
@@ -25,9 +31,9 @@ class ExtraFilesWatcher(QObject):
     WATCH_FOR = 300  # seconds
     TICK_INTERVAL = 1  # seconds
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        self.watched_book_ids = {}
+        self.watched_book_ids: dict[int, ExtraFiles] = {}
         self.timer = QTimer(self)
         self.timer.setInterval(int(self.TICK_INTERVAL * 1000))
         self.timer.timeout.connect(self.check_registered_books)
@@ -36,7 +42,7 @@ class ExtraFilesWatcher(QObject):
         self.watched_book_ids.clear()
         self.timer.stop()
 
-    def watch_book(self, book_id) -> None:
+    def watch_book(self, book_id: int) -> None:
         if book_id not in self.watched_book_ids:
             try:
                 self.watched_book_ids[book_id] = ExtraFiles(monotonic(), self.get_extra_files(book_id))
@@ -48,21 +54,21 @@ class ExtraFilesWatcher(QObject):
         self.timer.start()
 
     @property
-    def gui(self):
+    def gui(self) -> Main:
         ans = self.parent()
         if hasattr(ans, 'current_db'):
-            return ans
+            return cast('Main', ans)
         from calibre.gui2.ui import get_gui
 
-        return get_gui()
+        return cast('Main', get_gui())
 
-    def get_extra_files(self, book_id):
+    def get_extra_files(self, book_id: int) -> tuple[ExtraFile, ...]:
         db = self.gui.current_db.new_api
         return tuple(ExtraFile(ef.relpath, ef.stat_result.st_mtime, ef.stat_result.st_size) for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN))
 
     def check_registered_books(self) -> None:
-        changed = {}
-        remove = set()
+        changed: dict[int, tuple[ExtraFile, ...]] = {}
+        remove: set[int] = set()
         now = monotonic()
         for book_id, extra_files in self.watched_book_ids.items():
             try:
@@ -84,8 +90,8 @@ class ExtraFilesWatcher(QObject):
         if not self.watched_book_ids:
             self.timer.stop()
 
-    def refresh_gui(self, book_ids) -> None:
+    def refresh_gui(self, book_ids: Iterable[int]) -> None:
         lv = self.gui.library_view
         book_ids = frozenset(book_ids)
-        lv.model().refresh_ids(book_ids, current_row=lv.currentIndex().row())
+        cast('BooksModel', lv.model()).refresh_ids(book_ids, current_row=lv.currentIndex().row())
         self.books_changed.emit(book_ids)

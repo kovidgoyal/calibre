@@ -204,7 +204,8 @@ class LLMPanel(ConverseWidget):
 
     def save_specific_note(self, message_index: int) -> None:
         if not self.current_selected_text:
-            return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
+            error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
+            return
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         if history_for_record is not None:
             self.add_note_requested.emit(history_for_record.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))

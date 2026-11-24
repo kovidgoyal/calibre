@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from calibre.db.adding import compile_glob, compile_rule, filter_filename
 from calibre.gui2 import Application, elided_text, error_dialog
@@ -13,6 +14,11 @@ from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.gui2.tag_mapper import Tester as TesterBase
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from qt.core import QWidget
 
 add_filters = JSONConfig('add-filter-rules')
 
@@ -51,7 +57,7 @@ class RuleEdit(RuleEditBase):
         self.query.setToolTip(tt)
 
     @property
-    def rule(self):
+    def rule(self) -> dict[str, str]:
         return {
             'action': self.action.currentData(),
             'match_type': self.match_type.currentData(),
@@ -59,8 +65,8 @@ class RuleEdit(RuleEditBase):
         }
 
     @rule.setter
-    def rule(self, rule) -> None:
-        def sc(name) -> None:
+    def rule(self, rule: Mapping[str, str]) -> None:
+        def sc(name: str) -> None:
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
@@ -69,7 +75,7 @@ class RuleEdit(RuleEditBase):
         sc('action'), sc('match_type')
         self.query.setText(str(rule.get('query', '')).strip())
 
-    def validate(self):
+    def validate(self) -> bool:
         ans = super().validate()
         if ans:
             rule = self.rule
@@ -89,7 +95,7 @@ class RuleEditDialog(RuleEditDialogBase):
 
 class RuleItem(RuleItemBase):
     @staticmethod
-    def text_from_rule(rule, parent):
+    def text_from_rule(rule: Mapping[str, str], parent: QWidget) -> str:
         query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
         text = _('<b>{action}</b> the file, if the filename <i>{match_type}</i>: <b>{query}</b>').format(
             action=RuleEdit.ACTION_MAP[rule['action']],

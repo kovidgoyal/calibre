@@ -7,7 +7,7 @@ import stat
 import tempfile
 import time
 from threading import Event, Thread
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QApplication, QCursor, QFileSystemWatcher, QObject, Qt, QTimer, pyqtSignal
 
@@ -19,6 +19,12 @@ from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import _
 from calibre.utils.tdir_in_cache import tdir_in_cache
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from unittest import TestSuite
+
+    AddedData = list[tuple[str, str]]  # (file name, temp dir with metadata)
 
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 # Extensions used by browsers, download managers, torrent clients and file
@@ -112,11 +118,11 @@ class AllAllowed:
     def __init__(self) -> None:
         self.disallowed = frozenset(gprefs['blocked_auto_formats'])
 
-    def __contains__(self, x) -> bool:
+    def __contains__(self, x: object) -> bool:
         return x not in self.disallowed
 
 
-def allowed_formats():
+def allowed_formats() -> AllAllowed | frozenset[str]:
     "Return an object that can be used to test if a format (lowercase) is allowed for auto-adding"
     if gprefs['auto_add_everything']:
         allowed = AllAllowed()
@@ -126,7 +132,7 @@ def allowed_formats():
 
 
 class Worker(Thread):
-    def __init__(self, path, callback) -> None:
+    def __init__(self, path: str, callback: Callable[[AddedData], object]) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.keep_running = True
@@ -147,7 +153,7 @@ class Worker(Thread):
 
             traceback.print_exc()
 
-    def is_filename_allowed(self, filename):
+    def is_filename_allowed(self, filename: str) -> bool:
         allowed = filter_filename(self.compiled_rules, filename)
         if allowed is None:
             ext = os.path.splitext(filename)[1][1:].lower()
@@ -230,7 +236,7 @@ class Worker(Thread):
         from calibre.ebooks.metadata.opf2 import metadata_to_opf
         from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 
-        data = []
+        data: AddedData = []
         for fname, mtime in sorted(self.files_ready_to_add(), key=lambda x: x[1]):
             f = os.path.join(self.path, fname)
             tdir = tempfile.mkdtemp(dir=self.tdir)
@@ -273,7 +279,7 @@ class AutoAdder(QObject):
     metadata_read = pyqtSignal(object)
     auto_convert = pyqtSignal(object)
 
-    def __init__(self, path, parent) -> None:
+    def __init__(self, path: str | None, parent: QObject | None) -> None:
         QObject.__init__(self, parent)
         if path and os.path.isdir(path) and os.access(path, os.R_OK | os.W_OK):
             self.watcher = QFileSystemWatcher(self)
@@ -297,7 +303,7 @@ class AutoAdder(QObject):
             pass
         self.watcher.addPath(self.worker.path)
 
-    def dir_changed(self, *args) -> None:
+    def dir_changed(self, *args: object) -> None:
         if os.path.isdir(self.worker.path) and os.access(self.worker.path, os.R_OK | os.W_OK):
             if not self.worker.is_alive():
                 self.worker.start()
@@ -312,17 +318,17 @@ class AutoAdder(QObject):
         if hasattr(self, 'worker'):
             self.worker.join()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         QApplication.restoreOverrideCursor()
 
-    def add_to_db(self, data) -> None:
+    def add_to_db(self, data: AddedData) -> None:
         with self:
             self.do_add(data)
 
-    def do_add(self, data) -> None:
+    def do_add(self, data: AddedData) -> None:
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.gui2.library.models import BooksModel
         from calibre.gui2.ui import get_gui
@@ -439,7 +445,7 @@ class AutoAdder(QObject):
         if needs_rescan:
             QTimer.singleShot(2000, self.dir_changed)
 
-    def do_auto_convert(self, added_ids) -> None:
+    def do_auto_convert(self, added_ids: set[int]) -> None:
         from calibre.gui2.ui import get_gui
 
         gui = get_gui()
@@ -447,7 +453,7 @@ class AutoAdder(QObject):
         gui.iactions['Convert Books'].auto_convert_auto_add(added_ids)
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
     import zipfile
 

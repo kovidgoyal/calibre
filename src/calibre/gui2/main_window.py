@@ -4,6 +4,7 @@ import gc
 import os
 import sys
 import weakref
+from typing import TYPE_CHECKING
 
 from qt.core import QAction, QIcon, QKeySequence, QMainWindow, QMenu, QMenuBar, QObject, Qt, QTimer, pyqtSignal
 
@@ -14,14 +15,19 @@ from calibre.utils.config import OptionParser
 from calibre.utils.localization import _
 from polyglot.io import PolyglotStringIO
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from qt.core import QWidget
+
 
 def option_parser(
-    usage='''\
+    usage: str = '''\
 Usage: %prog [options]
 
 Launch the Graphical User Interface
 ''',
-):
+) -> OptionParser:
     parser = OptionParser(usage)
     return parser
 
@@ -37,7 +43,7 @@ class GarbageCollector(QObject):
 
     INTERVAL = 5000
 
-    def __init__(self, parent, debug=False) -> None:
+    def __init__(self, parent: QObject | None, debug: bool = False) -> None:
         QObject.__init__(self, parent)
         self.debug = debug
 
@@ -74,10 +80,10 @@ class GarbageCollector(QObject):
 
 
 class ExceptionHandler:
-    def __init__(self, main_window) -> None:
+    def __init__(self, main_window: MainWindow) -> None:
         self.wref = weakref.ref(main_window)
 
-    def __call__(self, type, value, tb):
+    def __call__(self, type: type[BaseException], value: BaseException, tb: TracebackType | None) -> None:
         mw = self.wref()
         if mw is not None:
             mw.display_unhandled_exception.emit(type, value, tb)
@@ -86,13 +92,13 @@ class ExceptionHandler:
 
 
 class MainWindow(QMainWindow):
-    ___menu_bar = None
-    ___menu = None
-    __actions = []
+    ___menu_bar: QMenuBar | None = None
+    ___menu: QMenu | None = None
+    __actions: list[QAction] = []
     display_unhandled_exception = pyqtSignal(object, object, object)
 
     @classmethod
-    def create_application_menubar(cls):
+    def create_application_menubar(cls) -> list[QAction]:
         if not cls.__actions:
             mb = QMenuBar(None)
             menu = QMenu()
@@ -105,7 +111,7 @@ class MainWindow(QMainWindow):
         return cls.__actions
 
     @classmethod
-    def get_menubar_actions(cls):
+    def get_menubar_actions(cls) -> tuple[QAction, QAction]:
         preferences_action = QAction(QIcon.ic('config.png'), _('&Preferences'), None)
         quit_action = QAction(QIcon.ic('window-close.png'), _('&Quit'), None)
         preferences_action.setMenuRole(QAction.MenuRole.PreferencesRole)
@@ -113,16 +119,16 @@ class MainWindow(QMainWindow):
         return preferences_action, quit_action
 
     @property
-    def native_menubar(self):
+    def native_menubar(self) -> QMenuBar | None:
         return self.___menu_bar
 
-    def __init__(self, opts=None, parent=None, disable_automatic_gc=False) -> None:
+    def __init__(self, opts: object = None, parent: QWidget | None = None, disable_automatic_gc: bool = False) -> None:
         QMainWindow.__init__(self, parent)
         self.display_unhandled_exception.connect(self.unhandled_exception, type=Qt.ConnectionType.QueuedConnection)
         if disable_automatic_gc:
             self._gc = GarbageCollector(self, debug=False)
 
-    def enable_garbage_collection(self, enabled=True) -> None:
+    def enable_garbage_collection(self, enabled: bool = True) -> None:
         if hasattr(self, '_gc'):
             self._gc.timer.blockSignals(not enabled)
         else:
@@ -131,7 +137,7 @@ class MainWindow(QMainWindow):
     def set_exception_handler(self) -> None:
         sys.excepthook = ExceptionHandler(self)
 
-    def show_possible_sharing_violation(self, e: Exception, det_msg: str = '') -> bool:
+    def show_possible_sharing_violation(self, e: BaseException, det_msg: str = '') -> bool:
         if not iswindows or not isinstance(e, OSError):
             return False
         import errno
@@ -214,7 +220,7 @@ class MainWindow(QMainWindow):
         error_dialog(self, _('Cannot open file or folder as it is in use'), '<p>' + msg + dmsg, det_msg=det_msg, show=True)
         return True
 
-    def unhandled_exception(self, exc_type, value, tb) -> None:
+    def unhandled_exception(self, exc_type: type[BaseException], value: BaseException, tb: TracebackType | None) -> None:
         if exc_type is KeyboardInterrupt:
             return
         import traceback
@@ -228,8 +234,8 @@ class MainWindow(QMainWindow):
             except Exception:
                 pass
             traceback.print_exception(exc_type, value, tb, file=sio)
-            if getattr(value, 'locking_debug_msg', None):
-                prints(value.locking_debug_msg, file=sio)
+            if locking_debug_msg := getattr(value, 'locking_debug_msg', None):
+                prints(locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
             try:
@@ -252,12 +258,12 @@ class MainWindow(QMainWindow):
             pass
 
 
-def clone_menu(menu):
+def clone_menu(menu: QMenu) -> QMenu:
     # This is needed to workaround a bug in Qt 5.5+ and Unity. When the same
     # QAction object is used in both a QMenuBar and a QMenu, sub-menus of the
     # QMenu flicker when rendered under Unity.
 
-    def clone_action(ac, parent):
+    def clone_action(ac: QAction, parent: QMenu) -> QAction:
         if ac.isSeparator():
             ans = QAction(parent)
             ans.setSeparator(True)
@@ -276,16 +282,16 @@ def clone_menu(menu):
         ans.setChecked(ac.isChecked())
         return ans
 
-    def clone_one_menu(m):
+    def clone_one_menu(m: QMenu) -> QMenu:
         m.aboutToShow.emit()
-        ans = QMenu(m.parent())
+        ans = QMenu(m.parentWidget())
         ans.hovered.connect(m.hovered.emit)
         for ac in m.actions():
             cac = clone_action(ac, ans)
             ans.addAction(cac)
-            m = ac.menu()
-            if m is not None:
-                cac.setMenu(clone_menu(m))
+            sm = ac.menu()
+            if sm is not None:
+                cac.setMenu(clone_menu(sm))
         return ans
 
     return clone_one_menu(menu)

@@ -223,6 +223,7 @@ class ViewAction(InterfaceAction):
                                 show=True,
                             )
 
+                assert name is not None
                 open_local_file(name)
                 time.sleep(2)  # User feedback
 

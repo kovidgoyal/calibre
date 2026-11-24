@@ -24,7 +24,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
 
     def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
         if external or self.config.get('open_external', False):
-            open_url(detail_item)
+            open_url(detail_item or self.web_url)
         else:
             d = WebStoreDialog(self.gui, self.web_url, parent, detail_item)
             d.setWindowTitle(self.name)

@@ -684,7 +684,11 @@ def selected_rows_metadatas():
         gui = get_gui()
         assert gui is not None
         db = gui.current_db
-        rows = gui.current_view().selectionModel().selectedRows()
+        cv = gui.current_view()
+        assert cv is not None
+        sm = cv.selectionModel()
+        assert sm is not None
+        rows = sm.selectedRows()
         for row in rows:
             if row.isValid():
                 rslt.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))

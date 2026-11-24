@@ -23,6 +23,9 @@ class BaseJob:
     RUNNING = 1
     FINISHED = 2
 
+    # Set dynamically by the jobs GUI, use getattr() to read it
+    hidden_in_gui: bool
+
     def __init__(self, description: str, done: Callable[[BaseJob], object] = lambda x: x) -> None:
         self.id = next(job_counter)
         self.description = description

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2023, un_pogaz <un.pogaz@gmail.com>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QSize, Qt, QTabWidget, QUrl, QVBoxLayout, QWidget
 
@@ -12,22 +13,25 @@ from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QCloseEvent
+
 
 class Preview(HTMLDisplay):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setDefaultStyleSheet(resolved_css())
         self.setTabChangesFocus(True)
-        self.base_url = None
+        self.base_url: QUrl | None = None
 
-    def loadResource(self, type, name):
+    def loadResource(self, type: int, name: QUrl) -> object:
         if self.base_url is not None and name.isRelative():
             name = self.base_url.resolved(name)
         return super().loadResource(type, name)
 
 
 class MarkdownEdit(PlainTextEdit):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent, use_smarten_punctuation=True)
         from calibre.gui2.markdown_syntax_highlighter import MarkdownHighlighter
 
@@ -35,7 +39,7 @@ class MarkdownEdit(PlainTextEdit):
 
 
 class MarkdownEditDialog(QDialog):
-    def __init__(self, parent, text, column_name=None, base_url=None) -> None:
+    def __init__(self, parent: QWidget | None, text: str | None, column_name: str | None = None, base_url: QUrl | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setObjectName('MarkdownEditDialog')
         self.setWindowTitle(_('Edit Markdown'))
@@ -59,7 +63,7 @@ class MarkdownEditDialog(QDialog):
             self.setWindowTitle(_('Edit "{0}"').format(column_name))
         self.restore_geometry(gprefs, 'markdown_edit_dialog_geom')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(650, 600)
 
     def accept(self) -> None:
@@ -70,23 +74,23 @@ class MarkdownEditDialog(QDialog):
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
         QDialog.reject(self)
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
         return QDialog.closeEvent(self, a0)
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self.textbox.markdown
 
     @text.setter
-    def text(self, val) -> None:
+    def text(self, val: str | None) -> None:
         self.textbox.markdown = val or ''
 
 
 class Editor(QWidget):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
-        self.base_url = None
+        self.base_url: QUrl | None = None
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
         self.tabs = QTabWidget(self)
@@ -106,27 +110,27 @@ class Editor(QWidget):  # {{{
         assert _layout is not None
         _layout.setContentsMargins(0, 0, 0, 0)
 
-    def link_clicked(self, qurl) -> None:
+    def link_clicked(self, qurl: QUrl) -> None:
         safe_open_url(qurl)
 
-    def set_base_url(self, qurl) -> None:
+    def set_base_url(self, qurl: QUrl | None) -> None:
         self.base_url = qurl
         self.preview.base_url = self.base_url
 
-    def set_minimum_height_for_editor(self, val) -> None:
+    def set_minimum_height_for_editor(self, val: int) -> None:
         self.editor.setMinimumHeight(val)
 
     @property
-    def markdown(self):
+    def markdown(self) -> str:
         return self.editor.toPlainText().strip()
 
     @markdown.setter
-    def markdown(self, v) -> None:
+    def markdown(self, v: str | None) -> None:
         self.editor.setPlainText(str(v or ''))
         if self.tab == 'preview':
             self.update_preview()
 
-    def change_tab(self, index) -> None:
+    def change_tab(self, index: int) -> None:
         if index == 1:  # changing to preview
             self.update_preview()
 
@@ -146,10 +150,10 @@ class Editor(QWidget):  # {{{
         return 'code' if self.tabs.currentWidget() is self.editor else 'preview'
 
     @tab.setter
-    def tab(self, val) -> None:
+    def tab(self, val: str) -> None:
         self.tabs.setCurrentWidget(self.preview if val == 'preview' else self.editor)
 
-    def set_readonly(self, val) -> None:
+    def set_readonly(self, val: bool) -> None:
         self.editor.setReadOnly(bool(val))
 
     def hide_tabs(self) -> None:

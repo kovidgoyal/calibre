@@ -283,6 +283,7 @@ class LibraryDatabase:
     clean_custom: Callable[..., None]
     clean_standard_field: Callable[..., None]
     commit: Callable[..., None]
+    title: Callable[..., str]
     # Assigned dynamically in __init__ from self.data
     get_property: Callable[..., object]
     # Assigned by calibre.gui2.convert.gui_conversion.gui_catalog() for use by catalog plugins
@@ -1087,7 +1088,7 @@ class LibraryDatabase:
         num: int | None = None,
         append: bool = False,
         notify: bool = True,
-        extras: Sequence[float] | None = None,
+        extras: Sequence[float | None] | None = None,
     ) -> builtins.set[int] | None:
         if extras is not None and len(extras) != len(ids):
             raise ValueError('Length of ids and extras is not the same')

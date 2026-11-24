@@ -67,7 +67,7 @@ class MarkWithTextDialog(QDialog):
     def accept(self) -> None:
         if not self.text_box.text().strip():
             d = error_dialog(self.gui, _('Value cannot be empty'), _('You must provide a value'))
-            d.exec_()
+            d.exec()
         else:
             super().accept()
 

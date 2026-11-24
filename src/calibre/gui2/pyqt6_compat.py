@@ -54,7 +54,7 @@ QHoverEvent.posF = lambda self: self.position()
 # Restore the removed exec_ method
 
 
-def exec_(self, *args, **kwargs):
+def exec_(self: QDialog | QMenu | QDrag | QEventLoop | QThread | QCoreApplication, *args: object, **kwargs: object) -> object:
     return self.exec(*args, **kwargs)
 
 
@@ -68,7 +68,7 @@ QCoreApplication.exec_ = exec_
 
 
 # Restore ability to associate a menu with an action
-def set_menu(self, menu) -> None:
+def set_menu(self: QAction, menu: QMenu) -> None:
     self.keep_menu_ref = menu
     progress_indicator.set_menu_on_action(self, menu)
 

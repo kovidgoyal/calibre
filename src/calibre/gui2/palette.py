@@ -5,12 +5,18 @@ import os
 import sys
 from contextlib import contextmanager, suppress
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from qt.core import QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
 from calibre.constants import DEBUG, ismacos, iswindows
 from calibre.constants import dark_link_color as dlc
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from qt.core import QStyleOption, QWidget
 
 dark_link_color = QColor(dlc)
 dark_color = QColor(45, 45, 45)
@@ -21,7 +27,7 @@ light_link_color = QColor(0, 0, 255)
 
 
 class UseCalibreIcons(QProxyStyle):
-    def standardIcon(self, standardIcon, option=None, widget=None):
+    def standardIcon(self, standardIcon: QStyle.StandardPixmap, option: QStyleOption | None = None, widget: QWidget | None = None) -> QIcon:
         from calibre.gui2 import qapplication_or_fail
 
         ic = qapplication_or_fail().get_qt_standard_icon(standardIcon)
@@ -30,24 +36,24 @@ class UseCalibreIcons(QProxyStyle):
         return ic
 
 
-def palette_is_dark(self):
+def palette_is_dark(self: QPalette) -> bool:
     col = self.color(QPalette.ColorRole.Window)
     return max(col.getRgb()[:3]) < 115
 
 
-def serialize_palette(self):
+def serialize_palette(self: QPalette) -> bytes:
     ba = QByteArray()
     ds = QDataStream(ba, QIODeviceBase.OpenModeFlag.WriteOnly)
-    ds << self
+    ds << self  # ty: ignore[unsupported-operator]
     return bytes(ba)
 
 
-def unserialize_palette(self, b: bytes) -> None:
-    QDataStream(QByteArray(b)) >> self
+def unserialize_palette(self: QPalette, b: bytes) -> None:
+    QDataStream(QByteArray(b)) >> self  # ty: ignore[unsupported-operator]
 
 
-def serialize_palette_as_python(self):
-    lines = []
+def serialize_palette_as_python(self: QPalette) -> str:
+    lines: list[str] = []
     for group in QPalette.ColorGroup:
         if group in (QPalette.ColorGroup.All, QPalette.ColorGroup.NColorGroups):
             continue
@@ -67,7 +73,7 @@ QPalette.serialize_as_python = serialize_palette_as_python
 QPalette.unserialize_from_bytes = unserialize_palette
 
 
-def default_dark_palette():
+def default_dark_palette() -> QPalette:
     p = QPalette()
     disabled_color = QColor(127, 127, 127)
     p.setColor(QPalette.ColorRole.Window, dark_color)
@@ -94,7 +100,7 @@ def default_dark_palette():
     return p
 
 
-def default_light_palette():
+def default_light_palette() -> QPalette:
     p = QPalette()
     disabled_color = QColor(120, 120, 120)
     p.setColor(QPalette.ColorRole.Window, light_color)
@@ -122,7 +128,7 @@ def default_light_palette():
 
 
 @lru_cache
-def palette_colors():
+def palette_colors() -> dict[str, str]:
     return {
         'WindowText': _('A general foreground color'),
         'Text': _('The foreground color for text input widgets'),
@@ -149,7 +155,7 @@ def is_foreground_color(key: str) -> bool:
 
 def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalette:
 
-    def s(key, group=QPalette.ColorGroup.All) -> None:
+    def s(key: str, group: QPalette.ColorGroup = QPalette.ColorGroup.All) -> None:
         role = getattr(QPalette.ColorRole, key)
         grp = ''
         if group == QPalette.ColorGroup.Disabled:
@@ -166,7 +172,7 @@ def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalet
     return p.resolve(default_palette)
 
 
-def dark_palette():
+def dark_palette() -> QPalette:
     from calibre.gui2 import gprefs
 
     ans = default_dark_palette()
@@ -177,7 +183,7 @@ def dark_palette():
     return ans
 
 
-def light_palette():
+def light_palette() -> QPalette:
     from calibre.gui2 import gprefs
 
     ans = default_light_palette()
@@ -226,7 +232,7 @@ class PaletteManager(QObject):
     using_calibre_style: bool
     is_dark_theme: bool
 
-    def __init__(self, force_calibre_style, headless) -> None:
+    def __init__(self, force_calibre_style: bool, headless: bool) -> None:
         from calibre.gui2 import gprefs
 
         super().__init__()
@@ -242,7 +248,7 @@ class PaletteManager(QObject):
         else:
             self.using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
 
-        args = []
+        args: list[str] = []
         self.args_to_qt = tuple(args)
         if ismacos and not headless:
             from calibre_extensions.cocoa import set_appearance
@@ -261,7 +267,7 @@ class PaletteManager(QObject):
             self.using_calibre_style = True
 
     @property
-    def use_dark_palette(self):
+    def use_dark_palette(self) -> bool:
         from calibre.gui2 import qapplication_or_fail
 
         app = qapplication_or_fail()
@@ -291,7 +297,7 @@ class PaletteManager(QObject):
             app.setStyle(self.native_proxy_style)
         self.on_palette_change()
 
-    def get_qt_standard_icon(self, standard_pixmap):
+    def get_qt_standard_icon(self, standard_pixmap: QStyle.StandardPixmap | int) -> QIcon:
         from qt.core import QStyle
 
         sp = QStyle.StandardPixmap(standard_pixmap)
@@ -370,7 +376,7 @@ QTabBar::tab:only-one {
     def set_light_mode_palette(self) -> None:
         self.set_palette(light_palette())
 
-    def color_scheme_changed(self, new_color_scheme) -> None:
+    def color_scheme_changed(self, new_color_scheme: Qt.ColorScheme) -> None:
         if DEBUG:
             print('System Color Scheme changed to:', new_color_scheme, file=sys.stderr)
         if self.color_palette != 'system' or not self.using_calibre_style:
@@ -384,7 +390,7 @@ QTabBar::tab:only-one {
         self.on_palette_change()
 
     @contextmanager
-    def changing_palette(self):
+    def changing_palette(self) -> Generator[None]:
         orig = self.ignore_palette_changes
         self.ignore_palette_changes = True
         try:
@@ -392,7 +398,7 @@ QTabBar::tab:only-one {
         finally:
             self.ignore_palette_changes = orig
 
-    def set_palette(self, pal) -> None:
+    def set_palette(self, pal: QPalette) -> None:
         from calibre.gui2 import qapplication_or_fail
 
         with self.changing_palette():

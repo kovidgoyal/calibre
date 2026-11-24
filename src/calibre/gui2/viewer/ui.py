@@ -598,7 +598,7 @@ class EbookViewer(MainWindow):
                 self,
                 'ebook viewer open dialog',
                 _('Choose e-book'),
-                [(_('E-books'), available_input_formats())],
+                [(_('E-books'), list(available_input_formats()))],
                 all_files=False,
                 select_only_single_file=True,
             )

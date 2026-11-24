@@ -22,15 +22,19 @@ FALLBACK_URL = 'https://calibre-ebook.com/latest-version'
 # URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = (0, 0, 0)
 if TYPE_CHECKING:
+    from optparse import Values
+
+    from qt.core import QWidget
+
     from calibre.gui2.ui import Main
 
 
-def get_download_url():
+def get_download_url() -> str:
     which = 'portable' if isportable else 'windows' if iswindows else 'osx' if ismacos else 'linux'
     return localize_website_link('https://calibre-ebook.com/download_' + which)
 
 
-def get_newest_version():
+def get_newest_version() -> tuple[int, ...]:
     icon_theme_name = icon_resource_manager.user_theme_name
     if icon_theme_name == 'default':
         icon_theme_name = ''
@@ -53,7 +57,7 @@ def get_newest_version():
         version = version.decode('utf-8').strip()
     except UnicodeDecodeError:
         version = ''
-    ans = NO_CALIBRE_UPDATE
+    ans: tuple[int, ...] = NO_CALIBRE_UPDATE
     m = re.match(r'(\d+)\.(\d+).(\d+)$', version)
     if m is not None:
         ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
@@ -68,14 +72,14 @@ class CheckForUpdates(Thread):
     INTERVAL = 24 * 60 * 60  # seconds
     daemon = True
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QObject | None) -> None:
         Thread.__init__(self, name='CheckForUpdates')
         self.shutdown_event = Event()
         self.signal = Signal(parent)
 
     def run(self) -> None:
         while not self.shutdown_event.is_set():
-            calibre_update_version = NO_CALIBRE_UPDATE
+            calibre_update_version: tuple[int, ...] = NO_CALIBRE_UPDATE
             plugins_update_found = 0
             try:
                 version = get_newest_version()
@@ -97,7 +101,7 @@ class CheckForUpdates(Thread):
         self.shutdown_event.set()
 
 
-def version_key(calibre_version):
+def version_key(calibre_version: str | bytes) -> str:
     if isinstance(calibre_version, bytes):
         calibre_version = calibre_version.decode('utf-8')
     if calibre_version.count('.') > 1:
@@ -105,20 +109,20 @@ def version_key(calibre_version):
     return calibre_version
 
 
-def is_version_notified(calibre_version):
+def is_version_notified(calibre_version: str | bytes) -> bool:
     key = version_key(calibre_version)
     done = dynamic.get('notified-version-updates') or set()
     return key in done
 
 
-def save_version_notified(calibre_version) -> None:
+def save_version_notified(calibre_version: str | bytes) -> None:
     done = dynamic.get('notified-version-updates') or set()
     done.add(version_key(calibre_version))
     dynamic.set('notified-version-updates', done)
 
 
 class UpdateNotification(QDialog):
-    def __init__(self, calibre_version, plugin_updates, parent=None) -> None:
+    def __init__(self, calibre_version: str, plugin_updates: int, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setAttribute(Qt.WidgetAttribute.WA_QuitOnClose, False)
         self.resize(400, 250)
@@ -174,7 +178,7 @@ class UpdateNotification(QDialog):
             if gui is not None:
                 gui.quit(restart=True)
 
-    def show_future(self, *args) -> None:
+    def show_future(self, *args: object) -> None:
         config.set('new_version_notification', bool(self.cb.isChecked()))
 
     def accept(self) -> None:
@@ -184,23 +188,23 @@ class UpdateNotification(QDialog):
 
 
 class UpdateMixin:
-    def init_update_mixin(self: Main, opts) -> None:
+    def init_update_mixin(self: Main, opts: Values) -> None:
         self.last_newest_calibre_version = NO_CALIBRE_UPDATE
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
             self.update_checker.signal.update_found.connect(self.update_found, type=Qt.ConnectionType.QueuedConnection)
             self.update_checker.start()
 
-    def recalc_update_label(self: Main, number_of_plugin_updates) -> None:
+    def recalc_update_label(self: Main, number_of_plugin_updates: int) -> None:
         self.update_found(self.last_newest_calibre_version, number_of_plugin_updates)
 
-    def update_found(self: Main, calibre_version, number_of_plugin_updates, force=False, no_show_popup=False) -> None:
+    def update_found(self: Main, calibre_version: tuple[int, ...], number_of_plugin_updates: int, force: bool = False, no_show_popup: bool = False) -> None:
         self.last_newest_calibre_version = calibre_version
         has_calibre_update = calibre_version != NO_CALIBRE_UPDATE and calibre_version[0] > 0
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
         version_url = as_hex_unicode(msgpack_dumps((calibre_version, number_of_plugin_updates)))
-        calibre_version = '.'.join(map(str, calibre_version))
+        calibre_version_str = '.'.join(map(str, calibre_version))
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
             return
@@ -210,7 +214,7 @@ class UpdateMixin:
                 plt = ngettext(' and one plugin update', ' and {} plugin updates', number_of_plugin_updates).format(number_of_plugin_updates)
             green = qapplication_or_fail().success_text_color
             msg = ('<span style="color:{}; font-weight: bold">{}: <a href="update:{}">{}{}</a></span>').format(
-                green, _('Update available'), version_url, calibre_version, plt
+                green, _('Update available'), version_url, calibre_version_str, plt
             )
         else:
             plt = ngettext('plugin update available', 'plugin updates available', number_of_plugin_updates)
@@ -219,9 +223,9 @@ class UpdateMixin:
         self.status_bar.update_label.setVisible(True)
 
         if has_calibre_update:
-            if force or (config.get('new_version_notification') and not is_version_notified(calibre_version)):
+            if force or (config.get('new_version_notification') and not is_version_notified(calibre_version_str)):
                 if not no_show_popup:
-                    self._update_notification__ = UpdateNotification(calibre_version, number_of_plugin_updates, parent=self)
+                    self._update_notification__ = UpdateNotification(calibre_version_str, number_of_plugin_updates, parent=self)
                     self._update_notification__.show()
         elif has_plugin_updates:
             if force:
@@ -235,7 +239,7 @@ class UpdateMixin:
         if d.do_restart:
             self.quit(restart=True)
 
-    def plugin_update_found(self: Main, number_of_updates) -> None:
+    def plugin_update_found(self: Main, number_of_updates: int) -> None:
         # Change the plugin icon to indicate there are updates available
         plugin = self.iactions.get('Plugin Updater', None)
         if not plugin:
@@ -251,7 +255,7 @@ class UpdateMixin:
             plugin.qaction.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
-    def update_link_clicked(self: Main, url) -> None:
+    def update_link_clicked(self: Main, url: str) -> None:
         url = str(url)
         if url.startswith('update:'):
             calibre_version, number_of_plugin_updates = msgpack_loads(from_hex_bytes(url[len('update:') :]))

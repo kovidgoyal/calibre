@@ -609,7 +609,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     show_copy_button=False,
                 )
                 box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.StandardButton.Cancel)
-                box.det_msg_toggle.setVisible(False)
+                det_msg_toggle = box.det_msg_toggle
+                assert det_msg_toggle is not None
+                det_msg_toggle.setVisible(False)
                 if not box.exec():
                     self.te_name.blockSignals(True)
                     dex = self.te_name.findText(self.st_current_program_name)

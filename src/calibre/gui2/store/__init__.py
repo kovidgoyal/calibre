@@ -1,6 +1,11 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from calibre.utils.filenames import ascii_filename
+
+if TYPE_CHECKING:
+    from calibre.customize import PluginInstallationType
 
 
 class StorePlugin:  # {{{
@@ -45,6 +50,10 @@ class StorePlugin:  # {{{
     """
 
     minimum_calibre_version = (0, 9, 14)
+
+    # Set by the GUI when loading the plugin
+    plugin_path: str | None
+    installation_type: PluginInstallationType | None
 
     def __init__(self, gui, name, config=None, base_plugin=None) -> None:
         self.gui = gui

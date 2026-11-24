@@ -322,14 +322,20 @@ def find_programs(extensions: Iterable[str]) -> list[dict[str, Any]]:
 
 
 @overload
-def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, as_data: Literal[False] = False, size: int = 64) -> QImage | None: ...
+def get_icon(
+    path: str | None, pixmap_to_data: Callable[[QImage], bytes | bytearray] | None = None, as_data: Literal[False] = False, size: int = 64
+) -> QImage | None: ...
 
 
 @overload
-def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, *, as_data: Literal[True], size: int = 64) -> bytes | None: ...
+def get_icon(
+    path: str | None, pixmap_to_data: Callable[[QImage], bytes | bytearray] | None = None, *, as_data: Literal[True], size: int = 64
+) -> bytes | bytearray | None: ...
 
 
-def get_icon(path: str | None, pixmap_to_data: Callable[[QImage], bytes] | None = None, as_data: bool = False, size: int = 64) -> QImage | bytes | None:
+def get_icon(
+    path: str | None, pixmap_to_data: Callable[[QImage], bytes | bytearray] | None = None, as_data: bool = False, size: int = 64
+) -> QImage | bytes | bytearray | None:
     if not path:
         return
     with TemporaryDirectory() as tdir:

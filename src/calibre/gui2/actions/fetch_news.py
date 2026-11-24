@@ -3,6 +3,7 @@
 
 import gc
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import Qt
 
@@ -10,6 +11,9 @@ from calibre.gui2 import Dispatcher
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.tools import fetch_scheduled_recipe
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.tools import RecipeFetchArg
 
 
 class FetchNewsAction(InterfaceAction):
@@ -44,7 +48,7 @@ class FetchNewsAction(InterfaceAction):
         self.scheduler.delete_old_news.connect(self.gui.library_view.model().delete_books_by_id, type=Qt.ConnectionType.QueuedConnection)
 
     def download_custom_recipe(self, title, urn) -> None:
-        arg = {'title': title, 'urn': urn, 'username': None, 'password': None}
+        arg: RecipeFetchArg = {'title': title, 'urn': urn, 'username': None, 'password': None}
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(Dispatcher(self.custom_recipe_fetched), func, args=args, description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)

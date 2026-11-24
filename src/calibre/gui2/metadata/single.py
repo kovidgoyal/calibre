@@ -106,7 +106,7 @@ class MetadataSingleDialogBase(QDialog):
         self.rows_to_refresh = set()
         self.metadata_before_fetch = None
         self.editing_multiple = editing_multiple
-        self.comments_edit_state_at_apply = {}
+        self.comments_edit_state_at_apply: dict[CommentsEdit | Comments, str | None] = {}
         QDialog.__init__(self, parent)
         self.setupUi()
 
@@ -174,6 +174,7 @@ class MetadataSingleDialogBase(QDialog):
 
         self.create_basic_metadata_widgets()
 
+        assert self.db is not None
         if len(get_custom_columns_to_display_in_editor(self.db)):
             self.create_custom_metadata_widgets()
         self.comments_edit_state_at_apply = {self.comments: None}
@@ -397,6 +398,7 @@ class MetadataSingleDialogBase(QDialog):
         self.custom_metadata_widgets_parent = w = QWidget(self)
         layout = QGridLayout()
         w.setLayout(layout)
+        assert self.db is not None
         self.custom_metadata_widgets, self.__cc_spacers = populate_metadata_page(
             layout, self.db, None, parent=w, bulk=False, two_column=self.use_two_columns_for_custom_metadata()
         )
@@ -415,12 +417,14 @@ class MetadataSingleDialogBase(QDialog):
             for i in range(len(ans) - 1):
                 if before is not None and i == 0:
                     pass
-                if len(ans[i + 1].widgets) == 2:
-                    sto(ans[i].widgets[-1], ans[i + 1].widgets[1])
+                cur, nxt = ans[i].widgets, ans[i + 1].widgets
+                assert cur is not None and nxt is not None
+                if len(nxt) == 2:
+                    sto(cur[-1], nxt[1])
                 else:
-                    sto(ans[i].widgets[-1], ans[i + 1].widgets[0])
-                for c in range(2, len(ans[i].widgets), 2):
-                    sto(ans[i].widgets[c - 1], ans[i].widgets[c + 1])
+                    sto(cur[-1], nxt[0])
+                for c in range(2, len(cur), 2):
+                    sto(cur[c - 1], cur[c + 1])
             if after is not None:
                 pass
 

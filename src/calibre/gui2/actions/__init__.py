@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 from qt.core import QAction, QIcon, QKeySequence, QMenu, QObject, QPoint, QTimer, QToolButton
@@ -10,6 +11,9 @@ from calibre import prints
 from calibre.constants import ismacos
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
+
+if TYPE_CHECKING:
+    from calibre.customize import PluginInstallationType
 
 
 def toolbar_widgets_for_action(gui, action):
@@ -180,6 +184,9 @@ class InterfaceAction(QObject):
     accepts_drops = False
 
     qaction: QAction
+    # Set by the GUI when loading the plugin
+    plugin_path: str | None
+    installation_type: PluginInstallationType | None
 
     def __init__(self, parent, site_customization) -> None:
         QObject.__init__(self, parent)

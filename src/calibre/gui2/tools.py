@@ -6,6 +6,7 @@ Logic for setting up conversion jobs
 """
 
 import os
+from typing import IO, TYPE_CHECKING, NotRequired, TypedDict, cast
 
 from qt.core import QDialog, QProgressDialog, QTimer
 
@@ -28,25 +29,37 @@ from calibre.utils.config import prefs
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.devices.usbms.device import Device
+    from calibre.gui2.device import DeviceManager
+
+    # (job function name, job arguments, description, output format, book id, temporary files)
+    type ConversionJob = tuple[str, Sequence[object], str, str, int, list[PersistentTemporaryFile]]
+
 
 def convert_single_ebook(
-    parent,
-    db,
-    book_ids,
-    auto_conversion=False,  # {{{
-    out_format=None,
-    show_no_format_warning=True,
-):
+    parent: QWidget | None,
+    db: LibraryDatabase,
+    book_ids: Collection[int],
+    auto_conversion: bool = False,  # {{{
+    out_format: str | None = None,
+    show_no_format_warning: bool = True,
+) -> tuple[list[ConversionJob], bool, list[tuple[int, tuple[str, ...]]]] | tuple[None, None, None]:
     changed = False
-    jobs = []
-    bad = []
+    jobs: list[ConversionJob] = []
+    bad: list[tuple[int, tuple[str, ...]]] = []
 
     total = len(book_ids)
     if total == 0:
         return None, None, None
 
     for i, book_id in enumerate(book_ids):
-        temp_files = []
+        temp_files: list[PersistentTemporaryFile] = []
 
         try:
             d = SingleConfig(parent, db, book_id, None, out_format)
@@ -66,7 +79,7 @@ def convert_single_ebook(
                 with in_file:
                     input_fmt = db.original_fmt(book_id, d.input_format).lower()
                     same_fmt = input_fmt == d.output_format.lower()
-                    db.copy_format_to(book_id, input_fmt, in_file, index_is_id=True)
+                    db.copy_format_to(book_id, input_fmt, cast('IO[bytes]', in_file), index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
                 out_file.write(as_bytes(d.output_format))
@@ -90,7 +103,7 @@ def convert_single_ebook(
                 if d.cover_file is not None:
                     recs.append(('cover', d.cover_file.name, OptionRecommendation.HIGH))
                     temp_files.append(d.cover_file)
-                args = [in_file.name, out_file.name, recs]
+                args: list[object] = [in_file.name, out_file.name, recs]
                 temp_files.append(out_file)
                 func = 'gui_convert_override'
                 parts = []
@@ -154,7 +167,14 @@ def convert_single_ebook(
 # Bulk convert {{{
 
 
-def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=None):
+def convert_bulk_ebook(
+    parent: QWidget | None,
+    queue: Callable[..., object],
+    db: LibraryDatabase,
+    book_ids: Sequence[int],
+    out_format: str | None = None,
+    args: Sequence[object] | None = None,
+) -> QueueBulk | tuple[None, None, None] | None:
     if args is None:
         args = []
     total = len(book_ids)
@@ -176,7 +196,17 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=None):
 
 
 class QueueBulk(QProgressDialog):
-    def __init__(self, parent, book_ids, output_format, queue, db, user_recs, args, use_saved_single_settings=True) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None,
+        book_ids: Sequence[int],
+        output_format: str,
+        queue: Callable[..., object],
+        db: LibraryDatabase,
+        user_recs: Iterable[tuple[str, object, int]],
+        args: Sequence[object],
+        use_saved_single_settings: bool = True,
+    ) -> None:
         QProgressDialog.__init__(self, '', None, 0, len(book_ids), parent)
         self.setWindowTitle(_('Queueing books for bulk conversion'))
         self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = (
@@ -188,17 +218,19 @@ class QueueBulk(QProgressDialog):
             user_recs,
         )
         self.use_saved_single_settings = use_saved_single_settings
-        self.i, self.bad, self.jobs, self.changed = 0, [], [], False
+        self.i, self.changed = 0, False
+        self.bad: list[int] = []
+        self.jobs: list[ConversionJob] = []
         QTimer.singleShot(0, self.do_book)
         self.exec()
 
-    def do_book(self):
+    def do_book(self) -> None:
         if self.i >= len(self.book_ids):
             return self.do_queue()
         book_id = self.book_ids[self.i]
         self.i += 1
 
-        temp_files = []
+        temp_files: list[PersistentTemporaryFile] = []
 
         try:
             input_format = get_input_format_for_book(self.db, book_id, None)[0]
@@ -207,7 +239,7 @@ class QueueBulk(QProgressDialog):
             mi, opf_file = create_opf_file(self.db, book_id, for_conversion=True)
             in_file = PersistentTemporaryFile('.' + input_format)
             with in_file:
-                self.db.copy_format_to(book_id, input_fmt, in_file, index_is_id=True)
+                self.db.copy_format_to(book_id, input_fmt, cast('IO[bytes]', in_file), index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
             out_file.write(as_bytes(self.output_format))
@@ -256,7 +288,7 @@ class QueueBulk(QProgressDialog):
             self.setLabelText(_('Queueing ') + dtitle)
             desc = _('Convert book %(num)d of %(tot)d (%(title)s)') % dict(num=self.i, tot=len(self.book_ids), title=dtitle)
 
-            args = [in_file.name, out_file.name, lrecs]
+            args: list[object] = [in_file.name, out_file.name, lrecs]
             temp_files.append(out_file)
             func = 'gui_convert_override'
             if same_fmt:
@@ -279,7 +311,7 @@ class QueueBulk(QProgressDialog):
 
             msg = '{}'.format('\n'.join(res))
             warning_dialog(
-                self.parent(),
+                self.parentWidget(),
                 _('Could not convert some books'),
                 _('Could not convert %(num)d of %(tot)d books, because no suitable source format was found.') % dict(num=len(res), tot=len(self.book_ids)),
                 msg,
@@ -291,7 +323,15 @@ class QueueBulk(QProgressDialog):
 # }}}
 
 
-def fetch_scheduled_recipe(arg):  # {{{
+class RecipeFetchArg(TypedDict):
+    title: str
+    urn: str
+    username: str | None
+    password: str | None
+    recipe_specific_options: NotRequired[dict[str, str] | None]
+
+
+def fetch_scheduled_recipe(arg: RecipeFetchArg) -> tuple[str, list[object], str, str, list[PersistentTemporaryFile]]:  # {{{
     fmt = prefs['output_format'].lower()
     # Never use AZW3 or KFX for periodicals...
     if fmt in ('azw3', 'kfx'):
@@ -335,9 +375,9 @@ def fetch_scheduled_recipe(arg):  # {{{
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
-    if arg.get('recipe_specific_options', None):
+    if rso := arg.get('recipe_specific_options', None):
         serialized = []
-        for name, val in arg['recipe_specific_options'].items():
+        for name, val in rso.items():
             serialized.append(f'{name}:{val}')
         recs.append(('recipe_specific_option', serialized, OptionRecommendation.HIGH))
 
@@ -347,7 +387,13 @@ def fetch_scheduled_recipe(arg):  # {{{
 # }}}
 
 
-def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
+def generate_catalog(
+    parent: QWidget | None,
+    dbspec: dict[int, dict[str, object]],
+    ids: list[int],
+    device_manager: DeviceManager,
+    db: LibraryDatabase,
+) -> tuple[str, list[object], str, str, bool, str] | None:  # {{{
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -371,7 +417,8 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     }
 
     if device_manager.is_device_present:
-        device = device_manager.device
+        # The code below assumes a USBMS style device, other devices raise AttributeError in the try block
+        device = cast('Device', device_manager.device)
         connected_device['name'] = device.get_gui_name()
         try:
             storage = []
@@ -417,7 +464,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
 # }}}
 
 
-def convert_existing(parent, db, book_ids, output_format):  # {{{
+def convert_existing(parent: QWidget | None, db: LibraryDatabase, book_ids: Sequence[int], output_format: str) -> Sequence[int]:  # {{{
     already_converted_ids = []
     already_converted_titles = []
     for book_id in book_ids:
