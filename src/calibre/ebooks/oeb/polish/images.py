@@ -15,8 +15,6 @@ from calibre.utils.localization import _, ngettext
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
-    from lxml.etree import _Element
-
     from calibre.ebooks.oeb.polish.container import Container
 
     type Report = Callable[[str], object]
@@ -456,41 +454,34 @@ def compress_images(
 
 def remove_unused_images(container: Container, report: Report | None = None) -> bool:
     """
-    Remove images that are not referenced by any file in the spine or by any
-    stylesheet used by files in the spine.
+    Remove images that are not referenced by any HTML file or by any
+    stylesheet used by an HTML file, directly or via @import. The cover image is
+    never removed.
     """
     report = report or (lambda x: x)
-    from calibre.ebooks.oeb.polish.container import OEB_STYLES
+    from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
+    from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
     from calibre.ebooks.oeb.polish.report import safe_href_to_name
 
-    # Collect spine document names
-    spine_docs = {name for name, _ in container.spine_names}
-
-    # Collect stylesheets referenced by spine documents
-    used_stylesheets: set[str] = set()
-    for name in spine_docs:
-        if not container.exists(name):
-            continue
-        root = cast('_Element', container.parsed(name))  # spine items are HTML, parsed into lxml trees
-        for link in root.xpath('//*[local-name()="link" and @href]'):
-            sname = safe_href_to_name(container, link.get('href'), name)
-            if sname and container.exists(sname):
-                mt = container.mime_map.get(sname, '')
-                if mt in OEB_STYLES:
-                    used_stylesheets.add(sname)
-
-    # Collect all images referenced by spine docs and their stylesheets
-    relevant_sources = spine_docs | used_stylesheets
     referenced_images: set[str] = set()
-    for source_name in relevant_sources:
-        if not container.exists(source_name):
-            continue
+    if cover := get_raster_cover_name(container):
+        referenced_images.add(cover)
+    # Start from all HTML files, not just those in the spine, as files such as
+    # the EPUB 3 navigation document need not be in the spine
+    pending = [name for name, mt in container.mime_map.items() if mt in OEB_DOCS and container.exists(name)]
+    seen = set(pending)
+    while pending:
+        source_name = pending.pop()
         for href, _line_number, _offset in container.iterlinks(source_name):
             target = safe_href_to_name(container, href, source_name)
-            if target and container.exists(target):
-                mt = container.mime_map.get(target, '')
-                if mt and mt.startswith('image/'):
-                    referenced_images.add(target)
+            if not target or not container.exists(target):
+                continue
+            mt = container.mime_map.get(target, '')
+            if mt.startswith('image/'):
+                referenced_images.add(target)
+            elif mt in OEB_STYLES and target not in seen:
+                seen.add(target)
+                pending.append(target)
 
     # Find all images in the container and remove unused ones
     all_images = {name for name, mt in container.mime_map.items() if mt.startswith('image/') and container.exists(name)}

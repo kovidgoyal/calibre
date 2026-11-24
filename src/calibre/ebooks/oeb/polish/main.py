@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens, remove_soft_hyphens
 from calibre.ebooks.oeb.polish.images import compress_images, remove_unused_images
 from calibre.ebooks.oeb.polish.jacket import add_or_replace_jacket, find_existing_jacket, remove_jacket, replace_jacket
+from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_fonts
@@ -45,6 +46,7 @@ class Opts(NamedTuple):
     add_soft_hyphens: bool = False
     remove_soft_hyphens: bool = False
     download_external_resources: bool = False
+    cleanup: bool = False
 
 
 class PolishActions(TypedDict, total=False):
@@ -62,6 +64,7 @@ class PolishActions(TypedDict, total=False):
     add_soft_hyphens: bool
     remove_soft_hyphens: bool
     download_external_resources: bool
+    cleanup: bool
 
 
 class GuiPolishData(PolishActions, total=False):
@@ -163,6 +166,24 @@ better when the text is justified, in readers that do not support hyphenation.</
 All such resources will be downloaded and added to the book so that the book no longer references any external resources.
 </p>
 '''),
+    'cleanup': _('''\
+<p>Clean up the internals of the book. This performs the following actions:</p>
+<ul>
+<li>Fix any errors in the HTML markup of all HTML files in the book, such as unclosed tags.
+This is the same as the <i>Fix HTML - all files</i> tool in the calibre e-book editor.</li>
+<li>Remove all images that are not referenced by any HTML file in the book or by
+any stylesheet used by those files. The cover image is always kept.</li>
+<li>Check the book for errors and automatically fix all errors that can be fixed automatically.
+This is the same as running <i>Check book</i> in the calibre e-book editor and then
+using <i>Try to fix all fixable errors automatically</i>. Rules that you have chosen
+to skip in the <i>Check book</i> tool of the editor are skipped here as well.
+Errors that cannot be fixed automatically are listed in the report.</li>
+<li>Beautify (pretty print) all HTML, CSS and XML files in the book, making them easier to read
+and edit. This is the same as the <i>Beautify all files</i> tool in the calibre e-book editor.</li>
+</ul>
+<p>Note that unlike the other actions, this re-formats the code of the
+book and can rename files, so it changes the internals of the book a lot more.</p>
+'''),
 }
 
 
@@ -216,6 +237,59 @@ def download_resources(ebook: Container, report: Report) -> bool:
     return changed
 
 
+def check_book_skipped_rules() -> frozenset[str]:
+    # The rules the user has chosen to skip in the Check book tool of the
+    # editor, read directly from the editor preferences to avoid importing GUI
+    # code in the polishing worker
+    from calibre.utils.config import JSONConfig
+
+    return frozenset(JSONConfig('tweak_book_gui').get('check_book_skipped_rules', None) or ())
+
+
+def check_and_fix(ebook: Container, report: Report, skipped_rules: frozenset[str] | None = None) -> bool:
+    from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
+    from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+
+    def key(err: BaseError) -> tuple[str, str, str]:
+        return type(err).__name__, err.name, err.msg
+
+    if skipped_rules is None:
+        skipped_rules = check_book_skipped_rules()
+    remaining = run_checks(ebook, skipped_rules)
+    if not remaining:
+        report(_('No errors found'))
+        return False
+    seen = {key(e) for e in remaining}
+    changed = False
+    # Fixing some errors, such as fatal parsing errors, allows further checks
+    # to run, which can find more errors to fix, so do a few passes, stopping
+    # when a pass makes no progress
+    for _pass in range(3):
+        if not fix_errors(ebook, remaining, skipped_rules):
+            break
+        changed = True
+        before = {key(e) for e in remaining}
+        remaining = run_checks(ebook, skipped_rules)
+        after = {key(e) for e in remaining}
+        seen |= after
+        if not remaining or after == before:
+            break
+    num = len(seen)
+    report(ngettext('Found one error', 'Found {} errors', num).format(num))
+    fixed = len(seen - {key(e) for e in remaining})
+    report(ngettext('Fixed one error', 'Fixed {} errors', fixed).format(fixed))
+    if remaining:
+        n = len(remaining)
+        report(ngettext('One error could not be fixed automatically:', '{} errors could not be fixed automatically:', n).format(n))
+        for err in remaining:
+            loc = err.name if err.line is None else f'{err.name}:{err.line}'
+            level = _('Error') if err.level > WARN else _('Warning') if err.level == WARN else _('Info')
+            report(f'  [{level}] {loc}: {err.msg}')
+        if any(err.level > WARN for err in remaining):
+            report(_('Some checks are only run once there are no errors, so the book may have more problems than are listed above.'))
+    return changed
+
+
 def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict[str, bool] | None = None) -> bool:
     def rt(x: str) -> object:
         return report('\n### ' + x)
@@ -223,6 +297,26 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()
+
+    # Fixing HTML and errors runs first as it can change the HTML of the book
+    # and rename files, which the other actions, such as font subsetting,
+    # depend on. Unused images are removed before checking so that errors in
+    # them, such as corrupted images, which prevent other checks from running,
+    # are not reported.
+    if opts.cleanup:
+        rt(_('Fixing HTML'))
+        fix_all_html(ebook)
+        changed = True
+        report(_('All HTML files fixed\n'))
+        rt(_('Removing unused images'))
+        if remove_unused_images(ebook, report):
+            changed = True
+        report('')
+        rt(_('Checking book and fixing errors'))
+        if check_and_fix(ebook, report):
+            changed = True
+        report('')
+
     has_subsettable_fonts = False
     for x in iter_subsettable_fonts(ebook):
         has_subsettable_fonts = True
@@ -303,7 +397,7 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
             changed = True
         report('')
 
-    if opts.remove_unused_images:
+    if opts.remove_unused_images and not opts.cleanup:
         rt(_('Removing unused images'))
         if remove_unused_images(ebook, report):
             changed = True
@@ -340,6 +434,13 @@ def polish_one(ebook: Container, opts: Opts, report: Report, customization: dict
             report(_('Failed to download resources with error:'))
             report(traceback.format_exc())
         report('')
+
+    # Beautifying runs last so that it formats the output of all the other actions
+    if opts.cleanup:
+        rt(_('Beautifying all files'))
+        pretty_all(ebook)
+        changed = True
+        report(_('All files beautified\n'))
 
     return changed
 
@@ -410,6 +511,7 @@ def option_parser() -> OptionParser:
     o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
     o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
     o('--download-external-resources', '-d', help=CLI_HELP['download_external_resources'])
+    o('--cleanup', help=CLI_HELP['cleanup'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
