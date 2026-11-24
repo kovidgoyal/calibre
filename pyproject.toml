@@ -289,7 +289,6 @@ ignore = [
 "src/calibre/{rpdb,utils/ipython}.py" = ['T1']
 "src/qt/*.py" = ['I', 'blank-lines-top-level']
 "src/qt/*.pyi" = ['I']
-"src/calibre/gui2/{dialogs,tweak_book,viewer}/*" = ['ANN']
 "{manual,setup,stubs}/*" = ['ANN']
 "src/{odf,qt}/*" = ['ANN']
 # These modules wrap a browser, whose operations can all block indefinitely on
