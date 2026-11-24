@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import traceback
+from collections.abc import Mapping
 from functools import partial
 from typing import TYPE_CHECKING, cast
 
@@ -58,7 +59,7 @@ from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Sequence
     from types import FrameType
 
     from qt.core import QKeyEvent, QPoint, QTextDocument, QUrl, QWidget
@@ -1448,9 +1449,7 @@ class BreakReporterItem(QTableWidgetItem):
 
 class BreakReporterBase(QDialog):
     def setup_ui(self, mi: TemplateBook, line_number: int, locals_: Mapping[str, object], leading_rows: int) -> None:
-        # The break reporters access Metadata attributes, they are not usable
-        # with the dict based books used with EvalFormatter
-        self.mi = cast('Metadata', mi)
+        self.mi = mi
         self.leading_rows = leading_rows
         self.setModal(True)
         l = QVBoxLayout(self)
@@ -1487,7 +1486,9 @@ class BreakReporterBase(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.setLayout(l)
-        self.setWindowTitle(_('Break: line {0}, book {1}').format(line_number, self.mi.title))
+        # The books used with EvalFormatter are dicts
+        title = mi.get('title') if isinstance(mi, Mapping) else mi.title
+        self.setWindowTitle(_('Break: line {0}, book {1}').format(line_number, title))
 
         self.mi_combo = QComboBox()
         t.setCellWidget(leading_rows - 1, 0, self.mi_combo)
@@ -1522,6 +1523,8 @@ class BreakReporterBase(QDialog):
             self.table_column_widths.append(self.table.columnWidth(c))
 
     def get_field_keys(self) -> list[str]:
+        if isinstance(self.mi, Mapping):
+            return sorted(self.mi)
         from calibre.gui2.ui import get_gui
 
         keys = set(get_gui(fail_if_absent=True).current_db.new_api.field_metadata.displayable_field_keys())
@@ -1562,7 +1565,10 @@ class BreakReporter(BreakReporterBase):
             self.add_local_line(locals_, i, k)
 
     def displayable_field_value(self, mi: TemplateBook, field: str) -> str | None:
-        return self.mi.format_field('timestamp' if field == 'date' else field)[1]
+        if isinstance(mi, Mapping):
+            val = mi.get(field)
+            return None if val is None else str(val)
+        return mi.format_field('timestamp' if field == 'date' else field)[1]
 
 
 class PythonBreakReporter(BreakReporterBase):
@@ -1585,7 +1591,9 @@ class PythonBreakReporter(BreakReporterBase):
             self.add_local_line(locals_, i, k)
 
     def displayable_field_value(self, mi: TemplateBook, field: str) -> str | None:
-        return repr(self.mi.get('timestamp' if field == 'date' else field))
+        if isinstance(mi, Mapping):
+            return repr(mi.get(field))
+        return repr(mi.get('timestamp' if field == 'date' else field))
 
 
 class EmbeddedTemplateDialog(TemplateDialog):
