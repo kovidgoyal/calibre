@@ -845,6 +845,20 @@ def check_glibc_version(min_required=(2, 31), release_date='2020-02-01'):
         ).format(ver, '.'.join(map(str, min_required)), release_date))
 
 
+def check_for_recent_libstdcxx():
+    import ctypes
+    try:
+        lib = ctypes.CDLL('libstdc++.so.6')
+    except OSError:
+        raise SystemExit('Your system is missing the C++ standard library libstdc++.so.6. Try installing the libstdc++ package.')
+    try:
+        # This symbol was added in GLIBCXX_3.4.32
+        lib._ZSt21ios_base_library_initv
+    except AttributeError:
+        raise SystemExit('Your system has too old a version of the C++ standard library libstdc++.so.6.'
+                         ' The calibre binaries require at least the version (GLIBCXX_3.4.32) from GCC 13.2 (released on 2023-07-27). Update your system.')
+
+
 def check_for_recent_freetype():
     import ctypes
     f = None
@@ -869,11 +883,13 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
             ' source.')
     glibc_versions = {
         (6, 0, 0) : {'min_required': (2, 31), 'release_date': '2020-02-01'},
-        (7, 17, 0) : {'min_required': (2, 35), 'release_date': '2022-02-03'}
+        (7, 17, 0) : {'min_required': (2, 35), 'release_date': '2022-02-03'},
+        (9, 20, 0) : {'min_required': (2, 38), 'release_date': '2023-07-31'},
     }
     if is_linux_arm64:
         glibc_versions.update({
-            (6, 8, 0) : {'min_required': (2, 34), 'release_date': '2021-08-02'}
+            (6, 8, 0) : {'min_required': (2, 34), 'release_date': '2021-08-02'},
+            (9, 20, 0) : {'min_required': (2, 38), 'release_date': '2023-07-31'},
         })
     q = tuple(map(int, version.split('.'))) if version else (sys.maxsize, 999, 999)
     for key in sorted(glibc_versions, reverse=True):
@@ -887,6 +903,8 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
         check_for_libxcb_cursor()
     if q >= (7, 16, 0):
         check_for_recent_freetype()
+    if q >= (9, 20, 0):
+        check_for_recent_libstdcxx()
     run_installer(install_dir, isolated, bin_dir, share_dir, version)
 
 
