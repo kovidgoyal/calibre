@@ -65,7 +65,7 @@ get_paths(char *path) {
     set_path(extensions_path, L"/Frameworks/plugins");
     set_path(resources_path, L"/Resources/resources");
     set_path(executables_path, L"/MacOS");
-    wchar_t pylib[64];  // ASCII only so swprintf() is safe
+    wchar_t pylib[64]; // ASCII only so swprintf() is safe
     swprintf(pylib, arraysz(pylib), L"/Resources/Python/lib/python%d.%d", PY_VERSION_MAJOR, PY_VERSION_MINOR);
     set_path(python_lib_path, pylib);
 #undef set_path
