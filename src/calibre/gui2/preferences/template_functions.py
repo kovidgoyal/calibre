@@ -235,9 +235,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.template_editor.new_doc.setFixedHeight(50)
 
         # get field metadata and selected books
+        # Books on the device have no library metadata, so only use the
+        # selection when the library view is showing
         view = self.gui.current_view()
         assert view is not None
-        rows = view.selectionModel().selectedRows()
+        rows = view.selectionModel().selectedRows() if view is self.gui.library_view else []
         self.mi = []
         if rows:
             db = view.model().db
