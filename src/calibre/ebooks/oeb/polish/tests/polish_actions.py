@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.polish.tests.structure import ManifestItem
 
 counter = count()
+is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 
 
 def html(body: str) -> str:
@@ -29,12 +30,17 @@ def html(body: str) -> str:
 def cleanup_book(inpath: str, outpath: str) -> tuple[bool, list[str]]:
     # Runs in a worker process as checking CSS needs a QApplication, which
     # tests must not create
+    from contextlib import ExitStack
     from unittest.mock import patch
 
     c = get_container(inpath, tweak_mode=True)
     report: list[str] = []
-    # Do not use the rules skipped in the editor by the user running the tests
-    with patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()):
+    with ExitStack() as stack:
+        # Do not use the rules skipped in the editor by the user running the tests
+        stack.enter_context(patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()))
+        if is_sanitized:
+            # Checking CSS uses Qt WebEngine, which hangs when run with ASAN
+            stack.enter_context(patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.__call__', return_value=()))
         changed = polish_one(c, Opts(cleanup=True), report.append)
     c.commit(outpath)
     return changed, report
