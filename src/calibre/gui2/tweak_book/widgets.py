@@ -7,7 +7,9 @@ import textwrap
 import unicodedata
 from collections import OrderedDict
 from math import ceil
+from typing import TYPE_CHECKING, cast, overload
 
+from lxml import etree
 from qt.core import (
     QAbstractItemView,
     QAbstractListModel,
@@ -22,9 +24,11 @@ from qt.core import (
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
+    QHelpEvent,
     QIcon,
     QInputDialog,
     QItemSelectionModel,
+    QKeyEvent,
     QLabel,
     QLineEdit,
     QListView,
@@ -71,16 +75,31 @@ from calibre.utils.icu import numeric_sort_key, primary_contains, primary_sort_k
 from calibre.utils.localization import _
 from calibre.utils.matcher import DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
+
+    from qt.core import QContextMenuEvent, QMimeData, QMouseEvent, QObject, QPaintEvent, QStyleOptionViewItem
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.toc import NavEntry
+
+    class FilterableNamesView[M: (NamesModel, AnchorsModel)](QListView):
+        "The list view created by create_filterable_names_list()"
+
+        def model(self) -> M: ...
+        def selectionModel(self) -> QItemSelectionModel: ...
+
+
 ROOT = QModelIndex()
 
 
 class Dialog(BaseDialog):
-    def __init__(self, title, name, parent=None) -> None:
+    def __init__(self, title: str, name: str, parent: QWidget | None = None) -> None:
         BaseDialog.__init__(self, title, name, parent=parent, prefs=tprefs)
 
 
 class InsertTag(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Choose tag name'), 'insert-tag', parent=parent)
 
     def setup_ui(self) -> None:
@@ -101,7 +120,7 @@ class InsertTag(Dialog):  # {{{
         ti.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
-    def tag(self):
+    def tag(self) -> str:
         return str(self.tag_input.text()).strip()
 
     @classmethod
@@ -117,12 +136,12 @@ class InsertTag(Dialog):  # {{{
 class ManageTagList(Dialog):  # {{{
     _tag_re = re.compile(r'[a-zA-Z0-9:-]+')
 
-    def __init__(self, parent=None) -> None:
-        self._entries = list(tprefs['insert_tag_mru'])
+    def __init__(self, parent: QWidget | None = None) -> None:
+        self._entries: list[str] = list(tprefs['insert_tag_mru'])
         self._collapsed_tags = set(tprefs.get('manage_tag_list_collapsed_tags', []))
         Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
 
-    def open_menu(self, position) -> None:
+    def open_menu(self, position: QPoint) -> None:
         menu = QMenu(self)
         expand_action = menu.addAction('Expand All')
         assert expand_action is not None
@@ -134,7 +153,7 @@ class ManageTagList(Dialog):  # {{{
         assert tree_vp is not None
         menu.exec(tree_vp.mapToGlobal(position))
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(400, 500)
 
     def setup_ui(self) -> None:
@@ -168,7 +187,7 @@ class ManageTagList(Dialog):  # {{{
         self._populate_tree()
         self._update_button_states()
 
-    def _tag_name(self, entry):
+    def _tag_name(self, entry: str) -> str:
         m = self._tag_re.match(entry)
         return m.group() if m else entry
 
@@ -190,7 +209,7 @@ class ManageTagList(Dialog):  # {{{
             parent_item.setExpanded(tag_name not in self._collapsed_tags)
         self._update_button_states()
 
-    def _current_entry(self):
+    def _current_entry(self) -> str | None:
         item = self.tree.currentItem()
         if item is None:
             return None
@@ -276,7 +295,7 @@ class RationalizeFolders(Dialog):  # {{{
         ('toc', _('Table of contents file (NCX)')),
     )
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Arrange in folders'), 'rationalize-folders', parent=parent)
 
     def setup_ui(self) -> None:
@@ -308,14 +327,14 @@ class RationalizeFolders(Dialog):  # {{{
         l.addWidget(self.bb, i + 3, 0, 1, -1)
 
     @property
-    def folder_map(self):
+    def folder_map(self) -> dict[str, str]:
         ans = {}
         for typ, x in self.TYPE_MAP:
             val = str(getattr(self, f'{typ}_folder').text()).strip().strip('/')
             ans[typ] = val
         return ans
 
-    def accept(self):
+    def accept(self) -> None:
         tprefs['folders_for_types'] = self.folder_map
         return Dialog.accept(self)
 
@@ -324,7 +343,7 @@ class RationalizeFolders(Dialog):  # {{{
 
 
 class MultiSplit(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Specify locations to split at'), 'multisplit-xpath', parent=parent)
 
     def setup_ui(self) -> None:
@@ -345,13 +364,14 @@ class MultiSplit(Dialog):  # {{{
         l.addWidget(xp)
         l.addWidget(self.bb)
 
-    def accept(self):
+    def accept(self) -> None:
         if not self._xpath.check():
-            return error_dialog(self, _('Invalid XPath expression'), _('The XPath expression %s is invalid.') % self.xpath)
+            error_dialog(self, _('Invalid XPath expression'), _('The XPath expression %s is invalid.') % self.xpath)
+            return
         return Dialog.accept(self)
 
     @property
-    def xpath(self):
+    def xpath(self) -> str:
         return self._xpath.xpath
 
 
@@ -359,10 +379,10 @@ class MultiSplit(Dialog):  # {{{
 
 
 class ImportForeign(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Choose file to import'), 'import-foreign', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setWidth(ans.width() + 200)
         return ans
@@ -420,7 +440,7 @@ class ImportForeign(Dialog):  # {{{
         if path:
             self.set_src(path[0])
 
-    def set_src(self, path) -> None:
+    def set_src(self, path: str) -> None:
         self.src.setText(path)
         self.dest.setText(self.data[1])
 
@@ -437,13 +457,14 @@ class ImportForeign(Dialog):  # {{{
                 path += '.epub'
             self.dest.setText(path)
 
-    def accept(self):
+    def accept(self) -> None:
         if not str(self.src.text()):
-            return error_dialog(self, _('Need document'), _('You must specify the source file that will be imported.'), show=True)
+            error_dialog(self, _('Need document'), _('You must specify the source file that will be imported.'), show=True)
+            return
         Dialog.accept(self)
 
     @property
-    def data(self):
+    def data(self) -> tuple[str, str]:
         src = str(self.src.text()).strip()
         dest = str(self.dest.text()).strip()
         if not dest:
@@ -456,7 +477,7 @@ class ImportForeign(Dialog):  # {{{
 # Quick Open {{{
 
 
-def make_highlighted_text(emph, text, positions):
+def make_highlighted_text(emph: str, text: str, positions: Iterable[int]) -> str:
     positions = sorted(set(positions) - {-1})
     if positions:
         parts = []
@@ -481,11 +502,11 @@ class Results(QWidget):
 
     item_selected = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent=parent)
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.results = ()
+        self.results: tuple[tuple[QStaticText, QStaticText, str], ...] = ()
         self.current_result = -1
         self.max_result = -1
         self.mouse_hover_result = -1
@@ -496,7 +517,7 @@ class Results(QWidget):
         self.divider = QStaticText('\xa0→ \xa0')
         self.divider.setTextFormat(Qt.TextFormat.PlainText)
 
-    def item_from_y(self, y):
+    def item_from_y(self, y: int) -> int | None:
         if not self.results:
             return
         delta = self.results[0][0].size().height() + self.MARGIN
@@ -512,14 +533,16 @@ class Results(QWidget):
                 break
         return -1
 
-    def mouseMoveEvent(self, a0) -> None:
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         y = a0.pos().y()
         prev = self.mouse_hover_result
         self.mouse_hover_result = self.item_from_y(y)
         if prev != self.mouse_hover_result:
             self.update()
 
-    def mousePressEvent(self, a0):
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         if a0.button() == 1:
             i = self.item_from_y(a0.pos().y())
             if i != -1:
@@ -530,7 +553,7 @@ class Results(QWidget):
                 return
         return QWidget.mousePressEvent(self, a0)
 
-    def change_current(self, delta=1) -> None:
+    def change_current(self, delta: int = 1) -> None:
         if not self.results:
             return
         nc = self.current_result + delta
@@ -538,7 +561,7 @@ class Results(QWidget):
             self.current_result = nc
             self.update()
 
-    def __call__(self, results):
+    def __call__(self, results: Mapping[str, Sequence[int]]) -> None:
         if results:
             self.current_result = 0
             prefixes = [QStaticText(f'<b>{os.path.basename(x)}</b>') for x in results]
@@ -552,13 +575,14 @@ class Results(QWidget):
         self.mouse_hover_result = -1
         self.update()
 
-    def make_text(self, text, positions):
-        text = QStaticText(make_highlighted_text(emphasis_style(), text, positions))
-        text.setTextOption(self.text_option)
-        text.setTextFormat(Qt.TextFormat.RichText)
-        return text
+    def make_text(self, text: str, positions: Iterable[int]) -> QStaticText:
+        ans = QStaticText(make_highlighted_text(emphasis_style(), text, positions))
+        ans.setTextOption(self.text_option)
+        ans.setTextFormat(Qt.TextFormat.RichText)
+        return ans
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        assert a0 is not None
         offset = QPoint(0, 0)
         p = QPainter(self)
         p.setClipRect(a0.rect())
@@ -597,7 +621,7 @@ class Results(QWidget):
         p.end()
 
     @property
-    def selected_result(self):
+    def selected_result(self) -> str | None:
         try:
             return self.results[self.current_result][-1]
         except IndexError:
@@ -607,28 +631,28 @@ class Results(QWidget):
 class QuickOpen(Dialog):
     def __init__(
         self,
-        items,
-        parent=None,
-        title=None,
-        name='quick-open',
-        level1=DEFAULT_LEVEL1,
-        level2=DEFAULT_LEVEL2,
-        level3=DEFAULT_LEVEL3,
-        help_text=None,
+        items: Iterable[str],
+        parent: QWidget | None = None,
+        title: str | None = None,
+        name: str = 'quick-open',
+        level1: str = DEFAULT_LEVEL1,
+        level2: str = DEFAULT_LEVEL2,
+        level3: str = DEFAULT_LEVEL3,
+        help_text: str | None = None,
     ) -> None:
         self.matcher = Matcher(items, level1=level1, level2=level2, level3=level3)
-        self.matches = ()
-        self.selected_result = None
+        self.matches: tuple[str, ...] = ()
+        self.selected_result: str | None = None
         self.help_text = help_text or self.default_help_text()
         Dialog.__init__(self, title or _('Choose file to edit'), name, parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setWidth(800)
         ans.setHeight(max(600, ans.height()))
         return ans
 
-    def default_help_text(self):
+    def default_help_text(self) -> str:
         example = '<pre>{0}i{1}mages/{0}c{1}hapter1/{0}s{1}cene{0}3{1}.jpg</pre>'.format(f'<span style="{emphasis_style()}">', '</span>')
         chars = f'<pre style="{emphasis_style()}">ics3</pre>'
 
@@ -662,7 +686,7 @@ class QuickOpen(Dialog):
 
         l.addWidget(self.bb, alignment=Qt.AlignmentFlag.AlignBottom)
 
-    def update_matches(self, text) -> None:
+    def update_matches(self, text: str) -> None:
         text = str(text).strip()
         self.help_label.setVisible(False)
         self.results.setVisible(True)
@@ -670,14 +694,15 @@ class QuickOpen(Dialog):
         self.results(matches)
         self.matches = tuple(matches)
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             a0.accept()
             self.results.change_current(delta=-1 if a0.key() == Qt.Key.Key_Up else 1)
             return
         return Dialog.keyPressEvent(self, a0)
 
-    def accept(self):
+    def accept(self) -> None:
         self.selected_result = self.results.selected_result
         return Dialog.accept(self)
 
@@ -697,12 +722,13 @@ class QuickOpen(Dialog):
 
 
 class NamesDelegate(QStyledItemDelegate):
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 10)
         return ans
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        assert painter is not None
         QStyledItemDelegate.paint(self, painter, option, index)
         text, positions = index.data(Qt.ItemDataRole.UserRole)
         self.initStyleOption(option, index)
@@ -742,26 +768,26 @@ class NamesDelegate(QStyledItemDelegate):
 class NamesModel(QAbstractListModel):
     filtered = pyqtSignal(object)
 
-    def __init__(self, names, parent=None) -> None:
-        self.items = []
+    def __init__(self, names: Sequence[str], parent: QObject | None = None) -> None:
+        self.items: Sequence[tuple[str, Sequence[int] | None]] = []
         QAbstractListModel.__init__(self, parent)
         self.set_names(names)
 
-    def set_names(self, names) -> None:
+    def set_names(self, names: Sequence[str]) -> None:
         self.names = names
         self.matcher = Matcher(names)
         self.filter('')
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         return len(self.items)
 
-    def data(self, index, role=None):
+    def data(self, index: QModelIndex, role: int | None = None) -> object:
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             return '\xa0' * 20
 
-    def filter(self, query) -> None:
+    def filter(self, query: str | None) -> None:
         query = str(query or '')
         self.beginResetModel()
         if not query:
@@ -771,19 +797,32 @@ class NamesModel(QAbstractListModel):
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
-    def find_name(self, name):
+    def find_name(self, name: str) -> int | None:
         for i, (text, positions) in enumerate(self.items):
             if text == name:
                 return i
 
-    def name_for_index(self, index):
+    def name_for_index(self, index: QModelIndex) -> str | None:
         try:
             return self.items[index.row()][0]
         except IndexError:
             pass
 
 
-def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
+@overload
+def create_filterable_names_list(
+    names: Sequence[str], filter_text: str | None = None, parent: QWidget | None = None
+) -> tuple[FilterableNamesView[NamesModel], QLineEdit]: ...
+@overload
+def create_filterable_names_list[M: (NamesModel, AnchorsModel)](
+    names: Sequence[str], filter_text: str | None = None, parent: QWidget | None = None, *, model: type[M]
+) -> tuple[FilterableNamesView[M], QLineEdit]: ...
+def create_filterable_names_list(
+    names: Sequence[str],
+    filter_text: str | None = None,
+    parent: QWidget | None = None,
+    model: type[NamesModel | AnchorsModel] = NamesModel,
+) -> tuple[FilterableNamesView[NamesModel] | FilterableNamesView[AnchorsModel], QLineEdit]:
     nl = QListView(parent)
     m = model(names, parent=nl)
     connect_lambda(m.filtered, nl, lambda nl, all_items: nl.scrollTo(m.index(0)))
@@ -794,7 +833,8 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
     f = QLineEdit(parent)
     f.setPlaceholderText(filter_text or '')
     f.textEdited.connect(m.filter)
-    return nl, f
+    # The model of the view is always m
+    return cast('FilterableNamesView[NamesModel] | FilterableNamesView[AnchorsModel]', nl), f
 
 
 # }}}
@@ -805,15 +845,15 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 class AnchorsModel(QAbstractListModel):
     filtered = pyqtSignal(object)
 
-    def __init__(self, names, parent=None) -> None:
-        self.items = []
-        self.names = []
+    def __init__(self, names: Sequence[str], parent: QObject | None = None) -> None:
+        self.items: list[tuple[str, str]] = []
+        self.names: list[tuple[str, str]] = []
         QAbstractListModel.__init__(self, parent=parent)
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         return len(self.items)
 
-    def data(self, index, role=None):
+    def data(self, index: QModelIndex, role: int | None = None) -> object:
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
@@ -822,11 +862,11 @@ class AnchorsModel(QAbstractListModel):
             text, frag = self.items[index.row()]
             return _('Anchor: {0}\nLeading text: {1}').format(frag, text)
 
-    def set_names(self, names) -> None:
+    def set_names(self, names: list[tuple[str, str]]) -> None:
         self.names = names
         self.filter('')
 
-    def filter(self, query) -> None:
+    def filter(self, query: str | None) -> None:
         query = str(query or '')
         self.beginResetModel()
         self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
@@ -835,14 +875,14 @@ class AnchorsModel(QAbstractListModel):
 
 
 class InsertLink(Dialog):
-    def __init__(self, container, source_name, initial_text=None, parent=None) -> None:
+    def __init__(self, container: Container, source_name: str, initial_text: str | None = None, parent: QWidget | None = None) -> None:
         self.container = container
         self.source_name = source_name
         self.initial_text = initial_text
         Dialog.__init__(self, _('Insert hyperlink'), 'insert-hyperlink', parent=parent)
-        self.anchor_cache = {}
+        self.anchor_cache: dict[str, list[tuple[str, str]]] = {}
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def setup_ui(self) -> None:
@@ -907,7 +947,7 @@ class InsertLink(Dialog):
 
         l.addWidget(self.bb)
 
-    def accept(self):
+    def accept(self) -> None:
         from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
 
         t = self.template
@@ -917,19 +957,20 @@ class InsertLink(Dialog):
             tprefs.set('insert-hyperlink-template', self.template)
         return Dialog.accept(self)
 
-    def selected_file_changed(self, *args) -> None:
+    def selected_file_changed(self, *args: object) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             self.anchor_names.model().set_names([])
         else:
-            name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
+            name, positions = self.file_names.model().items[rows[0].row()]
             self.populate_anchors(name)
 
-    def populate_anchors(self, name) -> None:
+    def populate_anchors(self, name: str) -> None:
         if name not in self.anchor_cache:
             from calibre.ebooks.oeb.base import XHTML_NS
 
             root = self.container.parsed(name)
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
             ac = self.anchor_cache[name] = []
             for item in set(root.xpath('//*[@id]')) | set(root.xpath('//h:a[@name]', namespaces={'h': XHTML_NS})):
                 frag = item.get('id', None) or item.get('name')
@@ -945,7 +986,7 @@ class InsertLink(Dialog):
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
-        name = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
+        name = self.file_names.model().items[rows[0].row()][0]
         if name == self.source_name:
             href = ''
         else:
@@ -953,26 +994,26 @@ class InsertLink(Dialog):
         frag = ''
         rows = list(self.anchor_names.selectionModel().selectedRows())
         if rows:
-            anchor = self.anchor_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[1]
+            anchor = self.anchor_names.model().items[rows[0].row()][1]
             if anchor:
                 frag = '#' + anchor
         href += frag
         self.target.setText(href or '#')
 
     @property
-    def href(self):
+    def href(self) -> str:
         return str(self.target.text()).strip()
 
     @property
-    def text(self):
+    def text(self) -> str:
         return str(self.text_edit.text()).strip()
 
     @property
-    def template(self):
+    def template(self) -> str | None:
         return self.template_edit.text().strip() or None
 
     @property
-    def rendered_template(self):
+    def rendered_template(self) -> str | None:
         ans = self.template
         if ans:
             target = self.href
@@ -1003,20 +1044,20 @@ class InsertLink(Dialog):
 
 
 class InsertSemantics(Dialog):  # {{{
-    def __init__(self, container, parent=None) -> None:
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         self.container = container
         self.create_known_type_map()
-        self.anchor_cache = {}
-        self.original_guide_map = {item['type']: item for item in get_guide_landmarks(container)}
-        self.original_nav_map = {item['type']: item for item in get_nav_landmarks(container)}
-        self.changes = {}
+        self.anchor_cache: dict[str, list[str]] = {}
+        self.original_guide_map: dict[str | None, NavEntry] = {item['type']: item for item in get_guide_landmarks(container)}
+        self.original_nav_map: dict[str | None, NavEntry] = {item['type']: item for item in get_nav_landmarks(container)}
+        self.changes: dict[str, tuple[str, str | None]] = {}
         Dialog.__init__(self, _('Set semantics'), 'insert-semantics', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def create_known_type_map(self) -> None:
-        def _(x):
+        def _(x: str) -> str:
             return x
 
         self.epubtype_guide_map = {v: k for k, v in guide_epubtype_map.items()}
@@ -1116,7 +1157,7 @@ class InsertSemantics(Dialog):  # {{{
         d.resize(d.sizeHint())
         d.exec()
 
-    def dest_for_type(self, item_type):
+    def dest_for_type(self, item_type: str) -> tuple[str | None, str | None]:
         if item_type in self.changes:
             return self.changes[item_type]
         if item_type in self.original_nav_map:
@@ -1133,7 +1174,7 @@ class InsertSemantics(Dialog):  # {{{
         name, frag = self.dest_for_type(item_type)
         self.show_type(name, frag)
 
-    def show_type(self, name, frag) -> None:
+    def show_type(self, name: str | None, frag: str | None) -> None:
         self.file_names_filter.clear(), self.anchor_names_filter.clear()
         self.file_names.clearSelection(), self.anchor_names.clearSelection()
         if name is not None:
@@ -1159,19 +1200,20 @@ class InsertSemantics(Dialog):  # {{{
         if item_type:
             self.changes[item_type] = (name, frag or None)
 
-    def selected_file_changed(self, *args) -> None:
+    def selected_file_changed(self, *args: object) -> None:
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             self.anchor_names.model().set_names([])
         else:
-            name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
+            name, positions = self.file_names.model().items[rows[0].row()]
             self.populate_anchors(name)
 
-    def populate_anchors(self, name) -> None:
+    def populate_anchors(self, name: str) -> None:
         if name not in self.anchor_cache:
             from calibre.ebooks.oeb.base import XHTML_NS
 
             root = self.container.parsed(name)
+            assert isinstance(root, etree._Element)  # spine items are parsed (X)HTML documents
             self.anchor_cache[name] = sorted(
                 (set(root.xpath('//*/@id')) | set(root.xpath('//h:a/@name', namespaces={'h': XHTML_NS}))) - {''},
                 key=primary_sort_key,
@@ -1183,24 +1225,24 @@ class InsertSemantics(Dialog):  # {{{
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
-        name = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
+        name = self.file_names.model().items[rows[0].row()][0]
         href = name
         frag = ''
         rows = list(self.anchor_names.selectionModel().selectedRows())
         if rows:
-            anchor = self.anchor_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
+            anchor = self.anchor_names.model().items[rows[0].row()][0]
             if anchor:
                 frag = '#' + anchor
         href += frag
         self.target.setText(href or '#')
 
-    def apply_changes(self, container) -> None:
+    def apply_changes(self, container: Container) -> None:
         from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
         from calibre.translations.dynamic import translate
 
         lang = get_book_language(container)
 
-        def title_for_type(item_type):
+        def title_for_type(item_type: str) -> str:
             title = self.known_type_map.get(item_type, item_type)
             if lang:
                 title = translate(lang, title)
@@ -1252,7 +1294,7 @@ class FilterCSS(Dialog):  # {{{
     opt_floats: QCheckBox
     opt_colors: QCheckBox
 
-    def __init__(self, current_name=None, parent=None) -> None:
+    def __init__(self, current_name: str | None = None, parent: QWidget | None = None) -> None:
         self.current_name = current_name
         Dialog.__init__(self, _('Filter style information'), 'filter-css', parent=parent)
 
@@ -1291,14 +1333,14 @@ class FilterCSS(Dialog):  # {{{
         l.addRow(self.bb)
 
     @property
-    def filter_names(self):
+    def filter_names(self) -> tuple[str, ...]:
         if self.current_name is not None and self.filter_current.isChecked():
             return (self.current_name,)
         return ()
 
     @property
-    def filtered_properties(self):
-        ans = set()
+    def filtered_properties(self) -> set[str]:
+        ans: set[str] = set()
         a = ans.add
         if self.opt_fonts.isChecked():
             a('font-family')
@@ -1329,18 +1371,18 @@ class FilterCSS(Dialog):  # {{{
 
 
 class CoverView(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.current_pixmap_size = QSize(0, 0)
         self.pixmap = QPixmap()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-    def set_pixmap(self, data) -> None:
+    def set_pixmap(self, data: bytes) -> None:
         self.pixmap.loadFromData(data)
         self.current_pixmap_size = self.pixmap.size()
         self.update()
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.pixmap.isNull():
             return
         canvas_size = self.rect()
@@ -1361,19 +1403,19 @@ class CoverView(QWidget):
         )
         p.end()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(300, 400)
 
 
 class AddCover(Dialog):
     import_requested = pyqtSignal(object, object)
 
-    def __init__(self, container, parent=None) -> None:
+    def __init__(self, container: Container, parent: QWidget | None = None) -> None:
         self.container = container
         Dialog.__init__(self, _('Add a cover'), 'add-cover-wizard', parent)
 
     @property
-    def image_names(self):
+    def image_names(self) -> Iterator[str]:
         img_types = {guess_type('a.' + x) for x in ('png', 'jpeg', 'gif')}
         for name, mt in self.container.mime_map.items():
             if mt.lower() in img_types:
@@ -1415,7 +1457,7 @@ class AddCover(Dialog):
         p.setChecked(tprefs['add_cover_preserve_aspect_ratio'])
         p.setVisible(self.container.book_type != 'azw3')
 
-        def on_state_change(s) -> None:
+        def on_state_change(s: int) -> None:
             tprefs.set('add_cover_preserve_aspect_ratio', Qt.CheckState(s) == Qt.CheckState.Checked)
 
         p.stateChanged.connect(on_state_change)
@@ -1433,14 +1475,14 @@ class AddCover(Dialog):
         cname = get_raster_cover_name(self.container)
         if cname:
             row = self.names.model().find_name(cname)
-            if row > -1:
+            if row is not None and row > -1:
                 self.names.setCurrentIndex(self.names.model().index(row))
 
     def double_clicked(self) -> None:
         self.accept()
 
     @property
-    def file_name(self):
+    def file_name(self) -> str | None:
         return self.names.model().name_for_index(self.names.currentIndex())
 
     def current_image_changed(self) -> None:
@@ -1464,6 +1506,7 @@ class AddCover(Dialog):
                 self.names_filter.clear()
                 self.names.model().set_names(sorted(self.image_names, key=sort_key))
                 i = self.names.model().find_name(d.file_name)
+                assert i is not None
                 self.names.setCurrentIndex(self.names.model().index(i))
                 self.current_image_changed()
 
@@ -1486,24 +1529,24 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     """A class that overrides some methods from QPlainTextEdit to fix handling
     of the nbsp unicode character and AltGr input method on windows."""
 
-    def __init__(self, parent=None, *, use_smarten_punctuation: bool = False) -> None:
+    def __init__(self, parent: QWidget | None = None, *, use_smarten_punctuation: bool = False) -> None:
         QPlainTextEdit.__init__(self, parent)
         self.use_smarten_punctuation = use_smarten_punctuation
 
-    def toPlainText(self):
+    def toPlainText(self) -> str:
         return to_plain_text(self)
 
-    def selected_text_from_cursor(self, cursor):
+    def selected_text_from_cursor(self, cursor: QTextCursor) -> str:
         return unicodedata.normalize('NFC', str(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
     def paste(self) -> None:
         super().paste()
 
     @property
-    def selected_text(self):
+    def selected_text(self) -> str:
         return self.selected_text_from_cursor(self.textCursor())
 
-    def createMimeDataFromSelection(self):
+    def createMimeDataFromSelection(self) -> QMimeData:
         ans = super().createMimeDataFromSelection()
         assert ans is not None
         for format in ans.formats():
@@ -1514,32 +1557,33 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         ans.setText(self.selected_text)  # to workaround Qt converting nbsp to plain space and other infelicities
         return ans
 
-    def show_tooltip(self, ev) -> None:
+    def show_tooltip(self, ev: QHelpEvent) -> None:
         pass
 
-    def override_shortcut(self, ev) -> bool | None:
+    def override_shortcut(self, ev: QKeyEvent) -> bool | None:
         if iswindows and self.windows_ignore_altgr_shortcut(ev):
             ev.accept()
             return True
 
-    def windows_ignore_altgr_shortcut(self, ev):
+    def windows_ignore_altgr_shortcut(self, ev: QKeyEvent) -> int:
         from calibre_extensions import winutil
 
         s = winutil.get_async_key_state(winutil.VK_RMENU)  # VK_RMENU == R_ALT
         return s & 0x8000
 
-    def event(self, e):
+    def event(self, e: QEvent | None) -> bool:
+        assert e is not None
         et = e.type()
-        if et == QEvent.Type.ToolTip:
+        if et == QEvent.Type.ToolTip and isinstance(e, QHelpEvent):
             self.show_tooltip(e)
             return True
-        if et == QEvent.Type.ShortcutOverride:
+        if et == QEvent.Type.ShortcutOverride and isinstance(e, QKeyEvent):
             ret = self.override_shortcut(e)
             if ret:
                 return True
         return QPlainTextEdit.event(self, e)
 
-    def mouseDoubleClickEvent(self, e) -> None:
+    def mouseDoubleClickEvent(self, e: QMouseEvent | None) -> None:
         super().mouseDoubleClickEvent(e)
         c = self.textCursor()
         # Workaround for QTextCursor considering smart quotes as word
@@ -1568,7 +1612,8 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         if changed:
             self.setTextCursor(c)
 
-    def contextMenuEvent(self, e) -> None:
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        assert e is not None
         m = self.createStandardContextMenu()
         assert m is not None
         if self.use_smarten_punctuation:

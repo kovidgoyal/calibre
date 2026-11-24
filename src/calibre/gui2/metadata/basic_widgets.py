@@ -1501,6 +1501,7 @@ class Cover(ImageView):  # {{{
 
     def manual_trim_cover(self) -> None:
         cdata = self.current_val
+        assert cdata is not None
         from calibre.gui2.dialogs.trim_image import TrimImage
 
         d = TrimImage(cdata, parent=self)

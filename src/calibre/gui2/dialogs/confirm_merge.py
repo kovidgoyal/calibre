@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser, QUrl, QVBoxLayout, QWidget
 
@@ -16,9 +16,17 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import format_date
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
+    from qt.core import QSize
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.ui import Main
+
 
 class Target(QTextBrowser):
-    def __init__(self, mi, parent=None) -> None:
+    def __init__(self, mi: Metadata, parent: QWidget | None = None) -> None:
         QTextBrowser.__init__(self, parent)
         series = ''
         fm = field_metadata
@@ -33,6 +41,7 @@ class Target(QTextBrowser):
             doc.setDefaultStyleSheet('img { max-width: 100%; width: 100%; height: auto; display: block; }')
         else:
             has_cover_row = f"<tr><td>{_('Has cover')}:</td><td>{_('Yes') if mi.has_cover else _('No')}</td></tr>"
+        assert mi.timestamp is not None
         self.setHtml(
             '''
 <h3 style="text-align:center">{mb}</h3>
@@ -61,14 +70,14 @@ class Target(QTextBrowser):
             )
         )
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = super().sizeHint()
         ans.setHeight(max(600, ans.height()))
         return ans
 
 
 class ConfirmMerge(Dialog):
-    def __init__(self, msg, name, parent, mi, ask_about_save_alternate_cover=False) -> None:
+    def __init__(self, msg: str, name: str, parent: QWidget | None, mi: Metadata, ask_about_save_alternate_cover: bool = False) -> None:
         self.msg, self.mi, self.conf_name = msg, mi, name
         self.ask_about_save_alternate_cover = ask_about_save_alternate_cover
         Dialog.__init__(self, _('Are you sure?'), 'confirm-merge-dialog', parent)
@@ -111,13 +120,13 @@ class ConfirmMerge(Dialog):
     def toggle(self) -> None:
         dynamic[confirm_config_name(self.conf_name)] = self.confirm.isChecked()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = Dialog.sizeHint(self)
         ans.setWidth(max(700, ans.width()))
         return ans
 
 
-def confirm_merge(msg, name, parent, mi, ask_about_save_alternate_cover=False):
+def confirm_merge(msg: str, name: str, parent: QWidget | None, mi: Metadata, ask_about_save_alternate_cover: bool = False) -> tuple[bool, bool]:
     if not dynamic.get(confirm_config_name(name), True):
         return True, bool(gprefs.get('choose-merge-cb-save_alternate_cover', False))
     d = ConfirmMerge(msg, name, parent, mi, ask_about_save_alternate_cover)
@@ -131,7 +140,7 @@ class ChooseMerge(Dialog):
     replace_cover: QCheckBox
     save_alternate_cover: QCheckBox
 
-    def __init__(self, dest_id, src_ids, gui) -> None:
+    def __init__(self, dest_id: int, src_ids: Collection[int], gui: Main) -> None:
         self.dest_id, self.src_ids = dest_id, src_ids
         self.mi = gui.current_db.new_api.get_metadata(dest_id, get_cover=True)
         Dialog.__init__(self, _('Merge books'), 'choose-merge-dialog', parent=gui)
@@ -154,7 +163,7 @@ class ChooseMerge(Dialog):
         fl = FlowLayout()
         l.addLayout(fl)
 
-        def cb(name, text, tt='', defval=True):
+        def cb(name: str, text: str, tt: str = '', defval: bool = True) -> QCheckBox:
             ans = QCheckBox(text)
             fl.addWidget(ans)
             prefs_key = 'choose-merge-cb-' + name
@@ -194,7 +203,7 @@ class ChooseMerge(Dialog):
         self.right = r = Target(self.mi, self)
         s.addWidget(r)
 
-    def state_changed(self, cb, state) -> None:
+    def state_changed(self, cb: QCheckBox, state: int) -> None:
         mm = self.merge_metadata.isChecked()
         mf = self.merge_formats.isChecked()
         if not mm and not mf:
@@ -238,7 +247,7 @@ class ChooseMerge(Dialog):
         self.msg.setText(msg)
 
     @property
-    def merge_type(self):
+    def merge_type(self) -> MergeData:
         return MergeData(
             self.merge_metadata.isChecked(),
             self.merge_formats.isChecked(),
@@ -256,7 +265,7 @@ class MergeData(NamedTuple):
     save_alternate_cover: bool = False
 
 
-def merge_drop(dest_id, src_ids, gui):
+def merge_drop(dest_id: int, src_ids: Collection[int], gui: Main) -> MergeData | None:
     d = ChooseMerge(dest_id, src_ids, gui)
     if d.exec() != QDialog.DialogCode.Accepted:
         return None

@@ -6,6 +6,7 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
     from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 
 from qt.core import (
@@ -45,7 +46,7 @@ last_matchkind = CONTAINS_MATCH
 
 
 # UI {{{
-def init_dateop(cb) -> None:
+def init_dateop(cb: QComboBox) -> None:
     for op, desc in [
         ('=', _('equal to')),
         ('<', _('before')),
@@ -58,11 +59,11 @@ def init_dateop(cb) -> None:
         cb.addItem(desc, op)
 
 
-def current_dateop(cb):
+def current_dateop(cb: QComboBox) -> str:
     return str(cb.itemData(cb.currentIndex()) or '')
 
 
-def create_msg_label(self):
+def create_msg_label(self: SearchDialog) -> QFrame:
     self.frame = f = QFrame(self)
     f.setFrameShape(QFrame.Shape.StyledPanel)
     f.setFrameShadow(QFrame.Shadow.Raised)
@@ -82,7 +83,7 @@ def create_msg_label(self):
     return f
 
 
-def create_match_kind(self):
+def create_match_kind(self: SearchDialog) -> QHBoxLayout:
     self.cmk_label = la = QLabel(_('What &kind of match to use:'))
     self.matchkind = m = QComboBox(self)
     la.setBuddy(m)
@@ -97,7 +98,7 @@ def create_match_kind(self):
     return l
 
 
-def create_button_box(self):
+def create_button_box(self: SearchDialog) -> QDialogButtonBox:
     self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
     assert self.clear_button is not None
@@ -107,7 +108,7 @@ def create_button_box(self):
     return bb
 
 
-def create_adv_tab(self) -> None:
+def create_adv_tab(self: SearchDialog) -> None:
     self.adv_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('A&dvanced search'))
 
@@ -135,7 +136,7 @@ def create_adv_tab(self) -> None:
     l.addRow(_('Any of these &unwanted words:'), le)
 
 
-def create_simple_tab(self, db) -> None:
+def create_simple_tab(self: SearchDialog, db: LibraryDatabase) -> None:
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('Titl&e/author/series...'))
 
@@ -194,7 +195,7 @@ def create_simple_tab(self, db) -> None:
         self.general_combo.setCurrentIndex(self.general_combo.findText(self.box_last_values['general_index']))
 
 
-def toggle_date_conditions_visibility(self) -> None:
+def toggle_date_conditions_visibility(self: SearchDialog) -> None:
     dcl = self.date_condition_layouts
     op = current_dateop(self.dateop_date)
     visible = op not in 'su'
@@ -206,17 +207,17 @@ def toggle_date_conditions_visibility(self) -> None:
                 w.setVisible(visible)
 
 
-def create_date_tab(self, db) -> None:
+def create_date_tab(self: SearchDialog, db: LibraryDatabase) -> None:
     self.date_tab = w = QWidget(self.tab_widget)
     self.date_condition_layouts = dcl = []
     self.tab_widget.addTab(w, _('&Date search'))
     l = QVBoxLayout(w)
 
-    def a(widget):
+    def a[W: QWidget](widget: W) -> W:
         h.addWidget(widget)
         return widget
 
-    def add(text, widget):
+    def add[W: QWidget](text: str, widget: W) -> W:
         la = QLabel(text)
         h.addWidget(la), h.addWidget(widget)
         la.setBuddy(widget)
@@ -292,7 +293,7 @@ def create_date_tab(self, db) -> None:
     toggle_date_conditions_visibility(self)
 
 
-def create_template_tab(self) -> None:
+def create_template_tab(self: SearchDialog) -> None:
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('&Template search'))
 
@@ -360,7 +361,7 @@ def create_template_tab(self) -> None:
     l.addRow('', le)
 
 
-def setup_ui(self, db) -> None:
+def setup_ui(self: SearchDialog, db: LibraryDatabase) -> None:
     self.setWindowTitle(_('Advanced search'))
     self.setWindowIcon(QIcon.ic('search.png'))
     self.l = l = QVBoxLayout(self)
@@ -384,6 +385,16 @@ def setup_ui(self, db) -> None:
 
 class SearchDialog(QDialog):
     mc: str = ''
+    l: QVBoxLayout
+    h: QHBoxLayout
+    v: QVBoxLayout
+    frame: QFrame
+    cmk_label: QLabel
+    bb: QDialogButtonBox
+    clear_button: QPushButton | None
+    adv_tab: QWidget
+    simple_tab: QWidget
+    template_layout_label: QLabel
     tab_widget: QTabWidget
     matchkind: QComboBox
     template_program_box: TemplateLineEditor
@@ -417,7 +428,7 @@ class SearchDialog(QDialog):
     any: QLineEdit
     none: QLineEdit
 
-    def __init__(self, parent, db) -> None:
+    def __init__(self, parent: QWidget | None, db: LibraryDatabase) -> None:
         QDialog.__init__(self, parent)
         setup_ui(self, db)
 
@@ -484,11 +495,11 @@ class SearchDialog(QDialog):
             gprefs.set('advanced_search_template_tab_value_field', str(self.template_value_box.text()))
             gprefs.set('advanced_search_template_tab_test_field', str(self.template_test_type_box.currentIndex()))
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_state()
         return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_state()
         return QDialog.reject(self)
 
@@ -508,18 +519,18 @@ class SearchDialog(QDialog):
             for c in w.findChildren(EditWithComplete):
                 c.setText('')
 
-    def tokens(self, raw):
+    def tokens(self, raw: str) -> list[str]:
         phrases = re.findall(r'\s*".*?"\s*', raw)
         for f in phrases:
             raw = raw.replace(f, ' ')
         phrases = [t.strip('" ') for t in phrases]
         return ['"' + self.mc + t + '"' for t in phrases + [r.strip() for r in raw.split()]]
 
-    def search_string(self):
+    def search_string(self) -> str:
         i = self.tab_widget.currentIndex()
         return (self.adv_search_string, self.box_search_string, self.date_search_string, self.template_search_string)[i]()
 
-    def template_search_string(self):
+    def template_search_string(self) -> str:
         template = str(self.template_program_box.text())
         value = str(self.template_value_box.text())
         cb = self.template_test_type_box
@@ -528,7 +539,7 @@ class SearchDialog(QDialog):
         # Use docstring quoting (super-quoting) to avoid problems with escaping
         return 'template:"""' + l + '"""'
 
-    def date_search_string(self):
+    def date_search_string(self) -> str:
         field = str(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
         if op in 'su':
@@ -549,7 +560,7 @@ class SearchDialog(QDialog):
             return f'{prefix}{val}daysago'
         return '{}{}'.format(prefix, str(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
-    def adv_search_string(self):
+    def adv_search_string(self) -> str:
         mk = self.matchkind.currentIndex()
         if mk == CONTAINS_MATCH:
             self.mc = ''
@@ -579,7 +590,7 @@ class SearchDialog(QDialog):
                 ans = any
         return ans
 
-    def box_search_string(self):
+    def box_search_string(self) -> str:
         mk = self.matchkind.currentIndex()
         if mk == CONTAINS_MATCH:
             self.mc = ''

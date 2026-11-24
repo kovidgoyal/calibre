@@ -5,6 +5,7 @@ import json
 import os
 import sys
 from contextlib import closing
+from typing import TYPE_CHECKING
 
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal, sip
 
@@ -17,6 +18,13 @@ from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import viewer_socket_address
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from optparse import Values
+
+    from calibre.gui2.listener import Listener
+    from calibre.gui2.viewer import CalibreBookData
+    from calibre.utils.config import OptionParser
 
 singleinstance_name = 'calibre_viewer'
 
@@ -78,11 +86,11 @@ def migrate_previous_viewer_prefs() -> None:
 class EventAccumulator(QObject):
     got_file = pyqtSignal(object)
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QObject | None) -> None:
         QObject.__init__(self, parent)
-        self.events = []
+        self.events: list[str] = []
 
-    def __call__(self, paths):
+    def __call__(self, paths: list[str]) -> None:
         for path in paths:
             if os.path.exists(path):
                 self.events.append(path)
@@ -94,7 +102,7 @@ class EventAccumulator(QObject):
             self.events = []
 
 
-def send_message_to_viewer_instance(args, open_at) -> None:
+def send_message_to_viewer_instance(args: list[str], open_at: str | None) -> None:
     if len(args) > 1:
         msg = json.dumps((os.path.abspath(args[1]), open_at))
         try:
@@ -111,7 +119,7 @@ def send_message_to_viewer_instance(args, open_at) -> None:
         print('Opened book in existing viewer instance')
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.gui2.main_window import option_parser
 
     parser = option_parser(
@@ -171,7 +179,7 @@ View an e-book.
     return parser
 
 
-def run_gui(app, opts, args, internal_book_data, listener=None) -> None:
+def run_gui(app: Application, opts: Values, args: list[str], internal_book_data: CalibreBookData | None, listener: Listener | None = None) -> None:
     from calibre.gui2.viewer.convert_book import initialize_worker
 
     initialize_worker()
@@ -211,7 +219,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None) -> None:
     gc.collect(), gc.collect()
 
 
-def main(args=sys.argv) -> None:
+def main(args: list[str] = sys.argv) -> None:
     from calibre.utils.webengine import setup_fake_protocol
 
     # Ensure viewer can continue to function if GUI is closed

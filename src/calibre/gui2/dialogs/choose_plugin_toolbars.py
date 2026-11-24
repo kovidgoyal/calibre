@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QSizePolicy, QVBoxLayout
 
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.gui2.actions import InterfaceAction
+
 
 class ChoosePluginToolbarsDialog(QDialog):
-    def __init__(self, parent, plugin, locations) -> None:
+    def __init__(self, parent: QWidget | None, plugin: InterfaceAction, locations: list[tuple[str, str]]) -> None:
         QDialog.__init__(self, parent)
         self.locations = locations
 
@@ -42,7 +49,7 @@ class ChoosePluginToolbarsDialog(QDialog):
         self._layout.addWidget(button_box)
         self.resize(self.sizeHint())
 
-    def selected_locations(self):
+    def selected_locations(self) -> list[tuple[str, str]]:
         selected = []
         _sel_model = self._locations_list.selectionModel()
         assert _sel_model is not None

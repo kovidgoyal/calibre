@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QObject, pyqtSignal
 
+if TYPE_CHECKING:
+    from calibre.gui2.tts.manager import TTSManager
 
-def set_sync_override(allowed) -> None:
+
+def set_sync_override(allowed: bool) -> None:
     from calibre.gui2.viewer.lookup import set_sync_override
 
     set_sync_override(allowed)
@@ -15,12 +20,12 @@ class TTS(QObject):
     settings_changed = pyqtSignal(object)
     configured = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
-        self._manager = None
+        self._manager: TTSManager | None = None
 
     @property
-    def manager(self):
+    def manager(self) -> TTSManager:
         if self._manager is None:
             from calibre.gui2.tts.manager import TTSManager
 
@@ -35,22 +40,22 @@ class TTS(QObject):
             self._manager.stop()
             self._manager = None
 
-    def speak_simple_text(self, text) -> None:
+    def speak_simple_text(self, text: str) -> None:
         self.manager.speak_simple_text(text)
 
-    def action(self, action, data) -> None:
+    def action(self, action: str, data: dict[str, object] | None) -> None:
         if action != 'resume_after_configure':  # resume_after_configure is not used in new tts backend
             getattr(self, action)(data)
 
-    def play(self, data) -> None:
+    def play(self, data: dict[str, list[int | str]]) -> None:
         set_sync_override(False)
         self.manager.speak_marked_text(data['marked_text'])
 
-    def pause(self, data) -> None:
+    def pause(self, data: object) -> None:
         set_sync_override(True)
         self.manager.pause()
 
-    def resume(self, data) -> None:
+    def resume(self, data: object) -> None:
         set_sync_override(False)
         self.manager.resume()
 
@@ -60,15 +65,15 @@ class TTS(QObject):
     def state_event(self, name: str) -> None:
         self.event_received.emit(name, None)
 
-    def stop(self, data) -> None:
+    def stop(self, data: object) -> None:
         set_sync_override(True)
         self.manager.stop()
 
-    def configure(self, data) -> None:
+    def configure(self, data: object) -> None:
         self.manager.configure()
 
-    def slower(self, data) -> None:
+    def slower(self, data: object) -> None:
         self.manager.change_rate(steps=-1)
 
-    def faster(self, data) -> None:
+    def faster(self, data: object) -> None:
         self.manager.change_rate(steps=1)

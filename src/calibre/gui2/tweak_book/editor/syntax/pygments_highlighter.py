@@ -3,6 +3,7 @@
 
 import numbers
 from functools import partial
+from typing import TYPE_CHECKING
 
 from pygments.lexer import Error, _TokenType
 from qt.core import QTextBlockUserData
@@ -10,16 +11,30 @@ from qt.core import QTextBlockUserData
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.utils import NULL_FMT, format_for_pygments_token
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
+    from pygments.lexer import RegexLexer
+    from qt.core import QTextCharFormat
+
+    from calibre.gui2.tweak_book.editor.syntax.base import FormatSpans
+
+    class LineLexer(RegexLexer):
+        def lex_a_line(
+            self, state: State, text: str, i: int, formats_map: Callable[[_TokenType], QTextCharFormat], user_data: PygmentsUserData
+        ) -> FormatSpans: ...
+
+
 NORMAL = 0
 
 
-def create_lexer(base_class):
+def create_lexer(base_class: type[RegexLexer]) -> type[LineLexer]:
     """
     Subclass the pygments RegexLexer to lex line by line instead of lexing full
     text. The statestack at the end of each line is stored in the Qt block state.
     """
 
-    def get_tokens_unprocessed(self, text, statestack):
+    def get_tokens_unprocessed(self: RegexLexer, text: str, statestack: list[str]) -> Iterator[tuple[int, _TokenType, str]]:
         pos = 0
         tokendefs = self._tokens
         statetokens = tokendefs[statestack[-1]]
@@ -63,7 +78,9 @@ def create_lexer(base_class):
                 except IndexError:
                     break
 
-    def lex_a_line(self, state, text, i, formats_map, user_data):
+    def lex_a_line(
+        self: RegexLexer, state: State, text: str, i: int, formats_map: Callable[[_TokenType], QTextCharFormat], user_data: PygmentsUserData
+    ) -> FormatSpans:
         "Get formats for a single block (line)"
         statestack = list(state.pygments_stack) if state.pygments_stack is not None else ['root']
 
@@ -107,15 +124,15 @@ class State:
         self.parse = NORMAL
         self.pygments_stack = None
 
-    def copy(self):
+    def copy(self) -> State:
         s = State()
         s.pygments_stack = None if self.pygments_stack is None else list(self.pygments_stack)
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.parse == getattr(other, 'parse', -1) and self.pygments_stack == getattr(other, 'pygments_stack', False)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __repr__(self) -> str:
@@ -130,19 +147,19 @@ class PygmentsUserData(QTextBlockUserData):
         self.state = State()
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None) -> None:
+    def clear(self, state: State | None = None, doc_name: str | None = None) -> None:
         self.state = State() if state is None else state
         self.doc_name = doc_name
 
 
-def create_formats(highlighter):
-    cache = {}
-    theme = highlighter.theme.copy()
+def create_formats(highlighter: SyntaxHighlighter) -> Callable[[_TokenType], QTextCharFormat]:
+    cache: dict[_TokenType | None, QTextCharFormat] = {}
+    theme: dict[str | None, QTextCharFormat] = dict(highlighter.theme)
     theme[None] = NULL_FMT
     return partial(format_for_pygments_token, theme, cache)
 
 
-def create_highlighter(name, lexer_class):
+def create_highlighter(name: str, lexer_class: type[RegexLexer]) -> type[SyntaxHighlighter]:
     name_type = type(lexer_class.__name__)
     return type(
         name_type(name),

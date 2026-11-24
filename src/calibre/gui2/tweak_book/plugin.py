@@ -3,6 +3,7 @@
 
 import importlib
 import sys
+from typing import TYPE_CHECKING
 
 from qt.core import QToolButton
 
@@ -12,6 +13,16 @@ from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from qt.core import QAction
+
+    from calibre.customize import EditBookToolPlugin
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.tweak_book.boss import Boss
+    from calibre.gui2.tweak_book.ui import Main
 
 
 class Tool:
@@ -41,22 +52,33 @@ class Tool:
     #: The popup mode for the menu (if any) of the toolbar button. Possible values are 'delayed', 'instant', 'button'
     toolbar_button_popup_mode = 'delayed'
 
+    #: Set by :func:`load_plugin_tools`
+    plugin: EditBookToolPlugin
+
     @property
-    def boss(self):
+    def boss(self) -> Boss:
         "The :class:`calibre.gui2.tweak_book.boss.Boss` object. Used to control the user interface."
         return get_boss()
 
     @property
-    def gui(self):
+    def gui(self) -> Main:
         "The main window of the user interface"
         return self.boss.gui
 
     @property
-    def current_container(self):
+    def current_container(self) -> Container:
         "Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited."
         return current_container()
 
-    def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data) -> None:
+    def register_shortcut(
+        self,
+        qaction: QAction,
+        unique_name: str,
+        default_keys: Iterable[str] = (),
+        short_text: str | None = None,
+        description: str | None = None,
+        **extra_data: object,
+    ) -> None:
         """
         Register a keyboard shortcut that will trigger the specified ``qaction``. This keyboard shortcut
         will become automatically customizable by the user in the Keyboard shortcuts section of the editor preferences.
@@ -88,7 +110,7 @@ class Tool:
             group=_('Plugins'),
         )
 
-    def create_action(self, for_toolbar=True):
+    def create_action(self, for_toolbar: bool = True) -> QAction:
         """
         Create a QAction that will be added to either the plugins toolbar or
         the plugins menu depending on ``for_toolbar``. For example::
@@ -113,7 +135,7 @@ class Tool:
         raise NotImplementedError()
 
 
-def load_plugin_tools(plugin):
+def load_plugin_tools(plugin: EditBookToolPlugin) -> Iterator[Tool]:
     try:
         main = importlib.import_module(plugin.__class__.__module__ + '.main')
     except ImportError:
@@ -128,14 +150,22 @@ def load_plugin_tools(plugin):
                 yield ans
 
 
-def plugin_action_sid(plugin, tool, for_toolbar=True):
+def plugin_action_sid(plugin: EditBookToolPlugin, tool: Tool, for_toolbar: bool = True) -> str:
+    assert tool.name is not None
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
 
 
 plugin_toolbar_actions = []
 
 
-def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_actions=None, plugin_menu_actions=None):
+def create_plugin_action(
+    plugin: EditBookToolPlugin,
+    tool: Tool,
+    for_toolbar: bool,
+    actions: dict[str, QAction] | None = None,
+    toolbar_actions: dict[str, QAction] | None = None,
+    plugin_menu_actions: list[QAction] | None = None,
+) -> QAction | None:
     try:
         ac = tool.create_action(for_toolbar=for_toolbar)
         if ac is None:
@@ -152,15 +182,19 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
     else:
         if actions is not None:
             actions[sid] = ac
-        ac.sid = sid
+        setattr(ac, 'sid', sid)
         if for_toolbar:
             if toolbar_actions is not None:
                 toolbar_actions[sid] = ac
                 plugin_toolbar_actions.append(ac)
-            ac.popup_mode = {
-                'instant': QToolButton.ToolButtonPopupMode.InstantPopup,
-                'button': QToolButton.ToolButtonPopupMode.MenuButtonPopup,
-            }.get(tool.toolbar_button_popup_mode, QToolButton.ToolButtonPopupMode.DelayedPopup)
+            setattr(
+                ac,
+                'popup_mode',
+                {
+                    'instant': QToolButton.ToolButtonPopupMode.InstantPopup,
+                    'button': QToolButton.ToolButtonPopupMode.MenuButtonPopup,
+                }.get(tool.toolbar_button_popup_mode, QToolButton.ToolButtonPopupMode.DelayedPopup),
+            )
         elif plugin_menu_actions is not None:
             plugin_menu_actions.append(ac)
     return ac
@@ -169,7 +203,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
 _tool_memory = []  # Needed to prevent the tool object from being garbage collected
 
 
-def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions) -> None:
+def create_plugin_actions(actions: dict[str, QAction], toolbar_actions: dict[str, QAction], plugin_menu_actions: list[QAction]) -> None:
     del _tool_memory[:]
     del plugin_toolbar_actions[:]
 
@@ -192,7 +226,7 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions) -> None
                 create_plugin_action(plugin, tool, False, actions, toolbar_actions, plugin_menu_actions)
 
 
-def install_plugin(plugin) -> None:
+def install_plugin(plugin: EditBookToolPlugin) -> None:
     for tool in load_plugin_tools(plugin):
         if tool.allowed_in_toolbar:
             sid = plugin_action_sid(plugin, tool, True)

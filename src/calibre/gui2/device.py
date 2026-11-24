@@ -1535,8 +1535,8 @@ class DeviceMixin:  # {{{
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec() != QDialog.DialogCode.Accepted:
                 return
-            if d.format():
-                fmt = d.format().lower()
+            if chosen_fmt := d.format():
+                fmt = chosen_fmt.lower()
         dest, sub_dest = dest.partition(':')[0::2]
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:

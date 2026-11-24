@@ -3,7 +3,7 @@
 
 import re
 from functools import partial
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from qt.core import (
     QAbstractItemView,
@@ -31,15 +31,22 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from qt.core import QAbstractItemModel, QHelpEvent, QMouseEvent, QPoint, QStyleOptionViewItem
+
+    from calibre.gui2.viewer import TOCNode
+
 
 class _SearchQuery(TypedDict):
     text: str
     index: int
-    items: tuple
+    items: tuple[TOCItem, ...]
 
 
 class Delegate(QStyledItemDelegate):
-    def helpEvent(self, event, view, option, index):
+    def helpEvent(self, event: QHelpEvent | None, view: QAbstractItemView | None, option: QStyleOptionViewItem, index: QModelIndex) -> bool:
         # Show a tooltip only if the item is truncated
         if not event or not view:
             return False
@@ -56,7 +63,7 @@ class Delegate(QStyledItemDelegate):
 class TOCView(QTreeView):
     searched = pyqtSignal(object)
 
-    def __init__(self, *args) -> None:
+    def __init__(self, *args: QWidget | None) -> None:
         QTreeView.__init__(self, *args)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delegate = Delegate(self)
@@ -74,24 +81,25 @@ class TOCView(QTreeView):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
 
-    def viewportEvent(self, event):
+    def viewportEvent(self, event: QEvent | None) -> bool:
         if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
         return super().viewportEvent(event)
 
-    def setModel(self, model) -> None:
+    def setModel(self, model: QAbstractItemModel | None) -> None:
         QTreeView.setModel(self, model)
+        assert isinstance(model, TOC)
         model.current_toc_nodes_changed.connect(self.current_toc_nodes_changed, type=Qt.ConnectionType.QueuedConnection)
 
-    def current_toc_nodes_changed(self, ancestors, nodes) -> None:
+    def current_toc_nodes_changed(self, ancestors: tuple[QModelIndex, ...], nodes: list[TOCItem]) -> None:
         if ancestors:
             self.auto_expand_indices(ancestors)
         if nodes:
             self.scrollTo(nodes[-1].index())
 
-    def auto_expand_indices(self, indices) -> None:
+    def auto_expand_indices(self, indices: Iterable[QModelIndex]) -> None:
         for idx in indices:
             self.setExpanded(idx, True)
 
@@ -115,24 +123,27 @@ class TOCView(QTreeView):
         )
         self.setProperty('hovered_item_is_highlighted', True)
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event: QMouseEvent | None) -> None:
+        assert event is not None
         if self.indexAt(event.pos()).isValid():
             self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.unsetCursor()
         return QTreeView.mouseMoveEvent(self, event)
 
-    def expand_tree(self, index) -> None:
+    def expand_tree(self, index: QModelIndex) -> None:
         self.expand(index)
+        m = self.model()
+        assert m is not None
         i = -1
         while True:
             i += 1
-            child = index.child(i, 0)
+            child = m.index(i, 0, index)
             if not child.isValid():
                 break
             self.expand_tree(child)
 
-    def collapse_at_level(self, index) -> None:
+    def collapse_at_level(self, index: QModelIndex) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
@@ -141,7 +152,7 @@ class TOCView(QTreeView):
         for x in m.items_at_depth(item.depth):
             self.collapse(m.indexFromItem(x))
 
-    def expand_at_level(self, index) -> None:
+    def expand_at_level(self, index: QModelIndex) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
@@ -150,7 +161,7 @@ class TOCView(QTreeView):
         for x in m.items_at_depth(item.depth):
             self.expand(m.indexFromItem(x))
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         index = self.indexAt(pos)
         m = QMenu(self)
         if index.isValid():
@@ -181,7 +192,7 @@ class TOCView(QTreeView):
         assert cb is not None
         cb.setText(getattr(m, 'as_plain_text', ''))
 
-    def update_current_toc_nodes(self, families) -> None:
+    def update_current_toc_nodes(self, families: Iterable[int]) -> None:
         m = self.model()
         assert m is not None
         assert isinstance(m, TOC)
@@ -200,7 +211,7 @@ class TOCView(QTreeView):
 
 
 class TOCSearch(QWidget):
-    def __init__(self, toc_view, parent=None) -> None:
+    def __init__(self, toc_view: TOCView, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.toc_view = toc_view
         self.l = l = QHBoxLayout(self)
@@ -215,11 +226,13 @@ class TOCSearch(QWidget):
         b.setToolTip(_('Find next match'))
         l.addWidget(s), l.addWidget(b)
 
-    def do_search(self, text) -> None:
+    def do_search(self, text: str) -> None:
         if not text or not text.strip():
             return
         delta = -1 if qapplication_or_fail().keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier else 1
-        index = self.toc_view.model().search(text, delta=delta)
+        m = self.toc_view.model()
+        assert isinstance(m, TOC)
+        index = m.search(text, delta=delta)
         if index.isValid():
             self.toc_view.scrollTo(index)
             self.toc_view.searched.emit(index)
@@ -234,13 +247,22 @@ class TOCSearch(QWidget):
 
 
 class TOCItem(QStandardItem):
-    def __init__(self, toc, depth, all_items, normal_font, emphasis_font, depths, parent=None) -> None:
+    def __init__(
+        self,
+        toc: TOCNode,
+        depth: int,
+        all_items: list[TOCItem],
+        normal_font: QFont,
+        emphasis_font: QFont,
+        depths: set[int],
+        parent: TOCItem | None = None,
+    ) -> None:
         text = toc.get('title') or ''
         if text == '--pipe-worker':
             text = _('Untitled')
         self.href = toc.get('dest') or ''
-        if toc.get('frag'):
-            self.href += '#' + toc['frag']
+        if frag := toc.get('frag'):
+            self.href += '#' + frag
         if text:
             text = re.sub(r'\s', ' ', text)
         self.title = text
@@ -258,22 +280,22 @@ class TOCItem(QStandardItem):
         self.depth = depth
         self.set_being_viewed(False)
 
-    def set_being_viewed(self, is_being_viewed) -> None:
+    def set_being_viewed(self, is_being_viewed: bool) -> None:
         self.is_being_viewed = is_being_viewed
         self.setFont(self.emphasis_font if is_being_viewed else self.normal_font)
 
     @property
-    def ancestors(self):
+    def ancestors(self) -> Iterator[TOCItem]:
         parent = self.toc_parent
         while parent is not None:
             yield parent
             parent = parent.toc_parent
 
     @classmethod
-    def type(cls):
+    def type(cls) -> int:
         return QStandardItem.ItemType.UserType.value + 10
 
-    def set_current_search_result(self, yes) -> None:
+    def set_current_search_result(self, yes: bool) -> None:
         if yes and not self.is_current_search_result:
             self.setText(self.text() + ' ◄')
             self.is_current_search_result = True
@@ -292,7 +314,7 @@ class TOCItem(QStandardItem):
 class TOC(QStandardItemModel):
     current_toc_nodes_changed = pyqtSignal(object, object)
 
-    def __init__(self, toc=None) -> None:
+    def __init__(self, toc: TOCNode | None = None) -> None:
         QStandardItemModel.__init__(self)
         self.current_query: _SearchQuery = {'text': '', 'index': -1, 'items': ()}
         self.all_items = depth_first = []
@@ -306,7 +328,7 @@ class TOC(QStandardItemModel):
         self.depths = tuple(sorted(self.depths))
         self.node_id_map = {x.node_id: x for x in self.all_items}
 
-    def find_items(self, query):
+    def find_items(self, query: str) -> Iterator[TOCItem]:
         for item in self.all_items:
             text = item.text()
             if query and isinstance(query, str):
@@ -315,22 +337,22 @@ class TOC(QStandardItemModel):
             else:
                 yield item
 
-    def items_at_depth(self, depth):
+    def items_at_depth(self, depth: int) -> Iterator[TOCItem]:
         for item in self.all_items:
             if item.depth == depth:
                 yield item
 
-    def node_id_for_text(self, query):
+    def node_id_for_text(self, query: str) -> int | None:
         for item in self.find_items(query):
             return item.node_id
 
-    def node_id_for_href(self, query, exact=False):
+    def node_id_for_href(self, query: str, exact: bool = False) -> int | None:
         for item in self.all_items:
             href = item.href
             if (exact and query == href) or (not exact and query in href):
                 return item.node_id
 
-    def search(self, query, delta=1):
+    def search(self, query: str, delta: int = 1) -> QModelIndex:
         cq = self.current_query
         if cq['items'] and -1 < cq['index'] < len(cq['items']):
             cq['items'][cq['index']].set_current_search_result(False)
@@ -346,7 +368,7 @@ class TOC(QStandardItemModel):
             return index
         return QModelIndex()
 
-    def update_current_toc_nodes(self, current_toc_leaves) -> None:
+    def update_current_toc_nodes(self, current_toc_leaves: Iterable[int]) -> None:
         viewed_nodes = set()
         ancestors = {}
         for node_id in current_toc_leaves:
@@ -366,17 +388,17 @@ class TOC(QStandardItemModel):
                 node.set_being_viewed(is_being_viewed)
         self.current_toc_nodes_changed.emit(tuple(ancestors.values()), nodes)
 
-    def viewed_nodes(self):
+    def viewed_nodes(self) -> tuple[TOCItem, ...]:
         return tuple(node for node in self.all_items if node.is_being_viewed)
 
     @property
-    def title_for_current_node(self):
+    def title_for_current_node(self) -> str | None:
         for node in reversed(self.all_items):
             if node.is_being_viewed:
                 return node.title
 
     @property
-    def as_plain_text(self):
+    def as_plain_text(self) -> str:
         lines = []
         for item in self.all_items:
             lines.append(' ' * (4 * item.depth) + (item.title or ''))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2020, Charles Haley
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -23,15 +23,22 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.utils.icu import lower
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QSize, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 class CountTableWidgetItem(QTableWidgetItem):
-    def __init__(self, count) -> None:
+    def __init__(self, count: int | None) -> None:
         QTableWidgetItem.__init__(self, str(count) if count is not None else '0')
         self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable))
         self._count = count
 
-    def set_count(self, count) -> None:
+    def set_count(self, count: int | None) -> None:
         self.setText(str(count) if count is not None else '0')
 
 
@@ -41,7 +48,7 @@ class EnumValuesEdit(QDialog):
     COLOR_COLUMN = 2
     COUNT_COLUMN = 3
 
-    def __init__(self, parent, db, key) -> None:
+    def __init__(self, parent: QWidget | None, db: LibraryDatabase, key: str) -> None:
         QDialog.__init__(self, parent)
 
         self.setWindowTitle(_('Edit permissible values for {0}').format(key))
@@ -119,7 +126,7 @@ class EnumValuesEdit(QDialog):
         self.move_up_button.clicked.connect(self.move_up_clicked)
         self.restore_geometry(gprefs, 'enum-values-edit-geometry')
 
-    def cell_changed(self, row, col) -> None:
+    def cell_changed(self, row: int, col: int) -> None:
         if col == 0:
             val_item = self.table.item(row, self.VALUE_COLUMN)
             if val_item is None:
@@ -137,19 +144,19 @@ class EnumValuesEdit(QDialog):
                 else:
                     was_item.setText('')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         sz = QDialog.sizeHint(self)
         sz.setWidth(max(sz.width(), 600))
         sz.setHeight(max(sz.height(), 400))
         return sz
 
-    def make_name_item(self, row, txt) -> None:
+    def make_name_item(self, row: int, txt: str) -> None:
         it = QTableWidgetItem(txt)
         it.setData(Qt.ItemDataRole.UserRole, txt)
         it.setToolTip(_('Changing the value will rename it in all books'))
         self.table.setItem(row, self.VALUE_COLUMN, it)
 
-    def make_color_combobox(self, row, dex):
+    def make_color_combobox(self, row: int, dex: int) -> QComboBox:
         c = QComboBox(self)
         c.addItem('')
         c.addItems(QColor.colorNames())
@@ -161,11 +168,11 @@ class EnumValuesEdit(QDialog):
             c.setCurrentIndex(dex)
         return c
 
-    def make_was_item(self, row) -> None:
+    def make_was_item(self, row: int) -> None:
         it = QTableWidgetItem('')
         self.table.setItem(row, self.WAS_COLUMN, it)
 
-    def make_count_item(self, row, txt) -> None:
+    def make_count_item(self, row: int, txt: str) -> None:
         it = CountTableWidgetItem(self.name_to_count.get(lower(txt)))
         self.table.setItem(row, self.COUNT_COLUMN, it)
 
@@ -178,7 +185,7 @@ class EnumValuesEdit(QDialog):
             return
         self.move_row(row, -1)
 
-    def move_row(self, row, direction) -> None:
+    def move_row(self, row: int, direction: int) -> None:
         t = self.table.takeItem(row, self.VALUE_COLUMN)
         cw = self.table.cellWidget(row, self.COLOR_COLUMN)
         assert isinstance(cw, QComboBox)
@@ -236,10 +243,10 @@ class EnumValuesEdit(QDialog):
         self.make_was_item(row)
         self.make_count_item(row, '')
 
-    def save_geometry(self, prefs=None, name=None) -> None:
+    def save_geometry(self, prefs: object = None, name: object = None) -> None:
         super().save_geometry(gprefs, 'enum-values-edit-geometry')
 
-    def accept(self):
+    def accept(self) -> None:
         disp = self.fm['display']
         values = []
         colors = []
@@ -254,6 +261,7 @@ class EnumValuesEdit(QDialog):
             ov = str(it.data(Qt.ItemDataRole.UserRole))
             if v != ov:
                 fid = self.db.new_api.get_item_id(self.key, ov)
+                assert fid is not None
                 id_map[fid] = v
             values.append(v)
             ccw = self.table.cellWidget(i, self.COLOR_COLUMN)
@@ -286,20 +294,24 @@ class EnumValuesEdit(QDialog):
             self.deleted_values.pop(lower(v))
             if v != dv:
                 fid = self.db.new_api.get_item_id(self.key, dv)
+                assert fid is not None
                 id_map[fid] = v
 
         ids_to_delete = (self.db.new_api.get_item_id(self.key, v) for v in self.deleted_values.values())
         if ids_to_delete:  # ty: ignore[redundant-condition]
-            self.db.new_api.remove_items(self.key, ids_to_delete)
+            # deleted values all came from the db so they have ids
+            self.db.new_api.remove_items(self.key, cast('Iterator[int]', ids_to_delete))
 
         disp['enum_values'] = values
         disp['enum_colors'] = colors
-        self.db.set_custom_column_metadata(self.fm['colnum'], display=disp, update_last_modified=True)
+        colnum = self.fm['colnum']
+        assert colnum is not None
+        self.db.set_custom_column_metadata(colnum, display=cast('dict[str, object]', disp), update_last_modified=True)
         if id_map:
             self.db.new_api.rename_items(self.key, id_map)
         self.save_geometry()
         return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry()
         return QDialog.reject(self)

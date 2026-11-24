@@ -7,6 +7,7 @@ from io import BytesIO
 from operator import itemgetter
 from queue import Empty, Queue, ShutDown
 from threading import Thread
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre.db.annotations import annotations_as_copied_list, merge_annot_lists
 from calibre.gui2.viewer.convert_book import update_book
@@ -16,41 +17,61 @@ from calibre.utils.serialize import json_dumps, json_loads
 from calibre.utils.zipfile import safe_replace
 from polyglot.binary import as_base64_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from unittest import TestSuite
+
+    from calibre.gui2.viewer import BookLibraryDetails, CurrentBookData, LastReadData
+    from calibre.gui2.viewer.book_storage import CalibreData
+
+    AnnotationsList = tuple[tuple[dict, float], ...]
+
+    class AnnotationsSaveRequest(TypedDict):
+        annotations_list: AnnotationsList
+        annotations_path_key: str
+        book_library_details: BookLibraryDetails | None
+        pathtoebook: str
+        in_book_file: bool
+        sync_annots_user: str
+        calibre_data: CalibreData
+        last_read_data: LastReadData
+
+
 parse_annotations = json_loads
 
 
 @lru_cache(maxsize=2)
-def annotations_dir():
+def annotations_dir() -> str:
     from calibre.gui2.viewer.web_view import viewer_config_dir
 
     return os.path.join(viewer_config_dir, 'annots')
 
 
-def annot_list_as_bytes(annots):
+def annot_list_as_bytes(annots: Iterable[tuple[dict, float]]) -> bytes:
     return json_dumps(tuple(annot for annot, seconds in annots))
 
 
-def split_lines(chunk, length=80):
+def split_lines(chunk: bytes, length: int = 80) -> Iterator[bytes]:
     pos = 0
     while pos < len(chunk):
         yield chunk[pos : pos + length]
         pos += length
 
 
-def save_annots_to_epub(path, serialized_annots) -> None:
+def save_annots_to_epub(path: str, serialized_annots: bytes) -> None:
     serialized_annots = EPUB_FILE_TYPE_MAGIC + b'\n'.join(split_lines(as_base64_bytes(serialized_annots)))
     safe_replace(path, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
 
 def save_annotations(
-    annotations_list,
-    annotations_path_key,
-    bld,
-    pathtoebook,
-    in_book_file,
-    sync_annots_user,
-    calibre_data,
-    last_read_data=None,
+    annotations_list: AnnotationsList,
+    annotations_path_key: str,
+    bld: BookLibraryDetails | None,
+    pathtoebook: str,
+    in_book_file: bool,
+    sync_annots_user: str,
+    calibre_data: CalibreData,
+    last_read_data: LastReadData | None = None,
 ) -> None:
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir(), annotations_path_key), 'wb') as f:
@@ -67,7 +88,7 @@ class AnnotationsSaveWorker(Thread):
     def __init__(self) -> None:
         Thread.__init__(self, name='AnnotSaveWorker')
         self.daemon = True
-        self.queue = Queue()
+        self.queue: Queue[AnnotationsSaveRequest] = Queue()
 
     def shutdown(self) -> None:
         self.queue.shutdown(immediate=False)
@@ -106,10 +127,10 @@ class AnnotationsSaveWorker(Thread):
 
                 traceback.print_exc()
 
-    def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user='') -> None:
+    def save_annotations(self, current_book_data: CurrentBookData, in_book_file: bool = True, sync_annots_user: str = '') -> None:
         amap = current_book_data['annotations_map']
         alist = tuple(annotations_as_copied_list(amap))
-        last_read_data = {}
+        last_read_data: LastReadData = {}
         if (lr := amap.get('last-read')) and (pos_frac := current_book_data.get('pos_frac')) is not None:
             last_read_data['cfi'] = lr[0]['pos']
             last_read_data['timestamp'] = lr[0]['timestamp']
@@ -133,10 +154,10 @@ class AnnotationsSaveWorker(Thread):
         })
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import unittest
 
-    def bm(title, bmid, year=20, first_cfi_number=1):
+    def bm(title: str, bmid: int, year: int = 20, first_cfi_number: int = 1) -> dict[str, object]:
         return {
             'title': title,
             'id': bmid,
@@ -145,7 +166,7 @@ def find_tests():
             'pos': f'epubcfi(/{first_cfi_number}/4/8)',
         }
 
-    def hl(uuid, hlid, year=20, first_cfi_number=1):
+    def hl(uuid: str, hlid: int, year: int = 20, first_cfi_number: int = 1) -> dict[str, object]:
         return {
             'uuid': uuid,
             'id': hlid,

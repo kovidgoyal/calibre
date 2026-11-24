@@ -6,7 +6,7 @@ from copy import copy, deepcopy
 from functools import partial
 from itertools import product
 from operator import attrgetter, methodcaller
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Protocol, overload
 
 from qt.core import (
     QAbstractItemView,
@@ -54,7 +54,47 @@ from calibre.startup import connect_lambda
 from calibre.utils.localization import _, get_lang, ngettext
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Mapping
+
+    from qt.core import QAction
+
+    from calibre.gui2.tweak_book.ui import Main
+    from calibre.utils.config import JSONConfig
+
+    # Settings whose default values are integers and booleans respectively,
+    # BasicSettings creates spin boxes and check boxes for them
+    IntSetting = Literal[
+        'editor_cursor_width',
+        'editor_font_size',
+        'editor_tab_stop_width',
+        'preview_base_font_size',
+        'preview_minimum_font_size',
+        'preview_mono_font_size',
+        'preview_sync_context',
+    ]
+    BoolSetting = Literal[
+        'auto_close_tags',
+        'choose_tweak_fmt',
+        'editor_accepts_drops',
+        'editor_line_wrap',
+        'editor_show_char_under_cursor',
+        'file_list_shows_full_pathname',
+        'inline_grammar_check',
+        'inline_spell_check',
+        'nestable_dock_widgets',
+        'pretty_print_on_open',
+        'replace_entities_as_typed',
+        'restore_book_state',
+        'update_metadata_from_calibre',
+    ]
+
+
+class ColorOverrideWidget(Protocol):
+    # The attributes set on the widget created by PreviewSettings.color_override()
+    unset: QRadioButton
+    auto: QRadioButton
+    manual: QRadioButton
+    color_button: ColorButton
 
 
 class BasicSettings(QWidget):  # {{{
@@ -68,12 +108,31 @@ class BasicSettings(QWidget):  # {{{
         setter: Callable
         initial_value: Any
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.settings = {}
         self._prevent_changed = False
 
-    def __call__(self, name, widget=None, getter=None, setter=None, prefs=None):
+    @overload
+    def __call__[W: QWidget](
+        self, name: str, widget: W, getter: Callable[..., object], setter: Callable[..., object], prefs: JSONConfig | None = None
+    ) -> W: ...
+    @overload
+    def __call__(self, name: IntSetting, widget: None = None, getter: None = None, setter: None = None, prefs: JSONConfig | None = None) -> QSpinBox: ...
+    @overload
+    def __call__(self, name: BoolSetting, widget: None = None, getter: None = None, setter: None = None, prefs: JSONConfig | None = None) -> QCheckBox: ...
+    @overload
+    def __call__(
+        self, name: str, widget: None = None, getter: None = None, setter: None = None, prefs: JSONConfig | None = None
+    ) -> QCheckBox | QSpinBox | QDoubleSpinBox: ...
+    def __call__(
+        self,
+        name: str,
+        widget: QWidget | None = None,
+        getter: Callable[..., object] | None = None,
+        setter: Callable[..., object] | None = None,
+        prefs: JSONConfig | None = None,
+    ) -> QWidget:
         prefs = prefs or tprefs
         defval = prefs.defaults[name]
         inval = prefs[name]
@@ -99,18 +158,18 @@ class BasicSettings(QWidget):  # {{{
         self.settings[name] = self.Setting(name, prefs, widget, getter, setter, inval)
         return widget
 
-    def choices_widget(self, name, choices, fallback_val, none_val, prefs=None):
+    def choices_widget(self, name: str, choices: Mapping[str, str], fallback_val: str, none_val: str, prefs: JSONConfig | None = None) -> QComboBox:
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged.connect(self.emit_changed)
         for key, human in sorted(choices.items(), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
-        def getter(w):
+        def getter(w: QComboBox) -> str | None:
             ans = str(w.itemData(w.currentIndex()) or '')
             return {none_val: None}.get(ans, ans)
 
-        def setter(w, val) -> None:
+        def setter(w: QComboBox, val: str | None) -> None:
             val = {None: none_val}.get(val, val)
             idx = w.findData(val, flags=Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive)
             if idx == -1:
@@ -119,7 +178,7 @@ class BasicSettings(QWidget):  # {{{
 
         return self(name, widget=widget, getter=getter, setter=setter, prefs=prefs)
 
-    def order_widget(self, name, prefs=None):
+    def order_widget(self, name: str, prefs: JSONConfig | None = None) -> QListWidget:
         prefs = prefs or tprefs
         widget = QListWidget(self)
         widget.addItems(prefs.defaults[name])
@@ -135,12 +194,12 @@ class BasicSettings(QWidget):  # {{{
         widget.setSpacing(5)
         setattr(widget, 'defaults', prefs.defaults[name])
 
-        def getter(w):
-            return list(map(str, (w.item(i).text() for i in range(w.count()))))
+        def getter(w: QListWidget) -> list[str]:
+            return list(map(str, (item.text() for i in range(w.count()) if (item := w.item(i)) is not None)))
 
-        def setter(w, val) -> None:
+        def setter(w: QListWidget, val: Iterable[str]) -> None:
             order_map = {x: i for i, x in enumerate(val)}
-            items = list(w.defaults)
+            items = list(getattr(w, 'defaults'))
             limit = len(items)
             items.sort(key=lambda x: order_map.get(x, limit))
             w.clear()
@@ -151,7 +210,7 @@ class BasicSettings(QWidget):  # {{{
 
         return self(name, widget=widget, getter=getter, setter=setter, prefs=prefs)
 
-    def emit_changed(self, *args) -> None:
+    def emit_changed(self, *args: object) -> None:
         if not self._prevent_changed:
             self.changed_signal.emit()
 
@@ -170,18 +229,18 @@ class BasicSettings(QWidget):  # {{{
         for setting in self.settings.values():
             setting.setter(setting.widget, self.default_value(setting.name))
 
-    def initial_value(self, name):
+    def initial_value(self, name: str) -> object:
         return self.settings[name].initial_value
 
-    def current_value(self, name):
+    def current_value(self, name: str) -> object:
         s = self.settings[name]
         return s.getter(s.widget)
 
-    def default_value(self, name):
+    def default_value(self, name: str) -> object:
         s = self.settings[name]
         return s.prefs.defaults[name]
 
-    def setting_changed(self, name):
+    def setting_changed(self, name: str) -> bool:
         return self.current_value(name) != self.initial_value(name)
 
 
@@ -189,7 +248,7 @@ class BasicSettings(QWidget):  # {{{
 
 
 class EditorSettings(BasicSettings):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         BasicSettings.__init__(self, parent)
         self.dictionaries_changed = self.snippets_changed = False
         self.l = l = QFormLayout(self)
@@ -331,7 +390,7 @@ class EditorSettings(BasicSettings):  # {{{
         if d.exec() == QDialog.DialogCode.Accepted:
             self.snippets_changed = True
 
-    def theme_choices(self):
+    def theme_choices(self) -> dict[str, str]:
         choices = {k: k for k in all_theme_names()}
         choices['auto'] = _('Automatic (%s)') % default_theme()
         return choices
@@ -354,7 +413,7 @@ class EditorSettings(BasicSettings):  # {{{
 
 
 class IntegrationSettings(BasicSettings):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         BasicSettings.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -377,7 +436,7 @@ class IntegrationSettings(BasicSettings):  # {{{
 
 
 class MainWindowSettings(BasicSettings):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         BasicSettings.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -430,13 +489,13 @@ class MainWindowSettings(BasicSettings):  # {{{
 
 
 class PreviewSettings(BasicSettings):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         BasicSettings.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
         self.default_font_settings = {}
 
-        def default_font(which):
+        def default_font(which: str) -> str:
             if not self.default_font_settings:
                 from qt.webengine import QWebEnginePage, QWebEngineSettings
 
@@ -450,13 +509,13 @@ class PreviewSettings(BasicSettings):  # {{{
                 }
             return self.default_font_settings[which]
 
-        def family_getter(which, w):
+        def family_getter(which: str, w: QFontComboBox) -> str | None:
             ans = str(w.currentFont().family())
             if ans == default_font(which):
                 ans = None
             return ans
 
-        def family_setter(which, w, val) -> None:
+        def family_setter(which: str, w: QFontComboBox, val: str | None) -> None:
             w.setCurrentFont(QFont(val or default_font(which)))
 
         families = {'serif': _('Serif text'), 'sans': _('Sans-serif text'), 'mono': _('Monospaced text')}
@@ -496,11 +555,11 @@ class PreviewSettings(BasicSettings):  # {{{
         l.addRow(_('Foreground color:'), self.color_override('preview_foreground'))
         l.addRow(_('Link color:'), self.color_override('preview_link_color'))
 
-    def color_override(self, name):
+    def color_override(self, name: str) -> QWidget:
         w = QWidget(self)
         l = QHBoxLayout(w)
 
-        def b(name, text, tt):
+        def b(name: str, text: str, tt: str) -> QRadioButton:
             ans = QRadioButton(text, w)
             l.addWidget(ans)
             ans.setToolTip(tt)
@@ -525,14 +584,14 @@ class PreviewSettings(BasicSettings):  # {{{
         l.addWidget(c)
         connect_lambda(c.clicked, w, lambda w: w.manual.setChecked(True))
 
-        def getter(w):
+        def getter(w: ColorOverrideWidget) -> str:
             if w.unset.isChecked():
                 return 'unset'
             if w.auto.isChecked():
                 return 'auto'
             return w.color_button.color or 'auto'
 
-        def setter(w, val) -> None:
+        def setter(w: ColorOverrideWidget, val: str | None) -> None:
             val = val or 'auto'
             if val == 'unset':
                 w.unset.setChecked(True)
@@ -553,7 +612,7 @@ class PreviewSettings(BasicSettings):  # {{{
 
 
 class ToolbarList(QListWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QListWidget.__init__(self, parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
@@ -561,7 +620,7 @@ class ToolbarList(QListWidget):
 class ToolbarSettings(QWidget):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = gl = QGridLayout(self)
         self.changed = False
@@ -653,7 +712,7 @@ class ToolbarSettings(QWidget):
         la.setBuddy(ics)
         h.addWidget(la), h.addWidget(ics), h.addStretch(10)
 
-    def read_settings(self, prefs=None) -> None:
+    def read_settings(self, prefs: Mapping[str, object] | None = None) -> None:
         prefs = prefs or tprefs
         val = self.original_settings = {}
         for i in range(1, self.bars.count()):
@@ -662,7 +721,7 @@ class ToolbarSettings(QWidget):
         self.current_settings = deepcopy(val)
 
     @property
-    def current_name(self):
+    def current_name(self) -> str:
         return str(self.bars.itemData(self.bars.currentIndex()) or '')
 
     def build_lists(self) -> None:
@@ -689,7 +748,7 @@ class ToolbarSettings(QWidget):
             all_items = editor_toolbar_actions[name.split('_')[1]]
         blank = QIcon.ic('blank.png')
 
-        def to_item(key, ac, parent):
+        def to_item(key: str, ac: QAction, parent: QListWidget) -> QListWidgetItem:
             ic = ac.icon()
             if not ic or ic.isNull():
                 ic = blank
@@ -723,11 +782,11 @@ class ToolbarSettings(QWidget):
         self.toggle_visibility(bool(name))
         self.build_lists()
 
-    def toggle_visibility(self, visible) -> None:
+    def toggle_visibility(self, visible: bool) -> None:
         for x in ('gb1', 'gb2', 'lb', 'rb'):
             getattr(self, x).setVisible(visible)
 
-    def move(self, up=True) -> None:  # ty: ignore[incompatible-method-override]
+    def move(self, up: bool = True) -> None:  # ty: ignore[incompatible-method-override]
         r = self.current.currentRow()
         v = self.current
         if r < 0 or (r < 1 and up) or (r > v.count() - 2 and not up):
@@ -749,10 +808,10 @@ class ToolbarSettings(QWidget):
     def add_action(self) -> None:
         self._add_action(self.available.selectedItems())
 
-    def add_single_action(self, item) -> None:
+    def add_single_action(self, item: QListWidgetItem) -> None:
         self._add_action([item])
 
-    def _add_action(self, items) -> None:
+    def _add_action(self, items: Iterable[QListWidgetItem]) -> None:
         try:
             s = self.current_settings[self.current_name]
         except KeyError:
@@ -768,10 +827,10 @@ class ToolbarSettings(QWidget):
     def remove_action(self) -> None:
         self._remove_action(self.current.selectedItems())
 
-    def remove_single_action(self, item) -> None:
+    def remove_single_action(self, item: QListWidgetItem) -> None:
         self._remove_action([item])
 
-    def _remove_action(self, items) -> None:
+    def _remove_action(self, items: Iterable[QListWidgetItem]) -> None:
         try:
             s = self.current_settings[self.current_name]
         except KeyError:
@@ -805,7 +864,7 @@ class ToolbarSettings(QWidget):
 
 
 class TemplatesDialog(Dialog):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.ignore_changes = False
         Dialog.__init__(self, _('Customize templates'), 'customize-templates', parent=parent)
 
@@ -854,7 +913,7 @@ class TemplatesDialog(Dialog):  # {{{
         l.addWidget(self.bb)
 
     @property
-    def current_syntax(self):
+    def current_syntax(self) -> str:
         return str(self.syntaxes.currentText())
 
     def show_template(self) -> None:
@@ -889,7 +948,7 @@ class TemplatesDialog(Dialog):  # {{{
 
 
 class Preferences(QDialog):
-    def __init__(self, gui, initial_panel=None) -> None:
+    def __init__(self, gui: Main, initial_panel: str | None = None) -> None:
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
@@ -967,19 +1026,19 @@ class Preferences(QDialog):
         cl.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         cl.setMinimumWidth(min(cl.maximumWidth(), cl.sizeHint().width()))
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     @property
-    def dictionaries_changed(self):
+    def dictionaries_changed(self) -> bool:
         return self.editor_panel.dictionaries_changed
 
     @property
-    def snippets_changed(self):
+    def snippets_changed(self) -> bool:
         return self.editor_panel.snippets_changed
 
     @property
-    def toolbars_changed(self):
+    def toolbars_changed(self) -> bool:
         return self.toolbars_panel.changed
 
     def restore_all_defaults(self) -> None:
@@ -1034,7 +1093,7 @@ if __name__ == '__main__':
     from calibre.gui2.tweak_book.ui import Main
 
     app = Application([])
-    opts = option_parser().parse_args(['dev'])
+    opts = option_parser().parse_args(['dev'])[0]
     main = Main(opts)
     d = Preferences(main)
     d.exec()

@@ -591,7 +591,7 @@ def sort_sheet(container: Container, sheet_or_text: str | CSSStyleSheet) -> CSSS
     return sheet
 
 
-def add_stylesheet_links(container: Container, name: str, text: str) -> bytes | None:
+def add_stylesheet_links(container: Container, name: str, text: str | bytes) -> bytes | None:
     root = container.parse_xhtml(text, name)
     heads = root.xpath('//*[local-name() = "head"]')
     if not heads:

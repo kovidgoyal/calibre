@@ -1,23 +1,31 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAbstractItemView, QAbstractListModel, QDialog, QDialogButtonBox, QLabel, QListView, QSize, Qt, QVBoxLayout
 
 from calibre.gui2 import file_icon_provider, qapplication_or_fail
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from types import EllipsisType
+
+    from qt.core import QModelIndex, QWidget
+
 
 class Formats(QAbstractListModel):
-    def __init__(self, fmt_count) -> None:
+    def __init__(self, fmt_count: Mapping[str, int]) -> None:
         QAbstractListModel.__init__(self)
         self.fmts = sorted(set(fmt_count))
         self.counts = fmt_count
         self.fi = file_icon_provider()
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.fmts)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         row = index.row()
         if role == Qt.ItemDataRole.DisplayRole:
             fmt = self.fmts[row]
@@ -46,15 +54,15 @@ class Formats(QAbstractListModel):
             )
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def fmt(self, idx):
+    def fmt(self, idx: QModelIndex) -> str:
         return self.fmts[idx.row()]
 
 
 class SelectFormats(QDialog):
-    def __init__(self, fmt_count, msg, single=False, parent=None, exclude=False) -> None:
+    def __init__(self, fmt_count: Mapping[str, int], msg: str, single: bool = False, parent: QWidget | None = None, exclude: bool = False) -> None:
         QDialog.__init__(self, parent)
         self._l = QVBoxLayout(self)
         self.single_fmt = single
@@ -79,14 +87,14 @@ class SelectFormats(QDialog):
         self.fview.setSpacing(2)
 
         self.resize(350, 500)
-        self.selected_formats = set()
+        self.selected_formats: set[str] = set()
 
-    def accept(self, *args) -> None:
+    def accept(self, *args: object) -> None:
         for idx in self.fview.selectedIndexes():
             self.selected_formats.add(self.formats.fmt(idx))
         QDialog.accept(self, *args)
 
-    def double_clicked(self, index) -> None:
+    def double_clicked(self, index: QModelIndex) -> None:
         if self.single_fmt:
             self.accept()
 
@@ -95,6 +103,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
 
     app = Application([])
-    d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
+    d = SelectFormats({'epub': 1, 'lrf': 1, 'lit': 1, 'mobi': 1}, 'Choose a format')
     d.exec()
     print(d.selected_formats)

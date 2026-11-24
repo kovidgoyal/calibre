@@ -666,6 +666,7 @@ class BooksView(TableView):  # {{{
             gprefs.set('ondevice_column_width', 0)
             self.resizeColumnToContents(idx)
         elif action == 'edit_enum':
+            assert self._model.db is not None
             EnumValuesEdit(self, self._model.db, column).exec()
         elif action == 'tt_template':
             db = self._model.db

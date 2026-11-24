@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import Qt, QTextCursor
 
@@ -17,8 +18,16 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     smart_tab,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-def find_rule(raw, rule_address):
+    from qt.core import QKeyEvent
+
+    from calibre.gui2.tweak_book.editor.smarts import CompletionData
+    from calibre.gui2.tweak_book.editor.text import TextEdit
+
+
+def find_rule(raw: str, rule_address: Sequence[int]) -> tuple[int, int] | tuple[None, None]:
     import tinycss
 
     parser = tinycss.make_full_parser()
@@ -42,13 +51,13 @@ class Smarts(NullSmarts):
     regexps_compiled: bool
     complete_attr_pat: re.Pattern[str]
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: TextEdit, **kwargs: TextEdit) -> None:
         if not hasattr(Smarts, 'regexps_compiled'):
             Smarts.regexps_compiled = True
             Smarts.complete_attr_pat = re.compile(r'''url\s*\(\s*['"]{0,1}([^)]*)$''')
         NullSmarts.__init__(self, *args, **kwargs)
 
-    def handle_key_press(self, ev, editor) -> bool:
+    def handle_key_press(self, ev: QKeyEvent, editor: TextEdit) -> bool:
         key = ev.key()
 
         if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and no_modifiers(ev, Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.AltModifier):
@@ -82,7 +91,7 @@ class Smarts(NullSmarts):
 
         return False
 
-    def get_completion_data(self, editor, ev=None):
+    def get_completion_data(self, editor: TextEdit, ev: QKeyEvent | None = None) -> CompletionData | None:
         c = editor.textCursor()
         c.movePosition(QTextCursor.MoveOperation.StartOfLine, QTextCursor.MoveMode.KeepAnchor)
         text = c.selectedText()

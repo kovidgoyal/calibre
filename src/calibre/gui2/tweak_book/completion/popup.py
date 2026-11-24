@@ -8,7 +8,13 @@ from typing import TYPE_CHECKING, cast
 from qt.core import QEvent, QPainter, QPalette, QSize, QStaticText, Qt, QTextCursor, QTextOption, QTimer, QWidget
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping, Sequence
+
+    from qt.core import QKeyEvent, QMouseEvent, QObject, QPaintEvent, QRect
+
+    from calibre.gui2.tweak_book.completion.worker import Result
     from calibre.gui2.tweak_book.editor.text import TextEdit
+    from calibre.gui2.tweak_book.editor.widget import Editor as TextEditor
 
 from calibre import prepare_string_for_xml, prints
 from calibre.gui2 import error_dialog
@@ -21,7 +27,7 @@ class ChoosePopupWidget(QWidget):
     TOP_MARGIN = BOTTOM_MARGIN = 2
     SIDE_MARGIN = 4
 
-    def __init__(self, parent, max_height=1000) -> None:
+    def __init__(self, parent: QWidget, max_height: int = 1000) -> None:
         QWidget.__init__(self, parent)
 
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -30,8 +36,8 @@ class ChoosePopupWidget(QWidget):
         self.setMouseTracking(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        self.current_results: tuple = ()
-        self.current_size_hint = None
+        self.current_results: tuple[tuple[str, Sequence[int]], ...] = ()
+        self.current_size_hint: QSize | None = None
 
         self.max_text_length = 0
         self.current_index = -1
@@ -42,7 +48,7 @@ class ChoosePopupWidget(QWidget):
         to.setWrapMode(QTextOption.WrapMode.NoWrap)
         to.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-        self.rendered_text_cache = {}
+        self.rendered_text_cache: dict[str, QStaticText] = {}
         parent.installEventFilter(self)
         self.relayout_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(25), t.timeout.connect(self.layout)
@@ -51,7 +57,7 @@ class ChoosePopupWidget(QWidget):
         self.rendered_text_cache.clear()
         self.current_size_hint = None
 
-    def set_items(self, items, descriptions=None) -> None:
+    def set_items(self, items: tuple[tuple[str, Sequence[int]], ...], descriptions: Mapping[str, str | None] | None = None) -> None:
         self.current_results = items
         self.current_size_hint = None
         self.descriptions = descriptions or {}
@@ -62,7 +68,7 @@ class ChoosePopupWidget(QWidget):
         if self.current_results:
             self.max_text_length = max(string_length(text) for text, pos in self.current_results)
 
-    def get_static_text(self, otext, positions):
+    def get_static_text(self, otext: str, positions: Sequence[int]) -> QStaticText:
         st = self.rendered_text_cache.get(otext)
         if st is None:
             text = (otext or '').ljust(self.max_text_length + 1, '\xa0')
@@ -80,7 +86,7 @@ class ChoosePopupWidget(QWidget):
             st.prepare(font=parent_widget.font())
         return st
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         if self.current_size_hint is None:
             max_width = height = 0
             for text, positions in self.current_results:
@@ -91,7 +97,7 @@ class ChoosePopupWidget(QWidget):
         assert self.current_size_hint is not None
         return self.current_size_hint
 
-    def iter_visible_items(self):
+    def iter_visible_items(self) -> Iterator[tuple[int, QStaticText, int, int]]:
         y = self.TOP_MARGIN
         bottom = self.rect().bottom()
         for i, (text, positions) in enumerate(self.current_results[self.current_top_index :]):
@@ -102,12 +108,14 @@ class ChoosePopupWidget(QWidget):
             yield i + self.current_top_index, st, y, height
             y += height
 
-    def index_for_y(self, y):
+    def index_for_y(self, y: int) -> int | None:
         for idx, st, top, height in self.iter_visible_items():
             if top <= y < top + height:
                 return idx
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        if a0 is None:
+            return
         painter = QPainter(self)
         painter.setClipRect(a0.rect())
         pal = self.palette()
@@ -133,7 +141,7 @@ class ChoosePopupWidget(QWidget):
         if self.current_size_hint is None:
             QTimer.singleShot(0, self.layout)
 
-    def layout(self, cursor_rect=None) -> None:
+    def layout(self, cursor_rect: QRect | None = None) -> None:
         p_raw = self.parent()
         assert p_raw is not None
         p = cast('TextEdit', p_raw)
@@ -157,7 +165,7 @@ class ChoosePopupWidget(QWidget):
         self.move(left, top)
         self.update()
 
-    def ensure_index_visible(self, index) -> None:
+    def ensure_index_visible(self, index: int) -> None:
         if index < self.current_top_index:
             self.current_top_index = max(0, index)
         else:
@@ -180,10 +188,10 @@ class ChoosePopupWidget(QWidget):
 
     abort = hide
 
-    def activate_current_result(self):
+    def activate_current_result(self) -> None:
         raise NotImplementedError('You must implement this method in a subclass')
 
-    def handle_keypress(self, ev) -> bool:
+    def handle_keypress(self, ev: QKeyEvent) -> bool:
         key = ev.key()
         if key == Qt.Key.Key_Escape:
             self.abort(), ev.accept()
@@ -200,11 +208,11 @@ class ChoosePopupWidget(QWidget):
             return True
         return False
 
-    def eventFilter(self, a0, a1):
-        if a0 is self.parent() and self.isVisible():
+    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
+        if a1 is not None and a0 is self.parent() and self.isVisible():
             etype = a1.type()
             if etype == QEvent.Type.KeyPress:
-                ret = self.handle_keypress(a1)
+                ret = self.handle_keypress(cast('QKeyEvent', a1))
                 if ret:
                     a1.accept()
                 return ret
@@ -212,7 +220,9 @@ class ChoosePopupWidget(QWidget):
                 self.relayout_timer.start()
         return False
 
-    def mouseMoveEvent(self, a0) -> None:
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        if a0 is None:
+            return
         y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None and idx != self.current_index:
@@ -220,7 +230,9 @@ class ChoosePopupWidget(QWidget):
             self.update()
             a0.accept()
 
-    def mouseReleaseEvent(self, a0) -> None:
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        if a0 is None:
+            return
         y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None:
@@ -228,7 +240,7 @@ class ChoosePopupWidget(QWidget):
             self.hide()
         a0.accept()
 
-    def choose_next_result(self, previous=False) -> None:
+    def choose_next_result(self, previous: bool | Qt.KeyboardModifier = False) -> None:
         if self.current_results:
             if previous:
                 if self.current_index == -1:
@@ -244,17 +256,20 @@ class ChoosePopupWidget(QWidget):
 
 
 class CompletionPopup(ChoosePopupWidget):
-    def __init__(self, parent, max_height=1000) -> None:
+    def __init__(self, parent: TextEdit, max_height: int = 1000) -> None:
         ChoosePopupWidget.__init__(self, parent, max_height=max_height)
         self.completion_error_shown = False
 
-        self.current_query = self.current_completion = None
+        self.current_query: str | None = None
+        self.current_completion: QTextCursor | None = None
 
-    def set_items(self, items, descriptions=None, query=None) -> None:
+    def set_items(  # ty: ignore[incompatible-method-override]
+        self, items: Mapping[str, Sequence[int]], descriptions: Mapping[str, str | None] | None = None, query: str | None = None
+    ) -> None:
         self.current_query = query
         ChoosePopupWidget.set_items(self, tuple(items.items()), descriptions=descriptions)
 
-    def choose_next_result(self, previous=False) -> None:
+    def choose_next_result(self, previous: bool | Qt.KeyboardModifier = False) -> None:
         ChoosePopupWidget.choose_next_result(self, previous=previous)
         self.activate_current_result()
 
@@ -271,13 +286,13 @@ class CompletionPopup(ChoosePopupWidget):
         ChoosePopupWidget.abort(self)
         self.current_completion = self.current_query = None
 
-    def mark_completion(self, editor, query) -> None:
+    def mark_completion(self, editor: TextEdit, query: str | None) -> None:
         self.current_completion = c = editor.textCursor()
         chars = string_length(query or '')
         c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, QTextCursor.MoveMode.KeepAnchor)
         self.hide()
 
-    def handle_result(self, result) -> None:
+    def handle_result(self, result: Result) -> None:
         if result.traceback:
             prints(result.traceback)
             if not self.completion_error_shown:
@@ -305,8 +320,9 @@ class CompletionPopup(ChoosePopupWidget):
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
 
-    def test(editor) -> None:
-        c = editor.__c = CompletionPopup(editor.editor, max_height=100)
+    def test(editor: TextEditor) -> None:
+        c = CompletionPopup(editor.editor, max_height=100)
+        setattr(editor, '__c', c)  # keep a reference
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()
         m = Matcher(items)
         c.set_items(m('a'), descriptions={x: x for x in items})

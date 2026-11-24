@@ -7,22 +7,28 @@ Based on classes in calibre.gui2.tweak_book.editor
 License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 """
 
+from typing import TYPE_CHECKING
+
 from qt.core import QFont, QPainter, QPalette, QPlainTextEdit, QRect, Qt, QTextCursor, QTextEdit, QTextFormat
 
 from calibre.gui2.tweak_book.editor.text import LineNumbers
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWidget
+
 
 class LineNumberArea(LineNumbers):
-    def mouseDoubleClickEvent(self, a0) -> None:
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         super().mousePressEvent(a0)
         p = self.parent()
         assert isinstance(p, CodeEditor)
+        assert a0 is not None
         p.line_area_doubleclick_event(a0)
 
 
 class CodeEditor(QPlainTextEdit):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QPlainTextEdit.__init__(self, parent)
 
         # Use the default theme from the book editor
@@ -40,7 +46,7 @@ class CodeEditor(QPlainTextEdit):
 
         self.update_line_number_area_width(0)
         self.highlight_cursor_line()
-        self.clicked_line_numbers = set()
+        self.clicked_line_numbers: set[int] = set()
 
     def highlight_cursor_line(self) -> None:
         sel = QTextEdit.ExtraSelection()
@@ -54,11 +60,11 @@ class CodeEditor(QPlainTextEdit):
             sel,
         ])
 
-    def update_line_number_area_width(self, block_count=0) -> None:
+    def update_line_number_area_width(self, block_count: int = 0) -> None:
         self.gutter_width = self.line_number_area_width()
         self.setViewportMargins(self.gutter_width, 0, 0, 0)
 
-    def line_number_area_width(self):
+    def line_number_area_width(self) -> int:
         # get largest width of digits
         fm = self.fontMetrics()
         self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
@@ -69,7 +75,7 @@ class CodeEditor(QPlainTextEdit):
             digits += 1
         return self.number_width * (digits + 1)
 
-    def update_line_number_area(self, rect, dy) -> None:
+    def update_line_number_area(self, rect: QRect, dy: int) -> None:
         if dy:
             self.line_number_area.scroll(0, dy)
         else:
@@ -79,28 +85,28 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, e) -> None:
+    def resizeEvent(self, e: QResizeEvent | None) -> None:
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
 
-    def line_area_doubleclick_event(self, event) -> None:
+    def line_area_doubleclick_event(self, event: QMouseEvent) -> None:
         # remember that the result of the divide will be zero-based
-        line = event.y() // self.fontMetrics().height() + 1 + self.firstVisibleBlock().blockNumber()
+        line = int(event.position().y()) // self.fontMetrics().height() + 1 + self.firstVisibleBlock().blockNumber()
         if line in self.clicked_line_numbers:
             self.clicked_line_numbers.discard(line)
         else:
             self.clicked_line_numbers.add(line)
         self.update(self.line_number_area.geometry())
 
-    def number_of_lines(self):
+    def number_of_lines(self) -> int:
         return self.blockCount()
 
-    def set_clicked_line_numbers(self, new_set) -> None:
+    def set_clicked_line_numbers(self, new_set: set[int]) -> None:
         self.clicked_line_numbers = new_set
         self.update(self.line_number_area.geometry())
 
-    def paint_line_numbers(self, ev) -> None:
+    def paint_line_numbers(self, ev: QPaintEvent) -> None:
         painter = QPainter(self.line_number_area)
         painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
 
@@ -143,7 +149,8 @@ class CodeEditor(QPlainTextEdit):
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
 
-    def keyPressEvent(self, e) -> None:
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.key() == Qt.Key.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
             e.accept()
@@ -181,7 +188,7 @@ class CodeEditor(QPlainTextEdit):
             cursor.setPosition(end_position)
             end_block = cursor.block().blockNumber()
 
-            def select_block(block_number, curs):
+            def select_block(block_number: int, curs: QTextCursor) -> str:
                 # Note the side effect: 'curs' is changed to select the line
                 doc = self.document()
                 assert doc is not None

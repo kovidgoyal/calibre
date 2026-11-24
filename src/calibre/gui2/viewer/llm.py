@@ -20,6 +20,8 @@ from polyglot.binary import from_hex_unicode
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from calibre.gui2.viewer import BookMetadata
+
 
 def selected_text_for_prompt(selected_text: str) -> str:
     if not selected_text:
@@ -40,7 +42,7 @@ def uses_field(template: str, field_name: str) -> bool:
 
 
 class SafeFormatDict(dict):
-    def __missing__(self, key):
+    def __missing__(self, key: str) -> str:
         return '{' + key + '}'
 
 
@@ -96,13 +98,13 @@ def default_actions() -> tuple[Action, ...]:
     )
 
 
-def current_actions(include_disabled=False) -> Iterator[Action]:
+def current_actions(include_disabled: bool = False) -> Iterator[Action]:
     p = vprefs.get('llm_quick_actions') or {}
     return Action.unserialize(p, default_actions(), include_disabled)
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
 
     def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
@@ -112,7 +114,7 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
 class LLMPanel(ConverseWidget):
     add_note_requested = pyqtSignal(str, str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.save_note_hostname = f'{self.hid}.save.calibre'
 
@@ -125,7 +127,7 @@ class LLMPanel(ConverseWidget):
         self.add_button('save.png', _('&Save as note'), _('Save this conversation as a note on the current highlight')).clicked.connect(self.save_as_note)
         super().add_buttons()
 
-    def update_book_metadata(self, metadata) -> None:
+    def update_book_metadata(self, metadata: BookMetadata) -> None:
         self.book_title = metadata.get('title', '')
         authors = metadata.get('authors', [])
         self.book_authors = authors_to_string(authors)
@@ -161,10 +163,10 @@ class LLMPanel(ConverseWidget):
             self.clear_current_conversation()
         self.update_ui_state()
 
-    def per_response_buttons(self, msgnum, msg):
+    def per_response_buttons(self, msgnum: int, msg: ChatMessage) -> Iterator[Button]:
         yield Button('save.png', f'http://{self.save_note_hostname}/{msgnum}', _('Save this specific response as the note'))
 
-    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+    def create_initial_messages(self, action_prompt: str, **kwargs: object) -> Iterator[ChatMessage]:
         selected_text = self.latched_conversation_text if kwargs.get('uses_selected_text') else ''
         if self.book_title:
             context_header = f'I am currently reading the book: {self.book_title}'
@@ -193,10 +195,10 @@ class LLMPanel(ConverseWidget):
             )
         return msg
 
-    def prompt_text_for_action(self, action) -> str:
+    def prompt_text_for_action(self, action: Action) -> str:
         return action.prompt_text(self.latched_conversation_text)
 
-    def save_as_note(self):
+    def save_as_note(self) -> int | None:
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
             if not self.current_selected_text:
                 return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)

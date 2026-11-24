@@ -4,17 +4,28 @@
 import time
 from functools import partial
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import QApplication, QBrush, QCursor, QLabel, QPainter, QRect, Qt, QVBoxLayout, QWidget
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-class LongJob(Thread):
+    from qt.core import QPaintEvent
+
+
+class LongJob[T](Thread):
     daemon = True
+    result: T | None
+    traceback: str | None
+    time_taken: float | None
 
-    def __init__(self, name, user_text, callback, function, *args, **kwargs) -> None:
+    def __init__(
+        self, name: str, user_text: str, callback: Callable[[LongJob[T]], object], function: Callable[..., T], *args: object, **kwargs: object
+    ) -> None:
         Thread.__init__(self, name=name)
         self.user_text = user_text
         self.function = function
@@ -39,7 +50,7 @@ class LongJob(Thread):
 
 
 class BlockingJob(QWidget):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -78,12 +89,13 @@ class BlockingJob(QWidget):
         # keyboard events to no longer work
         p.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def job_done(self, callback, job) -> None:
+    def job_done[T](self, callback: Callable[[LongJob[T]], object], job: LongJob[T]) -> None:
         del job.callback
         self.stop()
         callback(job)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        assert a0 is not None
         br = a0.region().boundingRect()
         p = QPainter(self)
         p.setOpacity(0.2)
@@ -101,10 +113,12 @@ class BlockingJob(QWidget):
         p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine, self.text)
         p.end()
 
-    def set_msg(self, text) -> None:
+    def set_msg(self, text: str) -> None:
         self.text = text
 
-    def __call__(self, name, user_text, callback, function, *args, **kwargs):
+    def __call__[T](
+        self, name: str, user_text: str, callback: Callable[[LongJob[T]], object], function: Callable[..., T], *args: object, **kwargs: object
+    ) -> None:
         "Run a job that blocks the GUI providing some feedback to the user"
         self.set_msg(user_text)
         job = LongJob(name, user_text, Dispatcher(partial(self.job_done, callback)), function, *args, **kwargs)

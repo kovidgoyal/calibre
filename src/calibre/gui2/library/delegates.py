@@ -685,7 +685,7 @@ class CcLongTextDelegate(StyledItemDelegate):  # {{{
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             text = ''
         else:
-            text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
+            text = cast('str | None', m.db.data[index.row()][m.custom_columns[col]['rec_index']])
         d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
         if d.exec() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
@@ -912,7 +912,7 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         if check_key_modifier(Qt.KeyboardModifier.ControlModifier):
             text = ''
         else:
-            text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
+            text = cast('str | None', m.db.data[index.row()][m.custom_columns[col]['rec_index']])
         editor = CommentsDialog(parent, text, column_name=m.custom_columns[col]['name'])
         d = editor.exec()
         if d:

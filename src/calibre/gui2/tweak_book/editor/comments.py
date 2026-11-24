@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QTextCursor, QTextDocument
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.text import TextEdit
 
 opening_map = {
     'css': '/*',
@@ -18,8 +23,9 @@ closing_map = {
 }
 
 
-def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None) -> None:
+def apply_smart_comment(editor: TextEdit, opening: str = '/*', closing: str = '*/', line_comment: str | None = None) -> None:
     doc = editor.document()
+    assert doc is not None
     c = QTextCursor(editor.textCursor())
     c.clearSelection()
     before_opening = doc.find(opening, c, QTextDocument.FindFlag.FindBackward | QTextDocument.FindFlag.FindCaseSensitively)
@@ -40,5 +46,5 @@ def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None) -
     c.endEditBlock()
 
 
-def smart_comment(editor, syntax) -> None:
+def smart_comment(editor: TextEdit, syntax: str | None) -> None:
     apply_smart_comment(editor, opening=opening_map.get(syntax, '/*'), closing=closing_map.get(syntax, '*/'))

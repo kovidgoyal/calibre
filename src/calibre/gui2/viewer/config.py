@@ -4,11 +4,17 @@
 import json
 import os
 import tempfile
+from typing import TYPE_CHECKING, overload
 
 from calibre.constants import cache_dir, config_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.date import isoformat, utcnow
 from calibre.utils.filenames import atomic_rename
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, Sequence
+
+    from calibre.gui2.viewer import ViewerProfileSettings
 
 vprefs = JSONConfig('viewer-webengine')
 viewer_config_dir = os.path.join(config_dir, 'viewer')
@@ -45,13 +51,23 @@ def save_window_size(name: str, size: tuple[int, int] | None) -> None:
     vprefs['saved_window_sizes'] = sizes
 
 
-def get_session_pref(name, default=None, group='standalone_misc_settings'):
+@overload
+def get_session_pref(name: str, default: None = None, group: str | None = 'standalone_misc_settings') -> object: ...
+@overload
+def get_session_pref(name: str, default: bool, group: str | None = 'standalone_misc_settings') -> bool: ...
+@overload
+def get_session_pref(name: str, default: str, group: str | None = 'standalone_misc_settings') -> str: ...
+@overload
+def get_session_pref[T](name: str, default: Sequence[T], group: str | None = 'standalone_misc_settings') -> Sequence[T]: ...
+@overload
+def get_session_pref[T](name: str, default: T, group: str | None = 'standalone_misc_settings') -> T: ...
+def get_session_pref(name: str, default: object = None, group: str | None = 'standalone_misc_settings') -> object:
     sd = vprefs['session_data']
     g = sd.get(group, {}) if group else sd
     return g.get(name, default)
 
 
-def set_session_pref(name, val=None, group='standalone_misc_settings') -> None:
+def set_session_pref(name: str, val: object = None, group: str | None = 'standalone_misc_settings') -> None:
     sd = vprefs['session_data']
     g = sd.get(group, {}) if group else sd
     if val is None:
@@ -61,16 +77,16 @@ def set_session_pref(name, val=None, group='standalone_misc_settings') -> None:
     vprefs['session_data'] = sd
 
 
-def get_pref_group(name):
+def get_pref_group(name: str) -> dict[str, object]:
     sd = vprefs['session_data']
     return sd.get(name) or {}
 
 
-def reading_rates_path():
+def reading_rates_path() -> str:
     return os.path.join(cache_dir(), 'viewer-reading-rates.json')
 
 
-def get_existing_reading_rates():
+def get_existing_reading_rates() -> dict[str, object]:
     path = reading_rates_path()
     existing = {}
     try:
@@ -86,7 +102,7 @@ def get_existing_reading_rates():
     return existing
 
 
-def save_reading_rates(key, rates) -> None:
+def save_reading_rates(key: str, rates: object) -> None:
     existing = get_existing_reading_rates()
     existing.pop(key, None)
     existing[key] = rates
@@ -105,7 +121,7 @@ def save_reading_rates(key, rates) -> None:
         traceback.print_exc()
 
 
-def load_reading_rates(key):
+def load_reading_rates(key: str) -> object:
     existing = get_existing_reading_rates()
     return existing.get(key)
 
@@ -122,7 +138,7 @@ def delete_all_reading_rates() -> None:
         traceback.print_exc()
 
 
-def expand_profile_user_names(user_names):
+def expand_profile_user_names(user_names: Iterable[str]) -> set[str]:
     user_names = set(user_names)
     sau = get_session_pref('sync_annots_user', default='')
     if sau:
@@ -135,8 +151,8 @@ def expand_profile_user_names(user_names):
     return user_names
 
 
-def load_viewer_profiles(*user_names: str):
-    user_names = expand_profile_user_names(user_names)
+def load_viewer_profiles(*user_names: str) -> dict[str, ViewerProfileSettings]:
+    names = expand_profile_user_names(user_names)
     ans = {}
     try:
         with open(os.path.join(viewer_config_dir, 'profiles.json'), 'rb') as f:
@@ -144,15 +160,15 @@ def load_viewer_profiles(*user_names: str):
     except FileNotFoundError:
         return ans
     for uname, profiles in raw.items():
-        if uname in user_names:
+        if uname in names:
             for profile_name, profile in profiles.items():
                 if profile_name not in ans or ans[profile_name]['__timestamp__'] <= profile['__timestamp__']:
                     ans[profile_name] = profile
     return ans
 
 
-def save_viewer_profile(profile_name, profile, *user_names: str) -> None:
-    user_names = expand_profile_user_names(user_names)
+def save_viewer_profile(profile_name: str, profile: str | bytes | Mapping[str, object] | None, *user_names: str) -> None:
+    names = expand_profile_user_names(user_names)
     if isinstance(profile, (str, bytes)):
         profile = json.loads(profile)
     if isinstance(profile, dict):
@@ -170,7 +186,7 @@ def save_viewer_profile(profile_name, profile, *user_names: str) -> None:
             raw = json.loads(f.read())
     except FileNotFoundError:
         raw = {}
-    for name in user_names:
+    for name in names:
         if isinstance(profile, dict):
             raw.setdefault(name, {})[profile_name] = profile
         elif name in raw:

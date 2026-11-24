@@ -256,7 +256,7 @@ class IconColumnDelegate(QStyledItemDelegate):
                 'avg_rating': str(2.5),
             }
             d = TemplateDialog(
-                parent=self.parent(),
+                parent=self._parent,
                 text=icon_item.text(),
                 mi=v,
                 doing_emblem=True,

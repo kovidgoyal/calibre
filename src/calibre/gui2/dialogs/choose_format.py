@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem, QMenu, QModelIndex, QPushButton, QSize, QVBoxLayout
 
@@ -8,9 +9,16 @@ from calibre.gui2 import file_icon_provider
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QAction, QWidget
+
+    from calibre.gui2.open_with import Entry
+
 
 class ChooseFormatDialog(QDialog):
-    def __init__(self, window, msg, formats, show_open_with=False) -> None:
+    def __init__(self, window: QWidget | None, msg: str, formats: Iterable[str], show_open_with: bool = False) -> None:
         QDialog.__init__(self, window)
         self.resize(507, 377)
         self.setWindowIcon(QIcon.ic('mimetypes/unknown.png'))
@@ -54,7 +62,7 @@ class ChooseFormatDialog(QDialog):
         menu.clear()
         fmt = self._formats[self.formats.currentRow()]
 
-        def connect_action(ac, entry) -> None:
+        def connect_action(ac: QAction, entry: Entry) -> None:
             connect_lambda(ac.triggered, self, lambda self: self.open_with(entry))
 
         populate_menu(menu, connect_action, fmt)
@@ -69,7 +77,7 @@ class ChooseFormatDialog(QDialog):
         fmt = self._formats[self.formats.currentRow()]
         self.owb.setText(_('Open %s with...') % fmt)
 
-    def open_with(self, entry) -> None:
+    def open_with(self, entry: Entry) -> None:
         self.open_with_format = (self._formats[self.formats.currentRow()], entry)
         self.accept()
 
@@ -81,19 +89,19 @@ class ChooseFormatDialog(QDialog):
         if entry is not None:
             self.open_with(entry)
 
-    def book_converted(self, book_id, fmt) -> None:
+    def book_converted(self, book_id: int, fmt: str) -> None:
         fmt = fmt.upper()
         if fmt not in self._formats:
             self._formats.append(fmt)
             self.formats.addItem(QListWidgetItem(file_icon_provider().icon_from_ext(fmt.lower()), fmt.upper()))
 
-    def activated_slot(self, *args) -> None:
+    def activated_slot(self, *args: object) -> None:
         self.accept()
 
-    def format(self):
+    def format(self) -> str | None:
         return self._format
 
-    def accept(self):
+    def accept(self) -> None:
         self._format = self._formats[self.formats.currentRow()]
         return QDialog.accept(self)
 

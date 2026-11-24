@@ -4,6 +4,7 @@
 import os
 import weakref
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QApplication,
@@ -37,12 +38,18 @@ from calibre.library.check_library import CHECKS, CheckLibrary
 from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file, delete_tree
 
+if TYPE_CHECKING:
+    from qt.core import QCloseEvent
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+
 
 class DBCheck(QDialog):  # {{{
     finished_vacuum = pyqtSignal()
     was_rejected = False
 
-    def __init__(self, parent, db) -> None:
+    def __init__(self, parent: QWidget | None, db: LibraryDatabase) -> None:
         QDialog.__init__(self, parent)
         self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
@@ -119,7 +126,7 @@ class DBCheck(QDialog):  # {{{
         )
         t.start()
 
-    def vacuum(self, db, include_fts_db, include_notes_db, rebuild_annotations_fts) -> None:
+    def vacuum(self, db: Cache, include_fts_db: bool, include_notes_db: bool, rebuild_annotations_fts: bool) -> None:
         try:
             db.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
         except Exception as e:
@@ -128,14 +135,15 @@ class DBCheck(QDialog):  # {{{
             self.error = (as_unicode(e), traceback.format_exc())
         self.finished_vacuum.emit()
 
-    def reject(self):
+    def reject(self) -> None:
         self.was_rejected = True
         if self.vacuum_started:
             return
         return QDialog.reject(self)
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self.vacuum_started:
+            assert a0 is not None
             a0.ignore()
             return
         return super().closeEvent(a0)
@@ -152,7 +160,7 @@ class DBCheck(QDialog):  # {{{
 class TextWithButtonWidget(QWidget):
     button_icon = None
 
-    def __init__(self, library_path, text, item_path) -> None:
+    def __init__(self, library_path: str, text: str, item_path: str) -> None:
         QWidget.__init__(self)
         if self.button_icon is None:
             self.button_icon = QIcon.ic('document_open.png')
@@ -183,7 +191,7 @@ class CheckLibraryDialog(QDialog):
     is_deletable = 1
     is_fixable = 2
 
-    def __init__(self, parent, db) -> None:
+    def __init__(self, parent: QWidget | None, db: LibraryDatabase) -> None:
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -352,7 +360,7 @@ class CheckLibraryDialog(QDialog):
         self.db.new_api.set_pref('check_library_ignore_names', str(self.name_ignores.text()))
         QDialog.accept(self)
 
-    def box_to_list(self, txt):
+    def box_to_list(self, txt: str) -> list[str]:
         return [f.strip() for f in txt.split(',') if f.strip()]
 
     def run_the_check(self) -> None:
@@ -361,7 +369,7 @@ class CheckLibraryDialog(QDialog):
 
         plaintext = []
 
-        def builder(tree, checker, check) -> None:
+        def builder(tree: QTreeWidget, checker: CheckLibrary, check: tuple[str, str, bool, bool]) -> None:
             attr, h, checkable, fixable = check
             list_ = getattr(checker, attr, None)
             if list_ is None:
@@ -422,12 +430,12 @@ class CheckLibraryDialog(QDialog):
         self.fix_button.setEnabled(False)
         self.text_results = '\n'.join(plaintext)
 
-    def item_expanded_or_collapsed(self, item) -> None:
+    def item_expanded_or_collapsed(self, item: QTreeWidgetItem) -> None:
         self.log.resizeColumnToContents(0)
         self.log.resizeColumnToContents(1)
 
-    def item_changed(self, item, column) -> None:
-        def set_delete_boxes(node, col, to_what) -> None:
+    def item_changed(self, item: QTreeWidgetItem, column: int) -> None:
+        def set_delete_boxes(node: QTreeWidgetItem, col: int, to_what: bool | Qt.CheckState) -> None:
             if isinstance(to_what, bool):
                 to_what = Qt.CheckState.Checked if to_what else Qt.CheckState.Unchecked
             self.log.blockSignals(True)
@@ -437,7 +445,7 @@ class CheckLibraryDialog(QDialog):
                 node.child(i).setCheckState(2, to_what)
             self.log.blockSignals(False)
 
-        def is_child_delete_checked(node):
+        def is_child_delete_checked(node: QTreeWidgetItem) -> tuple[bool, bool]:
             checked = False
             all_checked = True
             for i in range(node.childCount()):

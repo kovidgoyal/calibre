@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import Qt, QTextCursor
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent
 
-def get_text_around_cursor(editor, before=True):
+    from calibre.gui2.tweak_book.editor.text import TextEdit
+    from calibre.gui2.tweak_book.widgets import PlainTextEdit
+
+
+def get_text_around_cursor(editor: PlainTextEdit, before: bool = True) -> tuple[QTextCursor, str]:
     cursor = editor.textCursor()
     cursor.clearSelection()
     cursor.movePosition(
@@ -18,11 +26,11 @@ def get_text_around_cursor(editor, before=True):
 get_text_before_cursor = get_text_around_cursor
 
 
-def get_text_after_cursor(editor):
+def get_text_after_cursor(editor: PlainTextEdit) -> tuple[QTextCursor, str]:
     return get_text_around_cursor(editor, before=False)
 
 
-def is_cursor_on_wrapped_line(editor):
+def is_cursor_on_wrapped_line(editor: TextEdit) -> bool:
     cursor = editor.textCursor()
     cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
     sol = cursor.position()
@@ -30,7 +38,7 @@ def is_cursor_on_wrapped_line(editor):
     return sol != cursor.position()
 
 
-def get_leading_whitespace_on_block(editor, previous=False):
+def get_leading_whitespace_on_block(editor: TextEdit, previous: bool = False) -> str:
     cursor = editor.textCursor()
     block = cursor.block()
     if previous:
@@ -42,17 +50,17 @@ def get_leading_whitespace_on_block(editor, previous=False):
     return ''
 
 
-def no_modifiers(ev, *args):
+def no_modifiers(ev: QKeyEvent, *args: Qt.KeyboardModifier) -> bool:
     mods = ev.modifiers()
     return all(not mods & mod_mask for mod_mask in args)
 
 
-def test_modifiers(ev, *args):
+def test_modifiers(ev: QKeyEvent, *args: Qt.KeyboardModifier) -> bool:
     mods = ev.modifiers()
     return all(mods & mod_mask for mod_mask in args)
 
 
-def smart_home(editor, ev) -> bool:
+def smart_home(editor: TextEdit, ev: QKeyEvent) -> bool:
     if no_modifiers(ev, Qt.KeyboardModifier.ControlModifier) and not is_cursor_on_wrapped_line(editor):
         cursor, text = get_text_before_cursor(editor)
         cursor = editor.textCursor()
@@ -66,11 +74,11 @@ def smart_home(editor, ev) -> bool:
     return False
 
 
-def expand_tabs(text, tw):
+def expand_tabs(text: str, tw: int) -> str:
     return text.replace('\t', ' ' * tw)
 
 
-def smart_tab_if_whitespace_only_before_cursor(editor, backwards) -> bool:
+def smart_tab_if_whitespace_only_before_cursor(editor: TextEdit, backwards: bool) -> bool:
     cursor, text = get_text_before_cursor(editor)
     if not text.lstrip():
         # cursor is preceded by only whitespace
@@ -92,7 +100,7 @@ def smart_tab_if_whitespace_only_before_cursor(editor, backwards) -> bool:
     return False
 
 
-def smart_tab_all_blocks_in_selection(editor, backwards):
+def smart_tab_all_blocks_in_selection(editor: TextEdit, backwards: bool) -> bool:
     cursor = editor.textCursor()
     c = QTextCursor(cursor)
     c.clearSelection()
@@ -131,7 +139,7 @@ def smart_tab_all_blocks_in_selection(editor, backwards):
     return changed
 
 
-def smart_tab(editor, ev):
+def smart_tab(editor: TextEdit, ev: QKeyEvent) -> bool:
     cursor = editor.textCursor()
     backwards = ev.key() == Qt.Key.Key_Backtab or (ev.key() == Qt.Key.Key_Tab and bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier))
     if cursor.hasSelection():
@@ -139,7 +147,7 @@ def smart_tab(editor, ev):
     return smart_tab_if_whitespace_only_before_cursor(editor, backwards)
 
 
-def smart_backspace(editor, ev) -> bool:
+def smart_backspace(editor: TextEdit, ev: QKeyEvent) -> bool:
     if editor.textCursor().hasSelection():
         return False
     cursor, text = get_text_before_cursor(editor)

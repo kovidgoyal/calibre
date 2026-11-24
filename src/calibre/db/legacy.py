@@ -254,6 +254,10 @@ class LibraryDatabase:
     # These attributes are assigned dynamically at module level after class definition
     multisort: Callable[..., None]
     all_custom: Callable[..., frozenset[str]]
+    all_author_names: Callable[..., frozenset[str]]
+    all_tag_names: Callable[..., frozenset[str]]
+    all_publisher_names: Callable[..., frozenset[str]]
+    all_series_names: Callable[..., frozenset[str]]
     format_hash: Callable[..., str]
     index: Callable[..., int]
     has_cover: Callable[..., bool]
@@ -310,6 +314,7 @@ class LibraryDatabase:
     set_author_sort: Callable[..., builtins.set[int] | bool | None]
     set_comment: Callable[..., builtins.set[int] | bool | None]
     set_identifiers: Callable[..., builtins.set[int] | bool | None]
+    set_has_cover: Callable[..., None]
     # Assigned dynamically in __init__ from self.data
     get_property: Callable[..., object]
     count: Callable[..., int]

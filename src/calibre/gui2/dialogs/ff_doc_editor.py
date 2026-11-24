@@ -7,6 +7,8 @@ Created on 12 Nov 2024
 @author: chaley
 """
 
+from typing import TYPE_CHECKING
+
 from qt.core import QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSize, QTimer
 
 from calibre.constants import iswindows
@@ -17,21 +19,24 @@ from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class FFDocEditor(Dialog):
-    def __init__(self, can_copy_back=False, parent=None) -> None:
+    def __init__(self, can_copy_back: bool | None = False, parent: QWidget | None = None) -> None:
         self.ffml = FFMLProcessor()
         self.can_copy_back = can_copy_back
         self.last_operation = None
         super().__init__(title=_('Template function documentation editor'), name='template_function_doc_editor_dialog', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
-    def set_document_text(self, text) -> None:
+    def set_document_text(self, text: str) -> None:
         self.editable_text_widget.setPlainText(text)
 
-    def document_text(self):
+    def document_text(self) -> str:
         return self.editable_text_widget.toPlainText()
 
     def copy_text(self) -> None:
@@ -39,7 +44,7 @@ class FFDocEditor(Dialog):
         assert cb is not None
         cb.setText(self.document_text())
 
-    def html_widget(self, layout, row, column):
+    def html_widget(self, layout: QGridLayout, row: int, column: int) -> HTMLDisplay:
         e = HTMLDisplay()
         e.setFrameStyle(QFrame.Shape.Box)
         if iswindows:
@@ -47,14 +52,14 @@ class FFDocEditor(Dialog):
         layout.addWidget(e, row, column, 1, 1)
         return e
 
-    def text_widget(self, read_only, layout, row, column):
+    def text_widget(self, read_only: bool, layout: QGridLayout, row: int, column: int) -> QPlainTextEdit:
         e = QPlainTextEdit()
         e.setReadOnly(read_only)
         e.setFrameStyle(QFrame.Shape.Box)
         layout.addWidget(e, row, column, 1, 1)
         return e
 
-    def label_widget(self, text, layout, row, column, colspan=None):
+    def label_widget(self, text: str, layout: QGridLayout, row: int, column: int, colspan: int | None = None) -> QLabel:
         e = QLabel(text)
         layout.addWidget(e, row, column, 1, colspan if colspan is not None else 1)
         return e
@@ -188,7 +193,7 @@ class FFDocEditor(Dialog):
         gprefs['template_function_doc_editor_show_original'] = self.show_original_cb.isChecked()
         self.fill_in_top_row()
 
-    def functions_box_index_changed(self, idx) -> None:
+    def functions_box_index_changed(self, idx: int) -> None:
         self.show_original_cb.setChecked(True)
         self.fill_in_top_row()
 

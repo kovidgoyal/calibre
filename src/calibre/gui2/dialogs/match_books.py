@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal kovid@kovidgoyal.net
 
 from contextlib import suppress
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTableWidgetItem, QTimer
 
@@ -11,39 +12,46 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, ngettext
 from calibre.utils.search_query_parser import ParseException
 
+if TYPE_CHECKING:
+    from qt.core import QKeyEvent, QModelIndex, QResizeEvent
+
+    from calibre.gui2.library.models import DeviceBooksModel
+    from calibre.gui2.library.views import BooksView
+    from calibre.gui2.ui import Main
+
 
 class TableItem(QTableWidgetItem):
     """
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     """
 
-    def __init__(self, val, sort, idx=0) -> None:
+    def __init__(self, val: str, sort: str | None, idx: float | None = 0) -> None:
         self.sort = sort
         self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
         self.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
 
-    def __ge__(self, other):
+    def __ge__(self, other: QTableWidgetItem) -> bool:
         l = sort_key(self.sort)
-        r = sort_key(other.sort)
+        r = sort_key(getattr(other, 'sort'))
         if l > r:
-            return 1
+            return True
         if l == r:
-            return self.sort_idx >= other.sort_idx
-        return 0
+            return self.sort_idx >= getattr(other, 'sort_idx')
+        return False
 
-    def __lt__(self, other):
+    def __lt__(self, other: QTableWidgetItem) -> bool:
         l = sort_key(self.sort)
-        r = sort_key(other.sort)
+        r = sort_key(getattr(other, 'sort'))
         if l < r:
-            return 1
+            return True
         if l == r:
-            return self.sort_idx < other.sort_idx
-        return 0
+            return self.sort_idx < getattr(other, 'sort_idx')
+        return False
 
 
 class MatchBooks(QDialog, Ui_MatchBooks):
-    def __init__(self, gui, view, id_, row_index) -> None:
+    def __init__(self, gui: Main, view: BooksView, id_: int, row_index: QModelIndex) -> None:
         QDialog.__init__(self, gui, flags=Qt.WindowType.Window)
         Ui_MatchBooks.__init__(self)
         self.setupUi(self)
@@ -63,8 +71,10 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        self.device_db = view.model().db
-        self.library_db = gui.library_view.model().db
+        self.device_db = cast('DeviceBooksModel', view.model()).db
+        library_db = gui.library_view.model().db
+        assert library_db is not None
+        self.library_db = library_db
         self.view = view
         self.gui = gui
         self.current_device_book_id = id_
@@ -120,13 +130,13 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.ignore_next_key = True
         self.do_search()
 
-    def keyPressEvent(self, a0) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if self.ignore_next_key:
             self.ignore_next_key = False
         else:
             QDialog.keyPressEvent(self, a0)
 
-    def do_search(self):
+    def do_search(self) -> None:
         query = str(self.search_text.text())
         if not query:
             d = error_dialog(self.gui, _('Match books'), _('You must enter a search expression into the search field'))
@@ -138,13 +148,14 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             try:
                 books = self.library_db.data.search(query, return_matches=True)
             except ParseException as e:
-                return error_dialog(
+                error_dialog(
                     self.gui,
                     _('Could not search'),
                     _('The search expression {} is not valid.').format(query),
                     det_msg=str(e),
                     show=True,
                 )
+                return
             if not books and query == self.device_book_search_query:
                 import re
 
@@ -188,7 +199,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, a0=None) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None = None) -> None:
         QDialog.resizeEvent(self, a0)
         if self.books_table_column_widths is not None:
             for c, w in enumerate(self.books_table_column_widths):
@@ -211,14 +222,14 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             id_ = x[0].data(Qt.ItemDataRole.UserRole)
             self.current_library_book_id = id_
 
-    def book_clicked(self, row, column) -> None:
+    def book_clicked(self, row: int, column: int) -> None:
         self.book_selected = True
         item = self.books_table.item(row, 0)
         assert item is not None
         id_ = int(item.data(Qt.ItemDataRole.UserRole))
         self.current_library_book_id = id_
 
-    def book_doubleclicked(self, row, column) -> None:
+    def book_doubleclicked(self, row: int, column: int) -> None:
         self.book_clicked(row, column)
         self.accept()
 
@@ -230,7 +241,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.save_geometry(gprefs, 'match_books_dialog_geometry')
         self.search_text.save_history()
 
-    def close(self):
+    def close(self) -> None:  # ty: ignore[incompatible-method-override] shadows QWidget.close(), renaming would break API
         self.save_state()
         # clean up to prevent memory leaks
         self.device_db = self.view = self.gui = None

@@ -926,7 +926,8 @@ def warning_dialog(
 ) -> MessageBox | int:
     from calibre.gui2.dialogs.message_box import MessageBox
 
-    d = MessageBox(MessageBox.WARNING, _('WARNING:') + ' ' + title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
+    # QDialog needs a QWidget parent, callers pass self.parent() which is a QWidget at runtime
+    d = MessageBox(MessageBox.WARNING, _('WARNING:') + ' ' + title, msg, det_msg, parent=cast('QWidget | None', parent), show_copy_button=show_copy_button)
     if show:
         return d.exec()
     return d
@@ -947,7 +948,7 @@ def error_dialog(
 def error_dialog(parent: QObject | None, title: str, msg: str, det_msg: str | None = '', show: bool = False, show_copy_button: bool = True) -> MessageBox | int:
     from calibre.gui2.dialogs.message_box import MessageBox
 
-    d = MessageBox(MessageBox.ERROR, _('ERROR:') + ' ' + title, msg, det_msg, parent=parent, show_copy_button=show_copy_button)
+    d = MessageBox(MessageBox.ERROR, _('ERROR:') + ' ' + title, msg, det_msg, parent=cast('QWidget | None', parent), show_copy_button=show_copy_button)
     if show:
         return d.exec()
     return d
@@ -1001,7 +1002,7 @@ def question_dialog(
         title,
         msg,
         det_msg,
-        parent=parent,
+        parent=cast('QWidget | None', parent),
         show_copy_button=show_copy_button,
         default_yes=default_yes,
         q_icon=override_icon,
@@ -1087,7 +1088,7 @@ def info_dialog(
         title,
         msg,
         det_msg,
-        parent=parent,
+        parent=cast('QWidget | None', parent),
         show_copy_button=show_copy_button,
         only_copy_details=only_copy_details,
     )

@@ -3,6 +3,7 @@
 
 import os
 import sys
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QCheckBox,
@@ -25,8 +26,11 @@ from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QImage, QWidget
 
-def reduce_to_ratio(w, h, r):
+
+def reduce_to_ratio(w: float, h: float, r: float) -> tuple[int, int]:
     h = min(h, w / r)
     w = r * h
     return round(w), round(h)
@@ -35,7 +39,7 @@ def reduce_to_ratio(w, h, r):
 class Region(QDialog):
     ignore_value_changes = False
 
-    def __init__(self, parent, width, height, max_width, max_height) -> None:
+    def __init__(self, parent: QWidget | None, width: int, height: int, max_width: int, max_height: int) -> None:
         super().__init__(parent)
         self.setWindowTitle(_('Set size of selected area'))
         self.l = l = QFormLayout(self)
@@ -101,12 +105,12 @@ class Region(QDialog):
         self.ignore_value_changes = False
 
     @property
-    def selection_size(self):
+    def selection_size(self) -> tuple[int, int]:
         return self.width_input.value(), self.height_input.value()
 
 
 class TrimImage(QDialog):
-    def __init__(self, img_data, parent=None) -> None:
+    def __init__(self, img_data: bytes, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setWindowTitle(_('Trim Image'))
@@ -168,9 +172,9 @@ class TrimImage(QDialog):
         trim_action = self.trim_action
         assert trim_action is not None
         self.setWindowIcon(trim_action.icon())
-        self.image_data = None
+        self.image_data: bytes | None = None
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(900, 600)
 
     def do_region(self) -> None:
@@ -186,13 +190,13 @@ class TrimImage(QDialog):
         self.canvas.trim_image()
         self.selection_changed(False)
 
-    def selection_changed(self, has_selection) -> None:
+    def selection_changed(self, has_selection: bool) -> None:
         trim_action = self.trim_action
         assert trim_action is not None
         trim_action.setEnabled(has_selection)
         self.msg.setText(_('Adjust selection by dragging corners') if has_selection else self.msg_txt)
 
-    def selection_area_changed(self, rect) -> None:
+    def selection_area_changed(self, rect: object) -> None:
         if rect:
             x, y, w, h = map(int, self.canvas.rect_for_trim())
             text = f'{int(w)}x{int(h)}'
@@ -201,7 +205,7 @@ class TrimImage(QDialog):
             text = ''
         self.tr_sz.setText(text)
 
-    def image_changed(self, qimage) -> None:
+    def image_changed(self, qimage: QImage) -> None:
         self.sz.setText('\xa0' + _('Size: {0}x{1}px').format(qimage.width(), qimage.height()))
 
     def cleanup(self) -> None:

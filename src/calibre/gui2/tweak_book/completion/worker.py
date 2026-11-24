@@ -4,12 +4,17 @@
 from multiprocessing.connection import Pipe
 from queue import Queue
 from threading import Event, RLock, Thread
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book.completion.basic import Request
 from calibre.gui2.tweak_book.completion.utils import DataError
 from calibre.utils.ipc import eintr_retry_call
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from calibre.gui2.tweak_book.completion.basic import AnyConnection, CompletionAnswer
 
 COMPLETION_REQUEST = 'completion request'
 CLEAR_REQUEST = 'clear request'
@@ -18,7 +23,7 @@ CLEAR_REQUEST = 'clear request'
 class CompletionWorker(Thread):
     daemon = True
 
-    def __init__(self, result_callback=lambda x: x, worker_entry_point='main') -> None:
+    def __init__(self, result_callback: Callable[[Result], object] = lambda x: x, worker_entry_point: str = 'main') -> None:
         Thread.__init__(self)
         self.worker_entry_point = worker_entry_point
         self.start()
@@ -50,7 +55,7 @@ class CompletionWorker(Thread):
         t.start()
         self.connected.set()
 
-    def send(self, data, conn=None) -> None:
+    def send(self, data: object, conn: AnyConnection | None = None) -> None:
         conn = conn or self.control_conn
         try:
             eintr_retry_call(conn.send, data)
@@ -58,7 +63,7 @@ class CompletionWorker(Thread):
             if not self.shutting_down:
                 raise
 
-    def recv(self, conn=None):
+    def recv(self, conn: AnyConnection | None = None) -> object:
         conn = conn or self.control_conn
         try:
             return eintr_retry_call(conn.recv)
@@ -66,7 +71,7 @@ class CompletionWorker(Thread):
             if not self.shutting_down:
                 raise
 
-    def wait_for_connection(self, timeout=None) -> None:
+    def wait_for_connection(self, timeout: float | None = None) -> None:
         self.connected.wait(timeout)
 
     def handle_data_requests(self) -> None:
@@ -74,7 +79,7 @@ class CompletionWorker(Thread):
 
         while True:
             try:
-                req = self.recv(self.data_conn)
+                req = cast('Request | None', self.recv(self.data_conn))
             except EOFError:
                 break
             except Exception:
@@ -114,9 +119,9 @@ class CompletionWorker(Thread):
 
                 traceback.print_exc()
 
-    def send_completion_request(self, request) -> None:
+    def send_completion_request(self, request: Request) -> None:
         self.send(request)
-        result = self.recv()
+        result = cast('Result | None', self.recv())
         latest_completion_request_id = self.latest_completion_request_id
         if result is not None and result.request_id == latest_completion_request_id:
             try:
@@ -126,10 +131,10 @@ class CompletionWorker(Thread):
 
                 traceback.print_exc()
 
-    def clear_caches(self, cache_type=None) -> None:
+    def clear_caches(self, cache_type: str | None = None) -> None:
         self.main_queue.put((CLEAR_REQUEST, Request(None, 'clear_caches', cache_type, None)))
 
-    def queue_completion(self, request_id, completion_type, completion_data, query=None) -> None:
+    def queue_completion(self, request_id: tuple[int, str], completion_type: str, completion_data: object, query: str | None = None) -> None:
         with self.lock:
             ccr = Request(request_id, completion_type, completion_data, query)
             self.latest_completion_request_id = ccr.id
@@ -151,7 +156,8 @@ class CompletionWorker(Thread):
             t.daemon = True
             t.start()
 
-    def join(self, timeout=0.2):
+    # Returns the exit code of the worker process, unlike Thread.join()
+    def join(self, timeout: float | None = 0.2) -> int | None:  # ty: ignore[incompatible-method-override]
         if self.reap_thread is not None:
             self.reap_thread.join(timeout)
         if not iswindows and self.worker_process.returncode is None:
@@ -162,14 +168,14 @@ class CompletionWorker(Thread):
 _completion_worker = None
 
 
-def completion_worker():
+def completion_worker() -> CompletionWorker:
     global _completion_worker
     if _completion_worker is None:
         _completion_worker = CompletionWorker()
     return _completion_worker
 
 
-def run_main(control_fd, data_fd, func) -> None:
+def run_main(control_fd: int, data_fd: int, func: Callable[[AnyConnection, AnyConnection], None]) -> None:
     if iswindows:
         from multiprocessing.connection import PipeConnection as Connection
     else:
@@ -179,13 +185,13 @@ def run_main(control_fd, data_fd, func) -> None:
 
 
 class Result(NamedTuple):
-    request_id: str
-    ans: tuple[dict, str] | None
+    request_id: tuple[int, str]
+    ans: CompletionAnswer | None
     traceback: str | None
-    query: str
+    query: str | None
 
 
-def main(control_conn, data_conn) -> None:
+def main(control_conn: AnyConnection, data_conn: AnyConnection) -> None:
     from calibre.gui2.tweak_book.completion.basic import handle_control_request
 
     while True:
@@ -211,7 +217,7 @@ def main(control_conn, data_conn) -> None:
                 break
 
 
-def test_main(control_conn, data_conn) -> None:
+def test_main(control_conn: AnyConnection, data_conn: AnyConnection) -> None:
     obj = control_conn.recv()
     dobj = data_conn.recv()
     control_conn.send((obj, dobj))

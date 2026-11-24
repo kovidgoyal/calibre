@@ -8,7 +8,7 @@ from difflib import SequenceMatcher
 from functools import partial
 from itertools import chain
 from math import ceil
-from typing import NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 import regex
 from qt.core import (
@@ -58,6 +58,17 @@ from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from typing import Self
+
+    from qt.core import QKeyEvent, QMouseEvent, QPaintEvent, QPoint, QResizeEvent, QSize, QStyleHintReturn, QStyleOption, QTextBlock, QWheelEvent
+
+    from calibre.gui2.tweak_book.diff.highlight import NullHighlighter, PygmentsHighlighter, QtHighlighter
+
+    # A position in a list of changes, see DiffView.get_position_from_scrollbar()
+    ChangePosition = tuple[Literal['in'], int, float] | tuple[Literal['after'], int, int]
+
 
 class Change(NamedTuple):
     ltop: int
@@ -67,7 +78,7 @@ class Change(NamedTuple):
     kind: str
 
 
-def beautify_text(raw, syntax):
+def beautify_text(raw: str, syntax: str) -> str:
     from lxml import etree
 
     from calibre.ebooks.chardet import strip_encoding_declarations
@@ -108,12 +119,14 @@ def beautify_text(raw, syntax):
 class LineNumberMap(dict):  # {{{
     "Map line numbers and keep track of the maximum width of the line numbers"
 
-    def __new__(cls):
+    max_width: int
+
+    def __new__(cls) -> Self:
         self = dict.__new__(cls)
         self.max_width = 1
         return self
 
-    def __setitem__(self, k, v) -> None:
+    def __setitem__(self, k: int, v: object) -> None:
         v = str(v)
         dict.__setitem__(self, k, v)
         self.max_width = max(self.max_width, len(v))
@@ -132,8 +145,15 @@ class TextBrowser(PlainTextEdit):  # {{{
     next_change = pyqtSignal(object)
     scrolled = pyqtSignal()
     line_activated = pyqtSignal(object, object, object)
+    changes: list[tuple[int, int, str]]
+    headers: list[tuple[int, str]]
+    images: OrderedDict[int, tuple[QPixmap, int, int]]
+    # Set in __init__() via setattr()
+    replacereplace_format: QTextCharFormat
+    insert_format: QTextCharFormat
+    delete_format: QTextCharFormat
 
-    def __init__(self, right=False, parent=None, show_open_in_editor=False) -> None:
+    def __init__(self, right: bool = False, parent: QWidget | None = None, show_open_in_editor: bool = False) -> None:
         PlainTextEdit.__init__(self, parent)
         self.setFrameStyle(0)
         self.show_open_in_editor = show_open_in_editor
@@ -204,7 +224,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.number_width = max(fm.horizontalAdvance(str(x)) for x in range(10))
         self.space_width = fm.horizontalAdvance(' ')
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         m = QMenu(self)
         a = m.addAction
         i = str(self.textCursor().selectedText()).rstrip('\0')
@@ -229,14 +249,15 @@ class TextBrowser(PlainTextEdit):  # {{{
         if len(m.actions()) > 0:
             m.exec(self.mapToGlobal(pos))
 
-    def mouseDoubleClickEvent(self, e):
+    def mouseDoubleClickEvent(self, e: QMouseEvent | None) -> None:
+        assert e is not None
         if e.button() == Qt.MouseButton.LeftButton:
             b = self.cursorForPosition(e.pos()).block()
             if b.isValid():
                 self.generate_sync_request(b.blockNumber())
         return PlainTextEdit.mouseDoubleClickEvent(self, e)
 
-    def generate_sync_request(self, block_number) -> None:
+    def generate_sync_request(self, block_number: int) -> None:
         if not self.headers:
             return
         try:
@@ -251,7 +272,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             name = self.headers[-1][1]
         self.line_activated.emit(name, lnum, bool(self.right))
 
-    def search(self, query, reverse=False) -> None:
+    def search(self, query: str, reverse: bool = False) -> None:
         """Search for query, also searching the headers. Matches in headers
         are not highlighted as managing the highlight is too much of a pain."""
         if not query.strip():
@@ -310,20 +331,20 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.search_header_pos = 0
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
-    def update_line_number_area_width(self, block_count=0) -> None:
+    def update_line_number_area_width(self, block_count: int = 0) -> None:
         self.side_margin = self.line_number_area_width()
         if self.right:
             self.setViewportMargins(0, 0, self.side_margin, 0)
         else:
             self.setViewportMargins(self.side_margin, 0, 0, 0)
 
-    def available_width(self):
+    def available_width(self) -> int:
         return self.width() - self.side_margin
 
-    def line_number_area_width(self):
+    def line_number_area_width(self) -> int:
         return 9 + (self.line_number_map.max_width * self.number_width)
 
-    def update_line_number_area(self, rect, dy) -> None:
+    def update_line_number_area(self, rect: QRect, dy: int) -> None:
         if dy:
             self.line_number_area.scroll(0, dy)
         else:
@@ -333,7 +354,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, e) -> None:
+    def resizeEvent(self, e: QResizeEvent | None) -> None:
         PlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         if self.right:
@@ -342,7 +363,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
         self.resized.emit()
 
-    def paint_line_numbers(self, e) -> None:
+    def paint_line_numbers(self, e: QPaintEvent) -> None:
         painter = QPainter(self.line_number_area)
         painter.fillRect(e.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
 
@@ -377,7 +398,8 @@ class TextBrowser(PlainTextEdit):  # {{{
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
 
-    def paintEvent(self, e) -> None:
+    def paintEvent(self, e: QPaintEvent | None) -> None:
+        assert e is not None
         vp = self.viewport()
         assert vp is not None
         w = vp.rect().width()
@@ -442,7 +464,8 @@ class TextBrowser(PlainTextEdit):  # {{{
             painter.drawLine(0, int(top), int(w), int(top))
             painter.drawLine(0, int(bottom - 1), int(w), int(bottom - 1))
 
-    def wheelEvent(self, e):
+    def wheelEvent(self, e: QWheelEvent | None) -> None:
+        assert e is not None
         if e.angleDelta().x() == 0:
             self.wheel_event.emit(e)
         else:
@@ -456,12 +479,14 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
     WIDTH = 30  # px
     wheel_event = pyqtSignal(object)
 
-    def event(self, a0):
+    def event(self, a0: QEvent | None) -> bool:
+        assert a0 is not None
         if a0.type() in (QEvent.Type.HoverEnter, QEvent.Type.HoverLeave):
             self.hover = a0.type() == QEvent.Type.HoverEnter
         return QSplitterHandle.event(self, a0)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        assert a0 is not None
         QSplitterHandle.paintEvent(self, a0)
         p = self.parent()
         assert isinstance(p, DiffSplit)
@@ -474,7 +499,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
 
         C = 16  # Curve factor.
 
-        def create_line(ly, ry, right_to_left=False):
+        def create_line(ly: float, ry: float, right_to_left: bool = False) -> QPainterPath:
             "Create path that represents upper or lower line of change marker"
             line = QPainterPath()
             if not right_to_left:
@@ -548,12 +573,13 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         if getattr(self, 'hover', False):
             QSplitterHandle.paintEvent(self, a0)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         ans = QSplitterHandle.sizeHint(self)
         ans.setWidth(self.WIDTH)
         return ans
 
-    def wheelEvent(self, a0):
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+        assert a0 is not None
         if a0.angleDelta().x() == 0:
             self.wheel_event.emit(a0)
         else:
@@ -564,9 +590,18 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
 
 
 class DiffSplit(QSplitter):  # {{{
-    def __init__(self, parent=None, show_open_in_editor=False) -> None:
+    # Only present while add_text_diff() is running
+    left_lines: list[str]
+    right_lines: list[str]
+    left_cursor: QTextCursor
+    right_cursor: QTextCursor
+    left_insert: Callable[[int, int], tuple[int, int]]
+    right_insert: Callable[[int, int], tuple[int, int]]
+    changes: list[Change]
+
+    def __init__(self, parent: QWidget | None = None, show_open_in_editor: bool = False) -> None:
         QSplitter.__init__(self, parent)
-        self._failed_img = None
+        self._failed_img: QPixmap | None = None
 
         self.left, self.right = (
             TextBrowser(parent=self),
@@ -576,7 +611,7 @@ class DiffSplit(QSplitter):  # {{{
         self.split_words = re.compile(r'\w+|\W', re.UNICODE)
         self.clear()
 
-    def createHandle(self):
+    def createHandle(self) -> DiffSplitHandle:
         return DiffSplitHandle(self.orientation(), self)
 
     def clear(self) -> None:
@@ -589,10 +624,18 @@ class DiffSplit(QSplitter):  # {{{
             v.setTextCursor(c)
         self.update()
 
-    def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False) -> None:
+    def add_diff(
+        self,
+        left_name: str,
+        right_name: str,
+        left_text: str | bytes | None,
+        right_text: str | bytes | None,
+        context: int | None = None,
+        syntax: str | None = None,
+        beautify: bool = False,
+    ) -> None:
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
-        is_text = isinstance(left_text, str) and isinstance(right_text, str)
         left_name = left_name or '[{}]'.format(_('This file was added'))
         right_name = right_name or '[{}]'.format(_('This file was removed'))
         self.left.headers.append((self.left.blockCount() - 1, left_name))
@@ -617,7 +660,7 @@ class DiffSplit(QSplitter):  # {{{
                 )
                 for v in (self.left, self.right):
                     v.appendPlainText('\n')
-            elif is_text:
+            elif isinstance(left_text, str) and isinstance(right_text, str):
                 self.add_text_diff(left_text, right_text, context, syntax, beautify=beautify)
             elif syntax == 'raster_image':
                 self.add_image_diff(left_text, right_text)
@@ -630,7 +673,7 @@ class DiffSplit(QSplitter):  # {{{
 
     # image diffs {{{
     @property
-    def failed_img(self):
+    def failed_img(self) -> QPixmap:
         if self._failed_img is None:
             try:
                 dpr = self.devicePixelRatioF()
@@ -658,8 +701,8 @@ class DiffSplit(QSplitter):  # {{{
             self._failed_img = QPixmap.fromImage(i)
         return self._failed_img
 
-    def add_image_diff(self, left_data, right_data) -> None:
-        def load(data):
+    def add_image_diff(self, left_data: str | bytes, right_data: str | bytes) -> None:
+        def load(data: str | bytes) -> QPixmap:
             p = QPixmap()
             p.loadFromData(as_bytes(data))
             try:
@@ -672,7 +715,7 @@ class DiffSplit(QSplitter):  # {{{
             return p
 
         left_img, right_img = load(left_data), load(right_data)
-        change = []
+        change: list[int] = []
         # Let any initial resizing of the window finish in case this is the
         # first diff, to avoid the expensive resize calculation later
         QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
@@ -691,9 +734,9 @@ class DiffSplit(QSplitter):  # {{{
             c.insertBlock()
             c.endEditBlock()
             v.images[start] = (img, w, lines)
-        change.append('replace' if left_data and right_data else 'delete' if left_data else 'insert')
-        self.left.changes.append((change[0], change[1], change[-1]))
-        self.right.changes.append((change[2], change[3], change[-1]))
+        kind = 'replace' if left_data and right_data else 'delete' if left_data else 'insert'
+        self.left.changes.append((change[0], change[1], kind))
+        self.right.changes.append((change[2], change[3], kind))
         QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
 
     def resized(self) -> None:
@@ -723,7 +766,7 @@ class DiffSplit(QSplitter):  # {{{
                 c.endEditBlock()
                 v.images[top] = (img, w, lines)
 
-                def mapnum(x):
+                def mapnum(x: int) -> int:
                     return x if x <= top else x + delta  # ruff: ignore[function-uses-loop-variable]
 
                 lnm = LineNumberMap()
@@ -738,18 +781,20 @@ class DiffSplit(QSplitter):  # {{{
             assert v_vp is not None
             v_vp.update()
 
-    def get_lines_for_image(self, img, view):
+    def get_lines_for_image(self, img: QPixmap, view: TextBrowser) -> tuple[int, int]:
         if img.isNull():
             return 0, 0
         w, h = int(img.width() / img.devicePixelRatio()), int(img.height() / img.devicePixelRatio())
         scaled, w, h = fit_image(w, h, view.available_width() - 3, int(0.9 * view.height()))
-        line_height = view.blockBoundingRect(view.document().begin()).height()
+        doc = view.document()
+        assert doc is not None
+        line_height = view.blockBoundingRect(doc.begin()).height()
         return ceil(h / line_height) + 1, w
 
     # }}}
 
     # text diffs {{{
-    def add_text_diff(self, left_text, right_text, context, syntax, beautify=False) -> None:
+    def add_text_diff(self, left_text: str, right_text: str, context: int | None, syntax: str | None, beautify: bool = False) -> None:
         left_text = unicodedata.normalize('NFC', left_text)
         right_text = unicodedata.normalize('NFC', right_text)
         if beautify and syntax in {'xml', 'html', 'css'}:
@@ -833,29 +878,36 @@ class DiffSplit(QSplitter):  # {{{
                 changes.append(x)
         self.changes = changes
 
-    def do_insert(self, cursor, highlighter, line_number_map, lo, hi):
+    def do_insert(
+        self,
+        cursor: QTextCursor,
+        highlighter: QtHighlighter | NullHighlighter | PygmentsHighlighter,
+        line_number_map: LineNumberMap,
+        lo: int,
+        hi: int,
+    ) -> tuple[int, int]:
         start_block = cursor.block()
         highlighter.copy_lines(lo, hi, cursor)
         for num, i in enumerate(range(start_block.blockNumber(), cursor.blockNumber())):
             line_number_map[i] = lo + num + 1
         return start_block.blockNumber(), cursor.block().blockNumber()
 
-    def equal(self, alo, ahi, blo, bhi) -> None:
+    def equal(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         lsb, lcb = self.left_insert(alo, ahi)
         rsb, rcb = self.right_insert(blo, bhi)
         self.changes.append(Change(rtop=rsb, rbot=rcb, ltop=lsb, lbot=lcb, kind='equal'))
 
-    def delete(self, alo, ahi, blo, bhi) -> None:
+    def delete(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         start_block, current_block = self.left_insert(alo, ahi)
         r = self.right_cursor.block().blockNumber()
         self.changes.append(Change(ltop=start_block, lbot=current_block, rtop=r, rbot=r, kind='delete'))
 
-    def insert(self, alo, ahi, blo, bhi) -> None:
+    def insert(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         start_block, current_block = self.right_insert(blo, bhi)
         l = self.left_cursor.block().blockNumber()
         self.changes.append(Change(rtop=start_block, rbot=current_block, ltop=l, lbot=l, kind='insert'))
 
-    def trim_identical_leading_lines(self, alo, ahi, blo, bhi):
+    def trim_identical_leading_lines(self, alo: int, ahi: int, blo: int, bhi: int) -> tuple[int, int, int, int]:
         """The patience diff algorithm sometimes results in a block of replace
         lines with identical leading lines. Remove these. This can cause extra
         lines of context, but that is better than having extra lines of diff
@@ -870,7 +922,7 @@ class DiffSplit(QSplitter):  # {{{
             self.equal(alo - leading, alo, blo - leading, blo)
         return alo, ahi, blo, bhi
 
-    def replace(self, alo, ahi, blo, bhi):
+    def replace(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         """When replacing one block of lines with another, search the blocks
         for *similar* lines; the best-matching pair (if any) is used as a synch
         point, and intraline difference marking is done on the similar pair.
@@ -941,7 +993,7 @@ class DiffSplit(QSplitter):  # {{{
         # pump out diffs from after the synch point
         self.replace_helper(best_i + 1, ahi, best_j + 1, bhi)
 
-    def replace_helper(self, alo, ahi, blo, bhi) -> None:
+    def replace_helper(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         if alo < ahi:
             if blo < bhi:
                 self.replace(alo, ahi, blo, bhi)
@@ -950,7 +1002,7 @@ class DiffSplit(QSplitter):  # {{{
         elif blo < bhi:
             self.insert(alo, alo, blo, bhi)
 
-    def do_replace(self, alo, ahi, blo, bhi) -> None:
+    def do_replace(self, alo: int, ahi: int, blo: int, bhi: int) -> None:
         lsb, lcb = self.left_insert(alo, ahi)
         rsb, rcb = self.right_insert(blo, bhi)
         self.changes.append(Change(rtop=rsb, rbot=rcb, ltop=lsb, lbot=lcb, kind='replace'))
@@ -964,7 +1016,9 @@ class DiffSplit(QSplitter):  # {{{
         assert right_doc is not None
         lsb, rsb = left_doc.findBlockByNumber(lsb), right_doc.findBlockByNumber(rsb)
 
-        def do_tag(block, words, lo, hi, pos, fmts):
+        def do_tag(
+            block: QTextBlock, words: list[str], lo: int, hi: int, pos: int, fmts: list[QTextLayout.FormatRange]
+        ) -> tuple[QTextBlock, int, list[QTextLayout.FormatRange]]:
             for word in words[lo:hi]:
                 if word == '\n':
                     if fmts:
@@ -999,7 +1053,9 @@ class DiffSplit(QSplitter):  # {{{
 
 
 class NonTransientScrollStyle(QProxyStyle):
-    def styleHint(self, hint, option=None, widget=None, returnData=None):
+    def styleHint(
+        self, hint: QStyle.StyleHint, option: QStyleOption | None = None, widget: QWidget | None = None, returnData: QStyleHintReturn | None = None
+    ) -> int:
         if hint == QStyle.StyleHint.SH_ScrollBar_Transient:
             return 0  # Return 0 (False) to disable transient behavior
         return super().styleHint(hint, option, widget, returnData)
@@ -1009,9 +1065,9 @@ class DiffView(QWidget):  # {{{
     SYNC_POSITION = 0.4
     line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, parent=None, show_open_in_editor=False) -> None:
+    def __init__(self, parent: QWidget | None = None, show_open_in_editor: bool = False) -> None:
         QWidget.__init__(self, parent)
-        self.changes = [[], [], []]
+        self.changes: Sequence[list[tuple[int, int, str]]] = [[], [], []]
         self.delta = 0
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
@@ -1027,7 +1083,7 @@ class DiffView(QWidget):  # {{{
         self.scrollbar.setStyle(self.scrollbar_style)
         l.addWidget(self.scrollbar)
         self.syncing = False
-        self.bars = []
+        self.bars: list[QScrollBar] = []
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_debounced)
@@ -1046,7 +1102,7 @@ class DiffView(QWidget):  # {{{
                 v.line_activated.connect(self.line_activated)
                 connect_lambda(v.scrolled, self, lambda self: self.scrolled(1 if self.sender() is self.view.left else 2))
 
-    def next_change(self, delta) -> None:
+    def next_change(self, delta: int) -> None:
         assert delta in (1, -1)
         position = self.get_position_from_scrollbar(0)
         if position[0] == 'in':
@@ -1057,7 +1113,7 @@ class DiffView(QWidget):  # {{{
                 p = None
             if n >= len(self.changes[0]):
                 n = None
-        if p == n:
+        if p is not None and p == n:
             nc = p + delta
             if nc < 0 or nc >= len(self.changes[0]):
                 nc = None
@@ -1085,7 +1141,7 @@ class DiffView(QWidget):  # {{{
         assert handle is not None
         handle.update()
 
-    def get_position_from_scrollbar(self, which):
+    def get_position_from_scrollbar(self, which: int) -> ChangePosition:
         changes = self.changes[which]
         bar = self.bars[which]
         syncpos = self.syncpos + bar.value()
@@ -1109,7 +1165,7 @@ class DiffView(QWidget):  # {{{
         offset = syncpos - prev
         return 'after', len(changes) - 1, offset
 
-    def scroll_to(self, which, position) -> None:
+    def scroll_to(self, which: int, position: ChangePosition) -> None:
         changes = self.changes[which]
         bar = self.bars[which]
         val = None
@@ -1123,7 +1179,7 @@ class DiffView(QWidget):  # {{{
             val = start + offset
         bar.setValue(val - self.syncpos)
 
-    def scrolled(self, which, *args) -> None:
+    def scrolled(self, which: int, *args: object) -> None:
         if self.syncing:
             return
         position = self.get_position_from_scrollbar(which)
@@ -1134,10 +1190,10 @@ class DiffView(QWidget):  # {{{
         assert handle is not None
         handle.update()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.syncing = True
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.syncing = False
 
     def clear(self) -> None:
@@ -1197,7 +1253,7 @@ class DiffView(QWidget):  # {{{
             delta = top + height - l_bot
         self.changes, self.delta = (changes,) + line_number_changes, delta
 
-    def handle_key(self, ev) -> bool:
+    def handle_key(self, ev: QKeyEvent) -> bool:
         amount, d = None, 1
         key = ev.key()
         if key in (Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_J, Qt.Key.Key_K):

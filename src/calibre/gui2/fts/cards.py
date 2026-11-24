@@ -368,9 +368,9 @@ class VirtualCardContainer(QWidget):
         with BusyCursor():
             all_books = {c.results.book_id for c in self._cards}
             with (db := get_db()).safe_read_lock:
-                titles = cast('dict[int, str]', db._all_field_for('title', all_books, _('Unknown book')))
+                titles = db._all_field_for('title', all_books, _('Unknown book'))
                 authors = db._all_field_for('authors', all_books, [_('Unknown author')])
-                series = cast('dict[int, str]', db._all_field_for('series', all_books, ''))
+                series = db._all_field_for('series', all_books, '')
                 series_indices = cast('dict[int, float]', db._all_field_for('series_index', all_books, 1))
                 abids = db._all_book_ids(lambda x: x)
                 in_db = {bid: bid in abids for bid in all_books}

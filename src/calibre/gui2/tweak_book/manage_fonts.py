@@ -4,6 +4,7 @@
 import sys
 import textwrap
 from io import BytesIO
+from typing import IO, TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -41,8 +42,16 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable
 
-def rule_for_font(font_file, added_name):
+    from qt.core import QModelIndex, QObject
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.utils.fonts.metadata import FontFace
+
+
+def rule_for_font(font_file: IO[bytes], added_name: str) -> str | None:
     try:
         fm = FontMetadata(font_file).to_dict()
     except UnsupportedFont:
@@ -58,7 +67,7 @@ def rule_for_font(font_file, added_name):
     return rule
 
 
-def show_font_face_rule_for_font_file(file_data, added_name, parent=None) -> None:
+def show_font_face_rule_for_font_file(file_data: bytes, added_name: str, parent: QWidget | None = None) -> None:
     rule = rule_for_font(BytesIO(file_data), added_name)
     clip = QApplication.clipboard()
     assert clip is not None
@@ -73,7 +82,7 @@ def show_font_face_rule_for_font_file(file_data, added_name, parent=None) -> Non
     )
 
 
-def show_font_face_rule_for_font_files(container, added_names, parent=None) -> None:
+def show_font_face_rule_for_font_files(container: Container, added_names: Iterable[str], parent: QWidget | None = None) -> None:
     rules = []
     for name in sorted(added_names):
         rule = rule_for_font(container.open(name), name)
@@ -94,12 +103,12 @@ def show_font_face_rule_for_font_files(container, added_names, parent=None) -> N
 
 
 class EmbeddingData(Dialog):
-    def __init__(self, family, faces, parent=None) -> None:
+    def __init__(self, family: str, faces: list[FontFace], parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Font faces for %s') % family, 'editor-embedding-data', parent)
         self.family, self.faces = family, faces
         self.populate_text()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 500)
 
     def setup_ui(self) -> None:
@@ -124,19 +133,19 @@ class EmbeddingData(Dialog):
 
 
 class AllFonts(QAbstractTableModel):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.items = []
         self.font_data = {}
         self.sorted_on = ('name', True)
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.items)
 
-    def columnCount(self, parent=None) -> int:
+    def columnCount(self, parent: QModelIndex | None = None) -> int:
         return 2
 
-    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return _('Font family') if section == 1 else _('Embedded')
         return QAbstractTableModel.headerData(self, section, orientation, role)
@@ -154,7 +163,7 @@ class AllFonts(QAbstractTableModel):
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.__getitem__, reverse=reverse)
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if role == Qt.ItemDataRole.DisplayRole:
             row, col = index.row(), index.column()
             try:
@@ -181,7 +190,7 @@ class AllFonts(QAbstractTableModel):
             else:
                 return name
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
         sorted_on = (('name' if column == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
         if sorted_on != self.sorted_on:
             self.sorted_on = sorted_on
@@ -189,7 +198,7 @@ class AllFonts(QAbstractTableModel):
             self.do_sort()
             self.endResetModel()
 
-    def data_for_indices(self, indices):
+    def data_for_indices(self, indices: Iterable[QModelIndex]) -> dict[str, bool]:
         ans = {}
         for idx in indices:
             try:
@@ -201,7 +210,7 @@ class AllFonts(QAbstractTableModel):
 
 
 class ChangeFontFamily(Dialog):
-    def __init__(self, old_family, embedded_families, parent=None) -> None:
+    def __init__(self, old_family: str, embedded_families: Collection[str], parent: QWidget | None = None) -> None:
         self.old_family = old_family
         self.local_families = {icu_lower(f) for f in font_scanner.find_font_families()} | {icu_lower(f) for f in embedded_families}
         Dialog.__init__(self, _('Change font'), 'change-font-family', parent=parent)
@@ -222,11 +231,11 @@ class ChangeFontFamily(Dialog):
         l.addRow(self.bb)
 
     @property
-    def family(self):
+    def family(self) -> str:
         return str(self._family.text())
 
     @property
-    def normalized_family(self):
+    def normalized_family(self) -> str:
         ans = self.family
         try:
             ans = font_scanner.fonts_for_family(ans)[0]['font-family']
@@ -250,7 +259,7 @@ class ManageFonts(Dialog):
     embed_all_fonts = pyqtSignal()
     subset_all_fonts = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, _('Manage fonts'), 'manage-fonts', parent=parent)
 
     def setup_ui(self) -> None:
@@ -323,7 +332,7 @@ class ManageFonts(Dialog):
 
         l.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
-    def show_embedding_data(self, index):
+    def show_embedding_data(self, index: QModelIndex) -> int | None:
         faces = index.data(Qt.ItemDataRole.UserRole)
         family = index.data(Qt.ItemDataRole.UserRole + 1)
         if not faces:
@@ -349,7 +358,7 @@ class ManageFonts(Dialog):
         self.refresh()
         info_dialog(self, _('Added fonts'), _('Added font families: %s') % (', '.join(families)), show=True)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return Dialog.sizeHint(self) + QSize(100, 50)
 
     def display(self) -> None:
@@ -358,7 +367,7 @@ class ManageFonts(Dialog):
         self.raise_and_focus()
         QTimer.singleShot(0, self.model.build)
 
-    def get_selected_data(self):
+    def get_selected_data(self) -> dict[str, bool]:
         ans = self.model.data_for_indices(list(self.fonts_view.selectedIndexes()))
         if not ans:
             error_dialog(

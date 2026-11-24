@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog
 
 from calibre.gui2.dialogs.drm_error_ui import Ui_Dialog
 from calibre.utils.localization import _, localize_website_link
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class DRMErrorMessage(QDialog, Ui_Dialog):
-    def __init__(self, parent=None, title=None) -> None:
+    def __init__(self, parent: QWidget | None = None, title: str | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         msg = _(

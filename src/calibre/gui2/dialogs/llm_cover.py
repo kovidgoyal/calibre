@@ -46,6 +46,8 @@ from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from calibre.customize import AIProviderPlugin
 
 # The purpose used both to configure AI providers and to look up the
@@ -524,7 +526,7 @@ class CoverSettingsDialog(LLMSettingsDialogBase):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(name='llm-cover-settings-dialog', prefs=gprefs, title=_('Cover generation settings'), parent=parent)
 
-    def custom_tabs(self):
+    def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
         yield 'default_cover.png', _('Cover &generation'), CoverGenSettingsWidget(self)
         yield 'template_funcs.png', _('&Templates'), TemplatesSettingsWidget(self)
 

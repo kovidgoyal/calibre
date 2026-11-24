@@ -12,13 +12,18 @@ import sys
 from functools import lru_cache
 from queue import Queue, ShutDown
 from threading import Thread
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from calibre.db.book_storage import BookStorageEntry, InvalidBookStorage, new_book_storage_entry, newest_book_storage, validate_book_storage
 from calibre.utils.filenames import atomic_rename
 
+if TYPE_CHECKING:
+    from unittest import TestSuite
 
-class CalibreData(TypedDict):
+    from calibre.gui2.viewer import BookLibraryDetails, CalibreBookData
+
+
+class CalibreData(TypedDict, total=False):
     library_id: str | None
     book_id: int | None
     book_fmt: str | None
@@ -27,7 +32,7 @@ class CalibreData(TypedDict):
 class SaveRequest(TypedDict):
     entry: BookStorageEntry
     path_key: str
-    book_library_details: dict[str, object] | None
+    book_library_details: BookLibraryDetails | None
     sync_annots_user: str
     calibre_data: CalibreData
 
@@ -68,9 +73,9 @@ def save_book_storage_to_file(path_key: str, entry: BookStorageEntry, base: str 
 
 def load_book_storage(
     path_key: str,
-    book_library_details: dict[str, object] | None,
+    book_library_details: BookLibraryDetails | None,
     sync_annots_user: str = '',
-    calibre_book_data: dict[str, object] | None = None,
+    calibre_book_data: CalibreBookData | None = None,
 ) -> BookStorageEntry:
     """
     Return the newest of the storage entries for the book from the local file
@@ -142,7 +147,7 @@ class BookStorageSaveWorker(Thread):
         self,
         entry: BookStorageEntry,
         path_key: str,
-        book_library_details: dict[str, object] | None,
+        book_library_details: BookLibraryDetails | None,
         sync_annots_user: str = '',
         calibre_data: CalibreData | None = None,
     ) -> None:
@@ -155,7 +160,7 @@ class BookStorageSaveWorker(Thread):
         })
 
 
-def find_tests():
+def find_tests() -> TestSuite:
     import shutil
     import unittest
     from unittest.mock import patch
@@ -175,10 +180,10 @@ def find_tests():
             # Upgrade the library database so that it has the book_storage table
             self.init_cache().close()
 
-        def bld(self, book_id=1, fmt='FMT1'):
+        def bld(self, book_id: int = 1, fmt: str = 'FMT1') -> BookLibraryDetails:
             return {'dbpath': os.path.join(self.library_path, 'metadata.db'), 'book_id': book_id, 'fmt': fmt, 'library_id': 'test'}
 
-        def req(self, entry, path_key='key', bld=None, sync_annots_user=''):
+        def req(self, entry: BookStorageEntry, path_key: str = 'key', bld: BookLibraryDetails | None = None, sync_annots_user: str = '') -> SaveRequest:
             return {
                 'entry': entry,
                 'path_key': path_key,

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os.path
+from typing import TYPE_CHECKING
 
 from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout, QIcon, QLabel, Qt, QTreeWidget, QTreeWidgetItem
 
@@ -10,9 +11,19 @@ from calibre.gui2 import gprefs
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import Metadata
+
+    DuplicateEntry = tuple[Metadata, str | None, Sequence[str]]
+
 
 class DuplicatesQuestion(QDialog):
-    def __init__(self, db, duplicates, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase, duplicates: Sequence[DuplicateEntry], parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -81,10 +92,10 @@ class DuplicatesQuestion(QDialog):
         self.save_geometry()
         QDialog.accept(self)
 
-    def save_geometry(self, prefs=None, name=None) -> None:
+    def save_geometry(self, prefs: object = None, name: object = None) -> None:
         super().save_geometry(gprefs, 'duplicates-question-dialog-geometry')
 
-    def process_duplicates(self, db, duplicates):
+    def process_duplicates(self, db: LibraryDatabase, duplicates: Sequence[DuplicateEntry]) -> Iterator[QTreeWidgetItem]:
         ta = _('%(title)s by %(author)s [%(formats)s]')
         bf = QFont(self.dup_list.font())
         bf.setBold(True)
@@ -103,7 +114,7 @@ class DuplicatesQuestion(QDialog):
             item.setData(0, Qt.ItemDataRole.UserRole, (mi, cover, formats))
             matching_books = db.books_with_same_title(mi)
 
-            def add_child(text):
+            def add_child(text: str) -> QTreeWidgetItem:
                 c = QTreeWidgetItem([text], 1)
                 c.setFlags(Qt.ItemFlag.ItemIsEnabled)
                 item.addChild(c)  # ruff: ignore[function-uses-loop-variable]
@@ -111,11 +122,11 @@ class DuplicatesQuestion(QDialog):
 
             add_child(_('Already in calibre:')).setData(0, Qt.ItemDataRole.FontRole, itf)
 
-            author_text = {}
+            author_text: dict[int, str] = {}
             for book_id in matching_books:
                 author_text[book_id] = authors_to_string([a.replace('|', ',') for a in (db.authors(book_id, index_is_id=True) or '').split(',')])
 
-            def key(x):
+            def key(x: int) -> bytes:
                 return primary_sort_key(str(author_text[x]))  # ruff: ignore[function-uses-loop-variable]
 
             for book_id in sorted(matching_books, key=key):
@@ -132,7 +143,7 @@ class DuplicatesQuestion(QDialog):
             yield item
 
     @property
-    def duplicates(self):
+    def duplicates(self) -> Iterator[DuplicateEntry]:
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             assert x is not None
@@ -140,7 +151,7 @@ class DuplicatesQuestion(QDialog):
                 yield x.data(0, Qt.ItemDataRole.UserRole)
 
     @property
-    def as_text(self):
+    def as_text(self) -> str:
         entries = []
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
@@ -164,6 +175,6 @@ if __name__ == '__main__':
     db = db()
     d = DuplicatesQuestion(
         db,
-        [(M('Life of Pi', ['Yann Martel']), None, None), (M('Heirs of the blade', ['Adrian Tchaikovsky']), None, None)],
+        [(M('Life of Pi', ['Yann Martel']), None, []), (M('Heirs of the blade', ['Adrian Tchaikovsky']), None, [])],
     )
     print(tuple(d.duplicates))

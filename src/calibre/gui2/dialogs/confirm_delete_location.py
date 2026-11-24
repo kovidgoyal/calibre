@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net2010, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout
 
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class Dialog(QDialog):
-    def __init__(self, msg, name, parent, icon='dialog_warning.png') -> None:
+    def __init__(self, msg: str, name: str, parent: QWidget | None, icon: str = 'dialog_warning.png') -> None:
         super().__init__(parent)
         ic = QIcon.ic(icon)
         self.setWindowIcon(ic)
@@ -46,11 +51,11 @@ class Dialog(QDialog):
         connect_lambda(self.button_cancel.clicked, self, lambda self: self.reject())
         self.resize(self.sizeHint())
 
-    def set_loc(self, loc) -> None:
+    def set_loc(self, loc: str) -> None:
         self.loc = loc
         self.accept()
 
-    def choice(self):
+    def choice(self) -> str | None:
         return self.loc
 
     def break_cycles(self) -> None:
@@ -62,7 +67,7 @@ class Dialog(QDialog):
                 pass
 
 
-def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
+def confirm_location(msg: str, name: str, parent: QWidget | None = None, pixmap: str = 'dialog_warning.png') -> str | None:
     d = Dialog(msg, name, parent, icon=pixmap)
     ret = d.exec()
     d.break_cycles()

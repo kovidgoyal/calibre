@@ -6,6 +6,7 @@ import re
 import sys
 import textwrap
 from functools import partial
+from typing import TYPE_CHECKING, TypedDict
 
 from qt.core import (
     QApplication,
@@ -44,9 +45,23 @@ from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from qt.core import QKeyEvent, QPaintEvent
+
+    class DiffKwargs(TypedDict):
+        context: int | None
+        beautify: bool
+        syntax: str | None
+
+    DiffNames = tuple[str | None, str | None]
+    DiffArgs = tuple[str, str, str | bytes | None, str | bytes | None]
+    type DiffResult = tuple[Cache, dict[str, str | None], dict[str, str] | set[str], dict[str, str], set[str], set[str]]
+
 
 class BusyWidget(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -59,7 +74,8 @@ class BusyWidget(QWidget):  # {{{
         l.addStretch(10)
         self.text = _('Calculating differences, please wait...')
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        assert a0 is not None
         br = a0.region().boundingRect()
         QWidget.paintEvent(self, a0)
         p = QPainter(self)
@@ -78,13 +94,18 @@ class BusyWidget(QWidget):  # {{{
 
 
 class Cache:
+    _left: dict[str, str | bytes]
+    _right: dict[str, str | bytes]
+
     def __init__(self) -> None:
         self._left, self._right = {}, {}
         self.left, self.right = self._left.get, self._right.get
         self.set_left, self.set_right = self._left.__setitem__, self._right.__setitem__
 
 
-def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
+def changed_files(
+    list_of_names1: Iterable[str], list_of_names2: Iterable[str], get_data1: Callable[[str], str | bytes], get_data2: Callable[[str], str | bytes]
+) -> tuple[Cache, set[str], dict[str, str], set[str], set[str]]:
     list_of_names1, list_of_names2 = frozenset(list_of_names1), frozenset(list_of_names2)
     changed_names = set()
     cache = Cache()
@@ -100,6 +121,9 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     adata, rdata = {a: get_data2(a) for a in adds}, {r: get_data1(r) for r in removals}
     ahash = {a: hash(d) for a, d in adata.items()}
     rhash = {r: hash(d) for r, d in rdata.items()}
+    renamed_names: dict[str, str]
+    removed_names: set[str]
+    added_names: set[str]
     renamed_names, removed_names, added_names = {}, set(), set()
     for name, rh in rhash.items():
         for n, ah in ahash.items():
@@ -116,7 +140,7 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     return cache, changed_names, renamed_names, removed_names, added_names
 
 
-def get_decoded_raw(name):
+def get_decoded_raw(name: str) -> tuple[str | bytes, str | None]:
     from calibre.ebooks.chardet import force_encoding, xml_to_unicode
 
     with open(name, 'rb') as f:
@@ -152,7 +176,9 @@ def get_decoded_raw(name):
     return raw, syntax
 
 
-def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='left', right_name='right'):
+def string_diff(
+    left: object, right: object, left_syntax: str | None = None, right_syntax: str | None = None, left_name: str = 'left', right_name: str = 'right'
+) -> DiffResult:
     left, right = str(left), str(right)
     cache = Cache()
     cache.set_left(left_name, left), cache.set_right(right_name, right)
@@ -160,7 +186,7 @@ def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='lef
     return cache, {left_name: left_syntax, right_name: right_syntax}, changed_names, {}, set(), set()
 
 
-def file_diff(left, right):
+def file_diff(left: str, right: str) -> DiffResult:
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
     if type(raw1) is not type(raw2):
         with open(left, 'rb') as f1, open(right, 'rb') as f2:
@@ -171,7 +197,11 @@ def file_diff(left, right):
     return cache, {left: syntax1, right: syntax2}, changed_names, {}, set(), set()
 
 
-def dir_diff(left, right):
+def dir_diff(left: str, right: str) -> DiffResult:
+    ldata: dict[str, str | bytes]
+    rdata: dict[str, str | bytes]
+    lsmap: dict[str, str | None]
+    rsmap: dict[str, str | None]
     ldata, rdata, lsmap, rsmap = {}, {}, {}, {}
     for base, data, smap in ((left, ldata, lsmap), (right, rdata, rsmap)):
         for dirpath, dirnames, filenames in os.walk(base):
@@ -179,7 +209,7 @@ def dir_diff(left, right):
                 path = os.path.join(dirpath, filename)
                 name = os.path.relpath(path, base)
                 data[name], smap[name] = get_decoded_raw(path)
-    cache, changed_names, renamed_names, removed_names, added_names = changed_files(ldata, rdata, ldata.get, rdata.get)
+    cache, changed_names, renamed_names, removed_names, added_names = changed_files(ldata, rdata, ldata.__getitem__, rdata.__getitem__)
 
     syntax_map = {name: lsmap[name] for name in changed_names}
     syntax_map.update({name: lsmap[name] for name in renamed_names})
@@ -188,7 +218,7 @@ def dir_diff(left, right):
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
 
 
-def container_diff(left, right):
+def container_diff(left: Container, right: Container) -> DiffResult:
     left_names, right_names = set(left.name_path_map), set(right.name_path_map)
     if left.cloned or right.cloned:
         # Since containers are often clones of each other, as a performance
@@ -205,7 +235,7 @@ def container_diff(left, right):
 
     cache, changed_names, renamed_names, removed_names, added_names = changed_files(left_names, right_names, left.raw_data, right.raw_data)
 
-    def syntax(container, name):
+    def syntax(container: Container, name: str) -> str | None:
         mt = container.mime_map[name]
         return syntax_from_mime(name, mt)
 
@@ -216,7 +246,7 @@ def container_diff(left, right):
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
 
 
-def ebook_diff(path1, path2):
+def ebook_diff(path1: str, path2: str) -> DiffResult:
     from calibre.ebooks.oeb.polish.container import get_container
 
     left = get_container(path1, tweak_mode=True)
@@ -228,10 +258,12 @@ class Diff(Dialog):
     revert_requested = pyqtSignal()
     line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False, show_as_window=False) -> None:
-        self.context = 3
+    def __init__(
+        self, revert_button_msg: str | None = None, parent: QWidget | None = None, show_open_in_editor: bool = False, show_as_window: bool = False
+    ) -> None:
+        self.context: int | None = 3
         self.beautify = False
-        self.apply_diff_calls = []
+        self.apply_diff_calls: list[tuple[DiffArgs, DiffKwargs]] = []
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
         self.show_as_window = show_as_window
@@ -239,7 +271,7 @@ class Diff(Dialog):
         assert self.view is not None
         self.view.line_activated.connect(self.line_activated)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
@@ -330,6 +362,7 @@ class Diff(Dialog):
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         if self.revert_button_msg is not None:
             self.rvb = b = self.bb.addButton(self.revert_button_msg, QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('edit-undo.png')), b.setAutoDefault(False)
             b.clicked.connect(self.revert_requested)
             b.clicked.connect(self.reject)
@@ -348,7 +381,7 @@ class Diff(Dialog):
             except Exception:
                 pass
 
-    def do_search(self, reverse) -> None:
+    def do_search(self, reverse: bool) -> None:
         text = str(self.search.text())
         if not text.strip():
             return
@@ -356,7 +389,7 @@ class Diff(Dialog):
         v = self.view.view.left if self.lb.isChecked() else self.view.view.right
         v.search(text, reverse=reverse)
 
-    def change_context(self, context) -> None:
+    def change_context(self, context: int | None) -> None:
         if context == self.context:
             return
         self.context = context
@@ -382,25 +415,25 @@ class Diff(Dialog):
         assert self.beautify_action is not None
         self.beautify_action.setText(_('Beautify files before comparing them') if not self.beautify else _('Do not beautify files before comparing'))
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         self.stacks.setCurrentIndex(0)
         self.busy.setVisible(True)
         self.busy.pi.startAnimation()
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
 
-    def __exit__(self, *args):
+    def __exit__(self, *args: object) -> None:
         self.busy.pi.stopAnimation()
         self.stacks.setCurrentIndex(1)
         QApplication.restoreOverrideCursor()
 
-    def set_names(self, names) -> None:
+    def set_names(self, names: DiffNames | None) -> None:
         t = ''
         if isinstance(names, tuple):
             t = '{} <--> {}'.format(*names)
         self.names.setText(t)
 
-    def ebook_diff(self, path1, path2, names=None) -> None:
+    def ebook_diff(self, path1: str, path2: str, names: DiffNames | None = None) -> None:
         self.set_names(names)
         with self:
             identical = self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
@@ -409,7 +442,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def container_diff(self, left, right, identical_msg=None, names=None) -> None:
+    def container_diff(self, left: Container, right: Container, identical_msg: str | None = None, names: DiffNames | None = None) -> None:
         self.set_names(names)
         with self:
             identical = self.apply_diff(identical_msg or _('No changes found'), *container_diff(left, right))
@@ -418,7 +451,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def file_diff(self, left, right, identical_msg=None) -> None:
+    def file_diff(self, left: str, right: str, identical_msg: str | None = None) -> None:
         with self:
             identical = self.apply_diff(identical_msg or _('The files are identical'), *file_diff(left, right))
             assert self.view is not None
@@ -426,7 +459,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def string_diff(self, left, right, **kw) -> None:
+    def string_diff(self, left: object, right: object, **kw: str) -> None:
         with self:
             identical = self.apply_diff(kw.pop('identical_msg', None) or _('No differences found'), *string_diff(left, right, **kw))
             assert self.view is not None
@@ -434,7 +467,7 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def dir_diff(self, left, right, identical_msg=None) -> None:
+    def dir_diff(self, left: str, right: str, identical_msg: str | None = None) -> None:
         with self:
             identical = self.apply_diff(identical_msg or _('The folders are identical'), *dir_diff(left, right))
             assert self.view is not None
@@ -442,13 +475,23 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
-    def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names) -> bool | None:
+    def apply_diff(
+        self,
+        identical_msg: str,
+        cache: Cache,
+        syntax_map: dict[str, str | None],
+        changed_names: dict[str, str] | set[str],
+        renamed_names: dict[str, str],
+        removed_names: set[str],
+        added_names: set[str],
+    ) -> bool | None:
         view = self.view
         assert view is not None
         view.clear()
+        calls: list[tuple[DiffArgs, DiffKwargs]]
         self.apply_diff_calls = calls = []
 
-        def add(args, kwargs) -> None:
+        def add(args: DiffArgs, kwargs: DiffKwargs) -> None:
             view.add_diff(*args, **kwargs)
             calls.append((args, kwargs))
 
@@ -458,7 +501,7 @@ class Diff(Dialog):
             self.busy.setVisible(True)
             return True
 
-        def kwargs(name):
+        def kwargs(name: str) -> DiffKwargs:
             return {'context': self.context, 'beautify': self.beautify, 'syntax': syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
@@ -482,7 +525,8 @@ class Diff(Dialog):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         view = self.view
         assert view is not None
         if not view.handle_key(a0):
@@ -506,7 +550,14 @@ class Diff(Dialog):
             return Dialog.keyPressEvent(self, a0)
 
 
-def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None) -> None:
+def compare_books(
+    path1: str,
+    path2: str,
+    revert_msg: str | None = None,
+    revert_callback: Callable[[], object] | None = None,
+    parent: QWidget | None = None,
+    names: DiffNames | None = None,
+) -> None:
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
         assert revert_callback is not None
@@ -520,7 +571,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     d.break_cycles()
 
 
-def main(args=sys.argv) -> int:
+def main(args: list[str] = sys.argv) -> int:
     from calibre.gui2 import Application
 
     left, right = args[-2:]

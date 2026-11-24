@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-from qt.core import QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QSpinBox, QToolButton
+from typing import TYPE_CHECKING
+
+from qt.core import QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QSpinBox, QToolButton, QWidget
 
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2 import gprefs
@@ -9,9 +11,14 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
+
 
 class AddEmptyBookDialog(QDialog):
-    def __init__(self, parent, db, author, series=None, title=None, dup_title=None) -> None:
+    def __init__(
+        self, parent: QWidget | None, db: LibraryDatabase, author: str | None, series: str | None = None, title: str | None = None, dup_title: str | None = None
+    ) -> None:
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -112,7 +119,7 @@ class AddEmptyBookDialog(QDialog):
         self.duplicate_current_book = True
         self.accept()
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_settings()
         return QDialog.accept(self)
 
@@ -120,17 +127,17 @@ class AddEmptyBookDialog(QDialog):
         gprefs['create_empty_format_file'] = self.format_value.currentText().lower()
         gprefs['create_empty_copy_dup_formats'] = self.copy_formats.isChecked()
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_settings()
         return QDialog.reject(self)
 
-    def reset_author(self, *args) -> None:
+    def reset_author(self, *args: object) -> None:
         self.authors_combo.setEditText(_('Unknown'))
 
     def reset_series(self) -> None:
         self.series_combo.setEditText('')
 
-    def initialize_authors(self, db, author) -> None:
+    def initialize_authors(self, db: LibraryDatabase, author: str | None) -> None:
         au = author
         if not au:
             au = _('Unknown')
@@ -141,25 +148,25 @@ class AddEmptyBookDialog(QDialog):
         self.authors_combo.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors_combo.update_items_cache(db.all_author_names())
 
-    def initialize_series(self, db, series) -> None:
+    def initialize_series(self, db: LibraryDatabase, series: str | None) -> None:
         self.series_combo.show_initial_value(series or '')
         self.series_combo.update_items_cache(db.all_series_names())
         self.series_combo.set_separator(None)
 
     @property
-    def qty_to_add(self):
+    def qty_to_add(self) -> int:
         return self.qty_spinbox.value()
 
     @property
-    def selected_authors(self):
+    def selected_authors(self) -> list[str]:
         return string_to_authors(str(self.authors_combo.text()))
 
     @property
-    def selected_series(self):
+    def selected_series(self) -> str:
         return str(self.series_combo.text())
 
     @property
-    def selected_title(self):
+    def selected_title(self) -> str:
         return self.title_edit.text().strip()
 
 

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import QColor, QTextBlockUserData, QTextCharFormat
 from tinycss.color4 import parse_color_string
@@ -10,6 +11,9 @@ from calibre.gui2.tweak_book import tprefs, verify_link
 from calibre.gui2.tweak_book.editor import COLOR_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.syntax.base import Formats, FormatSpans
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')
@@ -188,7 +192,7 @@ class ColorFormats:
         return ans
 
 
-def color_formats(text, start, end, token_name, fmt, formats):
+def color_formats(text: str, start: int, end: int, token_name: str, fmt: str, formats: Formats) -> FormatSpans | None:
     """Return formats that preview the color in text[start:end] or None if it is not a color"""
     if end < len(text) and nmchar_pat.match(text, end) is not None:
         # A longer identifier, for example: #ffffff00
@@ -222,15 +226,15 @@ class CSSState:
         self.parse = NORMAL
         self.blocks = 0
 
-    def copy(self):
+    def copy(self) -> CSSState:
         s = CSSState()
         s.parse, s.blocks = self.parse, self.blocks
         return s
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.parse == getattr(other, 'parse', -1) and self.blocks == getattr(other, 'blocks', -1)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __repr__(self) -> str:
@@ -245,12 +249,12 @@ class CSSUserData(QTextBlockUserData):
         self.state = CSSState()
         self.doc_name = None
 
-    def clear(self, state=None, doc_name=None) -> None:
+    def clear(self, state: CSSState | None = None, doc_name: str | None = None) -> None:
         self.state = CSSState() if state is None else state
         self.doc_name = doc_name
 
 
-def normal(state, text, i, formats, user_data):
+def normal(state: CSSState, text: str, i: int, formats: Formats, user_data: CSSUserData) -> FormatSpans:
     "The normal state (outside content blocks {})"
     m = space_pat.match(text, i)
     if m is not None:
@@ -277,7 +281,7 @@ def normal(state, text, i, formats, user_data):
     return [(len(text) - i, formats['unknown-normal'])]
 
 
-def content(state, text, i, formats, user_data):
+def content(state: CSSState, text: str, i: int, formats: Formats, user_data: CSSUserData) -> FormatSpans:
     "Inside content blocks"
     m = space_pat.match(text, i)
     if m is not None:
@@ -324,7 +328,7 @@ def content(state, text, i, formats, user_data):
     return [(len(text) - i, formats['unknown-normal'])]
 
 
-def comment(state, text, i, formats, user_data):
+def comment(state: CSSState, text: str, i: int, formats: Formats, user_data: CSSUserData) -> FormatSpans:
     "Inside a comment"
     pos = text.find('*/', i)
     if pos == -1:
@@ -333,7 +337,7 @@ def comment(state, text, i, formats, user_data):
     return [(pos - i + 2, formats['comment'])]
 
 
-def in_string(state, text, i, formats, user_data):
+def in_string(state: CSSState, text: str, i: int, formats: Formats, user_data: CSSUserData) -> FormatSpans:
     "Inside a string"
     q = '"' if state.parse == IN_DQS else "'"
     pos = text.find(q, i)
@@ -357,9 +361,9 @@ state_map = {
 }
 
 
-def create_formats(highlighter):
+def create_formats(highlighter: SyntaxHighlighter) -> Formats:
     theme = highlighter.theme
-    formats = {
+    formats: Formats = {
         'comment': theme['Comment'],
         'error': theme['Error'],
         'string': theme['String'],

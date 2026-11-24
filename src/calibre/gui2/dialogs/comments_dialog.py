@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QSize, Qt, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import Application, gprefs
@@ -10,9 +12,12 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.library.comments import comments_to_html
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QCloseEvent, QKeyEvent, QWidget
+
 
 class CommentsDialog(QDialog):
-    def __init__(self, parent, text, column_name=None) -> None:
+    def __init__(self, parent: QWidget | None, text: str | None, column_name: str | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setObjectName('CommentsDialog')
         self.setWindowTitle(_('Edit comments'))
@@ -36,7 +41,7 @@ class CommentsDialog(QDialog):
             self.setWindowTitle(_('Edit "{0}"').format(column_name))
         self.restore_geometry(gprefs, 'comments_dialog_geom')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(650, 600)
 
     def accept(self) -> None:
@@ -47,7 +52,7 @@ class CommentsDialog(QDialog):
         self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.reject(self)
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.save_geometry(gprefs, 'comments_dialog_geom')
         return QDialog.closeEvent(self, a0)
 
@@ -55,10 +60,11 @@ class CommentsDialog(QDialog):
 class PlainTextEdit(BasePlainTextEdit):
     ctrl_enter_pushed = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent, use_smarten_punctuation=True)
 
-    def keyPressEvent(self, e) -> None:
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier and e.key() == Qt.Key.Key_Return:
             e.accept()
             self.ctrl_enter_pushed.emit()
@@ -67,7 +73,7 @@ class PlainTextEdit(BasePlainTextEdit):
 
 
 class PlainTextDialog(Dialog):
-    def __init__(self, parent, text, column_name=None) -> None:
+    def __init__(self, parent: QWidget | None, text: str | None, column_name: str | None = None) -> None:
         title = _('Edit "{0}"').format(column_name) if column_name else _('Edit text')
         Dialog.__init__(self, title, 'edit-plain-text-dialog', parent=parent)
         self.text = text
@@ -86,14 +92,14 @@ class PlainTextDialog(Dialog):
         self.accept()
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._text.toPlainText()
 
     @text.setter
-    def text(self, val) -> None:
+    def text(self, val: str | None) -> None:
         self._text.setPlainText(val or '')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 400)
 
 

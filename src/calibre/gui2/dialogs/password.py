@@ -1,15 +1,19 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QLineEdit, Qt
 
 from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.password_ui import Ui_Dialog
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class PasswordDialog(QDialog, Ui_Dialog):
-    def __init__(self, window, name, msg) -> None:
+    def __init__(self, window: QWidget | None, name: str, msg: str) -> None:
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
@@ -27,16 +31,16 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.msg.setText(msg)
         self.show_password.stateChanged.connect(self.toggle_password)
 
-    def toggle_password(self, state) -> None:
+    def toggle_password(self, state: int) -> None:
         if Qt.CheckState(state) == Qt.CheckState.Unchecked:
             self.gui_password.setEchoMode(QLineEdit.EchoMode.Password)
         else:
             self.gui_password.setEchoMode(QLineEdit.EchoMode.Normal)
 
-    def username(self):
+    def username(self) -> str:
         return str(self.gui_username.text())
 
-    def password(self):
+    def password(self) -> str:
         return str(self.gui_password.text())
 
     def accept(self) -> None:

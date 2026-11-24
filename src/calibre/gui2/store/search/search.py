@@ -448,6 +448,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), list(result.downloads.keys()))
         if d.exec() == QDialog.DialogCode.Accepted:
             ext = d.format()
+            assert ext is not None
             fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
             show_download_info(result.title, parent=self)

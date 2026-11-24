@@ -13,9 +13,9 @@ from calibre.utils.xml_parse import safe_html_fromstring
 
 class URLMap:
     def __init__(self) -> None:
-        self.cache = {}
+        self.cache: dict[str, dict[str, str]] = {}
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> dict[str, str]:
         try:
             return self.cache[key]
         except KeyError:
@@ -29,7 +29,7 @@ class URLMap:
 _url_map = URLMap()
 
 
-def help_url(item, item_type, doc_name, extra_data=None):
+def help_url(item: str, item_type: str, doc_name: str, extra_data: object = None) -> str | None:
     url = None
     url_maps = ()
     item = item.lower()
@@ -62,7 +62,7 @@ def help_url(item, item_type, doc_name, extra_data=None):
     return url
 
 
-def get_mdn_tag_index(category):
+def get_mdn_tag_index(category: str) -> dict[str, str]:
     url = f'https://developer.mozilla.org/docs/Web/{category}/Element'
     if category == 'CSS':
         url = url.replace('Element', 'Reference')
@@ -80,7 +80,7 @@ def get_mdn_tag_index(category):
     return ans
 
 
-def get_opf2_tag_index():
+def get_opf2_tag_index() -> dict[str, str]:
     base = 'http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#'
     ans = {}
     for i, tag in enumerate(('package', 'metadata', 'manifest', 'spine', 'tours', 'guide')):
@@ -122,7 +122,7 @@ def get_opf2_tag_index():
     return ans
 
 
-def get_opf3_tag_index():
+def get_opf3_tag_index() -> dict[str, str]:
     base = 'http://www.idpf.org/epub/301/spec/epub-publications.html#'
     ans = {}
     for tag in (

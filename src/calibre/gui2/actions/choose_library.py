@@ -779,6 +779,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.status_bar.show_message(_('Starting library scan, this may take a while'))
         try:
             QCoreApplication.processEvents()
+            assert m.db is not None
             d = CheckLibraryDialog(self.gui, m.db)
 
             if not d.do_exec():

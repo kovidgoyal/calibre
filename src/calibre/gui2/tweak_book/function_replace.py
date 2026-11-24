@@ -5,6 +5,7 @@ import io
 import re
 import sys
 import weakref
+from typing import TYPE_CHECKING, Any, Protocol
 
 from qt.core import QApplication, QDialogButtonBox, QFontMetrics, QHBoxLayout, QIcon, QLabel, QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal
 
@@ -22,10 +23,28 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.titlecase import titlecase
 from polyglot.io import PolyglotStringIO
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
+    from qt.core import QContextMenuEvent, QWidget
+
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.tweak_book.editor.text import RegexMatch
+    from calibre.spell.dictionary import Dictionaries
+
+
+class BuiltinFunction(Protocol):
+    # A replace function decorated with @builtin
+    name: str
+    imports: tuple[Callable[..., object], ...]
+
+    def __call__(self, *args: object, **kwargs: object) -> str: ...
+
+
 user_functions = JSONConfig('editor-search-replace-functions')
 
 
-def compile_code(src, name='<string>'):
+def compile_code(src: str | bytes, name: str = '<string>') -> dict[str, Any]:  # the namespace of the arbitrary compiled code
     if not isinstance(src, str):
         match = re.search(rb'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
@@ -44,11 +63,12 @@ def compile_code(src, name='<string>'):
 
 
 class Function:
-    def __init__(self, name, source=None, func=None) -> None:
+    def __init__(self, name: str, source: str | None = None, func: Callable[..., str] | None = None) -> None:
         self._source = source
         self.is_builtin = source is None
         self.name = name
         if func is None:
+            assert source is not None
             self.mod = compile_code(source, name)
             self.func = self.mod['replace']
         else:
@@ -58,7 +78,7 @@ class Function:
             raise TypeError(f'{self.func!r} is not a function')
         self.file_order = getattr(self.func, 'file_order', None)
 
-    def init_env(self, name='') -> None:
+    def init_env(self, name: str | None = '') -> None:
         from calibre.gui2.tweak_book.boss import get_boss
 
         self.context_name = name or ''
@@ -68,16 +88,16 @@ class Function:
         self.debug_buf = PolyglotStringIO()
         self.functions = {name: func.mod for name, func in functions().items() if func.mod is not None}
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return self.name == getattr(other, 'name', None)
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
-    def __call__(self, match):
+    def __call__(self, match: RegexMatch) -> str:
         self.match_index += 1
         oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
         try:
@@ -96,14 +116,14 @@ class Function:
             sys.stdout, sys.stderr = oo, oe
 
     @property
-    def source(self):
+    def source(self) -> str | None:
         if self.is_builtin:
             import json
 
             return json.loads(P('editor-functions.json', data=True, allow_user_override=False))[self.name]
         return self._source
 
-    def end(self):
+    def end(self) -> str | None:
         if getattr(self.func, 'call_after_last_match', False):
             oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
             try:
@@ -124,7 +144,7 @@ class Function:
 
 
 class DebugOutput(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, 'Debug output', 'sr-function-debug-output')
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
 
@@ -140,7 +160,7 @@ class DebugOutput(Dialog):
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon.ic('edit-copy.png'))
 
-    def show_log(self, name, text) -> None:
+    def show_log(self, name: str, text: str | bytes) -> None:
         if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         self.setWindowTitle(_('Debug output from %s') % name)
@@ -149,7 +169,7 @@ class DebugOutput(Dialog):
         self.show()
         self.raise_and_focus()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         fm = QFontMetrics(self.text.font())
         return QSize(fm.averageCharWidth() * 120, 400)
 
@@ -159,7 +179,7 @@ class DebugOutput(Dialog):
         clipboard.setText(self.log_text)
 
 
-def builtin_functions():
+def builtin_functions() -> Iterator[BuiltinFunction]:
     for name, obj in globals().items():
         if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
@@ -168,7 +188,7 @@ def builtin_functions():
 _functions = None
 
 
-def functions(refresh=False):
+def functions(refresh: bool = False) -> dict[str, Function]:
     global _functions
     if _functions is None or refresh:
         ans = _functions = {}
@@ -183,7 +203,7 @@ def functions(refresh=False):
     return _functions
 
 
-def remove_function(name, gui_parent=None) -> bool:
+def remove_function(name: str, gui_parent: QWidget | None = None) -> bool:
     funcs = functions()
     if not name:
         return False
@@ -217,7 +237,7 @@ class FunctionBox(EditWithComplete):
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
 
-    def __init__(self, parent=None, show_saved_search_actions=False) -> None:
+    def __init__(self, parent: QWidget | None = None, show_saved_search_actions: bool = False) -> None:
         EditWithComplete.__init__(self, parent)
         self.set_separator(None)
         self.show_saved_search_actions = show_saved_search_actions
@@ -228,7 +248,8 @@ class FunctionBox(EditWithComplete):
     def refresh(self) -> None:
         self.update_items_cache(set(functions()))
 
-    def contextMenuEvent(self, e) -> None:
+    def contextMenuEvent(self, e: QContextMenuEvent | None) -> None:
+        assert e is not None
         le = self.lineEdit()
         assert le is not None
         menu = le.createStandardContextMenu()
@@ -241,7 +262,7 @@ class FunctionBox(EditWithComplete):
 
 
 class FunctionEditor(Dialog):
-    def __init__(self, func_name='', parent=None) -> None:
+    def __init__(self, func_name: str = '', parent: QWidget | None = None) -> None:
         self._func_name = func_name
         Dialog.__init__(self, _('Create/edit a function'), 'edit-sr-func', parent=parent)
 
@@ -280,45 +301,48 @@ class FunctionEditor(Dialog):
         l.addWidget(self.bb)
         self.initial_source = self.source
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         fm = QFontMetrics(self.font())
         return QSize(fm.averageCharWidth() * 120, 600)
 
     @property
-    def func_name(self):
+    def func_name(self) -> str:
         return self.fb.text().strip()
 
     @property
-    def source(self):
+    def source(self) -> str:
         return self.source_code.toPlainText()
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.func_name:
-            return error_dialog(self, _('Must specify name'), _('You must specify a name for this function.'), show=True)
+            error_dialog(self, _('Must specify name'), _('You must specify a name for this function.'), show=True)
+            return
         source = self.source
         try:
             mod = compile_code(source, self.func_name)
         except Exception as err:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Invalid Python code'),
                 _('The code you created is not valid Python code, with error: %s') % err,
                 show=True,
             )
+            return
         if not callable(mod.get('replace')):
-            return error_dialog(
+            error_dialog(
                 self,
                 _('No replace function'),
                 _('You must create a Python function named replace in your code'),
                 show=True,
             )
+            return
         user_functions[self.func_name] = source
         functions(refresh=True)
         refresh_boxes()
 
         Dialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         if self.source != self.initial_source:
             if not confirm(
                 _('All unsaved changes will be lost. Are you sure?'),
@@ -333,10 +357,10 @@ class FunctionEditor(Dialog):
 # Builtin functions ##########################################################
 
 
-def builtin(name, *args):
-    def f(func):
-        func.name = name
-        func.imports = args
+def builtin(name: str, *args: Callable[..., object]) -> Callable[[Callable[..., str]], Callable[..., str]]:
+    def f(func: Callable[..., str]) -> Callable[..., str]:
+        setattr(func, 'name', name)
+        setattr(func, 'imports', args)
         return func
 
     return f
@@ -349,7 +373,17 @@ def replace(match, number, file_name, metadata, dictionaries, data, functions, *
 
 
 @builtin('Upper-case text', upper, apply_func_to_match_groups)
-def replace_uppercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_uppercase(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Make matched text upper case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed."""
@@ -357,7 +391,17 @@ def replace_uppercase(match, number, file_name, metadata, dictionaries, data, fu
 
 
 @builtin('Lower-case text', lower, apply_func_to_match_groups)
-def replace_lowercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_lowercase(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Make matched text lower case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed."""
@@ -365,7 +409,17 @@ def replace_lowercase(match, number, file_name, metadata, dictionaries, data, fu
 
 
 @builtin('Capitalize text', capitalize, apply_func_to_match_groups)
-def replace_capitalize(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_capitalize(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Capitalize matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed."""
@@ -373,7 +427,17 @@ def replace_capitalize(match, number, file_name, metadata, dictionaries, data, f
 
 
 @builtin('Title-case text', titlecase, apply_func_to_match_groups)
-def replace_titlecase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_titlecase(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Title-case matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed."""
@@ -381,7 +445,17 @@ def replace_titlecase(match, number, file_name, metadata, dictionaries, data, fu
 
 
 @builtin('Swap the case of text', swapcase, apply_func_to_match_groups)
-def replace_swapcase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_swapcase(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Swap the case of the matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed."""
@@ -389,31 +463,81 @@ def replace_swapcase(match, number, file_name, metadata, dictionaries, data, fun
 
 
 @builtin('Upper-case text (ignore tags)', upper, apply_func_to_html_text)
-def replace_uppercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_uppercase_ignore_tags(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Make matched text upper case, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, upper)
 
 
 @builtin('Lower-case text (ignore tags)', lower, apply_func_to_html_text)
-def replace_lowercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_lowercase_ignore_tags(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Make matched text lower case, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, lower)
 
 
 @builtin('Capitalize text (ignore tags)', capitalize, apply_func_to_html_text)
-def replace_capitalize_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_capitalize_ignore_tags(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Capitalize matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, capitalize)
 
 
 @builtin('Title-case text (ignore tags)', titlecase, apply_func_to_html_text)
-def replace_titlecase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_titlecase_ignore_tags(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Title-case matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, titlecase)
 
 
 @builtin('Swap the case of text (ignore tags)', swapcase, apply_func_to_html_text)
-def replace_swapcase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+def replace_swapcase_ignore_tags(
+    match: re.Match[str],
+    number: int,
+    file_name: str,
+    metadata: Metadata,
+    dictionaries: Dictionaries,
+    data: dict[str, object],
+    functions: dict[str, dict[str, Any]],
+    *args: object,
+    **kwargs: object,
+) -> str:
     """Swap the case of the matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, swapcase)
 

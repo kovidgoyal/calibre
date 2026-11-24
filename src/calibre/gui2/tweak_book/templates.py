@@ -25,11 +25,11 @@ DEFAULT_TEMPLATES = {
 }
 
 
-def raw_template_for(syntax):
+def raw_template_for(syntax: str) -> str:
     return tprefs['templates'].get(syntax, DEFAULT_TEMPLATES.get(syntax, ''))
 
 
-def template_for(syntax):
+def template_for(syntax: str) -> str:
     mi = current_container().mi
     data = {
         'TITLE': mi.title,

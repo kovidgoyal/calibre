@@ -410,6 +410,7 @@ class AutoAdder(QObject):
                 formats.extend(f)
                 metadata.extend(mi)
             dups = [(mic, mic.cover, [p]) for mic, p in zip(metadata, paths)]
+            assert m.db is not None
             d = DuplicatesQuestion(m.db, dups, parent=gui)
             dups = tuple(d.duplicates)
             if dups:

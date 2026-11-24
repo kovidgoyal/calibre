@@ -622,7 +622,9 @@ class Adder(QObject):
             assert dbref is not None
             pd = self.pd
             assert pd is not None
-            d = DuplicatesQuestion(dbref(), self.duplicates, pd)
+            db_inst = dbref()
+            assert db_inst is not None
+            d = DuplicatesQuestion(db_inst, self.duplicates, pd)
             duplicates = tuple(d.duplicates)
             d.deleteLater()
             if duplicates:

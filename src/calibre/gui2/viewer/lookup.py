@@ -5,6 +5,7 @@ import sys
 import textwrap
 from contextlib import suppress
 from functools import lru_cache
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 from qt.core import (
     QAbstractItemView,
@@ -45,25 +46,45 @@ from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_i
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import create_script, insert_scripts, secure_webengine, setup_profile
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QContextMenuEvent
+
+    from calibre.gui2.viewer import BookMetadata, CurrentBookData
+    from calibre.gui2.viewer.llm import LLMPanel
+    from calibre.gui2.viewer.ui import EbookViewer
+
+    class SpecialProcessor(Protocol):
+        __name__: str
+
+        def __call__(self, word: str, /) -> str: ...
+
+    class LookupSource(TypedDict, total=False):
+        name: str
+        url: str
+        special_processor: str
+        langs: list[str]
+
 
 @lru_cache
-def lookup_lang():
+def lookup_lang() -> str | None:
     ans = canonicalize_lang(get_lang())
     if ans:
         ans = lang_as_iso639_1(ans) or ans
     return ans
 
 
-special_processors = {}
+special_processors: dict[str, SpecialProcessor] = {}
 
 
-def special_processor(func):
+def special_processor(func: SpecialProcessor) -> SpecialProcessor:
     special_processors[func.__name__] = func
     return func
 
 
 @special_processor
-def google_dictionary(word):
+def google_dictionary(word: str) -> str:
     ans = f'https://www.google.com/search?q=define:{word}'
     lang = lookup_lang()
     if lang:
@@ -94,10 +115,10 @@ vprefs.defaults['llm_lookup_tab_index'] = 0
 
 
 class SourceEditor(Dialog):
-    def __init__(self, parent, source_to_edit=None) -> None:
+    def __init__(self, parent: SourcesEditor, source_to_edit: LookupSource | None = None) -> None:
         self.all_names = {x['name'] for x in parent.all_entries}
         self.initial_name = self.initial_url = None
-        self.langs = []
+        self.langs: list[str] = []
         if source_to_edit is not None:
             self.langs = source_to_edit['langs']
             self.initial_name = source_to_edit['name']
@@ -128,39 +149,44 @@ class SourceEditor(Dialog):
             u.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
-    def source_name(self):
+    def source_name(self) -> str:
         return self.name_edit.text().strip()
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self.url_edit.text().strip()
 
-    def accept(self):
+    def accept(self) -> None:
         q = self.source_name
         if not q:
-            return error_dialog(self, _('No name'), _('You must specify a name'), show=True)
+            error_dialog(self, _('No name'), _('You must specify a name'), show=True)
+            return
         if not self.initial_name and q in self.all_names:
-            return error_dialog(
+            error_dialog(
                 self,
                 _('Name already exists'),
                 _('A lookup source with the name {} already exists').format(q),
                 show=True,
             )
+            return
         if not self.url:
-            return error_dialog(self, _('No name'), _('You must specify a URL'), show=True)
+            error_dialog(self, _('No name'), _('You must specify a URL'), show=True)
+            return
         if not self.url.startswith('http://') and not self.url.startswith('https://'):
-            return error_dialog(self, _('Invalid URL'), _('The URL must start with https://'), show=True)
+            error_dialog(self, _('Invalid URL'), _('The URL must start with https://'), show=True)
+            return
         if '{word}' not in self.url:
-            return error_dialog(self, _('Invalid URL'), _('The URL must contain the placeholder {word}'), show=True)
+            error_dialog(self, _('Invalid URL'), _('The URL must contain the placeholder {word}'), show=True)
+            return
         return Dialog.accept(self)
 
     @property
-    def entry(self):
+    def entry(self) -> LookupSource:
         return {'name': self.source_name, 'url': self.url, 'langs': self.langs}
 
 
 class SourcesEditor(Dialog):
-    def __init__(self, parent, viewer=None) -> None:
+    def __init__(self, parent: QWidget | None, viewer: EbookViewer | None = None) -> None:
         Dialog.__init__(self, _('Edit lookup sources'), 'viewer-edit-lookup-locations', parent=parent)
 
     def setup_ui(self) -> None:
@@ -193,12 +219,12 @@ class SourcesEditor(Dialog):
         assert b is not None
         b.clicked.connect(self.restore_defaults)
 
-    def add_entry(self, entry, prepend=False) -> None:
+    def add_entry(self, entry: LookupSource, prepend: bool = False) -> None:
         i = QListWidgetItem(entry['name'])
         i.setData(Qt.ItemDataRole.UserRole, entry.copy())
         self.entries.insertItem(0, i) if prepend else self.entries.addItem(i)
 
-    def build_entries(self, entries) -> None:
+    def build_entries(self, entries: Iterable[LookupSource]) -> None:
         self.entries.clear()
         for entry in entries:
             self.add_entry(entry)
@@ -216,14 +242,14 @@ class SourcesEditor(Dialog):
         if idx > -1:
             self.entries.takeItem(idx)
 
-    def edit_source(self, source_item) -> None:
+    def edit_source(self, source_item: QListWidgetItem) -> None:
         d = SourceEditor(self, source_item.data(Qt.ItemDataRole.UserRole))
         if d.exec() == QDialog.DialogCode.Accepted:
             source_item.setData(Qt.ItemDataRole.UserRole, d.entry)
-            source_item.setData(Qt.ItemDataRole.DisplayRole, d.name)
+            source_item.setData(Qt.ItemDataRole.DisplayRole, d.source_name)
 
     @property
-    def all_entries(self):
+    def all_entries(self) -> list[LookupSource]:
         result = []
         for r in range(self.entries.count()):
             item = self.entries.item(r)
@@ -231,10 +257,11 @@ class SourcesEditor(Dialog):
             result.append(item.data(Qt.ItemDataRole.UserRole))
         return result
 
-    def accept(self):
+    def accept(self) -> None:
         entries = self.all_entries
         if not entries:
-            return error_dialog(self, _('No sources'), _('You must specify at least one lookup source'), show=True)
+            error_dialog(self, _('No sources'), _('You must specify at least one lookup source'), show=True)
+            return
         if entries == vprefs.defaults['lookup_locations']:
             del vprefs['lookup_locations']
         else:
@@ -242,7 +269,7 @@ class SourcesEditor(Dialog):
         return Dialog.accept(self)
 
 
-def create_profile():
+def create_profile() -> QWebEngineProfile:
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
         ans = QWebEngineProfile('viewer-lookup', QApplication.instance())
@@ -270,7 +297,7 @@ def create_profile():
 
 
 class Page(QWebEnginePage):
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING',
@@ -303,7 +330,8 @@ class Page(QWebEnginePage):
 class View(QWebEngineView):
     inspect_element = pyqtSignal()
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.addSeparator()
@@ -320,13 +348,13 @@ class View(QWebEngineView):
         self.inspect_element.emit()
 
 
-def set_sync_override(allowed) -> None:
+def set_sync_override(allowed: bool) -> None:
     li = getattr(set_sync_override, 'instance', None)
     if li is not None:
         li.set_sync_override(allowed)
 
 
-def blank_html():
+def blank_html() -> str:
     msg = _("Double click on a word in the book's text to look it up.")
     html = '<p>' + msg
     app = qapplication_or_fail()
@@ -341,7 +369,7 @@ def blank_html():
 class Lookup(QTabWidget):
     add_note_requested = pyqtSignal(str, str)
 
-    def __init__(self, parent, viewer=None) -> None:
+    def __init__(self, parent: EbookViewer, viewer: EbookViewer | None = None) -> None:
         QTabWidget.__init__(self, parent)
         self.viewer_parent = parent
         self.viewer = viewer
@@ -350,12 +378,12 @@ class Lookup(QTabWidget):
 
         self.is_visible = False
         self.selected_text = ''
-        self.current_highlight_cache = None
+        self.current_highlight_cache: dict | None = None
         self.current_query = ''
         self.current_source = ''
-        self.llm_panel = None
+        self.llm_panel: LLMPanel | None = None
         self.llm_tab_index = -1
-        self.current_book_metadata = {}
+        self.current_book_metadata: BookMetadata = {}
 
         self.debounce_timer = t = QTimer(self)
         t.setInterval(150), t.timeout.connect(self.update_query)
@@ -371,12 +399,12 @@ class Lookup(QTabWidget):
         self.currentChanged.connect(self._tab_changed)
         setattr(set_sync_override, 'instance', self)
 
-    def book_loaded(self, book_data) -> None:
+    def book_loaded(self, book_data: CurrentBookData) -> None:
         self.current_book_metadata = book_data.get('metadata', {})
         if self.llm_panel:
             self.llm_panel.update_book_metadata(self.current_book_metadata)
 
-    def _create_dictionary_panel(self):
+    def _create_dictionary_panel(self) -> QWidget:
         panel = QWidget(self)
         l = QVBoxLayout(panel)
         h = QHBoxLayout()
@@ -442,18 +470,18 @@ class Lookup(QTabWidget):
         self.llm_panel.add_note_requested.connect(self.add_note_requested)
         self.llm_panel.update_with_text(self.selected_text)
 
-    def _tab_changed(self, index) -> None:
+    def _tab_changed(self, index: int) -> None:
         vprefs.set('llm_lookup_tab_index', index)
         if index == self.llm_tab_index:
             self._activate_llm_panel()
         self.update_query()
 
-    def set_sync_override(self, allowed) -> None:
+    def set_sync_override(self, allowed: bool) -> None:
         self.disallow_auto_update = not allowed
         if self.auto_update_query.isChecked() and allowed:
             self.update_query()
 
-    def auto_update_state_changed(self, state) -> None:
+    def auto_update_state_changed(self, state: int) -> None:
         vprefs['auto_update_lookup'] = self.auto_update_query.isChecked()
         self.update_refresh_button_status()
 
@@ -499,7 +527,7 @@ class Lookup(QTabWidget):
             sb.setCurrentIndex(idx)
         sb.blockSignals(False)
 
-    def visibility_changed(self, is_visible) -> None:
+    def visibility_changed(self, is_visible: bool) -> None:
         self.is_visible = is_visible
         if is_visible:
             last_idx = vprefs.get('llm_lookup_tab_index', 0)
@@ -512,25 +540,25 @@ class Lookup(QTabWidget):
         self.update_query()
 
     @property
-    def source(self):
+    def source(self) -> LookupSource | None:
         idx = self.source_box.currentIndex()
         if idx > -1:
             return self.source_box.itemData(idx)
 
     @property
-    def url_template(self):
+    def url_template(self) -> str | None:
         idx = self.source_box.currentIndex()
         if idx > -1:
             return self.source_box.itemData(idx)['url']
 
     @property
-    def special_processor(self):
+    def special_processor(self) -> SpecialProcessor | None:
         idx = self.source_box.currentIndex()
         if idx > -1:
             return special_processors.get(self.source_box.itemData(idx).get('special_processor'))
 
     @property
-    def query_is_up_to_date(self):
+    def query_is_up_to_date(self) -> bool:
         query = self.selected_text or self.current_query
         return self.current_query == query and self.current_source == self.url_template
 
@@ -555,6 +583,7 @@ class Lookup(QTabWidget):
             self.current_source = self.url_template
             sp = self.special_processor
             if sp is None:
+                assert self.current_source is not None
                 url = self.current_source.format(word=query)
             else:
                 url = sp(query)
@@ -563,7 +592,7 @@ class Lookup(QTabWidget):
             self.current_query = query
             self.update_refresh_button_status()
 
-    def _find_highlight_by_uuid(self, uuid):
+    def _find_highlight_by_uuid(self, uuid: str | None) -> dict | None:
         if not uuid or not self.viewer:
             return None
         with suppress(Exception):
@@ -573,9 +602,9 @@ class Lookup(QTabWidget):
                     return h
         return None
 
-    def selected_text_changed(self, text, annot_data) -> None:
+    def selected_text_changed(self, text: str, annot_data: object) -> None:
         text = text.replace('\u00ad', '')  # remove soft hyphens
-        processed_annot_data = None
+        processed_annot_data: dict | None = None
         uuid_from_signal = None
 
         if isinstance(annot_data, dict):

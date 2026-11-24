@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAbstractItemView, QDialogButtonBox, QInputDialog, QLabel, QListWidget, QListWidgetItem, QMenu, QSize, Qt, QVBoxLayout
 
 from calibre import prepare_string_for_xml
@@ -10,12 +12,23 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
+    SortSpec = list[tuple[str, bool]]
+
 ascending_symbol = '⏷'
 descending_symbol = '⏶'
 
 
 class ChooseMultiSort(Dialog):
-    def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF) -> None:
+    def __init__(
+        self, db: LibraryDatabase, is_device_connected: str | bool | None = False, parent: QWidget | None = None, hidden_pref: str = SORT_HIDDEN_PREF
+    ) -> None:
         self.db = db.new_api
         self.hidden_fields: set[str] = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
         if not is_device_connected:
@@ -27,7 +40,7 @@ class ChooseMultiSort(Dialog):
         self.sort_order_map = dict.fromkeys(self.key_map, True)
         super().__init__(_('Sort by multiple columns'), 'multisort-chooser', parent=parent)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 400)
 
     def setup_ui(self) -> None:
@@ -92,15 +105,15 @@ class ChooseMultiSort(Dialog):
             item.setCheckState(Qt.CheckState.Unchecked)
         self.column_list.sortItems()
 
-    def item_double_clicked(self, item) -> None:
+    def item_double_clicked(self, item: QListWidgetItem) -> None:
         item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
 
     def current_changed(self) -> None:
         self.update_order_label()
 
     @property
-    def current_sort_spec(self):
-        ans = []
+    def current_sort_spec(self) -> SortSpec:
+        ans: SortSpec = []
         for item in self.iteritems():
             if item.checkState() == Qt.CheckState.Checked:
                 k = item.data(Qt.ItemDataRole.UserRole)
@@ -121,31 +134,33 @@ class ChooseMultiSort(Dialog):
             t = _('Effective sort') + ': ' + t
         self.order_label.setText(t)
 
-    def link_activated(self, url) -> None:
+    def link_activated(self, url: str) -> None:
         key = bytes.fromhex(url).decode('utf-8')
         self.sort_order_map[key] ^= True
         self.update_order_label()
 
-    def no_column_selected_error(self):
+    def no_column_selected_error(self) -> int:
         return error_dialog(self, _('No sort selected'), _('You must select at least one column on which to sort'), show=True)
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.current_sort_spec:
-            return self.no_column_selected_error()
+            self.no_column_selected_error()
+            return
         super().accept()
 
     @property
-    def saved_specs(self):
+    def saved_specs(self) -> dict[str, SortSpec]:
         return self.db.pref('saved_multisort_specs', {}).copy()
 
     @saved_specs.setter
-    def saved_specs(self, val) -> None:
+    def saved_specs(self, val: dict[str, SortSpec]) -> None:
         self.db.set_pref('saved_multisort_specs', val.copy())
 
-    def save(self):
+    def save(self) -> None:
         spec = self.current_sort_spec
         if not spec:
-            return self.no_column_selected_error()
+            self.no_column_selected_error()
+            return
         d = QInputDialog(self)
         d.setComboBoxEditable(True)
         d.setComboBoxItems(sorted(self.saved_specs.keys(), key=primary_sort_key))
@@ -194,11 +209,11 @@ class ChooseMultiSort(Dialog):
         if q.pop(name, None):
             self.saved_specs = q
 
-    def iteritems(self):
+    def iteritems(self) -> Iterator[QListWidgetItem]:
         cl = self.column_list
-        return (cl.item(i) for i in range(cl.count()))
+        return (item for i in range(cl.count()) if (item := cl.item(i)) is not None)
 
-    def apply_spec(self, spec) -> None:
+    def apply_spec(self, spec: Sequence[tuple[str, bool]]) -> None:
         self.clear()
         cl = self.column_list
         imap = {item.data(Qt.ItemDataRole.UserRole): item for item in self.iteritems()}

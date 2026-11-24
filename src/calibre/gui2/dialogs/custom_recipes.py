@@ -5,6 +5,7 @@ import os
 import re
 import textwrap
 import time
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractListModel,
@@ -44,54 +45,64 @@ from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
 from polyglot.builtins import as_bytes, as_unicode
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from types import EllipsisType
 
-def is_basic_recipe(src):
+    from qt.core import QModelIndex
+
+    from calibre.web.feeds.recipes.model import RecipeModel
+
+
+def is_basic_recipe(src: str) -> bool:
     return re.search(r'^class BasicUserRecipe', src, flags=re.MULTILINE) is not None
 
 
 class CustomRecipeModel(QAbstractListModel):  # {{{
-    def __init__(self, recipe_model) -> None:
+    def __init__(self, recipe_model: RecipeModel) -> None:
         QAbstractListModel.__init__(self)
         self.recipe_model = recipe_model
 
-    def title(self, index):
+    def title(self, index: QModelIndex) -> str | None:
         row = index.row()
         if row > -1 and row < self.rowCount():
             return self.recipe_model.custom_recipe_collection[row].get('title', '')
 
-    def urn(self, index):
+    def urn(self, index: QModelIndex) -> str | None:
         row = index.row()
         if row > -1 and row < self.rowCount():
             return self.recipe_model.custom_recipe_collection[row].get('id')
 
-    def has_title(self, title):
+    def has_title(self, title: str) -> bool:
         return any(x.get('title', False) == title for x in self.recipe_model.custom_recipe_collection)
 
-    def script(self, index):
+    def script(self, index: QModelIndex) -> str | None:
         row = index.row()
         if row > -1 and row < self.rowCount():
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
+            assert urn is not None
             return self.recipe_model.get_recipe(urn)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         try:
             return len(self.recipe_model.custom_recipe_collection)
         except Exception:
             return 0
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         if role == Qt.ItemDataRole.DisplayRole:
             return self.title(index)
 
-    def update(self, row, title, script) -> None:
+    def update(self, row: int, title: str, script: str | bytes) -> None:
         if row > -1 and row < self.rowCount():
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
+            assert urn is not None
             self.beginResetModel()
             self.recipe_model.update_custom_recipe(urn, title, script)
             self.endResetModel()
 
-    def replace_many_by_title(self, scriptmap) -> None:
-        script_urn_map = {}
+    def replace_many_by_title(self, scriptmap: dict[str, str | bytes]) -> None:
+        script_urn_map: dict[str, tuple[str, str | bytes]] = {}
         for title, script in scriptmap.items():
             urn = None
             for x in self.recipe_model.custom_recipe_collection:
@@ -105,7 +116,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             self.recipe_model.update_custom_recipes(script_urn_map)
             self.endResetModel()
 
-    def add(self, title, script):
+    def add(self, title: str, script: str | bytes) -> int:
         all_urns = {x.get('id') for x in self.recipe_model.custom_recipe_collection}
         self.beginResetModel()
         self.recipe_model.add_custom_recipe(title, script)
@@ -118,16 +129,17 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
                     return row
         return 0
 
-    def add_many(self, scriptmap) -> None:
+    def add_many(self, scriptmap: dict[str, str | bytes]) -> None:
         self.beginResetModel()
         self.recipe_model.add_custom_recipes(scriptmap)
         self.endResetModel()
 
-    def remove(self, rows) -> None:
+    def remove(self, rows: Iterable[int]) -> None:
         urns = []
         for r in rows:
             try:
                 urn = self.recipe_model.custom_recipe_collection[r].get('id')
+                assert urn is not None
                 urns.append(urn)
             except Exception:
                 pass
@@ -139,7 +151,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
 # }}}
 
 
-def py3_repr(x):
+def py3_repr(x: object) -> str:
     ans = repr(x)
     if isinstance(x, bytes) and not ans.startswith('b'):
         ans = 'b' + ans
@@ -148,7 +160,7 @@ def py3_repr(x):
     return ans
 
 
-def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
+def options_to_recipe_source(title: str, oldest_article: int, max_articles_per_feed: int, feeds: Sequence[Sequence[str | None]]) -> str:
     classname = f'BasicUserRecipe{int(time.time())}'
     title = str(title).strip() or classname
     indent = ' ' * 8
@@ -186,7 +198,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
 class RecipeList(QWidget):  # {{{
     edit_recipe = pyqtSignal(object, object)
 
-    def __init__(self, parent, model) -> None:
+    def __init__(self, parent: QWidget | None, model: RecipeModel) -> None:
         QWidget.__init__(self, parent)
 
         self.l = l = QHBoxLayout(self)
@@ -235,7 +247,7 @@ class RecipeList(QWidget):  # {{{
         assert sel_model is not None
         sel_model.currentRowChanged.connect(self.recipe_selected)
 
-    def select_row(self, row=0) -> None:
+    def select_row(self, row: int = 0) -> None:
         v = self.view
         m = v.model()
         assert m is not None
@@ -248,19 +260,19 @@ class RecipeList(QWidget):  # {{{
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
 
-    def add(self, title, src) -> None:
+    def add(self, title: str, src: str | bytes) -> None:
         row = self.model.add(title, src)
         self.select_row(row)
 
-    def update_recipe(self, row, title, src) -> None:
+    def update_recipe(self, row: int, title: str, src: str | bytes) -> None:
         self.model.update(row, title, src)
         self.select_row(row)
 
     @property
-    def model(self):
-        return self.view.model()
+    def model(self) -> CustomRecipeModel:
+        return cast('CustomRecipeModel', self.view.model())
 
-    def recipe_selected(self, cur, prev=None) -> None:
+    def recipe_selected(self, cur: QModelIndex, prev: QModelIndex | None = None) -> None:
         if cur.isValid():
             self.stacks.setCurrentIndex(1)
             self.title.setText(f'<h2 style="text-align:center">{self.model.title(cur)}</h2>')
@@ -291,7 +303,7 @@ class RecipeList(QWidget):  # {{{
                     with open(path, 'wb') as f:
                         f.write(as_bytes(src))
 
-    def item_activated(self, idx) -> None:
+    def item_activated(self, idx: QModelIndex) -> None:
         if idx.isValid():
             src = self.model.script(idx)
             if src is not None:
@@ -316,14 +328,14 @@ class RecipeList(QWidget):  # {{{
             gui = get_gui(fail_if_absent=True)
             gui.iactions['Fetch News'].download_custom_recipe(title, urn)
 
-    def has_title(self, title):
+    def has_title(self, title: str) -> bool:
         return self.model.has_title(title)
 
-    def add_many(self, script_map) -> None:
+    def add_many(self, script_map: dict[str, str | bytes]) -> None:
         self.model.add_many(script_map)
         self.select_row()
 
-    def replace_many_by_title(self, script_map) -> None:
+    def replace_many_by_title(self, script_map: dict[str, str | bytes]) -> None:
         self.model.replace_many_by_title(script_map)
         self.select_row()
 
@@ -332,7 +344,7 @@ class RecipeList(QWidget):  # {{{
 
 
 class BasicRecipe(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -420,13 +432,15 @@ class BasicRecipe(QWidget):  # {{{
         for item in self.feeds.selectedItems():
             self.feeds.takeItem(self.feeds.row(item))
 
-    def add_feed(self):
+    def add_feed(self) -> None:
         title = self.feed_title.text().strip()
         if not title:
-            return error_dialog(self, _('No feed title'), _('You must specify a title for the feed'), show=True)
+            error_dialog(self, _('No feed title'), _('You must specify a title for the feed'), show=True)
+            return
         url = self.feed_url.text().strip()
         if not title:
-            return error_dialog(self, _('No feed URL'), _('You must specify a URL for the feed'), show=True)
+            error_dialog(self, _('No feed URL'), _('You must specify a URL for the feed'), show=True)
+            return
         QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
         self.feed_title.clear(), self.feed_url.clear()
 
@@ -451,7 +465,7 @@ class BasicRecipe(QWidget):  # {{{
         return True
 
     @property
-    def recipe_source(self):
+    def recipe_source(self) -> str:
 
         title = self.title.text().strip()
         feeds = []
@@ -462,7 +476,7 @@ class BasicRecipe(QWidget):  # {{{
         return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
     @recipe_source.setter
-    def recipe_source(self, src) -> None:
+    def recipe_source(self, src: str | None) -> None:
         self.feeds.clear()
         self.feed_title.clear()
         self.feed_url.clear()
@@ -484,7 +498,7 @@ class BasicRecipe(QWidget):  # {{{
 
 
 class AdvancedRecipe(QWidget):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
@@ -513,14 +527,14 @@ class AdvancedRecipe(QWidget):  # {{{
         return True
 
     @property
-    def recipe_source(self):
+    def recipe_source(self) -> str:
         return self.editor.toPlainText()
 
     @recipe_source.setter
-    def recipe_source(self, src) -> None:
+    def recipe_source(self, src: str) -> None:
         self.editor.load_text(src, syntax='python', doc_name='<recipe>')
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 500)
 
 
@@ -528,7 +542,7 @@ class AdvancedRecipe(QWidget):  # {{{
 
 
 class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
-    def filterAcceptsRow(self, source_row, source_parent) -> bool:
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         src_model = self.sourceModel()
         assert src_model is not None
         idx = src_model.index(source_row, 0, source_parent)
@@ -539,7 +553,7 @@ class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
 
 
 class ChooseBuiltinRecipe(Dialog):  # {{{
-    def __init__(self, recipe_model, parent=None) -> None:
+    def __init__(self, recipe_model: RecipeModel, parent: QWidget | None = None) -> None:
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Choose builtin recipe'), 'choose-builtin-recipe', parent=parent)
 
@@ -568,23 +582,24 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
         l.addWidget(self.bb)
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def search_done(self, *args) -> None:
+    def search_done(self, *args: object) -> None:
         if self.recipe_model.showing_count < 10:
             self.recipes.expandAll()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(600, 450)
 
     @property
-    def selected_recipe(self):
+    def selected_recipe(self) -> str | None:
         for idx in self.recipes.selectedIndexes():
             urn = idx.data(Qt.ItemDataRole.UserRole)
             if urn and not urn.startswith('::category::'):
                 return urn
 
-    def accept(self):
+    def accept(self) -> None:
         if not self.selected_recipe:
-            return error_dialog(self, _('Choose recipe'), _('You must choose a recipe to customize first'), show=True)
+            error_dialog(self, _('Choose recipe'), _('You must choose a recipe to customize first'), show=True)
+            return
         return Dialog.accept(self)
 
 
@@ -592,7 +607,7 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
 
 
 class CustomRecipes(Dialog):
-    def __init__(self, recipe_model, parent=None) -> None:
+    def __init__(self, recipe_model: RecipeModel, parent: QWidget | None = None) -> None:
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Add custom news source'), 'add-custom-news-source', parent=parent)
 
@@ -612,9 +627,9 @@ class CustomRecipes(Dialog):
         s.addWidget(ar)
 
         l.addWidget(self.bb)
-        self.list_actions = []
+        self.list_actions: list[tuple[str, str, str, Callable[[], object]]] = []
 
-        def la(*args):
+        def la(*args: *tuple[str, str, str, Callable[[], object]]) -> None:
             return self.list_actions.append(args)
 
         la('plus.png', _('&New recipe'), _('Create a new recipe from scratch'), self.add_recipe)
@@ -641,13 +656,14 @@ class CustomRecipes(Dialog):
         s.currentChanged.connect(self.update_button_box)
         self.update_button_box()
 
-    def update_button_box(self, index=0) -> None:
+    def update_button_box(self, index: int = 0) -> None:
         bb = self.bb
         bb.clear()
         if index == 0:
             bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
             for icon, text, tooltip, receiver in self.list_actions:
                 b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
+                assert b is not None
                 b.setIcon(QIcon.ic(icon)), b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
         else:
@@ -676,14 +692,15 @@ class CustomRecipes(Dialog):
             return
         Dialog.reject(self)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         sh = Dialog.sizeHint(self)
         return QSize(max(sh.width(), 900), 600)
 
-    def show_recipe_files(self):
+    def show_recipe_files(self) -> None:
         bdir = os.path.dirname(custom_recipes.file_path)
         if not os.path.exists(bdir):
-            return error_dialog(self, _('No recipes'), _('No custom recipes created.'), show=True)
+            error_dialog(self, _('No recipes'), _('No custom recipes created.'), show=True)
+            return
         open_local_file(bdir)
 
     def add_recipe(self) -> None:
@@ -691,7 +708,7 @@ class CustomRecipes(Dialog):
         self.basic_recipe.recipe_source = None
         self.stack.setCurrentIndex(1)
 
-    def edit_recipe(self, row, src) -> None:
+    def edit_recipe(self, row: int | None, src: str) -> None:
         self.editing_row = row
         if is_basic_recipe(src):
             self.basic_recipe.recipe_source = src

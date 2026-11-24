@@ -3,7 +3,7 @@
 
 from collections import defaultdict
 from operator import itemgetter
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from lxml import etree
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QSpinBox, Qt, QToolButton
@@ -13,13 +13,18 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Iterable, Iterator
+
+    from qt.core import QWidget
+
 
 class Group(NamedTuple):
     title: str
-    feeds: tuple[str, ...]
+    feeds: tuple[tuple[str | None, str], ...]
 
 
-def uniq(vals, kmap=lambda x: x):
+def uniq[T](vals: Iterable[T] | None, kmap: Callable[[T], Hashable] = lambda x: x) -> tuple[T, ...]:
     """Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals"""
     vals = vals or ()
@@ -29,9 +34,9 @@ def uniq(vals, kmap=lambda x: x):
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))  # ty: ignore[redundant-condition]
 
 
-def import_opml(raw, preserve_groups=True):
+def import_opml(raw: bytes, preserve_groups: bool = True) -> Iterator[Group]:
     root = safe_xml_fromstring(raw)
-    groups = defaultdict(list)
+    groups: defaultdict[str, list[tuple[str | None, str]]] = defaultdict(list)
     ax = etree.XPath('ancestor::outline[@title or @text]')
     for outline in root.xpath('//outline[@type="rss" and @xmlUrl]'):
         url = outline.get('xmlUrl')
@@ -51,7 +56,7 @@ def import_opml(raw, preserve_groups=True):
 
 
 class ImportOPML(QDialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent=parent)
         self.l = l = QFormLayout(self)
         self.setLayout(l)
@@ -107,18 +112,18 @@ class ImportOPML(QDialog):
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         l.addRow(bb)
 
-        self.recipes = ()
+        self.recipes: tuple[Group, ...] = ()
 
     @property
-    def articles_per_feed(self):
+    def articles_per_feed(self) -> int:
         return self._articles_per_feed.value()
 
     @property
-    def oldest_article(self):
+    def oldest_article(self) -> int:
         return self._oldest_article.value()
 
     @property
-    def replace_existing(self):
+    def replace_existing(self) -> bool:
         return self._replace_existing.isChecked()
 
     def choose_file(self) -> None:
@@ -133,15 +138,17 @@ class ImportOPML(QDialog):
         if opml_files:
             self.path.setText(opml_files[0])
 
-    def accept(self):
+    def accept(self) -> None:
         path = str(self.path.text())
         if not path:
-            return error_dialog(self, _('Path not specified'), _('You must specify the path to the OPML file to import'), show=True)
+            error_dialog(self, _('Path not specified'), _('You must specify the path to the OPML file to import'), show=True)
+            return
         with open(path, 'rb') as f:
             raw = f.read()
         self.recipes = tuple(import_opml(raw, self.preserve_groups.isChecked()))
         if len(self.recipes) == 0:
-            return error_dialog(self, _('No feeds found'), _('No importable RSS feeds found in the OPML file'), show=True)
+            error_dialog(self, _('No feeds found'), _('No importable RSS feeds found in the OPML file'), show=True)
+            return
 
         QDialog.accept(self)
 
