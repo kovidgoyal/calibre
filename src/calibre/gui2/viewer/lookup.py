@@ -246,7 +246,7 @@ class SourcesEditor(Dialog):
         d = SourceEditor(self, source_item.data(Qt.ItemDataRole.UserRole))
         if d.exec() == QDialog.DialogCode.Accepted:
             source_item.setData(Qt.ItemDataRole.UserRole, d.entry)
-            source_item.setData(Qt.ItemDataRole.DisplayRole, d.name)
+            source_item.setData(Qt.ItemDataRole.DisplayRole, d.source_name)
 
     @property
     def all_entries(self) -> list[LookupSource]:
