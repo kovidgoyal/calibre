@@ -2,8 +2,6 @@
 
 from typing import TYPE_CHECKING
 
-from qt.core import Qt
-
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.convert import Widget
@@ -12,7 +10,7 @@ from calibre.gui2.removable_history import enable_item_removal_for_combobox, rem
 from calibre.utils.localization import _, localize_user_manual_link
 
 if TYPE_CHECKING:
-    from qt.core import QWidget
+    from qt.core import Qt, QWidget
 
     from calibre.db.legacy import LibraryDatabase
     from calibre.ebooks.conversion.config import GuiRecommendations
@@ -116,8 +114,4 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.heuristic_options.setEnabled(self.opt_enable_heuristics.isChecked())
 
     def enable_unwrap(self, state: int) -> None:
-        if state == Qt.CheckState.Checked:
-            state = True
-        else:
-            state = False
-        self.opt_html_unwrap_factor.setEnabled(state)
+        self.opt_html_unwrap_factor.setEnabled(self.opt_unwrap_lines.isChecked())
