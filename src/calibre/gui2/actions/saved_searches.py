@@ -17,8 +17,9 @@ class SavedSearchesAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
     def genesis(self) -> None:
-        self.menu = m = self.qaction.menu()
+        m = self.qaction.menu()
         assert m is not None
+        self.menu = m
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -45,7 +46,7 @@ class SavedSearchesAction(InterfaceAction):
     def about_to_show_menu(self) -> None:
         self.gui.populate_add_saved_search_menu(to_menu=self.menu)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         assert self.menu is not None

@@ -3,7 +3,7 @@
 import re
 import string
 from operator import attrgetter
-from typing import overload
+from typing import TYPE_CHECKING, overload
 
 from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QPixmap, QSize, Qt, pyqtSignal
 
@@ -16,8 +16,14 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, pgettext
 from calibre.utils.search_query_parser import SearchQueryParser
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from types import EllipsisType
 
-def comparable_price(text):
+    from calibre.gui2.store import StorePlugin
+
+
+def comparable_price(text: str | bytes | float | None) -> str:
     if isinstance(text, (int, float)):
         text = str(text)
     if isinstance(text, bytes):
@@ -51,7 +57,7 @@ class Matches(QAbstractItemModel):
     HTML_COLS = (1, 4)
     IMG_COLS = (0, 3, 5, 6)
 
-    def __init__(self, cover_thread_count=2, detail_thread_count=4) -> None:
+    def __init__(self, cover_thread_count: int = 2, detail_thread_count: int = 4) -> None:
         QAbstractItemModel.__init__(self)
 
         self.DRM_LOCKED_ICON = QIcon.ic('drm-locked.png')
@@ -63,9 +69,9 @@ class Matches(QAbstractItemModel):
         # All matches. Used to determine the order to display
         # self.matches because the SearchFilter returns
         # matches unordered.
-        self.all_matches = []
+        self.all_matches: list[SearchResult] = []
         # Only the showing matches.
-        self.matches = []
+        self.matches: list[SearchResult] = []
         self.query = ''
         self.filterable_query = False
         self.search_filter = SearchFilter()
@@ -94,7 +100,7 @@ class Matches(QAbstractItemModel):
         self.total_changed.emit(self.rowCount())
         self.beginResetModel(), self.endResetModel()
 
-    def add_result(self, result, store_plugin) -> None:
+    def add_result(self, result: SearchResult, store_plugin: StorePlugin) -> None:
         if result not in self.all_matches:
             self.modelAboutToBeReset.emit()
             self.all_matches.append(result)
@@ -108,14 +114,14 @@ class Matches(QAbstractItemModel):
             self._filter_results()
             self.modelReset.emit()
 
-    def get_result(self, index):
+    def get_result(self, index: QModelIndex) -> SearchResult | None:
         row = index.row()
         if row < len(self.matches):
             return self.matches[row]
         else:
             return None
 
-    def has_results(self):
+    def has_results(self) -> bool:
         return len(self.matches) > 0
 
     def _filter_results(self) -> None:
@@ -134,7 +140,7 @@ class Matches(QAbstractItemModel):
         self._filter_results()
         self.modelReset.emit()
 
-    def got_result_details(self, result) -> None:
+    def got_result_details(self, result: SearchResult) -> None:
         if not result.cover_queued and result.cover_url:
             result.cover_queued = True
             self.cover_pool.add_task(result, self.filter_results_dispatcher)
@@ -145,11 +151,11 @@ class Matches(QAbstractItemModel):
             result.drm = SearchResult.DRM_UNKNOWN
         self.filter_results()
 
-    def set_query(self, query) -> None:
+    def set_query(self, query: str) -> None:
         self.query = query
         self.filterable_query = self.is_filterable_query(query)
 
-    def is_filterable_query(self, query):
+    def is_filterable_query(self, query: str) -> bool:
         # Remove control modifiers.
         query = query.replace('\\', '')
         query = query.replace('!', '')
@@ -175,25 +181,25 @@ class Matches(QAbstractItemModel):
         # so this isn't a filterable query.
         return mod_query != query
 
-    def index(self, row, column, parent=QModelIndex()):
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
         return self.createIndex(row, column)
 
     @overload
     def parent(self, child: QModelIndex) -> QModelIndex: ...
     @overload
     def parent(self) -> QObject | None: ...
-    def parent(self, child: QModelIndex = QModelIndex()):
+    def parent(self, child: QModelIndex = QModelIndex()) -> QModelIndex | QObject | None:
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.matches)
 
-    def columnCount(self, parent=...):
+    def columnCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role=...):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int | EllipsisType = ...) -> str | int | None:
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -204,7 +210,7 @@ class Matches(QAbstractItemModel):
         else:
             return section + 1
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         row, col = index.row(), index.column()
         if row >= len(self.matches):
             return None
@@ -289,7 +295,7 @@ class Matches(QAbstractItemModel):
             return QSize(64, 64)
         return None
 
-    def data_as_text(self, result, col):
+    def data_as_text(self, result: SearchResult, col: int) -> str:
         text = ''
         if col == 1:
             text = result.title
@@ -316,7 +322,7 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset: bool = True) -> None:
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -328,7 +334,7 @@ class Matches(QAbstractItemModel):
             self.beginResetModel(), self.endResetModel()
 
     def reorder_matches(self) -> None:
-        def keygen(x):
+        def keygen(x: SearchResult) -> int:
             try:
                 return self.all_matches.index(x)
             except Exception:
@@ -363,21 +369,21 @@ class SearchFilter(SearchQueryParser):
 
     def __init__(self) -> None:
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
-        self.srs = set()
+        self.srs: set[SearchResult] = set()
         # remove joiner words surrounded by space or at string boundaries
         self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
         self.punctuation_table = {ord(x): ' ' for x in string.punctuation}
 
-    def add_search_result(self, search_result) -> None:
+    def add_search_result(self, search_result: SearchResult) -> None:
         self.srs.add(search_result)
 
     def clear_search_results(self) -> None:
         self.srs = set()
 
-    def universal_set(self):
+    def universal_set(self) -> set[SearchResult]:
         return self.srs
 
-    def _match(self, query, value, matchkind) -> bool:
+    def _match(self, query: str, value: Iterable[str], matchkind: int) -> bool:
         for t in value:
             try:  # ignore regexp exceptions, required because search-ahead tries before typing is finished
                 t = icu_lower(t)
@@ -397,7 +403,7 @@ class SearchFilter(SearchQueryParser):
                 pass
         return False
 
-    def get_matches(self, location, query, candidates=None):
+    def get_matches(self, location: str, query: str, candidates: set[SearchResult] | None = None) -> set[SearchResult]:
         query = query.strip()
         location = location.lower().strip()
         if location == 'authors':
@@ -422,7 +428,7 @@ class SearchFilter(SearchQueryParser):
 
         if location not in self.USABLE_LOCATIONS:
             return set()
-        matches = set()
+        matches: set[SearchResult] = set()
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {
@@ -504,7 +510,7 @@ class SearchFilter(SearchQueryParser):
                     traceback.print_exc()
         return matches
 
-    def field_trimmer(self, field):
+    def field_trimmer(self, field: str | bytes) -> str:
         """Remove common joiner words and punctuation to improve matching,
         punctuation is removed first, so that a.and.b becomes a b"""
         field = force_unicode(field)

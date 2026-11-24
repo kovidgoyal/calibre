@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
@@ -8,6 +10,9 @@ from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class SimilarBooksAction(InterfaceAction):
@@ -42,16 +47,16 @@ class SimilarBooksAction(InterfaceAction):
 
         self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action())
 
-    def show_similar_books(self, typ, *args) -> None:
+    def show_similar_books(self, typ: str, *args: object) -> None:
         idx = self.gui.library_view.currentIndex()
         if not idx.isValid():
             return
-        db = idx.model().db
+        db = self.gui.current_db
         row = idx.row()
 
         # Get the parameters for this search
         key = 'similar_' + typ + '_search_key'
-        col = db.prefs[key]
+        col = cast('str', db.prefs[key])
         match = db.prefs['similar_' + typ + '_match_kind']
         if match == 'match_all':
             join = ' and '
@@ -83,20 +88,21 @@ class SimilarBooksAction(InterfaceAction):
             # val. It is possible that col no longer exists, in which case fall
             # back to the default
             if col not in mi.all_field_keys():
-                col = db.prefs.defaults[key]
+                col = cast('str', db.prefs.defaults[key])
             val = db.new_api.split_if_is_multiple_composite(col, mi.get(col, None))
         if not val:
             return
 
         if isinstance(val, (str, bytes)):
             val = [val]
+        vals = cast('Iterable[str]', val)
         if typ == 'authors':
             import re
 
-            def remove_et_al(au):
+            def remove_et_al(au: str) -> str:
                 return re.sub(r'\s+et al\.$', '', au)
 
-            val = list(map(remove_et_al, val))
-        search = [col + ':"=' + str(t).replace('"', '\\"') + '"' for t in val]
+            vals = list(map(remove_et_al, vals))
+        search = [col + ':"=' + str(t).replace('"', '\\"') + '"' for t in vals]
         if search:
             self.gui.search.set_search_string(join.join(search), store_in_history=True)

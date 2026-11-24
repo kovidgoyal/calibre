@@ -4,6 +4,7 @@
 import json
 import os
 import shutil
+from typing import TYPE_CHECKING
 
 from qt.core import QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl, QVBoxLayout, QWidget, pyqtSignal
 from qt.webengine import QWebEngineDownloadRequest, QWebEnginePage, QWebEngineProfile, QWebEngineView
@@ -21,9 +22,21 @@ from calibre.utils.localization import _
 from calibre.utils.webengine import setup_profile
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 
+if TYPE_CHECKING:
+    from typing import TypedDict
+
+    from qt.core import QCloseEvent
+
+    class StoreDialogData(TypedDict):
+        base_url: str
+        detail_url: str | None
+        window_title: str | None
+        tags: str | list[str] | None
+        id: int
+
 
 class DownloadItem(QWidget):
-    def __init__(self, download_id, filename, parent=None) -> None:
+    def __init__(self, download_id: int, filename: str, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
         self.la = la = QLabel(f'{filename}:\xa0')
@@ -36,30 +49,30 @@ class DownloadItem(QWidget):
 
         self.download_id = download_id
 
-    def __call__(self, done, total):
+    def __call__(self, done: int, total: int) -> None:
         self.pb.setRange(0, total)
         self.pb.setValue(done)
 
 
 class DownloadProgress(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setVisible(False)
         self.l = QVBoxLayout(self)
-        self.items = {}
+        self.items: dict[int, DownloadItem] = {}
 
-    def add_item(self, download_id, filename) -> None:
+    def add_item(self, download_id: int, filename: str) -> None:
         self.setVisible(True)
         item = DownloadItem(download_id, filename, self)
         self.l.addWidget(item)
         self.items[download_id] = item
 
-    def update_item(self, download_id, done, total) -> None:
+    def update_item(self, download_id: int, done: int, total: int) -> None:
         item = self.items.get(download_id)
         if item is not None:
             item(done, total)
 
-    def remove_item(self, download_id) -> None:
+    def remove_item(self, download_id: int) -> None:
         item = self.items.pop(download_id, None)
         if item is not None:
             self.l.removeWidget(item)
@@ -84,7 +97,7 @@ def create_profile() -> QWebEngineProfile:
 class Central(QWidget):
     home = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.view = v = QWebEngineView(self)
@@ -117,27 +130,29 @@ class Central(QWidget):
         h.addWidget(b)
 
     @property
-    def profile(self):
+    def profile(self) -> QWebEngineProfile:
         page = self.view.page()
         assert page is not None
-        return page.profile()
+        ans = page.profile()
+        assert ans is not None
+        return ans
 
     def load_started(self) -> None:
         self.progress_bar.setValue(0)
 
-    def load_progress(self, amt) -> None:
+    def load_progress(self, amt: int) -> None:
         self.progress_bar.setValue(amt)
 
-    def load_finished(self, ok) -> None:
+    def load_finished(self, ok: bool) -> None:
         self.progress_bar.setValue(100)
 
 
 class Main(MainWindow):
-    def __init__(self, data) -> None:
+    def __init__(self, data: StoreDialogData) -> None:
         MainWindow.__init__(self, None)
         self.setWindowIcon(QIcon.ic('store.png'))
         self.setWindowTitle(data['window_title'])
-        self.download_data = {}
+        self.download_data: dict[int, QWebEngineDownloadRequest] = {}
         self.data = data
         self.central = c = Central(self)
         c.home.connect(self.go_home)
@@ -146,26 +161,26 @@ class Main(MainWindow):
         self.restore_geometry(gprefs, 'store_dialog_main_window_geometry')
         self.go_to(data['detail_url'] or None)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(1024, 740)
 
-    def closeEvent(self, a0) -> None:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.save_geometry(gprefs, 'store_dialog_main_window_geometry')
         MainWindow.closeEvent(self, a0)
 
     @property
-    def view(self):
+    def view(self) -> QWebEngineView:
         return self.central.view
 
     def go_home(self) -> None:
         self.go_to()
 
-    def go_to(self, url=None) -> None:
+    def go_to(self, url: str | None = None) -> None:
         url = url or self.data['base_url']
         url = url_slash_cleaner(url)
         self.view.load(QUrl(url))
 
-    def download_requested(self, download_item) -> None:
+    def download_requested(self, download_item: QWebEngineDownloadRequest) -> None:
         fname = download_item.downloadFileName()
         download_id = download_item.id()
         tdir = PersistentTemporaryDirectory()
@@ -177,12 +192,12 @@ class Main(MainWindow):
         download_item.accept()
         self.central.download_progress.add_item(download_id, fname)
 
-    def download_progress(self, download_id) -> None:
+    def download_progress(self, download_id: int) -> None:
         download_item = self.download_data.get(download_id)
         if download_item is not None:
             self.central.download_progress.update_item(download_id, download_item.receivedBytes(), download_item.totalBytes())
 
-    def download_finished(self, download_id) -> None:
+    def download_finished(self, download_id: int) -> None:
         self.central.download_progress.remove_item(download_id)
         download_item = self.download_data.pop(download_id)
         fname = download_item.downloadFileName()
@@ -252,7 +267,7 @@ class Main(MainWindow):
         )
 
 
-def main(args) -> None:
+def main(args: list[str]) -> None:
     # Ensure we can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()

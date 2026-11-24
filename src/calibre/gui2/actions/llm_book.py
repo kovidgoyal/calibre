@@ -2,10 +2,14 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.dialogs.llm_book import Action
 
 
 class LLMBookAction(InterfaceAction):
@@ -38,7 +42,7 @@ class LLMBookAction(InterfaceAction):
             assert a is not None
             a.triggered.connect(partial(self.ask_ai_with_action, ac))
 
-    def ask_ai_with_action(self, action=None) -> None:
+    def ask_ai_with_action(self, action: Action | None = None) -> None:
         from calibre.gui2.dialogs.llm_book import LLMBookDialog
 
         rows = list(self.gui.library_view.selectionModel().selectedRows())
@@ -46,7 +50,7 @@ class LLMBookAction(InterfaceAction):
             d = error_dialog(self.gui, _('Cannot ask AI'), _('No book selected'))
             d.exec()
             return
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         rows = [r.row() for r in rows]
         book_ids = [db.id(r) for r in rows]
         d = LLMBookDialog([db.new_api.get_metadata(bid) for bid in book_ids], parent=self.gui)

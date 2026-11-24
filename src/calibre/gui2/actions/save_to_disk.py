@@ -4,11 +4,21 @@
 import numbers
 import os
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from calibre.gui2 import Dispatcher, choose_dir, error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.config import prefs
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QModelIndex
+
+    from calibre.gui2.device import DeviceJob
+    from calibre.gui2.library.models import DeviceBooksModel
+    from calibre.gui2.save import Saver
 
 
 class SaveToDiskAction(InterfaceAction):
@@ -36,7 +46,7 @@ class SaveToDiskAction(InterfaceAction):
         )
         cm('specific format', _('Save single format to disk...'), triggered=self.save_specific_format_disk)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         assert self.save_menu is not None
         for action in list(self.save_menu.actions())[1:]:
@@ -47,7 +57,7 @@ class SaveToDiskAction(InterfaceAction):
         self.save_menu.actions()[2].setText(_('Save only %s format to disk') % prefs['output_format'].upper())
         self.save_menu.actions()[3].setText(_('Save only %s format to disk in a single folder') % prefs['output_format'].upper())
 
-    def save_single_format_to_disk(self, checked) -> None:
+    def save_single_format_to_disk(self, checked: bool) -> None:
         self.save_to_disk(checked, False, prefs['output_format'])
 
     def save_specific_format_disk(self) -> None:
@@ -61,15 +71,29 @@ class SaveToDiskAction(InterfaceAction):
         fmt = list(fmts)[0]
         self.save_to_disk(False, False, fmt)
 
-    def save_to_single_dir(self, checked) -> None:
+    def save_to_single_dir(self, checked: bool) -> None:
         self.save_to_disk(checked, True)
 
-    def save_single_fmt_to_single_dir(self, *args) -> None:
+    def save_single_fmt_to_single_dir(self, *args: object) -> None:
         self.save_to_disk(False, single_dir=True, single_format=prefs['output_format'])
 
-    def save_to_disk(self, checked, single_dir=False, single_format=None, rows=None, write_opf=None, save_cover=None, saver_class=None, path=None):
+    def save_to_disk(
+        self,
+        checked: bool,
+        single_dir: bool = False,
+        single_format: str | None = None,
+        rows: list[QModelIndex] | None = None,
+        write_opf: bool | None = None,
+        save_cover: bool | None = None,
+        saver_class: type[Saver] | None = None,
+        path: str | None = None,
+    ) -> int | None:
         if rows is None:
-            rows = self.gui.current_view().selectionModel().selectedRows()
+            view = self.gui.current_view()
+            assert view is not None
+            sm = view.selectionModel()
+            assert sm is not None
+            rows = sm.selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot save to disk'), _('No books selected'), show=True)
         if not path:
@@ -77,7 +101,7 @@ class SaveToDiskAction(InterfaceAction):
             if not path:
                 return
         dpath = os.path.abspath(path).replace('/', os.sep) + os.sep
-        lpath = self.gui.library_view.model().db.library_path.replace('/', os.sep) + os.sep
+        lpath = self.gui.current_db.library_path.replace('/', os.sep) + os.sep
         if dpath.startswith(lpath):
             return error_dialog(
                 self.gui,
@@ -118,16 +142,20 @@ class SaveToDiskAction(InterfaceAction):
             assert issubclass(saver_class, Saver)
             saver_class(book_ids, self.gui.current_db, opts, path, parent=self.gui, pool=self.gui.spare_pool())
         else:
-            paths = self.gui.current_view().model().paths(rows)
+            view = self.gui.current_view()
+            assert view is not None
+            paths = cast('DeviceBooksModel', view.model()).paths(rows)
             self.gui.device_manager.save_books(Dispatcher(self.books_saved), paths, path)
 
-    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True, path=None, saver_class=None) -> None:
-        if isinstance(book_ids, numbers.Integral):
-            book_ids = [book_ids]
+    def save_library_format_by_ids(
+        self, book_ids: int | Iterable[int], fmt: str, single_dir: bool = True, path: str | None = None, saver_class: type[Saver] | None = None
+    ) -> None:
+        if isinstance(book_ids, (int, numbers.Integral)):  # int is listed only for type narrowing
+            book_ids = [cast('int', book_ids)]
         rows = list(self.gui.library_view.ids_to_rows(book_ids).values())
         rows = [self.gui.library_view.model().index(r, 0) for r in rows]
         self.save_to_disk(True, single_dir=single_dir, single_format=fmt, rows=rows, write_opf=False, save_cover=False, path=path, saver_class=saver_class)
 
-    def books_saved(self, job):
+    def books_saved(self, job: DeviceJob) -> None:
         if job.failed:
             return self.gui.device_job_exception(job)

@@ -12,6 +12,7 @@ from io import BytesIO
 from operator import attrgetter
 from queue import Empty, Queue
 from threading import Event, Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -69,6 +70,19 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from datetime import datetime
+    from types import EllipsisType
+
+    from _typeshed import SupportsRichComparison
+    from qt.core import QColor, QKeyEvent, QPainter, QPoint, QResizeEvent, QStyleOptionViewItem, QUrl
+
+    from calibre.ebooks.metadata.sources.base import Source
+
+    type CoverItem = tuple[str, QPixmap, QPixmap | None, bool]
+    type CoverResult = tuple[str, int, int, str, bytes]
+
 
 class BrowserFailureNotifier(QObject):
     """Tells the user, once per session, when the browser used by some
@@ -117,13 +131,13 @@ def metadata_job_env() -> dict[str, str]:
 
 
 class RichTextDelegate(QStyledItemDelegate):  # {{{
-    def __init__(self, parent=None, max_width=160) -> None:
+    def __init__(self, parent: QObject | None = None, max_width: int = 160) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.max_width = max_width
         self.dummy_model = QStringListModel([' '], self)
         self.dummy_index = self.dummy_model.index(0)
 
-    def to_doc(self, index, option=None):
+    def to_doc(self, index: QModelIndex, option: QStyleOptionViewItem | None = None) -> QTextDocument:
         doc = QTextDocument()
         if option is not None and option.state & QStyle.StateFlag.State_Selected:
             p = option.palette
@@ -134,7 +148,7 @@ class RichTextDelegate(QStyledItemDelegate):  # {{{
         doc.setHtml(index.data() or '')
         return doc
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         doc = self.to_doc(index, option=option)
         ans = doc.size().toSize()
         if ans.width() > self.max_width - 10:
@@ -142,8 +156,9 @@ class RichTextDelegate(QStyledItemDelegate):  # {{{
         ans.setHeight(ans.height() + 10)
         return ans
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, self.dummy_index)
+        assert painter is not None
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         painter.translate(option.rect.topLeft())
@@ -159,7 +174,7 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
 
     needs_redraw = pyqtSignal()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget) -> None:
         QStyledItemDelegate.__init__(self, parent)
         self.animator = SpinAnimator(self)
         self.animator.updated.connect(self.needs_redraw)
@@ -172,12 +187,13 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
     def stop_animation(self) -> None:
         self.animator.stop()
 
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
         assert style is not None
         waiting = self.animator.is_running() and bool(index.data(Qt.ItemDataRole.UserRole))
         if waiting:
+            assert painter is not None
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
             self.animator.draw(painter, rect, self.color)
@@ -199,18 +215,18 @@ class ResultsModel(QAbstractTableModel):  # {{{
     HTML_COLS = (1, 2)
     ICON_COLS = (3, 4)
 
-    def __init__(self, results, parent=None) -> None:
+    def __init__(self, results: list[Metadata], parent: QObject | None = None) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.results = results
         self.yes_icon = QIcon.ic('ok.png')
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.results)
 
-    def columnCount(self, parent=None):
+    def columnCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.COLUMNS)
 
-    def headerData(self, section, orientation, role=...):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int | EllipsisType = ...) -> str | None:
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             try:
                 return self.COLUMNS[section]
@@ -218,7 +234,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
                 return None
         return None
 
-    def data_as_text(self, book, col):
+    def data_as_text(self, book: Metadata, col: int) -> str | None:
         if col == 0:
             return str(book.gui_rank + 1)
         if col == 1:
@@ -230,7 +246,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
             p = book.publisher or ''
             return f'<b>{d}</b><br><i>{p}</i>'
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         row, col = index.row(), index.column()
         try:
             book = self.results[row]
@@ -258,31 +274,32 @@ class ResultsModel(QAbstractTableModel):  # {{{
 
         return None
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
+        key: Callable[[Metadata], SupportsRichComparison]
         if column == 0:
             key = attrgetter('gui_rank')
         elif column == 1:
             key = attrgetter('title')
         elif column == 2:
 
-            def dategetter(x):
-                x = getattr(x, 'pubdate', None)
-                if x is None:
-                    x = UNDEFINED_DATE
-                return as_utc(x)
+            def dategetter(x: Metadata) -> datetime:
+                pd = getattr(x, 'pubdate', None)
+                if pd is None:
+                    pd = UNDEFINED_DATE
+                return as_utc(pd)
 
             key = dategetter
         elif column == 3:
             key = attrgetter('has_cached_cover_url')
         elif column == 4:
 
-            def key(x):
+            def key(x: Metadata) -> bool:
                 return bool(x.comments)
 
         else:
 
-            def key(x):
-                return x
+            def key(x: Metadata) -> SupportsRichComparison:
+                return x  # ty: ignore[invalid-explicit-return] never used as there are only five columns
 
         self.beginResetModel()
         self.results.sort(key=key, reverse=order == Qt.SortOrder.AscendingOrder)
@@ -296,7 +313,7 @@ class ResultsView(QTableView):  # {{{
     show_details_signal = pyqtSignal(object)
     book_selected = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QTableView.__init__(self, parent)
         self.rt_delegate = RichTextDelegate(self)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -307,7 +324,7 @@ class ResultsView(QTableView):  # {{{
         self.doubleClicked.connect(self.select_index)
         self.setSortingEnabled(True)
 
-    def show_results(self, results) -> None:
+    def show_results(self, results: list[Metadata]) -> None:
         self._model = ResultsModel(results, self)
         self.setModel(self._model)
         for i in self._model.HTML_COLS:
@@ -328,17 +345,17 @@ class ResultsView(QTableView):  # {{{
         self.rt_delegate.max_width = int(self.width() / 2.1)
         self.resizeColumnsToContents()
 
-    def resizeEvent(self, e):
+    def resizeEvent(self, e: QResizeEvent | None) -> None:
         ret = super().resizeEvent(e)
         self.resize_delegate()
         return ret
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         ret = QTableView.currentChanged(self, current, previous)
         self.show_details(current)
         return ret
 
-    def show_details(self, index) -> None:
+    def show_details(self, index: QModelIndex) -> None:
         f = rating_font()
         model = self.model()
         assert model is not None
@@ -368,7 +385,7 @@ class ResultsView(QTableView):  # {{{
 
         self.show_details_signal.emit(''.join(parts))
 
-    def select_index(self, index) -> None:
+    def select_index(self, index: QModelIndex) -> None:
         model = self.model()
         if model is None:
             return
@@ -380,7 +397,8 @@ class ResultsView(QTableView):  # {{{
     def get_result(self) -> None:
         self.select_index(self.currentIndex())
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
             ac = QAbstractItemView.CursorAction.MoveDown if e.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
             index = self.moveCursor(ac, e.modifiers())
@@ -401,7 +419,7 @@ class ResultsView(QTableView):  # {{{
 
 
 class Comments(HTMLDisplay):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         HTMLDisplay.__init__(self, parent)
         self.setAcceptDrops(False)
         self.wait_timer = QTimer(self)
@@ -410,7 +428,7 @@ class Comments(HTMLDisplay):  # {{{
         self.dots_count = 0
         self.anchor_clicked.connect(self.link_activated)
 
-    def link_activated(self, url) -> None:
+    def link_activated(self, url: QUrl) -> None:
         from calibre.gui2 import open_url
 
         if url.scheme() in {'http', 'https'}:
@@ -427,10 +445,10 @@ class Comments(HTMLDisplay):  # {{{
         self.dots_count = self.dots_count or 1
         self.setHtml('<h2>' + _('Please wait') + '<br><span id="dots">{}</span></h2>'.format('.' * self.dots_count))
 
-    def show_data(self, html) -> None:
+    def show_data(self, html: str) -> None:
         self.wait_timer.stop()
 
-        def color_to_string(col):
+        def color_to_string(col: QColor) -> str:
             ans = '#000000'
             if col.isValid():
                 col = col.toRgb()
@@ -463,18 +481,20 @@ class Comments(HTMLDisplay):  # {{{
 
 
 class IdentifyWorker(Thread):  # {{{
-    def __init__(self, log, abort, title, authors, identifiers, caches) -> None:
+    def __init__(
+        self, log: Log, abort: Event, title: str | None, authors: Sequence[str] | None, identifiers: dict[str, str], caches: dict[str, object]
+    ) -> None:
         Thread.__init__(self)
         self.daemon = True
 
         self.log, self.abort = log, abort
         self.title, self.authors, self.identifiers = (title, authors, identifiers)
 
-        self.results = []
-        self.error = None
+        self.results: list[Metadata] = []
+        self.error: str | None = None
         self.caches = caches
 
-    def sample_results(self):
+    def sample_results(self) -> list[Metadata]:
         m1 = Metadata('The Great Gatsby', ['Francis Scott Fitzgerald'])
         m2 = Metadata('The Great Gatsby - An extra long title to test resizing', ['F. Scott Fitzgerald'])
         m1.has_cached_cover_url = True
@@ -532,11 +552,11 @@ class IdentifyWidget(QWidget):  # {{{
     results_found = pyqtSignal()
     book_selected = pyqtSignal(object, object)
 
-    def __init__(self, log, parent=None) -> None:
+    def __init__(self, log: Log, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.log = log
         self.abort = Event()
-        self.caches = {}
+        self.caches: dict[str, object] = {}
 
         self.l = l = QVBoxLayout(self)
 
@@ -573,15 +593,16 @@ class IdentifyWidget(QWidget):  # {{{
     def save_state(self) -> None:
         gprefs['metadata-download-identify-widget-splitter-state'] = bytearray(self.splitter.saveState())
 
-    def emit_book_selected(self, book) -> None:
+    def emit_book_selected(self, book: Metadata) -> None:
         self.book_selected.emit(book, self.caches)
 
-    def start(self, title=None, authors=None, identifiers=None) -> None:
+    def start(self, title: str | None = None, authors: Sequence[str] | None = None, identifiers: dict[str, str] | None = None) -> None:
         if identifiers is None:
             identifiers = {}
         self.log.clear()
         self.log('Starting download')
-        parts, simple_desc = [], ''
+        parts: list[str] = []
+        simple_desc = ''
         if title:
             parts.append('title:' + title)
             simple_desc += _('Title: %s ') % title
@@ -652,7 +673,9 @@ class IdentifyWidget(QWidget):  # {{{
 
 
 class CoverWorker(Thread):  # {{{
-    def __init__(self, log, abort, title, authors, identifiers, caches) -> None:
+    def __init__(
+        self, log: Log, abort: Event, title: str | None, authors: Sequence[str] | None, identifiers: dict[str, str], caches: dict[str, object]
+    ) -> None:
         Thread.__init__(self, name='CoverWorker')
         self.daemon = True
 
@@ -660,8 +683,8 @@ class CoverWorker(Thread):  # {{{
         self.title, self.authors, self.identifiers = (title, authors, identifiers)
         self.caches = caches
 
-        self.rq = Queue()
-        self.error = None
+        self.rq: Queue[CoverResult] = Queue()
+        self.error: str | None = None
 
     def fake_run(self) -> None:
         images = [
@@ -709,7 +732,7 @@ class CoverWorker(Thread):  # {{{
                 self.keep_going = False
                 t.join()
 
-    def scan_once(self, tdir, seen) -> None:
+    def scan_once(self, tdir: str, seen: set[str]) -> None:
         for x in list(os.listdir(tdir)):
             if x in seen:
                 continue
@@ -728,8 +751,8 @@ class CoverWorker(Thread):  # {{{
                     seen.add(x)
                     self.rq.put((plugin_name, width, height, fmt, data))
 
-    def monitor_tdir(self, tdir) -> None:
-        seen = set()
+    def monitor_tdir(self, tdir: str) -> None:
+        seen: set[str] = set()
         while self.keep_going:
             time.sleep(1)
             self.scan_once(tdir, seen)
@@ -741,7 +764,7 @@ class CoverWorker(Thread):  # {{{
 
 
 class CoversModel(QAbstractListModel):  # {{{
-    def __init__(self, current_cover, parent=None) -> None:
+    def __init__(self, current_cover: QPixmap | None, parent: QObject | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
 
         if current_cover is None:
@@ -753,9 +776,9 @@ class CoversModel(QAbstractListModel):  # {{{
         self.cc = current_cover
         self.reset_covers(do_reset=False)
 
-    def reset_covers(self, do_reset=True) -> None:
-        self.covers = [self.get_item(_('Current cover'), self.cc)]
-        self.plugin_map = {}
+    def reset_covers(self, do_reset: bool = True) -> None:
+        self.covers: list[CoverItem] = [self.get_item(_('Current cover'), self.cc)]
+        self.plugin_map: dict[Source, list[int]] = {}
         for i, plugin in enumerate(metadata_plugins(['cover'])):
             self.covers.append((plugin.name + '\n' + _('Searching...'), (self.blank), None, True))
             self.plugin_map[plugin] = [i + 1]
@@ -763,7 +786,7 @@ class CoversModel(QAbstractListModel):  # {{{
         if do_reset:
             self.beginResetModel(), self.endResetModel()
 
-    def get_item(self, src, pmap, waiting=False):
+    def get_item(self, src: str, pmap: QPixmap, waiting: bool = False) -> CoverItem:
         sz = f'{pmap.width()}x{pmap.height()}'
         text = src + '\n' + sz
         scaled = pmap.scaled(
@@ -775,10 +798,10 @@ class CoversModel(QAbstractListModel):  # {{{
         scaled.setDevicePixelRatio(pmap.devicePixelRatio())
         return (text, (scaled), pmap, waiting)
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.covers)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         try:
             text, pmap, cover, waiting = self.covers[index.row()]
         except Exception:
@@ -791,18 +814,18 @@ class CoversModel(QAbstractListModel):  # {{{
             return waiting
         return None
 
-    def plugin_for_index(self, index):
-        row = index.row() if hasattr(index, 'row') else index
+    def plugin_for_index(self, index: QModelIndex | int) -> Source | None:
+        row = index if isinstance(index, int) else index.row()
         for k, v in self.plugin_map.items():
             if row in v:
                 return k
 
     def clear_failed(self) -> None:
         # Remove entries that are still waiting
-        good = []
-        pmap = {}
+        good: list[CoverItem] = []
+        pmap: dict[Source, list[int]] = {}
 
-        def keygen(x):
+        def keygen(x: CoverItem) -> int:
             pmap = x[2]
             if pmap is None:
                 return 1
@@ -823,26 +846,26 @@ class CoversModel(QAbstractListModel):  # {{{
         self.plugin_map = pmap
         self.beginResetModel(), self.endResetModel()
 
-    def pointer_from_index(self, index):
-        row = index.row() if hasattr(index, 'row') else index
+    def pointer_from_index(self, index: QModelIndex | int) -> QPixmap | None:
+        row = index if isinstance(index, int) else index.row()
         try:
             return self.covers[row][2]
         except IndexError:
             pass
 
-    def index_from_pointer(self, pointer):
+    def index_from_pointer(self, pointer: QPixmap) -> QModelIndex:
         for r, (text, scaled, pmap, waiting) in enumerate(self.covers):
             if pointer == pmap:
                 return self.index(r)
         return self.index(0)
 
-    def load_pixmap(self, data):
+    def load_pixmap(self, data: bytes) -> QPixmap:
         pmap = QPixmap()
         pmap.loadFromData(data)
         pmap.setDevicePixelRatio(qapplication_or_fail().devicePixelRatio())
         return pmap
 
-    def update_result(self, plugin_name, width, height, data) -> None:
+    def update_result(self, plugin_name: str, width: int, height: int, data: bytes) -> None:
         if plugin_name.endswith('}'):
             # multi cover plugin
             plugin_name = plugin_name.partition('{')[0]
@@ -877,7 +900,7 @@ class CoversModel(QAbstractListModel):  # {{{
             self.covers[idx] = self.get_item(plugin_name, pmap, waiting=False)
             self.dataChanged.emit(self.index(idx), self.index(idx))
 
-    def cover_pixmap(self, index):
+    def cover_pixmap(self, index: QModelIndex) -> QPixmap | None:
         row = index.row()
         if row > 0 and row < len(self.covers):
             pmap = self.covers[row][2]
@@ -891,7 +914,7 @@ class CoversModel(QAbstractListModel):  # {{{
 class CoversView(QListView):  # {{{
     chosen = pyqtSignal()
 
-    def __init__(self, current_cover, parent=None) -> None:
+    def __init__(self, current_cover: QPixmap | None, parent: QWidget | None = None) -> None:
         QListView.__init__(self, parent)
         self.book_id = getattr(parent, 'book_id', 0)
         self.m = CoversModel(current_cover, self)
@@ -921,7 +944,7 @@ class CoversView(QListView):  # {{{
             if bool(m.data(idx, Qt.ItemDataRole.UserRole)):
                 m.dataChanged.emit(idx, idx)
 
-    def select(self, num) -> None:
+    def select(self, num: int) -> None:
         model = self.model()
         assert model is not None
         current = model.index(num, 0)
@@ -947,7 +970,7 @@ class CoversView(QListView):  # {{{
         else:
             self.select(self.m.index_from_pointer(pointer).row())
 
-    def show_context_menu(self, point) -> None:
+    def show_context_menu(self, point: QPoint) -> None:
         idx = self.currentIndex()
         if idx and idx.isValid() and not idx.data(Qt.ItemDataRole.UserRole):
             m = QMenu(self)
@@ -959,7 +982,7 @@ class CoversView(QListView):  # {{{
             m.exec(self.mapToGlobal(point))
 
     @property
-    def current_pixmap(self):
+    def current_pixmap(self) -> QPixmap | None:
         idx = self.currentIndex()
         m = self.m
         pmap = m.cover_pixmap(idx)
@@ -1025,7 +1048,8 @@ class CoversView(QListView):  # {{{
                 )
                 return
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        assert e is not None
         if e.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.chosen.emit()
             e.accept()
@@ -1040,7 +1064,7 @@ class CoversWidget(QWidget):  # {{{
     chosen = pyqtSignal()
     finished = pyqtSignal()
 
-    def __init__(self, log, current_cover, parent=None) -> None:
+    def __init__(self, log: Log, current_cover: QPixmap | None, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.log = log
         self.abort = Event()
@@ -1061,7 +1085,7 @@ class CoversWidget(QWidget):  # {{{
     def reset_covers(self) -> None:
         self.covers_view.reset_covers()
 
-    def start(self, book, current_cover, title, authors, caches) -> None:
+    def start(self, book: Metadata, current_cover: QPixmap | None, title: str | None, authors: Sequence[str] | None, caches: dict[str, object]) -> None:
         self.continue_processing = True
         self.abort.clear()
         self.book, self.current_cover = book, current_cover
@@ -1122,7 +1146,7 @@ class CoversWidget(QWidget):  # {{{
 
         self.finished.emit()
 
-    def process_result(self, result) -> None:
+    def process_result(self, result: CoverResult) -> None:
         if not self.continue_processing:
             return
         plugin_name, width, height, fmt, data = result
@@ -1137,7 +1161,7 @@ class CoversWidget(QWidget):  # {{{
         self.cleanup()
         self.abort.set()
 
-    def cover_pixmap(self):
+    def cover_pixmap(self) -> QPixmap | None:
         idx = None
         sel_model = self.covers_view.selectionModel()
         assert sel_model is not None
@@ -1155,7 +1179,7 @@ class CoversWidget(QWidget):  # {{{
 
 
 class LogViewer(QDialog):  # {{{
-    def __init__(self, log, parent=None) -> None:
+    def __init__(self, log: Log, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.log = log
         self.l = l = QVBoxLayout()
@@ -1179,7 +1203,7 @@ class LogViewer(QDialog):  # {{{
         self.resize(QSize(800, 400))
 
         self.keep_updating = True
-        self.last_html = None
+        self.last_html: str | None = None
         self.finished.connect(self.stop)
         QTimer.singleShot(100, self.update_log)
 
@@ -1190,7 +1214,7 @@ class LogViewer(QDialog):  # {{{
         assert clipboard is not None
         clipboard.setText(''.join(self.log.plain_text))
 
-    def stop(self, *args) -> None:
+    def stop(self, *args: object) -> None:
         self.keep_updating = False
 
     def update_log(self) -> None:
@@ -1207,13 +1231,14 @@ class LogViewer(QDialog):  # {{{
 
 
 class FullFetch(QDialog):  # {{{
-    def __init__(self, current_cover=None, parent=None) -> None:
+    def __init__(self, current_cover: QPixmap | None = None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         watch_for_browser_failures()
         self.current_cover = current_cover
         self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()
-        self.book = self.cover_pixmap = None
+        self.book: Metadata | None = None
+        self.cover_pixmap: QPixmap | None = None
 
         self.setWindowTitle(_('Downloading metadata...'))
         self.setWindowIcon(QIcon.ic('download-metadata.png'))
@@ -1261,7 +1286,7 @@ class FullFetch(QDialog):  # {{{
     def view_log(self) -> None:
         self._lv = LogViewer(self.log, self)
 
-    def book_selected(self, book, caches) -> None:
+    def book_selected(self, book: Metadata, caches: dict[str, object]) -> None:
         self.prev_button.setVisible(True)
         self.book = book
         self.stack.setCurrentIndex(1)
@@ -1277,7 +1302,7 @@ class FullFetch(QDialog):  # {{{
         self.covers_widget.cancel()
         self.covers_widget.reset_covers()
 
-    def accept(self):
+    def accept(self) -> None:
         # Prevent the usual dialog accept mechanisms from working
         self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.save_state()
@@ -1287,7 +1312,7 @@ class FullFetch(QDialog):  # {{{
         elif self.stack.currentIndex() == 1:
             return QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.cancel()
         self.covers_widget.cancel()
@@ -1301,11 +1326,11 @@ class FullFetch(QDialog):  # {{{
         assert ok_button is not None
         ok_button.setEnabled(True)
 
-    def next_clicked(self, *args) -> None:
+    def next_clicked(self, *args: object) -> None:
         self.save_geometry(gprefs, 'metadata_single_gui_geom')
         self.identify_widget.get_result()
 
-    def ok_clicked(self, *args) -> None:
+    def ok_clicked(self, *args: object) -> None:
         self.cover_pixmap = self.covers_widget.cover_pixmap()
         if self.stack.currentIndex() == 0:
             self.next_clicked()
@@ -1319,7 +1344,7 @@ class FullFetch(QDialog):  # {{{
         else:
             QDialog.accept(self)
 
-    def start(self, title=None, authors=None, identifiers=None):
+    def start(self, title: str | None = None, authors: Sequence[str] | None = None, identifiers: dict[str, str] | None = None) -> int:
         if identifiers is None:
             identifiers = {}
         self.title, self.authors = title, authors
@@ -1331,13 +1356,13 @@ class FullFetch(QDialog):  # {{{
 
 
 class CoverFetch(QDialog):  # {{{
-    def __init__(self, current_cover=None, parent=None) -> None:
+    def __init__(self, current_cover: QPixmap | None = None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         watch_for_browser_failures()
         self.current_cover = current_cover
         self.book_id = getattr(parent, 'book_id', 0)
         self.log = Log()
-        self.cover_pixmap = None
+        self.cover_pixmap: QPixmap | None = None
 
         self.setWindowTitle(_('Downloading cover...'))
         self.setWindowIcon(QIcon.ic('default_cover.png'))
@@ -1367,17 +1392,17 @@ class CoverFetch(QDialog):  # {{{
     def cleanup(self) -> None:
         self.covers_widget.cleanup()
 
-    def reject(self):
+    def reject(self) -> None:
         self.save_geometry(gprefs, 'single-cover-fetch-dialog-geometry')
         self.covers_widget.cancel()
         return QDialog.reject(self)
 
-    def accept(self, *args) -> None:
+    def accept(self, *args: object) -> None:
         self.save_geometry(gprefs, 'single-cover-fetch-dialog-geometry')
         self.cover_pixmap = self.covers_widget.cover_pixmap()
         QDialog.accept(self)
 
-    def start(self, title, authors, identifiers):
+    def start(self, title: str | None, authors: Sequence[str] | None, identifiers: dict[str, str]) -> int:
         book = Metadata(title, authors)
         book.identifiers = identifiers
         self.covers_widget.start(book, self.current_cover, title, authors, {})

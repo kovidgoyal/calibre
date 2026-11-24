@@ -38,7 +38,7 @@ class NextMatchAction(InterfaceAction):
         self.gui.addAction(self.p_action)
         self.p_action.triggered.connect(self.move_backward)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         self.can_move = loc == 'library'
 
     def move_forward(self) -> None:
@@ -46,11 +46,15 @@ class NextMatchAction(InterfaceAction):
             self.can_move = self.gui.current_view() is self.gui.library_view
 
         if self.can_move:
-            self.gui.current_view().move_highlighted_row(forward=True)
+            view = self.gui.current_view()
+            assert view is not None
+            view.move_highlighted_row(forward=True)
 
     def move_backward(self) -> None:
         if self.can_move is None:
             self.can_move = self.gui.current_view() is self.gui.library_view
 
         if self.can_move:
-            self.gui.current_view().move_highlighted_row(forward=False)
+            view = self.gui.current_view()
+            assert view is not None
+            view.move_highlighted_row(forward=False)

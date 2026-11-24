@@ -47,7 +47,6 @@ if TYPE_CHECKING:
     from qt.core import QContextMenuEvent, QMouseEvent, QPaintEvent, QSystemTrayIcon, QWidget
 
     from calibre.db.legacy import LibraryDatabase
-    from calibre.gui2.library.models import BooksModel, DeviceBooksModel
     from calibre.gui2.ui import Main
 
 _keep_refs: list[object] = []
@@ -775,6 +774,8 @@ class LayoutMixin:  # {{{
 
     def edit_identifiers_triggerred(self: Main) -> None:
         book_id = self.library_view.current_book
+        if book_id is None:
+            return
         db = self.current_db.new_api
         identifiers = db.field_for('identifiers', book_id, default_value={})
         from calibre.gui2.metadata.basic_widgets import Identifiers
@@ -918,7 +919,7 @@ class LayoutMixin:  # {{{
         assert sm is not None
         selected = len(sm.selectedRows())
         try:
-            library_total, total, current = cast('BooksModel | DeviceBooksModel', v.model()).counts()
+            library_total, total, current = v.model().counts()
         except AttributeError:  # happens during shutdown
             if self.shutting_down:
                 return

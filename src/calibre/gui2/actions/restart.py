@@ -12,5 +12,5 @@ class RestartAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.restart)
 
-    def restart(self, *args) -> None:
+    def restart(self, *args: object) -> None:
         self.gui.quit(restart=True)

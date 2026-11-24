@@ -1,13 +1,18 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog
 
 from calibre.gui2.store.stores.mobileread.cache_progress_dialog_ui import Ui_Dialog
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class CacheProgressDialog(QDialog, Ui_Dialog):
-    def __init__(self, parent=None, total=None) -> None:
+    def __init__(self, parent: QWidget | None = None, total: int | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -41,13 +46,13 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         """
         self.set_progress(self.completed + 1)
 
-    def set_message(self, msg) -> None:
+    def set_message(self, msg: str) -> None:
         self.message.setText(msg)
 
-    def set_details(self, msg) -> None:
+    def set_details(self, msg: str) -> None:
         self.details.setText(msg)
 
-    def set_progress(self, completed) -> None:
+    def set_progress(self, completed: int) -> None:
         """
         completed is an int from 0 to total representing the number
         records that have bee completed.
@@ -55,5 +60,5 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         self.completed = completed
         self.progress.setValue(self.completed)
 
-    def set_total(self, total) -> None:
+    def set_total(self, total: int) -> None:
         self.progress.setMaximum(total)

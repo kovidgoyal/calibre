@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
+from typing import TYPE_CHECKING
 
 from qt.core import QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout
 
@@ -10,11 +11,14 @@ from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase):
     restart_critical = False
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -61,7 +65,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.confirms_reset = True
         self.changed_signal.emit()
 
-    def toggle_item(self, item) -> None:
+    def toggle_item(self, item: QListWidgetItem) -> None:
         item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
 
     def initialize(self) -> None:
@@ -87,11 +91,11 @@ class ConfigWidget(ConfigWidgetBase):
         self.device_plugins.sortItems()
         self.device_plugins.blockSignals(False)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         if self.devices.count() > 0:
             self.devices.clear()
 
-    def commit(self, *args) -> bool:
+    def commit(self, *args: object) -> bool:
         devs = {}
         for i in range(self.devices.count()):
             e = self.devices.item(i)

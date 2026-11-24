@@ -60,8 +60,8 @@ every time you add an HTML file to the library.\
         from calibre.ptempfile import TemporaryDirectory
 
         with TemporaryDirectory('_plugin_html2zip') as tdir:
-            recs = [('debug_pipeline', tdir, OptionRecommendation.HIGH)]
-            recs.append(['keep_ligatures', True, OptionRecommendation.HIGH])
+            recs: list[tuple[str, object, int]] = [('debug_pipeline', tdir, OptionRecommendation.HIGH)]
+            recs.append(('keep_ligatures', True, OptionRecommendation.HIGH))
             if self.site_customization and self.site_customization.strip():
                 settings = self.parse_my_settings(self.site_customization)
                 enc = settings.get('encoding')
@@ -71,11 +71,11 @@ every time you add an HTML file to the library.\
                     except Exception:
                         prints('Ignoring invalid input encoding for HTML:', enc)
                     else:
-                        recs.append(['input_encoding', enc, OptionRecommendation.HIGH])
+                        recs.append(('input_encoding', enc, OptionRecommendation.HIGH))
                 if settings.get('breadth_first'):
-                    recs.append(['breadth_first', True, OptionRecommendation.HIGH])
+                    recs.append(('breadth_first', True, OptionRecommendation.HIGH))
                 if settings.get('allow_local_files_outside_root'):
-                    recs.append(['allow_local_files_outside_root', True, OptionRecommendation.HIGH])
+                    recs.append(('allow_local_files_outside_root', True, OptionRecommendation.HIGH))
             gui_convert(path_to_ebook, tdir, recs, abort_after_input_dump=True)
             of = self.temporary_file('_plugin_html2zip.zip')
             tdir = os.path.join(tdir, 'input')

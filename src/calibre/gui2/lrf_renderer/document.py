@@ -3,22 +3,42 @@
 import collections
 import glob
 import itertools
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QBrush, QByteArray, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem, QGraphicsRectItem, QGraphicsScene, QPen, Qt, pyqtSignal
 
 from calibre.ebooks.lrf.objects import Canvas as __Canvas
+from calibre.ebooks.lrf.objects import LRFObject
 from calibre.ebooks.lrf.objects import RuledLine as _RuledLine
-from calibre.gui2.lrf_renderer.text import COLOR, FontLoader, PixmapItem, TextBlock
+from calibre.gui2.lrf_renderer.text import COLOR, FontLoader, Line, PixmapItem, TextBlock
 from calibre.utils.resources import get_path as P
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
+    from logging import Logger
+    from optparse import Values
+
+    from qt.core import QPainter, QRectF
+
+    from calibre.ebooks.lrf.lrfparser import LRFDocument
+    from calibre.ebooks.lrf.objects import Block, Button, ImageStream, PageAttr
+    from calibre.ebooks.lrf.objects import Canvas as LRFCanvas
+    from calibre.ebooks.lrf.objects import Color as LRFColor
+    from calibre.ebooks.lrf.objects import Page as LRFPage
+    from calibre.gui2.lrf_renderer.text import LinkActivated
+
+    type ContentBlock = TextBlock | RuledLine | ImageBlock | Canvas
+    #: A page number (starting at 1) and the lines on it matching a search
+    type SearchMatch = list[int | list[Line]]
 
 
 class Color(QColor):
-    def __init__(self, color) -> None:
+    def __init__(self, color: LRFColor) -> None:
         QColor.__init__(self, color.r, color.g, color.b, 0xFF - color.a)
 
 
 class Pen(QPen):
-    def __init__(self, color, width) -> None:
+    def __init__(self, color: LRFColor, width: int) -> None:
         QPen.__init__(self, QBrush(Color(color)), width, (Qt.PenStyle.SolidLine if width > 0 else Qt.PenStyle.NoPen))
 
 
@@ -37,7 +57,7 @@ class RuledLine(QGraphicsLineItem, ContentObject):
         'double': Qt.PenStyle.DashDotLine,
     }
 
-    def __init__(self, rl) -> None:
+    def __init__(self, rl: _RuledLine) -> None:
         QGraphicsLineItem.__init__(self, 0, 0, rl.linelength, 0)
         ContentObject.__init__(self)
         self.setPen(
@@ -49,20 +69,21 @@ class RuledLine(QGraphicsLineItem, ContentObject):
 
 
 class ImageBlock(PixmapItem, ContentObject):
-    def __init__(self, obj) -> None:
+    def __init__(self, obj: Block) -> None:
         ContentObject.__init__(self)
         x0, y0, x1, y1 = obj.attrs['x0'], obj.attrs['y0'], obj.attrs['x1'], obj.attrs['y1']
-        xsize, ysize, refstream = obj.attrs['xsize'], obj.attrs['ysize'], obj.refstream
-        data, encoding = refstream.stream, refstream.encoding
+        xsize, ysize, refstream = obj.attrs['xsize'], obj.attrs['ysize'], cast('ImageStream', obj.refstream)
+        data, encoding = cast('bytes', refstream.stream), refstream.encoding
         PixmapItem.__init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize)
         self.block_id = obj.id
 
 
-def object_factory(container, obj, respect_max_y=False):
+def object_factory(container: Canvas | Document, obj: object, respect_max_y: bool = False) -> ContentBlock | None:
     if hasattr(obj, 'name'):
-        if obj.name.endswith('TextBlock'):
+        block = cast('Block', obj)
+        if block.name.endswith('TextBlock'):
             return TextBlock(
-                obj,
+                block,
                 container.font_loader,
                 respect_max_y,
                 container.text_width,
@@ -71,8 +92,8 @@ def object_factory(container, obj, respect_max_y=False):
                 container.ruby_tags,
                 container.link_activated,
             )
-        elif obj.name.endswith('ImageBlock'):
-            return ImageBlock(obj)
+        elif block.name.endswith('ImageBlock'):
+            return ImageBlock(block)
     elif isinstance(obj, _RuledLine):
         return RuledLine(obj)
     elif isinstance(obj, __Canvas):
@@ -81,7 +102,17 @@ def object_factory(container, obj, respect_max_y=False):
 
 
 class _Canvas(QGraphicsRectItem):
-    def __init__(self, font_loader, logger, opts, width=0, height=0, parent=None, x=0, y=0) -> None:
+    def __init__(
+        self,
+        font_loader: FontLoader,
+        logger: Logger,
+        opts: Values,
+        width: float = 0,
+        height: float = 0,
+        parent: QGraphicsItem | None = None,
+        x: float = 0,
+        y: float = 0,
+    ) -> None:
         QGraphicsRectItem.__init__(self, x, y, width, height, parent)
         self.font_loader, self.logger, self.opts = font_loader, logger, opts
         self.current_y, self.max_y, self.max_x = 0, height, width
@@ -90,7 +121,7 @@ class _Canvas(QGraphicsRectItem):
         pen.setStyle(Qt.PenStyle.NoPen)
         self.setPen(pen)
 
-    def layout_block(self, block, x, y) -> None:
+    def layout_block(self, block: ContentBlock, x: float, y: float) -> None:
         if isinstance(block, TextBlock):
             self.layout_text_block(block, x, y)
         elif isinstance(block, RuledLine):
@@ -100,7 +131,7 @@ class _Canvas(QGraphicsRectItem):
         elif isinstance(block, Canvas):
             self.layout_canvas(block, x, y)
 
-    def layout_canvas(self, canvas, x, y) -> None:
+    def layout_canvas(self, canvas: Canvas, x: float, y: float) -> None:
         if canvas.max_y + y > self.max_y and y > 0:
             self.is_full = True
             return
@@ -110,7 +141,7 @@ class _Canvas(QGraphicsRectItem):
         canvas.put_objects()
         self.current_y += canvas.max_y
 
-    def layout_text_block(self, block, x, y) -> None:
+    def layout_text_block(self, block: TextBlock, x: float, y: float) -> None:
         textwidth = block.bs.blockwidth - block.bs.sidemargin
         if block.max_y == 0 or not block.lines:  # Empty block skipping
             self.is_full = False
@@ -121,9 +152,11 @@ class _Canvas(QGraphicsRectItem):
         line.height = min(line.height, self.max_y - block.bs.topskip)  # LRF files from TOR have Plot elements with their height set to 800
         while y + line.height <= self.max_y:
             block.commit()
-            if isinstance(line, QGraphicsItem):
+            if isinstance(line, Line):
                 line.setParentItem(self)
-                line.setPos(x + line.getx(textwidth), y)
+                lx = line.getx(textwidth)
+                assert lx is not None
+                line.setPos(x + lx, y)
                 y += line.height + line.line_space
             else:
                 y += line.height
@@ -139,7 +172,7 @@ class _Canvas(QGraphicsRectItem):
         self.current_y = y
         self.is_full = not block_consumed
 
-    def layout_ruled_line(self, rl, x, y) -> None:
+    def layout_ruled_line(self, rl: RuledLine, x: float, y: float) -> None:
         br = rl.boundingRect()
         rl.setParentItem(self)
         rl.setPos(x, y + 1)
@@ -147,7 +180,7 @@ class _Canvas(QGraphicsRectItem):
         self.is_full = y > self.max_y - 5
         rl.has_content = False
 
-    def layout_image_block(self, ib, x, y) -> None:
+    def layout_image_block(self, ib: ImageBlock, x: float, y: float) -> None:
         mw, mh = self.max_x - x, self.max_y - y
         if self.current_y + ib.height > self.max_y - y and self.current_y > 5:
             self.is_full = True
@@ -179,8 +212,8 @@ class _Canvas(QGraphicsRectItem):
                 print(self.current_y, self.max_y, y, br.height())
                 print()
 
-    def search(self, phrase):
-        matches = []
+    def search(self, phrase: str) -> list[Line]:
+        matches: list[Line] = []
         for child in self.childItems():
             if hasattr(child, 'search'):
                 res = getattr(child, 'search')(phrase)
@@ -193,7 +226,17 @@ class _Canvas(QGraphicsRectItem):
 
 
 class Canvas(_Canvas, ContentObject):
-    def __init__(self, font_loader, canvas, logger, opts, ruby_tags, link_activated, width=0, height=0) -> None:
+    def __init__(
+        self,
+        font_loader: FontLoader,
+        canvas: LRFCanvas,
+        logger: Logger,
+        opts: Values,
+        ruby_tags: Mapping[str, object],
+        link_activated: LinkActivated,
+        width: float = 0,
+        height: float = 0,
+    ) -> None:
         if hasattr(canvas, 'canvaswidth'):
             width, height = canvas.canvaswidth, canvas.canvasheight
         _Canvas.__init__(self, font_loader, logger, opts, width=width, height=height)
@@ -206,7 +249,7 @@ class Canvas(_Canvas, ContentObject):
         if not opts.visual_debug and canvas.framemode != 'none':
             self.setPen(Pen(fg, canvas.framewidth))
         self.setBrush(QBrush(Color(bg)))
-        self.items = []
+        self.items: list[tuple[ContentBlock, int, int]] = []
         for po in canvas:
             obj = po.object
             item = object_factory(self, obj, respect_max_y=True)
@@ -217,13 +260,22 @@ class Canvas(_Canvas, ContentObject):
         for block, x, y in self.items:
             self.layout_block(block, x, y)
 
-    def layout_block(self, block, x, y) -> None:
+    def layout_block(self, block: ContentBlock, x: float, y: float) -> None:
         block.reset()
         _Canvas.layout_block(self, block, x, y)
 
 
 class Header(Canvas):
-    def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated) -> None:
+    def __init__(
+        self,
+        font_loader: FontLoader,
+        header: LRFCanvas,
+        page_style: PageAttr,
+        logger: Logger,
+        opts: Values,
+        ruby_tags: Mapping[str, object],
+        link_activated: LinkActivated,
+    ) -> None:
         Canvas.__init__(
             self,
             font_loader,
@@ -240,7 +292,16 @@ class Header(Canvas):
 
 
 class Footer(Canvas):
-    def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated) -> None:
+    def __init__(
+        self,
+        font_loader: FontLoader,
+        footer: LRFCanvas,
+        page_style: PageAttr,
+        logger: Logger,
+        opts: Values,
+        ruby_tags: Mapping[str, object],
+        link_activated: LinkActivated,
+    ) -> None:
         Canvas.__init__(
             self,
             font_loader,
@@ -257,7 +318,16 @@ class Footer(Canvas):
 
 
 class Screen(_Canvas):
-    def __init__(self, font_loader, chapter, odd, logger, opts, ruby_tags, link_activated) -> None:
+    def __init__(
+        self,
+        font_loader: FontLoader,
+        chapter: LRFPage,
+        odd: bool,
+        logger: Logger,
+        opts: Values,
+        ruby_tags: Mapping[str, object],
+        link_activated: LinkActivated,
+    ) -> None:
         self.logger, self.opts = logger, opts
         page_style = chapter.style
         sidemargin = page_style.oddsidemargin if odd else page_style.evensidemargin
@@ -291,9 +361,9 @@ class Screen(_Canvas):
             footer = Footer(font_loader, footer, page_style, logger, opts, ruby_tags, link_activated)
             self.layout_canvas(footer, self.content_x, self.header_y)
 
-        self.page = None
+        self.page: Page | None = None
 
-    def set_page(self, page) -> None:
+    def set_page(self, page: Page) -> None:
         scene = self.scene()
         assert scene is not None
         if self.page is not None and self.page.scene():
@@ -311,24 +381,25 @@ class Screen(_Canvas):
 
 
 class Page(_Canvas):
-    def __init__(self, font_loader, logger, opts, width, height) -> None:
+    def __init__(self, font_loader: FontLoader, logger: Logger, opts: Values, width: float, height: float) -> None:
         _Canvas.__init__(self, font_loader, logger, opts, width, height)
         if opts.visual_debug:
             self.setPen(QPen(Qt.GlobalColor.cyan, 1, Qt.PenStyle.DashLine))
 
-    def id(self):
+    def id(self) -> int | None:
         for child in self.childItems():
             if hasattr(child, 'block_id'):
-                return child.block_id
+                return cast('int', child.block_id)
+        return None
 
-    def add_block(self, block) -> None:
+    def add_block(self, block: ContentBlock) -> None:
         self.layout_block(block, 0, self.current_y)
 
 
 class Chapter:
     num_of_pages = property(fget=lambda self: len(self.pages))
 
-    def __init__(self, oddscreen, evenscreen, pages, object_to_page_map) -> None:
+    def __init__(self, oddscreen: Screen, evenscreen: Screen, pages: list[Page], object_to_page_map: dict[int, int]) -> None:
         self.oddscreen, self.evenscreen, self.pages, self.object_to_page_map = (
             oddscreen,
             evenscreen,
@@ -336,17 +407,17 @@ class Chapter:
             object_to_page_map,
         )
 
-    def page_of_object(self, id):
+    def page_of_object(self, id: int) -> int:
         return self.object_to_page_map[id]
 
-    def page(self, num):
+    def page(self, num: int) -> Page:
         return self.pages[num - 1]
 
-    def screen(self, odd):
+    def screen(self, odd: bool) -> Screen:
         return self.oddscreen if odd else self.evenscreen
 
-    def search(self, phrase):
-        pages = []
+    def search(self, phrase: str) -> list[SearchMatch]:
+        pages: list[SearchMatch] = []
         for i in range(len(self.pages)):
             matches = self.pages[i].search(phrase)
             if matches:
@@ -359,19 +430,19 @@ class History(collections.deque):
         collections.deque.__init__(self)
         self.pos = 0
 
-    def back(self):
+    def back(self) -> int | None:
         if self.pos - 1 < 0:
             return None
         self.pos -= 1
         return self[self.pos]
 
-    def forward(self):
+    def forward(self) -> int | None:
         if self.pos + 1 >= len(self):
             return None
         self.pos += 1
         return self[self.pos]
 
-    def add(self, item) -> None:
+    def add(self, item: int) -> None:
         while len(self) > self.pos + 1:
             self.pop()
         self.append(item)
@@ -383,27 +454,27 @@ class Document(QGraphicsScene):
     chapter_rendered = pyqtSignal(object)
     page_changed = pyqtSignal(object)
 
-    def __init__(self, logger, opts) -> None:
+    def __init__(self, logger: Logger, opts: Values) -> None:
         QGraphicsScene.__init__(self)
         self.logger, self.opts = logger, opts
-        self.pages = []
-        self.chapters = []
-        self.chapter_layout = None
-        self.current_screen = None
+        self.pages: list[Page] = []
+        self.chapters: list[Chapter] = []
+        self.chapter_layout: list[int] | None = None
+        self.current_screen: Screen | None = None
         self.current_page = 0
-        self.link_map = {}
-        self.chapter_map = {}
+        self.link_map: dict[int, tuple[int, int]] = {}
+        self.chapter_map: dict[int, int] = {}
         self.history = History()
-        self.last_search = iter([])
+        self.last_search: Iterator[SearchMatch] = iter([])
         if not opts.white_background:
             self.setBackgroundBrush(QBrush(QColor(0xEE, 0xEE, 0xEE)))
 
-    def page_of(self, oid):
+    def page_of(self, oid: int) -> int | None:
         for chapter in self.chapters:
             if oid in chapter.object_to_page_map:
                 return chapter.object_to_page_map[oid]
 
-    def get_page_num(self, chapterid, objid):
+    def get_page_num(self, chapterid: int, objid: int) -> int:
         cnum = self.chapter_map[chapterid]
         page = self.chapters[cnum].object_to_page_map[objid]
         assert self.chapter_layout is not None
@@ -415,7 +486,7 @@ class Document(QGraphicsScene):
         if page_id is not None:
             self.history.add(page_id)
 
-    def link_activated(self, objid, on_creation=None) -> None:
+    def link_activated(self, objid: int, on_creation: bool | None = None) -> None:
         if on_creation is None:
             cid, oid = self.link_map[objid]
             if oid is not None:
@@ -424,23 +495,25 @@ class Document(QGraphicsScene):
                 self.show_page(page)
         else:
             assert self.objects is not None
-            jb = self.objects[objid]
+            jb = cast('Button', self.objects[objid])
             self.link_map[objid] = (jb.refpage, jb.refobj)
 
     def back(self) -> None:
         oid = self.history.back()
         if oid is not None:
             page = self.page_of(oid)
+            assert page is not None
             self.show_page(page)
 
     def forward(self) -> None:
         oid = self.history.forward()
         if oid is not None:
             page = self.page_of(oid)
+            assert page is not None
             self.show_page(page)
 
-    def load_fonts(self, lrf, load_substitutions=True) -> None:
-        font_map = {}
+    def load_fonts(self, lrf: LRFDocument, load_substitutions: bool = True) -> None:
+        font_map: dict[str, str] = {}
 
         for font in lrf.font_map:
             fdata = QByteArray(lrf.font_map[font].data)
@@ -455,21 +528,22 @@ class Document(QGraphicsScene):
 
         self.font_loader = FontLoader(font_map, self.dpi)
 
-    def render_chapter(self, chapter, lrf) -> None:
+    def render_chapter(self, chapter: LRFPage, lrf: LRFDocument) -> None:
         oddscreen, evenscreen = (
             Screen(self.font_loader, chapter, True, self.logger, self.opts, self.ruby_tags, self.link_activated),
             Screen(self.font_loader, chapter, False, self.logger, self.opts, self.ruby_tags, self.link_activated),
         )
-        pages = []
+        pages: list[Page] = []
         width, height = oddscreen.text_width, oddscreen.text_height
         current_page = Page(self.font_loader, self.logger, self.opts, width, height)
-        object_to_page_map = {}
+        object_to_page_map: dict[int, int] = {}
         for object in chapter:
             self.text_width = width
             block = object_factory(self, object)
             if block is None:
                 continue
-            object_to_page_map[object.id] = len(pages) + 1
+            if isinstance(object, (LRFObject, _RuledLine)):
+                object_to_page_map[object.id] = len(pages) + 1
             while block.has_content:
                 current_page.add_block(block)
                 if current_page.is_full:
@@ -480,8 +554,16 @@ class Document(QGraphicsScene):
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
         self.chapter_map[chapter.id] = len(self.chapters) - 1
 
-    def render(self, painter=None, target=None, source=None, mode=None, load_substitutions=True) -> None:
-        lrf = painter
+    def render(
+        self,
+        painter: QPainter | LRFDocument | None = None,
+        target: QRectF | None = None,
+        source: QRectF | None = None,
+        mode: Qt.AspectRatioMode | None = None,
+        load_substitutions: bool = True,
+    ) -> None:
+        # This is not QGraphicsScene.render(), it is called with the parsed LRF document
+        lrf = cast('LRFDocument | None', painter)
         assert lrf is not None
         self.dpi = lrf.device_info.dpi / 10.0
         self.ruby_tags = dict(**lrf.ruby_tags)
@@ -496,19 +578,19 @@ class Document(QGraphicsScene):
 
         for pt in lrf.page_trees:
             for chapter in pt:
-                self.render_chapter(chapter, lrf)
+                self.render_chapter(cast('LRFPage', chapter), lrf)
                 self.chapter_rendered.emit(-1)
         self.chapter_layout = [i.num_of_pages for i in self.chapters]
         self.objects = None
 
-    def chapter_page(self, num):
+    def chapter_page(self, num: int) -> tuple[Chapter, Page]:
         for chapter in self.chapters:
             if num <= chapter.num_of_pages:
                 break
             num -= chapter.num_of_pages
         return chapter, chapter.page(num)
 
-    def show_page(self, num) -> None:
+    def show_page(self, num: float) -> None:
         num = int(num)
         if num < 1 or num > self.num_of_pages or num == self.current_page:
             return
@@ -532,17 +614,17 @@ class Document(QGraphicsScene):
     def previous(self) -> None:
         self.previous_by(1)
 
-    def next_by(self, num) -> None:
+    def next_by(self, num: int) -> None:
         self.show_page(self.current_page + num)
 
-    def previous_by(self, num) -> None:
+    def previous_by(self, num: int) -> None:
         self.show_page(self.current_page - num)
 
-    def show_page_at_percent(self, p) -> None:
+    def show_page_at_percent(self, p: float) -> None:
         num = self.num_of_pages * (p / 100.0)
         self.show_page(num)
 
-    def search(self, phrase) -> None:
+    def search(self, phrase: str) -> None:
         if not phrase:
             return
         matches = []
@@ -550,13 +632,13 @@ class Document(QGraphicsScene):
             cmatches = self.chapters[i].search(phrase)
             for match in cmatches:
                 assert self.chapter_layout is not None
-                match[0] += sum(self.chapter_layout[:i]) + 1
+                match[0] = cast('int', match[0]) + sum(self.chapter_layout[:i]) + 1
             matches += cmatches
         self.last_search = itertools.cycle(matches)
         self.next_match()
 
     def next_match(self) -> None:
-        page_num = next(self.last_search)[0]
+        page_num = cast('int', next(self.last_search)[0])
         if self.current_page == page_num:
             self.update()
         else:

@@ -3,6 +3,7 @@
 store_version = 10  # Needed for dynamic plugin loading
 
 import mimetypes
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from css_selectors import Select
@@ -15,8 +16,15 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def absurl(href):
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def absurl(href: str) -> str:
     if href.startswith('//'):
         href = 'https:' + href
     elif href.startswith('/'):
@@ -24,7 +32,7 @@ def absurl(href):
     return href
 
 
-def search(query, max_results=10, timeout=60, write_raw_to=None):
+def search(query: bytes | str, max_results: int = 10, timeout: int = 60, write_raw_to: str | None = None) -> Iterator[SearchResult]:
     url = f'https://www.gutenberg.org/ebooks/search/?query={quote_plus(query)}&submit_search=Search'
 
     counter = max_results
@@ -84,10 +92,10 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
 
 class GutenbergStore(StorePlugin):
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search(query, max_results, timeout)
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = detail_item or absurl('/')
         if external:
             open_url(url)

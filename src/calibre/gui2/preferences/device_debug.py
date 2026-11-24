@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
 from calibre.gui2 import error_dialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.gui2.device import DeviceJob
+    from calibre.gui2.ui import Main
+
 
 class DebugDevice(QDialog):
-    def __init__(self, gui, parent=None) -> None:
+    def __init__(self, gui: Main, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.gui = gui
         self._layout = QVBoxLayout(self)
@@ -33,19 +41,20 @@ class DebugDevice(QDialog):
         QTimer.singleShot(1000, self.debug)
 
     def debug(self) -> None:
-        if self.gui.device_manager.is_device_connected:
+        connected_device = self.gui.device_manager.connected_device
+        if connected_device is not None:
             error_dialog(
                 self,
                 _('Device already detected'),
                 _('A device (%s) is already detected by calibre. If you wish to debug the detection of another device, first disconnect this device.')
-                % self.gui.device_manager.connected_device.get_gui_name(),
+                % connected_device.get_gui_name(),
                 show=True,
             )
             self.bbox.setEnabled(True)
             return
         self.gui.debug_detection(self)
 
-    def __call__(self, job):
+    def __call__(self, job: DeviceJob) -> int | None:
         if not self.isVisible():
             return
         self.bbox.setEnabled(True)
@@ -57,7 +66,9 @@ class DebugDevice(QDialog):
                 det_msg=job.details,
                 show=True,
             )
-        self.log.setPlainText(job.result)
+        result = job.result
+        assert result is None or isinstance(result, str)
+        self.log.setPlainText(result)
 
     def copy_to_clipboard(self) -> None:
         cb = QApplication.clipboard()
@@ -67,5 +78,5 @@ class DebugDevice(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = DebugDevice(None)
+    d = DebugDevice(cast('Main', None))
     d.exec()

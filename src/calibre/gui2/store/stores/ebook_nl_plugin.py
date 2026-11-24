@@ -4,6 +4,7 @@
 store_version = 3  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from qt.core import QUrl
@@ -21,8 +22,16 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
 class EBookNLStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'http://www.ebook.nl/'
         url_details = 'http://www.ebook.nl/store/{0}'
 
@@ -39,7 +48,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         url = 'http://www.ebook.nl/store/advanced_search_result.php?keywords=' + quote(query)
         br = browser()
 
@@ -71,7 +80,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())

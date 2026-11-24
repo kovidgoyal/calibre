@@ -602,7 +602,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if qv:
             view = get_gui(fail_if_absent=True).library_view
             rows = view.selectionModel().selectedRows()
-            if len(rows) > 0:
+            if len(rows) > 0 and self.category is not None:
                 current_row = rows[0].row()
                 current_col = view.column_map.index(self.category)
                 vm = view.model()

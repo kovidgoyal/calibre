@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog
 
@@ -11,6 +12,9 @@ from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
 
 
 class AirdropAction(InterfaceActionWithLibraryDrop):
@@ -28,16 +32,16 @@ class AirdropAction(InterfaceActionWithLibraryDrop):
         if book_ids:
             self.airdrop_book_ids(book_ids)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         self.qaction.setEnabled(loc == 'library')
 
-    def airdrop_books(self):
+    def airdrop_books(self) -> int | None:
         book_ids = self.gui.library_view.get_selected_ids()
         if not book_ids:
             return error_dialog(self.gui, _('Cannot AirDrop'), _('No book selected'), show=True)
         self.airdrop_book_ids(book_ids)
 
-    def airdrop_book_ids(self, book_ids):
+    def airdrop_book_ids(self, book_ids: Collection[int]) -> int | None:
         if not ismacos:
             return error_dialog(self.gui, _('Cannot AirDrop'), _('AirDrop is only available on macOS'), show=True)
         db = self.gui.current_db.new_api
@@ -67,7 +71,7 @@ class AirdropAction(InterfaceActionWithLibraryDrop):
         class Exporter(Saver):
             pd_title = _('Exporting {} books to AirDrop...').format(len(book_ids))
 
-            def on_complete(self):
+            def on_complete(self) -> None:
                 paths = tuple(os.path.join(temp_dir, x) for x in os.listdir(temp_dir))
                 from calibre_extensions.cocoa import airdrop_share
 
@@ -76,6 +80,6 @@ class AirdropAction(InterfaceActionWithLibraryDrop):
                 except Exception as err:
                     import traceback
 
-                    return error_dialog(self.parent(), _('AirDrop failed'), str(err), det_msg=traceback.format_exc(), show=True)
+                    error_dialog(self.parent(), _('AirDrop failed'), str(err), det_msg=traceback.format_exc(), show=True)
 
         self.gui.iactions['Save To Disk'].save_library_format_by_ids(book_ids, fmt, path=temp_dir, saver_class=Exporter)

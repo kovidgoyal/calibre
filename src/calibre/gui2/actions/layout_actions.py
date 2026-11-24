@@ -3,6 +3,7 @@
 
 from enum import Enum
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QComboBox, QDialog, QDialogButtonBox, QFormLayout, QIcon, QLabel, QMenu, QToolButton, QVBoxLayout
 
@@ -12,6 +13,13 @@ from calibre.gui2.central import NarrowDesires, Visibility, WideDesires
 from calibre.gui2.geometry import _restore_geometry, delete_geometry, save_geometry
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
+    from calibre.gui2.central import LayoutButton, SerializedSettings
 
 
 class Panel(Enum):
@@ -26,7 +34,7 @@ class Panel(Enum):
     BOOKSHELF = 'bs'
 
 
-def default_layout_settings():
+def default_layout_settings() -> SerializedSettings:
     return {
         'layout': 'wide',
         'wide_visibility': Visibility().serialize(),
@@ -38,7 +46,7 @@ def default_layout_settings():
 
 
 class SaveLayoutDialog(QDialog):
-    def __init__(self, parent, names) -> None:
+    def __init__(self, parent: QWidget | None, names: Iterable[str]) -> None:
         QDialog.__init__(self, parent)
         self.names = names
         l = QVBoxLayout(self)
@@ -55,7 +63,7 @@ class SaveLayoutDialog(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
 
-    def current_name(self):
+    def current_name(self) -> str:
         return self.cb.currentText().strip()
 
     def accept(self) -> None:
@@ -122,7 +130,9 @@ class LayoutActions(InterfaceAction):
     # show the menu in the upper left corner of the library view pane. Yes, this
     # is a bit weird but it works as well as a popping up a dialog.
     def show_menu(self) -> None:
-        show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
+        m = self.menu
+        assert m is not None
+        show_menu_under_widget(self.gui, m, self.qaction, self.name)
 
     def toggle_layout(self) -> None:
         self.gui.layout_container.toggle_layout()
@@ -171,22 +181,23 @@ class LayoutActions(InterfaceAction):
             m.addAction(ic, _('Hide {}').format(button.label), partial(self.set_visible, Panel(name), False))
             m.addAction(ic, _('Toggle {}').format(button.label), partial(self.toggle_item, Panel(name)))
 
-    def _change_item(self, button, show=True) -> None:
+    def _change_item(self, button: LayoutButton, show: bool = True) -> None:
         if button.isChecked() and not show:
             button.click()
         elif not button.isChecked() and show:
             button.click()
 
-    def _toggle_item(self, button) -> None:
+    def _toggle_item(self, button: LayoutButton) -> None:
         button.click()
 
-    def _button_from_enum(self, name: Panel):
+    def _button_from_enum(self, name: Panel) -> LayoutButton:
         for q, b in zip(self.gui.button_order, self.gui.layout_buttons):
             if q == name.value:
                 return b
+        raise KeyError(f'No layout button for panel: {name}')
 
     # Public API
-    def apply_layout(self, name) -> None:
+    def apply_layout(self, name: str) -> None:
         """apply_layout()
         Apply a saved GUI panel layout.
 
@@ -214,7 +225,7 @@ class LayoutActions(InterfaceAction):
         self.gui.layout_container.update_button_states_from_visibility()
         self.set_visible(Panel.SEARCH_BAR, True)
 
-    def apply_settings(self, settings) -> None:
+    def apply_settings(self, settings: SerializedSettings) -> None:
         """apply_settings()
         Apply the specified GUI layout settings, as returned by :meth:`current_settings`.
         """
@@ -247,7 +258,7 @@ class LayoutActions(InterfaceAction):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.save_named_layout(d.current_name(), self.current_settings())
 
-    def current_settings(self):
+    def current_settings(self) -> SerializedSettings:
         """current_settings()
 
         :return: the current gui layout settings.
@@ -262,7 +273,7 @@ class LayoutActions(InterfaceAction):
             settings['alternate_view'] = ''
         return settings
 
-    def save_named_layout(self, name, settings) -> None:
+    def save_named_layout(self, name: str, settings: SerializedSettings) -> None:
         """save_named_layout()
         Saves the settings under the provided name.
 
@@ -277,7 +288,7 @@ class LayoutActions(InterfaceAction):
         gprefs['saved_layouts'] = layouts
         self.populate_menu()
 
-    def delete_layout(self, name, show_warning=True) -> None:
+    def delete_layout(self, name: str, show_warning: bool = True) -> None:
         """delete_layout()
         Delete a saved layout.
 
@@ -299,7 +310,7 @@ class LayoutActions(InterfaceAction):
         layouts.pop(name, None)
         self.populate_menu()
 
-    def saved_layout_names(self):
+    def saved_layout_names(self) -> list[str]:
         """saved_layout_names()
         Get a list of saved layout names
 
@@ -308,7 +319,7 @@ class LayoutActions(InterfaceAction):
         layouts = gprefs['saved_layouts']
         return sorted(layouts.keys(), key=sort_key)
 
-    def toggle_item(self, name) -> None:
+    def toggle_item(self, name: Panel) -> None:
         """toggle_item()
         Toggle the visibility of the panel.
 
@@ -322,7 +333,7 @@ class LayoutActions(InterfaceAction):
         """
         self._toggle_item(self._button_from_enum(name))
 
-    def set_visible(self, name: Panel, show=True) -> None:
+    def set_visible(self, name: Panel, show: bool = True) -> None:
         """set_visible()
         Show or hide a panel. Does nothing if the panel is already in the
         desired state.
@@ -339,7 +350,7 @@ class LayoutActions(InterfaceAction):
         """
         self._change_item(self._button_from_enum(name), show)
 
-    def is_visible(self, name: Panel):
+    def is_visible(self, name: Panel) -> bool:
         """is_visible()
         Returns True if the panel is visible.
 
@@ -362,7 +373,7 @@ class LayoutActions(InterfaceAction):
         for name in self.gui.button_order:
             self.set_visible(Panel(name), show=True)
 
-    def panel_titles(self):
+    def panel_titles(self) -> dict[Panel, str]:
         """panel_titles()
         Return a dictionary of Panel Enum items to translated human readable title.
         Simplifies building dialogs, for example combo boxes of all the panel

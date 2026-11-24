@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QProgressDialog, Qt, QTimer
 
@@ -9,6 +10,11 @@ from calibre import force_unicode
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable
+
+    from calibre.ebooks.metadata.book.base import Metadata
 
 
 class EmbedAction(InterfaceActionWithLibraryDrop):
@@ -26,7 +32,9 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
 
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.embed)
-        self.embed_menu = self.qaction.menu()
+        embed_menu = self.qaction.menu()
+        assert embed_menu is not None
+        self.embed_menu = embed_menu
         m = partial(self.create_menu_action, self.embed_menu)
         m(
             'embed-specific',
@@ -55,7 +63,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
             return
         self.do_embed(ids, fmts)
 
-    def do_embed(self, book_ids, only_fmts=None) -> None:
+    def do_embed(self, book_ids: Collection[int], only_fmts: Iterable[str] | None = None) -> None:
         pd = QProgressDialog(_('Embedding updated metadata into book files...'), _('&Stop'), 0, len(book_ids), self.gui)
         pd.setWindowTitle(_('Embedding metadata...'))
         pd.setWindowModality(Qt.WindowModality.WindowModal)
@@ -113,7 +121,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         db = self.gui.current_db.new_api
         book_id = book_ids[i]
 
-        def report_error(mi, fmt, tb) -> None:
+        def report_error(mi: Metadata, fmt: str, tb: str) -> None:
             mi.book_id = book_id
             errors.append((mi, fmt, tb))
 

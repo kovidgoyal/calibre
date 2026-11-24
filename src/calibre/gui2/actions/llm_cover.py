@@ -88,7 +88,7 @@ class GenerateAICoverAction(InterfaceActionWithLibraryDrop):
             d = error_dialog(self.gui, _('Cannot generate covers'), _('No books selected'))
             d.exec()
             return None
-        return [self.gui.library_view.model().db.id(r) for r in rows]
+        return [self.gui.current_db.id(r) for r in rows]
 
     def generate_covers(self, checked: bool = False, bulk: bool | None = None) -> None:
         book_ids = self.get_books_for_generation()

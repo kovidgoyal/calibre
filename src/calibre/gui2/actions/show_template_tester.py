@@ -27,12 +27,12 @@ class ShowTemplateTesterAction(InterfaceAction):
         #                 text=self.non_modal_window_title,
         #                 icon='debug.png',
         #                 triggered=partial(self.show_template_editor, modal=False))
-        self.non_modal_dialogs = []
+        self.non_modal_dialogs: list[TemplateDialog | bool | None] = []
 
-    def last_template_text(self):
+    def last_template_text(self) -> str:
         return self.previous_text
 
-    def show_template_editor(self, *args):
+    def show_template_editor(self, *args: object) -> int | None:
         view = self.gui.current_view()
         if view is not self.gui.library_view:
             return error_dialog(
@@ -46,6 +46,7 @@ class ShowTemplateTesterAction(InterfaceAction):
             return error_dialog(self.gui, _('No books selected'), _('At least one book must be selected'), show=True)
         mi = []
         db = view.model().db
+        assert db is not None
         for row in rows:
             if row.isValid():
                 mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
@@ -67,7 +68,7 @@ class ShowTemplateTesterAction(InterfaceAction):
             t.tester_closed.connect(self.save_template_text)
             t.show()
 
-    def save_template_text(self, txt, dialog_number) -> None:
+    def save_template_text(self, txt: str | None, dialog_number: int) -> None:
         if txt is not None:
             self.previous_text = txt
             self.first_time = False

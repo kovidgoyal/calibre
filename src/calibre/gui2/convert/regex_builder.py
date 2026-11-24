@@ -3,6 +3,7 @@
 
 import os
 from contextlib import suppress
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QBrush, QDialog, QDialogButtonBox, Qt, QTextCursor, QTextEdit, pyqtSignal
 
@@ -18,9 +19,14 @@ from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QByteArray, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
-    def __init__(self, db, book_id, regex, doc=None, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase | None, book_id: int | None, regex: str, doc: str | None = None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -45,11 +51,11 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             getattr(self, src).clicked.connect(getattr(self, f'{slot}_{src}'))
         self.test.setDefault(True)
 
-        self.match_locs = []
+        self.match_locs: list[tuple[int, int]] = []
         self.restore_geometry(gprefs, 'regex_builder_geometry')
         self.finished.connect(self.save_state)
 
-    def save_state(self, result) -> None:
+    def save_state(self, result: int) -> None:
         self.save_geometry(gprefs, 'regex_builder_geometry')
 
     def regex_valid(self) -> bool:
@@ -131,16 +137,22 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     break
             self.goto_loc(self.match_locs[match_loc][0], n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
 
-    def goto_loc(self, loc, operation=QTextCursor.MoveOperation.Right, mode=QTextCursor.MoveMode.KeepAnchor, n=0) -> None:
+    def goto_loc(
+        self,
+        loc: int,
+        operation: QTextCursor.MoveOperation = QTextCursor.MoveOperation.Right,
+        mode: QTextCursor.MoveMode = QTextCursor.MoveMode.KeepAnchor,
+        n: int = 0,
+    ) -> None:
         cursor = QTextCursor(self.preview.document())
         cursor.setPosition(loc)
         if n:
             cursor.movePosition(operation, mode, n)
         self.preview.setTextCursor(cursor)
 
-    def select_format(self, db, book_id) -> bool:
+    def select_format(self, db: LibraryDatabase, book_id: int) -> bool:
         format = None
-        formats = db.formats(book_id, index_is_id=True).upper().split(',')
+        formats = (db.formats(book_id, index_is_id=True) or '').upper().split(',')
         if len(formats) == 1:
             format = formats[0]
         elif len(formats) > 1:
@@ -160,7 +172,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             )
             return False
         try:
-            fpath = db.format(book_id, format, index_is_id=True, as_path=True)
+            fpath = cast('str', db.format(book_id, format, index_is_id=True, as_path=True))
         except OSError:
             if iswindows:
                 import traceback
@@ -185,7 +197,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 pass
         return True
 
-    def open_book(self, pathtoebook):
+    def open_book(self, pathtoebook: str) -> int | None:
         with TemporaryFile('_prepprocess_gui') as tf:
             err_msg = _('Failed to generate markup for testing. Click "Show details" to learn more.')
             try:
@@ -204,23 +216,23 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         if files:
             self.open_book(files[0])
 
-    def doc(self):
+    def doc(self) -> str:
         return to_plain_text(self.preview)
 
 
 class RegexEdit(XPathEdit):
     doc_update = pyqtSignal(str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         _completer = self.edit.completer()
         assert _completer is not None
         _completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
-        self.book_id = None
-        self.db = None
-        self.doc_cache = None
+        self.book_id: int | None = None
+        self.db: LibraryDatabase | None = None
+        self.doc_cache: str | None = None
 
-    def wizard(self):
+    def wizard(self) -> None:
         return self.builder()
 
     def builder(self) -> None:
@@ -235,39 +247,39 @@ class RegexEdit(XPathEdit):
         if bld.exec() == QDialog.DialogCode.Accepted:
             self.edit.setText(bld.regex.text())
 
-    def doc(self):
+    def doc(self) -> str | None:
         return self.doc_cache
 
-    def setObjectName(self, name=None) -> None:
+    def setObjectName(self, name: QByteArray | bytes | bytearray | memoryview | str | None = None) -> None:
         args = (name,)
         super().setObjectName(*args)
         if hasattr(self, 'edit'):
             self.edit.initialize('regex_edit_' + str(self.objectName()))
 
-    def set_msg(self, msg) -> None:
+    def set_msg(self, msg: str | None) -> None:
         self.msg.setText(msg)
 
-    def set_book_id(self, book_id) -> None:
+    def set_book_id(self, book_id: int | None) -> None:
         self.book_id = book_id
 
-    def set_db(self, db) -> None:
+    def set_db(self, db: LibraryDatabase | None) -> None:
         self.db = db
 
-    def set_doc(self, doc) -> None:
+    def set_doc(self, doc: str | None) -> None:
         self.doc_cache = doc
 
-    def set_regex(self, regex) -> None:
+    def set_regex(self, regex: str) -> None:
         self.edit.setText(regex)
 
     def break_cycles(self) -> None:
         self.db = self.doc_cache = None
 
     @property
-    def text(self):  # ty: ignore[incompatible-property-override]
+    def text(self) -> str:  # ty: ignore[incompatible-property-override]
         return str(self.edit.text())
 
     @property
-    def regex(self):
+    def regex(self) -> str:
         return self.text
 
     def clear(self) -> None:

@@ -246,8 +246,9 @@ class Main(
     def add_istore(self, st: StorePlugin) -> None:
         stmap = self.istores
         if st.name in stmap:
-            assert st.base_plugin is not None
-            if st.base_plugin.priority >= stmap[st.name].base_plugin.priority:
+            existing = stmap[st.name].base_plugin
+            assert st.base_plugin is not None and existing is not None
+            if st.base_plugin.priority >= existing.priority:
                 stmap[st.name] = st
         else:
             stmap[st.name] = st
@@ -916,6 +917,7 @@ class Main(
             vl = get_virtual_library(query)
 
             def doit() -> None:
+                assert isinstance(book_id, int)  # converted above, but closures lose the narrowing
                 # To maintain compatibility, don't change the VL if it isn't specified.
                 if vl is not None and vl != '_':
                     self.apply_virtual_library(vl)
@@ -1192,8 +1194,8 @@ class Main(
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null
             self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
-            if db.new_api.pref('virtual_lib_on_startup'):
-                self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
+            if vl := db.new_api.pref('virtual_lib_on_startup'):
+                self.apply_virtual_library(str(vl))
             self.rebuild_vl_tabs()
             self._restore_tb_expansion_state()  # Do this before plugins library_changed()
             for action in self.iactions.values():

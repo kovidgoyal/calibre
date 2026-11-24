@@ -329,6 +329,9 @@ class RecipeFetchArg(TypedDict):
     username: str | None
     password: str | None
     recipe_specific_options: NotRequired[dict[str, str] | None]
+    add_title_tag: NotRequired[bool]
+    custom_tags: NotRequired[list[str]]
+    keep_issues: NotRequired[str]
 
 
 def fetch_scheduled_recipe(arg: RecipeFetchArg) -> tuple[str, list[object], str, str, list[PersistentTemporaryFile]]:  # {{{

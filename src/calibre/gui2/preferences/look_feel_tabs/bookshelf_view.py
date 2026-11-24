@@ -4,6 +4,7 @@
 import os
 from contextlib import suppress
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QFontInfo, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
@@ -17,9 +18,14 @@ from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QLineEdit, QWidget
+
+    from calibre.gui2.ui import Main
+
 
 class LogViewer(QDialog):  # {{{
-    def __init__(self, path: str, text: str, parent=None) -> None:
+    def __init__(self, path: str, text: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.log_path = path
         self.setWindowTitle(_('Log of page count failures'))
@@ -59,11 +65,11 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     restart_now = pyqtSignal()
     recount_updated = pyqtSignal(object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         super().__init__(parent)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         super().restore_defaults()
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         self.update_font_display()
@@ -72,8 +78,8 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     def update_font_display(self) -> None:
         text = ''
         s = self.current_font_choice
-        if s.get('family'):
-            text = s['family'] + ' - ' + (s.get('style') or '')
+        if family := s.get('family'):
+            text = family + ' - ' + (s.get('style') or '')
         self.bookshelf_font_display.setText(text)
 
     def initialize(self) -> None:
@@ -83,7 +89,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         self.update_font_display()
         self.populate_custom_color_theme()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         import re
 
         tp = self.opt_bookshelf_spine_size_template.text()
@@ -103,12 +109,12 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         gprefs['bookshelf_font'] = self.current_font_choice.copy()
         return super().commit(*args)
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         db = self.gui.current_db
         r = self.register
 
-        r('bookshelf_icon_rules', {}, setting=RulesSetting)
+        self.register_setting(RulesSetting('bookshelf_icon_rules', {}, self))
         r('bookshelf_shadow', gprefs)
         r(
             'bookshelf_variable_height',
@@ -301,13 +307,13 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
         if db := self.gui.current_db:
             self.recount_updated.emit(db.new_api.num_of_books_that_need_pages_counted())
 
-    def update_recount_txt(self, count) -> None:
+    def update_recount_txt(self, count: int) -> None:
         msg = self._recount_button_txt
         if count > 0:
             msg += ' ({})'.format(_('pending recount: {}').format(count))
         self.recount_button.setText(msg)
 
-    def edit_template_button(self, line_edit, title) -> None:
+    def edit_template_button(self, line_edit: QLineEdit, title: str) -> None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         mi = None
         db = self.gui.current_db.new_api
@@ -323,7 +329,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
 
     def use_pages(self) -> None:
         fm = self.gui.current_db.new_api.field_metadata
-        keys = sorted((k for k in fm.all_field_keys() if fm[k].get('name')), key=lambda k: fm[k].get('name').lower())
+        keys = sorted((k for k in fm.all_field_keys() if fm[k].get('name')), key=lambda k: (fm[k].get('name') or '').lower())
         names = ['{} ({})'.format(fm[k]['name'], k) for k in keys]
         try:
             idx = keys.index('{} ({})'.format(_('Pages'), '#pages'))
@@ -355,7 +361,8 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             'current_selected_color': _('&The current and selected book highlight'),
         }
 
-    def populate_custom_color_theme(self, use_defaults=False) -> None:
+    def populate_custom_color_theme(self, use_defaults: bool = False) -> None:
+
         from calibre.gui2.library.bookshelf_view import ColorTheme
 
         default = {
@@ -376,5 +383,5 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}')
             for b in v.values():
                 b.color = None
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.bookshelf_view.refresh_settings()

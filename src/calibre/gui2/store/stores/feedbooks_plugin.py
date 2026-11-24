@@ -3,9 +3,14 @@
 
 store_version = 1  # Needed for dynamic plugin loading
 
+from typing import TYPE_CHECKING
+
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class FeedbooksStore(BasicStoreConfig, OpenSearchOPDSStore):
@@ -14,7 +19,7 @@ class FeedbooksStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     # http://www.feedbooks.com/catalog
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         for s in OpenSearchOPDSStore.search(self, query, max_results, timeout):
             if s.downloads:
                 s.drm = SearchResult.DRM_UNLOCKED

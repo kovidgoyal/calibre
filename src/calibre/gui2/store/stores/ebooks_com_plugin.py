@@ -4,6 +4,7 @@ store_version = 6  # Needed for dynamic plugin loading
 
 import re
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from calibre import browser, url_slash_cleaner
@@ -13,14 +14,21 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def absolutize(url):
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def absolutize(url: str) -> str:
     if url.startswith('/'):
         url = 'https://www.ebooks.com' + url
     return url
 
 
-def search_ec(query, max_results=10, timeout=60, write_html_to=''):
+def search_ec(query: bytes | str, max_results: int = 10, timeout: int = 60, write_html_to: str = '') -> Iterator[SearchResult]:
     import json
     from urllib.parse import parse_qs, urlparse
 
@@ -61,7 +69,7 @@ def search_ec(query, max_results=10, timeout=60, write_html_to=''):
 storage = []
 
 
-def ec_details(search_result, timeout=30, write_data_to='') -> None:
+def ec_details(search_result: SearchResult, timeout: int = 30, write_data_to: str = '') -> None:
     import json
 
     from calibre.scraper.simple import read_url
@@ -89,7 +97,7 @@ def ec_details(search_result, timeout=30, write_data_to='') -> None:
 
 
 class EbookscomStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         if detail_item:
             purl = detail_item
             url = purl
@@ -105,10 +113,10 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search_ec(query, max_results, timeout)
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         ec_details(search_result, timeout)
         return True
 

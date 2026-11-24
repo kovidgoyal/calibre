@@ -4,6 +4,7 @@
 from collections import Counter
 from contextlib import suppress
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -26,14 +27,22 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
+    from qt.core import QObject
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
 
 
-def hidden_fields(db):
+def hidden_fields(db: LibraryDatabase | Cache) -> frozenset[str]:
     return frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
 
 
-def get_sorted_fields(db):
+def get_sorted_fields(db: LibraryDatabase | Cache) -> list[tuple[str, str]]:
     fm = db.field_metadata
     name_map = [(v, k) for k, v in fm.ui_sortable_field_keys().items()]
     counts = Counter(name for name, _ in name_map)
@@ -44,7 +53,7 @@ def get_sorted_fields(db):
 class SortAction(QAction):
     sort_requested = pyqtSignal(object, object)
 
-    def __init__(self, text, key, ascending, parent) -> None:
+    def __init__(self, text: str, key: str, ascending: bool | None, parent: QObject | None) -> None:
         QAction.__init__(self, text, parent)
         self.key, self.ascending = key, ascending
         self.triggered.connect(self)
@@ -52,7 +61,7 @@ class SortAction(QAction):
         if ic:
             self.setIcon(QIcon.ic(ic))
 
-    def __call__(self):
+    def __call__(self) -> None:
         self.sort_requested.emit(self.key, self.ascending)
 
 
@@ -84,7 +93,7 @@ class SortByAction(InterfaceAction):
             triggered=self.show_menu,
         )
 
-        def c(attr, title, tooltip, callback, keys=()):
+        def c(attr: str, title: str, tooltip: str, callback: Callable[[], object], keys: str | Sequence[str] = ()) -> QAction:
             ac = self.create_action(spec=(title, None, tooltip, keys), attr=attr)
             ac.triggered.connect(callback)
             self.gui.addAction(ac)
@@ -103,29 +112,35 @@ class SortByAction(InterfaceAction):
         self.update_menu()
 
     def show_menu(self) -> None:
-        show_menu_under_widget(self.gui, self.qaction.menu(), self.qaction, self.name)
+        m = self.qaction.menu()
+        assert m is not None
+        show_menu_under_widget(self.gui, m, self.qaction, self.name)
 
     def reverse_sort(self) -> None:
-        self.gui.current_view().reverse_sort()
+        view = self.gui.current_view()
+        assert view is not None
+        view.reverse_sort()
 
     def reapply_sort(self) -> None:
-        self.gui.current_view().resort()
+        view = self.gui.current_view()
+        assert view is not None
+        view.resort()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         self.update_menu()
 
     def initialization_complete(self) -> None:
         self.update_menu()
 
-    def get_sorted_fields(self):
+    def get_sorted_fields(self) -> list[tuple[str, str]]:
         return get_sorted_fields(self.gui.current_db)
 
-    def update_menu(self, menu=None) -> None:
+    def update_menu(self, menu: QMenu | None = None) -> None:
         if menu is None:
             menu = self.qaction.menu()
         assert menu is not None
@@ -206,7 +221,7 @@ class SortByAction(InterfaceAction):
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))
             self.update_menu()
 
-    def named_sort_selected(self, sort_spec) -> None:
+    def named_sort_selected(self, sort_spec: Sequence[tuple[str, bool]]) -> None:
         self.gui.library_view.multisort(sort_spec)
 
     def choose_multisort(self) -> None:
@@ -217,7 +232,7 @@ class SortByAction(InterfaceAction):
             self.gui.library_view.multisort(d.current_sort_spec)
             self.update_menu()
 
-    def sort_requested(self, key, ascending) -> None:
+    def sort_requested(self, key: str, ascending: bool | None) -> None:
         if ascending is None:
             self.gui.library_view.intelligent_sort(key, True)
         else:

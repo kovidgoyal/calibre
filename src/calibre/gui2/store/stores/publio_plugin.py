@@ -5,6 +5,7 @@ store_version = 10  # Needed for dynamic plugin loading
 
 from base64 import b64encode
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from qt.core import QUrl
@@ -22,7 +23,15 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
-def as_base64(data):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def as_base64(data: str | bytes) -> str:
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     ans = b64encode(data)
@@ -32,7 +41,7 @@ def as_base64(data):
 
 
 class PublioStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/29/58/'
         url = 'http://www.publio.pl/'
 
@@ -50,7 +59,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=20, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 20, timeout: int = 60) -> Iterator[SearchResult]:
 
         br = browser()
 

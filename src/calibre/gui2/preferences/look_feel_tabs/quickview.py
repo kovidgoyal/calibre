@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
@@ -10,12 +11,18 @@ from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
 from calibre.gui2.preferences.look_feel_tabs.quickview_ui import Ui_Form
 
+if TYPE_CHECKING:
+    from qt.core import QObject
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+
 
 class QVDisplayedFields(DisplayedFields):
-    def __init__(self, db, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QObject | None = None) -> None:
         DisplayedFields.__init__(self, db, parent)
 
-    def initialize(self, use_defaults=False) -> None:
+    def initialize(self, use_defaults: bool = False) -> None:
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
         self.endResetModel()
@@ -27,7 +34,7 @@ class QVDisplayedFields(DisplayedFields):
 
 
 class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         r = self.register
 
@@ -49,15 +56,15 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self) -> None:
         self.qv_display_model.initialize()
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.qv_display_model.restore_defaults()
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         qv = get_quickview_action_plugin()
         if qv:
             qv.refill_quickview()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         self.qv_display_model.commit()
         return LazyConfigWidgetBase.commit(self)

@@ -171,6 +171,14 @@ class BaseJob:
 
 
 class ParallelJob(BaseJob):
+    # Set dynamically by the catalog and convert GUI actions
+    catalog_file_path: str
+    catalog_sync: bool
+    catalog_title: str
+    fmt: str
+    conversion_of_same_fmt: bool
+    manually_fine_tune_toc: bool
+
     def __init__(
         self,
         name: str,

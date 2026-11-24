@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import (
     QAbstractListModel,
     QAbstractTableModel,
@@ -26,15 +28,21 @@ from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from qt.core import QModelIndex, QPoint
+
+    from calibre.ebooks.metadata.sources.base import Source
+    from calibre.gui2.ui import Main
+
 
 class SourcesModel(QAbstractTableModel):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QAbstractTableModel.__init__(self, parent)
         self.gui_parent = parent
 
-        self.plugins = []
-        self.enabled_overrides = {}
-        self.cover_overrides = {}
+        self.plugins: list[Source] = []
+        self.enabled_overrides: dict[Source, Qt.CheckState] = {}
+        self.cover_overrides: dict[Source, int] = {}
 
     def reload_plugins(self) -> None:
         self.beginResetModel()
@@ -50,13 +58,13 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.cover_overrides = {}
         self.endResetModel()
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.plugins)
 
-    def columnCount(self, parent=None) -> int:
+    def columnCount(self, parent: QModelIndex | None = None) -> int:
         return 2
 
-    def headerData(self, section, orientation, role=...):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             if section == 0:
                 return _('Source')
@@ -64,7 +72,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
                 return _('Cover priority')
         return None
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         try:
             plugin = self.plugins[index.row()]
         except Exception:
@@ -91,7 +99,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return base + _('This source needs configuration')
         return None
 
-    def setData(self, index, value, role=...):
+    def setData(self, index: QModelIndex, value: object, role: int = Qt.ItemDataRole.EditRole) -> bool:
         try:
             plugin = self.plugins[index.row()]
         except Exception:
@@ -126,7 +134,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             self.dataChanged.emit(index, index)
         return ret
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         col = index.column()
         ans = QAbstractTableModel.flags(self, index)
         if col == 0:
@@ -163,10 +171,10 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
 
 class FieldsModel(QAbstractListModel):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
 
-        self.fields = []
+        self.fields: list[str] = []
         self.descs = {
             'authors': _('Authors'),
             'comments': _('Comments'),
@@ -178,13 +186,13 @@ class FieldsModel(QAbstractListModel):  # {{{
             'series': ngettext('Series', 'Series', 1),
             'languages': _('Languages'),
         }
-        self.overrides = {}
+        self.overrides: dict[str, Qt.CheckState] = {}
         self.exclude = frozenset([
             'series_index',
             'language',  # some plugins use language instead of languages
         ])
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.fields)
 
     def initialize(self) -> None:
@@ -199,11 +207,11 @@ class FieldsModel(QAbstractListModel):  # {{{
         self.fields.sort(key=lambda x: self.descs.get(x, x))
         self.endResetModel()
 
-    def state(self, field, defaults=False):
+    def state(self, field: str, defaults: bool = False) -> Qt.CheckState:
         src = msprefs.defaults if defaults else msprefs
         return Qt.CheckState.Unchecked if field in src['ignore_fields'] else Qt.CheckState.Checked
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         try:
             field = self.fields[index.row()]
         except Exception:
@@ -214,7 +222,7 @@ class FieldsModel(QAbstractListModel):  # {{{
             return self.overrides.get(field, self.state(field))
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemFlag.ItemIsUserCheckable
 
@@ -233,7 +241,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         self.overrides = {f: Qt.CheckState.Unchecked for f in self.fields}
         self.endResetModel()
 
-    def setData(self, index, value, role=...):
+    def setData(self, index: QModelIndex, value: object, role: int = Qt.ItemDataRole.EditRole) -> bool:
         try:
             field = self.fields[index.row()]
         except Exception:
@@ -251,7 +259,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         changed = {k for k, v in self.overrides.items() if v == Qt.CheckState.Unchecked}
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
-    def user_default_state(self, field):
+    def user_default_state(self, field: str) -> Qt.CheckState:
         return Qt.CheckState.Unchecked if field in msprefs.get('user_default_ignore_fields', []) else Qt.CheckState.Checked
 
     def select_user_defaults(self) -> None:
@@ -271,7 +279,7 @@ class FieldsModel(QAbstractListModel):  # {{{
 class PluginConfig(QWidget):  # {{{
     finished = pyqtSignal()
 
-    def __init__(self, plugin, parent) -> None:
+    def __init__(self, plugin: Source, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
 
         self.plugin = plugin
@@ -306,7 +314,7 @@ class PluginConfig(QWidget):  # {{{
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         r = self.register
         r('txt_comments', msprefs)
         r('max_tags', msprefs)
@@ -366,7 +374,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.sources_model.reload_plugins()
             self.fields_model.initialize()
 
-    def context_menu(self, pos) -> None:
+    def context_menu(self, pos: QPoint) -> None:
         m = QMenu(self)
         m.addAction(_('Select all'), self.fields_model.select_all)
         m.addAction(_('Select none'), self.fields_model.clear_all)
@@ -374,16 +382,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         m.addAction(_('Select default'), self.fields_model.select_user_defaults)
         m.exec(self.mapToGlobal(pos))
 
-    def configure_plugin(self):
+    def configure_plugin(self) -> None:
         selection_model = self.sources_view.selectionModel()
         assert selection_model is not None
         for index in selection_model.selectedRows():
-            plugin = self.sources_model.data(index, Qt.ItemDataRole.UserRole)
+            plugin = cast('Source | None', self.sources_model.data(index, Qt.ItemDataRole.UserRole))
             if plugin is not None:
-                return self.do_config(plugin)
+                self.do_config(plugin)
+                return
         error_dialog(self, _('No source selected'), _('No source selected, cannot configure.'), show=True)
 
-    def do_config(self, plugin) -> None:
+    def do_config(self, plugin: Source) -> None:
         self.pc = PluginConfig(plugin, self)
         self.stack.insertWidget(1, self.pc)
         self.stack.setCurrentIndex(1)
@@ -447,13 +456,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.initialize()
         self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.sources_model.restore_defaults()
         self.fields_model.restore_defaults()
         self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         self.sources_model.commit()
         self.fields_model.commit()
         if self.tag_map_rules is not None:

@@ -8,7 +8,7 @@ import textwrap
 from functools import partial
 from threading import Thread
 from time import monotonic
-from typing import Never
+from typing import TYPE_CHECKING, Never, TypedDict, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -22,6 +22,7 @@ from qt.core import (
     QIcon,
     QInputDialog,
     QItemSelectionModel,
+    QKeyCombination,
     QKeySequence,
     QLabel,
     QMenu,
@@ -30,6 +31,7 @@ from qt.core import (
     QSize,
     QSizePolicy,
     QStackedWidget,
+    QStatusTipEvent,
     Qt,
     QTimer,
     QToolButton,
@@ -56,11 +58,33 @@ from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _
 from calibre.utils.logging import GUILog
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from lxml.etree import _Element
+    from qt.core import QDropEvent, QKeyEvent, QModelIndex, QPoint
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.toc.location import Frag
+
+    class SerializedNode(TypedDict):
+        title: object
+        toc_node: TOC | None
+        icon: object
+        tooltip: object
+        is_selected: bool
+        is_expanded: bool
+        children: list[SerializedNode]
+
+    class SerializedTree(TypedDict):
+        children: list[SerializedNode]
+
+
 ICON_SIZE = 24
 
 
 class XPathDialog(QDialog):  # {{{
-    def __init__(self, parent, prefs) -> None:
+    def __init__(self, parent: QWidget | None, prefs: JSONConfig) -> None:
         QDialog.__init__(self, parent)
         self.prefs = prefs
         self.setWindowTitle(_('Create ToC from XPath'))
@@ -75,7 +99,7 @@ class XPathDialog(QDialog):  # {{{
         )
         la.setWordWrap(True)
         l.addWidget(la)
-        self.widgets = []
+        self.widgets: list[XPathEdit] = []
         for i in range(5):
             la = _('Level %s ToC:') % (f'&{i + 1}')
             xp = XPathEdit(self)
@@ -101,7 +125,7 @@ class XPathDialog(QDialog):  # {{{
         l.addWidget(bb)
         self.resize(self.sizeHint() + QSize(50, 75))
 
-    def save_settings(self):
+    def save_settings(self) -> int | None:
         xpaths = self.xpaths
         if not xpaths:
             return error_dialog(self, _('No XPaths'), _('No XPaths have been entered'), show=True)
@@ -135,7 +159,7 @@ class XPathDialog(QDialog):  # {{{
         self.prefs.set('xpath_toc_settings', {})
         self.setup_load_button()
 
-    def load_settings(self, name) -> None:
+    def load_settings(self, name: str) -> None:
         saved = self.prefs.get('xpath_toc_settings', {}).get(name, {})
         for i, w in enumerate(self.widgets):
             txt = saved.get(str(i), '')
@@ -154,7 +178,7 @@ class XPathDialog(QDialog):  # {{{
             super().accept()
 
     @property
-    def xpaths(self):
+    def xpaths(self) -> list[str]:
         return [w.xpath for w in self.widgets if w.xpath.strip()]
 
 
@@ -176,13 +200,13 @@ class ItemView(QStackedWidget):  # {{{
     flatten_toc = pyqtSignal()
     sort_toc = pyqtSignal()
 
-    def __init__(self, parent, prefs) -> None:
+    def __init__(self, parent: QWidget | None, prefs: JSONConfig) -> None:
         QStackedWidget.__init__(self, parent)
         self.prefs = prefs
         self.setMinimumWidth(250)
         self.root_pane = rp = QWidget(self)
         self.item_pane = ip = ItemPane(self)
-        self.current_item = None
+        self.current_item: QTreeWidgetItem | None = None
         sa = QScrollArea(self)
         sa.setWidgetResizable(True)
         sa.setWidget(rp)
@@ -374,11 +398,14 @@ class ItemView(QStackedWidget):  # {{{
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
 
-    def headings_question(self, xpaths) -> None:
+    def headings_question(self, xpaths: list[str]) -> None:
         from calibre.gui2.widgets2 import Dialog
 
         class D(Dialog):
-            def __init__(self, parent) -> None:
+            remove_duplicates_cb: QCheckBox
+            prefer_title_cb: QCheckBox
+
+            def __init__(self, parent: QWidget | None) -> None:
                 super().__init__(_('Configure ToC generation'), 'configure-toc-from-headings', parent=parent)
 
             def setup_ui(s) -> None:
@@ -422,13 +449,13 @@ class ItemView(QStackedWidget):  # {{{
     def add_new_to_root(self) -> None:
         self.add_new_item.emit(None, None)
 
-    def add_new(self, where) -> None:
+    def add_new(self, where: str) -> None:
         self.add_new_item.emit(self.current_item, where)
 
     def edit_item(self) -> None:
         self.add_new_item.emit(self.current_item, None)
 
-    def __call__(self, item):
+    def __call__(self, item: QTreeWidgetItem | None) -> None:
         if item is None:
             self.current_item = None
             self.setCurrentIndex(0)
@@ -451,7 +478,7 @@ class ItemView(QStackedWidget):  # {{{
             tt = ''
         self.status_label.setText(tt)
 
-    def data_changed(self, item) -> None:
+    def data_changed(self, item: QTreeWidgetItem | None) -> None:
         if item is self.current_item:
             self.populate_item_pane()
 
@@ -467,9 +494,9 @@ class TreeWidget(QTreeWidget):  # {{{
     edit_item = pyqtSignal()
     history_state_changed = pyqtSignal()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QTreeWidget.__init__(self, parent)
-        self.history = []
+        self.history: list[SerializedTree] = []
         self.setHeaderLabel(_('Table of Contents'))
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setDragEnabled(True)
@@ -499,20 +526,21 @@ class TreeWidget(QTreeWidget):  # {{{
             self.unserialize_tree(self.history.pop())
             self.history_state_changed.emit()
 
-    def commitData(self, editor):
+    def commitData(self, editor: QWidget | None) -> None:
         self.push_history()
         return QTreeWidget.commitData(self, editor)
 
-    def iter_items(self, parent=None):
+    def iter_items(self, parent: QTreeWidgetItem | None = None) -> Iterator[QTreeWidgetItem]:
         if parent is None:
             parent = self.invisibleRootItem()
         assert parent is not None
         for i in range(parent.childCount()):
             child = parent.child(i)
+            assert child is not None
             yield child
             yield from self.iter_items(parent=child)
 
-    def update_status_tip(self, item) -> None:
+    def update_status_tip(self, item: QTreeWidgetItem) -> None:
         c = item.data(0, Qt.ItemDataRole.UserRole)
         if c is not None:
             frag = c.frag or ''
@@ -520,9 +548,10 @@ class TreeWidget(QTreeWidget):  # {{{
                 frag = '#' + frag
             item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(c.title, c.dest, frag))
 
-    def serialize_tree(self):
+    def serialize_tree(self) -> SerializedTree:
 
-        def serialize_node(node):
+        def serialize_node(node: QTreeWidgetItem | None) -> SerializedNode:
+            assert node is not None
             return {
                 'title': node.data(0, Qt.ItemDataRole.DisplayRole),
                 'toc_node': node.data(0, Qt.ItemDataRole.UserRole),
@@ -537,9 +566,9 @@ class TreeWidget(QTreeWidget):  # {{{
         assert node is not None
         return {'children': list(map(serialize_node, (node.child(i) for i in range(node.childCount()))))}
 
-    def unserialize_tree(self, serialized) -> None:
+    def unserialize_tree(self, serialized: SerializedTree) -> None:
 
-        def unserialize_node(dict_node, parent) -> None:
+        def unserialize_node(dict_node: SerializedNode, parent: QTreeWidgetItem) -> None:
             n = QTreeWidgetItem(parent)
             n.setData(0, Qt.ItemDataRole.DisplayRole, dict_node['title'])
             n.setData(0, Qt.ItemDataRole.UserRole, dict_node['toc_node'])
@@ -558,7 +587,7 @@ class TreeWidget(QTreeWidget):  # {{{
         for child in serialized['children']:
             unserialize_node(child, i)
 
-    def dropEvent(self, event) -> None:
+    def dropEvent(self, event: QDropEvent | None) -> None:
         self.in_drop_event = True
         self.push_history()
         try:
@@ -566,7 +595,7 @@ class TreeWidget(QTreeWidget):  # {{{
         finally:
             self.in_drop_event = False
 
-    def selectedIndexes(self):
+    def selectedIndexes(self) -> list[QModelIndex]:
         ans = super().selectedIndexes()
         if self.in_drop_event:
             # For order to be preserved when moving by drag and drop, we
@@ -576,12 +605,12 @@ class TreeWidget(QTreeWidget):  # {{{
             ans = sorted(ans, key=lambda x: sort_map.get(x, -1))
         return ans
 
-    def highlight_item(self, item) -> None:
+    def highlight_item(self, item: QTreeWidgetItem) -> None:
         self.setCurrentItem(item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.scrollToItem(item)
 
-    def _sort_items_by_index(self, items, reverse=False) -> None:
-        def get_index(item):
+    def _sort_items_by_index(self, items: list[QTreeWidgetItem], reverse: bool = False) -> None:
+        def get_index(item: QTreeWidgetItem) -> list[int]:
             result = []
 
             parent = item.parent()
@@ -594,7 +623,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         items.sort(key=get_index, reverse=reverse)
 
-    def _get_root_items(self, items):
+    def _get_root_items(self, items: Sequence[QTreeWidgetItem | None]) -> list[QTreeWidgetItem]:
         items_ = []
         for item in items:
             if item is None:
@@ -609,7 +638,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         return items_
 
-    def _move_indent_left(self, items) -> None:
+    def _move_indent_left(self, items: list[QTreeWidgetItem]) -> None:
         self._sort_items_by_index(items)
 
         for item in items:
@@ -640,7 +669,7 @@ class TreeWidget(QTreeWidget):  # {{{
             if was_expanded:
                 self.expandItem(item)
 
-    def _move_indent_right(self, items) -> None:
+    def _move_indent_right(self, items: list[QTreeWidgetItem]) -> None:
         self._sort_items_by_index(items)
 
         failed_parent = None
@@ -671,7 +700,7 @@ class TreeWidget(QTreeWidget):  # {{{
             if was_expanded:
                 self.expandItem(item)
 
-    def _move_indent(self, items, indent) -> None:
+    def _move_indent(self, items: list[QTreeWidgetItem], indent: int) -> None:
         if not items or indent == 0:
             return
 
@@ -859,7 +888,8 @@ class TreeWidget(QTreeWidget):  # {{{
             for i, item in enumerate(items):
                 item.setData(0, Qt.ItemDataRole.DisplayRole, fmt % (num + i))
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
+        assert event is not None
         if event.key() == Qt.Key.Key_Left and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.move_left()
             event.accept()
@@ -880,11 +910,11 @@ class TreeWidget(QTreeWidget):  # {{{
         else:
             return super().keyPressEvent(event)
 
-    def show_context_menu(self, point) -> None:
+    def show_context_menu(self, point: QPoint) -> None:
         item = self.currentItem()
 
-        def key(k) -> str:
-            sc = str(QKeySequence(k | Qt.KeyboardModifier.ControlModifier).toString(QKeySequence.SequenceFormat.NativeText))
+        def key(k: Qt.Key) -> str:
+            sc = str(QKeySequence(QKeyCombination(Qt.KeyboardModifier.ControlModifier, k)).toString(QKeySequence.SequenceFormat.NativeText))
             return f' [{sc}]'
 
         if item is not None:
@@ -923,10 +953,11 @@ class TreeWidget(QTreeWidget):  # {{{
 
 class TOCView(QWidget):  # {{{
     add_new_item = pyqtSignal(object, object)
+    ebook: Container
 
-    def __init__(self, parent, prefs) -> None:
+    def __init__(self, parent: QWidget | None, prefs: JSONConfig) -> None:
         QWidget.__init__(self, parent)
-        self.toc_title = None
+        self.toc_title: str | None = None
         self.prefs = prefs
         l = self.l = QGridLayout()
         self.setLayout(l)
@@ -995,13 +1026,13 @@ class TOCView(QWidget):  # {{{
     def edit_item(self) -> None:
         self.item_view.edit_item()
 
-    def event(self, a0):
-        if a0.type() == QEvent.Type.StatusTip:
+    def event(self, a0: QEvent | None) -> bool:
+        if isinstance(a0, QStatusTipEvent):
             txt = str(a0.tip()) or self.default_msg
             self.hl.setText(txt)
         return super().event(a0)
 
-    def item_title(self, item):
+    def item_title(self, item: QTreeWidgetItem) -> str:
         return str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
 
     def del_items(self) -> None:
@@ -1015,7 +1046,7 @@ class TOCView(QWidget):  # {{{
             assert p is not None
             p.removeChild(item)
 
-    def iter_items(self, parent=None):
+    def iter_items(self, parent: QTreeWidgetItem | None = None) -> Iterator[QTreeWidgetItem]:
         yield from self.tocw.iter_items(parent=parent)
 
     def flatten_toc(self) -> None:
@@ -1041,19 +1072,19 @@ class TOCView(QWidget):  # {{{
         spine_order = {name: i for i, (name, _) in enumerate(ebook.spine_names)}
 
         # Collect spine names that are referenced with a fragment anchor
-        names_with_frags = set()
+        names_with_frags: set[str] = set()
         for item in self.iter_items():
             toc = item.data(0, Qt.ItemDataRole.UserRole)
             if toc is not None and toc.dest and toc.frag:
                 names_with_frags.add(toc.dest)
 
         # Build {(spine_name, frag_id): document_order_position} by parsing each document
-        frag_positions = {}
+        frag_positions: dict[tuple[str, str], int] = {}
         for spine_name in names_with_frags:
             if spine_name not in spine_order:
                 continue
             try:
-                doc_root = ebook.parsed(spine_name)
+                doc_root = cast('_Element', ebook.parsed(spine_name))
             except Exception:
                 continue
             for pos, elem in enumerate(doc_root.iter('*')):
@@ -1066,7 +1097,8 @@ class TOCView(QWidget):  # {{{
                     if name_attr and (spine_name, name_attr) not in frag_positions:
                         frag_positions[(spine_name, name_attr)] = pos
 
-        def sort_key(item):
+        def sort_key(item: QTreeWidgetItem | None) -> tuple[float, float]:
+            assert item is not None
             toc = item.data(0, Qt.ItemDataRole.UserRole)
             if toc is None:
                 return (float('inf'), 0)
@@ -1077,7 +1109,8 @@ class TOCView(QWidget):  # {{{
             frag_pos = frag_positions.get((dest, frag), float('inf')) if frag else -1
             return (spine_idx, frag_pos)
 
-        def sort_node(parent) -> None:
+        def sort_node(parent: QTreeWidgetItem | None) -> None:
+            assert parent is not None
             count = parent.childCount()
             if count > 1:
                 children = [parent.child(i) for i in range(count)]
@@ -1091,7 +1124,7 @@ class TOCView(QWidget):  # {{{
 
         sort_node(self.tocw.invisibleRootItem())
 
-    def _flatten_item(self, item) -> None:
+    def _flatten_item(self, item: QTreeWidgetItem | None) -> None:
         if item is not None:
             p = item.parent() or self.root
             assert p is not None
@@ -1104,7 +1137,7 @@ class TOCView(QWidget):  # {{{
     def go_to_root(self) -> None:
         self.tocw.setCurrentItem(None)
 
-    def highlight_item(self, item) -> None:
+    def highlight_item(self, item: QTreeWidgetItem) -> None:
         self.tocw.highlight_item(item)
 
     def move_up(self) -> None:
@@ -1113,7 +1146,7 @@ class TOCView(QWidget):  # {{{
     def move_down(self) -> None:
         self.tocw.move_down()
 
-    def data_changed(self, top_left, bottom_right) -> None:
+    def data_changed(self, top_left: QModelIndex, bottom_right: QModelIndex) -> None:
         model = self.tocw.model()
         assert model is not None
         for r in range(top_left.row(), bottom_right.row() + 1):
@@ -1123,10 +1156,11 @@ class TOCView(QWidget):  # {{{
             if toc is not None:
                 toc.title = new_title or _('(Untitled)')
             item = self.tocw.itemFromIndex(idx)
+            assert item is not None
             self.tocw.update_status_tip(item)
             self.item_view.data_changed(item)
 
-    def create_item(self, parent, child, idx=-1):
+    def create_item(self, parent: QTreeWidgetItem, child: TOC, idx: int = -1) -> QTreeWidgetItem:
         if idx == -1:
             c = QTreeWidgetItem(parent)
         else:
@@ -1135,7 +1169,7 @@ class TOCView(QWidget):  # {{{
         self.populate_item(c, child)
         return c
 
-    def populate_item(self, c, child) -> None:
+    def populate_item(self, c: QTreeWidgetItem, child: TOC) -> None:
         c.setData(0, Qt.ItemDataRole.DisplayRole, child.title or _('(Untitled)'))
         c.setData(0, Qt.ItemDataRole.UserRole, child)
         c.setFlags(NODE_FLAGS)
@@ -1151,7 +1185,7 @@ class TOCView(QWidget):  # {{{
 
         self.tocw.update_status_tip(c)
 
-    def __call__(self, ebook):
+    def __call__(self, ebook: Container) -> None:
         self.ebook = ebook
         if not isinstance(ebook, AZW3Container):
             self.item_view.hide_azw3_warning()
@@ -1163,13 +1197,14 @@ class TOCView(QWidget):  # {{{
         self.err = QIcon.ic('dot_red.png')
         self.icon_map = {None: self.blank, True: self.ok, False: self.err}
 
-        def process_item(toc_node, parent) -> None:
+        def process_item(toc_node: TOC, parent: QTreeWidgetItem) -> None:
             for child in toc_node:
                 c = self.create_item(parent, child)
                 process_item(child, c)
 
-        root = self.root = self.tocw.invisibleRootItem()
+        root = self.tocw.invisibleRootItem()
         assert root is not None
+        self.root = root
         root.setData(0, Qt.ItemDataRole.UserRole, self.toc)
         process_item(self.toc, root)
         toc_model = self.tocw.model()
@@ -1178,10 +1213,10 @@ class TOCView(QWidget):  # {{{
         self.tocw.currentItemChanged.connect(self.current_item_changed)
         self.tocw.setCurrentItem(None)
 
-    def current_item_changed(self, current, previous) -> None:
+    def current_item_changed(self, current: QTreeWidgetItem | None, previous: QTreeWidgetItem | None) -> None:
         self.item_view(current)
 
-    def update_item(self, item, where, name, frag, title) -> None:
+    def update_item(self, item: QTreeWidgetItem | None, where: str | None, name: str, frag: Frag | None, title: str) -> None:
         if isinstance(frag, tuple):
             frag = add_id(self.ebook, name, *frag)
         child = TOC(title, name, frag)
@@ -1209,10 +1244,11 @@ class TOCView(QWidget):  # {{{
             self.tocw.setCurrentItem(c, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.tocw.scrollToItem(c)
 
-    def create_toc(self):
+    def create_toc(self) -> TOC:
         root = TOC()
 
-        def process_node(parent, toc_parent) -> None:
+        def process_node(parent: QTreeWidgetItem | None, toc_parent: TOC) -> None:
+            assert parent is not None
             for i in range(parent.childCount()):
                 item = parent.child(i)
                 title = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '').strip()
@@ -1224,20 +1260,20 @@ class TOCView(QWidget):  # {{{
         process_node(self.tocw.invisibleRootItem(), root)
         return root
 
-    def insert_toc_fragment(self, toc) -> None:
+    def insert_toc_fragment(self, toc: TOC) -> None:
 
-        def process_node(root, tocparent, added) -> None:
+        def process_node(root: QTreeWidgetItem, tocparent: TOC, added: list[QTreeWidgetItem]) -> None:
             for child in tocparent:
                 item = self.create_item(root, child)
                 added.append(item)
                 process_node(item, child, added)
 
         self.tocw.push_history()
-        nodes = []
+        nodes: list[QTreeWidgetItem] = []
         process_node(self.root, toc, nodes)
         self.highlight_item(nodes[0])
 
-    def create_from_xpath(self, xpaths, remove_duplicates=True, prefer_title=False):
+    def create_from_xpath(self, xpaths: list[str], remove_duplicates: bool = True, prefer_title: bool = False) -> int | None:
         toc = from_xpaths(self.ebook, xpaths, prefer_title=prefer_title)
         if len(toc) == 0:
             return error_dialog(
@@ -1250,7 +1286,7 @@ class TOCView(QWidget):  # {{{
             toc.remove_duplicates()
         self.insert_toc_fragment(toc)
 
-    def create_from_links(self):
+    def create_from_links(self) -> int | None:
         toc = from_links(self.ebook)
         if len(toc) == 0:
             return error_dialog(
@@ -1261,7 +1297,7 @@ class TOCView(QWidget):  # {{{
             )
         self.insert_toc_fragment(toc)
 
-    def create_from_files(self):
+    def create_from_files(self) -> int | None:
         toc = from_files(self.ebook)
         if len(toc) == 0:
             return error_dialog(
@@ -1285,7 +1321,14 @@ class TOCEditor(QDialog):  # {{{
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
-    def __init__(self, pathtobook, title=None, parent=None, prefs=None, write_result_to=None) -> None:
+    def __init__(
+        self,
+        pathtobook: str,
+        title: str | None = None,
+        parent: QWidget | None = None,
+        prefs: JSONConfig | None = None,
+        write_result_to: str | None = None,
+    ) -> None:
         QDialog.__init__(self, parent)
         self.last_reject_at = self.last_accept_at = -1000
         self.write_result_to = write_result_to
@@ -1339,7 +1382,7 @@ class TOCEditor(QDialog):  # {{{
         self.stacks.currentChanged.connect(self.update_history_buttons)
         self.update_history_buttons()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(900, 600)
 
     def update_history_buttons(self) -> None:
@@ -1348,7 +1391,7 @@ class TOCEditor(QDialog):  # {{{
         undo_button.setVisible(self.stacks.currentIndex() == 1)
         undo_button.setEnabled(bool(self.toc_view.tocw.history))
 
-    def add_new_item(self, item, where) -> None:
+    def add_new_item(self, item: QTreeWidgetItem | None, where: str | None) -> None:
         self.item_edit(item, where)
         self.stacks.setCurrentIndex(2)
         if ismacos:
@@ -1377,7 +1420,7 @@ class TOCEditor(QDialog):  # {{{
             self.stacks.setCurrentIndex(0)
             self.bb.setEnabled(False)
 
-    def really_accept(self, tb) -> None:
+    def really_accept(self, tb: str | None) -> None:
         self.save_geometry(self.prefs, 'toc_editor_window_geom')
         if tb:
             error_dialog(
@@ -1407,7 +1450,7 @@ class TOCEditor(QDialog):  # {{{
             self.write_result(1)
             super().reject()
 
-    def write_result(self, res) -> None:
+    def write_result(self, res: int) -> None:
         if self.write_result_to:
             with tempfile.NamedTemporaryFile(dir=os.path.dirname(self.write_result_to), delete=False) as f:
                 src = f.name
@@ -1433,7 +1476,7 @@ class TOCEditor(QDialog):  # {{{
             self.working = False
             self.explode_done.emit(tb)
 
-    def read_toc(self, tb) -> None:
+    def read_toc(self, tb: str | None) -> None:
         if tb:
             error_dialog(
                 self,
@@ -1481,7 +1524,7 @@ def develop() -> None:
     del app
 
 
-def main(shm_name=None) -> Never:
+def main(shm_name: str | None = None) -> Never:
     import json
     import struct
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QModelIndex, Qt, QThread, pyqtSignal
 
 from calibre.devices.usbms.device import Device
@@ -9,14 +11,30 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.devices.interface import DevicePlugin
+    from calibre.devices.usbms.device import AnnotationPathInfo
+    from calibre.gui2.device import DeviceJob
+    from calibre.gui2.ui import Main
+
 
 class Updater(QThread):  # {{{
     update_progress = pyqtSignal(int)
     update_done = pyqtSignal()
 
-    def __init__(self, parent, db, device, annotation_map, done_callback) -> None:
+    def __init__(
+        self,
+        parent: Main,
+        db: LibraryDatabase,
+        device: Device,
+        annotation_map: dict[int, DevicePlugin.UserAnnotation],
+        done_callback: Callable[[list[int], dict[int, str]], object],
+    ) -> None:
         QThread.__init__(self, parent)
-        self.errors = {}
+        self.errors: dict[int, str] = {}
         self.db = db
         self.keep_going = True
         self.pd = ProgressDialog(_('Merging user annotations into database'), '', 0, len(annotation_map), parent=parent)
@@ -62,16 +80,16 @@ class FetchAnnotationsAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.fetch_annotations)
 
-    def fetch_annotations(self, *args):
+    def fetch_annotations(self, *args: object) -> int | None:
         # Generate a path_map from selected ids
-        def get_ids_from_selected_rows():
+        def get_ids_from_selected_rows() -> list[int]:
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) < 2:
                 rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
             ids = list(map(self.gui.library_view.model().id, rows))
             return ids
 
-        def get_formats(id):
+        def get_formats(id: int) -> list[str]:
             formats = db.formats(id, index_is_id=True)
             fmts = []
             if formats:
@@ -79,17 +97,17 @@ class FetchAnnotationsAction(InterfaceAction):
                     fmts.append(format.lower())
             return fmts
 
-        def get_device_path_from_id(id_):
+        def get_device_path_from_id(id_: int) -> str | None:
             paths = []
             for x in ('memory', 'card_a', 'card_b'):
                 x = getattr(self.gui, x + '_view').model()
                 paths += x.paths_for_db_ids({id_}, as_map=True)[id_]
             return paths[0].path if paths else None
 
-        def generate_annotation_paths(ids, db, device):
+        def generate_annotation_paths(ids: Iterable[int], db: LibraryDatabase, device: Device) -> dict[int, AnnotationPathInfo]:
             # Generate path templates
             # Individual storage mount points scanned/resolved in driver.get_annotations()
-            path_map = {}
+            path_map: dict[int, AnnotationPathInfo] = {}
             for id in ids:
                 path = get_device_path_from_id(id)
                 mi = db.get_metadata(id, index_is_id=True)
@@ -97,13 +115,13 @@ class FetchAnnotationsAction(InterfaceAction):
                 path_map[id] = {'path': a_path, 'fmts': get_formats(id)}
             return path_map
 
-        device = self.gui.device_manager.device
+        device = cast('Device', self.gui.device_manager.device)
         if not getattr(device, 'SUPPORTS_ANNOTATIONS', False):
             return error_dialog(self.gui, _('Not supported'), _('Fetching annotations is not supported for this device'), show=True)
 
         if self.gui.current_view() is not self.gui.library_view:
             return error_dialog(self.gui, _('Use library only'), _('User annotations generated from main library only'), show=True)
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
 
         # Get the list of ids
         ids = get_ids_from_selected_rows()
@@ -116,23 +134,25 @@ class FetchAnnotationsAction(InterfaceAction):
         # Dispatch to devices.kindle.driver.get_annotations()
         self.gui.device_manager.annotations(self.Dispatcher(self.annotations_fetched), path_map)
 
-    def annotations_fetched(self, job):
+    def annotations_fetched(self, job: DeviceJob) -> int | None:
 
         if not job.result:
             return
 
         if self.gui.current_view() is not self.gui.library_view:
             return error_dialog(self.gui, _('Use library only'), _('User annotations generated from main library only'), show=True)
-        db = self.gui.library_view.model().db
-        device = self.gui.device_manager.device
+        db = self.gui.current_db
+        device = cast('Device', self.gui.device_manager.device)
+        annotation_map = job.result
+        assert isinstance(annotation_map, dict)
 
-        self.__annotation_updater = Updater(self.gui, db, device, job.result, self.Dispatcher(self.annotations_updated))
+        self.__annotation_updater = Updater(self.gui, db, device, annotation_map, self.Dispatcher(self.annotations_updated))
         self.__annotation_updater.start()
 
-    def annotations_updated(self, ids, errors) -> None:
+    def annotations_updated(self, ids: list[int], errors: dict[int, str]) -> None:
         self.gui.library_view.model().refresh_ids(ids)
         if errors:
-            db = self.gui.library_view.model().db
+            db = self.gui.current_db
             entries = []
             for id_, tb in errors.items():
                 title = id_

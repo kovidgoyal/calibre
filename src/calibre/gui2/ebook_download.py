@@ -4,7 +4,7 @@ import os
 import shutil
 import time
 from contextlib import closing
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from mechanize import MozillaCookieJar
 
@@ -26,7 +26,6 @@ if TYPE_CHECKING:
     from qt.core import QWidget
 
     from calibre.gui2.jobs import JobManager
-    from calibre.gui2.library.models import BooksModel
     from calibre.gui2.ui import Main
     from calibre.utils.browser import Browser
     from calibre.utils.logging import GUILog
@@ -160,7 +159,7 @@ class EbookDownload:
             book_id = db.create_book_entry(mi)
             assert book_id is not None  # add_duplicates is True so a book is always created
             db.new_api.add_format(book_id, ext.upper(), path)
-        cast('BooksModel', gui.library_view.model()).books_added(1)
+        gui.library_view.model().books_added(1)
 
     def _save_as(self, dfilename: str, save_loc: str) -> None:
         if not save_loc or not dfilename:

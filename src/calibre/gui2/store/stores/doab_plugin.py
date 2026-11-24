@@ -18,6 +18,10 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
 BASE_URL = 'https://directory.doabooks.org'
 # The extensions of full text links that can be downloaded as e-books, most
 # links are to the page for the book on the publisher's site
@@ -77,7 +81,7 @@ class DOABStore(StorePlugin):
             query = query.decode('utf-8', 'replace')
         yield from search(query, max_results, timeout)
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = detail_item or BASE_URL
         if external:
             open_url(url)

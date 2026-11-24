@@ -18,7 +18,7 @@ class Query:
 
     standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage', 'language', 'outputEncoding', 'inputEncoding']
 
-    searchTerms: str
+    searchTerms: bytes | str
     count: int
     startIndex: int
     startPage: int

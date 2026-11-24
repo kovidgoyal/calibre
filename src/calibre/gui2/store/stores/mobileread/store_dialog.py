@@ -1,15 +1,22 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 
+from typing import TYPE_CHECKING
+
 from qt.core import QComboBox, QDialog, QIcon, Qt
 
 from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.stores.mobileread.models import BooksModel
 from calibre.gui2.store.stores.mobileread.store_dialog_ui import Ui_Dialog
 
+if TYPE_CHECKING:
+    from qt.core import QModelIndex, QWidget
+
+    from calibre.gui2.store.stores.mobileread.mobileread_plugin import MobileReadStore
+
 
 class MobileReadStoreDialog(QDialog, Ui_Dialog):
-    def __init__(self, plugin, *args) -> None:
+    def __init__(self, plugin: MobileReadStore, *args: *tuple[QWidget | None, *tuple[Qt.WindowType, ...]]) -> None:
         QDialog.__init__(self, *args)
         self.setupUi(self)
 
@@ -40,15 +47,15 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         assert isinstance(_m, BooksModel)
         _m.search(str(self.search_query.text()))
 
-    def open_store(self, index) -> None:
+    def open_store(self, index: QModelIndex) -> None:
         _m = self.results_view.model()
         assert _m is not None
         assert isinstance(_m, BooksModel)
         result = _m.get_book(index)
         if result:
-            self.plugin.open(self, detail_item=result.detail_item)
+            self.plugin.open(self.plugin.gui, detail_item=result.detail_item)
 
-    def update_book_total(self, total) -> None:
+    def update_book_total(self, total: int) -> None:
         self.total.setText(str(total))
 
     def build_adv_search(self) -> None:
@@ -85,5 +92,5 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.plugin.config['dialog_sort_col'] = self._model.sort_col
         self.plugin.config['dialog_sort_order'] = self._model.sort_order
 
-    def dialog_closed(self, result) -> None:
+    def dialog_closed(self, result: int) -> None:
         self.save_state()

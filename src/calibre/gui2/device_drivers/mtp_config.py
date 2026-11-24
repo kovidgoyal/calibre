@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import weakref
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, overload
 
 from qt.core import (
     QApplication,
@@ -36,7 +36,10 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.device import DeviceMixin
 
 if TYPE_CHECKING:
-    from calibre.devices.mtp.driver import MTP_DEVICE
+    from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+    from typing import Literal
+
+    from calibre.devices.mtp.driver import MTP_DEVICE, MTPInvalidSendPathError
     from calibre.gui2.ui import Main
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -48,7 +51,7 @@ BOOK_EXTENSIONS = frozenset(EBOOK_EXTENSIONS) | {'mp3', 'aac', 'aax', 'm4a', 'm4
 
 
 class FormatsConfig(QWidget):  # {{{
-    def __init__(self, all_formats, format_map) -> None:
+    def __init__(self, all_formats: frozenset[str] | set[str], format_map: list[str]) -> None:
         QWidget.__init__(self)
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -73,8 +76,8 @@ class FormatsConfig(QWidget):  # {{{
         b.clicked.connect(self.down)
 
     @property
-    def format_map(self):
-        result = []
+    def format_map(self) -> list[str]:
+        result: list[str] = []
         for i in range(self.f.count()):
             item = self.f.item(i)
             assert item is not None
@@ -110,7 +113,7 @@ class FormatsConfig(QWidget):  # {{{
 
 
 class TemplateConfig(QWidget):  # {{{
-    def __init__(self, val) -> None:
+    def __init__(self, val: str | None) -> None:
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(val or '')
@@ -132,7 +135,7 @@ class TemplateConfig(QWidget):  # {{{
         b.clicked.connect(self.edit_template)
 
     @property
-    def template(self):
+    def template(self) -> str:
         return str(self.t.text()).strip()
 
     def edit_template(self) -> None:
@@ -163,7 +166,7 @@ class TemplateConfig(QWidget):  # {{{
 
 
 class SendToConfig(QWidget):  # {{{
-    def __init__(self, val, device) -> None:
+    def __init__(self, val: Iterable[str] | None, device: MTP_DEVICE) -> None:
         QWidget.__init__(self)
         self.t = t = QLineEdit(self)
         t.setText(', '.join(val or []))
@@ -187,8 +190,10 @@ class SendToConfig(QWidget):  # {{{
         self._device = weakref.ref(device)
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> MTP_DEVICE:
+        ans = self._device()
+        assert ans is not None
+        return ans
 
     def browse(self) -> None:
         b = Browser(self.device.filesystem_cache, show_files=False, parent=self)
@@ -197,7 +202,7 @@ class SendToConfig(QWidget):  # {{{
             self.t.setText('/'.join(path[1:]))
 
     @property
-    def value(self):
+    def value(self) -> list[str]:
         ans = [x.strip() for x in str(self.t.text()).strip().split(',')]
         return [x for x in ans if x]
 
@@ -206,7 +211,7 @@ class SendToConfig(QWidget):  # {{{
 
 
 class IgnoredDevices(QWidget):  # {{{
-    def __init__(self, devs, blacklist) -> None:
+    def __init__(self, devs: Mapping[str, Sequence[str]], blacklist: Collection[str]) -> None:
         QWidget.__init__(self)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -222,8 +227,8 @@ class IgnoredDevices(QWidget):  # {{{
         self.f = f = QListWidget(self)
         l.addWidget(f)
 
-        devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in devs.items()]
-        for dev, x in sorted(devs, key=lambda x: x[1][1], reverse=True):
+        sorted_devs = [(snum, (x[0], parse_date(x[1]))) for snum, x in devs.items()]
+        for dev, x in sorted(sorted_devs, key=lambda x: x[1][1], reverse=True):
             name = x[0]
             name = f'{name} [{dev}]'
             item = QListWidgetItem(name, f)
@@ -232,8 +237,8 @@ class IgnoredDevices(QWidget):  # {{{
             item.setCheckState(Qt.CheckState.Checked if dev in blacklist else Qt.CheckState.Unchecked)
 
     @property
-    def blacklist(self):
-        result = []
+    def blacklist(self) -> list[str]:
+        result: list[str] = []
         for i in range(self.f.count()):
             item = self.f.item(i)
             assert item is not None
@@ -241,7 +246,7 @@ class IgnoredDevices(QWidget):  # {{{
                 result.append(str(item.data(Qt.ItemDataRole.UserRole) or ''))
         return result
 
-    def ignore_device(self, snum) -> None:
+    def ignore_device(self, snum: str | None) -> None:
         for i in range(self.f.count()):
             i = self.f.item(i)
             assert i is not None
@@ -259,7 +264,7 @@ class IgnoredDevices(QWidget):  # {{{
 class Rule(QWidget):
     remove = pyqtSignal(object)
 
-    def __init__(self, device, rule=None) -> None:
+    def __init__(self, device: MTP_DEVICE, rule: Sequence[str] | None = None) -> None:
         QWidget.__init__(self)
         self._device = weakref.ref(device)
 
@@ -300,8 +305,10 @@ class Rule(QWidget):
         self.ignore = False
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> MTP_DEVICE:
+        ans = self._device()
+        assert ans is not None
+        return ans
 
     def browse(self) -> None:
         b = Browser(self.device.filesystem_cache, show_files=False, parent=self)
@@ -313,7 +320,7 @@ class Rule(QWidget):
         self.remove.emit(self)
 
     @property
-    def rule(self):
+    def rule(self) -> tuple[str, str] | None:
         folder = str(self.folder.text()).strip()
         if folder:
             return (str(self.fmt.itemData(self.fmt.currentIndex()) or ''), folder)
@@ -321,7 +328,7 @@ class Rule(QWidget):
 
 
 class FormatRules(QGroupBox):
-    def __init__(self, device, rules) -> None:
+    def __init__(self, device: MTP_DEVICE, rules: Iterable[Sequence[str]]) -> None:
         QGroupBox.__init__(self, _('Format specific sending'))
         self._device = weakref.ref(device)
         self.l = l = QVBoxLayout()
@@ -343,7 +350,7 @@ class FormatRules(QGroupBox):
         w.setLayout(wl)
         sa.setWidget(w)
         l.addWidget(sa)
-        self.widgets = []
+        self.widgets: list[Rule] = []
         for rule in rules:
             r = Rule(device, rule)
             self.widgets.append(r)
@@ -359,8 +366,10 @@ class FormatRules(QGroupBox):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Ignored)
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> MTP_DEVICE:
+        ans = self._device()
+        assert ans is not None
+        return ans
 
     def add_rule(self) -> None:
         r = Rule(self.device)
@@ -371,12 +380,12 @@ class FormatRules(QGroupBox):
         assert scrollbar is not None
         scrollbar.setValue(scrollbar.maximum())
 
-    def remove_rule(self, rule) -> None:
+    def remove_rule(self, rule: Rule) -> None:
         rule.setVisible(False)
         rule.ignore = True
 
     @property
-    def rules(self):
+    def rules(self) -> Iterator[tuple[str, str]]:
         for w in self.widgets:
             if not w.ignore:
                 r = w.rule
@@ -451,7 +460,7 @@ class APNX(QWidget):  # {{{
 
 
 class MTPConfig(QTabWidget):
-    def __init__(self, device, parent=None, highlight_ignored_folders=False) -> None:
+    def __init__(self, device: MTP_DEVICE, parent: QWidget | None = None, highlight_ignored_folders: bool = False) -> None:
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 
@@ -555,15 +564,27 @@ class MTPConfig(QTabWidget):
         self._base_b.setStyleSheet('QPushButton { font-weight: bold }')
         self.base.setEnabled(False)
 
-    def get_pref(self, key):
+    @overload
+    def get_pref(self, key: Literal['format_map', 'send_to']) -> list[str]: ...
+    @overload
+    def get_pref(self, key: Literal['send_template']) -> str: ...
+    @overload
+    def get_pref(self, key: Literal['rules']) -> list[tuple[str, str]]: ...
+    @overload
+    def get_pref(self, key: Literal['ignored_folders']) -> dict[str, list[str]]: ...
+    @overload
+    def get_pref(self, key: str) -> object: ...
+    def get_pref(self, key: str) -> object:
         p = self.device.prefs.get(self.current_device_key, {})
         if not p and self.current_device_key is not None:
             self.device.prefs[self.current_device_key] = p
         return self.device.get_pref(key)
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> MTP_DEVICE:
+        ans = self._device()
+        assert ans is not None
+        return ans
 
     def validate(self) -> bool:
         if hasattr(self, 'formats'):
@@ -609,7 +630,7 @@ class MTPConfig(QTabWidget):
 
 
 class SendError(QDialog):
-    def __init__(self, gui, error) -> None:
+    def __init__(self, gui: Main, error: MTPInvalidSendPathError) -> None:
         QDialog.__init__(self, gui)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -649,7 +670,7 @@ class SendError(QDialog):
 
 
 if __name__ == '__main__':
-    from calibre.devices.mtp.driver import MTP_DEVICE
+    from calibre.devices.mtp.driver import MTP_DEVICE, MTPInvalidSendPathError
     from calibre.devices.scanner import DeviceScanner
     from calibre.gui2 import Application
 

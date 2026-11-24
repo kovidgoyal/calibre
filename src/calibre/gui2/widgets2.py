@@ -447,7 +447,7 @@ class RatingEditor(QComboBox):
         return ans
 
     @rating_value.setter
-    def rating_value(self, val: int | None) -> None:
+    def rating_value(self, val: float | None) -> None:
         val = max(0, min(int(val or 0), 10))
         if self.allow_undo:
             cmd = UndoCommand(self, val)

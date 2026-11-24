@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.localization import _, localize_user_manual_link
 
+if TYPE_CHECKING:
+    from qt.core import QByteArray
+
 
 class WizardWidget(QWidget, Ui_Form):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -18,7 +23,7 @@ class WizardWidget(QWidget, Ui_Form):
             pass
 
     @property
-    def xpath(self):
+    def xpath(self) -> str:
         tag = str(self.tag.currentText()).strip()
         if tag != '*':
             tag = 'h:' + tag
@@ -37,7 +42,7 @@ class WizardWidget(QWidget, Ui_Form):
 
 
 class Wizard(QDialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.resize(440, 480)
         self.verticalLayout = QVBoxLayout(self)
@@ -53,12 +58,12 @@ class Wizard(QDialog):
         self.setWindowModality(Qt.WindowModality.WindowModal)
 
     @property
-    def xpath(self):
+    def xpath(self) -> str:
         return self.widget.xpath
 
 
 class XPathEdit(QWidget):
-    def __init__(self, parent=None, object_name='', show_msg=True) -> None:
+    def __init__(self, parent: QWidget | None = None, object_name: str = '', show_msg: bool = True) -> None:
         QWidget.__init__(self, parent)
         self.g = g = QGridLayout(self)
         g.setContentsMargins(0, 0, 0, 0)
@@ -86,7 +91,7 @@ class XPathEdit(QWidget):
         if object_name:
             self.setObjectName(object_name)
 
-    def setPlaceholderText(self, val) -> None:
+    def setPlaceholderText(self, val: str | None) -> None:
         self.edit.setPlaceholderText(val)
 
     def wizard(self) -> None:
@@ -94,26 +99,26 @@ class XPathEdit(QWidget):
         if wiz.exec() == QDialog.DialogCode.Accepted:
             self.edit.setText(wiz.xpath)
 
-    def setObjectName(self, name) -> None:
+    def setObjectName(self, name: QByteArray | bytes | bytearray | memoryview | str | None) -> None:
         QWidget.setObjectName(self, name)
         if hasattr(self, 'edit'):
             self.edit.initialize('xpath_edit_' + str(self.objectName()))
 
-    def set_msg(self, msg) -> None:
+    def set_msg(self, msg: str | None) -> None:
         self.msg.setText(msg)
 
     @property
-    def text(self):
+    def text(self) -> str:
         return str(self.edit.text())
 
     @text.setter
-    def text(self, val) -> None:
+    def text(self, val: object) -> None:
         self.edit.setText(str(val))
 
     value = text
 
     @property
-    def xpath(self):
+    def xpath(self) -> str:
         return self.text
 
     def check(self) -> bool:

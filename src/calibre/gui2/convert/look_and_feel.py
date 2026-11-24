@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import json
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QDialog, Qt
 
@@ -10,6 +11,14 @@ from calibre.gui2.convert import Widget
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption, OptionWidget
 
 
 class LookAndFeelWidget(Widget, Ui_Form):
@@ -26,7 +35,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         'colors': {'color', 'background', 'background-color'},
     }
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['look_and_feel'])
         for val, text in [('original', _('Original')), ('left', _('Left align')), ('justify', _('Justify text'))]:
             self.opt_change_justification.addItem(text, (val))
@@ -48,7 +57,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             lambda self, state: state != Qt.CheckState.Unchecked and self.opt_smarten_punctuation.setCheckState(Qt.CheckState.Unchecked),
         )
 
-    def get_value_handler(self, g):
+    def get_value_handler(self, g: OptionWidget) -> object:
         if g is self.opt_change_justification:
             ans = str(g.itemData(g.currentIndex()) or '')
             return ans
@@ -68,7 +77,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return json.dumps(g.rules)
         return Widget.get_value_handler(self, g)
 
-    def set_value_handler(self, g, val) -> bool:
+    def set_value_handler(self, g: OptionWidget, val: object) -> bool:
         if g is self.opt_change_justification:
             for i in range(g.count()):
                 c = str(g.itemData(i) or '')
@@ -79,7 +88,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         if g is self.opt_filter_css:
             if not val:
                 val = ''
-            items = frozenset(x.strip().lower() for x in val.split(','))
+            items = frozenset(x.strip().lower() for x in cast('str', val).split(','))
             for key, vals in self.FILTER_CSS.items():
                 w = getattr(self, f'filter_css_{key}')
                 if not vals - items:
@@ -90,11 +99,11 @@ class LookAndFeelWidget(Widget, Ui_Form):
             self.filter_css_others.setText(', '.join(items))
             return True
         if g is self.opt_transform_css_rules or g is self.opt_transform_html_rules:
-            g.rules = json.loads(val) if val else []
+            g.rules = json.loads(cast('str', val)) if val else []
             return True
         return False
 
-    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
+    def connect_gui_obj_handler(self, gui_obj: OptionWidget, slot: Callable[..., None]) -> None:
         if gui_obj is self.opt_filter_css:
             for key in self.FILTER_CSS:
                 w = getattr(self, f'filter_css_{key}')

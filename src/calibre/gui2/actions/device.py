@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QIcon, QMenu, QTimer, QToolButton, QUrl, pyqtSignal
 
 from calibre.constants import ismacos
@@ -11,6 +13,13 @@ from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 from calibre.utils.smtp import config as email_config
+
+if TYPE_CHECKING:
+    from qt.core import QAction
+
+    from calibre.devices.interface import DevicePlugin
+    from calibre.gui2.device import DeviceAction, DeviceMenu
+    from calibre.gui2.ui import Main
 
 
 def local_url_for_content_server() -> str:
@@ -42,7 +51,7 @@ class ShareConnMenu(QMenu):  # {{{
 
     DEVICE_MSGS = [_('Start wireless device connection'), _('Stop wireless device connection')]
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: Main | None = None) -> None:
         QMenu.__init__(self, parent)
         self.ip_text = ''
         mitem = self.addAction(QIcon.ic('devices/folder.png'), _('Connect to folder'))
@@ -72,7 +81,7 @@ class ShareConnMenu(QMenu):  # {{{
             connect_lambda(self.airdrop_action.triggered, self, lambda self: self.share_airdrop.emit())
         self.addSeparator()
 
-        self.email_actions = []
+        self.email_actions: list[QAction | None] = []
 
         if hasattr(parent, 'keyboard'):
             r = parent.keyboard.register_shortcut
@@ -89,7 +98,7 @@ class ShareConnMenu(QMenu):  # {{{
                 group=gr,
             )
 
-    def server_state_changed(self, running) -> None:
+    def server_state_changed(self, running: bool) -> None:
         from calibre.utils.mdns import get_external_ip, verify_ip_address
 
         text = _('Start Content server')
@@ -120,13 +129,13 @@ class ShareConnMenu(QMenu):  # {{{
         assert control_smartdevice_action is not None
         control_smartdevice_action.setVisible(False)
 
-    def build_email_entries(self, sync_menu) -> None:
+    def build_email_entries(self, sync_menu: DeviceMenu) -> None:
         from calibre.gui2.device import DeviceAction
 
         for ac in self.email_actions:
             self.removeAction(ac)
         self.email_actions = []
-        self.memory = []
+        self.memory: list[DeviceAction] = []
         opts = email_config().parse()
         if opts.accounts:
             self.email_to_menu = QMenu(_('Email to') + '...', self)
@@ -135,7 +144,7 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_to_and_delete_menu = QMenu(_('Email to and delete from library') + '...', self)
             keys = sorted(opts.accounts.keys())
 
-            def sk(account):
+            def sk(account: str) -> bytes:
                 return primary_sort_key(opts.aliases.get(account) or account)
 
             for account in sorted(keys, key=sk):
@@ -177,10 +186,10 @@ class ShareConnMenu(QMenu):  # {{{
             self.email_actions.append(ac)
             ac.triggered.connect(self.setup_email)
 
-    def setup_email(self, *args) -> None:
+    def setup_email(self, *args: object) -> None:
         self.config_email.emit()
 
-    def set_state(self, device_connected, device) -> None:
+    def set_state(self, device_connected: str | None, device: DevicePlugin | None) -> None:
         connect_to_folder_action = self.connect_to_folder_action
         assert connect_to_folder_action is not None
         connect_to_folder_action.setEnabled(not device_connected)
@@ -198,12 +207,12 @@ class SendToDeviceAction(InterfaceAction):
         self.qaction.triggered.connect(self.do_sync)
         self.gui.create_device_menu()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def do_sync(self, *args) -> None:
+    def do_sync(self, *args: object) -> None:
         self.gui._sync_action_triggered()
 
 
@@ -237,19 +246,19 @@ class ConnectShareAction(InterfaceAction):
         if ac is not None:
             ac.airdrop_books()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def set_state(self, device_connected, device) -> None:
+    def set_state(self, device_connected: str | None, device: DevicePlugin | None) -> None:
         self.share_conn_menu.set_state(device_connected, device)
 
     def build_email_entries(self) -> None:
         m = self.gui.iactions['Send To Device'].qaction.menu()
         self.share_conn_menu.build_email_entries(m)
 
-    def content_server_state_changed(self, running) -> None:
+    def content_server_state_changed(self, running: bool) -> None:
         self.share_conn_menu.server_state_changed(running)
         if running:
             self.content_server_is_running = True
@@ -307,7 +316,7 @@ class ConnectShareAction(InterfaceAction):
 
         forced_ip = dm.get_option('smartdevice', 'force_ip_address')
         if forced_ip:
-            formatted_addresses = forced_ip
+            formatted_addresses = str(forced_ip)
             show_port = True
         else:
             all_ips = get_all_ip_addresses()

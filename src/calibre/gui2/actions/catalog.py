@@ -3,6 +3,7 @@
 
 import os
 import shutil
+from typing import TYPE_CHECKING
 
 from qt.core import QModelIndex
 
@@ -12,6 +13,9 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.utils.ipc.job import ParallelJob
 
 
 class GenerateCatalogAction(InterfaceAction):
@@ -27,12 +31,12 @@ class GenerateCatalogAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.generate_catalog)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def generate_catalog(self):
+    def generate_catalog(self) -> int | None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:
             rows = range(self.gui.library_view.model().rowCount(QModelIndex()))
@@ -41,8 +45,8 @@ class GenerateCatalogAction(InterfaceAction):
         if not ids:
             return error_dialog(self.gui, _('No books selected'), _('No books selected for catalog generation'), show=True)
 
-        db = self.gui.library_view.model().db
-        dbspec = {}
+        db = self.gui.current_db
+        dbspec: dict[int, dict[str, object]] = {}
         for id in ids:
             dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
@@ -60,7 +64,7 @@ class GenerateCatalogAction(InterfaceAction):
         job.catalog_sync, job.catalog_title = sync, title
         self.gui.status_bar.show_message(_('Generating %s catalog...') % fmt)
 
-    def catalog_generated(self, job):
+    def catalog_generated(self, job: ParallelJob) -> None:
         if job.result:
             # Problems during catalog generation
             # jobs.results is a list - the first entry is the intended title for the dialog

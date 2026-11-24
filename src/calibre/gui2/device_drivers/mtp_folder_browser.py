@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from operator import attrgetter
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTabWidget, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal
 
@@ -9,8 +10,19 @@ from calibre.gui2 import file_icon_provider
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
 
-def browser_item(f, parent):
+    from qt.core import QWidget
+
+    from calibre.devices.mtp.driver import MTP_DEVICE
+    from calibre.devices.mtp.filesystem_cache import FileOrFolder, FilesystemCache, ObjectId
+
+    type ItemParent = QTreeWidget | QTreeWidgetItem
+    type ItemFunc = Callable[[FileOrFolder, ItemParent], QTreeWidgetItem]
+
+
+def browser_item(f: FileOrFolder, parent: ItemParent) -> QTreeWidgetItem:
     name = f.name
     if not f.is_folder:
         name += f' [{f.last_mod_string}]'
@@ -26,7 +38,7 @@ def browser_item(f, parent):
 
 
 class Storage(QTreeWidget):
-    def __init__(self, storage, show_files=False, item_func=browser_item) -> None:
+    def __init__(self, storage: FileOrFolder, show_files: bool = False, item_func: ItemFunc = browser_item) -> None:
         QTreeWidget.__init__(self)
         self.item_func = item_func
         self.show_files = show_files
@@ -37,7 +49,7 @@ class Storage(QTreeWidget):
         self.setHeaderHidden(True)
         self.storage = storage
 
-    def create_children(self, f, parent) -> None:
+    def create_children(self, f: FileOrFolder, parent: ItemParent) -> None:
         for child in sorted(f.folders, key=attrgetter('name')):
             i = self.item_func(child, parent)
             self.create_children(child, i)
@@ -46,7 +58,7 @@ class Storage(QTreeWidget):
                 i = self.item_func(child, parent)
 
     @property
-    def current_item(self):
+    def current_item(self) -> tuple[ObjectId, tuple[str, ...]] | None:
         item = self.currentItem()
         if item is not None:
             return (self.object_id, item.data(0, Qt.ItemDataRole.UserRole))
@@ -56,7 +68,7 @@ class Storage(QTreeWidget):
 class Folders(QTabWidget):
     selected = pyqtSignal()
 
-    def __init__(self, filesystem_cache, show_files=True) -> None:
+    def __init__(self, filesystem_cache: FilesystemCache, show_files: bool = True) -> None:
         QTabWidget.__init__(self)
         self.fs = filesystem_cache
         for storage in self.fs.entries:
@@ -67,7 +79,7 @@ class Folders(QTabWidget):
         self.setCurrentIndex(0)
 
     @property
-    def current_item(self):
+    def current_item(self) -> tuple[ObjectId, tuple[str, ...]] | None:
         w = self.currentWidget()
         if isinstance(w, Storage):
             return w.current_item
@@ -75,7 +87,7 @@ class Folders(QTabWidget):
 
 
 class Browser(QDialog):
-    def __init__(self, filesystem_cache, show_files=True, parent=None) -> None:
+    def __init__(self, filesystem_cache: FilesystemCache, show_files: bool = True, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -91,12 +103,12 @@ class Browser(QDialog):
         self.setWindowIcon(QIcon.ic('devices/tablet.png'))
 
     @property
-    def current_item(self):
+    def current_item(self) -> tuple[ObjectId, tuple[str, ...]] | None:
         return self.folders.current_item
 
 
 class IgnoredFolders(QDialog):
-    def __init__(self, dev, ignored_folders=None, parent=None) -> None:
+    def __init__(self, dev: MTP_DEVICE, ignored_folders: dict[str, list[str]] | None = None, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -107,7 +119,7 @@ class IgnoredFolders(QDialog):
         l.addWidget(la)
         self.tabs = QTabWidget(self)
         l.addWidget(self.tabs)
-        self.widgets = []
+        self.widgets: list[Storage] = []
 
         for storage in dev.filesystem_cache.entries:
             self.dev = dev
@@ -136,8 +148,9 @@ class IgnoredFolders(QDialog):
 
         self.resize(600, 500)
 
-    def item_changed(self, item, column) -> None:
+    def item_changed(self, item: QTreeWidgetItem, column: int) -> None:
         w = item.treeWidget()
+        assert w is not None
         root = w.invisibleRootItem()
         w.itemChanged.disconnect(self.item_changed)
         try:
@@ -153,14 +166,16 @@ class IgnoredFolders(QDialog):
         finally:
             w.itemChanged.connect(self.item_changed)
 
-    def iterchildren(self, node):
+    def iterchildren(self, node: QTreeWidgetItem | None) -> Iterator[QTreeWidgetItem]:
         "Iterate over all descendants of node"
+        assert node is not None
         for i in range(node.childCount()):
             child = node.child(i)
+            assert child is not None
             yield child
             yield from self.iterchildren(child)
 
-    def create_item(self, f, parent):
+    def create_item(self, f: FileOrFolder, parent: ItemParent) -> QTreeWidgetItem:
         name = f.name
         ans = QTreeWidgetItem(parent, [name])
         ans.setData(0, Qt.ItemDataRole.UserRole, '/'.join(f.full_path[1:]))
@@ -193,10 +208,10 @@ class IgnoredFolders(QDialog):
             c.setCheckState(0, Qt.CheckState.Unchecked)
 
     @property
-    def ignored_folders(self):
-        ans = {}
+    def ignored_folders(self) -> dict[str, list[str]]:
+        ans: dict[str, list[str]] = {}
         for w in self.widgets:
-            folders = set()
+            folders: set[str] = set()
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.CheckState.Checked:
                     continue
@@ -208,7 +223,7 @@ class IgnoredFolders(QDialog):
         return ans
 
 
-def setup_device():
+def setup_device() -> MTP_DEVICE:
     from calibre.devices.mtp.driver import MTP_DEVICE
     from calibre.devices.scanner import DeviceScanner
 
@@ -223,7 +238,7 @@ def setup_device():
     return dev
 
 
-def browse():
+def browse() -> tuple[ObjectId, tuple[str, ...]] | None:
     from calibre.gui2 import Application
 
     app = Application([])  # ruff: ignore[unused-variable]
@@ -234,7 +249,7 @@ def browse():
     return d.current_item
 
 
-def ignored_folders():
+def ignored_folders() -> dict[str, list[str]]:
     from calibre.gui2 import Application
 
     app = Application([])  # ruff: ignore[unused-variable]

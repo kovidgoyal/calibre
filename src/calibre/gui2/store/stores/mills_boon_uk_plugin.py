@@ -4,6 +4,7 @@
 store_version = 4  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from qt.core import QUrl
@@ -21,8 +22,16 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
 class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'https://www.millsandboon.co.uk'
 
         if external or self.config.get('open_external', False):
@@ -39,7 +48,7 @@ class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         base_url = 'https://www.millsandboon.co.uk'
         url = base_url + '/search.aspx??format=ebook&searchText=' + quote(query)
         br = browser()

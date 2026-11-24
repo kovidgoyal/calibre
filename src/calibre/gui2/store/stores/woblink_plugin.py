@@ -4,6 +4,7 @@
 store_version = 16  # Needed for dynamic plugin loading
 
 from base64 import b64encode
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus, urlencode
 
 from mechanize import Request
@@ -22,7 +23,15 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
-def as_base64(data):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def as_base64(data: str | bytes) -> str:
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     ans = b64encode(data)
@@ -31,7 +40,7 @@ def as_base64(data):
     return ans
 
 
-def search(query, max_results=10, timeout=60):
+def search(query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
     url = 'https://woblink.com/publication/ajax?mode=none&query=' + quote_plus(query)
     if max_results > 10:
         if max_results > 20:
@@ -86,7 +95,7 @@ def search(query, max_results=10, timeout=60):
 
 
 class WoblinkStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'https://woblink.com/publication'
 
@@ -104,7 +113,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search(query, max_results, timeout)
 
 

@@ -17,6 +17,6 @@ class ShowTemplateFunctionsAction(InterfaceAction):
         self.first_time = True
         self.qaction.triggered.connect(self.show_template_editor)
 
-    def show_template_editor(self, *args) -> None:
+    def show_template_editor(self, *args: object) -> None:
         d = Preferences(self.gui, initial_plugin=('Advanced', 'TemplateFunctions'), close_after_initial=True)
         d.exec()

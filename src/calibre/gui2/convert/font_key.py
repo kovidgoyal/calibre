@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 from calibre.utils.localization import localize_user_manual_link
 
+if TYPE_CHECKING:
+    from qt.core import QAbstractButton, QWidget
+
 
 class FontKeyChooser(QDialog, Ui_Dialog):
-    def __init__(self, parent=None, base_font_size=0.0, font_key=None) -> None:
+    def __init__(self, parent: QWidget | None = None, base_font_size: float = 0.0, font_key: str | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -38,13 +43,13 @@ class FontKeyChooser(QDialog, Ui_Dialog):
             self.font_size_key.setText('')
         self.calculate()
 
-    def button_clicked(self, button) -> None:
+    def button_clicked(self, button: QAbstractButton | None) -> None:
         if button is self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults):
             self.output_base_font_size.setValue(0.0)
             self.font_size_key.setText('')
         self.calculate()
 
-    def get_profile_values(self):
+    def get_profile_values(self) -> tuple[float, list[float]]:
         from calibre.ebooks.conversion.config import load_defaults
 
         recs = load_defaults('page_setup')
@@ -59,15 +64,15 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         return dbase, fsizes
 
     @property
-    def fsizes(self):
+    def fsizes(self) -> list[float]:
         key = str(self.font_size_key.text()).strip()
         return [float(x.strip()) for x in key.split(',' if ',' in key else ' ') if x.strip()]
 
     @property
-    def dbase(self):
+    def dbase(self) -> float:
         return self.output_base_font_size.value()
 
-    def calculate(self, *args) -> None:
+    def calculate(self, *args: object) -> None:
         sbase = self.input_base_font_size.value()
         dbase = self.dbase
         fsize = self.input_font_size.value()

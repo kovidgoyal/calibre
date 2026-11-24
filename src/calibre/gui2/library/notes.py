@@ -40,7 +40,22 @@ from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.utils.localization import _, ngettext
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import NotRequired, TypedDict
+
+    from qt.core import QKeyEvent, QPoint
+
     from calibre.db.cache import Cache
+    from calibre.db.notes.connect import NotesSearchResult
+
+    class NotesQuery(TypedDict):
+        fts_engine_query: str
+        restrict_to_fields: tuple[str, ...]
+        use_stemming: bool
+
+    class TreeState(TypedDict):
+        closed: set[str]
+        current: NotRequired[object]
 
 
 def current_db() -> Cache:
@@ -56,7 +71,7 @@ class NotesResultsDelegate(ResultsDelegate):
     add_ellipsis = True
     emphasize_text = False
 
-    def result_data(self, result):
+    def result_data(self, result: object) -> tuple[bool | None, str | None, str | None, str | None, bool | None]:
         if not isinstance(result, dict):
             return None, None, None, None, None
         full_text = result['text'].replace('\n', ': ', 1)
@@ -80,7 +95,7 @@ class ResultsList(QTreeWidget):
     export_requested = pyqtSignal()
     delete_requested = pyqtSignal()
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -93,10 +108,10 @@ class ResultsList(QTreeWidget):
         self.section_font.setItalic(True)
         self.currentItemChanged.connect(self.current_item_changed)
         self.number_of_results = 0
-        self.item_map = []
-        self.fi_map = {}
+        self.item_map: list[QTreeWidgetItem] = []
+        self.fi_map: dict[tuple[str, int], QTreeWidgetItem] = {}
 
-    def update_item(self, field, item_id) -> bool:
+    def update_item(self, field: str, item_id: int) -> bool:
         nd = current_db().notes_data_for(field, item_id)
         if nd:
             for category in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
@@ -110,7 +125,7 @@ class ResultsList(QTreeWidget):
                         return True
         return False
 
-    def current_item_changed(self, current, previous) -> None:
+    def current_item_changed(self, current: QTreeWidgetItem | None, previous: QTreeWidgetItem | None) -> None:
         if current is not None:
             r = current.data(0, Qt.ItemDataRole.UserRole)
             if isinstance(r, dict):
@@ -118,24 +133,25 @@ class ResultsList(QTreeWidget):
         else:
             self.current_result_changed.emit(None)
 
-    def item_activated(self, item) -> None:
+    def item_activated(self, item: QTreeWidgetItem) -> None:
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
             self.edit_note(item)
 
-    def selected_results(self):
+    def selected_results(self) -> Iterator[NotesSearchResult]:
         for item in self.selectedItems():
             r = item.data(0, Qt.ItemDataRole.UserRole)
             if isinstance(r, dict):
                 yield r
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         m = QMenu(self)
         item = self.itemAt(pos)
         result = None
         if item is not None:
             result = item.data(0, Qt.ItemDataRole.UserRole)
         if result is not None:
+            assert item is not None
             name = current_db().get_item_name(result['field'], result['item_id']) or ''
             m.addAction(QIcon.ic('edit_input.png'), _('Edit notes for {}').format(name), partial(self.edit_note, item))
         results = tuple(self.selected_results())
@@ -152,7 +168,7 @@ class ResultsList(QTreeWidget):
     def export(self) -> None:
         self.export_requested.emit()
 
-    def show_next(self, backwards=False) -> None:
+    def show_next(self, backwards: bool = False) -> None:
         item = self.currentItem()
         if item is None:
             return
@@ -161,19 +177,20 @@ class ResultsList(QTreeWidget):
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
 
-    def edit_note_for(self, field, item_id) -> None:
+    def edit_note_for(self, field: str, item_id: int) -> None:
         item = self.fi_map.get((field, item_id))
         if item is not None:
             self.edit_note(item)
 
-    def edit_note(self, item) -> None:
+    def edit_note(self, item: QTreeWidgetItem) -> None:
         r = item.data(0, Qt.ItemDataRole.UserRole)
         if isinstance(r, dict):
             d = EditNoteDialog(r['field'], r['item_id'], current_db())
             if d.exec() == QDialog.DialogCode.Accepted:
                 self.note_edited.emit(r['field'], r['item_id'])
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
+        assert event is not None
         if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
             event.accept()
@@ -187,8 +204,8 @@ class ResultsList(QTreeWidget):
         return QTreeWidget.keyPressEvent(self, event)
 
     @property
-    def tree_state(self):
-        ans = {'closed': set()}
+    def tree_state(self) -> TreeState:
+        ans: TreeState = {'closed': set()}
         item = self.currentItem()
         if item is not None:
             ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
@@ -199,7 +216,7 @@ class ResultsList(QTreeWidget):
         return ans
 
     @tree_state.setter
-    def tree_state(self, state) -> None:
+    def tree_state(self, state: TreeState) -> None:
         closed = state['closed']
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
             assert item is not None
@@ -213,7 +230,7 @@ class ResultsList(QTreeWidget):
                     self.setCurrentItem(item)
                     break
 
-    def set_results(self, results, emphasize_text) -> None:
+    def set_results(self, results: Iterable[NotesSearchResult], emphasize_text: bool) -> None:
         self.clear()
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
@@ -248,19 +265,19 @@ class ResultsList(QTreeWidget):
         if self.item_map:
             self.setCurrentItem(self.item_map[0])
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(500, 500)
 
 
 class RestrictFields(QWidget):
     restriction_changed = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = FlowLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.restrict_label = QLabel(_('Restrict to:'))
-        self.restricted_fields = []
+        self.restricted_fields: list[str] = []
         self.add_button = b = QToolButton(self)
         b.setToolTip(_('Add categories to which to restrict results.\nWhen no categories are specified no restriction is in effect'))
         (
@@ -286,7 +303,7 @@ class RestrictFields(QWidget):
         db = current_db()
         fm = db.field_metadata
 
-        def field_name(field):
+        def field_name(field: str) -> str:
             return fm[field].get('name') or field
 
         _fsn = db.field_supports_notes()
@@ -327,12 +344,12 @@ class RestrictFields(QWidget):
         for field in self.restricted_fields:
             m.addAction(self.field_names[field], partial(self.remove_field, field))
 
-    def add_field(self, field) -> None:
+    def add_field(self, field: str) -> None:
         self.restricted_fields.append(field)
         self.relayout()
         self.restriction_changed.emit()
 
-    def remove_field(self, field) -> None:
+    def remove_field(self, field: str) -> None:
         self.restricted_fields.remove(field)
         self.relayout()
         self.restriction_changed.emit()
@@ -343,7 +360,7 @@ class SearchInput(QWidget):
     show_previous_signal = pyqtSignal()
     search_changed = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -377,7 +394,7 @@ class SearchInput(QWidget):
         l.addWidget(r)
 
     @property
-    def current_query(self):
+    def current_query(self) -> NotesQuery:
         sb_le = self.search_box.lineEdit()
         assert sb_le is not None
         _cq_p = self.parent()
@@ -399,10 +416,11 @@ class SearchInput(QWidget):
 
 
 class NoteDisplay(QWidget):
-    field = item_id = None
+    field: str | None = None
+    item_id: int | None = None
     edit_requested = pyqtSignal(str, int)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -424,14 +442,14 @@ class NoteDisplay(QWidget):
         if self.field and self.item_id:
             self.edit_requested.emit(self.field, self.item_id)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(400, 500)
 
     @property
-    def db(self):
+    def db(self) -> Cache:
         return current_db()
 
-    def show_note(self, field='', item_id=0) -> None:
+    def show_note(self, field: str = '', item_id: int = 0) -> None:
         self.field, self.item_id = field, item_id
         if field:
             self.title.setText('<h2>{}</h2>'.format(self.db.get_item_name(field, item_id) or ''))
@@ -442,7 +460,7 @@ class NoteDisplay(QWidget):
             self.html_display.setHtml('')
             self.edit_button.setVisible(False)
 
-    def current_result_changed(self, r) -> None:
+    def current_result_changed(self, r: NotesSearchResult | None) -> None:
         if r is None:
             self.show_note()
         else:
@@ -450,17 +468,18 @@ class NoteDisplay(QWidget):
 
     def refresh(self) -> None:
         if self.field:
+            assert self.item_id is not None  # show_note() always sets item_id along with field
             self.show_note(self.field, self.item_id)
 
 
 class NotesBrowser(Dialog):
-    current_query = None
+    current_query: NotesQuery | None = None
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(_('Browse notes'), 'browse-notes-dialog', default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setWindowIcon(QIcon.ic('notes.png'))
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(900, 600)
 
     def setup_ui(self) -> None:
@@ -529,7 +548,7 @@ class NotesBrowser(Dialog):
 
             get_gui(fail_if_absent=True).search.set_search_string(search_expression)
 
-    def export_selected(self):
+    def export_selected(self) -> int | None:
         results = tuple(self.results_list.selected_results())
         if not results:
             return error_dialog(self, _('No results selected'), _('No results selected, nothing to export'), show=True)
@@ -550,7 +569,7 @@ class NotesBrowser(Dialog):
                     with open(os.path.join(path, fname), 'wb') as f:
                         f.write(html.encode('utf-8'))
 
-    def note_edited(self, field, item_id) -> None:
+    def note_edited(self, field: str, item_id: int) -> None:
         from calibre.gui2.ui import get_gui
 
         self.notes_display.refresh()
@@ -563,7 +582,7 @@ class NotesBrowser(Dialog):
         if self.search_input.current_query != self.current_query:
             self.do_find()
 
-    def do_find(self, backwards=False):
+    def do_find(self, backwards: bool = False) -> int | None:
         q = self.search_input.current_query
         if q == self.current_query:
             self.results_list.show_next(backwards)
@@ -586,7 +605,8 @@ class NotesBrowser(Dialog):
                 show=True,
             )
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         k = a0.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):  # prevent enter from closing dialog
             a0.ignore()

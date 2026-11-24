@@ -4,6 +4,7 @@
 import os
 from collections import OrderedDict
 from itertools import count
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer
 
@@ -13,11 +14,30 @@ from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from typing import TypedDict
+
+    from qt.core import QWidget
+
+    from calibre.utils.shm import SharedMemory
+
+    class ToCEditJob(TypedDict, total=False):
+        path: str | None
+        title: str
+        book_id: int
+        fmt: str
+        library_id: str
+        shm: SharedMemory
+        started: bool
+        start_time: float
+
+
 SUPPORTED = {'EPUB', 'AZW3'}
 
 
 class ChooseFormat(QDialog):  # {{{
-    def __init__(self, formats, parent=None) -> None:
+    def __init__(self, formats: Iterable[str], parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose format to edit'))
         self.setWindowIcon(QIcon.ic('dialog_question.png'))
@@ -53,13 +73,13 @@ class ChooseFormat(QDialog):  # {{{
         self.accept()
 
     @property
-    def formats(self):
+    def formats(self) -> Iterator[str]:
         for b in self.buttons:
             if b.isChecked():
                 yield str(b.text())[1:]
 
     @formats.setter
-    def formats(self, formats) -> None:
+    def formats(self, formats: Iterable[str]) -> None:
         formats = {x.upper() for x in formats}
         for b in self.buttons:
             b.setChecked(b.text()[1:] in formats)
@@ -83,10 +103,10 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
     def genesis(self) -> None:
         self.shm_count = count()
         self.qaction.triggered.connect(self.edit_books)
-        self.jobs = []
+        self.jobs: list[ToCEditJob] = []
 
-    def get_supported_books(self, book_ids):
-        db = self.gui.library_view.model().db
+    def get_supported_books(self, book_ids: Iterable[int]) -> dict[int, set[str]] | None:
+        db = self.gui.current_db
         supported = set(SUPPORTED)
         ans = [(x, set((db.formats(x, index_is_id=True) or '').split(',')).intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
@@ -110,7 +130,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
                 return
         return ans
 
-    def get_books_for_editing(self):
+    def get_books_for_editing(self) -> dict[int, set[str]] | None:
         rows = [r.row() for r in self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit ToC'), _('No books selected'))
@@ -120,7 +140,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         ans = (db.id(r) for r in rows)
         return self.get_supported_books(ans)
 
-    def do_edit(self, book_id_map) -> None:
+    def do_edit(self, book_id_map: dict[int, set[str]]) -> None:
         for book_id, fmts in book_id_map.items():
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
@@ -130,7 +150,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
             for fmt in fmts:
                 self.do_one(book_id, fmt)
 
-    def do_one(self, book_id, fmt) -> None:
+    def do_one(self, book_id: int, fmt: str) -> None:
         import atexit
         import json
         import struct
@@ -140,7 +160,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         db = self.gui.current_db
         path = db.format(book_id, fmt, index_is_id=True, as_path=True)
         title = db.title(book_id, index_is_id=True) + f' [{fmt}]'
-        job = {'path': path, 'title': title}
+        job: ToCEditJob = {'path': path, 'title': title}
         data = json.dumps(job).encode('utf-8')
         header = struct.pack('>II', 0, 0)
         shm = SharedMemory(
@@ -166,7 +186,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
     def check_for_completions(self) -> None:
         import struct
 
-        def remove_job(job) -> None:
+        def remove_job(job: ToCEditJob) -> None:
             job['shm'].close()
             self.jobs.remove(job)
 
@@ -190,7 +210,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
                 pass
             elif state == 2:
                 # finished
-                job['shm'].already_unlinked = True
+                setattr(job['shm'], 'already_unlinked', True)
                 remove_job(job)
                 if ok == 1:
                     db = self.gui.current_db
@@ -202,6 +222,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
                             show=True,
                         )
                     else:
+                        assert path is not None
                         db.new_api.add_format(job['book_id'], job['fmt'], path, run_hooks=False)
         if self.jobs:
             QTimer.singleShot(100, self.check_for_completions)

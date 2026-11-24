@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QMessageBox, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
-def step_dialog(parent, title, msg, det_msg=''):
+
+def step_dialog(parent: QWidget | None, title: str, msg: str, det_msg: str = '') -> int:
     d = QMessageBox(parent)
     d.setWindowTitle(title)
     d.setText(msg)
@@ -15,7 +20,7 @@ def step_dialog(parent, title, msg, det_msg=''):
 
 
 class UserDefinedDevice(QDialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self._layout = QVBoxLayout(self)
         self.setLayout(self._layout)
@@ -42,12 +47,12 @@ class UserDefinedDevice(QDialog):
         try:
             from calibre.devices import device_info
 
-            r = step_dialog(self.parent(), _('Device Detection'), _('Ensure your device is disconnected, then press OK'))
+            r = step_dialog(self.parentWidget(), _('Device Detection'), _('Ensure your device is disconnected, then press OK'))
             if r:
                 self.close()
                 return
             before = device_info()
-            r = step_dialog(self.parent(), _('Device Detection'), _('Ensure your device is connected, then press OK'))
+            r = step_dialog(self.parentWidget(), _('Device Detection'), _('Ensure your device is connected, then press OK'))
             if r:
                 self.close()
                 return
@@ -56,7 +61,7 @@ class UserDefinedDevice(QDialog):
             res = ''
             if len(new_devices) == 1:
 
-                def fmtid(x):
+                def fmtid(x: int | str | None) -> str:
                     x = x or 0
                     if isinstance(x, int):
                         x = hex(x)

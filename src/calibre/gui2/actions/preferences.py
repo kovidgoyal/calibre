@@ -91,7 +91,7 @@ class PreferencesAction(InterfaceAction):
         if d.do_restart:
             self.gui.quit(restart=True)
 
-    def do_config(self, checked=False, initial_plugin=None, close_after_initial=False) -> None:
+    def do_config(self, checked: bool = False, initial_plugin: tuple[str | None, ...] | None = None, close_after_initial: bool = False) -> None:
         if self.gui.job_manager.has_jobs():
             d = error_dialog(self.gui, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec()
@@ -107,8 +107,8 @@ class PreferencesAction(InterfaceAction):
         if d.do_restart:
             self.gui.quit(restart=True)
 
-    def debug_restart(self, *args) -> None:
+    def debug_restart(self, *args: object) -> None:
         self.gui.quit(restart=True, debug_on_restart=True)
 
-    def no_plugins_restart(self, *args) -> None:
+    def no_plugins_restart(self, *args: object) -> None:
         self.gui.quit(restart=True, no_plugins_on_restart=True)

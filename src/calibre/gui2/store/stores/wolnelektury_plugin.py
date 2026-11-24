@@ -4,6 +4,7 @@
 store_version = 6  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from qt.core import QUrl
@@ -22,9 +23,16 @@ except ImportError:
 
 import json
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
 
 class WolneLekturyStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
 
         url = 'https://wolnelektury.pl'
         detail_url = None
@@ -40,7 +48,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         url = 'https://wolnelektury.pl/szukaj?q=' + quote_plus(query)
 
         br = browser()

@@ -6,6 +6,7 @@ from collections import defaultdict
 from contextlib import closing
 from functools import partial
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -42,8 +43,18 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
 
-def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols) -> bool:  # {{{
+    from calibre.db.backend import DB
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.db.utils import IdenticalBooksData
+    from calibre.gui2.actions.choose_library import LibraryUsageStats
+    from calibre.gui2.ui import Main
+    from calibre.library.field_metadata import FieldMetadataDict
+
+
+def ask_about_cc_mismatch(gui: Main, db: LibraryDatabase, newdb: DB, missing_cols: Collection[str], incompatible_cols: Collection[str]) -> bool:  # {{{
     source_metadata = db.field_metadata.custom_field_metadata(include_composites=True)
     dest_library_path = newdb.library_path
     ndbname = os.path.basename(dest_library_path)
@@ -102,10 +113,12 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols) -> bo
         for k, cb in missing_widgets:
             if cb.isChecked():
                 col_meta = source_metadata[k]
+                name, datatype = col_meta['name'], col_meta['datatype']
+                assert name is not None and datatype is not None
                 newdb.create_custom_column(
                     col_meta['label'],
-                    col_meta['name'],
-                    col_meta['datatype'],
+                    name,
+                    datatype,
                     len(col_meta['is_multiple']) > 0,
                     col_meta['is_editable'],
                     col_meta['display'],
@@ -126,23 +139,32 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols) -> bo
 
 
 class Worker(Thread):  # {{{
-    def __init__(self, ids, db, loc, progress, done, delete_after, add_duplicates) -> None:
+    def __init__(
+        self,
+        ids: list[int],
+        db: LibraryDatabase,
+        loc: str,
+        progress: Callable[[int, str], object],
+        done: Callable[[], object],
+        delete_after: bool,
+        add_duplicates: bool,
+    ) -> None:
         Thread.__init__(self)
         self.was_canceled = False
         self.ids = ids
-        self.processed = set()
+        self.processed: set[int] = set()
         self.db = db
         self.loc = loc
-        self.error = None
+        self.error: tuple[str, str] | None = None
         self.progress = progress
         self.done = done
         self.left_after_cancel = 0
         self.delete_after = delete_after
-        self.auto_merged_ids = {}
+        self.auto_merged_ids: dict[int, str] = {}
         self.add_duplicates = add_duplicates
-        self.duplicate_ids = {}
+        self.duplicate_ids: dict[int, tuple[str, list[str]]] = {}
         self.check_for_duplicates = not add_duplicates and (prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl'])
-        self.failed_books = {}
+        self.failed_books: dict[int, tuple[str, str]] = {}
 
     def cancel_processing(self) -> None:
         self.was_canceled = True
@@ -166,7 +188,7 @@ class Worker(Thread):  # {{{
 
         library_broker = get_gui(fail_if_absent=True).library_broker
         newdb = library_broker.get_library(self.loc)
-        self.find_identical_books_data = None
+        self.find_identical_books_data: IdenticalBooksData | None = None
         try:
             if self.check_for_duplicates:
                 self.find_identical_books_data = newdb.new_api.data_for_find_identical_books()
@@ -174,7 +196,7 @@ class Worker(Thread):  # {{{
         finally:
             library_broker.prune_loaded_dbs()
 
-    def _doit(self, newdb) -> None:
+    def _doit(self, newdb: LibraryDatabase) -> None:
         for i, x in enumerate(self.ids):
             if self.was_canceled:
                 self.left_after_cancel = len(self.ids) - i
@@ -187,7 +209,7 @@ class Worker(Thread):  # {{{
                 err = as_unicode(err)
                 self.failed_books[x] = (err, as_unicode(traceback.format_exc()))
 
-    def do_one(self, num, book_id, newdb) -> None:
+    def do_one(self, num: int, book_id: int, newdb: LibraryDatabase) -> None:
         duplicate_action = 'add'
         if self.check_for_duplicates:
             duplicate_action = 'add_formats_to_existing' if prefs['add_formats_to_existing'] else 'ignore'
@@ -213,7 +235,7 @@ class Worker(Thread):  # {{{
 
 
 class ChooseLibrary(Dialog):  # {{{
-    def __init__(self, parent, locations) -> None:
+    def __init__(self, parent: QWidget | None, locations: list[tuple[str, str]]) -> None:
         self.locations = locations
         Dialog.__init__(self, _('Choose library'), 'copy_to_choose_library_dialog', parent)
         self.resort()
@@ -276,7 +298,7 @@ class ChooseLibrary(Dialog):  # {{{
         l.addWidget(bb, 1, 0, 1, 2)
         self.items.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 550)
 
     def current_changed(self) -> None:
@@ -291,7 +313,7 @@ class ChooseLibrary(Dialog):  # {{{
             self.le.setText(d)
 
     @property
-    def args(self):
+    def args(self) -> tuple[str, bool]:
         return (str(self.le.text()), self.delete_after_copy)
 
 
@@ -299,7 +321,7 @@ class ChooseLibrary(Dialog):  # {{{
 
 
 class DuplicatesQuestion(QDialog):  # {{{
-    def __init__(self, parent, duplicates, loc) -> None:
+    def __init__(self, parent: QWidget | None, duplicates: dict[int, tuple[str, list[str]]], loc: str) -> None:
         QDialog.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
@@ -311,7 +333,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         l.addWidget(la)
         self.setWindowTitle(_('Duplicate books'))
         self.books = QListWidget(self)
-        self.items = []
+        self.items: list[QListWidgetItem] = []
         for book_id, (title, authors) in duplicates.items():
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.ItemDataRole.UserRole, book_id)
@@ -349,7 +371,7 @@ class DuplicatesQuestion(QDialog):  # {{{
             i.setCheckState(Qt.CheckState.Unchecked)
 
     @property
-    def ids(self):
+    def ids(self) -> set[int]:
         return {int(i.data(Qt.ItemDataRole.UserRole)) for i in self.items if i.checkState() == Qt.CheckState.Checked}
 
 
@@ -357,7 +379,7 @@ class DuplicatesQuestion(QDialog):  # {{{
 
 # Static session-long set of pairs of libraries that have had their custom columns
 # checked for compatibility
-libraries_with_checked_columns = defaultdict(set)
+libraries_with_checked_columns: defaultdict[str, set[str]] = defaultdict(set)
 
 
 class CopyToLibraryAction(InterfaceAction):
@@ -373,16 +395,16 @@ class CopyToLibraryAction(InterfaceAction):
         assert self.menu is not None
 
     @property
-    def stats(self):
+    def stats(self) -> LibraryUsageStats:
         return self.gui.iactions['Choose Library'].stats
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         self.build_menus()
 
     def initialization_complete(self) -> None:
-        self.library_changed(self.gui.library_view.model().db)
+        self.library_changed(self.gui.current_db)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -393,7 +415,7 @@ class CopyToLibraryAction(InterfaceAction):
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.menu.addAction('disabled', self.cannot_do_dialog)
             return
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         locations = list(self.stats.locations(db))
         if len(locations) > 5:
             self.menu.addAction(_('Choose library...'), self.choose_library)
@@ -416,31 +438,31 @@ class CopyToLibraryAction(InterfaceAction):
             # The cloned action has to have its menu updated
             self.qaction.changed.emit()
 
-    def choose_library(self):
-        db = self.gui.library_view.model().db
+    def choose_library(self) -> int | None:
+        db = self.gui.current_db
         locations = list(self.stats.locations(db))
         d = ChooseLibrary(self.gui, locations)
         if d.exec() == QDialog.DialogCode.Accepted:
             path, delete_after = d.args
             if not path:
                 return
-            db = self.gui.library_view.model().db
+            db = self.gui.current_db
             current = os.path.normcase(os.path.abspath(db.library_path))
             if current == os.path.normcase(os.path.abspath(path)):
                 return error_dialog(self.gui, _('Cannot copy'), _('Cannot copy to current library.'), show=True)
             self.copy_to_library(path, delete_after)
 
-    def _column_is_compatible(self, source_metadata, dest_metadata):
+    def _column_is_compatible(self, source_metadata: FieldMetadataDict, dest_metadata: FieldMetadataDict) -> bool:
         return source_metadata['datatype'] == dest_metadata['datatype'] and (
             source_metadata['datatype'] != 'text' or source_metadata['is_multiple'] == dest_metadata['is_multiple']
         )
 
-    def copy_to_library(self, loc, delete_after=False):
+    def copy_to_library(self, loc: str, delete_after: bool = False) -> int | None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot copy'), _('No books selected'), show=True)
         ids = list(map(self.gui.library_view.model().id, rows))
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         if not db.exists_at(loc):
             return error_dialog(self.gui, _('No library'), _('No library found at %s') % loc, show=True)
 
@@ -486,7 +508,9 @@ class CopyToLibraryAction(InterfaceAction):
                 if ids:
                     self.do_copy(list(ids), db, loc, delete_after, add_duplicates=True)
 
-    def do_copy(self, ids, db, loc, delete_after, add_duplicates=False):
+    def do_copy(
+        self, ids: list[int], db: LibraryDatabase, loc: str, delete_after: bool, add_duplicates: bool = False
+    ) -> dict[int, tuple[str, list[str]]] | None:
         aname = _('Moving to') if delete_after else _('Copying to')
         dtitle = f'{aname} {os.path.basename(loc)}'
         self.pd = ProgressDialog(
@@ -502,7 +526,7 @@ class CopyToLibraryAction(InterfaceAction):
             ),
         )
 
-        def progress(idx, title) -> None:
+        def progress(idx: int, title: str) -> None:
             self.pd.set_msg(title)
             self.pd.set_value(idx)
 
@@ -563,7 +587,7 @@ class CopyToLibraryAction(InterfaceAction):
 
         if self.worker.failed_books:
 
-            def fmt_err(book_id):
+            def fmt_err(book_id: int) -> str:
                 err, tb = self.worker.failed_books[book_id]
                 title = db.title(book_id, index_is_id=True)
                 return _('Copying: {0} failed, with error:\n{1}').format(title, tb)

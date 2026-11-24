@@ -3,6 +3,7 @@
 
 store_version = 16  # Needed for dynamic plugin loading
 
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from lxml import etree, html
@@ -19,14 +20,22 @@ try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
 
-    def safe_html_fromstring(string_or_bytes, recover=True):
+    def safe_html_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> html.HtmlElement:
         return html.fromstring(string_or_bytes)
 
 
 _storage: list = []
 
 
-def read_url(url, timeout=60):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def read_url(url: str, timeout: float = 60) -> str:
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
     from calibre.scraper.simple import read_url as ru
@@ -34,7 +43,7 @@ def read_url(url, timeout=60):
     return ru(_storage, url, timeout=timeout)
 
 
-def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
+def search_kobo(query: bytes | str, max_results: int = 10, timeout: int = 60, write_html_to: str | None = None) -> Iterator[SearchResult]:
     from css_selectors import Select
 
     url = 'https://www.kobo.com/search?query=' + quote_plus(query)
@@ -93,7 +102,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 class KoboStore(BasicStoreConfig, StorePlugin):
     minimum_calibre_version = (5, 40, 1)
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         if detail_item:
             purl = detail_item
             url = purl
@@ -109,10 +118,10 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search_kobo(query, max_results=max_results, timeout=timeout)
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         raw = read_url(search_result.detail_item, timeout=timeout)
         idata = safe_html_fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QAbstractListModel, QItemSelectionModel, QModelIndex, Qt
 
 from calibre.customize.ui import input_profiles, output_profiles
@@ -9,16 +11,26 @@ from calibre.gui2.convert import Widget
 from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from types import EllipsisType
+
+    from qt.core import QListView, QWidget
+
+    from calibre.customize.profiles import InputProfile, OutputProfile
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption, OptionWidget
+
 
 class ProfileModel(QAbstractListModel):
-    def __init__(self, profiles) -> None:
+    def __init__(self, profiles: Iterable[InputProfile | OutputProfile]) -> None:
         QAbstractListModel.__init__(self)
         self.profiles = list(profiles)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.profiles)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         profile = self.profiles[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             if profile.name.startswith('Default '):
@@ -39,8 +51,8 @@ class PageSetupWidget(Widget, Ui_Form):
     TITLE = _('Page setup')
     COMMIT_NAME = 'page_setup'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
-        self.__connections = []
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
+        self.__connections: list[tuple[QListView, Callable[..., None]]] = []
         Widget.__init__(self, parent, OPTIONS['pipe']['page_setup'])
 
         self.db, self.book_id = db, book_id
@@ -49,7 +61,9 @@ class PageSetupWidget(Widget, Ui_Form):
         self.opt_input_profile.setModel(self.input_model)
         self.opt_output_profile.setModel(self.output_model)
         for g, slot in self.__connections:
-            g.selectionModel().currentChanged.connect(slot)
+            sm = g.selectionModel()
+            assert sm is not None
+            sm.currentChanged.connect(slot)
         del self.__connections
 
         for x in (self.opt_input_profile, self.opt_output_profile):
@@ -59,30 +73,34 @@ class PageSetupWidget(Widget, Ui_Form):
         self.opt_input_profile.setToolTip('')
         self.opt_output_profile.setToolTip('')
 
-    def show_desc(self, index) -> None:
-        desc = str(index.model().data(index, Qt.ItemDataRole.StatusTipRole) or '')
+    def show_desc(self, index: QModelIndex) -> None:
+        desc = str(index.data(Qt.ItemDataRole.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
-    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
+    def connect_gui_obj_handler(self, gui_obj: OptionWidget, slot: Callable[..., None]) -> None:
         if gui_obj not in (self.opt_input_profile, self.opt_output_profile):
             raise NotImplementedError()
-        self.__connections.append((gui_obj, slot))
+        self.__connections.append((cast('QListView', gui_obj), slot))
 
-    def set_value_handler(self, g, val) -> bool:
+    def set_value_handler(self, g: OptionWidget, val: object) -> bool:
         if g in (self.opt_input_profile, self.opt_output_profile):
-            g.clearSelection()
-            for idx, p in enumerate(g.model().profiles):
+            lv = cast('QListView', g)
+            lv.clearSelection()
+            model = cast('ProfileModel', lv.model())
+            for idx, p in enumerate(model.profiles):
                 if p.short_name == val:
                     break
-            idx = g.model().index(idx)
-            sm = g.selectionModel()
-            g.setCurrentIndex(idx)
+            idx = model.index(idx)
+            sm = lv.selectionModel()
+            assert sm is not None
+            lv.setCurrentIndex(idx)
             sm.select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
             return True
         return False
 
-    def get_value_handler(self, g):
+    def get_value_handler(self, g: OptionWidget) -> object:
         if g in (self.opt_input_profile, self.opt_output_profile):
-            idx = g.currentIndex().row()
-            return g.model().profiles[idx].short_name
+            lv = cast('QListView', g)
+            idx = lv.currentIndex().row()
+            return cast('ProfileModel', lv.model()).profiles[idx].short_name
         return Widget.get_value_handler(self, g)

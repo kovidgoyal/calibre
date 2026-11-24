@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog, question_dialog
@@ -10,17 +12,21 @@ from calibre.library.save_to_disk import FORMAT_ARG_DESCS, Formatter, get_compon
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.library.field_metadata import FieldMetadata
+    from calibre.utils.config import ConfigProxy
+
 
 class SaveTemplate(QWidget, Ui_Form):
     changed_signal = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         Ui_Form.__init__(self)
         self.setupUi(self)
         self.orig_help_text = self.help_label.text()
 
-    def initialize(self, name, default, help, field_metadata) -> None:
+    def initialize(self, name: str, default: str, help: str | None, field_metadata: FieldMetadata) -> None:
         variables = sorted(FORMAT_ARG_DESCS.keys())
         help_text = self.orig_help_text
         if name == 'send_to_device':
@@ -82,10 +88,10 @@ class SaveTemplate(QWidget, Ui_Form):
         if t.exec():
             self.opt_template.set_value(t.rule[1])
 
-    def changed(self, *args) -> None:
+    def changed(self, *args: object) -> None:
         self.changed_signal.emit()
 
-    def validate(self):
+    def validate(self) -> bool:
         """
         Do a syntax check on the format string. Doing a semantic check
         (verifying that the fields exist) is not useful in the presence of
@@ -113,10 +119,10 @@ class SaveTemplate(QWidget, Ui_Form):
             return False
         return True
 
-    def set_value(self, val) -> None:
+    def set_value(self, val: str) -> None:
         self.opt_template.set_value(val)
 
-    def save_settings(self, config, name) -> None:
+    def save_settings(self, config: ConfigProxy, name: str) -> None:
         val = str(self.opt_template.text())
         config.set(name, val)
         self.opt_template.save_history(self.option_name + '_template_history')

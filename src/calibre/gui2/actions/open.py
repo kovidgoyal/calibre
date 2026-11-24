@@ -23,10 +23,12 @@ class OpenFolderAction(InterfaceAction):
     def genesis(self) -> None:
         va = self.gui.iactions['View'].view_folder
         self.qaction.triggered.connect(va)
-        a = self.create_menu_action(self.qaction.menu(), 'show-data-folder', _('Open book data folder'), icon='document_open.png', shortcut=())
+        m = self.qaction.menu()
+        assert m is not None
+        a = self.create_menu_action(m, 'show-data-folder', _('Open book data folder'), icon='document_open.png', shortcut=())
         a.triggered.connect(partial(va, data_folder=True))
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)

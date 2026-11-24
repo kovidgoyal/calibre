@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre.gui2 import gprefs
 from calibre.gui2.custom_column_widgets import get_field_list as em_get_field_list
@@ -11,12 +12,20 @@ from calibre.gui2.preferences.look_feel_tabs.edit_metadata_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QObject
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+
 
 class EMDisplayedFields(DisplayedFields):
-    def __init__(self, db, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QObject | None = None) -> None:
         DisplayedFields.__init__(self, db, parent)
 
-    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
+    def initialize(self, use_defaults: bool = False, pref_data_override: Iterable[tuple[str, bool]] | None = None) -> None:
         self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in em_get_field_list(self.db, use_defaults=use_defaults, pref_data_override=pref_data_override)]
         self.endResetModel()
@@ -28,9 +37,10 @@ class EMDisplayedFields(DisplayedFields):
 
 
 class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
+        assert db is not None
         r = self.register
 
         r(
@@ -65,12 +75,12 @@ class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self) -> None:
         self.em_display_model.initialize()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         with BusyCursor():
             self.em_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.em_display_model.restore_defaults()
         self.changed_signal.emit()

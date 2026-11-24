@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QVBoxLayout
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.conf_widget = ShortcutConfig(self)
         self.conf_widget.changed_signal.connect(self.changed_signal)
@@ -21,18 +26,18 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.initialize(self)
         self.conf_widget.initialize(self.gui.keyboard)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.conf_widget.restore_defaults()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         self.conf_widget.commit()
         return ConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.keyboard.finalize()
 
-    def highlight_group(self, group_name) -> None:
+    def highlight_group(self, group_name: str) -> None:
         self.conf_widget.highlight_group(group_name)
 
 

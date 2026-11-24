@@ -7,7 +7,7 @@ import copy
 import re
 from enum import Enum
 from functools import partial
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast, overload
 
 from qt.core import (
     QCheckBox,
@@ -34,6 +34,38 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from typing import Protocol, TypedDict
+
+    from qt.core import QLayout
+
+    from calibre.gui2.ui import Main
+
+    #: A custom column definition as edited in the preferences. Starts as a
+    #: copy of the field metadata of the column, with some extra keys used to
+    #: track the changes made.
+    CustomColumnEntry = TypedDict(
+        'CustomColumnEntry',
+        {
+            'label': str,
+            'name': str,
+            'datatype': str,
+            'display': dict[str, Any],
+            'normalized': bool | None,
+            'colnum': int | None,
+            'is_multiple': bool | dict[str, str],
+            'original_key': str,
+            '*edited': bool,
+            '*must_restart': bool,
+            '*deleted': bool,
+        },
+        total=False,
+    )
+
+    class CustomColumnsOwner(Protocol):
+        custcols: dict[str, CustomColumnEntry]
+        cc_column_key: str | None
 
 
 class CreateCustomColumn(QDialog):
@@ -76,7 +108,9 @@ class CreateCustomColumn(QDialog):
     )
     column_types_map = {k['datatype']: idx for idx, k in column_types.items()}
 
-    def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False) -> None:
+    def __init__(
+        self, gui: Main, caller: CustomColumnsOwner, current_key: str | None, standard_colheads: dict[str, str], freeze_lookup_name: bool = False
+    ) -> None:
         QDialog.__init__(self, gui)
         self.orig_column_number = -1
         self.gui = gui
@@ -205,7 +239,7 @@ class CreateCustomColumn(QDialog):
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
         self.exec()
 
-    def shortcut_activated(self, url) -> None:  # {{{
+    def shortcut_activated(self, url: str) -> None:  # {{{
         which = str(url).split(':')[-1]
         self.column_type_box.setCurrentIndex(
             {
@@ -291,11 +325,17 @@ class CreateCustomColumn(QDialog):
         bbl.addWidget(bb)
         l.addLayout(bbl)
 
-        def add_row(text, widget):
+        @overload
+        def add_row(text: str, widget: QWidget | QLayout) -> QLabel: ...
+        @overload
+        def add_row(text: None, widget: QWidget | QLayout) -> None: ...
+        def add_row(text: str | None, widget: QWidget | QLayout) -> QLabel | None:
             if text is None:
-                f = g.addWidget if isinstance(widget, QWidget) else g.addLayout
-                f(widget, g.rowCount(), 0, 1, -1)
-                return
+                if isinstance(widget, QWidget):
+                    g.addWidget(widget, g.rowCount(), 0, 1, -1)
+                else:
+                    g.addLayout(widget, g.rowCount(), 0, 1, -1)
+                return None
 
             row = g.rowCount()
             la = QLabel(text)
@@ -307,7 +347,8 @@ class CreateCustomColumn(QDialog):
                 widget.setContentsMargins(0, 0, 0, 0)
                 g.addLayout(widget, row, 1, 1, 1)
                 for i in range(widget.count()):
-                    w = widget.itemAt(i).widget()
+                    item = widget.itemAt(i)
+                    w = None if item is None else item.widget()
                     if isinstance(w, QWidget):
                         la.setBuddy(w)
                         break
@@ -363,7 +404,7 @@ class CreateCustomColumn(QDialog):
         # bool formatting
         h1 = QHBoxLayout()
 
-        def add_bool_radio_button(txt):
+        def add_bool_radio_button(txt: str) -> QRadioButton:
             b = QRadioButton(txt)
             b.clicked.connect(partial(self.bool_radio_button_clicked, b))
             h1.addWidget(b)
@@ -654,11 +695,11 @@ class CreateCustomColumn(QDialog):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.web_search_template.setText(d.rule[1])
 
-    def bool_radio_button_clicked(self, button, clicked) -> None:
+    def bool_radio_button_clicked(self, button: QRadioButton, clicked: bool) -> None:
         if clicked:
             self.bool_button_group.setFocusProxy(button)
 
-    def composite_show_in_comments_clicked(self, state) -> None:
+    def composite_show_in_comments_clicked(self, state: int) -> None:
         if state == Qt.CheckState.Checked.value:  # state is passed as an int
             self.composite_sort_by.setEnabled(False)
             self.composite_sort_by_label.setEnabled(False)
@@ -676,7 +717,7 @@ class CreateCustomColumn(QDialog):
             self.composite_heading_position_label.setEnabled(False)
             self.composite_heading_position.setCurrentIndex(0)
 
-    def datatype_changed(self, *args) -> None:
+    def datatype_changed(self, *args: object) -> None:
         try:
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         except Exception:
@@ -799,21 +840,24 @@ class CreateCustomColumn(QDialog):
         self.bool_button_group_label.setVisible(is_bool)
         self.bool_show_label.setVisible(is_bool)
 
-    def accept(self):
+    def accept(self) -> None:
         col = str(self.column_name_box.text()).strip()
         if not col:
-            return self.simple_error('', _('No lookup name was provided'))
+            self.simple_error('', _('No lookup name was provided'))
+            return
         col = col.removeprefix('#')
         if re.match(r'^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
-            return self.simple_error(
+            self.simple_error(
                 '',
                 _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'),
             )
+            return
         if col.endswith('_index'):
-            return self.simple_error(
+            self.simple_error(
                 '',
                 _('Lookup names cannot end with _index, because these names are reserved for the index of a series column.'),
             )
+            return
         col_heading = str(self.column_heading_box.text()).strip()
         coldef = self.column_types[self.column_type_box.currentIndex()]
         col_type = str(coldef['datatype'])
@@ -823,13 +867,15 @@ class CreateCustomColumn(QDialog):
         else:
             is_multiple = False
         if not col_heading:
-            return self.simple_error('', _('No column heading was provided'))
+            self.simple_error('', _('No column heading was provided'))
+            return
 
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         key = db.field_metadata.custom_field_prefix + col
         cc = self.caller.custcols
         if key in cc and (not self.editing_col or cc[key]['colnum'] != self.orig_column_number):
-            return self.simple_error('', _('The lookup name %s is already used') % col)
+            self.simple_error('', _('The lookup name %s is already used') % col)
+            return
         bad_head = False
         for cc in self.caller.custcols.values():
             if cc['name'] == col_heading and cc['colnum'] != self.orig_column_number:
@@ -869,11 +915,13 @@ class CreateCustomColumn(QDialog):
                     except Exception:
                         tv = UNDEFINED_DATE
                     if tv == UNDEFINED_DATE:
-                        return self.simple_error(_('Invalid default value'), _('The default value must be "Now" or a date'))
+                        self.simple_error(_('Invalid default value'), _('The default value must be "Now" or a date'))
+                        return
                     display_dict['default_value'] = default_val
         elif col_type == 'composite':
             if not str(self.composite_box.text()).strip():
-                return self.simple_error('', _('You must enter a template for composite columns'))
+                self.simple_error('', _('You must enter a template for composite columns'))
+                return
             if self.composite_in_comments_box.isChecked():
                 display_dict = {
                     'composite_template': str(self.composite_box.text()).strip(),
@@ -892,26 +940,31 @@ class CreateCustomColumn(QDialog):
 
         elif col_type == 'enumeration':
             if not str(self.enum_box.text()).strip():
-                return self.simple_error('', _('You must enter at least one value for enumeration columns'))
+                self.simple_error('', _('You must enter at least one value for enumeration columns'))
+                return
             l = [v.strip() for v in str(self.enum_box.text()).split(',') if v.strip()]
             l_lower = [v.lower() for v in l]
             for i, v in enumerate(l_lower):
                 if v in l_lower[i + 1 :]:
-                    return self.simple_error('', _('The value "{0}" is in the list more than once, perhaps with different case').format(l[i]))
+                    self.simple_error('', _('The value "{0}" is in the list more than once, perhaps with different case').format(l[i]))
+                    return
             c = str(self.enum_colors.text())
             if c:
                 c = [v.strip() for v in str(self.enum_colors.text()).split(',')]
             else:
                 c = []
             if len(c) != 0 and len(c) != len(l):
-                return self.simple_error('', _('The colors box must be empty or contain the same number of items as the value box'))
+                self.simple_error('', _('The colors box must be empty or contain the same number of items as the value box'))
+                return
             for tc in c:
                 if tc not in QColor.colorNames() and not re.match(r'#(?:[0-9a-f]{3}){1,4}', tc, re.I):
-                    return self.simple_error('', _('The color {0} is unknown').format(tc))
+                    self.simple_error('', _('The color {0} is unknown').format(tc))
+                    return
             display_dict = {'enum_values': l, 'enum_colors': c}
             if default_val:
                 if default_val not in l:
-                    return self.simple_error(_('Invalid default value'), _('The default value must be one of the permitted values'))
+                    self.simple_error(_('Invalid default value'), _('The default value must be one of the permitted values'))
+                    return
                 display_dict['default_value'] = default_val
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
@@ -933,7 +986,8 @@ class CreateCustomColumn(QDialog):
                         tv = float(default_val)
                         display_dict['default_value'] = tv
                 except Exception:
-                    return self.simple_error(_('Invalid default value'), msg)
+                    self.simple_error(_('Invalid default value'), msg)
+                    return
         elif col_type == 'comments':
             display_dict['heading_position'] = str(self.comments_heading_position.currentData())
             display_dict['interpret_as'] = str(self.comments_type.currentData())
@@ -947,15 +1001,18 @@ class CreateCustomColumn(QDialog):
                     tv = -1
                 if tv < 0 or tv > 10:
                     if half_stars:
-                        return self.simple_error(_('Invalid default value'), _('The default value must be a real number between 0 and 5.0'))
+                        self.simple_error(_('Invalid default value'), _('The default value must be a real number between 0 and 5.0'))
+                        return
                     else:
-                        return self.simple_error(_('Invalid default value'), _('The default value must be an integer between 0 and 5'))
+                        self.simple_error(_('Invalid default value'), _('The default value must be an integer between 0 and 5'))
+                        return
                 display_dict['default_value'] = tv
         elif col_type == 'bool':
             if default_val:
                 tv = {_('Yes'): True, _('No'): False}.get(default_val, None)
                 if tv is None:
-                    return self.simple_error(_('Invalid default value'), _('The default value must be "Yes" or "No"'))
+                    self.simple_error(_('Invalid default value'), _('The default value must be "Yes" or "No"'))
+                    return
                 display_dict['default_value'] = tv
             show_icon = bool(self.bool_show_icon_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
             show_text = bool(self.bool_show_text_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
@@ -1122,25 +1179,27 @@ class CreateNewCustomColumn:
         MUST_RESTART = 9
         COLUMN_EDITED = 11
 
-    def __init__(self, gui) -> None:
+    custcols: dict[str, CustomColumnEntry]
+
+    def __init__(self, gui: Main) -> None:
         self.gui = gui
         self.restart_required = gui.must_restart_before_config
-        self.db = db = self.gui.library_view.model().db
-        self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
+        self.db = db = self.gui.current_db
+        self.custcols = cast('dict[str, CustomColumnEntry]', copy.deepcopy(db.field_metadata.custom_field_metadata()))
         # Get the largest internal column number so we can be sure that we can
         # detect duplicates.
-        self.created_count = max((x['colnum'] for x in self.custcols.values()), default=0) + 1
+        self.created_count = max((x['colnum'] or 0 for x in self.custcols.values()), default=0) + 1
 
     def create_column(
         self,
-        lookup_name,
-        column_heading,
-        datatype,
-        is_multiple,
-        display=None,
-        generate_unused_lookup_name=False,
-        freeze_lookup_name=True,
-    ):
+        lookup_name: str,
+        column_heading: str | None,
+        datatype: str,
+        is_multiple: bool,
+        display: dict[str, Any] | None = None,
+        generate_unused_lookup_name: bool = False,
+        freeze_lookup_name: bool = True,
+    ) -> tuple[Result, str | None]:
         """See the class documentation for more information."""
         if display is None:
             display = {}
@@ -1188,12 +1247,12 @@ class CreateNewCustomColumn:
 
         return self._create_or_edit_column(lookup_name, freeze_lookup_name=freeze_lookup_name, operation='create')
 
-    def edit_existing_column(self, lookup_name):
+    def edit_existing_column(self, lookup_name: str) -> tuple[Result, str | None]:
         if lookup_name not in self.custcols:
-            return self.Result.INVALID_KEY
+            return (self.Result.INVALID_KEY, _('The custom column %s does not exist') % lookup_name)
         return self._create_or_edit_column(lookup_name, freeze_lookup_name=False, operation='edit')
 
-    def _create_or_edit_column(self, lookup_name, freeze_lookup_name, operation=None):
+    def _create_or_edit_column(self, lookup_name: str, freeze_lookup_name: bool, operation: str | None = None) -> tuple[Result, str | None]:
         try:
             dialog = CreateCustomColumn(
                 self.gui,
@@ -1216,6 +1275,7 @@ class CreateNewCustomColumn:
                     return (self.Result.COLUMN_ADDED, self.cc_column_key)
                 # editing/viewing
                 if operation == 'edit':
+                    assert cc['colnum'] is not None
                     self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'], label=cc['label'], display=cc['display'], notify=False)
                     if '*must_restart' in cc:
                         self.gui.must_restart_before_config = True
@@ -1230,7 +1290,7 @@ class CreateNewCustomColumn:
         self.custcols.pop(lookup_name, None)
         return (self.Result.CANCELED, _('Canceled'))
 
-    def current_columns(self):
+    def current_columns(self) -> dict[str, CustomColumnEntry]:
         """
         Return the currently defined custom columns
 
@@ -1254,7 +1314,7 @@ class CreateNewCustomColumn:
         # items in the dict.
         return copy.deepcopy(self.custcols)
 
-    def current_headings(self):
+    def current_headings(self) -> dict[str | None, str]:
         """
         Return the currently defined column headings
 
@@ -1264,6 +1324,6 @@ class CreateNewCustomColumn:
         """
         return {v['name']: ('#' + v['label']) for v in self.custcols.values()}
 
-    def must_restart(self):
+    def must_restart(self) -> bool:
         """Return true if calibre must be restarted before new columns can be added."""
         return self.restart_required

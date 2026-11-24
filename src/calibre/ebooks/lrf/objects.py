@@ -255,6 +255,15 @@ class PageAttr(StyleObject, LRFObject):
     evenheaderid: int  # set via tag_map[0xF508]
     oddfooterid: int  # set via tag_map[0xF509]
     evenfooterid: int  # set via tag_map[0xF50A]
+    topmargin: int  # set via tag_map[0xF521]
+    headheight: int  # set via tag_map[0xF522]
+    headsep: int  # set via tag_map[0xF523]
+    oddsidemargin: int  # set via tag_map[0xF524]
+    evensidemargin: int  # set via tag_map[0xF52C]
+    textheight: int  # set via tag_map[0xF525]
+    textwidth: int  # set via tag_map[0xF526]
+    footspace: int  # set via tag_map[0xF527]
+    footheight: int  # set via tag_map[0xF528]
 
     @classmethod
     def to_css(cls, obj: object, inline: bool = False) -> str:
@@ -981,6 +990,12 @@ class Canvas(LRFStream):
     }
     tag_map.update(LRFStream.tag_map)
     extra_attrs = ['canvaswidth', 'canvasheight', 'blockrule', 'layout', 'framewidth', 'framecolor', 'framemode']
+    canvaswidth: int  # set via tag_map[0xF551]
+    canvasheight: int  # set via tag_map[0xF552]
+    bgcolor: Color  # set via tag_map[0xF534]
+    framewidth: int  # set via tag_map[0xF536]
+    framecolor: Color  # set via tag_map[0xF537]
+    framemode: str  # set via tag_map[0xF52E]
 
     def parse_waits(self, tag: Tag, f: IO[bytes]) -> None:
         val = tag.word

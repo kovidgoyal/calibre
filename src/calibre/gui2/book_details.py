@@ -741,7 +741,9 @@ def create_copy_links(menu: QMenu, data: ActionData | None = None) -> None:
     if not library_id:
         return
     library_id = '_hex_-' + library_id.encode('utf-8').hex()
-    book_id = get_gui(fail_if_absent=True).library_view.current_id
+    # current_id can be None, in which case the links are generated with None
+    # as the book id, as they always have been
+    book_id = cast('int', get_gui(fail_if_absent=True).library_view.current_id)
 
     def copy_to_clipboard_action(menu_text: str, value_text: str, before_action: QAction | None = None) -> None:
         def doit() -> None:
@@ -917,7 +919,8 @@ def details_context_menu_event(
             edit_metadata,
         )
     menu.addSeparator()
-    book_id = get_gui(fail_if_absent=True).library_view.current_id
+    # current_id can be None, the actions are added regardless, as they always have been
+    book_id = cast('int', get_gui(fail_if_absent=True).library_view.current_id)
     if not reindex_fmt_added:
         ac_fts = menu.addAction(_('Re-index this book for full text searching'), partial(book_info.reindex_fmt, book_id, ''))
         assert ac_fts is not None

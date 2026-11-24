@@ -7,6 +7,7 @@ import shutil
 from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl
 
@@ -26,6 +27,19 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    import datetime
+    from collections.abc import Callable, Collection, Generator, Iterable, Mapping, Sequence
+
+    from qt.core import QWidget
+
+    from calibre.gui2.device import RebuildableBookList
+    from calibre.gui2.dialogs.progress import ProgressDialog
+    from calibre.gui2.library.views import DeviceBooksView
+    from calibre.gui2.threaded_jobs import ThreadedJob
+
+    DownloadPayload = tuple[set[int], str, str, dict[int, datetime.datetime | None], set[int]]
+
 DATA_FILES_ICON_NAME = 'unpack-book.png'
 
 
@@ -39,7 +53,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         book_ids = self.dropped_ids
         del self.dropped_ids
         if book_ids:
-            db = self.gui.library_view.model().db
+            db = self.gui.current_db
             rows = [db.row(i) for i in book_ids]
             self.edit_metadata_for(rows, book_ids)
 
@@ -134,7 +148,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids(ids, cr)
 
-    def _copy_links(self, lines) -> None:
+    def _copy_links(self, lines: list[str]) -> None:
         urls = QUrl.fromStringList(lines)
         cb = qapplication_or_fail().clipboard()
         assert cb is not None
@@ -171,14 +185,14 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if lines:
             self._copy_links(lines)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
         for action in self.metamerge_menu.actions() + self.metadata_menu.actions():
             action.setEnabled(enabled)
 
-    def copy_metadata(self):
+    def copy_metadata(self) -> int | None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot copy metadata'), _('No books selected'), show=True)
@@ -208,7 +222,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     def paste_metadata_including_excluded_fields(self) -> None:
         self.do_paste(ignore_excluded_fields=True)
 
-    def do_paste(self, ignore_excluded_fields=False):
+    def do_paste(self, ignore_excluded_fields: bool = False) -> int | None:
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot paste metadata'), _('No books selected'), show=True)
@@ -243,21 +257,21 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         authors_excluded = 'authors' in exclude
         for book_id in book_ids:
             if title_excluded:
-                mi.title = db.new_api.field_for('title', book_id)
+                mi.set('title', db.new_api.field_for('title', book_id))
             if authors_excluded:
-                mi.authors = db.new_api.field_for('authors', book_id)
+                mi.set('authors', db.new_api.field_for('authors', book_id))
             db.new_api.set_metadata(book_id, mi, ignore_errors=True)
         if cover:
             db.new_api.set_cover({book_id: cover for book_id in book_ids})
         self.refresh_books_after_metadata_edit(book_ids)
 
     # Download metadata {{{
-    def download_metadata(self, ids=None, ensure_fields=None):
+    def download_metadata(self, ids: Sequence[int] | None = None, ensure_fields: Collection[str] | None = None) -> int | None:
         if ids is None:
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) == 0:
                 return error_dialog(self.gui, _('Cannot download metadata'), _('No books selected'), show=True)
-            db = self.gui.library_view.model().db
+            db = self.gui.current_db
             ids = [db.id(row.row()) for row in rows]
         from calibre.ebooks.metadata.sources.update import update_sources
         from calibre.gui2.metadata.bulk_download import start_download
@@ -277,13 +291,13 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             return
         start_download(self.gui, ids, Dispatcher(self.metadata_downloaded), ensure_fields=ensure_fields)
 
-    def cleanup_bulk_download(self, tdir, *args) -> None:
+    def cleanup_bulk_download(self, tdir: str, *args: object) -> None:
         try:
             shutil.rmtree(tdir, ignore_errors=True)
         except Exception:
             pass
 
-    def metadata_downloaded(self, job):
+    def metadata_downloaded(self, job: ThreadedJob) -> int | None:
         if job.failed:
             self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
             return
@@ -355,7 +369,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             action_icon=QIcon.ic('auto_author_sort.png'),
         )
 
-    def apply_downloaded_metadata(self, review, payload, *args) -> None:
+    def apply_downloaded_metadata(self, review: bool, payload: DownloadPayload, *args: object) -> None:
         good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
@@ -366,7 +380,8 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
         for i in good_ids:
             lm = db.metadata_last_modified(i, index_is_id=True)
-            if lm is not None and lm_map[i] is not None and lm > lm_map[i]:
+            old_lm = lm_map[i]
+            if lm is not None and old_lm is not None and lm > old_lm:
                 title = db.title(i, index_is_id=True)
                 authors = db.authors(i, index_is_id=True)
                 if authors:
@@ -405,7 +420,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
         if review:
 
-            def get_metadata(book_id):
+            def get_metadata(book_id: int) -> tuple[Metadata, Metadata]:
                 oldmi = db.get_metadata(book_id, index_is_id=True, get_cover=True, cover_as_data=True)
                 opf, cov = id_map[book_id]
                 if opf is None:
@@ -480,14 +495,14 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             callback=partial(self.downloaded_metadata_applied, tdir, restrict_to_failed),
         )
 
-    def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args) -> None:
+    def downloaded_metadata_applied(self, tdir: str, restrict_to_failed: bool, *args: object) -> None:
         if restrict_to_failed:
             self.gui.search.set_search_string('marked:true')
         self.cleanup_bulk_download(tdir)
 
     # }}}
 
-    def edit_metadata(self, checked, bulk=None) -> None:
+    def edit_metadata(self, checked: bool, bulk: bool | None = None) -> None:
         """
         Edit metadata of selected books in library.
         """
@@ -501,7 +516,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         ids = [m.id(r) for r in rows]
         self.edit_metadata_for(row_list, ids, bulk=bulk)
 
-    def edit_metadata_for(self, rows, book_ids, bulk=None):
+    def edit_metadata_for(self, rows: list[int], book_ids: Sequence[int], bulk: bool | None = None) -> None:
         previous = self.gui.library_view.currentIndex()
         if bulk or (bulk is None and len(rows) > 1):
             return self.do_edit_bulk_metadata(rows, book_ids)
@@ -517,7 +532,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
         view = self.gui.library_view.alternate_views.current_view
         try:
-            hpos = view.horizontalScrollBar().value()
+            vhsb = view.horizontalScrollBar()
+            assert vhsb is not None
+            hpos = vhsb.value()
         except Exception:
             hpos = 0
 
@@ -532,11 +549,13 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.refresh_books_after_metadata_edit(changed, previous)
         if self.gui.library_view.alternate_views.current_view is view:
             if hasattr(view, 'restore_hpos'):
-                view.restore_hpos(hpos)
+                getattr(view, 'restore_hpos')(hpos)
             else:
-                view.horizontalScrollBar().setValue(hpos)
+                vhsb = view.horizontalScrollBar()
+                assert vhsb is not None
+                vhsb.setValue(hpos)
 
-    def refresh_books_after_metadata_edit(self, book_ids, previous=None) -> None:
+    def refresh_books_after_metadata_edit(self, book_ids: Iterable[int], previous: QModelIndex | None = None) -> None:
         m = self.gui.library_view.model()
         m.refresh_ids(list(book_ids))
         current = self.gui.library_view.currentIndex()
@@ -547,10 +566,10 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if qv:
             qv.refresh_quickview(current)
 
-    def do_edit_metadata(self, row_list, current_row, editing_multiple):
+    def do_edit_metadata(self, row_list: list[int], current_row: int, editing_multiple: bool) -> tuple[set[int], set[int]]:
         from calibre.gui2.metadata.single import edit_metadata
 
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         parent = getattr(self, 'override_parent', None) or self.gui
         changed, rows_to_refresh = edit_metadata(
             db,
@@ -565,7 +584,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         return changed, rows_to_refresh
 
     @contextmanager
-    def different_parent(self, parent):
+    def different_parent(self, parent: QWidget) -> Generator[None]:
         orig = getattr(self, 'override_parent', None)
         self.override_parent = parent
         try:
@@ -573,8 +592,8 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         finally:
             self.override_parent = orig
 
-    def set_current_callback(self, id_) -> None:
-        db = self.gui.library_view.model().db
+    def set_current_callback(self, id_: int) -> None:
+        db = self.gui.current_db
         # safe_id_to_index returns -1 (handled as no-op by set_current_row/scroll_to_row)
         # if the book is no longer in the view, e.g., because a metadata change caused
         # it to leave the current virtual library filter.
@@ -582,18 +601,18 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         self.gui.library_view.set_current_row(current_row)
         self.gui.library_view.scroll_to_row(current_row)
 
-    def view_format_callback(self, id_, fmt) -> None:
+    def view_format_callback(self, id_: int | None, fmt: str) -> None:
         view = self.gui.iactions['View']
         if id_ is None:
             view._view_file(fmt)
         else:
             view.view_format_by_id(id_, fmt)
 
-    def edit_format_callback(self, id_, fmt) -> None:
+    def edit_format_callback(self, id_: int, fmt: str) -> None:
         edit = self.gui.iactions['Tweak ePub']
         edit.ebook_edit_format(id_, fmt)
 
-    def edit_bulk_metadata(self, checked) -> None:
+    def edit_bulk_metadata(self, checked: bool) -> None:
         """
         Edit metadata of selected books in library in bulk.
         """
@@ -606,7 +625,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             return
         self.do_edit_bulk_metadata(rows, ids)
 
-    def do_edit_bulk_metadata(self, rows, book_ids) -> None:
+    def do_edit_bulk_metadata(self, rows: list[int], book_ids: Iterable[int]) -> None:
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
         changed = False
@@ -636,7 +655,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     # Merge books {{{
 
-    def confirm_large_merge(self, num):
+    def confirm_large_merge(self, num: int) -> bool:
         if num < 5:
             return True
         return confirm(
@@ -645,7 +664,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.gui,
         )
 
-    def books_dropped(self, merge_map) -> None:
+    def books_dropped(self, merge_map: Mapping[int, Collection[int]]) -> None:
         covers_replaced = False
         for dest_id, src_ids in merge_map.items():
             if not self.confirm_large_merge(len(src_ids) + 1):
@@ -669,7 +688,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             if covers_replaced:
                 self.gui.refresh_cover_browser()
 
-    def merge_books(self, safe_merge=False, merge_only_formats=False):
+    def merge_books(self, safe_merge: bool = False, merge_only_formats: bool = False) -> int | None:
         """
         Merge selected books in library.
         """
@@ -688,7 +707,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         dest_id, src_ids = self.books_to_merge(rows)
         mi = self.gui.current_db.new_api.get_proxy_metadata(dest_id)
         title = mi.title
-        hpos = self.gui.library_view.horizontalScrollBar().value()
+        hsb = self.gui.library_view.horizontalScrollBar()
+        assert hsb is not None
+        hpos = hsb.value()
         if safe_merge:
             confirmed, save_alternate_cover = confirm_merge(
                 '<p>'
@@ -768,20 +789,21 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.gui.library_view.set_current_row(dest_row)
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids((dest_id,), cr)
-        self.gui.library_view.horizontalScrollBar().setValue(hpos)
+        hsb.setValue(hpos)
 
-    def merge_data_files(self, dest_id, src_ids) -> None:
+    def merge_data_files(self, dest_id: int, src_ids: Iterable[int]) -> None:
         self.gui.current_db.new_api.merge_extra_files(dest_id, src_ids)
 
-    def add_formats(self, dest_id, src_books, replace=False) -> None:
+    def add_formats(self, dest_id: int, src_books: Iterable[str | None], replace: bool = False) -> None:
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
                 with open(src_book, 'rb') as f:
-                    self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True, notify=False, replace=replace)
+                    self.gui.current_db.add_format(dest_id, fmt, f, index_is_id=True, notify=False, replace=replace)
 
-    def formats_for_ids(self, ids):
+    def formats_for_ids(self, ids: Iterable[int]) -> list[str | None]:
         m = self.gui.library_view.model()
+        assert m.db is not None
         ans = []
         for id_ in ids:
             dbfmts = m.db.formats(id_, index_is_id=True)
@@ -789,16 +811,17 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 for fmt in dbfmts.split(','):
                     try:
                         path = m.db.format(id_, fmt, index_is_id=True, as_path=True)
+                        assert path is None or isinstance(path, str)
                         ans.append(path)
                     except NoSuchFormat:
                         continue
         return ans
 
-    def formats_for_books(self, rows):
+    def formats_for_books(self, rows: Iterable[int]) -> list[str | None]:
         m = self.gui.library_view.model()
         return self.formats_for_ids(list(map(m.id, rows)))
 
-    def books_to_merge(self, rows):
+    def books_to_merge(self, rows: Iterable[int]) -> tuple[int, list[int]]:
         src_ids = []
         m = self.gui.library_view.model()
         for i, row in enumerate(rows):
@@ -807,17 +830,17 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 dest_id = id_
             else:
                 src_ids.append(id_)
-        return [dest_id, src_ids]
+        return dest_id, src_ids
 
-    def delete_books_after_merge(self, ids_to_delete) -> None:
+    def delete_books_after_merge(self, ids_to_delete: Collection[int]) -> None:
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
-    def merge_metadata(self, dest_id, src_ids, replace_cover=False, save_alternate_cover=False) -> None:
+    def merge_metadata(self, dest_id: int, src_ids: Collection[int], replace_cover: bool = False, save_alternate_cover: bool = False) -> None:
         self.gui.current_db.new_api.merge_book_metadata(dest_id, src_ids, replace_cover, save_alternate_cover=save_alternate_cover)
 
     # }}}
 
-    def edit_device_collections(self, view, oncard=None) -> None:
+    def edit_device_collections(self, view: DeviceBooksView, oncard: str | None = None) -> None:
         model = view.model()
         result = model.get_collections_with_ids()
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
@@ -829,11 +852,20 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 model.rename_collection(old_id, new_name=str(new_name))
             for item in to_delete:
                 model.delete_collection_using_id(item)
-            self.gui.upload_collections(model.db, view=view, oncard=oncard)
+            self.gui.upload_collections(cast('RebuildableBookList', model.db), view=view, oncard=oncard)
             view.reset()
 
     # Apply bulk metadata changes {{{
-    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None, merge_tags=True, merge_comments=False, icon=None) -> None:
+    def apply_metadata_changes(
+        self,
+        id_map: Mapping[int, Metadata | tuple[str | None, str | None]],
+        title: str | None = None,
+        msg: str = '',
+        callback: Callable[[list[int]], object] | None = None,
+        merge_tags: bool = True,
+        merge_comments: bool = False,
+        icon: str | QIcon | None = None,
+    ) -> None:
         """
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -854,9 +886,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             title = _('Applying changed metadata')
         self.apply_id_map = list(id_map.items())
         self.apply_current_idx = 0
-        self.apply_failures = []
-        self.applied_ids = set()
-        self.apply_pd = None
+        self.apply_failures: list[tuple[int, str]] = []
+        self.applied_ids: set[int] = set()
+        self.apply_pd: ProgressDialog | None = None
         self.apply_callback = callback
         if len(self.apply_id_map) > 1:
             from calibre.gui2.dialogs.progress import ProgressDialog
@@ -868,7 +900,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         self._am_merge_comments = merge_comments
         self.do_one_apply()
 
-    def do_one_apply(self):
+    def do_one_apply(self) -> None:
         if self.apply_current_idx >= len(self.apply_id_map):
             return self.finalize_apply()
 
@@ -892,7 +924,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.apply_pd.value += 1
         QTimer.singleShot(5, self.do_one_apply)
 
-    def apply_mi(self, book_id, mi) -> None:
+    def apply_mi(self, book_id: int, mi: Metadata) -> None:
         db = self.gui.current_db
 
         try:
@@ -963,7 +995,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if changed_books:
             QApplication.alert(self.gui, 2000)
 
-    def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True) -> None:
+    def refresh_gui(self, book_ids: Collection[int], covers_changed: bool = True, tag_browser_changed: bool = True) -> None:
         if book_ids:
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(list(book_ids), cr)
@@ -974,7 +1006,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     # }}}
 
-    def remove_metadata_item(self, book_id, field, value) -> None:
+    def remove_metadata_item(self, book_id: int, field: str, value: str) -> None:
         db = self.gui.current_db.new_api
         fm = db.field_metadata[field]
         affected_books = set()
@@ -996,7 +1028,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if affected_books:
             self.refresh_books_after_metadata_edit(affected_books)
 
-    def set_cover_from_format(self, book_id, fmt):
+    def set_cover_from_format(self, book_id: int, fmt: str) -> int | None:
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.utils.config import prefs
 

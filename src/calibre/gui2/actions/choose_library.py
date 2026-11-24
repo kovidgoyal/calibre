@@ -7,7 +7,7 @@ import sys
 import weakref
 from contextlib import suppress
 from functools import lru_cache, partial
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAction,
@@ -49,14 +49,23 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
 
-def db_class():
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.library.views import PreserveViewState
+    from calibre.gui2.ui import Main
+
+
+def db_class() -> type[LibraryDatabase]:
     from calibre.db.legacy import LibraryDatabase
 
     return LibraryDatabase
 
 
-def library_icon_path(lib_name=''):
+def library_icon_path(lib_name: str | None = '') -> str:
     return os.path.join(config_dir, 'library_icons', sanitize_file_name(cast('str', lib_name or current_library_name())) + '.png')
 
 
@@ -64,7 +73,7 @@ class LibraryIcon:
     default_icon: QIcon | None = None
 
     @lru_cache(maxsize=512)  # ruff: ignore[cached-instance-method]
-    def __call__(self, lib_name='') -> QIcon:
+    def __call__(self, lib_name: str = '') -> QIcon:
         q = library_icon_path(lib_name)
         if os.path.exists(q):
             return QIcon(q)
@@ -79,7 +88,7 @@ library_qicon = LibraryIcon()
 
 class LibraryUsageStats:  # {{{
     def __init__(self) -> None:
-        self.stats = {}
+        self.stats: dict[str, int] = {}
         self.read_stats()
         base = get_portable_base()
         if base is not None:
@@ -104,17 +113,17 @@ class LibraryUsageStats:  # {{{
             self.stats.pop(key)
         gprefs.set('library_usage_stats', self.stats)
 
-    def remove(self, location) -> None:
+    def remove(self, location: str) -> None:
         self.stats.pop(location, None)
         self.write_stats()
 
-    def canonicalize_path(self, lpath):
+    def canonicalize_path(self, lpath: str | bytes) -> str:
         if isinstance(lpath, bytes):
             lpath = lpath.decode(filesystem_encoding)
         lpath = lpath.replace(os.sep, '/')
         return lpath
 
-    def library_used(self, db):
+    def library_used(self, db: LibraryDatabase) -> str:
         lpath = self.canonicalize_path(db.library_path)
         if lpath not in self.stats:
             self.stats[lpath] = 0
@@ -122,7 +131,7 @@ class LibraryUsageStats:  # {{{
         self.write_stats()
         return self.pretty(lpath)
 
-    def locations(self, db, limit=None):
+    def locations(self, db: LibraryDatabase, limit: int | None = None) -> Iterator[tuple[str, str]]:
         lpath = self.canonicalize_path(db.library_path)
         locs = list(self.stats.keys())
         if lpath in locs:
@@ -133,11 +142,11 @@ class LibraryUsageStats:  # {{{
         for loc in locs:
             yield self.pretty(loc), loc
 
-    def pretty(self, loc):
+    def pretty(self, loc: str) -> str:
         loc = loc.removesuffix('/')
         return loc.split('/')[-1]
 
-    def rename(self, location, newloc) -> None:
+    def rename(self, location: str, newloc: str) -> None:
         newloc = self.canonicalize_path(newloc)
         stats = self.stats.pop(location, None)
         if stats is not None:
@@ -149,7 +158,7 @@ class LibraryUsageStats:  # {{{
 
 
 class MovedDialog(QDialog):  # {{{
-    def __init__(self, stats, location, parent=None) -> None:
+    def __init__(self, stats: LibraryUsageStats, location: str, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('No library found'))
         self._l = l = QGridLayout(self)
@@ -211,7 +220,7 @@ class MovedDialog(QDialog):  # {{{
 
 
 class BackupStatus(QDialog):  # {{{
-    def __init__(self, gui) -> None:
+    def __init__(self, gui: Main) -> None:
         QDialog.__init__(self, gui)
         self.l = l = QVBoxLayout(self)
         self.msg = QLabel('')
@@ -231,7 +240,7 @@ class BackupStatus(QDialog):  # {{{
         self.update()
         self.resize(self.sizeHint() + QSize(50, 15))
 
-    def update(self, *args, **kwargs) -> None:
+    def update(self, *args: object, **kwargs: object) -> None:
         db = self.db()
         if db is None:
             return
@@ -254,15 +263,15 @@ class BackupStatus(QDialog):  # {{{
 
 # }}}
 
-current_change_library_action_pi = None
+current_change_library_action_pi: ChooseLibraryAction | None = None
 
 
-def set_change_library_action_plugin(pi) -> None:
+def set_change_library_action_plugin(pi: ChooseLibraryAction) -> None:
     global current_change_library_action_pi
     current_change_library_action_pi = pi
 
 
-def get_change_library_action_plugin():
+def get_change_library_action_plugin() -> ChooseLibraryAction | None:
     return current_change_library_action_pi
 
 
@@ -354,7 +363,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.maintenance_menu.addAction(ac)
 
         self.choose_menu.addMenu(self.maintenance_menu)
-        self.view_state_map = {}
+        self.view_state_map: dict[str, dict[str, object]] = {}
         self.restore_view_state.connect(self._restore_view_state, type=Qt.ConnectionType.QueuedConnection)
         ac = self.create_action(spec=(_('Switch to previous library'), 'lt.png', None, None), attr='action_previous_library')
         ac.triggered.connect(self.switch_to_previous_library, type=Qt.ConnectionType.QueuedConnection)
@@ -368,13 +377,13 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.addAction(ac)
 
     @property
-    def preserve_state_on_switch(self):
+    def preserve_state_on_switch(self) -> PreserveViewState:
         ans = getattr(self, '_preserve_state_on_switch', None)
         if ans is None:
             self._preserve_state_on_switch = ans = self.gui.library_view.preserve_state(require_selected_ids=False)
         return ans
 
-    def pick_random(self, *args) -> None:
+    def pick_random(self, *args: object) -> None:
         self.gui.iactions['Pick Random Book'].pick_random()
 
     def get_library_icon(self) -> None:
@@ -394,7 +403,7 @@ class ChooseLibraryAction(InterfaceAction):
 
             traceback.print_exc()
 
-    def rename_library_icon(self, old_name, new_name) -> None:
+    def rename_library_icon(self, old_name: str, new_name: str) -> None:
         old_path = library_icon_path(old_name)
         new_path = library_icon_path(new_name)
         try:
@@ -406,7 +415,7 @@ class ChooseLibraryAction(InterfaceAction):
 
             traceback.print_exc()
 
-    def remove_library_icon(self, name='') -> None:
+    def remove_library_icon(self, name: str = '') -> None:
         try:
             with suppress(FileNotFoundError):
                 os.remove(library_icon_path(name or current_library_name()))
@@ -426,7 +435,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.setWindowIcon(icon)
         self.remove_library_icon_action.setEnabled(has_icon)
 
-    def exim_data(self):
+    def exim_data(self) -> int | None:
         if isportable:
             return error_dialog(
                 self.gui,
@@ -448,22 +457,24 @@ class ChooseLibraryAction(InterfaceAction):
             if d.restart_needed:
                 self.gui.iactions['Restart'].restart()
 
-    def library_name(self):
-        db = self.gui.library_view.model().db
+    def library_name(self) -> str:
+        db = self.gui.current_db
         path = db.library_path
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)
 
-    def update_tooltip(self, count) -> None:
-        tooltip = self.action_spec[2] + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(getattr(self, 'last_lname', ''), count)
+    def update_tooltip(self, count: int) -> None:
+        tt = self.action_spec[2]
+        assert tt is not None
+        tooltip = tt + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(getattr(self, 'last_lname', ''), count)
         a = self.qaction
         a.setToolTip(tooltip)
         a.setStatusTip(tooltip)
         a.setWhatsThis(tooltip)
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         lname = self.stats.library_used(db)
         if lname != self.last_lname:
             self.prev_lname = self.last_lname
@@ -479,15 +490,15 @@ class ChooseLibraryAction(InterfaceAction):
         if state is not None:
             self.restore_view_state.emit(state)
 
-    def _restore_view_state(self, state) -> None:
+    def _restore_view_state(self, state: Mapping[str, object]) -> None:
         self.preserve_state_on_switch.state = state
 
     def initialization_complete(self) -> None:
-        self.library_changed(self.gui.library_view.model().db)
+        self.library_changed(self.gui.current_db)
         set_change_library_action_plugin(self)
 
     def switch_to_previous_library(self) -> None:
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         locations = list(self.stats.locations(db))
         for name, loc in locations:
             is_prev_lib = name == self.prev_lname
@@ -498,7 +509,7 @@ class ChooseLibraryAction(InterfaceAction):
     def build_menus(self) -> None:
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             return
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         lname = self.stats.library_used(db)
         assert self.vl_to_apply_action is not None
         self.vl_to_apply_action.setText(_('Apply Virtual library when %s is opened') % lname)
@@ -556,7 +567,9 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.location_manager.set_switch_actions(quick_actions, rename_actions, delete_actions, qs_actions, self.action_choose)
         # VL at startup
         self.vl_to_apply_menu.clear()
-        restrictions = sorted(db.prefs['virtual_libraries'], key=sort_key)
+        vls = db.prefs['virtual_libraries']
+        assert isinstance(vls, dict)
+        restrictions = sorted(vls, key=sort_key)
         # check that the virtual library choice still exists
         vl_at_startup = db.prefs['virtual_lib_on_startup']
         if vl_at_startup and vl_at_startup not in restrictions:
@@ -575,16 +588,16 @@ class ChooseLibraryAction(InterfaceAction):
         for a in (self.qaction, self.menuless_qaction):
             a.changed.emit()
 
-    def change_vl_at_startup_requested(self, vl) -> None:
-        self.gui.library_view.model().db.prefs['virtual_lib_on_startup'] = vl
+    def change_vl_at_startup_requested(self, vl: str) -> None:
+        self.gui.current_db.prefs['virtual_lib_on_startup'] = vl
         self.build_menus()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def rename_requested(self, name, location):
+    def rename_requested(self, name: str, location: str) -> int | None:
         LibraryDatabase = db_class()
         loc = location.replace('/', os.sep)
         base = os.path.dirname(loc)
@@ -641,7 +654,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
 
-    def delete_requested(self, name, location) -> None:
+    def delete_requested(self, name: str, location: str) -> None:
         loc = location.replace('/', os.sep)
         if not question_dialog(
             self.gui,
@@ -663,12 +676,12 @@ class ChooseLibraryAction(InterfaceAction):
         if os.path.exists(loc):
             open_local_file(loc)
 
-    def backup_status(self, location) -> None:
+    def backup_status(self, location: bool) -> None:
         self.__backup_status_dialog = d = BackupStatus(self.gui)
         d.show()
 
     def mark_dirty(self) -> None:
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         db.dirtied(list(db.data.iterallids()))
         info_dialog(
             self.gui,
@@ -677,10 +690,11 @@ class ChooseLibraryAction(InterfaceAction):
             show=True,
         )
 
-    def restore_database(self):
+    def restore_database(self) -> int | None:
         LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
+        assert db is not None
         if iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
             return error_dialog(
                 self.gui,
@@ -700,17 +714,19 @@ class ChooseLibraryAction(InterfaceAction):
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
         db = m.db
+        assert db is not None
         db.prefs.disable_setting = True
         if restore_database(db, self.gui):
             self.gui.library_moved(db.library_path)
 
-    def check_library(self):
+    def check_library(self) -> int | None:
         from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
 
         self.gui.library_view.save_state()
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
         db = m.db
+        assert db is not None
         db.prefs.disable_setting = True
         library_path = db.library_path
         before = db.new_api.size_stats()
@@ -779,7 +795,7 @@ class ChooseLibraryAction(InterfaceAction):
         finally:
             self.gui.status_bar.clear_message()
 
-    def look_for_portable_lib(self, db, location):
+    def look_for_portable_lib(self, db: LibraryDatabase, location: str) -> tuple[bool, str | None]:
         base = get_portable_base()
         if base is None:
             return False, None
@@ -791,10 +807,10 @@ class ChooseLibraryAction(InterfaceAction):
             return True, newloc
         return False, None
 
-    def switch_requested(self, location) -> None:
+    def switch_requested(self, location: str) -> None:
         if not self.change_library_allowed():
             return
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         current_lib = self.stats.canonicalize_path(db.library_path)
         self.view_state_map[current_lib] = self.preserve_state_on_switch.state
         loc = location.replace('/', os.sep)
@@ -802,6 +818,7 @@ class ChooseLibraryAction(InterfaceAction):
         if not exists:
             exists, new_location = self.look_for_portable_lib(db, location)
             if exists:
+                assert new_location is not None
                 location = new_location
                 loc = location.replace('/', os.sep)
 
@@ -842,22 +859,22 @@ class ChooseLibraryAction(InterfaceAction):
         print()
         self.dbref = self.before_mem = None
 
-    def count_changed(self, new_count) -> None:
+    def count_changed(self, new_count: int) -> None:
         self.update_tooltip(new_count)
 
-    def choose_library(self, *args) -> None:
+    def choose_library(self, *args: object) -> None:
         if not self.change_library_allowed():
             return
         from calibre.gui2.dialogs.choose_library import ChooseLibrary
 
         self.gui.library_view.save_state()
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         location = self.stats.canonicalize_path(db.library_path)
         self.pre_choose_dialog_location = location
         c = ChooseLibrary(db, self.choose_library_callback, self.gui)
         c.exec()
 
-    def choose_library_callback(self, newloc, copy_structure=False, library_renamed=False) -> None:
+    def choose_library_callback(self, newloc: str, copy_structure: bool = False, library_renamed: bool = False) -> None:
         self.gui.library_moved(newloc, copy_structure=copy_structure, allow_rebuild=True)
         if library_renamed:
             self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])

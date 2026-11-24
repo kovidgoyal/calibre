@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import sys
+from typing import TYPE_CHECKING
 
 from qt.core import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout, QWidget
 
@@ -10,8 +11,13 @@ from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def get_saved_field_data(name, all_fields):
+    from calibre.db.legacy import LibraryDatabase
+
+
+def get_saved_field_data(name: str, all_fields: Iterable[str]) -> tuple[dict[str, int], frozenset[str]]:
     db = get_gui(fail_if_absent=True).current_db
     val = db.new_api.pref('catalog-field-data-for-' + name)
     if val is None:
@@ -23,7 +29,7 @@ def get_saved_field_data(name, all_fields):
     return sort_order, fields
 
 
-def set_saved_field_data(name, fields, sort_order) -> None:
+def set_saved_field_data(name: str, fields: list[str], sort_order: dict[str, int]) -> None:
     db = get_gui(fail_if_absent=True).current_db
     db.new_api.set_pref('catalog-field-data-for-' + name, {'fields': fields, 'sort_order': sort_order})
     gprefs.set(name + '_db_fields', fields)
@@ -31,12 +37,12 @@ def set_saved_field_data(name, fields, sort_order) -> None:
 
 
 class ListWidgetItem(QListWidgetItem):
-    def __init__(self, colname, human_name, position_in_booklist, parent) -> None:
+    def __init__(self, colname: str, human_name: str, position_in_booklist: int, parent: QListWidget | None) -> None:
         super().__init__(human_name, parent)
         self.setData(Qt.ItemDataRole.UserRole, colname)
         self.position_in_booklist = position_in_booklist
 
-    def __lt__(self, other):
+    def __lt__(self, other: QListWidgetItem) -> bool:
         try:
             return self.position_in_booklist < getattr(other, 'position_in_booklist', sys.maxsize)
         except TypeError:
@@ -50,7 +56,7 @@ class PluginWidget(QWidget):
     formats = {'csv', 'xml'}
     handles_scrolling = True
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Fields to include in output:'))
@@ -106,7 +112,7 @@ class PluginWidget(QWidget):
     def order_by_booklist(self) -> None:
         self.db_fields.sortItems()
 
-    def initialize(self, catalog_name, db) -> None:
+    def initialize(self, catalog_name: str, db: LibraryDatabase) -> None:
         self.name = catalog_name
         from calibre.library.catalogs import FIELDS
 
@@ -115,7 +121,7 @@ class PluginWidget(QWidget):
         sort_order, fields = get_saved_field_data(self.name, self.all_fields)
         fm = db.field_metadata
 
-        def name(x):
+        def name(x: str) -> str:
             if x == 'isbn':
                 return 'ISBN'
             if x == 'library_name':
@@ -127,7 +133,7 @@ class PluginWidget(QWidget):
         state = get_gui(fail_if_absent=True).library_view.get_state()
         cpos = state['column_positions']
 
-        def key(x):
+        def key(x: str) -> tuple[int, str]:
             return (sort_order.get(x, 10000), name(x))
 
         self.db_fields.clear()
@@ -146,7 +152,7 @@ class PluginWidget(QWidget):
             assert item is not None
             item.setCheckState(Qt.CheckState.Checked if str(item.data(Qt.ItemDataRole.UserRole)) in fields else Qt.CheckState.Unchecked)
 
-    def options(self):
+    def options(self) -> dict[str, list[str]]:
         # Save the currently activated fields
         fields, all_fields = [], []
         for x in range(self.db_fields.count()):

@@ -3,6 +3,7 @@
 
 import textwrap
 import weakref
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QCheckBox,
@@ -25,16 +26,22 @@ from calibre.gui2.device_drivers.mtp_config import FormatsConfig, TemplateConfig
 from calibre.prints import debug_print
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
 
-def wrap_msg(msg):
+    from calibre.devices.usbms.device import Device as UsbmsDevice
+    from calibre.utils.config_base import ConfigProxy, OptionValues
+
+
+def wrap_msg(msg: str) -> str:
     return textwrap.fill(msg.strip(), 100)
 
 
-def setToolTipFor(widget, tt) -> None:
+def setToolTipFor(widget: QWidget, tt: str) -> None:
     widget.setToolTip(wrap_msg(tt))
 
 
-def create_checkbox(title, tt, state):
+def create_checkbox(title: str, tt: str, state: object) -> QCheckBox:
     cb = QCheckBox(title)
     cb.setToolTip(wrap_msg(tt))
     cb.setChecked(bool(state))
@@ -68,16 +75,16 @@ class TabbedDeviceConfig(QTabWidget):
 
     def __init__(
         self,
-        device_settings,
-        all_formats,
-        supports_subdirs,
-        must_read_metadata,
-        supports_use_author_sort,
-        extra_customization_message,
-        device,
-        extra_customization_choices=None,
-        parent=None,
-        validate_before_accept=False,
+        device_settings: OptionValues,
+        all_formats: Iterable[str],
+        supports_subdirs: bool,
+        must_read_metadata: bool,
+        supports_use_author_sort: bool,
+        extra_customization_message: str | list[str] | None,
+        device: type[UsbmsDevice],
+        extra_customization_choices: Mapping[int, Iterable[str]] | None = None,
+        parent: QWidget | None = None,
+        validate_before_accept: bool = False,
     ) -> None:
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
@@ -157,7 +164,7 @@ class TabbedDeviceConfig(QTabWidget):
 
         self.setCurrentIndex(0)
 
-    def addDeviceTab(self, tab, label) -> None:
+    def addDeviceTab(self, tab: QWidget, label: str) -> None:
         '''
         This is used to add a new tab for the device config. The new tab will always be added
         as immediately before the "Extra Customization" tab.
@@ -165,7 +172,7 @@ class TabbedDeviceConfig(QTabWidget):
         extra_tab_pos = self.indexOf(self.extra_tab)
         self.insertTab(extra_tab_pos, tab, label)
 
-    def __getattr__(self, attr_name):
+    def __getattr__(self, attr_name: str) -> object:
         "If the object doesn't have an attribute, then check each tab."
         for i in range(self.count()):
             atab = self.widget(i)
@@ -176,36 +183,38 @@ class TabbedDeviceConfig(QTabWidget):
         raise AttributeError(attr_name)
 
     @property
-    def device(self):
-        return self._device()
+    def device(self) -> type[UsbmsDevice]:
+        ans = self._device()
+        assert ans is not None
+        return ans
 
-    def format_map(self):
+    def format_map(self) -> list[str]:
         return self.formats.format_map
 
-    def use_subdirs(self):
+    def use_subdirs(self) -> bool:
         return self.opt_use_subdirs.isChecked()
 
-    def read_metadata(self):
+    def read_metadata(self) -> bool:
         return self.opt_read_metadata.isChecked()
 
-    def use_author_sort(self):
+    def use_author_sort(self) -> bool:
         return self.opt_use_author_sort.isChecked()
 
     @property
-    def opt_save_template(self):
+    def opt_save_template(self) -> QLineEdit:
         # Really shouldn't be accessing the template this way
         return self.template.t
 
-    def text(self):
+    def text(self) -> str:
         # Really shouldn't be accessing the template this way
         return self.template.t.text()
 
     @property
-    def opt_extra_customization(self):
+    def opt_extra_customization(self) -> list[QCheckBox | QComboBox | QLineEdit | None] | QLineEdit:
         return self.extra_tab.opt_extra_customization
 
     @property
-    def label(self):
+    def label(self) -> QLineEdit:
         return self.opt_save_template
 
     def validate(self) -> bool:
@@ -216,7 +225,7 @@ class TabbedDeviceConfig(QTabWidget):
                 return False
         return True
 
-    def commit(self):
+    def commit(self) -> ConfigProxy:
         debug_print('TabbedDeviceConfig::commit: start')
         p = self.device._configProxy()
 
@@ -236,14 +245,14 @@ class DeviceConfigTab(QWidget):  # {{{
     will iterate over all known widgets looking for the property.
     """
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self)
-        self.device_widgets = []
+        self.device_widgets: list[QWidget] = []
 
-    def addDeviceWidget(self, widget) -> None:
+    def addDeviceWidget(self, widget: QWidget) -> None:
         self.device_widgets.append(widget)
 
-    def __getattr__(self, attr_name):
+    def __getattr__(self, attr_name: str) -> object:
         for awidget in self.device_widgets:
             try:
                 return getattr(awidget, attr_name)
@@ -253,7 +262,14 @@ class DeviceConfigTab(QWidget):  # {{{
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
-    def __init__(self, extra_customization_message, extra_customization_choices, device_settings) -> None:
+    opt_extra_customization: list[QCheckBox | QComboBox | QLineEdit | None] | QLineEdit
+
+    def __init__(
+        self,
+        extra_customization_message: str | list[str] | None,
+        extra_customization_choices: Mapping[int, Iterable[str]] | None,
+        device_settings: OptionValues,
+    ) -> None:
         super().__init__()
 
         debug_print('ExtraCustomization.__init__ - extra_customization_message=', extra_customization_message)
@@ -274,7 +290,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
         if extra_customization_message:
             extra_customization_choices = extra_customization_choices or {}
 
-            def parse_msg(m):
+            def parse_msg(m: str) -> tuple[str, str]:
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)
 
@@ -282,18 +298,18 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
 
-                    def row_func(x, y):
+                    def row_func(x: int, y: int) -> int:
                         return x // 2 * 2 + y
 
-                    def col_func(x):
+                    def col_func(x: int) -> int:
                         return x % 2
 
                 else:
 
-                    def row_func(x, y):
+                    def row_func(x: int, y: int) -> int:
                         return x * 2 + y
 
-                    def col_func(x) -> int:
+                    def col_func(x: int) -> int:
                         return 0
 
                 for i, m in enumerate(extra_customization_message):
@@ -343,8 +359,8 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                 self.extra_layout.addWidget(l, 0, 0)
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
 
-    def extra_customization(self):
-        ec = []
+    def extra_customization(self) -> list[bool | str | None] | str | None:
+        ec: list[bool | str | None] | str | None = []
         if self.extra_customization_message:
             if isinstance(self.extra_customization_message, list):
                 oec = self.opt_extra_customization
@@ -371,7 +387,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
         return ec
 
     @property
-    def has_extra_customizations(self):
+    def has_extra_customizations(self) -> bool | str | list[str] | None:
         debug_print(
             'ExtraCustomization::has_extra_customizations - self.extra_customization_message',
             self.extra_customization_message,
@@ -387,7 +403,7 @@ class DeviceOptionsGroupBox(QGroupBox):
     This is a container for the individual options for a device driver.
     """
 
-    def __init__(self, parent, device=None, title=_('Unknown')) -> None:
+    def __init__(self, parent: QWidget | None, device: type[UsbmsDevice] | None = None, title: str = _('Unknown')) -> None:
         QGroupBox.__init__(self, parent)
 
         self.device = device

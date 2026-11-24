@@ -19,7 +19,7 @@ to see it in action.
 
 
 class MainWindow(MainWindow):
-    def __init__(self, text) -> None:
+    def __init__(self, text: str) -> None:
         super().__init__()
         self.display = d = QPlainTextEdit(self)
         self.page_count = 1
@@ -66,7 +66,7 @@ class MainWindow(MainWindow):
     def create_marked_text(self) -> None:
         c = self.display.textCursor()
         c.setPosition(0)
-        marked_text = []
+        marked_text: list[int | str] = []
         while True:
             marked_text.append(c.position())
             if not c.movePosition(QTextCursor.MoveOperation.NextWord, QTextCursor.MoveMode.KeepAnchor):
@@ -82,7 +82,7 @@ class MainWindow(MainWindow):
         self.display.setPlainText(f'This is page number {self.page_count}. Pages are turned automatically when the end of a page is reached.')
         self.create_marked_text()
 
-    def update_play_action(self, text) -> None:
+    def update_play_action(self, text: str) -> None:
         self.play_action.setText(text)
 
     def state_event(self, ev: Literal['begin', 'end', 'cancel', 'pause', 'resume']) -> None:
@@ -114,7 +114,7 @@ class MainWindow(MainWindow):
         else:
             self.tts.speak_marked_text(self.marked_text)
 
-    def saying(self, first, last) -> None:
+    def saying(self, first: int, last: int) -> None:
         c = self.display.textCursor()
         c.setPosition(first)
         if last != first:
@@ -122,7 +122,7 @@ class MainWindow(MainWindow):
         c.movePosition(QTextCursor.MoveOperation.WordRight, QTextCursor.MoveMode.KeepAnchor)
         self.display.setTextCursor(c)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(500, 400)
 
 

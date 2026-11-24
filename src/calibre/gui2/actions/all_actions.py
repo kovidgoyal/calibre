@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QIcon, QMenu, Qt, QToolButton
 
@@ -10,6 +11,9 @@ from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.gui2.preferences.toolbar import AllModel, CurrentModel
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class AllGUIActions(InterfaceAction):
@@ -28,8 +32,9 @@ class AllGUIActions(InterfaceAction):
 
     def genesis(self) -> None:
         self.layout_icon = QIcon.ic('wizard.png')
-        self.menu = m = self.qaction.menu()
+        m = self.qaction.menu()
         assert m is not None
+        self.menu = m
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -71,7 +76,7 @@ class AllGUIActions(InterfaceAction):
         assert m is not None
         m.clear()
 
-        name_data = {}  # A dict of display names to actions data
+        name_data: dict[str, dict[str, Any]] = {}  # A dict of display names to actions data
 
         # Use model data from Preferences / Toolbars, with location 'toolbar' or
         # 'toolbar-device' depending on whether a device is connected.
@@ -81,7 +86,7 @@ class AllGUIActions(InterfaceAction):
                 dex = model.index(i)
                 name = model.names((dex,))[0]  # this is the action name
                 if name is not None and not name.startswith('---'):
-                    name_data[model.data(dex, Qt.ItemDataRole.DisplayRole)] = {
+                    name_data[str(model.data(dex, Qt.ItemDataRole.DisplayRole))] = {
                         'action': model.name_to_action(name, self.gui),
                         'action_name': name,
                         'icon': model.data(dex, Qt.ItemDataRole.DecorationRole),
@@ -121,7 +126,7 @@ class AllGUIActions(InterfaceAction):
         # either a popup menu or a dialog. It adds the shortcuts to the menu
         # line. Happily, a tab causes the shortcuts to be right-aligned. The tab
         # is added when the shortcut map is built.
-        def add_action(menu, display_name) -> None:
+        def add_action(menu: QMenu, display_name: str) -> None:
             shortcuts = shortcut_map.get(display_name.lower(), '')
             act = name_data[display_name]['action']
             menu_text = f'{display_name}{shortcuts}'
@@ -138,14 +143,16 @@ class AllGUIActions(InterfaceAction):
                 ma = menu.addAction(icon, menu_text, partial(self._do_menu, display_name, act))
             # Disable the menu line if the underlying qaction is disabled. This
             # happens when devices are connected and in some other contexts.
+            assert ma is not None
             ma.setEnabled(act.qaction.isEnabled())
 
         # Finally the real work, building the action menu. Partition long lists
         # of actions by first letter ranges into mostly-equal-length sublists.
-        def partition(names) -> None:
-            def add_range(start_letter, end_letter, action_names) -> None:
+        def partition(names: list[str]) -> None:
+            def add_range(start_letter: str, end_letter: str, action_names: list[str]) -> None:
                 # Add a N - M range. If N == M then show only N
                 sm = m.addMenu(QIcon.ic('wizard.png'), f'{start_letter}{"" if start_letter == end_letter else " - " + end_letter}')
+                assert sm is not None
                 for n in action_names:
                     add_action(sm, n)
 
@@ -190,17 +197,19 @@ class AllGUIActions(InterfaceAction):
     def _do_pref_shortcuts(self) -> None:
         self.gui.iactions['Preferences'].do_config(initial_plugin=('Advanced', 'Keyboard'), close_after_initial=True)
 
-    def _do_action(self, action) -> None:
+    def _do_action(self, action: InterfaceAction) -> None:
         action.qaction.trigger()
 
-    def _do_menu(self, name, action) -> None:
+    def _do_menu(self, name: str, action: InterfaceAction) -> None:
         # This method clones and shows the action's menu. If the action is in a
         # context menu, the action menu is displayed there without using this
         # method. If not it is displayed underneath a toolbar or menu button. If
         # neither is true then the menu is displayed in the upper left corner.
         menu = QMenu(self.gui)  # QMenu needs a parent otherwise it fails to show on Wayland
         menu.addSection(name)
-        action.qaction.menu().aboutToShow.emit()
-        for m in action.qaction.menu().actions():
+        am = action.qaction.menu()
+        assert am is not None
+        am.aboutToShow.emit()
+        for m in am.actions():
             menu.addAction(m)
         show_menu_under_widget(self.gui, menu, self.qaction, self.name)

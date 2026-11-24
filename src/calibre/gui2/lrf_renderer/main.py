@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import traceback
+from typing import IO, TYPE_CHECKING
 
 from qt.core import QCoreApplication, QDialog, QIcon, QKeySequence, QPainter, QScrollBar, QSlider, QSpinBox, Qt, QThread
 
@@ -19,15 +20,21 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from logging import Logger
+    from optparse import OptionParser, Values
+
+    from qt.core import QCloseEvent, QObject, QWheelEvent, QWidget
+
 
 class RenderWorker(QThread):
-    def __init__(self, parent, lrf_stream, logger, opts) -> None:
+    def __init__(self, parent: QObject | None, lrf_stream: IO[bytes], logger: Logger, opts: Values) -> None:
         QThread.__init__(self, parent)
         self.stream, self.logger, self.opts = lrf_stream, logger, opts
         self.aborted = False
-        self.lrf = None
+        self.lrf: LRFDocument | None = None
         self.document = None
-        self.exception = None
+        self.exception: Exception | None = None
 
     def run(self) -> None:
         try:
@@ -51,7 +58,7 @@ class RenderWorker(QThread):
 
 
 class Config(QDialog, Ui_ViewerConfig):
-    def __init__(self, parent, opts) -> None:
+    def __init__(self, parent: QWidget | None, opts: Values) -> None:
         QDialog.__init__(self, parent)
         Ui_ViewerConfig.__init__(self)
         self.setupUi(self)
@@ -65,7 +72,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.document.chapter_rendered.connect(self.chapter_rendered)
         self.document.page_changed.connect(self.page_changed)
 
-    def __init__(self, logger, opts, parent=None) -> None:
+    def __init__(self, logger: Logger, opts: Values, parent: QWidget | None = None) -> None:
         MainWindow.__init__(self, opts, parent)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
@@ -109,7 +116,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         self.closed = False
 
-    def configure(self, triggered) -> None:
+    def configure(self, triggered: bool) -> None:
         opts = self.opts
         d = Config(self, opts)
         d.exec()
@@ -117,7 +124,7 @@ class Main(MainWindow, Ui_MainWindow):
             gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
             gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
 
-    def set_ebook(self, stream) -> None:
+    def set_ebook(self, stream: IO[bytes] | None) -> None:
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(0)
         self.progress_bar.setValue(0)
@@ -126,15 +133,15 @@ class Main(MainWindow, Ui_MainWindow):
         if stream is not None:
             self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
             self.progress_label.setText('Parsing ' + self.file_name)
-            self.renderer = RenderWorker(self, stream, self.logger, self.opts)
+            self.renderer: RenderWorker | None = RenderWorker(self, stream, self.logger, self.opts)
             self.renderer.finished.connect(self.parsed, type=Qt.ConnectionType.QueuedConnection)
             self.search.clear()
-            self.last_search = None
+            self.last_search: str | None = None
         else:
             self.stack.setCurrentIndex(0)
             self.renderer = None
 
-    def open_ebook(self, triggered) -> None:
+    def open_ebook(self, triggered: bool) -> None:
         files = choose_files(
             self,
             'open ebook dialog',
@@ -149,16 +156,16 @@ class Main(MainWindow, Ui_MainWindow):
             self.set_ebook(open(file, 'rb'))  # ruff: ignore[open-file-with-context-handler]
             self.render()
 
-    def page_changed(self, num) -> None:
+    def page_changed(self, num: int) -> None:
         self.slider.setValue(num)
         self.spin_box.setValue(num)
 
-    def render(self, *args, **kwargs) -> None:  # type: ignore[override]
+    def render(self, *args: object, **kwargs: object) -> None:  # type: ignore[override]
         if self.renderer is not None:
             self.stack.setCurrentIndex(1)
             self.renderer.start()
 
-    def find(self, a0) -> None:
+    def find(self, a0: str) -> None:  # ty: ignore[incompatible-method-override] shadows the static QWidget.find(), renaming would break API
         self.last_search = a0
         try:
             self.document.search(a0)
@@ -216,7 +223,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = ConversionErrorDialog(self, 'Error while rendering file', msg)
             d.exec()
 
-    def chapter_rendered(self, num) -> None:
+    def chapter_rendered(self, num: int) -> None:
         if num > 0:
             self.progress_bar.setMinimum(0)
             self.progress_bar.setMaximum(num)
@@ -226,42 +233,44 @@ class Main(MainWindow, Ui_MainWindow):
             self.progress_bar.setValue(self.progress_bar.value() + 1)
         QCoreApplication.processEvents()
 
-    def next(self, triggered) -> None:
+    def next(self, triggered: bool) -> None:
         self.document.next()
 
-    def next_match(self, triggered) -> None:
+    def next_match(self, triggered: bool) -> None:
         try:
             self.document.next_match()
         except StopIteration:
             pass
 
-    def previous(self, triggered) -> None:
+    def previous(self, triggered: bool) -> None:
         self.document.previous()
 
-    def go_to_page(self, num) -> None:
+    def go_to_page(self, num: int) -> None:
         self.document.show_page(num)
 
-    def forward(self, triggered) -> None:
+    def forward(self, triggered: bool) -> None:
         self.document.forward()
 
-    def back(self, triggered) -> None:
+    def back(self, triggered: bool) -> None:
         self.document.back()
 
-    def wheelEvent(self, a0) -> None:
+    def wheelEvent(self, a0: QWheelEvent | None) -> None:
+        assert a0 is not None
         d = a0.angleDelta().y()
         if d > 0:
             self.document.previous()
         elif d < 0:
             self.document.next()
 
-    def closeEvent(self, a0) -> None:
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
         if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()
             self.renderer.wait()
+        assert a0 is not None
         a0.accept()
 
 
-def file_renderer(stream, opts, parent=None, logger=None):
+def file_renderer(stream: IO[bytes] | None, opts: Values, parent: QWidget | None = None, logger: Logger | None = None) -> Main:
     if logger is None:
         level = logging.DEBUG if opts.verbose else logging.INFO
         logger = logging.getLogger('lrfviewer')
@@ -278,7 +287,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
     return m
 
 
-def option_parser():
+def option_parser() -> OptionParser:
     from calibre.gui2.main_window import option_parser
 
     parser = option_parser(
@@ -320,7 +329,7 @@ Read the LRF e-book book.lrf
     return parser
 
 
-def normalize_settings(parser, opts):
+def normalize_settings(parser: OptionParser, opts: Values) -> Values:
     saved_opts = opts
     dh = gprefs.get('lrf_viewer_hyphenate', None)
     if dh is not None:
@@ -331,7 +340,7 @@ def normalize_settings(parser, opts):
     return saved_opts
 
 
-def main(args=sys.argv, logger=None):
+def main(args: list[str] = sys.argv, logger: Logger | None = None) -> int:
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if hasattr(opts, 'help'):

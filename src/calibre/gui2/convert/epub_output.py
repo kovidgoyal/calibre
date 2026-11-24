@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.ebooks.conversion.config import OPTIONS
-from calibre.gui2.convert import Widget
+from calibre.gui2.convert import Widget, option_choices
 from calibre.gui2.convert.epub_output_ui import Ui_Form
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption
 
 
 class PluginWidget(Widget, Ui_Form):
@@ -13,11 +21,10 @@ class PluginWidget(Widget, Ui_Form):
     COMMIT_NAME = 'epub_output'
     ICON = 'mimetypes/epub.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         Widget.__init__(self, parent, OPTIONS['output']['epub'])
         for i in range(2):
             self.opt_no_svg_cover.toggle()
-        ev = get_option('epub_version')
-        self.opt_epub_version.addItems(list(ev.option.choices))
+        self.opt_epub_version.addItems(list(option_choices(get_option, 'epub_version')))
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)

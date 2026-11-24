@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 import shutil
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractListModel,
@@ -48,16 +49,23 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.utils.config import prefs
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from types import EllipsisType
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption, Widget
+
 
 class GroupModel(QAbstractListModel):
-    def __init__(self, widgets) -> None:
+    def __init__(self, widgets: list[Widget]) -> None:
         self.widgets = widgets
         QAbstractListModel.__init__(self)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.widgets)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         try:
             widget = self.widgets[index.row()]
         except Exception:
@@ -86,9 +94,16 @@ class Config(QDialog):
     recommendations member of the Input/Output plugins.
     """
 
-    def __init__(self, parent, db, book_id, preferred_input_format=None, preferred_output_format=None) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None,
+        db: LibraryDatabase,
+        book_id: int,
+        preferred_input_format: str | None = None,
+        preferred_output_format: str | None = None,
+    ) -> None:
         QDialog.__init__(self, parent)
-        self.widgets = []
+        self.widgets: list[Widget] = []
         self.setupUi()
         self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
@@ -108,7 +123,7 @@ class Config(QDialog):
         self.groups.setMouseTracking(True)
         self.restore_geometry(gprefs, 'convert_single_dialog_geom')
 
-    def current_group_changed(self, cur, prev) -> None:
+    def current_group_changed(self, cur: QModelIndex, prev: QModelIndex) -> None:
         self.show_pane(cur)
 
     def setupUi(self) -> None:
@@ -191,7 +206,7 @@ class Config(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
@@ -203,26 +218,27 @@ class Config(QDialog):
         self.setup_pipeline()
 
     @property
-    def input_format(self):
+    def input_format(self) -> str:
         return str(self.input_formats.currentText()).lower()
 
     @property
-    def output_format(self):
+    def output_format(self) -> str:
         return str(self.output_formats.currentText()).lower()
 
     @property
-    def manually_fine_tune_toc(self):
+    def manually_fine_tune_toc(self) -> bool | None:
         for w in self.widgets:
             if hasattr(w, 'manually_fine_tune_toc'):
-                return w.manually_fine_tune_toc.isChecked()
+                return cast('QCheckBox', w.manually_fine_tune_toc).isChecked()
+        return None
 
-    def setup_pipeline(self, *args) -> None:
+    def setup_pipeline(self, *args: object) -> None:
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
         self.plumber = create_dummy_plumber(input_format, output_format)
 
-        def widget_factory(cls):
+        def widget_factory[W: Widget](cls: Callable[[QWidget, GetOption, GetHelp, LibraryDatabase, int], W]) -> W:
             return cls(self, self.plumber.get_option_by_name, self.plumber.get_option_help, self.db, self.book_id)
 
         self.mw = widget_factory(MetadataWidget)
@@ -246,6 +262,7 @@ class Config(QDialog):
         )
 
         self.break_cycles()
+        widgets: list[Widget]
         self.widgets = widgets = [self.mw, lf, hw, ps, sd, toc, sr]
         if input_widget is not None:
             widgets.append(input_widget)
@@ -255,7 +272,9 @@ class Config(QDialog):
         for w in widgets:
             w.set_help_signal.connect(self.help.setPlainText)
             w.setVisible(False)
-            w.layout().setContentsMargins(0, 0, 0, 0)
+            lay = w.layout()
+            assert lay is not None
+            lay.setContentsMargins(0, 0, 0, 0)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)
@@ -272,7 +291,7 @@ class Config(QDialog):
         except Exception:
             pass
 
-    def setup_input_output_formats(self, db, book_id, preferred_input_format, preferred_output_format) -> None:
+    def setup_input_output_formats(self, db: LibraryDatabase, book_id: int, preferred_input_format: str | None, preferred_output_format: str | None) -> None:
         if preferred_output_format:
             preferred_output_format = preferred_output_format.upper()
         output_formats = get_output_formats(preferred_output_format)
@@ -285,8 +304,8 @@ class Config(QDialog):
         self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
-    def show_pane(self, index) -> None:
-        if hasattr(index, 'row'):
+    def show_pane(self, index: int | QModelIndex) -> None:
+        if isinstance(index, QModelIndex):
             index = index.row()
         ow = self.scrollArea.takeWidget()
         if ow:
@@ -317,7 +336,7 @@ class Config(QDialog):
         self.break_cycles()
         QDialog.reject(self)
 
-    def done(self, a0):
+    def done(self, a0: int) -> None:
         if self.isVisible():
             self.save_geometry(gprefs, 'convert_single_dialog_geom')
         return QDialog.done(self, a0)
@@ -327,10 +346,10 @@ class Config(QDialog):
             w.break_cycles()
 
     @property
-    def recommendations(self):
+    def recommendations(self) -> list[tuple[str, object, int]]:
         recs = [(k, v, OptionRecommendation.HIGH) for k, v in self._recommendations.items()]
         return recs
 
-    def show_group_help(self, index) -> None:
+    def show_group_help(self, index: QModelIndex) -> None:
         widget = self._groups_model.widgets[index.row()]
         self.help.setPlainText(widget.HELP)

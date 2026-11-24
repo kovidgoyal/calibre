@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.fts.dialog import FTSDialog
 
 
 class FullTextSearchAction(InterfaceAction):
@@ -18,10 +24,10 @@ class FullTextSearchAction(InterfaceAction):
 
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_fts)
-        self._dialog = None
+        self._dialog: FTSDialog | None = None
 
     @property
-    def dialog(self):
+    def dialog(self) -> FTSDialog:
         if self._dialog is None:
             from calibre.gui2.fts.dialog import FTSDialog
 
@@ -35,7 +41,7 @@ class FullTextSearchAction(InterfaceAction):
         self.dialog.show()
         self.dialog.raise_and_focus()
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         if self._dialog is not None:
             self._dialog.library_changed()
 

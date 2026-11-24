@@ -149,7 +149,7 @@ class ThreadedJob(BaseJob):
         self.consolidated_log = path
         self.log = None
 
-    def read_consolidated_log(self) -> list[str]:
+    def read_consolidated_log(self) -> Sequence[str]:
         assert self.consolidated_log is not None
         with open(self.consolidated_log, 'rb') as f:
             return json.loads(f.read().decode('utf-8'))

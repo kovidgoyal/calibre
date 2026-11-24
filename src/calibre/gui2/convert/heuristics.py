@@ -1,5 +1,7 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from qt.core import Qt
 
 from calibre.ebooks.conversion.config import OPTIONS
@@ -9,6 +11,13 @@ from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.removable_history import enable_item_removal_for_combobox, remove_item_from_combobox
 from calibre.utils.localization import _, localize_user_manual_link
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.conversion.config import GuiRecommendations
+    from calibre.gui2.convert import GetHelp, GetOption, OptionWidget
+
 
 class HeuristicsWidget(Widget, Ui_Form):
     TITLE = _('Heuristic\nprocessing')
@@ -16,7 +25,7 @@ class HeuristicsWidget(Widget, Ui_Form):
     COMMIT_NAME = 'heuristics'
     ICON = 'heuristics.png'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['heuristics'])
         self.db, self.book_id = db, book_id
         self.rssb_defaults = ['', '<hr />', '∗ ∗ ∗', '• • •', '♦ ♦ ♦', '† †', '‡ ‡ ‡', '∞ ∞ ∞', '¤ ¤ ¤', '§']
@@ -34,7 +43,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         except TypeError:
             pass  # link already localized
 
-    def restore_defaults(self, get_option) -> None:
+    def restore_defaults(self, get_option: GetOption) -> None:
         Widget.restore_defaults(self, get_option)
 
         self.save_histories()
@@ -45,7 +54,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         gprefs['replace_scene_breaks_history'] = self.rssb_defaults + gprefs['replace_scene_breaks_history']
         self.load_histories()
 
-    def commit_options(self, save_defaults=False):
+    def commit_options(self, save_defaults: bool = False) -> GuiRecommendations:
         self.save_histories()
 
         return Widget.commit_options(self, save_defaults)
@@ -59,16 +68,18 @@ class HeuristicsWidget(Widget, Ui_Form):
         except Exception:
             pass
 
-    def set_value_handler(self, g, val) -> bool:
+    def set_value_handler(self, g: OptionWidget, val: object) -> bool:
         if val is None and g is self.opt_html_unwrap_factor:
             g.setValue(0.0)
             return True
         if not val and g is self.opt_replace_scene_breaks:
-            g.lineEdit().setText('')
+            le = g.lineEdit()
+            assert le is not None
+            le.setText('')
             return True
         return False
 
-    def remove_history_item(self, item) -> None:
+    def remove_history_item(self, item: str) -> None:
         if remove_item_from_combobox(self.opt_replace_scene_breaks, item):
             gprefs['replace_scene_breaks_history'] = [str(self.opt_replace_scene_breaks.itemText(i)) for i in range(self.opt_replace_scene_breaks.count())]
 
@@ -101,10 +112,10 @@ class HeuristicsWidget(Widget, Ui_Form):
                 rssb_history.append(p)
         gprefs['replace_scene_breaks_history'] = rssb_history
 
-    def enable_heuristics(self, state) -> None:
+    def enable_heuristics(self, state: int | Qt.CheckState) -> None:
         self.heuristic_options.setEnabled(self.opt_enable_heuristics.isChecked())
 
-    def enable_unwrap(self, state) -> None:
+    def enable_unwrap(self, state: int) -> None:
         if state == Qt.CheckState.Checked:
             state = True
         else:

@@ -2,6 +2,7 @@
 
 import json
 from contextlib import suppress
+from typing import TYPE_CHECKING, cast
 
 from qt.core import Qt, QTableWidgetItem
 
@@ -13,6 +14,14 @@ from calibre.gui2.convert import Widget
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.utils.localization import _, localize_user_manual_link
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption, OptionWidget
+
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
     TITLE = _('Search &\nreplace')
@@ -21,7 +30,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     ICON = 'search.png'
     STRIP_TEXT_FIELDS = False
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         # Dummy attributes to fool the Widget() option handler code. We handle
         # everything in our *handler methods.
         for i in range(1, 4):
@@ -69,7 +78,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             row = self.sr_add_row(self.sr_search.regex, self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
 
-    def sr_add_row(self, search, replace):
+    def sr_add_row(self, search: str, replace: str) -> int:
         row = self.search_replace.rowCount()
         self.search_replace.setRowCount(row + 1)
         proto = self.search_replace.itemPrototype()
@@ -147,7 +156,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     def sr_down_clicked(self) -> None:
         self.cell_rearrange(1)
 
-    def cell_rearrange(self, i) -> None:
+    def cell_rearrange(self, i: int) -> None:
         row = self.search_replace.currentRow()
         for col in range(self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
@@ -159,7 +168,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             item2.setText(value)
         self.search_replace.setCurrentCell(row + i, 0)
 
-    def sr_currentCellChanged(self, row, column, previousRow, previousColumn) -> None:
+    def sr_currentCellChanged(self, row: int, column: int, previousRow: int, previousColumn: int) -> None:
         if row >= 0:
             self.sr_change.setEnabled(True)
             self.sr_remove.setEnabled(True)
@@ -187,7 +196,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.sr_search.doc_update.disconnect(self.update_doc)
         self.sr_search.break_cycles()
 
-    def update_doc(self, doc) -> None:
+    def update_doc(self, doc: str) -> None:
         self.sr_search.set_doc(doc)
 
     def pre_commit_check(self) -> bool:
@@ -229,17 +238,17 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     # Options handling
 
-    def connect_gui_obj_handler(self, gui_obj, slot) -> None:
+    def connect_gui_obj_handler(self, gui_obj: OptionWidget, slot: Callable[..., None]) -> None:
         if gui_obj is self.opt_search_replace:
             self.search_replace.cellChanged.connect(slot)
 
-    def get_value_handler(self, g):
+    def get_value_handler(self, g: OptionWidget) -> object:
         if g is self.opt_search_replace:
             return json.dumps(self.get_definitions())
         return None
 
-    def get_definitions(self):
-        ans = []
+    def get_definitions(self) -> list[list[str]]:
+        ans: list[list[str]] = []
         for row in range(self.search_replace.rowCount()):
             colItems = []
             for col in range(self.search_replace.columnCount()):
@@ -249,12 +258,12 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             ans.append(colItems)
         return ans
 
-    def set_value_handler(self, g, val) -> bool:
+    def set_value_handler(self, g: OptionWidget, val: object) -> bool:
         if g is not self.opt_search_replace:
             return True
 
         try:
-            rowItems = json.loads(val)
+            rowItems = json.loads(cast('str', val))
             if not isinstance(rowItems, list):
                 rowItems = []
         except Exception:
@@ -275,14 +284,14 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 self.search_replace.setItem(row, col, newItem)
         return True
 
-    def apply_recommendations(self, recs) -> None:
+    def apply_recommendations(self, recs: Mapping[str, object]) -> None:
         """
         Handle the legacy sr* options that may have been previously saved. They
         are applied only if the new search_replace option has not been set in
         recs.
         """
         new_val = None
-        legacy = {}
+        legacy: dict[str, str] = {}
         rest = {}
         for name, val in recs.items():
             if name == 'search_replace':
@@ -290,7 +299,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 if name in getattr(recs, 'disabled_options', []):
                     self.search_replace.setDisabled(True)
             elif name.startswith('sr'):
-                legacy[name] = val or ''
+                legacy[name] = cast('str | None', val) or ''
             else:
                 rest[name] = val
 
@@ -308,7 +317,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         if new_val is not None:
             self.set_value(self.opt_search_replace, new_val)
 
-    def setup_help_handler(self, g, help) -> bool:
+    def setup_help_handler(self, g: OptionWidget, help: str) -> bool:
         if g is self.opt_search_replace:
             setattr(
                 self.search_replace,

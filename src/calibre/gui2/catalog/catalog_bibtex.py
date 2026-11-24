@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QListWidgetItem, QWidget
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
 
 
 class PluginWidget(QWidget, Ui_Form):
@@ -23,11 +28,11 @@ class PluginWidget(QWidget, Ui_Form):
     sync_enabled = False
     formats = {'bib'}
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def initialize(self, name, db) -> None:  # not working properly to update
+    def initialize(self, name: str, db: LibraryDatabase) -> None:  # not working properly to update
         from calibre.library.catalogs import FIELDS
 
         self.all_fields = [x for x in FIELDS if x != 'all']
@@ -63,7 +68,7 @@ class PluginWidget(QWidget, Ui_Form):
             else:
                 getattr(self, opt[0]).setText(opt_value)
 
-    def options(self):
+    def options(self) -> dict[str, list[str] | int | bool | str]:
 
         # Save the currently activated fields
         fields = []

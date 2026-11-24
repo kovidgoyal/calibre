@@ -4,6 +4,7 @@
 import os
 import shutil
 import weakref
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QFrame, QGridLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QPushButton, QRadioButton, QSize, QTimer, QVBoxLayout
 
@@ -15,15 +16,22 @@ from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryF
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+
 
 class UnpackBook(QDialog):
-    def __init__(self, parent, book_id, fmts, db) -> None:
+    def __init__(self, parent: QWidget | None, book_id: int, fmts: Iterable[str], db: LibraryDatabase) -> None:
         QDialog.__init__(self, parent)
         self.setWindowIcon(QIcon.ic('unpack-book.png'))
         self.book_id, self.fmts, self.db_ref = book_id, fmts, weakref.ref(db)
-        self._exploded = None
-        self._cleanup_dirs = []
-        self._cleanup_files = []
+        self._exploded: str | None = None
+        self._cleanup_dirs: list[str] = []
+        self._cleanup_files: list[str] = []
 
         self.setup_ui()
         self.setWindowTitle(_('Unpack book') + ' - ' + db.title(book_id, index_is_id=True))
@@ -45,7 +53,7 @@ class UnpackBook(QDialog):
         for button in self.fmt_choice_buttons:
             button.toggled.connect(self.init_state)
 
-    def init_state(self, *args) -> None:
+    def init_state(self, *args: object) -> None:
         self._exploded = None
         self.preview_button.setEnabled(False)
         self.rebuild_button.setEnabled(False)
@@ -136,7 +144,7 @@ class UnpackBook(QDialog):
 
     # }}}
 
-    def show_msg(self, msg) -> None:
+    def show_msg(self, msg: str) -> None:
         self.msg.setText(msg)
         self.msg.resize(self.size() - QSize(50, 25))
         self.msg.move((self.width() - self.msg.width()) // 2, (self.height() - self.msg.height()) // 2)
@@ -151,10 +159,10 @@ class UnpackBook(QDialog):
             gprefs.set('last_tweak_format', self.current_format.upper())
         QTimer.singleShot(5, self.do_explode)
 
-    def ask_question(self, msg):
+    def ask_question(self, msg: str) -> bool:
         return question_dialog(self, _('Are you sure?'), msg)
 
-    def do_explode(self):
+    def do_explode(self) -> int | None:
         from calibre.ebooks.tweak import Error, WorkerError, get_tools
 
         tdir = PersistentTemporaryDirectory('_tweak_explode')
@@ -162,6 +170,7 @@ class UnpackBook(QDialog):
         det_msg = None
         try:
             src = self.db.format(self.book_id, self.current_format, index_is_id=True, as_path=True)
+            assert isinstance(src, str)
             self._cleanup_files.append(src)
             exploder = get_tools(self.current_format)[0]
             assert exploder is not None  # only supported formats are offered for unpacking
@@ -201,7 +210,7 @@ class UnpackBook(QDialog):
         self.rebuild_button.setEnabled(True)
         open_local_file(tdir)
 
-    def rebuild_it(self):
+    def rebuild_it(self) -> str | None:
         from calibre.ebooks.tweak import WorkerError, get_tools
 
         src_dir = self._exploded
@@ -286,14 +295,17 @@ class UnpackBook(QDialog):
                 pass
 
     @property
-    def db(self):
-        return self.db_ref()
+    def db(self) -> LibraryDatabase:
+        db = self.db_ref()
+        assert db is not None
+        return db
 
     @property
-    def current_format(self):
+    def current_format(self) -> str:
         for b in self.fmt_choice_buttons:
             if b.isChecked():
                 return str(b.text())
+        raise ValueError('No format selected')
 
 
 class UnpackBookAction(InterfaceActionWithLibraryDrop):
@@ -316,7 +328,7 @@ class UnpackBookAction(InterfaceActionWithLibraryDrop):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.tweak_book)
 
-    def tweak_book(self):
+    def tweak_book(self) -> int | None:
         row = self.gui.library_view.currentIndex()
         if not row.isValid():
             return error_dialog(self.gui, _('Cannot unpack book'), _('No book selected'), show=True)
@@ -324,8 +336,8 @@ class UnpackBookAction(InterfaceActionWithLibraryDrop):
         book_id = self.gui.library_view.model().id(row)
         self.do_tweak(book_id)
 
-    def do_tweak(self, book_id):
-        db = self.gui.library_view.model().db
+    def do_tweak(self, book_id: int) -> int | None:
+        db = self.gui.current_db
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.lower().strip() for x in fmts.split(',')]
         tweakable_fmts = set(fmts).intersection({'epub', 'htmlz', 'azw3', 'mobi', 'azw'})

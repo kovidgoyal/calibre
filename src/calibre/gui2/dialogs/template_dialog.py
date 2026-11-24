@@ -924,7 +924,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 em = get_gui(fail_if_absent=True).iactions['Edit Metadata']
                 from calibre.gui2.library.views import PreserveViewState
 
-                with PreserveViewState(get_gui(fail_if_absent=True).current_view(), require_selected_ids=False):
+                cv = get_gui(fail_if_absent=True).current_view()
+                assert cv is not None
+                with PreserveViewState(cv, require_selected_ids=False):
                     with em.different_parent(self):
                         em.edit_metadata_for([idx], [id_], bulk=False)
             except Exception:

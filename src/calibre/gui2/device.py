@@ -43,7 +43,7 @@ from calibre.devices.errors import (
     WrongDestinationError,
 )
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
-from calibre.devices.interface import DevicePlugin, currently_connected_device
+from calibre.devices.interface import BookList, DevicePlugin, currently_connected_device
 from calibre.devices.scanner import DeviceScanner
 from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover
 from calibre.ebooks.metadata import authors_to_string
@@ -75,7 +75,8 @@ from calibre.utils.localization import _, ngettext
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
 
-    from calibre.devices.interface import BookList, DetectedDevice, DriveInfo, ModelMetadata, OpenPopupMessage
+    from calibre.devices.interface import DetectedDevice, DriveInfo, ModelMetadata, OpenPopupMessage
+    from calibre.devices.mtp.driver import MTPInvalidSendPathError
     from calibre.devices.usbms.device import AnnotationPathInfo
     from calibre.devices.usbms.device import Device as UsbmsDevice
     from calibre.ebooks.metadata.book.base import Metadata
@@ -1326,7 +1327,7 @@ class DeviceMixin:  # {{{
             try:
                 from calibre.gui2.device_drivers.mtp_config import SendError
 
-                SendError(self, job.exception).exec()
+                SendError(self, cast('MTPInvalidSendPathError', job.exception)).exec()
                 return
             except Exception:
                 traceback.print_exc()
@@ -1386,7 +1387,7 @@ class DeviceMixin:  # {{{
             self.library_view.set_device_connected(self.device_connected)
             # Empty any device view information
             for v in dviews:
-                v.set_database([])
+                v.set_database(BookList())
             # Use a singleShot timer to ensure that the job event queue has
             # emptied before the ondevice column is removed from the booklist.
             # This deals with race conditions when repainting the booklist

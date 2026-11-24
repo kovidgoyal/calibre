@@ -5,6 +5,7 @@ store_version = 2  # Needed for dynamic plugin loading
 
 import mimetypes
 from contextlib import closing
+from typing import TYPE_CHECKING
 
 from calibre import browser
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -14,8 +15,13 @@ from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://www.manybooks.net/opds/'):
+
+def search_manybooks(
+    query: bytes | str, max_results: int = 10, timeout: int = 60, open_search_url: str = 'http://www.manybooks.net/opds/'
+) -> Iterator[SearchResult]:
     """
     Manybooks uses a very strange opds feed. The opds
     main feed is structured like a stanza feed. The
@@ -99,7 +105,7 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
     open_search_url = 'http://www.manybooks.net/opds/'
     web_url = 'http://manybooks.net'
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search_manybooks(query, max_results=max_results, timeout=timeout, open_search_url=self.open_search_url)
 
 

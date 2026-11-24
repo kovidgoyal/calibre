@@ -5,6 +5,7 @@ store_version = 11  # Needed for dynamic plugin loading
 
 from base64 import b64encode
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from qt.core import QUrl
@@ -22,7 +23,15 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
-def as_base64(data):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def as_base64(data: str | bytes) -> str:
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     ans = b64encode(data)
@@ -32,7 +41,7 @@ def as_base64(data):
 
 
 class EmpikStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/78/58/'
 
         url = 'https://www.empik.com/ebooki'
@@ -51,7 +60,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         url = f'https://www.empik.com/ebooki/ebooki,3501,s?sort=scoreDesc&resultsPP={max_results}&q={quote(query)}'
 
         br = browser()

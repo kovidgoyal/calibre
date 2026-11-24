@@ -3,6 +3,7 @@
 
 import os
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QModelIndex
 
@@ -12,6 +13,12 @@ from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.tools import convert_bulk_ebook, convert_single_ebook
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection, Iterable, Sequence
+
+    from calibre.gui2.tools import ConversionJob
+    from calibre.utils.ipc.job import BaseJob
 
 
 class ConvertAction(InterfaceActionWithLibraryDrop):
@@ -49,7 +56,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         self.qaction.triggered.connect(self.convert_ebook)
         self.conversion_jobs = {}
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
@@ -57,18 +64,18 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         for action in list(self.convert_menu.actions()):
             action.setEnabled(enabled)
 
-    def auto_convert(self, book_ids, on_card, format) -> None:
+    def auto_convert(self, book_ids: Collection[int], on_card: str | None, format: str) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []:
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, book_ids, True, format)
+        if not jobs:
             return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_auto_converted, extra_job_args=[on_card])
 
-    def auto_convert_auto_add(self, book_ids) -> None:
+    def auto_convert_auto_add(self, book_ids: Iterable[int]) -> None:
         previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
-        needed = set()
+        needed: set[int] = set()
         of = prefs['output_format'].lower()
         for book_id in book_ids:
             fmts = db.formats(book_id, index_is_id=True)
@@ -76,16 +83,16 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             if gprefs['auto_convert_same_fmt'] or of not in fmts:
                 needed.add(book_id)
         if needed:
-            jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, needed, True, of, show_no_format_warning=False)
+            jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, needed, True, of, show_no_format_warning=False)
             if not jobs:
                 return
             self.queue_convert_jobs(jobs, changed, bad, list(needed), previous, self.book_converted, rows_are_ids=True)
 
-    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject) -> None:
+    def auto_convert_mail(self, to: str, fmts: Sequence[str], delete_from_library: bool, book_ids: Collection[int], format: str, subject: str) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []:
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, book_ids, True, format)
+        if not jobs:
             return
         self.queue_convert_jobs(
             jobs,
@@ -97,11 +104,11 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             extra_job_args=[delete_from_library, to, fmts, subject],
         )
 
-    def auto_convert_multiple_mail(self, book_ids, data, ofmt, delete_from_library) -> None:
+    def auto_convert_multiple_mail(self, book_ids: Collection[int], data: Iterable[tuple[str, str]], ofmt: str, delete_from_library: bool) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, ofmt)
-        if jobs == []:
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, book_ids, True, ofmt)
+        if not jobs:
             return
         self.queue_convert_jobs(
             jobs,
@@ -113,37 +120,37 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             extra_job_args=[delete_from_library, data],
         )
 
-    def auto_convert_news(self, book_ids, format) -> None:
+    def auto_convert_news(self, book_ids: Collection[int], format: str) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []:
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, book_ids, True, format)
+        if not jobs:
             return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_auto_converted_news)
 
-    def auto_convert_catalogs(self, book_ids, format) -> None:
+    def auto_convert_catalogs(self, book_ids: Collection[int], format: str) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
-        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []:
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.current_db, book_ids, True, format)
+        if not jobs:
             return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous, self.book_auto_converted_catalogs)
 
-    def get_books_for_conversion(self):
+    def get_books_for_conversion(self) -> list[int] | None:
         rows = [r.row() for r in self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot convert'), _('No books selected'))
             d.exec()
             return None
-        return [self.gui.library_view.model().db.id(r) for r in rows]
+        return [self.gui.current_db.id(r) for r in rows]
 
-    def convert_ebook(self, checked, bulk=None) -> None:
+    def convert_ebook(self, checked: bool, bulk: bool | None = None) -> None:
         book_ids = self.get_books_for_conversion()
         if book_ids is None:
             return
         self.do_convert(book_ids, bulk=bulk)
 
-    def convert_ebooks_to_format(self, book_ids, to_fmt):
+    def convert_ebooks_to_format(self, book_ids: Sequence[int], to_fmt: str) -> int | None:
         from calibre.customize.ui import available_output_formats
 
         to_fmt = to_fmt.upper()
@@ -156,7 +163,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             )
         self.do_convert(book_ids, output_fmt=to_fmt, auto_conversion=True)
 
-    def do_convert(self, book_ids, bulk=None, auto_conversion=False, output_fmt=None) -> None:
+    def do_convert(self, book_ids: Sequence[int], bulk: bool | None = None, auto_conversion: bool = False, output_fmt: str | None = None) -> None:
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
         num = 0
@@ -164,7 +171,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             self.__bulk_queue = convert_bulk_ebook(
                 self.gui,
                 self.queue_convert_jobs,
-                self.gui.library_view.model().db,
+                self.gui.current_db,
                 book_ids,
                 out_format=output_fmt or prefs['output_format'],
                 args=(rows, previous, self.book_converted),
@@ -175,7 +182,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         else:
             jobs, changed, bad = convert_single_ebook(
                 self.gui,
-                self.gui.library_view.model().db,
+                self.gui.current_db,
                 book_ids,
                 out_format=output_fmt or prefs['output_format'],
                 auto_conversion=auto_conversion,
@@ -189,13 +196,25 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             self.gui.jobs_pointer.start()
             self.gui.status_bar.show_message(ngettext('Starting conversion of the book', 'Starting conversion of {} books', num).format(num), 2000)
 
-    def queue_convert_jobs(self, jobs, changed, bad, rows, previous, converted_func, extra_job_args=None, rows_are_ids=False) -> None:
+    def queue_convert_jobs(
+        self,
+        jobs: Iterable[ConversionJob],
+        changed: bool | None,
+        bad: Collection[tuple[int, tuple[str, ...]]] | None,
+        rows: Collection[int],
+        previous: QModelIndex,
+        converted_func: Callable[[BaseJob], object],
+        extra_job_args: list[object] | None = None,
+        rows_are_ids: bool = False,
+    ) -> None:
         if extra_job_args is None:
             extra_job_args = []
+        assert bad is not None
         for func, args, desc, fmt, id, temp_files in jobs:
             func, _, parts = func.partition(':')
             parts = set(parts.split(';'))
             input_file = args[0]
+            assert isinstance(input_file, str)
             input_fmt = os.path.splitext(input_file)[1]
             core_usage = 1
             if input_fmt:
@@ -220,12 +239,12 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             current = self.gui.library_view.currentIndex()
             self.gui.library_view.model().current_changed(current, previous)
 
-    def book_auto_converted(self, job) -> None:
+    def book_auto_converted(self, job: BaseJob) -> None:
         temp_files, fmt, book_id, on_card = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
-    def book_auto_converted_mail(self, job) -> None:
+    def book_auto_converted_mail(self, job: BaseJob) -> None:
         temp_files, fmt, book_id, delete_from_library, to, fmts, subject = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.send_by_mail(
@@ -238,7 +257,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
             do_auto_convert=False,
         )
 
-    def book_auto_converted_multiple_mail(self, job) -> None:
+    def book_auto_converted_multiple_mail(self, job: BaseJob) -> None:
         temp_files, fmt, book_id, delete_from_library, data = self.conversion_jobs[job]
         self.book_converted(job)
         for to, subject in data:
@@ -252,17 +271,17 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 do_auto_convert=False,
             )
 
-    def book_auto_converted_news(self, job) -> None:
+    def book_auto_converted_news(self, job: BaseJob) -> None:
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_news(send_ids=[book_id], do_auto_convert=False)
 
-    def book_auto_converted_catalogs(self, job) -> None:
+    def book_auto_converted_catalogs(self, job: BaseJob) -> None:
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
         self.gui.sync_catalogs(send_ids=[book_id], do_auto_convert=False)
 
-    def book_converted(self, job):
+    def book_converted(self, job: BaseJob) -> int | None:
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)[:3]
         try:
             if job.failed:

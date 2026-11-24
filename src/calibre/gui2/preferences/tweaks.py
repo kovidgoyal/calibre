@@ -5,6 +5,7 @@ import textwrap
 from collections import OrderedDict
 from functools import partial
 from operator import attrgetter
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -41,10 +42,17 @@ from calibre.utils.icu import lower
 from calibre.utils.localization import _
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from qt.core import QPoint
+
+    from calibre.gui2.ui import Main
+
 ROOT = QModelIndex()
 
 
-def format_doc(doc):
+def format_doc(doc: str) -> str:
     current_indent = default_indent = None
     lines = ['']
     for line in doc.splitlines():
@@ -69,12 +77,12 @@ def format_doc(doc):
 
 
 class AdaptSQP(SearchQueryParser):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: object, **kwargs: object) -> None:
         pass
 
 
 class Tweak:  # {{{
-    def __init__(self, name, doc, var_names, defaults, custom) -> None:
+    def __init__(self, name: str, doc: str, var_names: list[str], defaults: Mapping[str, object], custom: Mapping[str, object]) -> None:
         translate = _
         self.name = translate(name)
         self.doc = doc.strip()
@@ -82,10 +90,10 @@ class Tweak:  # {{{
         self.var_names = var_names
         if self.var_names:
             self.doc = '{}: {}\n\n{}'.format(_('ID'), self.var_names[0], format_doc(self.doc))
-        self.default_values = OrderedDict()
+        self.default_values: OrderedDict[str, object] = OrderedDict()
         for x in var_names:
             self.default_values[x] = defaults[x]
-        self.custom_values = OrderedDict()
+        self.custom_values: OrderedDict[str, object] = OrderedDict()
         for x in var_names:
             if x in custom:
                 self.custom_values[x] = custom[x]
@@ -114,7 +122,7 @@ class Tweak:  # {{{
         return False
 
     @property
-    def edit_text(self):
+    def edit_text(self) -> str:
         from pprint import pformat
 
         ans = [f'# {self.name}']
@@ -129,7 +137,7 @@ class Tweak:  # {{{
     def restore_to_default(self) -> None:
         self.custom_values.clear()
 
-    def update(self, varmap) -> None:
+    def update(self, varmap: Mapping[str, object]) -> None:
         self.custom_values.update(varmap)
 
 
@@ -137,15 +145,15 @@ class Tweak:  # {{{
 
 
 class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
         SearchQueryParser.__init__(self, ['all'])
         self.parse_tweaks()
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.tweaks)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         row = index.row()
         try:
             tweak = self.tweaks[row]
@@ -185,7 +193,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         defaults = default_tweaks_raw()
         lines = defaults.splitlines()
         pos = 0
-        self.tweaks = []
+        self.tweaks: list[Tweak] = []
         while pos < len(lines):
             line = lines[pos]
             if line.startswith('#:'):
@@ -196,11 +204,11 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         default_keys = set(default_tweaks)
         custom_keys = set(custom_tweaks)
 
-        self.plugin_tweaks = {}
+        self.plugin_tweaks: dict[str, object] = {}
         for key in custom_keys - default_keys:
             self.plugin_tweaks[key] = custom_tweaks[key]
 
-    def read_tweak(self, lines, pos, defaults, custom):
+    def read_tweak(self, lines: list[str], pos: int, defaults: Mapping[str, object], custom: Mapping[str, object]) -> int:
         name = lines[pos][2:].strip()
         doc, stripped_doc, leading, var_names = [], [], [], []
         while True:
@@ -239,9 +247,9 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         self.tweaks.append(Tweak(name, doc, var_names, defaults, custom))
         return pos
 
-    def restore_to_default(self, idx) -> None:
+    def restore_to_default(self, idx: QModelIndex) -> None:
         tweak = self.data(idx, Qt.ItemDataRole.UserRole)
-        if tweak is not None:
+        if isinstance(tweak, Tweak):
             tweak.restore_to_default()
             self.dataChanged.emit(idx, idx)
 
@@ -250,13 +258,13 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             self.restore_to_default(self.index(r))
         self.plugin_tweaks = {}
 
-    def update_tweak(self, idx, varmap) -> None:
+    def update_tweak(self, idx: QModelIndex, varmap: Mapping[str, object]) -> None:
         tweak = self.data(idx, Qt.ItemDataRole.UserRole)
-        if tweak is not None:
+        if isinstance(tweak, Tweak):
             tweak.update(varmap)
             self.dataChanged.emit(idx, idx)
 
-    def to_string(self):
+    def to_string(self) -> str:
         ans = [
             '#!/usr/bin/env python',
             '# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai',
@@ -274,7 +282,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         return '\n'.join(ans)
 
     @property
-    def plugin_tweaks_string(self):
+    def plugin_tweaks_string(self) -> str:
         ans = []
         for key, val in self.plugin_tweaks.items():
             ans.extend([f'{key} = {val!r}', '', ''])
@@ -283,13 +291,13 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             ans = ans.decode('utf-8')
         return ans
 
-    def set_plugin_tweaks(self, d) -> None:
+    def set_plugin_tweaks(self, d: dict[str, object]) -> None:
         self.plugin_tweaks = d
 
-    def universal_set(self):
+    def universal_set(self) -> set[int]:
         return set(range(self.rowCount()))
 
-    def get_matches(self, location, query, candidates=None):
+    def get_matches(self, location: str, query: str, candidates: set[int] | None = None) -> set[int]:
         if candidates is None:
             candidates = self.universal_set()
         ans = set()
@@ -298,12 +306,13 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         query = lower(query)
         for r in candidates:
             dat = self.data(self.index(r), Qt.ItemDataRole.UserRole)
+            assert isinstance(dat, Tweak)
             var_names = ' '.join(dat.default_values)
             if query in lower(dat.name) or query in lower(var_names):
                 ans.add(r)
         return ans
 
-    def find(self, query):
+    def find(self, query: str) -> QModelIndex:
         query = query.strip()
         if not query:
             return ROOT
@@ -313,7 +322,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         matches = list(sorted(matches))
         return self.index(matches[0])
 
-    def find_next(self, idx, query, backwards=False):
+    def find_next(self, idx: QModelIndex, query: str, backwards: bool = False) -> QModelIndex:
         query = query.strip()
         if not query:
             return idx
@@ -340,7 +349,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
 
 class PluginTweaks(QDialog):  # {{{
-    def __init__(self, raw, parent=None) -> None:
+    def __init__(self, raw: str, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Plugin tweaks'))
         self.edit = QPlainTextEdit(self)
@@ -371,7 +380,7 @@ class PluginTweaks(QDialog):  # {{{
 class TweaksView(QListView):
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QListView.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setAlternatingRowColors(True)
@@ -380,13 +389,13 @@ class TweaksView(QListView):
         self.setStyleSheet('QListView::item { padding-top: 0.75ex; padding-bottom: 0.75ex; }')
         self.setWordWrap(True)
 
-    def currentChanged(self, current, previous) -> None:
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         QListView.currentChanged(self, current, previous)
         self.current_changed.emit(current, previous)
 
 
 class ConfigWidget(ConfigWidgetBase):
-    def setupUi(self, x) -> None:
+    def setupUi(self, x: object) -> None:
         self.l = l = QVBoxLayout(self)
         self.la1 = la = QLabel(
             _(
@@ -449,7 +458,7 @@ class ConfigWidget(ConfigWidgetBase):
         b.setText(_('&Reset this tweak'))
         hl.addWidget(b)
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.tweaks_view.current_changed.connect(self.current_changed)
         self.view = self.tweaks_view
@@ -466,11 +475,12 @@ class ConfigWidget(ConfigWidgetBase):
         self.view.customContextMenuRequested.connect(self.show_context_menu)
         self.copy_icon = QIcon.ic('edit-copy.png')
 
-    def show_context_menu(self, point) -> bool:
+    def show_context_menu(self, point: QPoint) -> bool:
         idx = self.tweaks_view.currentIndex()
         if not idx.isValid():
             return True
         tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
+        assert isinstance(tweak, Tweak)
         self.context_menu = QMenu(self)
         self.context_menu.addAction(
             self.copy_icon,
@@ -480,13 +490,13 @@ class ConfigWidget(ConfigWidgetBase):
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
-    def copy_item_to_clipboard(self, val) -> None:
+    def copy_item_to_clipboard(self, val: str) -> None:
         cb = QApplication.clipboard()
         assert cb is not None
         cb.clear()
         cb.setText(val)
 
-    def plugin_tweaks(self):
+    def plugin_tweaks(self) -> None:
         raw = self.tweaks.plugin_tweaks_string
         d = PluginTweaks(raw, self)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -495,31 +505,33 @@ class ConfigWidget(ConfigWidgetBase):
             except Exception:
                 import traceback
 
-                return error_dialog(
+                error_dialog(
                     self,
                     _('Failed'),
                     _('There was a syntax error in your tweak. Click the "Show details" button for details.'),
                     show=True,
                     det_msg=traceback.format_exc(),
                 )
+                return
             self.tweaks.set_plugin_tweaks(l)
             self.changed()
 
-    def set_edit_text(self, text, ignore_tweak_changed=True) -> None:
+    def set_edit_text(self, text: str, ignore_tweak_changed: bool = True) -> None:
         orig = self.ignore_tweak_changed
         self.ignore_tweak_changed = ignore_tweak_changed
         self.edit_tweak.setPlainText(text)
         self.ignore_tweak_changed = orig
 
-    def current_changed(self, *a) -> None:
+    def current_changed(self, *a: object) -> None:
         current = self.tweaks_view.currentIndex()
         if current.isValid():
             self.tweaks_view.scrollTo(current)
             tweak = self.tweaks.data(current, Qt.ItemDataRole.UserRole)
+            assert isinstance(tweak, Tweak)
             self.help.setPlainText(_('Help for this tweak') + '\n\n' + tweak.doc)
             self.set_edit_text(tweak.edit_text)
 
-    def changed(self, *args) -> None:
+    def changed(self, *args: object) -> None:
         self.changed_signal.emit()
 
     def initialize(self) -> None:
@@ -529,20 +541,22 @@ class ConfigWidget(ConfigWidgetBase):
         assert tweaks_model is not None
         self.tweaks_view.setCurrentIndex(tweaks_model.index(0, 0))
 
-    def restore_to_default(self, *args) -> None:
+    def restore_to_default(self, *args: object) -> None:
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
             self.tweaks.restore_to_default(idx)
             tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
+            assert isinstance(tweak, Tweak)
             self.set_edit_text(tweak.edit_text)
             self.changed()
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.tweaks.restore_to_defaults()
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
             tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
+            assert isinstance(tweak, Tweak)
             self.set_edit_text(tweak.edit_text)
         self.changed()
 
@@ -561,7 +575,7 @@ class ConfigWidget(ConfigWidgetBase):
                 self.changed()
         self.edit_tweak.setStyleSheet(stylesheet_for_lineedit(ok, 'QPlainTextEdit'))
 
-    def commit(self, *args) -> bool:
+    def commit(self, *args: object) -> bool:
         raw = self.tweaks.to_string()
         try:
             custom_tweaks = parse_python_tweaks(raw)
@@ -580,7 +594,7 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.commit(self)
         return True
 
-    def find(self, a0) -> None:
+    def find(self, a0: str) -> None:  # ty: ignore[incompatible-method-override] shadows the static QWidget.find(), renaming would break API
         if not a0:
             return
         try:
@@ -600,7 +614,7 @@ class ConfigWidget(ConfigWidgetBase):
             return
         self.highlight_index(idx)
 
-    def highlight_index(self, idx) -> None:
+    def highlight_index(self, idx: QModelIndex) -> None:
         if not idx.isValid():
             return
         self.view.scrollTo(idx)
@@ -609,14 +623,14 @@ class ConfigWidget(ConfigWidgetBase):
         sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
 
-    def find_next(self, *args) -> None:
+    def find_next(self, *args: object) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0)
         idx = self._model.find_next(idx, str(self.search.currentText()))
         self.highlight_index(idx)
 
-    def find_previous(self, *args) -> None:
+    def find_previous(self, *args: object) -> None:
         idx = self.view.currentIndex()
         if not idx.isValid():
             idx = self._model.index(0)

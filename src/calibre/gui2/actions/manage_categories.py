@@ -17,8 +17,9 @@ class ManageCategoriesAction(InterfaceAction):
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])
 
     def genesis(self) -> None:
-        self.menu = m = self.qaction.menu()
+        m = self.qaction.menu()
         assert m is not None
+        self.menu = m
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -46,7 +47,7 @@ class ManageCategoriesAction(InterfaceAction):
         db = self.gui.current_db
         self.gui.populate_manage_categories_menu(db, self.menu, add_column_items=True)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         assert self.menu is not None

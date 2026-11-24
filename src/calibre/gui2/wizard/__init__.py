@@ -5,7 +5,7 @@ import os
 import re
 import traceback
 from contextlib import closing, suppress
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from qt.core import QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard, QWizardPage, pyqtSignal
 
@@ -21,10 +21,16 @@ from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.localization import _, localize_user_manual_link, localize_website_link
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from types import EllipsisType
+
+    from qt.core import QModelIndex, QWidget
+
 # Devices {{{
 
 
-def gettext(name):
+def gettext(name: str) -> tuple[str, str]:
     return name, __builtins__['_'](name)
 
 
@@ -409,21 +415,21 @@ class EZReaderPP(HanlinV5):
 # }}}
 
 
-def get_devices():
+def get_devices() -> Iterator[type[Device]]:
     for x in globals().values():
         if isinstance(x, type) and issubclass(x, Device):
             yield x
 
 
-def get_manufacturers():
-    mans = set()
+def get_manufacturers() -> list[str]:
+    mans: set[str] = set()
     for x in get_devices():
         mans.add(x.manufacturer)
     mans.discard(Device.manufacturer)
     return [Device.manufacturer] + sorted(mans)
 
 
-def get_devices_of(manufacturer):
+def get_devices_of(manufacturer: str | None) -> list[type[Device]]:
     ans = [d for d in get_devices() if d.manufacturer == manufacturer]
     return sorted(ans, key=lambda x: x.name)
 
@@ -433,13 +439,13 @@ class ManufacturerModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.manufacturers = get_manufacturers()
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.manufacturers)
 
-    def columnCount(self, parent=...) -> int:
+    def columnCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return 1
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> str | None:
         if role == Qt.ItemDataRole.DisplayRole:
             ans = self.manufacturers[index.row()]
             if ans == Device.manufacturer:
@@ -449,34 +455,36 @@ class ManufacturerModel(QAbstractListModel):
             return self.manufacturers[index.row()]
         return None
 
-    def index_of(self, man):
+    def index_of(self, man: str) -> QModelIndex | None:
         for i, x in enumerate(self.manufacturers):
             if x == man:
                 return self.index(i)
+        return None
 
 
 class DeviceModel(QAbstractListModel):
-    def __init__(self, manufacturer) -> None:
+    def __init__(self, manufacturer: str | None) -> None:
         QAbstractListModel.__init__(self)
         self.devices = get_devices_of(manufacturer)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.devices)
 
-    def columnCount(self, parent=...) -> int:
+    def columnCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return 1
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> str | type[Device] | None:
         if role == Qt.ItemDataRole.DisplayRole:
             return self.devices[index.row()].name
         if role == Qt.ItemDataRole.UserRole:
             return self.devices[index.row()]
         return None
 
-    def index_of(self, dev):
+    def index_of(self, dev: type[Device]) -> QModelIndex | None:
         for i, device in enumerate(self.devices):
             if device is dev:
                 return self.index(i)
+        return None
 
 
 class KindlePage(QWizardPage, KindleUI):
@@ -505,10 +513,11 @@ class KindlePage(QWizardPage, KindleUI):
         if accs:
             self.to_address.setText(accs[0][0])
 
-        def x():
+        def x() -> str | None:
             t = str(self.to_address.text())
             if t.strip():
                 return t.strip()
+            return None
 
         self.send_email_widget.initialize(x)
 
@@ -526,10 +535,10 @@ class KindlePage(QWizardPage, KindleUI):
             accounts[x] = ['EPUB', True, True]
             conf.set('accounts', accounts)
 
-    def nextId(self):
+    def nextId(self) -> int:
         return FinishPage.ID
 
-    def retranslateUi(self, WizardPage) -> None:
+    def retranslateUi(self, WizardPage: QWizardPage) -> None:
         KindleUI.retranslateUi(self, WizardPage)
         if hasattr(self, 'send_email_widget'):
             self.send_email_widget.retranslateUi(self.send_email_widget)
@@ -558,7 +567,7 @@ class StanzaPage(QWizardPage, StanzaUI):
         self.content_server.setChecked(yes)
         self.set_port()
 
-    def nextId(self):
+    def nextId(self) -> int:
         return FinishPage.ID
 
     def commit(self) -> None:
@@ -568,9 +577,9 @@ class StanzaPage(QWizardPage, StanzaUI):
 
             change_settings(port=p)
 
-    def set_port(self, *args):
+    def set_port(self, *args: object) -> int | None:
         if not self.content_server.isChecked():
-            return
+            return None
         import socket
 
         s = socket.socket()
@@ -584,6 +593,7 @@ class StanzaPage(QWizardPage, StanzaUI):
                     return p
                 except Exception:
                     continue
+        return None
 
 
 class DevicePage(QWizardPage, DeviceUI):
@@ -611,18 +621,20 @@ class DevicePage(QWizardPage, DeviceUI):
         if idx is None:
             idx = self.man_model.index_of(Device.manufacturer)
             previous = Device
+        assert idx is not None
         man_sel_model = self.manufacturer_view.selectionModel()
         assert man_sel_model is not None
         man_sel_model.select(idx, QItemSelectionModel.SelectionFlag.Select)
         self.dev_model = DeviceModel(self.man_model.data(idx, Qt.ItemDataRole.UserRole))
         idx = self.dev_model.index_of(previous)
+        assert idx is not None
         self.device_view.setModel(self.dev_model)
         dev_sel_model = self.device_view.selectionModel()
         assert dev_sel_model is not None
         dev_sel_model.select(idx, QItemSelectionModel.SelectionFlag.Select)
         man_sel_model.selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
-    def manufacturer_changed(self, current, previous) -> None:
+    def manufacturer_changed(self, current: QItemSelection, previous: QItemSelection) -> None:
         new = list(current.indexes())[0]
         man = self.man_model.data(new, Qt.ItemDataRole.UserRole)
         self.dev_model = DeviceModel(man)
@@ -636,10 +648,11 @@ class DevicePage(QWizardPage, DeviceUI):
         assert dev_sel_model is not None
         idx = list(dev_sel_model.selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
+        assert isinstance(dev, type)
         dev.commit()
         dynamic.set('welcome_wizard_device', dev.id)
 
-    def nextId(self):
+    def nextId(self) -> int:
         dev_sel_model = self.device_view.selectionModel()
         assert dev_sel_model is not None
         idx = list(dev_sel_model.selectedIndexes())[0]
@@ -657,8 +670,8 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def __init__(self) -> None:
         QWizardPage.__init__(self)
-        self.made_dirs = []
-        self.initial_library_location = None
+        self.made_dirs: list[str] = []
+        self.initial_library_location: str | None = None
         self.setupUi(self)
         self.registerField('library_location', self.location)
         self.button_change.clicked.connect(self.change)
@@ -667,11 +680,11 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.location.textChanged.connect(self.location_text_changed)
         self.set_move_lib_label_text()
 
-    def makedirs(self, x) -> None:
+    def makedirs(self, x: str) -> None:
         self.made_dirs.append(x)
         os.makedirs(x)
 
-    def location_text_changed(self, newtext) -> None:
+    def location_text_changed(self, newtext: str) -> None:
         self.completeChanged.emit()
 
     def set_move_lib_label_text(self) -> None:
@@ -681,7 +694,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             )
         )
 
-    def retranslateUi(self, WizardPage) -> None:
+    def retranslateUi(self, WizardPage: QWizardPage) -> None:
         LibraryUI.retranslateUi(self, WizardPage)
         self.set_move_lib_label_text()
 
@@ -695,7 +708,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         if lang is None or lang not in available_translations():
             lang = 'en'
 
-        def get_esc_lang(l):
+        def get_esc_lang(l: str) -> str:
             if l == 'en':
                 return 'English'
             return get_language(l)
@@ -710,7 +723,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.blockSignals(False)
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
 
-    def change_language(self, idx) -> None:
+    def change_language(self, idx: int) -> None:
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
         import builtins
 
@@ -744,7 +757,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             if type(x) is type and hasattr(x, 'untranslated_name'):
                 x.name = __builtins__['_'](x.untranslated_name)
 
-    def is_library_dir_suitable(self, x):
+    def is_library_dir_suitable(self, x: str) -> bool | str:
         from calibre.db.legacy import LibraryDatabase
 
         try:
@@ -759,7 +772,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             return False
         return True
 
-    def change(self):
+    def change(self) -> int | None:
         from calibre.db.legacy import LibraryDatabase
 
         x = choose_dir(self, 'database location dialog', _('Select location for books'))
@@ -787,8 +800,9 @@ class LibraryPage(QWizardPage, LibraryUI):
                 self.location.setText(x)
             else:
                 self.show_library_dir_error(x)
+        return None
 
-    def show_library_dir_error(self, x) -> None:
+    def show_library_dir_error(self, x: str | bytes) -> None:
         if not isinstance(x, str):
             try:
                 x = x.decode(filesystem_encoding)
@@ -831,7 +845,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         for x in ('location', 'button_change', 'libloc_label1', 'libloc_label2'):
             getattr(self, x).setVisible(not isportable)
 
-    def isComplete(self):
+    def isComplete(self) -> bool:
         try:
             lp = str(self.location.text())
             ans = bool(lp) and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp, os.W_OK)
@@ -855,7 +869,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             os.makedirs(newloc)
         prefs['library_path'] = newloc
 
-    def nextId(self):
+    def nextId(self) -> int:
         return DevicePage.ID
 
 
@@ -892,7 +906,7 @@ class Wizard(QWizard):
         _('&Finish')
         _('Commit')
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__ + ' ' + _('Welcome wizard'))
         self.setPixmap(QWizard.WizardPixmap.LogoPixmap, QIcon.ic('library.png').pixmap(48, 48))
@@ -935,14 +949,14 @@ class Wizard(QWizard):
             page.commit()
         QWizard.accept(self)
 
-    def set_finish_text(self, *args) -> None:
+    def set_finish_text(self, *args: object) -> None:
         bt = str('<em>' + self.buttonText(QWizard.WizardButton.FinishButton) + '</em>').replace('&', '')
         t = str(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t % bt)
 
 
-def wizard(parent=None):
+def wizard(parent: QWidget | None = None) -> Wizard:
     w = Wizard(parent)
     return w
 

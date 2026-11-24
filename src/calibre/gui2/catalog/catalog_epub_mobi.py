@@ -4,7 +4,7 @@
 import re
 import sys
 from functools import partial
-from typing import ClassVar, TypedDict
+from typing import TYPE_CHECKING, ClassVar, TypedDict, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -37,6 +37,22 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 from .catalog_epub_mobi_ui import Ui_Form
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from qt.core import QFocusEvent, QGroupBox, QWheelEvent
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.dialogs.catalog import Catalog
+
+    class FieldSpec(TypedDict):
+        field: str | None
+        datatype: str | None
+
+    class EligibleFieldSpec(TypedDict):
+        field: str
+        datatype: str | None
+
 
 class PluginWidget(QWidget, Ui_Form):
     TITLE = _('E-book options')
@@ -50,7 +66,10 @@ class PluginWidget(QWidget, Ui_Form):
     # Formats supported by this plugin
     formats = {'azw3', 'epub', 'mobi'}
 
-    def __init__(self, parent=None) -> None:
+    parent_ref: Callable[[], Catalog | None]
+    ICON: str
+
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self._initControlArrays()
@@ -137,7 +156,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         self.OPTION_FIELDS = option_fields
 
-    def block_all_signals(self, bool) -> None:
+    def block_all_signals(self, bool: bool) -> None:
         if self.DEBUG:
             print(f'block_all_signals: {bool}')
         self.blocking_all_signals = bool
@@ -147,7 +166,7 @@ class PluginWidget(QWidget, Ui_Form):
                 continue
             getattr(self, c_name).blockSignals(bool)
 
-    def construct_tw_opts_object(self, c_name, opt_value, opts_dict) -> None:
+    def construct_tw_opts_object(self, c_name: str, opt_value: Iterable[_RuleData], opts_dict: dict[str, object]) -> None:
         """
         Build an opts object from the UI settings to pass to the catalog builder
         Handles two types of rules sets, with and without ['prefix'] field
@@ -176,9 +195,8 @@ class PluginWidget(QWidget, Ui_Form):
                 pr = (rule['name'], rule['field'], rule['pattern'])
 
             rule_set.append(pr)
-        opt_value = tuple(rule_set)
         # Strip off the trailing '_tw'
-        opts_dict[c_name[:-3]] = opt_value
+        opts_dict[c_name[:-3]] = tuple(rule_set)
 
     def exclude_genre_changed(self) -> None:
         """Dynamically compute excluded genres.
@@ -193,7 +211,7 @@ class PluginWidget(QWidget, Ui_Form):
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
         """
 
-        def _truncated_results(excluded_tags, limit=180):
+        def _truncated_results(excluded_tags: list[str], limit: int = 180) -> str:
             """
             Limit number of genres displayed to avoid dialog explosion
             """
@@ -231,6 +249,7 @@ class PluginWidget(QWidget, Ui_Form):
         if self.genre_source_field_name == _('Tags'):
             all_genre_tags = self.db.all_tags()
         else:
+            assert self.genre_source_field_name is not None
             all_genre_tags = list(self.db.all_custom(self.db.field_metadata.key_to_label(self.genre_source_field_name)))
 
         try:
@@ -262,15 +281,16 @@ class PluginWidget(QWidget, Ui_Form):
 
     def fetch_eligible_custom_fields(self) -> None:
         self.all_custom_fields = self.db.custom_field_keys()
-        custom_fields = {}
+        custom_fields: dict[str | None, EligibleFieldSpec] = {}
         custom_fields[_('Tags')] = {'field': 'tag', 'datatype': 'text'}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
+            assert field_md is not None
             if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
                 custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         self.eligible_custom_fields = custom_fields
 
-    def generate_descriptions_changed(self, enabled) -> None:
+    def generate_descriptions_changed(self, enabled: bool) -> None:
         """
         Toggle Description-related controls
         """
@@ -281,13 +301,13 @@ class PluginWidget(QWidget, Ui_Form):
         self.merge_source_field.setEnabled(enabled)
         self.thumb_width.setEnabled(enabled)
 
-    def generate_genres_changed(self, enabled) -> None:
+    def generate_genres_changed(self, enabled: bool) -> None:
         """
         Toggle Genres-related controls
         """
         self.genre_source_field.setEnabled(enabled)
 
-    def genre_source_field_changed(self, new_index) -> None:
+    def genre_source_field_changed(self, new_index: int) -> None:
         """
         Process changes in the genre_source_field combo box
         Update Excluded genres preview
@@ -299,7 +319,7 @@ class PluginWidget(QWidget, Ui_Form):
             self.genre_source_field_name = genre_source_spec['field']
         self.exclude_genre_changed()
 
-    def get_format_and_title(self):
+    def get_format_and_title(self) -> tuple[str | None, str | None]:
         current_format = None
         current_title = None
         parent = self.parent_ref()
@@ -308,7 +328,7 @@ class PluginWidget(QWidget, Ui_Form):
             current_format = parent.format.currentText().strip()
         return current_format, current_title
 
-    def header_note_source_field_changed(self, new_index) -> None:
+    def header_note_source_field_changed(self, new_index: int) -> None:
         """
         Process changes in the header_note_source_field combo box
         """
@@ -318,7 +338,7 @@ class PluginWidget(QWidget, Ui_Form):
             header_note_source_spec = self.header_note_source_fields[str(new_source)]
             self.header_note_source_field_name = header_note_source_spec['field']
 
-    def initialize(self, name, db) -> None:
+    def initialize(self, name: str, db: LibraryDatabase) -> None:
         """
         CheckBoxControls (c_type: check_box):
             ['cross_reference_authors',
@@ -442,7 +462,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         self.blocking_all_signals = False
 
-    def merge_source_field_changed(self, new_index) -> None:
+    def merge_source_field_changed(self, new_index: int) -> None:
         """
         Process changes in the merge_source_field combo box
         """
@@ -462,7 +482,7 @@ class PluginWidget(QWidget, Ui_Form):
             self.merge_after.setEnabled(False)
             self.include_hr.setEnabled(False)
 
-    def options(self):
+    def options(self) -> dict[str, object]:
         """
         Return, optionally save current options
         exclude_genre stores literally
@@ -502,6 +522,7 @@ class PluginWidget(QWidget, Ui_Form):
 
             # Construct opts object for catalog builder
             if c_name in ['exclusion_rules_tw', 'prefix_rules_tw']:
+                assert isinstance(opt_value, list)
                 self.construct_tw_opts_object(c_name, opt_value, opts_dict)
             else:
                 opts_dict[c_name] = opt_value
@@ -574,15 +595,17 @@ class PluginWidget(QWidget, Ui_Form):
         #  *text        Comma-separated text, like tags, shown in tag browser
 
         # Populate the 'Excluded books' hybrid
-        custom_fields = {}
+        custom_fields: dict[str | None, EligibleFieldSpec] = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
+            assert field_md is not None
             if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
                 custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Populate the 'Header note' combo box
         custom_fields = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
+            assert field_md is not None
             if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
                 custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Blank field first
@@ -597,6 +620,7 @@ class PluginWidget(QWidget, Ui_Form):
         custom_fields = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
+            assert field_md is not None
             if field_md['datatype'] in ['text', 'comments', 'composite']:
                 custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Blank field first
@@ -611,9 +635,10 @@ class PluginWidget(QWidget, Ui_Form):
         self.include_hr.setEnabled(False)
 
         # Populate the 'Genres' combo box
-        custom_fields = {_('Tags'): {'field': None, 'datatype': None}}
+        custom_fields: dict[str | None, FieldSpec] = {_('Tags'): {'field': None, 'datatype': None}}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
+            assert field_md is not None
             if field_md['datatype'] in ['text', 'enumeration']:
                 custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Add the sorted eligible fields to the combo box
@@ -628,7 +653,7 @@ class PluginWidget(QWidget, Ui_Form):
         self.preset_field_values = sorted(self.presets, key=sort_key)
         self.preset_field.addItems(self.preset_field_values)
 
-    def preset_change(self, idx) -> None:
+    def preset_change(self, idx: int) -> None:
         """
         Update catalog options from current preset
         """
@@ -783,6 +808,7 @@ class PluginWidget(QWidget, Ui_Form):
             preset[c_name] = opt_value
             # Construct cli version of table rules
             if c_name in ['exclusion_rules_tw', 'prefix_rules_tw']:
+                assert isinstance(opt_value, list)
                 self.construct_tw_opts_object(c_name, opt_value, preset)
 
         format, title = self.get_format_and_title()
@@ -820,7 +846,7 @@ class PluginWidget(QWidget, Ui_Form):
             self.preset_field.blockSignals(False)
         self.preset_field.setCurrentIndex(self.preset_field.findText(name))
 
-    def set_format_and_title(self, format, title) -> None:
+    def set_format_and_title(self, format: str | None, title: str | None) -> None:
         parent = self.parent_ref()
         if parent is not None:
             if format:
@@ -831,7 +857,7 @@ class PluginWidget(QWidget, Ui_Form):
             if title:
                 parent.title.setText(title)
 
-    def settings_changed(self, source) -> None:
+    def settings_changed(self, source: str) -> None:
         """
         When anything changes, clear Preset combobox
         """
@@ -851,7 +877,7 @@ class CheckableTableWidgetItem(QTableWidgetItem):
     Borrowed from kiwidude
     """
 
-    def __init__(self, checked=False, is_tristate=False) -> None:
+    def __init__(self, checked: bool | None = False, is_tristate: bool = False) -> None:
         QTableWidgetItem.__init__(self, '')
         self.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
         if is_tristate:
@@ -863,7 +889,7 @@ class CheckableTableWidgetItem(QTableWidgetItem):
         else:
             self.setCheckState(Qt.CheckState.Unchecked)
 
-    def get_boolean_value(self):
+    def get_boolean_value(self) -> bool | None:
         """
         Return a boolean value indicating whether checkbox is checked
         If this is a tristate checkbox, a partially checked value is returned as None
@@ -875,19 +901,20 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
 
 class NoWheelComboBox(QComboBox):
-    def wheelEvent(self, e) -> None:
+    def wheelEvent(self, e: QWheelEvent | None) -> None:
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
+        assert e is not None
         e.ignore()
 
 
 class ComboBox(NoWheelComboBox):
     # Caller is responsible for providing the list in the preferred order
 
-    def __init__(self, parent, items, selected_text, insert_blank=True) -> None:
+    def __init__(self, parent: QWidget | None, items: Iterable[str | None], selected_text: str, insert_blank: bool = True) -> None:
         NoWheelComboBox.__init__(self, parent)
         self.populate_combo(items, selected_text, insert_blank)
 
-    def populate_combo(self, items, selected_text, insert_blank) -> None:
+    def populate_combo(self, items: Iterable[str | None], selected_text: str, insert_blank: bool) -> None:
         if insert_blank:
             self.addItems([''])
         self.addItems(items)
@@ -903,6 +930,15 @@ class _ColumnDef(TypedDict):
     name: str
 
 
+class _RuleData(TypedDict, total=False):
+    ordinal: int
+    enabled: bool
+    name: str
+    field: str
+    pattern: str
+    prefix: str
+
+
 class GenericRulesTable(QTableWidget):
     """
     Generic methods for managing rows in a QTableWidget
@@ -913,16 +949,16 @@ class GenericRulesTable(QTableWidget):
     NAME_FIELD_WIDTH = 225
     COLUMNS: ClassVar[dict[str, _ColumnDef]] = {}
 
-    def populate_table_row(self, row: int, data: dict[str, object]) -> None:
+    def populate_table_row(self, row: int, data: _RuleData) -> None:
         raise NotImplementedError
 
-    def create_blank_row_data(self) -> dict[str, object]:
+    def create_blank_row_data(self) -> _RuleData:
         raise NotImplementedError
 
-    def convert_row_to_data(self, row: int) -> dict[str, object]:
+    def convert_row_to_data(self, row: int) -> _RuleData:
         raise NotImplementedError
 
-    def __init__(self, parent, parent_gb, object_name, rules) -> None:
+    def __init__(self, parent: PluginWidget, parent_gb: QGroupBox, object_name: str, rules: list[_RuleData] | list[list[_RuleData]]) -> None:
         self._plugin_widget = parent
         self.rules = rules
         self.eligible_custom_fields = parent.eligible_custom_fields
@@ -1010,14 +1046,18 @@ class GenericRulesTable(QTableWidget):
             old_layout = _lay
 
             for child in old_layout.children():
+                # The only child layout is the QVBoxLayout added in _init_controls()
+                assert isinstance(child, QBoxLayout)
                 for i in reversed(range(child.count())):
-                    if child.itemAt(i).widget() is not None:
-                        child.itemAt(i).widget().setParent(None)
+                    item = child.itemAt(i)
+                    if item is not None and (w := item.widget()) is not None:
+                        w.setParent(None)
                 sip.delete(child)
 
             for i in reversed(range(old_layout.count())):
-                if old_layout.itemAt(i).widget() is not None:
-                    old_layout.itemAt(i).widget().setParent(None)
+                item = old_layout.itemAt(i)
+                if item is not None and (w := item.widget()) is not None:
+                    w.setParent(None)
 
     def delete_row(self) -> None:
         if self.DEBUG:
@@ -1047,18 +1087,18 @@ class GenericRulesTable(QTableWidget):
         elif self.rowCount() > 0:
             self.select_and_scroll_to_row(first_sel_row - 1)
 
-    def enabled_state_changed(self, row, col) -> None:
+    def enabled_state_changed(self, row: int, col: int) -> None:
         if col == self.COLUMNS['ENABLED']['ordinal']:
             self.select_and_scroll_to_row(row)
             self.settings_changed('enabled_state_changed')
             if self.DEBUG:
                 print(f'{self.objectName()}:enabled_state_changed(): row {row} col {col}')
 
-    def focusInEvent(self, e) -> None:
+    def focusInEvent(self, e: QFocusEvent | None) -> None:
         if self.DEBUG:
             print(f'{self.objectName()}:focusInEvent()')
 
-    def focusOutEvent(self, e) -> None:
+    def focusOutEvent(self, e: QFocusEvent | None) -> None:
         # Override of QTableWidget method - clear selection when table loses focus
         self.last_row_selected = self.currentRow()
         _focus_out_sel_model = self.selectionModel()
@@ -1137,7 +1177,8 @@ class GenericRulesTable(QTableWidget):
         if rules and isinstance(rules[0], list):
             rules = rules[0]
         self.setFocus()
-        rules = sorted(rules, key=lambda k: k['ordinal'])
+        # The list of lists case has been normalized above
+        rules = sorted(cast('list[_RuleData]', rules), key=lambda k: k['ordinal'])
         for row, rule in enumerate(rules):
             self.insertRow(row)
             self.select_and_scroll_to_row(row)
@@ -1158,7 +1199,7 @@ class GenericRulesTable(QTableWidget):
         self.select_and_scroll_to_row(current_row)
         self.settings_changed('rule_name_edited')
 
-    def select_and_scroll_to_row(self, row) -> None:
+    def select_and_scroll_to_row(self, row: int) -> None:
         self.setFocus()
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
@@ -1167,11 +1208,11 @@ class GenericRulesTable(QTableWidget):
         assert _scroll_sel_model is not None
         self.last_rows_selected = _scroll_sel_model.selectedRows()
 
-    def settings_changed(self, source) -> None:
+    def settings_changed(self, source: str) -> None:
         if not self._plugin_widget.blocking_all_signals:
             self._plugin_widget.settings_changed(source)
 
-    def _source_index_changed(self, combo) -> None:
+    def _source_index_changed(self, combo: QComboBox) -> None:
         # Figure out which row we're in
         for row in range(self.rowCount()):
             if self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']) is combo:
@@ -1182,7 +1223,7 @@ class GenericRulesTable(QTableWidget):
 
         self.source_index_changed(combo, row)
 
-    def source_index_changed(self, combo, row, pattern='') -> None:
+    def source_index_changed(self, combo: QComboBox, row: int, pattern: str = '') -> None:
         # Populate the Pattern field based upon the Source field
 
         source_field = combo.currentText()
@@ -1207,7 +1248,7 @@ class GenericRulesTable(QTableWidget):
         self.select_and_scroll_to_row(row)
         self.settings_changed('source_index_changed')
 
-    def values_index_changed(self, combo) -> None:
+    def values_index_changed(self, combo: QComboBox) -> None:
         # After edit, select row
         for row in range(self.rowCount()):
             if self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']) is combo:
@@ -1227,7 +1268,7 @@ class ExclusionRules(GenericRulesTable):
         'PATTERN': {'ordinal': 3, 'name': _('Value')},
     }
 
-    def __init__(self, parent, parent_gb_hl, object_name, rules) -> None:
+    def __init__(self, parent: PluginWidget, parent_gb_hl: QGroupBox, object_name: str, rules: list[_RuleData] | list[list[_RuleData]]) -> None:
         super().__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName('exclusion_rules_table')
         self._init_table_widget()
@@ -1249,7 +1290,7 @@ class ExclusionRules(GenericRulesTable):
         _excl_hdr.setStretchLastSection(True)
         self.clearSelection()
 
-    def convert_row_to_data(self, row):
+    def convert_row_to_data(self, row: int) -> _RuleData:
         data = self.create_blank_row_data()
         data['ordinal'] = row
         _excl_item = self.item(row, int(self.COLUMNS['ENABLED']['ordinal']))
@@ -1266,8 +1307,8 @@ class ExclusionRules(GenericRulesTable):
         data['pattern'] = str(_excl_pattern_w.currentText()).strip()
         return data
 
-    def create_blank_row_data(self):
-        data = {}
+    def create_blank_row_data(self) -> _RuleData:
+        data: _RuleData = {}
         data['ordinal'] = -1
         data['enabled'] = True
         data['name'] = 'New rule'
@@ -1275,8 +1316,8 @@ class ExclusionRules(GenericRulesTable):
         data['pattern'] = ''
         return data
 
-    def get_data(self):
-        data_items = []
+    def get_data(self) -> list[_RuleData]:
+        data_items: list[_RuleData] = []
         for row in range(self.rowCount()):
             data = self.convert_row_to_data(row)
             data_items.append({
@@ -1288,15 +1329,15 @@ class ExclusionRules(GenericRulesTable):
             })
         return data_items
 
-    def populate_table_row(self, row, data) -> None:
+    def populate_table_row(self, row: int, data: _RuleData) -> None:
 
-        def set_rule_name_in_row(row, col, name='') -> None:
+        def set_rule_name_in_row(row: int, col: int, name: str = '') -> None:
             rule_name = QLineEdit(name)
             rule_name.home(False)
             rule_name.editingFinished.connect(self.rule_name_edited)
             self.setCellWidget(row, col, rule_name)
 
-        def set_source_field_in_row(row, col, field=''):
+        def set_source_field_in_row(row: int, col: int, field: str = '') -> ComboBox:
             source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
             source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)
@@ -1331,7 +1372,7 @@ class PrefixRules(GenericRulesTable):
         'PATTERN': {'ordinal': 4, 'name': _('Value')},
     }
 
-    def __init__(self, parent, parent_gb_hl, object_name, rules) -> None:
+    def __init__(self, parent: PluginWidget, parent_gb_hl: QGroupBox, object_name: str, rules: list[_RuleData] | list[list[_RuleData]]) -> None:
         super().__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName('prefix_rules_table')
         self._init_table_widget()
@@ -1354,7 +1395,7 @@ class PrefixRules(GenericRulesTable):
         _prefix_hdr.setStretchLastSection(True)
         self.clearSelection()
 
-    def convert_row_to_data(self, row):
+    def convert_row_to_data(self, row: int) -> _RuleData:
         data = self.create_blank_row_data()
         data['ordinal'] = row
         _prefix_item = self.item(row, int(self.COLUMNS['ENABLED']['ordinal']))
@@ -1374,8 +1415,8 @@ class PrefixRules(GenericRulesTable):
         data['pattern'] = str(_pfx_pattern_w.currentText()).strip()
         return data
 
-    def create_blank_row_data(self):
-        data = {}
+    def create_blank_row_data(self) -> _RuleData:
+        data: _RuleData = {}
         data['ordinal'] = -1
         data['enabled'] = True
         data['name'] = 'New rule'
@@ -1385,10 +1426,10 @@ class PrefixRules(GenericRulesTable):
         return data
 
     def generate_prefix_list(self) -> None:
-        def prefix_sorter(item):
-            key = item
-            if item[0] == '_':
-                key = 'zzz' + item
+        def prefix_sorter(item: tuple[str, str]) -> str:
+            key = item[0]
+            if key[0] == '_':
+                key = 'zzz' + key
             return key
 
         # Create a list of prefixes for user selection
@@ -1518,8 +1559,8 @@ class PrefixRules(GenericRulesTable):
         raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
         self.prefix_list = [x[1] for x in raw_prefix_list]
 
-    def get_data(self):
-        data_items = []
+    def get_data(self) -> list[_RuleData]:
+        data_items: list[_RuleData] = []
         for row in range(self.rowCount()):
             data = self.convert_row_to_data(row)
             data_items.append({
@@ -1532,20 +1573,20 @@ class PrefixRules(GenericRulesTable):
             })
         return data_items
 
-    def populate_table_row(self, row, data) -> None:
+    def populate_table_row(self, row: int, data: _RuleData) -> None:
 
-        def set_prefix_field_in_row(row, col, field='') -> None:
+        def set_prefix_field_in_row(row: int, col: int, field: str = '') -> None:
             prefix_combo = ComboBox(self, self.prefix_list, field)
             prefix_combo.currentIndexChanged.connect(partial(self.settings_changed, 'set_prefix_field_in_row'))
             self.setCellWidget(row, col, prefix_combo)
 
-        def set_rule_name_in_row(row, col, name='') -> None:
+        def set_rule_name_in_row(row: int, col: int, name: str = '') -> None:
             rule_name = QLineEdit(name)
             rule_name.home(False)
             rule_name.editingFinished.connect(self.rule_name_edited)
             self.setCellWidget(row, col, rule_name)
 
-        def set_source_field_in_row(row, col, field=''):
+        def set_source_field_in_row(row: int, col: int, field: str = '') -> ComboBox:
             source_combo = ComboBox(self, sorted(self.eligible_custom_fields.keys(), key=sort_key), field)
             source_combo.currentIndexChanged.connect(partial(self._source_index_changed, source_combo))
             self.setCellWidget(row, col, source_combo)

@@ -21,6 +21,10 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from qt.core import QModelIndex
+
+    from calibre.gui2.store.search_result import SearchResult
+    from calibre.gui2.ui import Main
     from calibre.gui2.widgets2 import HistoryLineEdit2
 
 
@@ -35,7 +39,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     SEARCH_TEXT = _('&Search')
     STOP_TEXT = _('&Stop')
 
-    def __init__(self, gui, parent=None, query='') -> None:
+    def __init__(self, gui: Main, parent: QWidget | None = None, query: str | dict[str, str] = '') -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         s = self.style()
@@ -145,9 +149,11 @@ class SearchDialog(QDialog, Ui_Dialog):
             cbox = QCheckBox(x)
             cbox.setChecked(existing.get(x, first_run))
             store_list_layout.addWidget(cbox, i, 0, 1, 1)
-            if self.gui.istores[x].base_plugin.affiliate:
+            base_plugin = self.gui.istores[x].base_plugin
+            assert base_plugin is not None
+            if base_plugin.affiliate:
                 iw = QLabel(self)
-                iw.setToolTip('<p>' + _('Buying from this store supports the calibre developer: %s</p>') % self.gui.istores[x].base_plugin.author + '</p>')
+                iw.setToolTip('<p>' + _('Buying from this store supports the calibre developer: %s</p>') % base_plugin.author + '</p>')
                 iw.setPixmap(icon.pixmap(16, 16))
                 store_list_layout.addWidget(iw, i, 1, 1, 1)
             self.store_checks[x] = cbox
@@ -245,7 +251,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.checker.start(100)
         self.pi.startAnimation()
 
-    def clean_query(self, query):
+    def clean_query(self, query: str) -> bytes:
         query = query.lower()
         # Remove control modifiers.
         query = query.replace('\\', '')
@@ -380,7 +386,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.gui.load_store_plugins()
         self.setup_store_checks()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(800, 600)
 
     def config_changed(self) -> None:
@@ -423,21 +429,22 @@ class SearchDialog(QDialog, Ui_Dialog):
                 show_copy_button=False,
             )
 
-    def update_book_total(self, total) -> None:
+    def update_book_total(self, total: int) -> None:
         self.total.setText(f'{total}')
 
-    def result_item_activated(self, index) -> None:
+    def result_item_activated(self, index: QModelIndex) -> None:
         _ria_m = self.results_view.model()
         assert _ria_m is not None
         assert isinstance(_ria_m, Matches)
         result = _ria_m.get_result(index)
+        assert result is not None
 
         if result.downloads:
             self.download_book(result)
         else:
             self.open_store(result)
 
-    def download_book(self, result) -> None:
+    def download_book(self, result: SearchResult) -> None:
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), list(result.downloads.keys()))
         if d.exec() == QDialog.DialogCode.Accepted:
             ext = d.format()
@@ -446,7 +453,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             show_download_info(result.title, parent=self)
             self.gui.download_ebook(result.downloads[ext], filename=fname, create_browser=result.create_browser)
 
-    def open_store(self, result) -> None:
+    def open_store(self, result: SearchResult) -> None:
         self.gui.istores[result.store_name].open(
             gui=self.gui,
             parent=self,
@@ -481,7 +488,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         for check in self.store_checks.values():
             check.setChecked(False)
 
-    def dialog_closed(self, result) -> None:
+    def dialog_closed(self, result: int) -> None:
         _dc_m = self.results_view.model()
         assert _dc_m is not None
         assert isinstance(_dc_m, Matches)
@@ -490,7 +497,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cache_pool.abort()
         self.save_state()
 
-    def exec(self):
+    def exec(self) -> int:
         if str(self.search_edit.text()).strip() or str(self.search_title.text()).strip() or str(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec(self)

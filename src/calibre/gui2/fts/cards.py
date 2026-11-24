@@ -5,7 +5,7 @@ import weakref
 from functools import lru_cache
 from queue import Queue, ShutDown
 from threading import Thread
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import (
     QCursor,
@@ -42,7 +42,10 @@ from calibre.utils.img import resize_to_fit
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from qt.core import QEvent, QMouseEvent, QPaintEvent, QPoint, QResizeEvent, QShowEvent
+
     from calibre.db.cache import Cache
+    from calibre.gui2.fts.search import Results, ResultsModel
 
 
 class Layout(NamedTuple):
@@ -65,14 +68,14 @@ def layout() -> Layout:
 
 
 @lru_cache(maxsize=4)
-def dummy_image(width, height):
+def dummy_image(width: int, height: int) -> QImage:
     ans = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
     ans.fill(Qt.GlobalColor.transparent)
     return ans
 
 
 @lru_cache(maxsize=2)
-def default_cover():
+def default_cover() -> QImage:
     ic = QIcon.ic('default_cover.png')
     return ic.pixmap(ic.availableSizes()[0]).toImage()
 
@@ -137,7 +140,7 @@ class CardData:
     cover: QImage | None = None
     cover_requested: bool = False
 
-    def __init__(self, results) -> None:
+    def __init__(self, results: Results) -> None:
         self.results = results
 
     def result_updated(self) -> None:
@@ -147,7 +150,7 @@ class CardData:
         self._height = -1
         self.doc = None
 
-    def set_width(self, width) -> None:
+    def set_width(self, width: int) -> None:
         if width != self.width:
             self._height = -1
             self.width = width
@@ -157,7 +160,7 @@ class CardData:
         if self.doc is not None:
             self.doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl('card://thumb'), self.cover)
 
-    def ensure_renderable(self, dpr) -> QTextDocument:
+    def ensure_renderable(self, dpr: float) -> QTextDocument:
         self.height  # ruff: ignore[useless-expression]
         assert self.doc is not None
         return self.doc
@@ -233,7 +236,7 @@ class RowInfo(NamedTuple):
 class CardWidget(QWidget):
     link_activated = pyqtSignal(QUrl)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._card: CardData | None = None
         self.padding = 0
@@ -245,12 +248,12 @@ class CardWidget(QWidget):
         self.setFixedSize(max(0, card.width), max(0, card.height))
         self.update()
 
-    def _pos_in_doc(self, widget_pos) -> QPointF:
+    def _pos_in_doc(self, widget_pos: QPoint) -> QPointF:
         """Convert a widget-local position to the document's coordinate space."""
         p = layout().padding + 1
         return QPointF(widget_pos.x() - p, widget_pos.y() - p)
 
-    def _anchor_data(self, widget_pos) -> tuple[str, str]:
+    def _anchor_data(self, widget_pos: QPoint) -> tuple[str, str]:
         '''Return (href, title) of the anchor under widget_pos, or ("", "").'''
         if self._card is None or self._card.doc is None:
             return '', ''
@@ -270,7 +273,8 @@ class CardWidget(QWidget):
             title = fmt.toolTip()
         return href, title
 
-    def mouseMoveEvent(self, a0) -> None:
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         href, title = self._anchor_data(a0.pos())
         if href:
             self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -283,12 +287,13 @@ class CardWidget(QWidget):
             QToolTip.hideText()
         super().mouseMoveEvent(a0)
 
-    def leaveEvent(self, a0) -> None:
+    def leaveEvent(self, a0: QEvent | None) -> None:
         self.unsetCursor()
         QToolTip.hideText()
         super().leaveEvent(a0)
 
-    def mouseReleaseEvent(self, a0) -> None:
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        assert a0 is not None
         if a0.button() == Qt.MouseButton.LeftButton:
             href, _ = self._anchor_data(a0.pos())
             if href:
@@ -297,7 +302,7 @@ class CardWidget(QWidget):
                 return
         super().mouseReleaseEvent(a0)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         card = self._card
         assert card is not None
         doc = card.ensure_renderable(self.devicePixelRatioF())
@@ -329,15 +334,15 @@ class VirtualCardContainer(QWidget):
     link_activated = pyqtSignal(QUrl)
     change_panel = pyqtSignal(int)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: ResultsModel, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.cover_render_queue: Queue[tuple[int, int]] = Queue()
         self.model = model
         model.matches_found.connect(self.matches_found)
         model.result_with_context_found.connect(self.result_with_context_found)
         model.results_resorted.connect(self.on_results_resorted)
-        self._cards = ()
-        self._cards_map = {}
+        self._cards: tuple[CardData, ...] = ()
+        self._cards_map: dict[int, CardData] = {}
         self._viewport_rect = QRect()
         # Layout results
         self._rows: list[RowInfo] = []
@@ -363,16 +368,16 @@ class VirtualCardContainer(QWidget):
         with BusyCursor():
             all_books = {c.results.book_id for c in self._cards}
             with (db := get_db()).safe_read_lock:
-                titles = db._all_field_for('title', all_books, _('Unknown book'))
+                titles = cast('dict[int, str]', db._all_field_for('title', all_books, _('Unknown book')))
                 authors = db._all_field_for('authors', all_books, [_('Unknown author')])
-                series = db._all_field_for('series', all_books, '')
-                series_indices = db._all_field_for('series_index', all_books, 1)
+                series = cast('dict[int, str]', db._all_field_for('series', all_books, ''))
+                series_indices = cast('dict[int, float]', db._all_field_for('series_index', all_books, 1))
                 abids = db._all_book_ids(lambda x: x)
                 in_db = {bid: bid in abids for bid in all_books}
             for card in self._cards:
                 card.results.preload(titles, authors, series, series_indices, in_db)
 
-    def matches_found(self, num) -> None:
+    def matches_found(self, num: int) -> None:
         self._cards = tuple(CardData(r) for r in self.model.results) if num > 0 else ()
         self._cards_map = {id(c.results): c for c in self._cards}
         self.preloaded = False
@@ -389,7 +394,7 @@ class VirtualCardContainer(QWidget):
                 self.cover_render_queue,
                 self.devicePixelRatioF(),
                 layout(),
-                default_cover,
+                default_cover(),
                 weakref.ref(get_db()),
                 self.generation,
             ),
@@ -452,13 +457,13 @@ class VirtualCardContainer(QWidget):
             except RuntimeError:
                 break
 
-    def on_cover_rendered(self, generation, idx, img) -> None:
+    def on_cover_rendered(self, generation: int, idx: int, img: QImage) -> None:
         if generation == self.generation and idx < len(self._cards):
             card = self._cards[idx]
             card.set_cover(img)
             self.update()
 
-    def result_with_context_found(self, results, index: int) -> None:
+    def result_with_context_found(self, results: Results, index: int) -> None:
         card = self._cards_map[id(results)]
         card.result_updated()
         if self.isVisible():
@@ -583,7 +588,7 @@ class VirtualCardContainer(QWidget):
             w.show()
             self._live_widgets[idx] = w
 
-    def _create_card_widget(self):
+    def _create_card_widget(self) -> CardWidget:
         w = CardWidget(self)
         w.link_activated.connect(self.link_activated)
         return w
@@ -593,7 +598,7 @@ class CardView(QScrollArea):
     link_activated = pyqtSignal(QUrl)
     change_panel = pyqtSignal(int)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: ResultsModel, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWidgetResizable(False)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -621,7 +626,7 @@ class CardView(QScrollArea):
     def _on_scroll(self) -> None:
         self._container.set_viewport(self._viewport_rect())
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         super().resizeEvent(a0)
         # Set container width to match viewport width so row count updates
         vp = self.viewport()
@@ -639,7 +644,7 @@ class CardView(QScrollArea):
         assert vsb is not None
         vsb.setValue(0)
 
-    def showEvent(self, a0) -> None:
+    def showEvent(self, a0: QShowEvent | None) -> None:
         super().showEvent(a0)
         vp = self.viewport()
         assert vp is not None
@@ -653,7 +658,7 @@ class CardView(QScrollArea):
 class CardsView(QWidget):
     link_activated = pyqtSignal(QUrl)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: ResultsModel, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -669,7 +674,7 @@ class CardsView(QWidget):
     def shutdown(self) -> None:
         self.view.shutdown()
 
-    def current_result(self):
+    def current_result(self) -> tuple[Results | None, int | None]:
         return None, None
 
 

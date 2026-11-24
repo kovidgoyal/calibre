@@ -4,6 +4,7 @@
 import os
 from datetime import datetime
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAction,
@@ -66,6 +67,16 @@ from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.date import local_tz
 from calibre.utils.localization import _, canonicalize_lang, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
+    from _typeshed import SupportsWrite
+    from qt.core import QAbstractButton, QDragEnterEvent, QMouseEvent, QResizeEvent, pyqtBoundSignal
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.metadata.basic_widgets import LabeledWidget
+    from calibre.gui2.ui import Main
+
 BASE_TITLE = _('Edit metadata')
 fetched_fields = (
     'title',
@@ -84,7 +95,7 @@ fetched_fields = (
 
 
 class ScrollArea(QScrollArea):
-    def __init__(self, widget=None, parent=None) -> None:
+    def __init__(self, widget: QWidget | None = None, parent: QWidget | None = None) -> None:
         QScrollArea.__init__(self, parent)
         self.setFrameShape(QFrame.Shape.NoFrame)
         self.setWidgetResizable(True)
@@ -98,19 +109,19 @@ class MetadataSingleDialogBase(QDialog):
     one_line_comments_toolbar = False
     use_toolbutton_for_config_metadata = True
 
-    def __init__(self, db, parent=None, editing_multiple=False) -> None:
-        self.db = db
+    def __init__(self, db: LibraryDatabase, parent: QWidget | None = None, editing_multiple: bool = False) -> None:
+        self.db: LibraryDatabase | None = db
         self.was_data_edited = False
-        self.changed = set()
-        self.books_to_refresh = set()
-        self.rows_to_refresh = set()
-        self.metadata_before_fetch = None
+        self.changed: set[int] = set()
+        self.books_to_refresh: set[int] = set()
+        self.rows_to_refresh: set[int] = set()
+        self.metadata_before_fetch: dict[str, object] | None = None
         self.editing_multiple = editing_multiple
         self.comments_edit_state_at_apply: dict[CommentsEdit | Comments, str | None] = {}
         QDialog.__init__(self, parent)
         self.setupUi()
 
-    def setupUi(self, *args) -> None:  # {{{
+    def setupUi(self, *args: object) -> None:  # {{{
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D', QKeySequence.SequenceFormat.PortableText))
         p = self.parent()
@@ -185,7 +196,7 @@ class MetadataSingleDialogBase(QDialog):
 
     # }}}
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
@@ -227,7 +238,8 @@ class MetadataSingleDialogBase(QDialog):
         if ismacos:
             # Workaround for https://bugreports.qt-project.org/browse/QTBUG-41017
             class Menu(QMenu):
-                def mouseReleaseEvent(self, a0):
+                def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+                    assert a0 is not None
                     ac = self.actionAt(a0.pos())
                     if ac is not None:
                         ac.trigger()
@@ -241,6 +253,7 @@ class MetadataSingleDialogBase(QDialog):
         ac3 = m.addAction(QIcon.ic('user_profile.png'), _('Manage authors'))
         ac4 = m.addAction(QIcon.ic('next.png'), _('Copy author to author sort'))
         ac5 = m.addAction(QIcon.ic('previous.png'), _('Copy author sort to author'))
+        assert ac is not None and ac2 is not None and ac3 is not None and ac4 is not None and ac5 is not None
 
         b.setMenu(m)
         self.authors = AuthorsEdit(self, ac3)
@@ -391,7 +404,7 @@ class MetadataSingleDialogBase(QDialog):
             gprefs['paste_isbn_prefixes'] = list(filter(None, (x.strip() for x in prefixes.splitlines()))) or gprefs.defaults['paste_isbn_prefixes']
             self.update_paste_identifiers_menu()
 
-    def use_two_columns_for_custom_metadata(self):
+    def use_two_columns_for_custom_metadata(self) -> bool:
         raise NotImplementedError
 
     def create_custom_metadata_widgets(self) -> None:  # {{{
@@ -410,7 +423,7 @@ class MetadataSingleDialogBase(QDialog):
 
     # }}}
 
-    def set_custom_metadata_tab_order(self, before=None, after=None) -> None:  # {{{
+    def set_custom_metadata_tab_order(self, before: QWidget | None = None, after: QWidget | None = None) -> None:  # {{{
         sto = QWidget.setTabOrder
         if getattr(self, 'custom_metadata_widgets', []):
             ans = self.custom_metadata_widgets
@@ -430,7 +443,7 @@ class MetadataSingleDialogBase(QDialog):
 
     # }}}
 
-    def do_view_format(self, path, fmt) -> None:
+    def do_view_format(self, path: str | None, fmt: str) -> None:
         if path:
             self.view_format.emit(None, path)
         else:
@@ -441,7 +454,7 @@ class MetadataSingleDialogBase(QDialog):
 
         get_gui(fail_if_absent=True).iactions['View'].view_folder_for_id(self.book_id)
 
-    def do_edit_format(self, path, fmt) -> None:
+    def do_edit_format(self, path: str | None, fmt: str) -> None:
         if self.was_data_edited:
             from calibre.gui2.tweak_book import tprefs
 
@@ -467,12 +480,12 @@ class MetadataSingleDialogBase(QDialog):
                     self.was_data_edited = False
         self.edit_format.emit(self.book_id, fmt)
 
-    def copy_fmt(self, fmt, f) -> None:
+    def copy_fmt(self, fmt: str, f: SupportsWrite[bytes]) -> None:
         db = self.db
         assert db is not None
         db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
 
-    def do_layout(self):
+    def do_layout(self) -> None:
         raise NotImplementedError()
 
     def save_widget_settings(self) -> None:
@@ -491,10 +504,11 @@ class MetadataSingleDialogBase(QDialog):
         d.exec()
         self.update_data_files_button()
 
-    def __call__(self, id_):
+    def __call__(self, id_: int) -> None:
         self.book_id = id_
         self.books_to_refresh = set()
         self.metadata_before_fetch = None
+        assert self.db is not None
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
         for widget in getattr(self, 'custom_metadata_widgets', []):
@@ -513,36 +527,42 @@ class MetadataSingleDialogBase(QDialog):
         num_files = len(db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
         self.data_files_button.setText(_('{} Data &files').format(num_files))
 
-    def update_window_title(self, *args) -> None:
+    def update_window_title(self, *args: object) -> None:
         title = self.title.current_val
         if len(title) > 50:
             title = title[:50] + '…'
         self.setWindowTitle(BASE_TITLE + ' - ' + title + ' -' + _(' [%(num)d of %(tot)d]') % dict(num=self.current_row + 1, tot=len(self.id_list)))
 
-    def swap_title_author(self, *args) -> None:
+    def swap_title_author(self, *args: object) -> None:
         title = self.title.current_val
         self.title.current_val = authors_to_string(self.authors.current_val)
         self.authors.current_val = string_to_authors(title)
         self.title_sort.auto_generate()
         self.author_sort.auto_generate()
 
-    def tags_editor(self, *args) -> None:
+    def tags_editor(self, *args: object) -> None:
+        assert self.db is not None
         self.tags.edit(self.db, self.book_id)
 
-    def publisher_editor(self, *args) -> None:
+    def publisher_editor(self, *args: object) -> None:
+        assert self.db is not None
         self.publisher.edit(self.db, self.book_id)
 
-    def series_editor(self, *args) -> None:
+    def series_editor(self, *args: object) -> None:
+        assert self.db is not None
         self.series.edit(self.db, self.book_id)
 
-    def metadata_from_format(self, *args) -> None:
+    def metadata_from_format(self, *args: object) -> None:
+        assert self.db is not None
         mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
         if mi is not None:
             # Ratings read from book files are already on the 0-10 scale used by calibre
             self.update_from_mi(mi, rating_is_out_of_five=False)
 
-    def choose_cover_from_pages(self, ext) -> None:
+    def choose_cover_from_pages(self, ext: str) -> None:
+        assert self.db is not None
         path = self.formats_manager.get_format_path(self.db, self.book_id, ext.lower())
+        assert path is not None
         from calibre.gui2.metadata.pdf_covers import PDFCovers
 
         d = PDFCovers(path, parent=self)
@@ -553,12 +573,13 @@ class MetadataSingleDialogBase(QDialog):
                     self.update_cover(f.read(), ext.upper())
         d.cleanup()
 
-    def cover_from_format(self, *args):
+    def cover_from_format(self, *args: object) -> None:
         ext = self.formats_manager.get_selected_format()
         if ext is None:
             return
         if ext in ('pdf', 'cbz', 'cbr'):
             return self.choose_cover_from_pages(ext)
+        assert self.db is not None
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
         except OSError as e:
@@ -566,6 +587,7 @@ class MetadataSingleDialogBase(QDialog):
             raise
         if mi is None:
             return
+        assert ext is not None
         cdata = None
         if mi.cover and os.access(mi.cover, os.R_OK):
             with open(mi.cover, 'rb') as f:
@@ -577,15 +599,17 @@ class MetadataSingleDialogBase(QDialog):
             return
         self.update_cover(cdata, ext)
 
-    def update_cover(self, cdata, fmt):
+    def update_cover(self, cdata: bytes, fmt: str) -> None:
         orig = self.cover.current_val
         self.cover.current_val = cdata
         if self.cover.current_val is None:
             self.cover.current_val = orig
-            return error_dialog(self, _('Could not read cover'), _('The cover in the %s format is invalid') % fmt, show=True)
+            error_dialog(self, _('Could not read cover'), _('The cover in the %s format is invalid') % fmt, show=True)
             return
 
-    def update_from_mi(self, mi, update_sorts=True, merge_tags=True, merge_comments=False, rating_is_out_of_five=True) -> None:
+    def update_from_mi(
+        self, mi: Metadata, update_sorts: bool = True, merge_tags: bool = True, merge_comments: bool = False, rating_is_out_of_five: bool = True
+    ) -> None:
         fw = self.focusWidget()
         if not mi.is_null('title'):
             self.title.set_value(mi.title)
@@ -598,7 +622,9 @@ class MetadataSingleDialogBase(QDialog):
         elif update_sorts and not mi.is_null('authors'):
             self.author_sort.auto_generate()
         if not mi.is_null('rating'):
-            self.rating.set_value(mi.rating * 2 if rating_is_out_of_five else mi.rating)
+            rating = mi.rating
+            assert rating is not None  # guaranteed by the is_null() check
+            self.rating.set_value(rating * 2 if rating_is_out_of_five else rating)
         if not mi.is_null('publisher'):
             self.publisher.set_value(mi.publisher)
         if not mi.is_null('tags'):
@@ -614,7 +640,7 @@ class MetadataSingleDialogBase(QDialog):
             self.identifiers.set_value(current)
         if not mi.is_null('pubdate'):
             self.pubdate.set_value(mi.pubdate)
-        if not mi.is_null('series') and mi.series.strip():
+        if not mi.is_null('series') and mi.series and mi.series.strip():
             self.series.set_value(mi.series)
             if mi.series_index is not None:
                 self.series_index.reset_original()
@@ -634,7 +660,7 @@ class MetadataSingleDialogBase(QDialog):
         if fw is not None:
             fw.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def fetch_metadata(self, *args) -> None:
+    def fetch_metadata(self, *args: object) -> None:
         from calibre.ebooks.metadata.sources.update import update_sources
 
         update_sources()
@@ -663,20 +689,23 @@ class MetadataSingleDialogBase(QDialog):
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
         self.update_data_files_button()
 
-    def undo_fetch_metadata(self):
+    def undo_fetch_metadata(self) -> None:
         if self.metadata_before_fetch is None:
-            return error_dialog(self, _('No downloaded metadata'), _('There is no downloaded metadata to undo'), show=True)
+            error_dialog(self, _('No downloaded metadata'), _('There is no downloaded metadata to undo'), show=True)
+            return
         for field, val in self.metadata_before_fetch.items():
             getattr(self, field).current_val = val
         self.metadata_before_fetch = None
 
     def configure_metadata(self) -> None:
         from calibre.gui2.preferences import show_config_widget
+        from calibre.gui2.ui import get_gui
 
-        gui = self.parent()
+        # The parent is not necessarily the main window, for example when editing from the Book details popup
+        gui = get_gui()
         show_config_widget('Sharing', 'Metadata download', parent=self, gui=gui, never_shutdown=True)
 
-    def download_cover(self, *args) -> None:
+    def download_cover(self, *args: object) -> None:
         from calibre.ebooks.metadata.sources.update import update_sources
 
         update_sources()
@@ -691,7 +720,7 @@ class MetadataSingleDialogBase(QDialog):
 
     # }}}
 
-    def to_book_metadata(self):
+    def to_book_metadata(self) -> Metadata:
         mi = Metadata(_('Unknown'))
         if self.db is None:
             return mi
@@ -731,7 +760,7 @@ class MetadataSingleDialogBase(QDialog):
 
         return True
 
-    def accept(self):
+    def accept(self) -> None:
         self.save_state()
         if not self.apply_changes():
             return
@@ -776,7 +805,14 @@ class MetadataSingleDialogBase(QDialog):
             traceback.print_exc()
 
     # Dialog use methods {{{
-    def start(self, row_list, current_row, view_slot=None, edit_slot=None, set_current_callback=None):
+    def start(
+        self,
+        row_list: Iterable[int],
+        current_row: int,
+        view_slot: Callable[[int | None, str], object] | None = None,
+        edit_slot: Callable[[int, str], object] | None = None,
+        set_current_callback: Callable[[int], object] | None = None,
+    ) -> int:
         db = self.db
         assert db is not None
         self.id_list = list(map(db.id, row_list))
@@ -819,7 +855,7 @@ class MetadataSingleDialogBase(QDialog):
         if fw is not None:
             fw.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def do_one(self, delta=0, apply_changes=True) -> None:
+    def do_one(self, delta: int = 0, apply_changes: bool = True) -> None:
         if apply_changes:
             self.apply_changes()
         self.current_row += delta
@@ -859,7 +895,7 @@ class MetadataSingleDialogBase(QDialog):
         self.set_current_callback = self.db = None
         self.metadata_before_fetch = None
 
-        def disconnect(signal) -> None:
+        def disconnect(signal: pyqtBoundSignal) -> None:
             try:
                 signal.disconnect()
             except Exception:
@@ -884,13 +920,13 @@ class MetadataSingleDialogBase(QDialog):
 class Splitter(QSplitter):
     frame_resized = pyqtSignal(object)
 
-    def resizeEvent(self, a0):
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.frame_resized.emit(a0)
         return super().resizeEvent(a0)
 
 
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
-    def use_two_columns_for_custom_metadata(self):
+    def use_two_columns_for_custom_metadata(self) -> bool:
         return gprefs['edit_metadata_single_use_2_cols_for_custom_fields']
 
     def do_layout(self) -> None:
@@ -920,7 +956,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         sto(self.fetch_metadata_button, self.config_metadata_button)
         sto(self.config_metadata_button, self.title)
 
-        def create_row(row, one, two, three, col=1, icon='forward.png') -> None:
+        def create_row(row: int, one: LabeledWidget, two: QAbstractButton | None, three: LabeledWidget, col: int = 1, icon: str = 'forward.png') -> None:
             ql = BuddyLabel(one)
             tl.addWidget(ql, row, col + 0, 1, 1)
             self.labels.append(ql)
@@ -969,7 +1005,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         middle_l = QGridLayout(middle)
         self.splitter.addWidget(middle)
 
-        def create_row2(row, widget, button=None, front_button=None) -> None:
+        def create_row2(row: int, widget: LabeledWidget, button: QWidget | None = None, front_button: QWidget | None = None) -> None:
             row += 1
             ql = BuddyLabel(widget)
             if front_button:
@@ -1032,11 +1068,11 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
 
 class DragTrackingWidget(QWidget):  # {{{
-    def __init__(self, parent, on_drag_enter) -> None:
+    def __init__(self, parent: QWidget | None, on_drag_enter: pyqtBoundSignal) -> None:
         QWidget.__init__(self, parent)
         self.on_drag_enter = on_drag_enter
 
-    def dragEnterEvent(self, a0) -> None:
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         self.on_drag_enter.emit()
 
 
@@ -1087,7 +1123,9 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         sto(self.fetch_metadata_button, self.config_metadata_button)
         sto(self.config_metadata_button, self.title)
 
-        def create_row(row, widget, tab_to, button=None, icon=None, span=1) -> None:
+        def create_row(
+            row: int, widget: LabeledWidget, tab_to: QWidget | None, button: QAbstractButton | None = None, icon: str | None = None, span: int = 1
+        ) -> None:
             ql = BuddyLabel(widget)
             tl.addWidget(ql, row, 1, 1, 1)
             tl.addWidget(widget, row, 2, 1, 1)
@@ -1243,7 +1281,9 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         sto(self.fetch_metadata_button, self.config_metadata_button)
         sto(self.config_metadata_button, self.title)
 
-        def create_row(row, widget, tab_to, button=None, icon=None, span=1) -> None:
+        def create_row(
+            row: int, widget: LabeledWidget, tab_to: QWidget | None, button: QAbstractButton | None = None, icon: str | None = None, span: int = 1
+        ) -> None:
             ql = BuddyLabel(widget)
             tl.addWidget(ql, row, 1, 1, 1)
             tl.addWidget(widget, row, 2, 1, 1)
@@ -1391,27 +1431,27 @@ editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1, 'a
 
 
 def edit_metadata(
-    db,
-    row_list,
-    current_row,
-    parent=None,
-    view_slot=None,
-    edit_slot=None,
-    set_current_callback=None,
-    editing_multiple=False,
-):
+    db: LibraryDatabase,
+    row_list: Iterable[int],
+    current_row: int,
+    parent: QWidget | None = None,
+    view_slot: Callable[[int | None, str], object] | None = None,
+    edit_slot: Callable[[int, str], object] | None = None,
+    set_current_callback: Callable[[int], object] | None = None,
+    editing_multiple: bool = False,
+) -> tuple[set[int], set[int]]:
     cls = gprefs.get('edit_metadata_single_layout', '')
     if cls not in editors:
         cls = 'default'
     d = editors[cls](db, parent, editing_multiple=editing_multiple)
     if hasattr(parent, 'extra_files_watcher'):
-        conn = parent.extra_files_watcher.books_changed.connect(d.update_data_files_button)
+        conn = cast('Main', parent).extra_files_watcher.books_changed.connect(d.update_data_files_button)
     try:
         d.start(row_list, current_row, view_slot=view_slot, edit_slot=edit_slot, set_current_callback=set_current_callback)
         return d.changed, d.rows_to_refresh
     finally:
         if hasattr(parent, 'extra_files_watcher'):
-            parent.extra_files_watcher.disconnect(conn)
+            cast('Main', parent).extra_files_watcher.books_changed.disconnect(conn)
         # possible workaround for bug reports of occasional ghost edit metadata dialog on windows
         d.deleteLater()
 

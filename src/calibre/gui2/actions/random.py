@@ -2,9 +2,13 @@
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import random
+from typing import TYPE_CHECKING
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
 
 
 class PickRandomAction(InterfaceAction):
@@ -20,12 +24,12 @@ class PickRandomAction(InterfaceAction):
         except Exception:
             self.randint = random.randint
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         self.recently_picked = {}
 
     def pick_random(self) -> None:

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import time
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QVBoxLayout
 
@@ -10,9 +11,14 @@ from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
 
 class Choose(QDialog):
-    def __init__(self, title, fmts, parent=None) -> None:
+    def __init__(self, title: object, fmts: Iterable[str], parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
@@ -32,14 +38,15 @@ class Choose(QDialog):
         self.buts = buts = []
         for fmt in fmts:
             b = bb.addButton(fmt.upper(), QDialogButtonBox.ButtonRole.AcceptRole)
+            assert b is not None
             b.setObjectName(fmt)
             connect_lambda(b.clicked, self, lambda self: self.chosen(self.sender().objectName()))
             buts.append(b)
 
-        self.fmt = None
+        self.fmt: str | None = None
         self.resize(self.sizeHint())
 
-    def chosen(self, fmt) -> None:
+    def chosen(self, fmt: str) -> None:
         self.fmt = fmt
 
     def accept(self) -> None:
@@ -64,7 +71,7 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.tweak_book)
 
-    def tweak_book(self):
+    def tweak_book(self) -> int | None:
         ids = self.gui.library_view.get_selected_ids()
         if not ids:
             return error_dialog(self.gui, _('Cannot Edit book'), _('No book selected'), show=True)
@@ -74,12 +81,12 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         for book_id in ids:
             self.do_tweak(book_id)
 
-    def do_tweak(self, book_id):
+    def do_tweak(self, book_id: int) -> int | None:
         if self.gui.current_view() is not self.gui.library_view:
             return error_dialog(self.gui, _('Cannot edit book'), _('Editing of books on the device is not supported'), show=True)
         from calibre.ebooks.oeb.polish.main import SUPPORTED
 
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.upper().strip() for x in fmts.split(',') if x]
         tweakable_fmts = set(fmts).intersection(SUPPORTED)
@@ -112,7 +119,7 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         if len(tweakable_fmts) > 1:
             if tprefs['choose_tweak_fmt']:
 
-                def index(x):
+                def index(x: str) -> int:
                     try:
                         return tprefs.defaults['tweak_fmt_order'].index(x)
                     except Exception:
@@ -121,6 +128,7 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
                 d = Choose(title, sorted(tweakable_fmts, key=index), self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:
                     return
+                assert d.fmt is not None
                 tweakable_fmts = {d.fmt}
             else:
                 fmts = [f for f in tprefs['tweak_fmt_order'] if f in tweakable_fmts]
@@ -131,12 +139,12 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         fmt = tuple(tweakable_fmts)[0]
         self.ebook_edit_format(book_id, fmt)
 
-    def ebook_edit_format(self, book_id, fmt):
+    def ebook_edit_format(self, book_id: int, fmt: str) -> int | None:
         """
         Also called from edit_metadata formats list.  In that context,
         SUPPORTED check was already done.
         """
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         from calibre.gui2.tweak_book import tprefs
 
         tprefs.refresh()  # In case they were changed in a Tweak Book process

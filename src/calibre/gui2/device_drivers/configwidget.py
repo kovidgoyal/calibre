@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QLabel, QLineEdit, QListWidgetItem, Qt, QWidget
 
@@ -10,18 +11,26 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from calibre.devices.usbms.deviceconfig import DeviceConfig
+    from calibre.utils.config_base import OptionValues
+
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
+    opt_extra_customization: list[QCheckBox | QComboBox | QLineEdit | None] | QLineEdit
+
     def __init__(
         self,
-        settings,
-        all_formats,
-        supports_subdirs,
-        must_read_metadata,
-        supports_use_author_sort,
-        extra_customization_message,
-        device,
-        extra_customization_choices=None,
+        settings: OptionValues,
+        all_formats: Iterable[str],
+        supports_subdirs: bool,
+        must_read_metadata: bool,
+        supports_use_author_sort: bool,
+        extra_customization_message: str | list[str] | None,
+        device: DeviceConfig,
+        extra_customization_choices: Mapping[int, Iterable[str]] | None = None,
     ) -> None:
 
         QWidget.__init__(self)
@@ -33,7 +42,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         all_formats = set(all_formats)
         self.calibre_known_formats = device.FORMATS
         try:
-            self.device_name = device.get_gui_name()
+            # device is always also a DevicePlugin, which DeviceConfig does not know about
+            self.device_name = getattr(device, 'get_gui_name')()
         except TypeError:
             self.device_name = getattr(device, 'gui_name', None) or _('Device')
         if device.USER_CAN_ADD_NEW_FORMATS:
@@ -50,7 +60,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         self.column_up.clicked.connect(self.up_column)
         self.column_down.clicked.connect(self.down_column)
 
-        if device.HIDE_FORMATS_CONFIG_BOX:
+        if getattr(device, 'HIDE_FORMATS_CONFIG_BOX'):
             self.groupBox.hide()
 
         if supports_subdirs:
@@ -68,7 +78,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         if extra_customization_message:
             extra_customization_choices = extra_customization_choices or {}
 
-            def parse_msg(m):
+            def parse_msg(m: str) -> tuple[str, str]:
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)
 
@@ -76,18 +86,18 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
 
-                    def row_func(x, y):
+                    def row_func(x: int, y: int) -> int:
                         return x // 2 * 2 + y
 
-                    def col_func(x):
+                    def col_func(x: int) -> int:
                         return x % 2
 
                 else:
 
-                    def row_func(x, y):
+                    def row_func(x: int, y: int) -> int:
                         return x * 2 + y
 
-                    def col_func(x) -> int:
+                    def col_func(x: int) -> int:
                         return 0
 
                 for i, m in enumerate(extra_customization_message):
@@ -147,8 +157,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.columns.insertItem(idx + 1, self.columns.takeItem(idx))
             self.columns.setCurrentRow(idx + 1)
 
-    def format_map(self):
-        formats = []
+    def format_map(self) -> list[str]:
+        formats: list[str] = []
         for i in range(self.columns.count()):
             col_item = self.columns.item(i)
             assert col_item is not None
@@ -156,13 +166,13 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 formats.append(str(col_item.data(Qt.ItemDataRole.UserRole) or ''))
         return formats
 
-    def use_subdirs(self):
+    def use_subdirs(self) -> bool:
         return self.opt_use_subdirs.isChecked()
 
-    def read_metadata(self):
+    def read_metadata(self) -> bool:
         return self.opt_read_metadata.isChecked()
 
-    def use_author_sort(self):
+    def use_author_sort(self) -> bool:
         return self.opt_use_author_sort.isChecked()
 
     def validate(self) -> bool | None:

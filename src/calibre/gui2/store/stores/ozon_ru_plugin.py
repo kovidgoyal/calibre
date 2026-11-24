@@ -4,6 +4,7 @@
 store_version = 3  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from qt.core import QUrl
@@ -18,7 +19,16 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 shop_url = 'http://www.ozon.ru'
 
 
-def parse_html(raw):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from lxml import etree
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def parse_html(raw: bytes | str) -> etree._Element:
     try:
         from html5_parser import parse
     except ImportError:
@@ -30,7 +40,7 @@ def parse_html(raw):
         return parse(raw)
 
 
-def search(query, max_results=15, timeout=60):
+def search(query: bytes | str, max_results: int = 15, timeout: int = 60) -> Iterator[SearchResult]:
     url = f'http://www.ozon.ru/?context=search&text={quote_plus(query)}&store=1,0&group=div_book'
 
     counter = max_results
@@ -56,7 +66,7 @@ def search(query, max_results=15, timeout=60):
 
 
 class OzonRUStore(StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(url)))
@@ -66,11 +76,11 @@ class OzonRUStore(StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=15, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 15, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search(query, max_results=max_results, timeout=timeout)
 
 
-def format_price_in_RUR(price):
+def format_price_in_RUR(price: str) -> str:
     """
     Try to format price according ru locale: '12 212,34 руб.'
     @param price: price in format like 25.99

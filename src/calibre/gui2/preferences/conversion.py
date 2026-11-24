@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import importlib
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QHBoxLayout, QIcon, QListView, QScrollArea, QSize, QSizePolicy, QStackedWidget, QStringListModel, Qt, pyqtSignal
 
@@ -18,14 +19,25 @@ from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.utils.localization import _
 from calibre.utils.logging import Log
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qt.core import QModelIndex, QWidget
+
+    from calibre.gui2.convert import GetHelp, GetOption, Widget
+    from calibre.gui2.ui import Main
+
+    # The concrete conversion widget classes all accept these constructor arguments
+    type ConversionWidgetFactory = Callable[[QWidget, GetOption, GetHelp, None, None], Widget]
+
 
 class Model(QStringListModel):
-    def __init__(self, widgets) -> None:
+    def __init__(self, widgets: list[Widget]) -> None:
         QStringListModel.__init__(self)
         self.widgets = widgets
         self.setStringList([w.TITLE for w in widgets])
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
@@ -36,7 +48,7 @@ class Model(QStringListModel):
 class ListView(QListView):
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QListView.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
         f = self.font()
@@ -46,18 +58,18 @@ class ListView(QListView):
         self.setFlow(QListView.Flow.TopToBottom)
         self.setSpacing(10)
 
-    def currentChanged(self, current, previous) -> None:
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         QListView.currentChanged(self, current, previous)
         self.current_changed.emit(current, previous)
 
 
 class Base(ConfigWidgetBase):
-    conversion_widgets: list
+    conversion_widgets: list[type[Widget]]
     restore_defaults_desc = _('Restore settings to default values. Only settings for the currently selected section are restored.')
 
     def load_conversion_widgets(self) -> None: ...
 
-    def setupUi(self, x) -> None:
+    def setupUi(self, x: object) -> None:
         self.resize(720, 603)
         self.l = l = QHBoxLayout(self)
         self.list = lv = ListView(self)
@@ -65,27 +77,27 @@ class Base(ConfigWidgetBase):
         self.stack = s = QStackedWidget(self)
         l.addWidget(s, stretch=10)
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         log = Log()
         log.outputs = []
 
         self.plumber = Plumber('dummy.epub', 'dummy.epub', log, dummy=True, merge_plugin_recs=False)
 
-        def widget_factory(cls):
+        def widget_factory(cls: type[Widget]) -> Widget:
             plugin = getattr(cls, 'conv_plugin', None)
             if plugin is None:
                 hfunc = self.plumber.get_option_help
             else:
                 options = plugin.options.union(plugin.common_options)
 
-                def hfunc(name):
+                def hfunc(name: str) -> str | None:
                     for rec in options:
                         if rec.option == name:
                             ans = getattr(rec, 'help', None)
                             if ans is not None:
                                 return ans.replace('%default', str(rec.recommended_value))
 
-            return cls(self, self.plumber.get_option_by_name, hfunc, None, None)
+            return cast('ConversionWidgetFactory', cls)(self, self.plumber.get_option_by_name, hfunc, None, None)
 
         self.load_conversion_widgets()
         widgets = list(map(widget_factory, self.conversion_widgets))
@@ -94,7 +106,9 @@ class Base(ConfigWidgetBase):
 
         for w in widgets:
             w.changed_signal.connect(self.changed_signal)
-            w.layout().setContentsMargins(6, 6, 6, 6)
+            wl = w.layout()
+            assert wl is not None
+            wl.setContentsMargins(6, 6, 6, 6)
             sa = QScrollArea(self)
             sa.setWidget(w)
             sa.setWidgetResizable(True)
@@ -108,7 +122,7 @@ class Base(ConfigWidgetBase):
     def initialize(self) -> None:
         ConfigWidgetBase.initialize(self)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         sa = self.stack.currentWidget()
         assert isinstance(sa, QScrollArea)
@@ -119,14 +133,14 @@ class Base(ConfigWidgetBase):
             restore(self.plumber.get_option_by_name)
         self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         for widget in self.model.widgets:
             if not widget.pre_commit_check():
                 raise AbortCommit('abort')
             widget.commit(save_defaults=True)
         return ConfigWidgetBase.commit(self)
 
-    def category_current_changed(self, n, p) -> None:
+    def category_current_changed(self, n: QModelIndex, p: QModelIndex) -> None:
         self.stack.setCurrentIndex(n.row())
 
 

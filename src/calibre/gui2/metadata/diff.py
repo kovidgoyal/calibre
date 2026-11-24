@@ -5,7 +5,7 @@ import os
 import weakref
 from collections import OrderedDict
 from functools import partial
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 from qt.core import (
     QAction,
@@ -51,6 +51,24 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Sequence
+    from datetime import datetime
+    from typing import TypedDict, Unpack
+
+    from qt.core import QKeyEvent, QMouseEvent, QPaintEvent
+
+    from calibre.db.cache import Cache
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict, Metadata
+    from calibre.library.field_metadata import FieldMetadata
+
+    class CompareSingleKwargs(TypedDict, total=False):
+        datetime_fmt: str
+        blank_as_equal: bool
+        fields: Sequence[str]
+        db: LibraryDatabase | None
+
 
 class Widgets(NamedTuple):
     new: QWidget
@@ -65,7 +83,7 @@ class Widgets(NamedTuple):
 class LineEdit(EditWithComplete):
     changed = pyqtSignal()
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         EditWithComplete.__init__(self, parent)
         self.is_new = is_new
         self.field = field
@@ -79,7 +97,7 @@ class LineEdit(EditWithComplete):
         self.textChanged.connect(self.changed)
 
     @property
-    def value(self):
+    def value(self) -> str | list[str]:
         val = str(self.text()).strip()
         ism = self.metadata['is_multiple']
         if ism:
@@ -91,57 +109,59 @@ class LineEdit(EditWithComplete):
         return val
 
     @value.setter
-    def value(self, val) -> None:
+    def value(self, val: str | Sequence[str]) -> None:
         ism = self.metadata['is_multiple']
         if ism:
             if not val:
                 val = ''
             else:
                 val = ism['list_to_ui'].join(val)
+        assert isinstance(val, str)
         self.setText(val)
         self.setCursorPosition(0)
 
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         val = mi.get(self.field, default='') or ''
-        self.value = val
+        self.value = cast('str | Sequence[str]', val)
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         val = self.value
         mi.set(self.field, val)
         if self.field == 'title':
+            assert isinstance(val, str)
             mi.set('title_sort', title_sort(val, lang=mi.language))
         elif self.field == 'authors':
             mi.set('author_sort', authors_to_sort_string(val))
 
     @property
-    def current_val(self):
+    def current_val(self) -> str:
         return str(self.text())
 
     @current_val.setter
-    def current_val(self, val) -> None:
+    def current_val(self, val: str) -> None:
         self.setText(val)
         self.setCursorPosition(0)
 
-    def set_undoable(self, val) -> None:
+    def set_undoable(self, val: str) -> None:
         self.selectAll()
         self.insert(val)
         self.setCursorPosition(0)
 
     @property
-    def is_blank(self):
+    def is_blank(self) -> bool:
         val = self.current_val.strip()
         if self.field in {'title', 'authors'}:
             return val in {'', _('Unknown')}
         return not val
 
-    def same_as(self, other):
+    def same_as(self, other: LineEdit) -> bool:
         return self.current_val == other.current_val
 
 
 class LanguagesEdit(LE):
     changed = pyqtSignal()
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         LE.__init__(self, parent=parent)
         self.is_new = is_new
         self.field = field
@@ -154,58 +174,58 @@ class LanguagesEdit(LE):
             line_edit.setClearButtonEnabled(False)
 
     @property
-    def current_val(self):
+    def current_val(self) -> list[str]:
         return self.lang_codes
 
     @current_val.setter
-    def current_val(self, val) -> None:
+    def current_val(self, val: Iterable[str | None]) -> None:
         self.lang_codes = val
 
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         self.lang_codes = mi.languages
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.languages = self.lang_codes
 
     @property
     def is_blank(self) -> bool:
         return not self.current_val
 
-    def same_as(self, other):
+    def same_as(self, other: LanguagesEdit) -> bool:
         return self.current_val == other.current_val
 
-    def set_undoable(self, val) -> None:
+    def set_undoable(self, val: Iterable[str | None]) -> None:
         self.set_lang_codes(val, True)
 
 
 class RatingsEdit(RatingEdit):
     changed = pyqtSignal()
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         RatingEdit.__init__(self, parent)
         self.is_new = is_new
         self.field = field
         self.metadata = metadata
         self.currentIndexChanged.connect(self.changed)
 
-    def from_mi(self, mi) -> None:
-        self.current_val = mi.get(self.field, default=0)
+    def from_mi(self, mi: Metadata) -> None:
+        self.current_val = cast('float | None', mi.get(self.field, default=0))
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.set(self.field, self.current_val)
 
     @property
-    def is_blank(self):
+    def is_blank(self) -> bool:
         return self.current_val == 0
 
-    def same_as(self, other):
+    def same_as(self, other: RatingsEdit) -> bool:
         return self.current_val == other.current_val
 
 
 class DateEdit(PubdateEdit):
-    changed = pyqtSignal()
+    changed = pyqtSignal()  # ty: ignore[incompatible-property-override] intentionally replaces the changed property of the base class
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         PubdateEdit.__init__(self, parent, create_clear_button=False)
         self.is_new = is_new
         self.field = field
@@ -215,30 +235,30 @@ class DateEdit(PubdateEdit):
         if not is_new:
             self.setReadOnly(True)
 
-    def from_mi(self, mi) -> None:
-        self.current_val = mi.get(self.field, default=None)
+    def from_mi(self, mi: Metadata) -> None:
+        self.current_val = cast('datetime | None', mi.get(self.field, default=None))
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.set(self.field, self.current_val)
 
     @property
-    def is_blank(self):
+    def is_blank(self) -> bool:
         return self.current_val.year <= UNDEFINED_DATE.year
 
-    def same_as(self, other):
+    def same_as(self, other: DateEdit) -> bool:
         return self.text() == other.text()
 
-    def set_undoable(self, val) -> None:
+    def set_undoable(self, val: datetime | None) -> None:
         self.set_value(val)
 
 
 class SeriesEdit(LineEdit):
-    def __init__(self, *args, **kwargs) -> None:
-        LineEdit.__init__(self, *args, **kwargs)
-        self.dbref = lambda: None
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
+        LineEdit.__init__(self, field, is_new, parent, metadata, extra)
+        self.dbref: Callable[[], Cache | None] = lambda: None
         self.item_selected.connect(self.insert_series_index)
 
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         series = mi.get(self.field, default='')
         series_index = mi.get(self.field + '_index', default=1.0)
         val = ''
@@ -247,7 +267,7 @@ class SeriesEdit(LineEdit):
         self.setText(val)
         self.setCursorPosition(0)
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         val = str(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
@@ -257,10 +277,10 @@ class SeriesEdit(LineEdit):
         mi.set(self.field, series)
         mi.set(self.field + '_index', series_index)
 
-    def set_db(self, db) -> None:
+    def set_db(self, db: Cache) -> None:
         self.dbref = weakref.ref(db)
 
-    def insert_series_index(self, series) -> None:
+    def insert_series_index(self, series: str) -> None:
         if (db := self.dbref()) is None or not series:
             return
         num = db.get_next_series_num_for(series)
@@ -269,28 +289,27 @@ class SeriesEdit(LineEdit):
 
 
 class IdentifiersEdit(LineEdit):
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         self.as_dict = mi.identifiers
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.set_identifiers(self.as_dict)
 
     @property
-    def as_dict(self):
+    def as_dict(self) -> dict[str, str]:
         parts = (x.strip() for x in self.current_val.split(',') if x.strip())
         return {k: v for k, v in {x.partition(':')[0].strip(): x.partition(':')[-1].strip() for x in parts}.items() if k and v}
 
     @as_dict.setter
-    def as_dict(self, val) -> None:
-        val = (f'{k}:{v}' for k, v in val.items())
-        self.setText(', '.join(val))
+    def as_dict(self, val: dict[str, str]) -> None:
+        self.setText(', '.join(f'{k}:{v}' for k, v in val.items()))
         self.setCursorPosition(0)
 
 
 class CommentsEdit(Editor):
     changed = pyqtSignal()
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         Editor.__init__(self, parent, one_line_toolbar=False)
         self.set_minimum_height_for_editor(150)
         self.is_new = is_new
@@ -302,33 +321,33 @@ class CommentsEdit(Editor):
             self.set_readonly(True)
 
     @property
-    def current_val(self):
+    def current_val(self) -> str:
         return self.html
 
     @current_val.setter
-    def current_val(self, val) -> None:
+    def current_val(self, val: str | None) -> None:
         self.html = val or ''
         self.changed.emit()
 
-    def set_undoable(self, val) -> None:
+    def set_undoable(self, val: str) -> None:
         self.set_html(val, allow_undo=True)
         self.changed.emit()
 
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         val = mi.get(self.field, default='')
-        self.current_val = val
+        self.current_val = cast('str | None', val)
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.set(self.field, self.current_val)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(450, 200)
 
     @property
     def is_blank(self) -> bool:
         return not self.current_val.strip()
 
-    def same_as(self, other):
+    def same_as(self, other: CommentsEdit) -> bool:
         return self.current_val == other.current_val
 
 
@@ -336,36 +355,36 @@ class CoverView(QWidget):
     changed = pyqtSignal()
     zoom_requested = pyqtSignal(object)
 
-    def __init__(self, field, is_new, parent, metadata, extra) -> None:
+    def __init__(self, field: str, is_new: bool, parent: QWidget | None, metadata: FieldMetadataDict, extra: str | None) -> None:
         QWidget.__init__(self, parent)
         self.is_new = is_new
         self.field = field
         self.metadata = metadata
-        self.pixmap = None
+        self.pixmap: QPixmap | None = None
         ic = QIcon.ic('blank.png')
         self.blank = ic.pixmap(ic.availableSizes()[0])
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
         self.sizePolicy().setHeightForWidth(True)
 
-    def mouseDoubleClickEvent(self, a0) -> None:
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if self.pixmap and not self.pixmap.isNull():
             self.zoom_requested.emit(self.pixmap)
 
     @property
-    def is_blank(self):
+    def is_blank(self) -> bool:
         return self.pixmap is None
 
     @property
-    def current_val(self):
+    def current_val(self) -> QPixmap | None:
         return self.pixmap
 
     @current_val.setter
-    def current_val(self, val) -> None:
+    def current_val(self, val: QPixmap | None) -> None:
         self.pixmap = val
         self.changed.emit()
         self.update()
 
-    def from_mi(self, mi) -> None:
+    def from_mi(self, mi: Metadata) -> None:
         p = getattr(mi, 'cover', None)
         if p and os.path.exists(p):
             pmap = QPixmap()
@@ -389,20 +408,20 @@ class CoverView(QWidget):
         self.update()
         self.changed.emit()
 
-    def to_mi(self, mi) -> None:
+    def to_mi(self, mi: Metadata) -> None:
         mi.cover, mi.cover_data = None, (None, None)
         if self.pixmap is not None and not self.pixmap.isNull():
             with PersistentTemporaryFile('.jpg') as pt:
                 pt.write(pixmap_to_data(self.pixmap))
                 mi.cover = pt.name
 
-    def same_as(self, other):
+    def same_as(self, other: CoverView) -> bool:
         return self.current_val == other.current_val
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(225, 300)
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         pmap = self.blank if self.pixmap is None or self.pixmap.isNull() else self.pixmap
         target = self.rect()
         scaled, width, height = fit_image(pmap.width(), pmap.height(), target.width(), target.height())
@@ -433,12 +452,12 @@ class CompareSingle(QWidget):
 
     def __init__(
         self,
-        field_metadata,
-        parent=None,
-        revert_tooltip=None,
-        datetime_fmt='MMMM yyyy',
-        blank_as_equal=True,
-        fields=(
+        field_metadata: FieldMetadata,
+        parent: QWidget | None = None,
+        revert_tooltip: str | None = None,
+        datetime_fmt: str = 'MMMM yyyy',
+        blank_as_equal: bool = True,
+        fields: Sequence[str] = (
             'title',
             'authors',
             'series',
@@ -451,14 +470,14 @@ class CompareSingle(QWidget):
             'comments',
             'cover',
         ),
-        db=None,
+        db: LibraryDatabase | None = None,
     ) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
         # l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         revert_tooltip = revert_tooltip or _('Revert %s')
-        self.current_mi = None
+        self.current_mi: Metadata | None = None
         self.changed_font = QFont(QApplication.font())
         self.changed_font.setBold(True)
         self.changed_font.setItalic(True)
@@ -567,14 +586,14 @@ class CompareSingle(QWidget):
             if vis != gprefs.get('diff_widget_show_comments_controls', True):
                 gprefs.set('diff_widget_show_comments_controls', vis)
 
-    def changed(self, field) -> None:
+    def changed(self, field: str) -> None:
         w = self.widgets[field]
         if not w.new.same_as(w.old) and (not self.blank_as_equal or not w.new.is_blank):
             w.label.setFont(self.changed_font)
         else:
             w.label.setFont(QApplication.font())
 
-    def revert(self, field) -> None:
+    def revert(self, field: str) -> None:
         widgets = self.widgets[field]
         neww, oldw = widgets[:2]
         if hasattr(neww, 'set_undoable'):
@@ -603,15 +622,15 @@ class CompareSingle(QWidget):
         val = oldw.current_val
         neww.current_val = (neww.current_val or '') + '\n\n' + (val or '')
 
-    def __call__(self, oldmi, newmi):
+    def __call__(self, oldmi: Metadata, newmi: Metadata) -> None:
         self.current_mi = newmi
-        self.initial_vals = {}
+        self.initial_vals: dict[str, object] = {}
         for field, widgets in self.widgets.items():
             widgets.old.from_mi(oldmi)
             widgets.new.from_mi(newmi)
             self.initial_vals[field] = widgets.new.current_val
 
-    def apply_changes(self):
+    def apply_changes(self) -> bool:
         changed = False
         for field, widgets in self.widgets.items():
             val = widgets.new.current_val
@@ -631,9 +650,9 @@ class CompareSingle(QWidget):
 
 
 class ZoomedCover(QWidget):
-    pixmap = None
+    pixmap: QPixmap | None = None
 
-    def paintEvent(self, a0) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         pmap = self.pixmap
         if pmap is None:
             return
@@ -649,7 +668,7 @@ class ZoomedCover(QWidget):
 
 
 class CoverZoom(QWidget):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.cover = ZoomedCover(self)
@@ -662,7 +681,7 @@ class CoverZoom(QWidget):
         self.h.addStretch(10)
         self.h.addWidget(self.bb)
 
-    def set_pixmap(self, pixmap) -> None:
+    def set_pixmap(self, pixmap: QPixmap) -> None:
         self.cover.pixmap = pixmap
         self.size_label.setText(_('Cover size: {0}x{1}').format(pixmap.width(), pixmap.height()))
         self.cover.update()
@@ -671,18 +690,18 @@ class CoverZoom(QWidget):
 class CompareMany(QDialog):
     def __init__(
         self,
-        ids,
-        get_metadata,
-        field_metadata,
-        parent=None,
-        window_title=None,
-        reject_button_tooltip=None,
-        accept_all_tooltip=None,
-        reject_all_tooltip=None,
-        revert_tooltip=None,
-        intro_msg=None,
-        action_button=None,
-        **kwargs,
+        ids: Iterable[int],
+        get_metadata: Callable[[int], tuple[Metadata, Metadata]],
+        field_metadata: FieldMetadata,
+        parent: QWidget | None = None,
+        window_title: str | None = None,
+        reject_button_tooltip: str | None = None,
+        accept_all_tooltip: str | None = None,
+        reject_all_tooltip: str | None = None,
+        revert_tooltip: str | None = None,
+        intro_msg: str | None = None,
+        action_button: tuple[str, str, Callable[[int], object]] | None = None,
+        **kwargs: Unpack[CompareSingleKwargs],
     ) -> None:
         QDialog.__init__(self, parent)
         self.stack = s = QStackedLayout(self)
@@ -695,14 +714,14 @@ class CompareMany(QDialog):
         # when the user clicks on the next or reject button we will add the current item to the previous items list
         # when the user presses the back button we will pop the last item from the previous items list and set it as current item
         # also the popped item will be removed from the rejected or accepted items list (and will be unmarked if it was marked)
-        self.previous_items = []
+        self.previous_items: list[int] = []
 
         self.setWindowIcon(QIcon.ic('auto_author_sort.png'))
         self.get_metadata = get_metadata
         self.ids = list(ids)
         self.total = len(self.ids)
-        self.accepted_map: OrderedDict = OrderedDict()
-        self.rejected_ids = set()
+        self.accepted_map: OrderedDict[int, tuple[bool, Metadata | None]] = OrderedDict()
+        self.rejected_ids: set[int] = set()
         self.window_title = window_title or _('Compare metadata')
 
         if intro_msg:
@@ -755,6 +774,7 @@ class CompareMany(QDialog):
             self.addAction(ac)
         if action_button is not None:
             self.acb = b = bb.addButton(action_button[0], QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
@@ -803,12 +823,12 @@ class CompareMany(QDialog):
         b.setFocus(Qt.FocusReason.OtherFocusReason)
         self.next_called = False
 
-    def show_zoomed_cover(self, pixmap) -> None:
+    def show_zoomed_cover(self, pixmap: QPixmap) -> None:
         self.cover_zoom.set_pixmap(pixmap)
         self.stack.setCurrentIndex(1)
 
     @property
-    def mark_rejected(self):
+    def mark_rejected(self) -> bool:
         return self.markq.isChecked()
 
     def action_button_clicked(self) -> None:
@@ -833,7 +853,7 @@ class CompareMany(QDialog):
         super().reject()
 
     @property
-    def current_mi(self):
+    def current_mi(self) -> Metadata | None:
         return self.compare_widget.current_mi
 
     def show_current_item(self) -> None:
@@ -849,7 +869,7 @@ class CompareMany(QDialog):
         assert back_button is not None
         back_button.setEnabled(enabled)
 
-    def next_item(self, accept):
+    def next_item(self, accept: bool) -> None:
         self.next_called = True
         if not self.ids:
             return self.accept()
@@ -917,7 +937,8 @@ class CompareMany(QDialog):
         self.ids = []
         self.accept()
 
-    def keyPressEvent(self, a0):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        assert a0 is not None
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             a0.accept()
             return
@@ -930,12 +951,13 @@ if __name__ == '__main__':
 
     app = Application([])
     db = db()
-    ids = sorted(db.all_ids(), reverse=True)
-    ids = tuple(zip(ids[0::2], ids[1::2]))
+    all_ids = sorted(db.all_ids(), reverse=True)
+    ids = tuple(zip(all_ids[0::2], all_ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
 
-    def get_metadata(x):
-        return list(map(gm, ids[x]))
+    def get_metadata(x: int) -> tuple[Metadata, Metadata]:
+        a, b = ids[x]
+        return gm(a), gm(b)
 
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()

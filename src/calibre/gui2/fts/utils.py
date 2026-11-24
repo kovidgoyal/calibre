@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import Qt
 
@@ -11,8 +12,13 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
-def get_db():
+    from calibre.db.cache import Cache
+
+
+def get_db() -> Cache:
     if hasattr(get_db, 'db'):
         return get_db.db.new_api
     return get_gui(fail_if_absent=True).current_db.new_api
@@ -21,7 +27,7 @@ def get_db():
 def markup_text(text: str, open_tag: str = '<b><i>', close_tag: str = '</i></b>') -> str:
     closing = False
 
-    def sub(m):
+    def sub(m: re.Match[str]) -> str:
         nonlocal closing
         closing = not closing
         return open_tag if closing else close_tag
@@ -76,7 +82,7 @@ p { margin: 0; }
     ).format(fts_url=fts_url)
 
 
-def help_panel(parent=None) -> HTMLDisplay:
+def help_panel(parent: QWidget | None = None) -> HTMLDisplay:
     hp = HTMLDisplay(parent)
     hp.setDefaultStyleSheet('a { text-decoration: none; }')
     hp.setHtml(help_html())

@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.sending_ui import Ui_Form
 from calibre.library.save_to_disk import config
 from calibre.utils.config import ConfigProxy, prefs
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.proxy = ConfigProxy(config())
 
@@ -39,7 +44,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             'send_to_device',
             self.proxy['send_template'],
             self.proxy.help('send_template'),
-            self.gui.library_view.model().db.field_metadata,
+            self.gui.current_db.field_metadata,
         )
         self.opt_send_timefmt.setToolTip(
             '<p>' + self.opt_send_timefmt.toolTip() + '</p><p>' + _('Changes will not appear in the template editor until you press the apply button.') + '</p>'
@@ -47,11 +52,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.send_template.blockSignals(False)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.send_template.set_value(self.proxy.defaults['send_template'])
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         if not self.send_template.validate():
             raise AbortCommit('abort')
         self.send_template.save_settings(self.proxy, 'send_template')

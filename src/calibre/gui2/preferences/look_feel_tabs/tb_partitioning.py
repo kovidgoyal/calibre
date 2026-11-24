@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import LazyConfigWidgetBase
@@ -9,19 +10,31 @@ from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layo
 from calibre.gui2.preferences.look_feel_tabs.tb_partitioning_ui import Ui_Form
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from qt.core import QIcon, QObject
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.tag_browser.view import TagsView
+    from calibre.gui2.ui import Main
+
 
 class TBPartitionedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
-    def __init__(self, db, parent=None, category_icons=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QObject | None = None, category_icons: Mapping[str, QIcon] | None = None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui(fail_if_absent=True)
 
-    def filter_user_categories(self, tv):
+    def filter_user_categories(self, tv: TagsView) -> dict[str, str | None]:
+        from calibre.gui2.tag_browser.model import TagsModel
+
         model = tv.model()
+        assert isinstance(model, TagsModel)
         model.ensure_tree_built()
         cats = model.categories
         answer = {}
@@ -35,7 +48,7 @@ class TBPartitionedFields(DisplayedFields):
                 filtered.add(key)
         return answer
 
-    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
+    def initialize(self, use_defaults: bool = False, pref_data_override: Iterable[tuple[str, bool]] | None = None) -> None:
         tv = self.gui.tags_view
         cats = self.filter_user_categories(tv)
         ans = []
@@ -48,7 +61,7 @@ class TBPartitionedFields(DisplayedFields):
             self.changed = True
         else:
             # Check if setting not migrated yet
-            cats_to_partition = frozenset(self.db.prefs.get('tag_browser_dont_collapse', gprefs.get('tag_browser_dont_collapse')) or ())
+            cats_to_partition = frozenset(cast('Iterable[str]', self.db.prefs.get('tag_browser_dont_collapse', gprefs.get('tag_browser_dont_collapse')) or ()))
             for key in cats:
                 ans.append([key, key not in cats_to_partition])
         self.beginResetModel()
@@ -62,7 +75,7 @@ class TBPartitionedFields(DisplayedFields):
 
 
 class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         r = self.register
 
@@ -71,10 +84,14 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
         r('tags_browser_collapse_at', gprefs)
         r('tags_browser_collapse_fl_at', gprefs)
 
+        from calibre.gui2.tag_browser.model import TagsModel
+
+        tv_model = self.gui.tags_view.model()
+        assert isinstance(tv_model, TagsModel)
         self.tb_categories_to_part_model = TBPartitionedFields(
             self.gui.current_db,
             self.tb_cats_to_partition,
-            category_icons=self.gui.tags_view.model().category_custom_icons,
+            category_icons=tv_model.category_custom_icons,
         )
         self.tb_categories_to_part_model.dataChanged.connect(self.changed_signal)
         self.tb_cats_to_partition.setModel(self.tb_categories_to_part_model)
@@ -85,13 +102,13 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self) -> None:
         self.tb_categories_to_part_model.initialize()
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_categories_to_part_model.restore_defaults()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         self.tb_categories_to_part_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.tags_view.reread_collapse_parameters()

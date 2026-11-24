@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QAction, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, QStackedWidget, Qt, QVBoxLayout
 
@@ -13,9 +14,12 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class FTSDialog(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(
             _('Search the text of all books in the library'),
             'library-fts-dialog',
@@ -135,7 +139,7 @@ class FTSDialog(Dialog):
         self.show_appropriate_panel()
         self.update_fat_warning()
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(1000, 680)
 
     def show(self) -> None:
@@ -147,7 +151,7 @@ class FTSDialog(Dialog):
     def clear_search_history(self) -> None:
         self.results_panel.clear_history()
 
-    def set_search_text(self, text) -> None:
+    def set_search_text(self, text: str) -> None:
         self.results_panel.set_search_text(text)
 
 

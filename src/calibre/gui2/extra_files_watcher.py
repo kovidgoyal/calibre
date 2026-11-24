@@ -11,7 +11,6 @@ from calibre.db.constants import DATA_FILE_PATTERN
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from calibre.gui2.library.models import BooksModel
     from calibre.gui2.ui import Main
 
 
@@ -93,5 +92,5 @@ class ExtraFilesWatcher(QObject):
     def refresh_gui(self, book_ids: Iterable[int]) -> None:
         lv = self.gui.library_view
         book_ids = frozenset(book_ids)
-        cast('BooksModel', lv.model()).refresh_ids(book_ids, current_row=lv.currentIndex().row())
+        lv.model().refresh_ids(book_ids, current_row=lv.currentIndex().row())
         self.books_changed.emit(book_ids)

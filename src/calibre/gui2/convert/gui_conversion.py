@@ -2,6 +2,7 @@
 
 import os
 from optparse import OptionParser
+from typing import TYPE_CHECKING, cast
 
 from calibre.constants import iswindows
 from calibre.customize.conversion import DummyReporter, OptionRecommendation
@@ -9,15 +10,20 @@ from calibre.customize.ui import plugin_for_catalog_format
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping
+
+    from calibre.ebooks.conversion.plumber import ProgressReporter
+
 
 def gui_convert(
-    input,
-    output,
-    recommendations,
-    notification=DummyReporter(),
-    abort_after_input_dump=False,
-    log=None,
-    override_input_metadata=False,
+    input: str,
+    output: str,
+    recommendations: Iterable[tuple[str, object, int]],
+    notification: ProgressReporter = DummyReporter(),
+    abort_after_input_dump: bool = False,
+    log: Log | None = None,
+    override_input_metadata: bool = False,
 ) -> None:
     recommendations = list(recommendations)
     recommendations.append(('verbose', 2, OptionRecommendation.HIGH))
@@ -37,13 +43,13 @@ def gui_convert(
 
 
 def gui_convert_recipe(
-    input,
-    output,
-    recommendations,
-    notification=DummyReporter(),
-    abort_after_input_dump=False,
-    log=None,
-    override_input_metadata=False,
+    input: str,
+    output: str,
+    recommendations: Iterable[tuple[str, object, int]],
+    notification: ProgressReporter = DummyReporter(),
+    abort_after_input_dump: bool = False,
+    log: Log | None = None,
+    override_input_metadata: bool = False,
 ) -> None:
     os.environ['CALIBRE_RECIPE_URN'] = input
     gui_convert(
@@ -57,7 +63,14 @@ def gui_convert_recipe(
     )
 
 
-def gui_convert_override(input, output, recommendations, notification=DummyReporter(), abort_after_input_dump=False, log=None) -> None:
+def gui_convert_override(
+    input: str,
+    output: str,
+    recommendations: Iterable[tuple[str, object, int]],
+    notification: ProgressReporter = DummyReporter(),
+    abort_after_input_dump: bool = False,
+    log: Log | None = None,
+) -> None:
     gui_convert(
         input,
         output,
@@ -70,19 +83,19 @@ def gui_convert_override(input, output, recommendations, notification=DummyRepor
 
 
 def gui_catalog(
-    library_path,
-    temp_db_path,
-    fmt,
-    title,
-    dbspec,
-    ids,
-    out_file_name,
-    sync,
-    fmt_options,
-    connected_device,
-    notification=DummyReporter(),
-    log=None,
-):
+    library_path: str,
+    temp_db_path: str,
+    fmt: str,
+    title: str,
+    dbspec: dict[int, dict[str, object]],
+    ids: Collection[int],
+    out_file_name: str,
+    sync: bool,
+    fmt_options: Mapping[str, object],
+    connected_device: dict[str, object],
+    notification: ProgressReporter = DummyReporter(),
+    log: Log | None = None,
+) -> object:
     if log is None:
         log = Log()
     from calibre.utils.config import prefs
@@ -114,7 +127,7 @@ def gui_catalog(
         # Extract the option dictionary to comma-separated lists
         for option in fmt_options:
             if isinstance(fmt_options[option], list):
-                setattr(opts, option, ','.join(fmt_options[option]))
+                setattr(opts, option, ','.join(cast('list[str]', fmt_options[option])))
             else:
                 setattr(opts, option, fmt_options[option])
 

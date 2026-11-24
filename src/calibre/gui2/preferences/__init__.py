@@ -3,7 +3,7 @@
 
 import textwrap
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractSpinBox,
@@ -16,6 +16,7 @@ from qt.core import (
     QEvent,
     QGroupBox,
     QIcon,
+    QKeyEvent,
     QLineEdit,
     QListView,
     QListWidget,
@@ -35,7 +36,19 @@ from calibre.utils.config import ConfigProxy
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Mapping, Sequence
+    from typing import Protocol
+
+    from qt.core import QShowEvent, pyqtBoundSignal
+
+    from calibre.customize import PreferencesPlugin
+    from calibre.gui2.ui import Main
+
+    class ConfigObject(Protocol):
+        @property
+        def defaults(self) -> Mapping[str, object]: ...
+        def __getitem__(self, key: str, /) -> object: ...
+        def __setitem__(self, key: str, val: object, /) -> None: ...
 
 
 class AbortCommit(Exception):
@@ -68,7 +81,9 @@ class ConfigWidgetInterface:
     #: preferences. Only has effect if :meth:`commit` returns True.
     restart_critical = False
 
-    def genesis(self, gui):
+    child_tabs: list[LazyConfigWidgetBase]
+
+    def genesis(self, gui: Main) -> None:
         """
         Called once before the widget is displayed, should perform any
         necessary setup.
@@ -77,7 +92,7 @@ class ConfigWidgetInterface:
         """
         raise NotImplementedError()
 
-    def initialize(self):
+    def initialize(self) -> bool | None:
         '''
         Should set all config values to their initial values (the values
         stored in the config files). A "return" statement is optional. Return
@@ -100,7 +115,7 @@ class ConfigWidgetInterface:
         """
         return False
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         """
         Called once after this widget is committed. Responsible for causing the
         gui to reread any changed settings. Note that by default the GUI
@@ -115,9 +130,9 @@ class ConfigWidgetInterface:
         """
         pass
 
-    def do_on_child_tabs(self, method, *args):
+    def do_on_child_tabs(self, method: str, *args: object) -> bool:
         r = False
-        for t in self.child_tabs:  # type: ignore
+        for t in self.child_tabs:
             lazy_init_called = getattr(t, 'lazy_init_called', True)
             if method in ('commit', 'refresh_gui') and not lazy_init_called:
                 continue
@@ -130,7 +145,7 @@ class ConfigWidgetInterface:
         return r
 
 
-def set_help_tips(gui_obj, tt) -> None:
+def set_help_tips(gui_obj: QWidget, tt: str | None) -> None:
     if tt:
         if not str(gui_obj.whatsThis()):
             gui_obj.setWhatsThis(tt)
@@ -143,7 +158,16 @@ def set_help_tips(gui_obj, tt) -> None:
 class Setting:
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
 
-    def __init__(self, name, config_obj, widget, gui_name=None, empty_string_is_None=True, choices=None, restart_required=False) -> None:
+    def __init__(
+        self,
+        name: str,
+        config_obj: ConfigObject,
+        widget: ConfigWidgetBase,
+        gui_name: str | None = None,
+        empty_string_is_None: bool = True,
+        choices: Sequence[str | bytes | tuple[str | None, object]] | None = None,
+        restart_required: bool = False,
+    ) -> None:
         self.name, self.gui_name = name, ('opt_' + name) if gui_name is None else gui_name
         self.empty_string_is_None = empty_string_is_None
         self.restart_required = restart_required
@@ -183,7 +207,7 @@ class Setting:
         tt = str(self.gui_obj.toolTip())
         set_help_tips(self.gui_obj, tt)
 
-    def changed(self, *args) -> None:
+    def changed(self, *args: object) -> None:
         self.widget.changed_signal.emit()
 
     def initialize(self) -> None:
@@ -202,7 +226,7 @@ class Setting:
         self.gui_obj.blockSignals(False)
         self.initial_value = self.get_gui_val()
 
-    def commit(self):
+    def commit(self) -> bool:
         val = self.get_gui_val()
         oldval = self.get_config_val()
         changed = val != oldval
@@ -213,17 +237,17 @@ class Setting:
     def restore_defaults(self) -> None:
         self.set_gui_val(self.get_config_val(default=True))
 
-    def get_config_val(self, default=False):
+    def get_config_val(self, default: bool = False) -> object:
         if default:
             val = self.config_obj.defaults[self.name]
         else:
             val = self.config_obj[self.name]
         return val
 
-    def set_config_val(self, val) -> None:
+    def set_config_val(self, val: object) -> None:
         self.config_obj[self.name] = val
 
-    def set_gui_val(self, val) -> None:
+    def set_gui_val(self, val: object) -> None:
         if self.datatype == 'bool':
             self.gui_obj.setChecked(bool(val))
         elif self.datatype == 'number':
@@ -239,7 +263,7 @@ class Setting:
                     idx = 0
                 self.gui_obj.setCurrentIndex(idx)
 
-    def get_gui_val(self):
+    def get_gui_val(self) -> object:
         if self.datatype == 'bool':
             val = bool(self.gui_obj.isChecked())
         elif self.datatype == 'number':
@@ -259,13 +283,13 @@ class Setting:
 
 
 class CommaSeparatedList(Setting):
-    def set_gui_val(self, val) -> None:
+    def set_gui_val(self, val: object) -> None:
         x = ''
         if val:
-            x = ', '.join(val)
+            x = ', '.join(cast('Iterable[str]', val))
         self.gui_obj.setText(x)
 
-    def get_gui_val(self):
+    def get_gui_val(self) -> list[str]:
         val = str(self.gui_obj.text()).strip()
         ans = []
         if val:
@@ -294,11 +318,11 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
     supports_restoring_to_defaults = True
     restart_critical = False
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         if hasattr(self, 'setupUi'):
             self.setupUi(self)  # type: ignore
-        self.settings = {}
+        self.settings: dict[str, Setting] = {}
         self.child_tabs = []
         for v in self.__dict__.values():
             if isinstance(v, LazyConfigWidgetBase):
@@ -306,14 +330,14 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
     def register(
         self,
-        name,
-        config_obj,
-        gui_name=None,
-        choices=None,
-        restart_required=False,
-        empty_string_is_None=True,
-        setting=Setting,
-    ):
+        name: str,
+        config_obj: ConfigObject,
+        gui_name: str | None = None,
+        choices: Sequence[str | bytes | tuple[str | None, object]] | None = None,
+        restart_required: bool = False,
+        empty_string_is_None: bool = True,
+        setting: type[Setting] = Setting,
+    ) -> Setting:
         """
         Register a setting.
 
@@ -329,7 +353,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
                         default class handles almost all cases, so this param
                         is rarely used.
         """
-        setting = setting(
+        ans = setting(
             name,
             config_obj,
             self,
@@ -338,9 +362,9 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             restart_required=restart_required,
             empty_string_is_None=empty_string_is_None,
         )
-        return self.register_setting(setting)
+        return self.register_setting(ans)
 
-    def register_setting(self, setting):
+    def register_setting[S: Setting](self, setting: S) -> S:
         self.settings[setting.name] = setting
         return setting
 
@@ -348,7 +372,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         for setting in self.settings.values():
             setting.initialize()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         restart_required = False
         for setting in self.settings.values():
             rr = setting.commit()
@@ -356,15 +380,15 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
                 restart_required = True
         return restart_required
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         for setting in self.settings.values():
             setting.restore_defaults()
 
-    def register_child_tab(self, tab) -> None:
+    def register_child_tab(self, tab: LazyConfigWidgetBase) -> None:
         self.child_tabs.append(tab)
 
 
-def get_plugin(category, name):
+def get_plugin(category: str | None, name: str) -> PreferencesPlugin:
     for plugin in preferences_plugins():
         if plugin.category == category and plugin.name == name:
             return plugin
@@ -377,24 +401,26 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
     top. It directly replaces ConfigWidgetBase, supporting the lazy operations.
     """
 
-    def __init__(self, parent=None) -> None:
+    lazy_initialize: Callable[[], None]
+
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.lazy_init_called = False
 
     def ensure_lazy_initialized(self) -> None:
         if not self.lazy_init_called:
             if hasattr(self, 'lazy_initialize'):
-                self.lazy_initialize()  # type: ignore
+                self.lazy_initialize()
             self.lazy_init_called = True
 
-    def set_changed_signal(self, changed_signal) -> None:
+    def set_changed_signal(self, changed_signal: Callable[[], object] | pyqtBoundSignal) -> None:
         self.changed_signal.connect(changed_signal)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         self.ensure_lazy_initialized()
         super().restore_defaults()
 
-    def showEvent(self, a0, /) -> None:
+    def showEvent(self, a0: QShowEvent | None, /) -> None:
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
@@ -404,7 +430,9 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
 
 
 class ConfigDialog(QDialog):
-    def set_widget(self, w) -> None:
+    restart_required: bool
+
+    def set_widget(self, w: ConfigWidgetBase) -> None:
         self.w = w
 
     def accept(self) -> None:
@@ -415,7 +443,7 @@ class ConfigDialog(QDialog):
         QDialog.accept(self)
 
 
-def init_gui():
+def init_gui() -> Main:
     from calibre.gui2.main import option_parser
     from calibre.gui2.ui import Main
     from calibre.library import db
@@ -429,7 +457,15 @@ def init_gui():
     return gui
 
 
-def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=None, never_shutdown=False, callback=None):
+def show_config_widget(
+    category: str | None,
+    name: str,
+    gui: Main | None = None,
+    show_restart_msg: bool = False,
+    parent: QWidget | None = None,
+    never_shutdown: bool = False,
+    callback: Callable[[ConfigWidgetBase], object] | None = None,
+) -> bool:
     """
     Show the preferences plugin identified by category and name
 
@@ -447,7 +483,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=
     d = ConfigDialog(parent)
     d.resize(750, 550)
     conf_name = f'config_widget_dialog_geometry_{category}_{name}'
-    d.setWindowTitle(_('Configure ') + pl.gui_name)
+    d.setWindowTitle(_('Configure ') + (pl.gui_name or ''))
     d.setWindowIcon(QIcon.ic('config.png'))
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.RestoreDefaults)
@@ -456,7 +492,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=
     w = pl.create_widget(d)
     d.set_widget(w)
 
-    def button(which) -> QPushButton:
+    def button(which: QDialogButtonBox.StandardButton) -> QPushButton:
         ans = bb.button(which)
         assert ans is not None
         return ans
@@ -502,12 +538,12 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=
 
 
 class ListViewWithMoveByKeyPress(QListView):
-    def set_movement_functions(self, up_function, down_function) -> None:
+    def set_movement_functions(self, up_function: Callable[..., object], down_function: Callable[..., object]) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, e):
-        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+    def event(self, e: QEvent | None) -> bool:
+        if isinstance(e, QKeyEvent) and e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -519,12 +555,12 @@ class ListViewWithMoveByKeyPress(QListView):
 class ListWidgetWithMoveByKeyPress(QListWidget):
     handle_drop_event: Callable[[QDropEvent | None], None] | None = None
 
-    def set_movement_functions(self, up_function, down_function) -> None:
+    def set_movement_functions(self, up_function: Callable[..., object], down_function: Callable[..., object]) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, e):
-        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+    def event(self, e: QEvent | None) -> bool:
+        if isinstance(e, QKeyEvent) and e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -540,12 +576,12 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
 
 
 class TableWidgetWithMoveByKeyPress(QTableWidget):
-    def set_movement_functions(self, up_function, down_function) -> None:
+    def set_movement_functions(self, up_function: Callable[..., object], down_function: Callable[..., object]) -> None:
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, e):
-        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
+    def event(self, e: QEvent | None) -> bool:
+        if isinstance(e, QKeyEvent) and e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -554,7 +590,7 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
         return QTableWidget.event(self, e)
 
 
-def get_move_count(row_count):
+def get_move_count(row_count: int) -> int:
     mods = QApplication.keyboardModifiers() & (
         Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
     )
@@ -568,7 +604,8 @@ def get_move_count(row_count):
 # Testing {{{
 
 
-def test_widget(category, name, gui=None, callback=None) -> None:
+def test_widget(category: str | None, name: str, gui: Main | None = None, callback: Callable[[ConfigWidgetBase], object] | None = None) -> None:
+
     show_config_widget(category, name, gui=gui, show_restart_msg=True, callback=callback)
 
 

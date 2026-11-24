@@ -1615,7 +1615,7 @@ class DB:
         return changed
 
     def create_custom_column(
-        self, label: str, name: str, datatype: str, is_multiple: bool, editable: bool = True, display: JSONDict | None = None
+        self, label: str, name: str, datatype: str, is_multiple: bool, editable: bool = True, display: Mapping[str, object] | None = None
     ) -> int:  # {{{
         import re
 

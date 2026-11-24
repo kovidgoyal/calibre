@@ -14,6 +14,8 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from calibre.gui2.tools import RecipeFetchArg
+    from calibre.ptempfile import PersistentTemporaryFile
+    from calibre.utils.ipc.job import BaseJob
 
 
 class FetchNewsAction(InterfaceAction):
@@ -25,13 +27,13 @@ class FetchNewsAction(InterfaceAction):
         _('F'),
     )
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
     def genesis(self) -> None:
-        self.conversion_jobs = {}
+        self.conversion_jobs: dict[BaseJob, tuple[list[PersistentTemporaryFile], str, RecipeFetchArg]] = {}
 
     def init_scheduler(self) -> None:
         from calibre.gui2.dialogs.scheduler import Scheduler
@@ -47,33 +49,34 @@ class FetchNewsAction(InterfaceAction):
     def connect_scheduler(self) -> None:
         self.scheduler.delete_old_news.connect(self.gui.library_view.model().delete_books_by_id, type=Qt.ConnectionType.QueuedConnection)
 
-    def download_custom_recipe(self, title, urn) -> None:
+    def download_custom_recipe(self, title: str, urn: str) -> None:
         arg: RecipeFetchArg = {'title': title, 'urn': urn, 'username': None, 'password': None}
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(Dispatcher(self.custom_recipe_fetched), func, args=args, description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
         self.gui.status_bar.show_message(_('Fetching news from ') + arg['title'], 2000)
 
-    def custom_recipe_fetched(self, job):
+    def custom_recipe_fetched(self, job: BaseJob) -> None:
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
         fname = temp_files[0].name
         if job.failed:
             return self.gui.job_exception(job)
         self.gui.library_view.model().add_news(fname, arg)
 
-    def download_scheduled_recipe(self, arg) -> None:
+    def download_scheduled_recipe(self, arg: RecipeFetchArg) -> None:
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(Dispatcher(self.scheduled_recipe_fetched), func, args=args, description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
         self.gui.status_bar.show_message(_('Fetching news from ') + arg['title'], 2000)
 
-    def scheduled_recipe_fetched(self, job):
+    def scheduled_recipe_fetched(self, job: BaseJob) -> None:
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
         fname = temp_files[0].name
         if job.failed:
             self.scheduler.recipe_download_failed(arg)
             return self.gui.job_exception(job, retry_func=partial(self.scheduler.download, arg['urn']))
         id = self.gui.library_view.model().add_news(fname, arg)
+        assert id is not None
 
         # Arg may contain a "keep_issues" variable. If it is non-zero,
         # delete all but newest x issues.
@@ -84,7 +87,7 @@ class FetchNewsAction(InterfaceAction):
         if keep_issues > 0:
             ids_with_tag = list(
                 sorted(
-                    self.gui.library_view.model().db.tags_older_than(arg['title'], None, must_have_tag=_('News')),
+                    self.gui.current_db.tags_older_than(arg['title'], None, must_have_tag=_('News')),
                     reverse=True,
                 )
             )

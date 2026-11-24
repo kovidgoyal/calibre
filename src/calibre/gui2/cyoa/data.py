@@ -41,6 +41,8 @@ from calibre.utils.short_uuid import uuid4
 if TYPE_CHECKING:
     from unittest.suite import TestSuite
 
+    from _typeshed import ConvertibleToInt
+
     from calibre.customize import AIProviderPlugin
 else:
     TestSuite = object
@@ -137,7 +139,7 @@ class TextDisplaySettings(NamedTuple):
     max_line_width: int = DEFAULT_MAX_LINE_WIDTH  # in characters, zero means no limit
 
 
-def as_int(x: Any, default: int = 0) -> int:
+def as_int(x: ConvertibleToInt, default: int = 0) -> int:
     # Values in the preferences file can be anything, it is user editable
     try:
         return int(x)
@@ -289,14 +291,14 @@ class SceneImage(NamedTuple):
     prompt: str = ''
 
 
-def validated_portrait(x: Any) -> dict[str, str] | None:
+def validated_portrait(x: object) -> dict[str, str] | None:
     # A character portrait in stored form, or None when it is unusable.
     if isinstance(x, dict) and isinstance(mime := x.get('mime'), str) and isinstance(raw := x.get('data'), str) and mime and raw:
         return {'mime': mime, 'data': raw}
     return None
 
 
-def validated_portraits(x: Any) -> dict[str, dict[str, str]]:
+def validated_portraits(x: object) -> dict[str, dict[str, str]]:
     # Character portraits keyed by character id, with unusable entries dropped.
     ans: dict[str, dict[str, str]] = {}
     if isinstance(x, dict):
@@ -851,7 +853,7 @@ def find_tests() -> TestSuite:  # {{{
                     with open(game_file(gid, tdir), 'rb') as f:
                         raw = json.load(f)
 
-                    def write_game_file(**changes: Any) -> None:
+                    def write_game_file(**changes: object) -> None:
                         with open(game_file(gid, tdir), 'wb') as f:
                             f.write(json.dumps(dict(raw, **changes), ensure_ascii=False).encode('utf-8'))
 

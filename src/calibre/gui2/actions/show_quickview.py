@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAction, QTimer
 
 from calibre.gui2 import error_dialog, gprefs
@@ -8,15 +10,21 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
 from calibre.utils.localization import _
 
-current_qv_action_pi = None
+if TYPE_CHECKING:
+    from qt.core import QModelIndex
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.central import LayoutButton
+
+current_qv_action_pi: ShowQuickviewAction | None = None
 
 
-def set_quickview_action_plugin(pi) -> None:
+def set_quickview_action_plugin(pi: ShowQuickviewAction | None) -> None:
     global current_qv_action_pi
     current_qv_action_pi = pi
 
 
-def get_quickview_action_plugin():
+def get_quickview_action_plugin() -> ShowQuickviewAction | None:
     return current_qv_action_pi
 
 
@@ -26,7 +34,7 @@ class ShowQuickviewAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
-    current_instance = None
+    current_instance: Quickview | None = None
 
     def genesis(self) -> None:
         self.menuless_qaction.changed.connect(self.update_layout_button)
@@ -88,7 +96,7 @@ class ShowQuickviewAction(InterfaceAction):
             self._show_quickview()
 
     @property
-    def qv_button(self):
+    def qv_button(self) -> LayoutButton:
         return self.gui.layout_container.quick_view_button
 
     def shutting_down(self) -> None:
@@ -97,7 +105,7 @@ class ShowQuickviewAction(InterfaceAction):
             is_open = False
         gprefs.set('qv_open_at_shutdown', is_open)
 
-    def needs_show_on_startup(self):
+    def needs_show_on_startup(self) -> bool:
         return gprefs.get('qv_open_at_shutdown', False)
 
     def initialization_complete(self) -> None:
@@ -117,7 +125,7 @@ class ShowQuickviewAction(InterfaceAction):
                 self.current_instance._reject()
             self.current_instance = None
 
-    def _show_quickview(self, *args) -> None:
+    def _show_quickview(self, *args: object) -> None:
         """
         This is called only from the QV button toggle
         """
@@ -158,14 +166,14 @@ class ShowQuickviewAction(InterfaceAction):
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refill()
 
-    def refresh_quickview(self, idx) -> None:
+    def refresh_quickview(self, idx: QModelIndex) -> None:
         """
         Called when the data shown in the QV pane might have changed.
         """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refresh(idx)
 
-    def change_quickview_column(self, idx, show=True) -> None:
+    def change_quickview_column(self, idx: QModelIndex, show: bool = True) -> None:
         """
         Called from the column header context menu to change the QV query column
         """
@@ -179,7 +187,7 @@ class ShowQuickviewAction(InterfaceAction):
             # don't know if this happens for any context menu.
             QTimer.singleShot(0, _cur_inst.set_focus)
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         """
         If QV is open, close it then reopen it so the columns are correct
         """

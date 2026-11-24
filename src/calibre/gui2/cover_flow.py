@@ -170,13 +170,13 @@ class DatabaseImages(pictureflow.FlowImages):
             db = mdb.new_api
             self.init_template(db)
             field = db.pref('cover_browser_subtitle_field', 'rating')
-            if field and field != 'none':
+            if field and field != 'none':  # ty: ignore[redundant-condition]
                 book_id = self.model.id(index)
                 fm = db.field_metadata[field]
                 if fm['datatype'] == 'rating':
                     val = db.field_for(field, book_id, default_value=0)
-                    if val:
-                        return rating_to_stars(val, allow_half_stars=db.field_metadata[field]['display'].get('allow_half_stars'))
+                    if val and isinstance(val, (int, float)):
+                        return rating_to_stars(val, allow_half_stars=bool(db.field_metadata[field]['display'].get('allow_half_stars')))
                 else:
                     if field == 'authors':
                         book_id = self.model.id(index)

@@ -9,6 +9,7 @@ from contextlib import suppress
 from functools import partial
 from itertools import count
 from threading import Event, Thread
+from typing import TYPE_CHECKING, cast, overload
 
 from qt.core import (
     QAbstractItemModel,
@@ -58,17 +59,34 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Iterator, Mapping, Sequence
+    from typing import TypedDict, Unpack
+
+    from qt.core import QKeyEvent, QObject, QPoint, QResizeEvent
+
+    from calibre.db.fts.connect import FTSSearchResult
+
+    class FTSSearchKwargs(TypedDict, total=False):
+        use_stemming: bool
+        highlight_start: str | None
+        highlight_end: str | None
+        snippet_size: int | None
+        restrict_to_book_ids: Collection[int] | None
+        return_text: bool
+
+
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
 
 
-def mark_books(*book_ids) -> None:
+def mark_books(*book_ids: int) -> None:
     gui = get_gui()
     if gui is not None:
         gui.iactions['Mark Books'].add_ids(book_ids)
 
 
-def reindex_book(book_id, parent) -> None:
+def reindex_book(book_id: int, parent: QWidget | None) -> None:
     get_db().reindex_fts_book(book_id)
     info_dialog(
         parent,
@@ -82,7 +100,7 @@ def reindex_book(book_id, parent) -> None:
     )
 
 
-def jump_to_book(book_id, parent=None) -> None:
+def jump_to_book(book_id: int, parent: QWidget | None = None) -> None:
     gui = get_gui()
     if gui is not None:
         parent = parent or gui
@@ -104,7 +122,7 @@ def jump_to_book(book_id, parent=None) -> None:
             )
 
 
-def show_in_viewer(book_id, text, fmt) -> None:
+def show_in_viewer(book_id: int, text: str, fmt: str) -> None:
     text = text.strip('…').replace('\x1d', '').replace('\xa0', ' ')
     text = sanitize_text_pat.sub(' ', text)
     gui = get_gui()
@@ -115,7 +133,7 @@ def show_in_viewer(book_id, text, fmt) -> None:
             gui.iactions['View'].view_format_by_id(book_id, fmt)
 
 
-def open_book(results, match_index=None) -> None:
+def open_book(results: Results, match_index: int | None = None) -> None:
     gui = get_gui()
     if gui is None:
         return
@@ -131,7 +149,7 @@ def open_book(results, match_index=None) -> None:
 
 
 class SearchDelegate(ResultsDelegate):
-    def result_data(self, result):
+    def result_data(self, result: object) -> tuple[bool, str, str, str, bool] | tuple[None, None, None, None, None]:
         if not isinstance(result, dict):
             return None, None, None, None, None
         full_text = result['text']
@@ -148,15 +166,19 @@ class SearchDelegate(ResultsDelegate):
 
 
 class Results:
-    _title = _authors = _series = _series_index = _book_in_db = None
+    _title: str | None = None
+    _authors: Sequence[str] | None = None
+    _series: str | None = None
+    _series_index: float | None = None
+    _book_in_db: bool | None = None
 
-    def __init__(self, book_id) -> None:
+    def __init__(self, book_id: int) -> None:
         self.book_id = book_id
-        self.text_map = {}
-        self.result_dicts = []
-        self.formats = []
+        self.text_map: dict[str, int] = {}
+        self.result_dicts: list[FTSSearchResult] = []
+        self.formats: list[set[str]] = []
 
-    def add_result_with_text(self, result) -> None:
+    def add_result_with_text(self, result: FTSSearchResult) -> None:
         text = result['text']
         q = sanitize_text_pat.sub('', text)
         fmt = result['format']
@@ -170,11 +192,11 @@ class Results:
     def __len__(self) -> int:
         return len(self.result_dicts)
 
-    def __getitem__(self, x):
+    def __getitem__(self, x: int) -> FTSSearchResult:
         return self.result_dicts[x]
 
     @property
-    def title(self):
+    def title(self) -> str:
         if self._title is None:
             with suppress(Exception):
                 self._title = get_db().field_for('title', self.book_id)
@@ -182,7 +204,7 @@ class Results:
         return self._title
 
     @property
-    def authors(self):
+    def authors(self) -> Sequence[str]:
         if self._authors is None:
             with suppress(Exception):
                 self._authors = get_db().field_for('authors', self.book_id)
@@ -190,7 +212,7 @@ class Results:
         return self._authors
 
     @property
-    def cover(self):
+    def cover(self) -> QPixmap:
         try:
             ans = get_db().cover(self.book_id, as_pixmap=True)
         except Exception:
@@ -201,7 +223,7 @@ class Results:
         return ans
 
     @property
-    def cover_as_image(self):
+    def cover_as_image(self) -> QImage:
         try:
             ans = get_db().cover(self.book_id, as_image=True)
         except Exception:
@@ -209,7 +231,7 @@ class Results:
         return ans
 
     @property
-    def series(self):
+    def series(self) -> str | None:
         if self._series is None:
             try:
                 self._series = get_db().field_for('series', self.book_id)
@@ -218,21 +240,28 @@ class Results:
         return self._series
 
     @property
-    def series_index(self):
+    def series_index(self) -> float | None:
         if self._series_index is None:
             try:
-                self._series_index = get_db().field_for('series_index', self.book_id)
+                self._series_index = cast('float', get_db().field_for('series_index', self.book_id))
             except Exception:
                 self._series_index = 1
         return self._series_index
 
     @property
-    def book_in_db(self):
+    def book_in_db(self) -> bool:
         if self._book_in_db is None:
             self._book_in_db = get_db().has_id(self.book_id)
         return self._book_in_db
 
-    def preload(self, titles, authors, series, series_indices, in_db) -> None:
+    def preload(
+        self,
+        titles: Mapping[int, str],
+        authors: Mapping[int, Sequence[str]],
+        series: Mapping[int, str | None],
+        series_indices: Mapping[int, float],
+        in_db: Mapping[int, bool],
+    ) -> None:
         self._title = titles[self.book_id]
         self._authors = authors[self.book_id]
         self._series = series[self.book_id]
@@ -249,22 +278,23 @@ class ResultsModel(QAbstractItemModel):
     query_failed = pyqtSignal(str, str)
     result_with_context_found = pyqtSignal(object, int)
     results_resorted = pyqtSignal()
+    result_map: dict[int, int]
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.italic_font = parent.font() if parent else QFont()
         self.italic_font.setItalic(True)
-        self.results = []
-        self._original_results = None
+        self.results: list[Results] = []
+        self._original_results: list[Results] | None = None
         self.query_id_counter = count()
         self.current_query_id = -1
         self.current_thread_abort = Event()
-        self.current_thread = None
-        self.current_search_key = None
+        self.current_thread: Thread | None = None
+        self.current_search_key: tuple[str, bool, Collection[int] | None, int] | None = None
         self.result_found.connect(self.result_with_text_found, type=Qt.ConnectionType.QueuedConnection)
         self.all_results_found.connect(self.signal_search_complete, type=Qt.ConnectionType.QueuedConnection)
 
-    def all_book_ids(self):
+    def all_book_ids(self) -> Iterator[int]:
         for r in self.results:
             yield r.book_id
 
@@ -285,18 +315,19 @@ class ResultsModel(QAbstractItemModel):
         self.signal_search_complete(self.current_query_id)
         self.current_search_key = None  # so that re-doing the search works
 
-    def get_result(self, book_id, result_num):
+    def get_result(self, book_id: int, result_num: int) -> FTSSearchResult:
         idx = self.result_map[book_id]
         results = self.results[idx]
         return results.result_dicts[result_num]
 
-    def search(self, fts_engine_query, use_stemming=True, restrict_to_book_ids=None) -> bool:
+    def search(self, fts_engine_query: str, use_stemming: bool = True, restrict_to_book_ids: Collection[int] | None = None) -> bool:
         db = get_db()
-        failure = []
-        matching_book_ids = []
+        failure: list[FTSQueryError] = []
+        matching_book_ids: list[int] = []
 
-        def construct(all_matches) -> None:
+        def construct(all_matches: Iterable[FTSSearchResult]) -> None:
             self.result_map = r = {}
+            sr: list[Results]
             sr = self.results = []
 
             try:
@@ -360,7 +391,7 @@ class ResultsModel(QAbstractItemModel):
         self.current_thread.start()
         return True
 
-    def remove_book(self, book_id) -> bool:
+    def remove_book(self, book_id: int) -> bool:
         idx = self.result_map.get(book_id)
         if idx is not None:
             self.beginRemoveRows(ROOT, idx, idx)
@@ -371,7 +402,7 @@ class ResultsModel(QAbstractItemModel):
             return True
         return False
 
-    def do_sort_on_field(self, sort_key) -> None:
+    def do_sort_on_field(self, sort_key: str) -> None:
         db = get_db()
         if sort_key == 'pages':
             db.queue_pages_scan()
@@ -381,7 +412,7 @@ class ResultsModel(QAbstractItemModel):
         self.results = [results_by_id[bid] for bid in sorted_ids if bid in results_by_id]
         self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
 
-    def sort_results(self, sort_key) -> None:
+    def sort_results(self, sort_key: str) -> None:
         """Re-sort the current results using the given sort key. Emits results_resorted signal."""
         if not self.results:
             return
@@ -399,7 +430,7 @@ class ResultsModel(QAbstractItemModel):
             self.endResetModel()
             self.results_resorted.emit()
 
-    def search_text_in_thread(self, query_id, abort, book_ids, *a, **kw) -> None:
+    def search_text_in_thread(self, query_id: int, abort: Event, book_ids: Iterable[int], *a: *tuple[str], **kw: Unpack[FTSSearchKwargs]) -> None:
         db = get_db()
         for book_id in book_ids:
             kw['restrict_to_book_ids'] = {book_id}
@@ -414,7 +445,7 @@ class ResultsModel(QAbstractItemModel):
         with suppress(RuntimeError):
             self.all_results_found.emit(query_id)
 
-    def result_with_text_found(self, query_id, result) -> None:
+    def result_with_text_found(self, query_id: int, result: FTSSearchResult) -> None:
         if query_id != self.current_query_id:
             return
         bid = result['book_id']
@@ -428,13 +459,13 @@ class ResultsModel(QAbstractItemModel):
             self.endInsertRows()
             self.result_with_context_found.emit(parent, r)
 
-    def signal_search_complete(self, query_id) -> None:
+    def signal_search_complete(self, query_id: int) -> None:
         if query_id == self.current_query_id:
             self.current_query_id = -1
             self.current_thread = None
             self.search_complete.emit()
 
-    def index_to_entry(self, idx):
+    def index_to_entry(self, idx: QModelIndex) -> Results | FTSSearchResult | None:
         q = idx.internalId()
         if q:
             # search result
@@ -450,18 +481,22 @@ class ResultsModel(QAbstractItemModel):
             if -1 < ans < len(self.results):
                 return self.results[ans]
 
-    def index(self, row, column, parent=ROOT):
+    def index(self, row: int, column: int, parent: QModelIndex = ROOT) -> QModelIndex:
         if parent.isValid():
             return self.createIndex(row, column, parent.row() + 1)
         return self.createIndex(row, column, 0)
 
-    def parent(self, child=QModelIndex()):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()) -> QModelIndex | QObject | None:
         q = child.internalId()
         if q:
             return self.index(q - 1, 0)
         return ROOT
 
-    def rowCount(self, parent=ROOT):
+    def rowCount(self, parent: QModelIndex = ROOT) -> int:
         if parent.isValid():
             x = self.index_to_entry(parent)
             if isinstance(x, Results):
@@ -469,10 +504,10 @@ class ResultsModel(QAbstractItemModel):
             return 0
         return len(self.results)
 
-    def columnCount(self, parent=ROOT) -> int:
+    def columnCount(self, parent: QModelIndex = ROOT) -> int:
         return 1
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         item = self.index_to_entry(index)
         if item is None:
             return
@@ -480,7 +515,7 @@ class ResultsModel(QAbstractItemModel):
             return self.data_for_book(item, role)
         return self.data_for_match(item, role)
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         item = self.index_to_entry(index)
         if item is None:
             return Qt.ItemFlag.NoItemFlags
@@ -488,7 +523,7 @@ class ResultsModel(QAbstractItemModel):
             return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren
 
-    def data_for_book(self, item, role):
+    def data_for_book(self, item: Results, role: int) -> object:
         if role == Qt.ItemDataRole.DisplayRole:
             return item.title
         if role == Qt.ItemDataRole.UserRole:
@@ -496,23 +531,25 @@ class ResultsModel(QAbstractItemModel):
         if role == Qt.ItemDataRole.FontRole:
             return self.italic_font
 
-    def data_for_match(self, item, role):
+    def data_for_match(self, item: FTSSearchResult, role: int) -> object:
         if role == Qt.ItemDataRole.UserRole:
             return item
 
-    def data_for_index(self, index):
+    def data_for_index(self, index: QModelIndex) -> tuple[Results | None, FTSSearchResult | None]:
         item = self.index_to_entry(index)
         if item is None:
             return None, None
         if isinstance(item, Results):
             return item, None
-        return self.index_to_entry(self.parent(index)), item
+        parent = self.index_to_entry(self.parent(index))
+        assert parent is None or isinstance(parent, Results)
+        return parent, item
 
 
 class ResultsView(QTreeView):
     current_changed = pyqtSignal(object, object)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: ResultsModel, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -523,14 +560,14 @@ class ResultsView(QTreeView):
         self.setItemDelegate(self.delegate)
         self.setUniformRowHeights(True)
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
         i = self.currentIndex()
         ret = super().keyPressEvent(event)
         if self.currentIndex() != i:
             self.scrollTo(self.currentIndex())
         return ret
 
-    def currentChanged(self, current, previous) -> None:
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         _model = self.model()
         assert isinstance(_model, ResultsModel)
         results, individual_match = _model.data_for_index(current)
@@ -541,7 +578,7 @@ class ResultsView(QTreeView):
     def focus_self(self) -> None:
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def show_context_menu(self, pos) -> None:
+    def show_context_menu(self, pos: QPoint) -> None:
         index = self.indexAt(pos)
         _model = self.model()
         assert isinstance(_model, ResultsModel)
@@ -569,7 +606,7 @@ class Summary(QLabel):
     frames = ('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
     stop_requested = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setTextFormat(Qt.TextFormat.RichText)
         self.linkActivated.connect(self.stop_requested)
@@ -623,7 +660,7 @@ class Summary(QLabel):
 class SwitchViewButton(QToolButton):
     visualisation_changed = pyqtSignal(str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.update_state()
         self.clicked.connect(self.toggle_state)
@@ -652,7 +689,7 @@ class SearchInputPanel(QWidget):
     visualisation_changed = pyqtSignal(str)
     sort_order_changed = pyqtSignal(str)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.started_at = self.stopped_at = 0
         self.num_matches_found = -1
@@ -706,9 +743,10 @@ class SearchInputPanel(QWidget):
         hidden = hidden_fields(get_db())
         self._sort_labels = {}
 
-        def add(key, label) -> None:
+        def add(key: str, label: str) -> None:
             self._sort_labels[key] = label
             ac = sort_menu.addAction(label)
+            assert ac is not None
             ac.setCheckable(True)
             ac.setChecked(key == current_sort)
             ac.setData(key)
@@ -723,7 +761,7 @@ class SearchInputPanel(QWidget):
         sort_menu.triggered.connect(self._sort_triggered)
         self._update_sort_button_label()
 
-    def _sort_triggered(self, action) -> None:
+    def _sort_triggered(self, action: QAction) -> None:
         if key := action.data():
             gprefs['fts_sort_order'] = key
             self._update_sort_button_label()
@@ -756,7 +794,7 @@ class SearchInputPanel(QWidget):
     def clear_history(self) -> None:
         self.search_box.clear_history()
 
-    def set_search_text(self, text) -> None:
+    def set_search_text(self, text: str) -> None:
         self.search_box.setText(text)
 
     def start(self) -> None:
@@ -769,7 +807,7 @@ class SearchInputPanel(QWidget):
         text = self.search_box.text().strip()
         self.search_signal.emit(text)
 
-    def matches_found(self, num) -> None:
+    def matches_found(self, num: int) -> None:
         self.summary.set_num_of_matches_found(num)
 
     def focus_self(self) -> None:
@@ -781,9 +819,9 @@ class ResultDetails(QWidget):
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.key = None
+        self.key: tuple[int, int, int | None] | None = None
         self.pixmap_label = pl = QLabel(self)
         pl.setScaledContents(True)
         self.book_info = bi = HTMLDisplay(self)
@@ -794,14 +832,14 @@ class ResultDetails(QWidget):
         r.anchor_clicked.connect(self.results_anchor_clicked)
 
     @property
-    def current_book_id(self):
+    def current_book_id(self) -> int:
         return -1 if self.key is None else self.key[0]
 
     @property
-    def current_individual_match(self):
+    def current_individual_match(self) -> int | None:
         return None if self.key is None else self.key[2]
 
-    def book_info_anchor_clicked(self, url) -> None:
+    def book_info_anchor_clicked(self, url: QUrl) -> None:
         if self.current_book_id > 0:
             if url.host() == 'mark':
                 mark_books(self.current_book_id)
@@ -815,13 +853,13 @@ class ResultDetails(QWidget):
                 reindex_book(self.current_book_id, self)
                 self.remove_book_from_results.emit(self.current_book_id)
 
-    def results_anchor_clicked(self, url) -> None:
+    def results_anchor_clicked(self, url: QUrl) -> None:
         if self.current_book_id > 0 and url.scheme() == 'book':
             book_id, result_num, fmt = url.path().strip('/').split('/')
             book_id, result_num = int(book_id), int(result_num)
             self.show_in_viewer.emit(int(book_id), int(result_num), fmt)
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.do_layout()
 
     def do_layout(self) -> None:
@@ -840,7 +878,7 @@ class ResultDetails(QWidget):
         top = max(self.book_info.geometry().bottom(), self.pixmap_label.geometry().bottom())
         self.results.setGeometry(QRect(0, top, g.width(), g.height() - top))
 
-    def show_result(self, results, individual_match=None) -> bool:
+    def show_result(self, results: Results, individual_match: int | None = None) -> bool:
         key = results.book_id, len(results.result_dicts), individual_match
         if key == self.key:
             return False
@@ -853,12 +891,12 @@ class ResultDetails(QWidget):
         self.do_layout()
         return True
 
-    def result_with_context_found(self, results, individual_match):
+    def result_with_context_found(self, results: Results, individual_match: int) -> bool:
         if results.book_id == self.current_book_id:
             return self.show_result(results, self.current_individual_match)
         return False
 
-    def render_book_info(self, results) -> None:
+    def render_book_info(self, results: Results) -> None:
         t = results.title
         if len(t) > 72:
             t = t[:71] + '…'
@@ -903,7 +941,7 @@ class ResultDetails(QWidget):
         text += '<p>' + _('This book may have more than one match, only a single match per book is shown.')
         self.book_info.setHtml(text)
 
-    def render_results(self, results, individual_match=None) -> None:
+    def render_results(self, results: Results, individual_match: int | None = None) -> None:
         html = []
 
         ci = self.current_individual_match
@@ -933,7 +971,7 @@ class DetailsPanel(QStackedWidget):
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.help_panel = hp = help_panel(self)
         self.addWidget(hp)
@@ -942,17 +980,17 @@ class DetailsPanel(QStackedWidget):
         rd.remove_book_from_results.connect(self.remove_book_from_results)
         self.addWidget(rd)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(400, 700)
 
-    def show_result(self, results=None, individual_match=None) -> None:
+    def show_result(self, results: Results | None = None, individual_match: int | None = None) -> None:
         if results is None:
             self.setCurrentIndex(0)
         else:
             self.setCurrentIndex(1)
             self.result_details.show_result(results, individual_match)
 
-    def result_with_context_found(self, results, individual_match) -> None:
+    def result_with_context_found(self, results: Results, individual_match: int) -> None:
         if self.currentIndex() == 1:
             self.result_details.result_with_context_found(results, individual_match)
 
@@ -962,11 +1000,11 @@ class DetailsPanel(QStackedWidget):
 
 
 class LeftPanel(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         QVBoxLayout(self).setContentsMargins(0, 0, 0, 0)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(700, 700)
 
 
@@ -974,7 +1012,7 @@ class SplitView(QSplitter):
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
-    def __init__(self, model, parent=None) -> None:
+    def __init__(self, model: ResultsModel, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setChildrenCollapsible(False)
         self.left_panel = lp = LeftPanel(self)
@@ -1003,13 +1041,13 @@ class SplitView(QSplitter):
         self.results_view.focus_self()
         self.details.clear()
 
-    def matches_found(self, num) -> None:
+    def matches_found(self, num: int) -> None:
         self.results_view.expandAll()
         _rv_model = self.results_view.model()
         assert _rv_model is not None
         self.results_view.setCurrentIndex(_rv_model.index(0, 0))
 
-    def current_result(self):
+    def current_result(self) -> tuple[Results | None, int | None]:
         idx = self.results_view.currentIndex()
         if idx.isValid():
             _rv_model = self.results_view.model()
@@ -1024,7 +1062,7 @@ class SplitView(QSplitter):
 class ResultsPanel(QWidget):
     switch_to_scan_panel = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.jump_to_current_book_action = ac = QAction(self)
         ac.triggered.connect(self.jump_to_current_book)
@@ -1089,10 +1127,12 @@ class ResultsPanel(QWidget):
             _stacked.setCurrentIndex(1)
 
     @property
-    def current_view(self):
+    def current_view(self) -> SplitView | CardsView:
         _stacked = self.layout()
         assert isinstance(_stacked, QStackedLayout)
-        return _stacked.currentWidget()
+        ans = _stacked.currentWidget()
+        assert isinstance(ans, (SplitView, CardsView))
+        return ans
 
     def search(self, text: str) -> None:
         gui = get_gui()
@@ -1108,10 +1148,10 @@ class ResultsPanel(QWidget):
     def search_complete(self) -> None:
         self.sip.stop()
 
-    def set_sort_order(self, sort_key) -> None:
+    def set_sort_order(self, sort_key: str) -> None:
         self.results_model.sort_results(sort_key)
 
-    def matches_found(self, num) -> None:
+    def matches_found(self, num: int) -> None:
         self.sip.matches_found(num)
 
     def jump_to_current_book(self) -> None:
@@ -1134,10 +1174,10 @@ class ResultsPanel(QWidget):
     def clear_history(self) -> None:
         self.sip.clear_history()
 
-    def set_search_text(self, text) -> None:
+    def set_search_text(self, text: str) -> None:
         self.sip.set_search_text(text)
 
-    def remove_book_from_results(self, book_id) -> None:
+    def remove_book_from_results(self, book_id: int) -> None:
         self.results_model.remove_book(book_id)
 
     def _cards_link_activated(self, url: QUrl) -> None:
@@ -1158,7 +1198,7 @@ class ResultsPanel(QWidget):
             case 'show':
                 self.show_in_viewer(book_id, int(parts[2]), parts[1])
 
-    def show_in_viewer(self, book_id, result_num, fmt) -> None:
+    def show_in_viewer(self, book_id: int, result_num: int, fmt: str) -> None:
         r = self.results_model.get_result(book_id, result_num)
         show_in_viewer(book_id, r['text'], fmt)
 
@@ -1166,11 +1206,14 @@ class ResultsPanel(QWidget):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
             self.results_model.abort_search()
 
-    def specialize_button_box(self, bb) -> None:
+    def specialize_button_box(self, bb: QDialogButtonBox) -> None:
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
-        bb.addButton(_('Show &indexing status'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.switch_to_scan_panel)
+        sb = bb.addButton(_('Show &indexing status'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert sb is not None
+        sb.clicked.connect(self.switch_to_scan_panel)
         b = bb.addButton(_('&Mark all books'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('marked.png'))
         m = QMenu(b)
         m.addAction(self.mark_all_books_action)
@@ -1181,7 +1224,7 @@ class ResultsPanel(QWidget):
         m.addAction(self.mark_select_all_books_action)
         b.setMenu(m)
 
-    def mark_books(self, which) -> None:
+    def mark_books(self, which: str) -> None:
         gui = get_gui()
         if gui is not None:
             book_ids = tuple(self.results_model.all_book_ids())
@@ -1205,7 +1248,7 @@ class ResultsPanel(QWidget):
     def on_show(self) -> None:
         self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def query_failed(self, query, err_msg) -> None:
+    def query_failed(self, query: str, err_msg: str) -> None:
         error_dialog(
             self,
             _('Invalid search query'),
@@ -1217,14 +1260,14 @@ class ResultsPanel(QWidget):
         )
 
 
-def develop(view='cards') -> None:
+def develop(view: str = 'cards') -> None:
     from calibre.gui2 import Application
     from calibre.library import db
 
     app = Application([])
 
     class Dialog(QDialog):
-        def sizeHint(self):
+        def sizeHint(self) -> QSize:
             return QSize(1000, 680)
 
     d = Dialog()

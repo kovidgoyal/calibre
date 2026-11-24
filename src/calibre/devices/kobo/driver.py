@@ -1630,7 +1630,7 @@ class KOBO(USBMS):
             else:
                 mi.comments = prettify(user_notes_soup)
             # Update library comments
-            db.set_comment(db_id, mi.comments)  # ty: ignore[missing-attribute] legacy setter added dynamically in calibre.db.legacy
+            db.set_comment(db_id, mi.comments)
 
             # Add bookmark file to db_id
             # NOTE: As it is, this copied the book from the device back to the library. That meant it replaced the

@@ -7,6 +7,7 @@ import textwrap
 import weakref
 from collections import OrderedDict
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QApplication,
@@ -37,9 +38,18 @@ from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import _, ngettext
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+    from calibre.utils.ipc.job import BaseJob
+
 
 class Polish(QDialog):  # {{{
-    def __init__(self, db, book_id_map, parent=None) -> None:
+    def __init__(self, db: LibraryDatabase, book_id_map: dict[int, set[str]], parent: QWidget | None = None) -> None:
         from calibre.ebooks.oeb.polish.main import HELP
 
         QDialog.__init__(self, parent)
@@ -165,18 +175,18 @@ class Polish(QDialog):  # {{{
         self.setup_load_button()
         self.resize(self.sizeHint())
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         sz = super().sizeHint()
         return QSize(max(950, sz.width()), max(600, sz.height()))
 
-    def select_all(self, enable) -> None:
+    def select_all(self, enable: bool) -> None:
         for action in self.all_actions:
             x = getattr(self, 'opt_' + action)
             x.blockSignals(True)
             x.setChecked(enable)
             x.blockSignals(False)
 
-    def save_settings(self):
+    def save_settings(self) -> int | None:
         if not self.something_selected:
             return error_dialog(self, _('No actions selected'), _('You must select at least one action before saving'), show=True)
         name, ok = QInputDialog.getText(self, _('Choose name'), _('Choose a name for these settings'))
@@ -207,7 +217,7 @@ class Polish(QDialog):  # {{{
         gprefs.set('polish_settings', {})
         self.setup_load_button()
 
-    def load_settings(self, name) -> None:
+    def load_settings(self, name: str) -> None:
         saved = gprefs.get('polish_settings', {}).get(name, {})
         for action in self.all_actions:
             checked = saved.get(action, False)
@@ -216,11 +226,11 @@ class Polish(QDialog):  # {{{
             x.setChecked(checked)
             x.blockSignals(False)
 
-    def option_toggled(self, name, state) -> None:
+    def option_toggled(self, name: str, state: int) -> None:
         if state == Qt.CheckState.Checked:
             self.help_label.setText(self.help_text[name])
 
-    def help_link_activated(self, link) -> None:
+    def help_link_activated(self, link: str) -> None:
         link = str(link)[1:]
         self.help_label.setText(self.help_text[link])
 
@@ -232,7 +242,7 @@ class Polish(QDialog):  # {{{
                 return True
         return False
 
-    def accept(self):
+    def accept(self) -> None:
         self.chosen_actions = ac = {}
         saved_prefs = {}
         gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
@@ -265,7 +275,8 @@ class Polish(QDialog):  # {{{
             ):
                 return
         if not something:
-            return error_dialog(self, _('No actions selected'), _('You must select at least one action, or click Cancel.'), show=True)
+            error_dialog(self, _('No actions selected'), _('You must select at least one action, or click Cancel.'), show=True)
+            return
         gprefs['polishing_settings'] = saved_prefs
         self.queue_files()
         return super().accept()
@@ -300,7 +311,7 @@ class Polish(QDialog):  # {{{
             self.pd.set_value(num)
             QTimer.singleShot(0, self.do_one)
 
-    def do_book(self, num, book_id, formats) -> None:
+    def do_book(self, num: int, book_id: int, formats: Iterable[str]) -> None:
         base = os.path.join(self.tdir, str(book_id))
         os.mkdir(base)
         db = self.db()
@@ -341,7 +352,7 @@ class Polish(QDialog):  # {{{
 
 
 class Report(QDialog):  # {{{
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: Main) -> None:
         QDialog.__init__(self, parent)
         self.gui = parent
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
@@ -382,13 +393,13 @@ class Report(QDialog):  # {{{
         self.ign.setVisible(bool(self.reports))
         self.ign.setChecked(False)
 
-    def __call__(self, *args):
+    def __call__(self, *args: *tuple[str, int, set[str], BaseJob, str]) -> None:
         self.reports.append(args)
         self.setup_ign()
         if not self.isVisible():
             self.show_next()
 
-    def show_report(self, book_title, book_id, fmts, job, report) -> None:
+    def show_report(self, book_title: str, book_id: int, fmts: set[str], job: BaseJob, report: str) -> None:
         from markdown import markdown
 
         self.current_log = job.details
@@ -410,7 +421,7 @@ class Report(QDialog):  # {{{
         assert vsb is not None
         vsb.setValue(0)
 
-    def show_next(self, *args) -> None:
+    def show_next(self, *args: object) -> None:
         if not self.reports:
             return
         if not self.isVisible():
@@ -462,18 +473,18 @@ class PolishAction(InterfaceActionWithLibraryDrop):
     def shutting_down(self) -> None:
         self.refresh_debounce_timer.stop()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def get_books_for_polishing(self):
+    def get_books_for_polishing(self) -> dict[int, set[str]] | None:
         rows = [r.row() for r in self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot polish'), _('No books selected'))
             d.exec()
             return None
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         ans = (db.id(r) for r in rows)
         ans = self.get_supported_books(ans)
         for fmts in ans.values():
@@ -495,10 +506,10 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                     break
         return ans
 
-    def get_supported_books(self, book_ids):
+    def get_supported_books(self, book_ids: Iterable[int]) -> dict[int, set[str]]:
         from calibre.ebooks.oeb.polish.main import SUPPORTED
 
-        db = self.gui.library_view.model().db
+        db = self.gui.current_db
         supported = set(SUPPORTED)
         for x in SUPPORTED:
             supported.add('ORIGINAL_' + x)
@@ -525,13 +536,13 @@ class PolishAction(InterfaceActionWithLibraryDrop):
             return
         self.do_polish(book_id_map)
 
-    def do_polish(self, book_id_map) -> None:
-        d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
+    def do_polish(self, book_id_map: dict[int, set[str]]) -> None:
+        d = Polish(self.gui.current_db, book_id_map, parent=self.gui)
         if d.exec() == QDialog.DialogCode.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
             for desc, data, book_id, base, is_orig in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(Dispatcher(self.book_polished), 'gui_polish', args=(data,), description=desc)
-                job.polish_args = (book_id, base, data['files'], show_reports, is_orig)
+                setattr(job, 'polish_args', (book_id, base, data['files'], show_reports, is_orig))
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
@@ -539,12 +550,12 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                     2000,
                 )
 
-    def book_polished(self, job) -> None:
+    def book_polished(self, job: BaseJob) -> None:
         if job.failed:
             self.gui.job_exception(job)
             return
         db = self.gui.current_db
-        book_id, base, files, show_reports, is_orig = job.polish_args
+        book_id, base, files, show_reports, is_orig = getattr(job, 'polish_args')
         fmts = set()
         for path in files:
             fmt = path.rpartition('.')[-1].upper()
@@ -563,7 +574,9 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         self.to_be_refreshed.add(book_id)
         self.refresh_debounce_timer.start()
         if show_reports:
-            self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, job.result)
+            report = job.result
+            assert isinstance(report, str)
+            self.report(db.title(book_id, index_is_id=True), book_id, fmts, job, report)
 
     def refresh_after_polish(self) -> None:
         self.refresh_debounce_timer.stop()

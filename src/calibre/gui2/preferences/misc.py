@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import textwrap
+from typing import TYPE_CHECKING
 
 from calibre import get_proxies
 from calibre.gui2 import config, gprefs, open_local_file
@@ -9,19 +10,24 @@ from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
 from calibre.gui2.preferences.misc_ui import Ui_Form
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class WorkersSetting(Setting):
-    def set_gui_val(self, val) -> None:
+    def set_gui_val(self, val: object) -> None:
+        assert isinstance(val, int)
         val = val // 2
         Setting.set_gui_val(self, val)
 
-    def get_gui_val(self):
+    def get_gui_val(self) -> int:
         val = Setting.get_gui_val(self)
+        assert isinstance(val, int)
         return val * 2
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         r = self.register
         r('worker_limit', config, restart_required=True, setting=WorkersSetting)
@@ -53,19 +59,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         create_theme(parent=self)
 
-    def debug_device_detection(self, *args) -> None:
+    def debug_device_detection(self, *args: object) -> None:
         from calibre.gui2.preferences.device_debug import DebugDevice
 
         d = DebugDevice(self.gui, self)
         d.exec()
 
-    def user_defined_device(self, *args) -> None:
+    def user_defined_device(self, *args: object) -> None:
         from calibre.gui2.preferences.device_user_defined import UserDefinedDevice
 
         d = UserDefinedDevice(self)
         d.exec()
 
-    def open_config_dir(self, *args) -> None:
+    def open_config_dir(self, *args: object) -> None:
         from calibre.utils.config import config_dir
 
         open_local_file(config_dir)

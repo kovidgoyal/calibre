@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QPushButton, QRadioButton, QVBoxLayout, QWidget, pyqtSignal
 
@@ -12,6 +13,9 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.ui import get_gui
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.cache import Cache
 
 
 class ScanProgress(QWidget):
@@ -69,17 +73,18 @@ class ScanProgress(QWidget):
         l.addLayout(h)
 
     @property
-    def indexing_progress(self):
+    def indexing_progress(self) -> IndexingProgress:
         return self._parent.indexing_progress
 
     def change_speed(self) -> None:
         db = get_db()
         db.set_fts_speed(slow=not self.fast_button.isChecked())
 
-    def update(self, *args, **kwargs) -> None:
+    def update(self, *args: object, **kwargs: object) -> None:
         if len(args) < 3:
             return
         complete, left, total = args[0], args[1], args[2]
+        assert isinstance(left, int) and isinstance(total, int)
         if complete:
             t = _('All book files indexed')
             self.warn_label.setVisible(False)
@@ -102,7 +107,7 @@ class ScanStatus(QWidget):
     indexing_progress_changed = pyqtSignal(bool, int, int)
     switch_to_search_panel = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
@@ -138,17 +143,18 @@ class ScanStatus(QWidget):
         else:
             gui.add_db_listener(self.gui_update_event)
 
-    def gui_update_event(self, db, event_type, event_data) -> None:
+    def gui_update_event(self, db: Cache, event_type: EventType, event_data: tuple[object, ...]) -> None:
         if event_type is EventType.indexing_progress_changed:
             self.update_stats(event_data)
 
-    def __call__(self, event_type, library_id, event_data):
+    def __call__(self, event_type: EventType, library_id: str, event_data: tuple[object, ...]) -> None:
         if event_type is EventType.indexing_progress_changed:
             self.update_stats(event_data)
 
-    def update_stats(self, event_data=None) -> None:
-        event_data = event_data or self.db.fts_indexing_progress()
-        changed = self.indexing_progress.update(*event_data)
+    def update_stats(self, event_data: tuple[object, ...] | None = None) -> None:
+        # the event data for indexing_progress_changed events is the same as fts_indexing_progress()
+        progress = cast('tuple[int, int, float | None]', event_data) if event_data else self.db.fts_indexing_progress()
+        changed = self.indexing_progress.update(*progress)
         if changed:
             self.indexing_progress_changed.emit(self.indexing_progress.complete, self.indexing_progress.left, self.indexing_progress.total)
 
@@ -175,7 +181,7 @@ class ScanStatus(QWidget):
         self.scan_progress.setVisible(indexing_enabled)
 
     @property
-    def db(self):
+    def db(self) -> Cache:
         return get_db()
 
     def specialize_button_box(self, bb: QDialogButtonBox) -> None:
@@ -200,7 +206,7 @@ class ScanStatus(QWidget):
             self.db.reindex_fts()
 
     @property
-    def indexing_enabled(self):
+    def indexing_enabled(self) -> bool:
         return self.enable_fts.isChecked()
 
     def reset_indexing_state_for_current_db(self) -> None:

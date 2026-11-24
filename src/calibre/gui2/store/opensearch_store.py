@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 
 from qt.core import QUrl
 
@@ -13,8 +14,15 @@ from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def open_search(url, query, max_results=10, timeout=60):
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def open_search(url: str, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
     description = Description(url)
     url_template = description.get_best_template()
     if not url_template:
@@ -80,7 +88,7 @@ class OpenSearchOPDSStore(StorePlugin):
     open_search_url = ''
     web_url = ''
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         if not hasattr(self, 'web_url'):
             return
 
@@ -92,7 +100,7 @@ class OpenSearchOPDSStore(StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         if not getattr(self, 'open_search_url', None):
             return
         yield from open_search(self.open_search_url, query, max_results=max_results, timeout=timeout)

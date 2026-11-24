@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import shutil
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox, QModelIndex
 
@@ -18,9 +19,24 @@ from calibre.utils.config import prefs
 from calibre.utils.localization import _, ngettext
 from calibre.utils.logging import Log
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Collection
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.convert import GetHelp, GetOption, Widget
+
 
 class BulkConfig(Config):
-    def __init__(self, parent, db, preferred_output_format=None, has_saved_settings=True, book_ids=()) -> None:
+    def __init__(
+        self,
+        parent: QWidget | None,
+        db: LibraryDatabase,
+        preferred_output_format: str | None = None,
+        has_saved_settings: bool = True,
+        book_ids: Collection[int] = (),
+    ) -> None:
         QDialog.__init__(self, parent)
         self.widgets = []
         self.setupUi()
@@ -64,7 +80,7 @@ class BulkConfig(Config):
 
         self.restore_geometry(gprefs, 'convert_bulk_dialog_geom')
 
-    def setup_pipeline(self, *args) -> None:
+    def setup_pipeline(self, *args: object) -> None:
         oidx = self.groups.currentIndex().row()
         output_format = self.output_format
 
@@ -75,7 +91,7 @@ class BulkConfig(Config):
         self.plumber = Plumber(input_path, output_path, log, merge_plugin_recs=False)
         self.plumber.merge_plugin_recs(self.plumber.output_plugin)
 
-        def widget_factory(cls):
+        def widget_factory[W: Widget](cls: Callable[[QWidget, GetOption, GetHelp, LibraryDatabase], W]) -> W:
             return cls(self, self.plumber.get_option_by_name, self.plumber.get_option_help, self.db)
 
         self.setWindowTitle(ngettext(_('Bulk convert one book'), _('Bulk convert {} books'), self.num_of_books).format(self.num_of_books))
@@ -90,13 +106,16 @@ class BulkConfig(Config):
         output_widget = self.plumber.output_plugin.gui_configuration_widget(self, self.plumber.get_option_by_name, self.plumber.get_option_help, self.db)
 
         self.break_cycles()
+        widgets: list[Widget]
         widgets = self.widgets = [lf, hw, ps, sd, toc, sr]
         if output_widget is not None:
             widgets.append(output_widget)
         for w in widgets:
             w.set_help_signal.connect(self.help.setPlainText)
             w.setVisible(False)
-            w.layout().setContentsMargins(0, 0, 0, 0)
+            lay = w.layout()
+            assert lay is not None
+            lay.setContentsMargins(0, 0, 0, 0)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)
@@ -111,7 +130,7 @@ class BulkConfig(Config):
         except Exception:
             pass
 
-    def setup_output_formats(self, db, preferred_output_format) -> None:
+    def setup_output_formats(self, db: LibraryDatabase, preferred_output_format: str | None) -> None:
         if preferred_output_format:
             preferred_output_format = preferred_output_format.upper()
         output_formats = get_output_formats(preferred_output_format)
@@ -133,7 +152,7 @@ class BulkConfig(Config):
         self._recommendations = recs
         QDialog.accept(self)
 
-    def done(self, a0):
+    def done(self, a0: int) -> None:
         if self.isVisible():
             self.save_geometry(gprefs, 'convert_bulk_dialog_geom')
         return QDialog.done(self, a0)

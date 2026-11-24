@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import (
     QAbstractItemView,
     QCheckBox,
@@ -41,13 +43,16 @@ from calibre.gui2.tts.types import (
 from calibre.gui2.widgets2 import Dialog, QComboBox
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QMouseEvent
+
 embedding_engine_name = 'piper'
 
 
 class EngineChoice(QWidget):
     changed = pyqtSignal(str)
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__(parent)
         self.l = l = QFormLayout(self)
         self.engine_choice = ec = QComboBox(self)
@@ -84,7 +89,7 @@ class EngineChoice(QWidget):
 
 
 class SentenceDelay(QDoubleSpinBox):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setRange(0.0, 2.0)
         self.setDecimals(2)
@@ -98,12 +103,12 @@ class SentenceDelay(QDoubleSpinBox):
         return max(0.0, self.value())
 
     @val.setter
-    def val(self, v) -> None:
+    def val(self, v: float) -> None:
         self.setValue(float(v))
 
 
 class FloatSlider(QWidget):
-    def __init__(self, minimum: float = -1, maximum: float = 1, factor: int = 10, parent=None) -> None:
+    def __init__(self, minimum: float = -1, maximum: float = 1, factor: int = 10, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QHBoxLayout(self)
         self.slider = s = QSlider(self)
@@ -142,12 +147,12 @@ class FloatSlider(QWidget):
         return self.slider.value() / self.factor
 
     @val.setter
-    def val(self, v) -> None:
+    def val(self, v: float) -> None:
         self.slider.setValue(int(v * self.factor))
 
 
 class Volume(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QFormLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -165,13 +170,13 @@ class Volume(QWidget):
         lay.setRowVisible(self.vol, not self.system.isChecked())
 
     @property
-    def val(self):
+    def val(self) -> float | None:
         if self.system.isChecked():
             return None
         return self.vol.val
 
     @val.setter
-    def val(self, v) -> None:
+    def val(self, v: float | None) -> None:
         self.system.setChecked(v is None)
         self.vol.val = 0.5 if v is None else v
 
@@ -179,7 +184,7 @@ class Volume(QWidget):
 class Voices(QTreeWidget):
     voice_changed = pyqtSignal()
 
-    def __init__(self, parent=None, for_embedding=False) -> None:
+    def __init__(self, parent: QWidget | None = None, for_embedding: bool = False) -> None:
         self.for_embedding = for_embedding
         super().__init__(parent)
         self.setHeaderHidden(True)
@@ -205,10 +210,11 @@ class Voices(QTreeWidget):
                             child.setCheckState(0, Qt.CheckState.Unchecked)
                             self.ignore_item_changes = False
 
-    def is_voice_item(self, item):
+    def is_voice_item(self, item: QTreeWidgetItem | None) -> bool:
         return item is not None and isinstance(item.data(0, Qt.ItemDataRole.UserRole), Voice)
 
-    def mousePressEvent(self, e) -> None:
+    def mousePressEvent(self, e: QMouseEvent | None) -> None:
+        assert e is not None
         item = self.itemAt(e.pos())
         if self.for_embedding and self.is_voice_item(item):
             assert item is not None
@@ -247,7 +253,7 @@ class Voices(QTreeWidget):
             preferred_voices = preferred_voices or {}
         current_item = None
 
-        def qv(parent, voice):
+        def qv(parent: QTreeWidgetItem | None, voice: Voice) -> QTreeWidgetItem:
             nonlocal current_item
             text = voice.short_text(engine_metadata)
             ans = QTreeWidgetItem(parent, [text])
@@ -266,14 +272,14 @@ class Voices(QTreeWidget):
 
         if not self.for_embedding:
             qv(self.invisibleRootItem(), self.system_default_voice)
-        vmap = {}
+        vmap: dict[str, list[Voice]] = {}
         for v in all_voices:
             vmap.setdefault(v.language_code, []).append(v)
         for vs in vmap.values():
             vs.sort(key=lambda v: v.sort_key())
-        parent_map = {}
+        parent_map: dict[str, QTreeWidgetItem] = {}
 
-        def lang(langcode):
+        def lang(langcode: str) -> str:
             return QLocale.languageToString(QLocale.codeToLanguage(langcode))
 
         for langcode in sorted(vmap, key=lambda lc: lang(lc).lower()):
@@ -342,9 +348,9 @@ class EngineSpecificConfig(QWidget):
         l.addRow(_('&Output module:'), om)
         self.engine_name = ''
         om.currentIndexChanged.connect(self.rebuild_voices)
-        self.default_output_modules = {}
+        self.default_output_modules: dict[str, str] = {}
         self.voice_data: dict[str, dict[str, tuple[Voice, ...]]] = {}
-        self.engine_specific_settings = {}
+        self.engine_specific_settings: dict[str, EngineSpecificSettings] = {}
         self.rate = r = FloatSlider(parent=self)
         l.addRow(_('&Speed of speech:'), r)
         self.sentence_delay = d = SentenceDelay(parent=self)
@@ -362,7 +368,7 @@ class EngineSpecificConfig(QWidget):
         l.addRow(la)
         l.addRow(v)
 
-    def set_engine(self, engine_name):
+    def set_engine(self, engine_name: str) -> EngineMetadata | None:
         engine_name = engine_name or default_engine_name()
         if self.engine_name and self.engine_name != engine_name:
             self.engine_specific_settings[self.engine_name] = self.as_settings()
@@ -385,7 +391,7 @@ class EngineSpecificConfig(QWidget):
                 self.engine_specific_settings[engine_name] = EngineSpecificSettings.create_from_prefs(engine_name)
         self.initialize_widgets_from_settings()
 
-    def initialize_widgets_from_settings(self):
+    def initialize_widgets_from_settings(self) -> EngineMetadata | None:
         lay = self.layout()
         assert lay is not None
         assert isinstance(lay, QFormLayout)
@@ -407,7 +413,7 @@ class EngineSpecificConfig(QWidget):
         try:
             s = self.engine_specific_settings[self.engine_name]
         except KeyError:
-            return
+            return None
         self.rate.val = s.rate
         if metadata.can_change_pitch:
             self.pitch.val = s.pitch
@@ -500,7 +506,7 @@ class EngineSpecificConfig(QWidget):
 
 
 class BarPosition(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QFormLayout(self)
         self.choices = c = QComboBox(self)
@@ -517,11 +523,11 @@ class BarPosition(QWidget):
         self.val = get_session_pref('tts_bar_position', 'float', None)
 
     @property
-    def val(self):
+    def val(self) -> str:
         return self.choices.currentData()
 
     @val.setter
-    def val(self, x) -> None:
+    def val(self, x: str) -> None:
         idx = self.choices.findData(x)
         if idx > -1:
             self.choices.setCurrentIndex(idx)
@@ -536,7 +542,7 @@ class BarPosition(QWidget):
 
 
 class ConfigDialog(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(_('Configure Read aloud'), 'configure-read-aloud2', parent=parent)
 
     def setup_ui(self) -> None:
@@ -568,6 +574,7 @@ class ConfigDialog(Dialog):
 
     def set_engine(self, engine_name: str) -> None:
         metadata = self.engine_specific_config.set_engine(engine_name)
+        assert metadata is not None
         self.voice_button.setVisible(metadata.has_managed_voices)
         self.update_voice_button()
 
@@ -607,7 +614,7 @@ class ConfigDialog(Dialog):
 
 
 class EmbeddingConfig(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.engine_specific_config = esc = EngineSpecificConfig(self, for_embedding=True)
@@ -623,7 +630,7 @@ class EmbeddingConfig(QWidget):
 
 def develop_embedding() -> None:
     class D(Dialog):
-        def __init__(self, parent=None) -> None:
+        def __init__(self, parent: QWidget | None = None) -> None:
             super().__init__('Configure Text to speech audio generation', 'configure-tts-embed', parent=parent)
 
         def setup_ui(self) -> None:

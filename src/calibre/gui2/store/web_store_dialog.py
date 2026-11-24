@@ -4,23 +4,39 @@
 import json
 from base64 import standard_b64encode
 from itertools import count
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+    from calibre.utils.browser import Browser
 
 counter = count()
 
 
 class WebStoreDialog:
-    def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None) -> None:
+    def __init__(
+        self,
+        gui: Main,
+        base_url: str,
+        parent: QWidget | None = None,
+        detail_url: str | None = None,
+        create_browser: Callable[[], Browser] | None = None,
+    ) -> None:
         self.id = next(counter)
         self.gui = gui
         self.base_url = base_url
         self.detail_url = detail_url
-        self.window_title = None
-        self.tags = None
+        self.window_title: str | None = None
+        self.tags: str | None = None
 
-    def setWindowTitle(self, title) -> None:
+    def setWindowTitle(self, title: str) -> None:
         self.window_title = title
 
-    def set_tags(self, tags) -> None:
+    def set_tags(self, tags: str) -> None:
         self.tags = tags
 
     def exec(self) -> None:

@@ -3,13 +3,19 @@
 
 import unittest
 from datetime import UTC
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 from calibre.gui2.library.annotations import get_group_key, get_group_keys_list
 from calibre.utils.icu import primary_sort_key
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
-def _make_result(book_id=1, annot_id=1, **extra):
+    from calibre.db.backend import JSONDict
+
+
+def _make_result(book_id: int = 1, annot_id: int = 1, **extra: object) -> JSONDict:
     return {
         'book_id': book_id,
         'id': annot_id,
@@ -21,7 +27,7 @@ def _make_result(book_id=1, annot_id=1, **extra):
     }
 
 
-def _make_mock_db(field_for_map=None, field_metadata=None):
+def _make_mock_db(field_for_map: Mapping[object, object] | None = None, field_metadata: dict[str, dict] | None = None) -> MagicMock:
     """
     Build a lightweight mock that satisfies grouping_key's db access:
       - db.field_for(field, bid): returns values from field_for_map
@@ -30,7 +36,7 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
     db = MagicMock()
     d = field_for_map or {}
 
-    def _field_for(field, bid):
+    def _field_for(field: str, bid: int) -> object:
         if (field, bid) in d:
             return d[(field, bid)]
         return d.get(field)
@@ -274,7 +280,8 @@ class GroupKeysListTest(unittest.TestCase):
         self.assertEqual(sorted(labels), ['Alice', 'Bob'])
 
 
-def find_tests():
+def find_tests() -> unittest.TestSuite:
+
     loader = unittest.defaultTestLoader
     suite = unittest.TestSuite()
     suite.addTests(loader.loadTestsFromTestCase(GroupKeyTest))

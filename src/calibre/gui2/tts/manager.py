@@ -12,6 +12,8 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable
+
     from calibre.gui2.tts.types import TTSBackend
 
 MAX_UTTERANCE_LENGTH = 32 * 1024
@@ -38,7 +40,7 @@ class Tracker:
         self.last_pos = 0
         self.queue: deque[Utterance] = deque()
 
-    def parse_marked_text(self, marked_text, limit=MAX_UTTERANCE_LENGTH):
+    def parse_marked_text(self, marked_text: Iterable[int | str], limit: int = MAX_UTTERANCE_LENGTH) -> str:
         self.clear()
         text = []
         text_len = chunk_len = index_in_positions = offset_in_text = 0
@@ -73,12 +75,12 @@ class Tracker:
             return True
         return False
 
-    def current_text(self):
+    def current_text(self) -> str:
         if self.queue:
             return self.queue[0].text
         return ''
 
-    def resume(self, filler_char: str = ' '):
+    def resume(self, filler_char: str = ' ') -> str:
         self.last_pos = 0
         if self.queue:
             self.last_pos = self.queue[0].index_in_positions
@@ -88,13 +90,13 @@ class Tracker:
                 self.queue[0] = self.queue[0]._replace(text=(filler_char * o) + self.queue[0].text[o:])
         return self.current_text()
 
-    def boundary_reached(self, start) -> None:
+    def boundary_reached(self, start: int) -> None:
         if self.queue:
             self.queue[0] = self.queue[0]._replace(reached_offset=start)
 
-    def mark_word_or_sentence(self, start, length):
+    def mark_word_or_sentence(self, start: int, length: int) -> tuple[int, int] | None:
         if not self.queue:
-            return
+            return None
         start += self.queue[0].offset_in_text
         end = start + length
         matches = []
@@ -120,7 +122,7 @@ class TTSManager(QObject):
     saying = pyqtSignal(int, int)
     configured = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._tts: TTSBackend | None = None
         self.state = QTextToSpeech.State.Ready
@@ -172,7 +174,7 @@ class TTSManager(QObject):
         self.speaking_simple_text = True
         self.tts.say(text)
 
-    def speak_marked_text(self, marked_text) -> None:
+    def speak_marked_text(self, marked_text: Iterable[int | str]) -> None:
         self._stop()
         self.speaking_simple_text = False
         text = self.tracker.parse_marked_text(marked_text)
@@ -184,7 +186,7 @@ class TTSManager(QObject):
             self.emit_state_event('end')
 
     @contextmanager
-    def resume_after(self):
+    def resume_after(self) -> Generator[ResumeData]:
         rd = ResumeData()
         rd.is_speaking = self._tts is not None and self.state in (
             QTextToSpeech.State.Speaking,

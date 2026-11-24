@@ -3,6 +3,7 @@
 
 import re
 import textwrap
+from typing import TYPE_CHECKING
 
 from qt.core import QAbstractItemView, QAbstractTableModel, QFont, Qt
 
@@ -16,9 +17,19 @@ from calibre.utils.localization import _
 from calibre.utils.smtp import config as smtp_prefs
 from polyglot.builtins import as_unicode
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from qt.core import QModelIndex
+
+    from calibre.gui2.ui import Main
+
+    #: Maps email address to [formats, auto send, is default]
+    type Accounts = dict[str, list[Any]]
+
 
 class EmailAccounts(QAbstractTableModel):  # {{{
-    def __init__(self, accounts, subjects, aliases=None, tags=None) -> None:
+    def __init__(self, accounts: Accounts, subjects: dict[str, str], aliases: dict[str, str] | None = None, tags: dict[str, str] | None = None) -> None:
         if tags is None:
             tags = {}
         if aliases is None:
@@ -67,37 +78,37 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         col = self.sorted_on[0]
         if col == 0:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(account_key)
 
         elif col == 1:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(self.accounts[account_key][0] or '')
 
         elif col == 2:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(self.subjects.get(account_key) or '')
 
         elif col == 3:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(as_unicode(self.accounts[account_key][0]) or '')
 
         elif col == 4:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(self.aliases.get(account_key) or '')
 
         elif col == 5:
 
-            def key(account_key):
+            def key(account_key: str) -> bytes | tuple[int, int]:
                 return numeric_sort_key(self.tags.get(account_key) or '')
 
         self.account_order.sort(key=key, reverse=not self.sorted_on[1])
 
-    def sort(self, column, order=Qt.SortOrder.AscendingOrder) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
         nsort = (column, order == Qt.SortOrder.AscendingOrder)
         if nsort != self.sorted_on:
             self.sorted_on = nsort
@@ -107,18 +118,18 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             finally:
                 self.endResetModel()
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.account_order)
 
-    def columnCount(self, parent=...):
+    def columnCount(self, parent: QModelIndex | None = None) -> int:
         return len(self.headers)
 
-    def headerData(self, section, orientation, role=...):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.headers[section]
         return None
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         row, col = index.row(), index.column()
         if row < 0 or row >= self.rowCount():
             return None
@@ -146,13 +157,13 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             return Qt.CheckState.Checked if self.accounts[account][1] else Qt.CheckState.Unchecked
         return None
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if index.column() == 3:
             return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsUserCheckable
         else:
             return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
 
-    def setData(self, index, value, role=...) -> bool:
+    def setData(self, index: QModelIndex, value: object, role: int = Qt.ItemDataRole.EditRole) -> bool:
         if not index.isValid():
             return False
         row, col = index.row(), index.column()
@@ -190,7 +201,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), 3))
         return True
 
-    def make_default(self, index) -> None:
+    def make_default(self, index: QModelIndex) -> None:
         if index.isValid():
             self.beginResetModel()
             row = index.row()
@@ -199,7 +210,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             self.accounts[self.account_order[row]][2] = True
             self.endResetModel()
 
-    def add(self):
+    def add(self) -> QModelIndex:
         x = _('new email address')
         y = x
         c = 0
@@ -214,7 +225,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.endResetModel()
         return self.index(self.account_order.index(y), 0)
 
-    def remove_rows(self, *rows) -> None:
+    def remove_rows(self, *rows: int) -> None:
         for row in sorted(rows, reverse=True):
             try:
                 account = self.account_order[row]
@@ -234,9 +245,9 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.endResetModel()
         self.do_sort()
 
-    def remove(self, index) -> None:
+    def remove(self, index: QModelIndex) -> None:
         if index.isValid():
-            self.remove(index.row())
+            self.remove_rows(index.row())
 
 
 # }}}
@@ -245,7 +256,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
     supports_restoring_to_defaults = False
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.proxy = ConfigProxy(smtp_prefs())
         r = self.register
@@ -265,7 +276,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.email_view.resizeColumnsToContents()
         self.email_remove.clicked.connect(self.remove_email_account)
 
-    def preferred_to_address(self):
+    def preferred_to_address(self) -> str | None:
         if self._email_accounts.account_order:
             return self._email_accounts.account_order[0]
 
@@ -273,11 +284,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         # Initializing all done in genesis
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         # No defaults to restore to
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         if self.email_view.state() == QAbstractItemView.State.EditingState:
             # Ensure that the cell being edited is committed by switching focus
             # to some other widget, which automatically closes the open editor
@@ -292,18 +303,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         return ConfigWidgetBase.commit(self)
 
-    def make_default(self, *args) -> None:
+    def make_default(self, *args: object) -> None:
         self._email_accounts.make_default(self.email_view.currentIndex())
         self.changed_signal.emit()
 
-    def add_email_account(self, *args) -> None:
+    def add_email_account(self, *args: object) -> None:
         index = self._email_accounts.add()
         self.email_view.setCurrentIndex(index)
         self.email_view.resizeColumnsToContents()
         self.email_view.edit(index)
         self.changed_signal.emit()
 
-    def remove_email_account(self, *args) -> None:
+    def remove_email_account(self, *args: object) -> None:
         rows = set()
         sm = self.email_view.selectionModel()
         assert sm is not None
@@ -312,7 +323,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._email_accounts.remove_rows(*rows)
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         from calibre.gui2.email import gui_sendmail
 
         gui_sendmail.calculate_rate_limit()

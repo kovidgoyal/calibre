@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QIcon, QLabel, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre_extensions.progress_indicator import QProgressIndicator as ProgressIndicator
 from calibre_extensions.progress_indicator import SpinAnimator, draw_snake_spinner  # ruff: ignore[unused-import]
+
+if TYPE_CHECKING:
+    from qt.core import QPaintEvent, QResizeEvent
 
 
 class WaitPanel(QWidget):
@@ -13,7 +18,7 @@ class WaitPanel(QWidget):
     # typically to abandon, stop or retry it.
     corner_button_clicked = pyqtSignal()
 
-    def __init__(self, msg, parent=None, size=256, interval=10) -> None:
+    def __init__(self, msg: str, parent: QWidget | None = None, size: int = 256, interval: int = 10) -> None:
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.l = l = QVBoxLayout(self)
@@ -33,7 +38,7 @@ class WaitPanel(QWidget):
         cb.clicked.connect(self.corner_button_clicked)
         cb.hide()
 
-    def enable_corner_button(self, icon_name='view-refresh.png', tooltip='') -> None:
+    def enable_corner_button(self, icon_name: str = 'view-refresh.png', tooltip: str = '') -> None:
         self.corner_button.setIcon(QIcon.ic(icon_name))
         self.corner_button.setToolTip(tooltip)
         self.corner_button.show()
@@ -48,23 +53,23 @@ class WaitPanel(QWidget):
         self.corner_button.setGeometry(self.width() - s.width() - margin, self.height() - s.height() - margin, s.width(), s.height())
         self.corner_button.raise_()
 
-    def resizeEvent(self, a0) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         super().resizeEvent(a0)
         self.position_corner_button()  # it is positioned relative to the panel corner
 
     @property
-    def msg(self):
+    def msg(self) -> str:
         return self.la.text()
 
     @msg.setter
-    def msg(self, val) -> None:
+    def msg(self, val: str) -> None:
         self.la.setText(val)
 
 
 class WaitStack(QStackedWidget):
     corner_button_clicked = pyqtSignal()
 
-    def __init__(self, msg, after=None, parent=None, size=256, interval=10) -> None:
+    def __init__(self, msg: str, after: QWidget | None = None, parent: QWidget | None = None, size: int = 256, interval: int = 10) -> None:
         QStackedWidget.__init__(self, parent)
         self.wp = WaitPanel(msg, self, size, interval)
         self.wp.corner_button_clicked.connect(self.corner_button_clicked)
@@ -74,7 +79,7 @@ class WaitStack(QStackedWidget):
         self.addWidget(self.wp)
         self.addWidget(after)
 
-    def enable_corner_button(self, icon_name='view-refresh.png', tooltip='') -> None:
+    def enable_corner_button(self, icon_name: str = 'view-refresh.png', tooltip: str = '') -> None:
         # A discreet button in the bottom right corner of the wait panel, for
         # acting on what is being waited for, see WaitPanel.
         self.wp.enable_corner_button(icon_name, tooltip)
@@ -88,16 +93,16 @@ class WaitStack(QStackedWidget):
         self.setCurrentWidget(self.after)
 
     @property
-    def msg(self):
+    def msg(self) -> str:
         return self.wp.msg
 
     @msg.setter
-    def msg(self, val) -> None:
+    def msg(self, val: str) -> None:
         self.wp.msg = val
 
 
 class WaitLayout(QStackedLayout):
-    def __init__(self, msg, after=None, parent=None, size=256, interval=10) -> None:
+    def __init__(self, msg: str, after: QWidget | None = None, parent: QWidget | None = None, size: int = 256, interval: int = 10) -> None:
         QStackedLayout.__init__(self, parent)
         self.wp = WaitPanel(msg, parent, size, interval)
         if after is None:
@@ -115,11 +120,11 @@ class WaitLayout(QStackedLayout):
         self.setCurrentWidget(self.after)
 
     @property
-    def msg(self):
+    def msg(self) -> str:
         return self.wp.msg
 
     @msg.setter
-    def msg(self, val) -> None:
+    def msg(self, val: str) -> None:
         self.wp.msg = val
 
 
@@ -134,7 +139,7 @@ def develop() -> None:
             self.a = SpinAnimator(self)
             self.a.updated.connect(self.update)
 
-        def paintEvent(self, a0) -> None:
+        def paintEvent(self, a0: QPaintEvent | None) -> None:
             p = QPainter(self)
             pal = self.palette()
             self.a.draw(p, self.rect(), pal.color(QPalette.ColorRole.WindowText))

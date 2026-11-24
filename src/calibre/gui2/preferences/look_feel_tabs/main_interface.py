@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
 
 from calibre.constants import ismacos, iswindows
@@ -11,9 +13,12 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.utils.config import prefs
 from calibre.utils.localization import _, available_translations, get_lang, get_language
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class LanguageSetting(Setting):
-    def commit(self):
+    def commit(self) -> bool:
         val = self.get_gui_val()
         oldval = self.get_config_val()
         if val != oldval:
@@ -22,7 +27,7 @@ class LanguageSetting(Setting):
 
 
 class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.ui_style_available = True
         if not ismacos and not iswindows:
@@ -58,7 +63,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         r('book_list_extra_row_spacing', gprefs)
         r('booklist_grid', gprefs)
 
-        def get_esc_lang(l):
+        def get_esc_lang(l: str) -> str:
             if l == 'en':
                 return 'English'
             return get_language(l)
@@ -153,13 +158,13 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
             self.changed_signal.emit()
 
-    def build_font_obj(self):
+    def build_font_obj(self) -> QFont:
         font_info = qapplication_or_fail().original_font if self.current_font is None else self.current_font
         font = QFont(*(font_info[:4]))
         font.setStretch(int(font_info[4]))
         return font
 
-    def change_font(self, *args) -> None:
+    def change_font(self, *args: object) -> None:
         fd = QFontDialog(self.build_font_obj(), self)
         if fd.exec() == QDialog.DialogCode.Accepted:
             font = fd.selectedFont()
@@ -176,7 +181,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.font_display.setFont(font)
         self.font_display.setText(name + f' [{fi.pointSize()}pt]')
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         rr = LazyConfigWidgetBase.commit(self)
         with BusyCursor():
             if self.current_font != self.initial_font:
@@ -189,7 +194,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.gui.layout_container.change_layout(self.gui, self.opt_gui_layout.currentIndex() == 0)
         return rr
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         ofont = self.current_font
         self.current_font = None
@@ -199,7 +204,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_gui_layout.setCurrentIndex(0)
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.place_layout_buttons()
         self.update_font_display()
         gui.library_view.set_row_header_visibility()

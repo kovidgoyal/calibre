@@ -2,6 +2,8 @@
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialogButtonBox, Qt, QVBoxLayout
 
 from calibre.gui2 import error_dialog, safe_open_url
@@ -10,15 +12,21 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QModelIndex
 
-def column_template_placeholder_text():
+    from calibre.db.backend import DBPrefs
+    from calibre.gui2.library.views import BooksView
+
+
+def column_template_placeholder_text() -> str:
     return _(
         'Notes:\n* The template global variable "{0}" contains the column lookup name.\n* The global variable "{1}" contains the original tooltip text'
     ).format('column_lookup_name', 'original_text')
 
 
 class ToolTipDialog(Dialog):
-    def __init__(self, title, prefs) -> None:
+    def __init__(self, title: str, prefs: DBPrefs) -> None:
         super().__init__(title, 'show_tooltip_dialog', prefs=prefs, default_buttons=QDialogButtonBox.StandardButton.Ok)
 
     def setup_ui(self) -> None:
@@ -28,7 +36,7 @@ class ToolTipDialog(Dialog):
         l.addWidget(self.bb)
         d.anchor_clicked.connect(safe_open_url)
 
-    def set_html(self, tt_text) -> None:
+    def set_html(self, tt_text: str) -> None:
         self.display.setHtml(tt_text)
 
 
@@ -54,7 +62,7 @@ class ColumnTooltipsAction(InterfaceAction):
         )
         m.addAction(ac)
 
-    def check_errors(self, only_one_row=False):
+    def check_errors(self, only_one_row: bool = False) -> tuple[None, None, None, None] | tuple[BooksView, QModelIndex, str, list[QModelIndex]]:
         view = self.gui.current_view()
         if view is not self.gui.library_view:
             error_dialog(self.gui, _('No library view available'), _("You can't set custom tooltips for books on the device.")).exec()
@@ -74,9 +82,10 @@ class ColumnTooltipsAction(InterfaceAction):
         return view, idx, column, rows
 
     def show_tooltip_in_dialog(self) -> None:
-        view, idx, column, rows = self.check_errors(only_one_row=True)
-        if view is None:
+        res = self.check_errors(only_one_row=True)
+        if res[0] is None:
             return
+        view, idx, column, rows = res
         from calibre.gui2.ui import get_gui
 
         db = get_gui(fail_if_absent=True).current_db.new_api
@@ -90,11 +99,13 @@ class ColumnTooltipsAction(InterfaceAction):
         d.exec()
 
     def show_template_editor(self) -> None:
-        view, _, column, rows = self.check_errors()
-        if view is None:
+        res = self.check_errors()
+        if res[0] is None:
             return
+        view, _, column, rows = res
         mi = []
         db = view.model().db
+        assert db is not None
         for row in rows:
             if row.isValid():
                 mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))
@@ -112,6 +123,6 @@ class ColumnTooltipsAction(InterfaceAction):
                 tt_dict[column] = d.rule[1]
                 db.new_api.set_pref('column_tooltip_templates', tt_dict)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)

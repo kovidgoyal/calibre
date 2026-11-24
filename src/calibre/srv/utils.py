@@ -400,6 +400,11 @@ class RotatingLog(ServerLog):
         for o in self.outputs:
             o.flush()
 
+    def clear(self) -> None:
+        for o in self.outputs:
+            if isinstance(o, RotatingStream):
+                o.clear()
+
 
 # }}}
 

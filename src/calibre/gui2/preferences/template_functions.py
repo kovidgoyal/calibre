@@ -4,6 +4,7 @@
 import copy
 import json
 import traceback
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QDialogButtonBox
 
@@ -26,11 +27,14 @@ from calibre.utils.formatter_functions import (
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
-        self.db = gui.library_view.model().db
+        self.db = gui.current_db
         self.ffml = FFMLProcessor()
 
         help_text = _('''
@@ -165,7 +169,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.st_funcs = {}
         try:
-            for v in self.db.prefs.get('user_template_functions', []):
+            user_funcs = self.db.prefs.get('user_template_functions', [])
+            assert isinstance(user_funcs, list)
+            for v in user_funcs:
                 if function_object_type(v) is not StoredObjectType.PythonFunction:
                     self.st_funcs.update({function_pref_name(v): compile_user_function(*v)})
         except Exception:
@@ -230,10 +236,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         # get field metadata and selected books
         view = self.gui.current_view()
+        assert view is not None
         rows = view.selectionModel().selectedRows()
         self.mi = []
         if rows:
             db = view.model().db
+            assert db is not None
             self.fm = db.field_metadata
             for row in rows:
                 if row.isValid():
@@ -243,7 +251,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # Python function tab
 
-    def show_only_user_defined_changed(self, state) -> None:
+    def show_only_user_defined_changed(self, state: int) -> None:
         self.build_function_names_box()
 
     def enable_replace_button(self) -> None:
@@ -263,13 +271,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
 
-    def function_type_string(self, name):
+    def function_type_string(self, name: str) -> str:
         if name in self.builtins:
             return ' -- ' + _('Built-in function')
         else:
             return ' -- ' + _('User function')
 
-    def build_function_names_box(self, scroll_to='') -> None:
+    def build_function_names_box(self, scroll_to: str = '') -> None:
         self.function_name.blockSignals(True)
         if self.show_only_user_defined.isChecked():
             func_names = sorted([k for k in self.funcs if k not in self.builtins])
@@ -304,7 +312,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             error_dialog(self.gui, _('Template functions'), _('Function not defined'), show=True)
 
-    def check_errors_before_save(self, name, for_replace=False) -> bool:
+    def check_errors_before_save(self, name: str, for_replace: bool = False) -> bool:
         # Returns True if there is an error
         if not name:
             error_dialog(self.gui, _('Template functions'), _('Name cannot be empty'), show=True)
@@ -312,9 +320,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not for_replace and name in self.funcs:
             error_dialog(self.gui, _('Template functions'), _('Name %s already used') % (name,), show=True)
             return True
-        if name in {
-            function_pref_name(v) for v in self.db.prefs.get('user_template_functions', []) if function_object_type(v) is not StoredObjectType.PythonFunction
-        }:
+        user_funcs = self.db.prefs.get('user_template_functions', [])
+        assert isinstance(user_funcs, list)
+        if name in {function_pref_name(v) for v in user_funcs if function_object_type(v) is not StoredObjectType.PythonFunction}:
             error_dialog(
                 self.gui,
                 _('Template functions'),
@@ -351,7 +359,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return True
         return False
 
-    def create_button_clicked(self, use_name=None, need_error_checks=True) -> None:
+    def create_button_clicked(self, use_name: str | None = None, need_error_checks: bool = True) -> None:
         name = use_name or str(self.function_name.currentText())
         name = name.split(' -- ')[0]
         if need_error_checks and self.check_errors_before_save(name, for_replace=False):
@@ -371,8 +379,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 det_msg=traceback.format_exc(),
             )
 
-    def function_name_edited(self, txt) -> None:
-        txt = txt.split(' -- ')[0]
+    def function_name_edited(self, txt: str) -> None:
+        txt = txt.split(' -- ', 1)[0]
         if txt not in self.funcs:
             self.function_name.blockSignals(True)
             self.function_name.setEditText(txt)
@@ -384,7 +392,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.delete_button.setEnabled(False)
         self.program.setReadOnly(False)
 
-    def function_index_changed(self, idx) -> None:
+    def function_index_changed(self, idx: int) -> None:
         txt = self.function_name.itemData(idx)
         self.create_button.setEnabled(False)
         if not txt:
@@ -420,7 +428,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.delete_button_clicked()
         self.create_button_clicked(use_name=name, need_error_checks=False)
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         pass
 
     # Stored template tab
@@ -456,7 +464,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_replace_button.setEnabled(False)
         self.st_current_program_name = ''
 
-    def st_build_function_names_box(self, scroll_to='') -> None:
+    def st_build_function_names_box(self, scroll_to: str = '') -> None:
         self.te_name.blockSignals(True)
         func_names = sorted(self.st_funcs)
         self.te_name.setMinimumContentsLength(40)
@@ -554,7 +562,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             error_dialog(self.gui, _('Stored templates'), _('Function not defined'), show=True)
 
-    def st_create_button_clicked(self, use_name=None) -> None:
+    def st_create_button_clicked(self, use_name: str | None = None) -> None:
         self.changed_signal.emit()
         name = use_name or str(self.te_name.currentText())
         for k, v in formatter_functions().get_functions().items():
@@ -587,7 +595,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 det_msg=traceback.format_exc(),
             )
 
-    def st_template_name_edited(self, txt) -> None:
+    def st_template_name_edited(self, txt: str) -> None:
         b = txt in self.st_funcs
         self.st_create_button.setEnabled(not b)
         self.st_replace_button.setEnabled(b)
@@ -596,7 +604,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.te_textbox.setReadOnly(False)
         self.st_doc_edit_button.setEnabled(True)
 
-    def st_function_index_changed(self, idx) -> None:
+    def st_function_index_changed(self, idx: int) -> None:
         txt = self.te_name.currentText()
         if self.st_current_program_name:
             if self.st_current_program_text != self.te_textbox.toPlainText():
@@ -642,7 +650,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.template_editor.new_doc.setPlainText(d.document_text())
 
-    def commit(self, *args) -> bool:
+    def commit(self, *args: object) -> bool:
         pref_value = []
         for name, cls in self.funcs.items():
             if name not in self.builtins:

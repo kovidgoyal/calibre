@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QKeySequence
 
 from calibre.gui2 import config, gprefs
@@ -9,11 +11,15 @@ from calibre.gui2.preferences import LazyConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_cover_browser_tab
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
+        assert db is not None
         r = self.register
 
         r('books_autoscroll_time', gprefs)
@@ -68,7 +74,7 @@ class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
         if t.exec():
             self.opt_cover_browser_title_template.setText(t.rule[1])
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])

@@ -3,6 +3,7 @@
 
 import os
 import re
+from typing import TYPE_CHECKING, overload
 
 from qt.core import QPixmap
 
@@ -18,8 +19,26 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from typing import IO
 
-def create_opf_file(db, book_id, opf_file=None, for_conversion=False):
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.conversion.config import GuiRecommendations
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.gui2.convert import GetHelp, GetOption
+
+
+@overload
+def create_opf_file(db: LibraryDatabase, book_id: int, opf_file: None = None, for_conversion: bool = False) -> tuple[Metadata, PersistentTemporaryFile]: ...
+@overload
+def create_opf_file[F: IO[bytes] | PersistentTemporaryFile](
+    db: LibraryDatabase, book_id: int, opf_file: F, for_conversion: bool = False
+) -> tuple[Metadata, F]: ...
+def create_opf_file(
+    db: LibraryDatabase, book_id: int, opf_file: IO[bytes] | PersistentTemporaryFile | None = None, for_conversion: bool = False
+) -> tuple[Metadata, IO[bytes] | PersistentTemporaryFile]:
     mi = db.get_metadata(book_id, index_is_id=True)
     old_cover = mi.cover
     mi.cover = None
@@ -33,7 +52,7 @@ def create_opf_file(db, book_id, opf_file=None, for_conversion=False):
     return mi, opf_file
 
 
-def create_cover_file(db, book_id):
+def create_cover_file(db: LibraryDatabase, book_id: int) -> PersistentTemporaryFile | None:
     cover = db.cover(book_id, index_is_id=True)
     cf = None
     if cover:
@@ -49,11 +68,12 @@ class MetadataWidget(Widget, Ui_Form):
     HELP = _('Set the metadata. The output file will contain as much of this metadata as possible.')
     COMMIT_NAME = 'metadata'
 
-    def __init__(self, parent, get_option, get_help, db=None, book_id=None) -> None:
+    def __init__(self, parent: QWidget | None, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         Widget.__init__(self, parent, OPTIONS['pipe']['metadata'])
+        assert book_id is not None
         self.db, self.book_id = db, book_id
         self.cover_changed = False
-        self.cover_data = None
+        self.cover_data: bytes | None = None
         if self.db is not None:
             self.initialize_metadata_options()
         self.initialize_options(get_option, get_help, db, book_id)
@@ -70,11 +90,11 @@ class MetadataWidget(Widget, Ui_Form):
             self.tags.set_hierarchy_separator('.')
         self.cover.draw_border = False
 
-    def change_cover(self, data) -> None:
+    def change_cover(self, data: bytes) -> None:
         self.cover_changed = True
         self.cover_data = data
 
-    def deduce_author_sort(self, *args) -> None:
+    def deduce_author_sort(self, *args: object) -> None:
         au = str(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
@@ -128,7 +148,7 @@ class MetadataWidget(Widget, Ui_Form):
     def series_changed(self) -> None:
         self.series_index.setEnabled(len(self.series.currentText().strip()) > 0)
 
-    def set_cover_tooltip(self, pm) -> None:
+    def set_cover_tooltip(self, pm: QPixmap) -> None:
         tt = _('Cover size: %(width)d x %(height)d pixels') % dict(width=pm.width(), height=pm.height())
         self.cover.setToolTip(tt)
 
@@ -166,7 +186,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.publisher.set_separator(None)
         self.publisher.update_items_cache(db.new_api.all_field_names('publisher'))
 
-    def get_title_and_authors(self):
+    def get_title_and_authors(self) -> tuple[str, list[str]]:
         title = str(self.title.text()).strip()
         if not title:
             title = _('Unknown')
@@ -174,7 +194,7 @@ class MetadataWidget(Widget, Ui_Form):
         authors = string_to_authors(authors) if authors else [_('Unknown')]
         return title, authors
 
-    def get_metadata(self):
+    def get_metadata(self) -> Metadata:
         title, authors = self.get_title_and_authors()
         mi = MetaInformation(title, authors)
         publisher = str(self.publisher.text()).strip()
@@ -233,7 +253,7 @@ class MetadataWidget(Widget, Ui_Form):
                     self.cpixmap = pix
                     self.cover_data = cover
 
-    def get_recommendations(self):
+    def get_recommendations(self) -> dict[str, bool]:
         return {
             'prefer_metadata_cover': bool(self.opt_prefer_metadata_cover.isChecked()),
         }
@@ -273,7 +293,7 @@ class MetadataWidget(Widget, Ui_Form):
             db.set_field('series_index', {self.book_id: series_index})
         return True
 
-    def commit(self, save_defaults=False):
+    def commit(self, save_defaults: bool = False) -> GuiRecommendations:
         """
         Settings are stored in two attributes: `opf_file` and `cover_file`.
         Both may be None. Also returns a recommendation dictionary.

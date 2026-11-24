@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, cast
 from zipfile import ZipFile
 
 from qt.core import QAction, QIcon, QKeySequence, QMenu, QObject, QPoint, QTimer, QToolButton
@@ -13,10 +13,18 @@ from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 
 if TYPE_CHECKING:
-    from calibre.customize import PluginInstallationType
+    from collections.abc import Callable, Collection, Iterator, Sequence
+
+    from qt.core import QDropEvent, QMimeData, QModelIndex, QWidget
+
+    from calibre.customize import InterfaceActionBase, PluginInstallationType
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+
+    ActionSpec = tuple[str, str | None, str | None, str | Sequence[str] | None]
 
 
-def toolbar_widgets_for_action(gui, action):
+def toolbar_widgets_for_action(gui: Main, action: QAction) -> Iterator[QWidget]:
     # Search the toolbars for the widget associated with an action, passing
     # them to the caller for further processing
     for x in gui.bars_manager.bars:
@@ -35,7 +43,7 @@ def toolbar_widgets_for_action(gui, action):
             continue
 
 
-def show_menu_under_widget(gui, menu, action, name) -> None:
+def show_menu_under_widget(gui: Main, menu: QMenu, action: QAction, name: str) -> None:
     # First try the tool bar
     for w in toolbar_widgets_for_action(gui, action):
         try:
@@ -56,7 +64,7 @@ def show_menu_under_widget(gui, menu, action, name) -> None:
                 # We can't use x.trigger() because it doesn't put the menu
                 # in the right place. Instead get the position of the menu
                 # widget on the menu bar
-                p = x.parent().menu_bar
+                p = getattr(x.parent(), 'menu_bar')
                 r = p.actionGeometry(x)
                 # Make sure that the menu item is actually displayed in the menu
                 # and not the overflow
@@ -79,7 +87,7 @@ def show_menu_under_widget(gui, menu, action, name) -> None:
     menu.exec(gui.library_view.mapToGlobal(QPoint(10, 10)))
 
 
-def menu_action_unique_name(plugin, unique_name) -> str:
+def menu_action_unique_name(plugin: InterfaceAction, unique_name: str) -> str:
     return f'{plugin.unique_name} : menu action : {unique_name}'
 
 
@@ -137,11 +145,11 @@ class InterfaceAction(QObject):
     #: If None, a keyboard shortcut corresponding to the action is not
     #: registered. If you pass an empty tuple, then the shortcut is registered
     #: with no default key binding.
-    action_spec = ('text', 'icon', None, None)
+    action_spec: ActionSpec = ('text', 'icon', None, None)
 
     #: If not None, used for the name displayed to the user when customizing
     #: the keyboard shortcuts for the above action spec instead of action_spec[0]
-    action_shortcut_name = None
+    action_shortcut_name: str | None = None
 
     #: If True, a menu is automatically created and added to self.qaction
     action_add_menu = False
@@ -149,15 +157,15 @@ class InterfaceAction(QObject):
     #: If True, a clone of self.qaction is added to the menu of self.qaction
     #: If you want the text of this action to be different from that of
     #: self.qaction, set this variable to the new text
-    action_menu_clone_qaction = False
+    action_menu_clone_qaction: bool | str = False
 
     #: Set of locations to which this action must not be added.
     #: See :attr:`all_locations` for a list of possible locations
-    dont_add_to = frozenset()
+    dont_add_to: frozenset[str] = frozenset()
 
     #: Set of locations from which this action must not be removed.
     #: See :attr:`all_locations` for a list of possible locations
-    dont_remove_from = frozenset()
+    dont_remove_from: frozenset[str] = frozenset()
 
     all_locations = frozenset([
         'toolbar',
@@ -188,26 +196,26 @@ class InterfaceAction(QObject):
     plugin_path: str | None
     installation_type: PluginInstallationType | None
 
-    def __init__(self, parent, site_customization) -> None:
+    def __init__(self, parent: Main, site_customization: str | None) -> None:
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
-        self.interface_action_base_plugin = None
+        self.interface_action_base_plugin: InterfaceActionBase | None = None
 
-    def accept_enter_event(self, event, mime_data) -> bool:
+    def accept_enter_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
-    def accept_drag_move_event(self, event, mime_data) -> bool:
+    def accept_drag_move_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
-    def drop_event(self, event, mime_data) -> bool:
+    def drop_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         """This method should perform some useful action and return True
         iff this interface action is capable of handling the drop event. Do not
         call accept/ignore on the event, that will be taken care of by the
@@ -233,7 +241,7 @@ class InterfaceAction(QObject):
             bn = plugin.name
         return f'Interface Action: {bn} ({self.name})'
 
-    def create_action(self, spec=None, attr='qaction', shortcut_name=None, persist_shortcut=False):
+    def create_action(self, spec: ActionSpec | None = None, attr: str = 'qaction', shortcut_name: str | None = None, persist_shortcut: bool = False) -> QAction:
         if spec is None:
             spec = self.action_spec
         text, icon, tooltip, shortcut = spec
@@ -259,7 +267,7 @@ class InterfaceAction(QObject):
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:
-            keys = (shortcut,) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
+            keys = cast('tuple[str]', (shortcut,)) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
             if shortcut_name is None:
                 if self.action_shortcut_name is not None:
                     shortcut_name = self.action_shortcut_name
@@ -300,16 +308,16 @@ class InterfaceAction(QObject):
 
     def create_menu_action(
         self,
-        menu,
-        unique_name,
-        text,
-        icon=None,
-        shortcut=None,
-        description=None,
-        triggered=None,
-        shortcut_name=None,
-        persist_shortcut=False,
-    ):
+        menu: QMenu,
+        unique_name: str,
+        text: str,
+        icon: QIcon | str | None = None,
+        shortcut: str | Sequence[str] | Literal[False] | None = None,
+        description: str | None = None,
+        triggered: Callable[..., object] | None = None,
+        shortcut_name: str | None = None,
+        persist_shortcut: bool = False,
+    ) -> QAction:
         """
         Convenience method to easily add actions to a QMenu.
         Returns the created QAction. This action has one extra attribute
@@ -344,20 +352,21 @@ class InterfaceAction(QObject):
         if shortcut_name is None:
             shortcut_name = str(text)
         ac = menu.addAction(text)
+        assert ac is not None
         if icon is not None:
             if not isinstance(icon, QIcon):
                 icon = QIcon.ic(icon)
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:
-            keys = (shortcut,) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
+            keys = cast('tuple[str]', (shortcut,)) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
         unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:
             ac.setToolTip(description)
             ac.setStatusTip(description)
             ac.setWhatsThis(description)
 
-        ac.calibre_shortcut_unique_name = unique_name
+        setattr(ac, 'calibre_shortcut_unique_name', unique_name)
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(
                 unique_name,
@@ -376,7 +385,7 @@ class InterfaceAction(QObject):
             ac.triggered.connect(triggered)
         return ac
 
-    def load_resources(self, names):
+    def load_resources(self, names: Collection[str]) -> dict[str, bytes]:
         """
         If this plugin comes in a ZIP file (user added plugin), this method
         will allow you to load resources from the ZIP file.
@@ -412,7 +421,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         """
         Called whenever the book list being displayed in calibre changes.
         Currently values for loc are: ``library, main, card and cardb``.
@@ -422,7 +431,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def library_about_to_change(self, olddb, db) -> None:
+    def library_about_to_change(self, olddb: LibraryDatabase, db: LibraryDatabase) -> None:
         """
         Called whenever the current library is changed.
 
@@ -432,7 +441,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         """
         Called whenever the current library is changed.
 
@@ -456,7 +465,7 @@ class InterfaceAction(QObject):
         """
         pass
 
-    def tag_browser_context_action(self, index):
+    def tag_browser_context_action(self, index: QModelIndex) -> Iterator[QAction]:
         """
         Called when displaying the context menu in the Tag browser. ``index`` is
         the QModelIndex that points to the Tag browser item that was right clicked.
@@ -488,18 +497,18 @@ class InterfaceActionWithLibraryDrop(InterfaceAction):
     accepts_drops = True
     mimetype_for_drop = 'application/calibre+from_library'
 
-    def accept_enter_event(self, event, mime_data):
+    def accept_enter_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         return mime_data.hasFormat(self.mimetype_for_drop)
 
-    def accept_drag_move_event(self, event, mime_data):
+    def accept_drag_move_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         return mime_data.hasFormat(self.mimetype_for_drop)
 
-    def drop_event(self, event, mime_data) -> bool:
+    def drop_event(self, event: QDropEvent, mime_data: QMimeData) -> bool:
         if mime_data.hasFormat(self.mimetype_for_drop):
             self.dropped_ids = tuple(map(int, mime_data.data(self.mimetype_for_drop).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
 
-    def do_drop(self):
+    def do_drop(self) -> None:
         raise NotImplementedError()

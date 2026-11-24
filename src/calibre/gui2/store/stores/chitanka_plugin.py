@@ -4,6 +4,7 @@
 store_version = 3  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.error import HTTPError
 from urllib.parse import quote
 
@@ -22,7 +23,16 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
-def parse_book_page(doc, base_url, counter):
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+
+    from lxml import etree
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def parse_book_page(doc: etree._Element, base_url: str, counter: int) -> Generator[SearchResult, None, int]:
 
     for data in doc.xpath('//div[@class="booklist"]/div/div'):
         if counter <= 0:
@@ -61,7 +71,7 @@ def parse_book_page(doc, base_url, counter):
 
 
 class ChitankaStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'http://chitanka.info'
 
         if external or self.config.get('open_external', False):
@@ -77,7 +87,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         if isinstance(query, bytes):
             query = query.decode('utf-8')
 

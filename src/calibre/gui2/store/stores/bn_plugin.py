@@ -3,6 +3,7 @@
 store_version = 5  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from lxml import html
@@ -19,11 +20,19 @@ try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
 
-    def safe_html_fromstring(string_or_bytes, recover=True):
+    def safe_html_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> html.HtmlElement:
         return html.fromstring(string_or_bytes)
 
 
-def search_bn(query, max_results=10, timeout=60, write_html_to=''):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def search_bn(query: str, max_results: int = 10, timeout: int = 60, write_html_to: str = '') -> Iterator[SearchResult]:
     slug = query.replace(' ', '-')
     url = f'https://www.barnesandnoble.com/s/{slug}?keyword={quote_plus(query)}&store=ebook&view=list'
 
@@ -83,7 +92,7 @@ def search_bn(query, max_results=10, timeout=60, write_html_to=''):
 
 
 class BNStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'https://bn.com'
 
         if external or self.config.get('open_external', False):
@@ -94,7 +103,9 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
+        if isinstance(query, bytes):
+            query = query.decode('utf-8', 'replace')
         yield from search_bn(query, max_results, timeout)
 
 

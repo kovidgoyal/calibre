@@ -4,6 +4,7 @@
 import time
 from contextlib import closing
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import QObject, pyqtSignal
 
@@ -12,13 +13,18 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_html_fromstring
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from calibre.utils.config import JSONConfig
+
 
 class CacheUpdateThread(Thread, QObject):
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
     update_details = pyqtSignal(str)
 
-    def __init__(self, config, seralize_books_function, timeout) -> None:
+    def __init__(self, config: JSONConfig, seralize_books_function: Callable[[list[SearchResult]], list[dict[str, str]]], timeout: int) -> None:
         Thread.__init__(self)
         QObject.__init__(self)
 

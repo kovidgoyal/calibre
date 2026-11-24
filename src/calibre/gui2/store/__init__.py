@@ -5,7 +5,15 @@ from typing import TYPE_CHECKING
 from calibre.utils.filenames import ascii_filename
 
 if TYPE_CHECKING:
-    from calibre.customize import PluginInstallationType
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.customize import PluginInstallationType, StoreBase
+    from calibre.gui2.store.search_result import SearchResult
+    from calibre.gui2.ui import Main
+    from calibre.utils.browser import Browser
+    from calibre.utils.config import JSONConfig
 
 
 class StorePlugin:  # {{{
@@ -55,7 +63,7 @@ class StorePlugin:  # {{{
     plugin_path: str | None
     installation_type: PluginInstallationType | None
 
-    def __init__(self, gui, name, config=None, base_plugin=None) -> None:
+    def __init__(self, gui: Main, name: str, config: JSONConfig | None = None, base_plugin: StoreBase | None = None) -> None:
         self.gui = gui
         self.name = name
         self.base_plugin = base_plugin
@@ -65,7 +73,7 @@ class StorePlugin:  # {{{
             config = JSONConfig('store/stores/' + ascii_filename(self.name))
         self.config = config
 
-    def create_browser(self):
+    def create_browser(self) -> Browser:
         """
         If the server requires special headers, such as a particular user agent
         or a referrer, then implement this method in your plugin to return a
@@ -77,7 +85,7 @@ class StorePlugin:  # {{{
         """
         raise NotImplementedError()
 
-    def open(self, gui, parent=None, detail_item=None, external=False):
+    def open(self, gui: Main | None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         """
         Open the store.
 
@@ -97,7 +105,7 @@ class StorePlugin:  # {{{
         """
         raise NotImplementedError()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         """
         Searches the store for items matching query. This should
         return items as a generator.
@@ -130,7 +138,7 @@ class StorePlugin:  # {{{
         """
         raise NotImplementedError()
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         """
         Delayed search for information about specific search items.
 
@@ -151,7 +159,7 @@ class StorePlugin:  # {{{
         """
         return False
 
-    def update_cache(self, parent=None, timeout=60, force=False, suppress_progress=False) -> bool:
+    def update_cache(self, parent: QWidget | None = None, timeout: int = 60, force: bool = False, suppress_progress: bool = False) -> bool:
         """
         Some plugins need to keep an local cache of available books. This function
         is called to update the caches. It is recommended to call this function
@@ -194,19 +202,19 @@ class StorePlugin:  # {{{
         """
         pass
 
-    def config_widget(self):
+    def config_widget(self) -> QWidget | tuple[str, str]:
         """
         See :class:`calibre.customize.Plugin` for details.
         """
         raise NotImplementedError()
 
-    def save_settings(self, config_widget):
+    def save_settings(self, config_widget: QWidget) -> None:
         """
         See :class:`calibre.customize.Plugin` for details.
         """
         raise NotImplementedError()
 
-    def customization_help(self, gui=False):
+    def customization_help(self, gui: bool = False) -> str:
         """
         See :class:`calibre.customize.Plugin` for details.
         """

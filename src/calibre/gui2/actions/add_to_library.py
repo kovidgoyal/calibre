@@ -19,10 +19,10 @@ class AddToLibraryAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.add_books_to_library)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def add_books_to_library(self, *args) -> None:
+    def add_books_to_library(self, *args: object) -> None:
         self.gui.iactions['Add Books'].add_books_from_device(self.gui.current_view())

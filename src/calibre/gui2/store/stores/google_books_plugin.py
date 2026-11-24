@@ -1,6 +1,8 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 
+from typing import TYPE_CHECKING, cast
+
 from calibre.utils.localization import _
 
 store_version = 7  # Needed for dynamic plugin loading
@@ -18,8 +20,16 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
-def parse_html(raw):
+    from lxml import etree
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def parse_html(raw: bytes | str) -> etree._Element:
     try:
         from html5_parser import parse
     except ImportError:
@@ -31,7 +41,7 @@ def parse_html(raw):
         return parse(raw)
 
 
-def search_google(query, max_results=10, timeout=60, write_html_to=None):
+def search_google(query: bytes | str, max_results: int = 10, timeout: int = 60, write_html_to: str | None = None) -> Iterator[SearchResult]:
     url = 'https://www.google.com/search?tbm=bks&q=' + quote_plus(query)
 
     br = browser()
@@ -41,7 +51,7 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
         raw = f.read()
         doc = parse_html(raw)
         if write_html_to is not None:
-            praw = html.tostring(doc, encoding='utf-8')
+            praw = html.tostring(cast('html.HtmlElement', doc), encoding='utf-8')
             with open(write_html_to, 'wb') as f:
                 f.write(praw)
         for data in doc.xpath('//div[@id="rso"]/div'):
@@ -76,7 +86,7 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
 
 
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'https://books.google.com/books'
         if True or external or self.config.get('open_external', False):  # ruff: ignore[expr-or-true]
             open_url(QUrl(url_slash_cleaner(detail_item or url)))
@@ -86,10 +96,10 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         yield from search_google(query, max_results=max_results, timeout=timeout)
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             doc = parse_html(nf.read())

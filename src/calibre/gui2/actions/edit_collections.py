@@ -15,12 +15,12 @@ class EditCollectionsAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.edit_collections)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def edit_collections(self, *args):
+    def edit_collections(self, *args: object) -> int | None:
         oncard = None
         cv = self.gui.current_view()
         if cv is self.gui.library_view:

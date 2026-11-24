@@ -5,6 +5,7 @@ import codecs
 import importlib
 import textwrap
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QCheckBox,
@@ -32,8 +33,24 @@ from calibre.ebooks.conversion.config import save_defaults as save_defaults_
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Mapping, Sequence
 
-def config_widget_for_input_plugin(plugin):
+    from qt.core import QObject
+
+    from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+    from calibre.db.legacy import LibraryDatabase
+
+    #: Returns the OptionRecommendation for the named option
+    type GetOption = Callable[[str], OptionRecommendation | None]
+    #: Returns the help text for the named option
+    type GetHelp = Callable[[str], str | None]
+    #: The GUI object for an option, or a placeholder string for options that
+    #: are handled entirely by the *_handler() methods of a Widget subclass
+    type OptionWidget = QWidget | str
+
+
+def config_widget_for_input_plugin(plugin: InputFormatPlugin) -> type[Widget] | None:
     name = plugin.name.lower().replace(' ', '_')
     try:
         return importlib.import_module('calibre.gui2.convert.' + name).PluginWidget
@@ -47,30 +64,41 @@ def config_widget_for_input_plugin(plugin):
             else:
                 if issubclass(ans, Widget):
                     return ans
+    return None
 
 
-def bulk_defaults_for_input_format(fmt):
+def bulk_defaults_for_input_format(fmt: str) -> dict[str, object]:
     plugin = plugin_for_input_format(fmt)
     if plugin is not None:
         w = config_widget_for_input_plugin(plugin)
         if w is not None:
+            assert w.COMMIT_NAME is not None
             return load_defaults(w.COMMIT_NAME)
     return {}
+
+
+def option_choices(get_option: GetOption, name: str) -> Sequence[str]:
+    """Return the choices of the named option, which must exist and have choices"""
+    rec = get_option(name)
+    assert rec is not None and rec.option.choices is not None
+    return rec.option.choices
 
 
 class Widget(QWidget):
     TITLE = _('Unknown')
     ICON = 'config.png'
     HELP = ''
-    COMMIT_NAME = None
+    COMMIT_NAME: str | None = None
     # If True, leading and trailing spaces are removed from line and text edit
     # fields
     STRIP_TEXT_FIELDS = True
+    # Set on plugin widget classes by the conversion preferences
+    conv_plugin: InputFormatPlugin | OutputFormatPlugin
 
     changed_signal = pyqtSignal()
     set_help_signal = pyqtSignal(object)
 
-    def __init__(self, parent, options) -> None:
+    def __init__(self, parent: QWidget | None, options: Iterable[str]) -> None:
         options = list(options)
         QWidget.__init__(self, parent)
         if hasattr(self, 'setupUi'):
@@ -85,7 +113,7 @@ class Widget(QWidget):
                 raise Exception(f'Option {name} missing in {self.__class__.__name__}')
             self.connect_gui_obj(getattr(self, 'opt_' + name))
 
-    def initialize_options(self, get_option, get_help, db=None, book_id=None) -> None:
+    def initialize_options(self, get_option: GetOption, get_help: GetHelp, db: LibraryDatabase | None = None, book_id: int | None = None) -> None:
         """
         :param get_option: A callable that takes one argument: the option name
         and returns the corresponding OptionRecommendation.
@@ -103,33 +131,33 @@ class Widget(QWidget):
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
 
-        def process_child(child) -> None:
+        def process_child(child: QObject) -> None:
             for g in child.children():
                 if isinstance(g, QLabel):
                     buddy = g.buddy()
                     if buddy is not None and hasattr(buddy, '_help'):
-                        g._help = buddy._help
+                        setattr(g, '_help', buddy._help)
                         htext = str(buddy.toolTip()).strip()
                         g.setToolTip(htext)
                         g.setWhatsThis(htext)
-                        g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
+                        setattr(g.__class__, 'enterEvent', lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip())))
                 else:
                     process_child(g)
 
         process_child(self)
 
-    def restore_defaults(self, get_option) -> None:
+    def restore_defaults(self, get_option: GetOption) -> None:
         defaults = GuiRecommendations()
         defaults.merge_recommendations(get_option, OptionRecommendation.LOW, self._options)
         self.apply_recommendations(defaults)
 
-    def commit_options(self, save_defaults=False):
+    def commit_options(self, save_defaults: bool = False) -> GuiRecommendations:
         recs = self.create_recommendations()
         if save_defaults:
             save_defaults_(self.commit_name, recs)
         return recs
 
-    def create_recommendations(self):
+    def create_recommendations(self) -> GuiRecommendations:
         recs = GuiRecommendations()
         for name in self._options:
             gui_opt = getattr(self, 'opt_' + name, None)
@@ -138,7 +166,7 @@ class Widget(QWidget):
             recs[name] = self.get_value(gui_opt)
         return recs
 
-    def apply_recommendations(self, recs) -> None:
+    def apply_recommendations(self, recs: Mapping[str, object]) -> None:
         for name, val in recs.items():
             gui_opt = getattr(self, 'opt_' + name, None)
             if gui_opt is None:
@@ -147,7 +175,7 @@ class Widget(QWidget):
             if name in getattr(recs, 'disabled_options', []):
                 gui_opt.setDisabled(True)
 
-    def get_value(self, g):
+    def get_value(self, g: OptionWidget) -> object:
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
@@ -192,10 +220,10 @@ class Widget(QWidget):
         else:
             raise TypeError(f"Can't get value from {type(g)}")
 
-    def gui_obj_changed(self, gui_obj, *args) -> None:
+    def gui_obj_changed(self, gui_obj: OptionWidget, *args: object) -> None:
         self.changed_signal.emit()
 
-    def connect_gui_obj(self, g) -> None:
+    def connect_gui_obj(self, g: OptionWidget) -> None:
         f = partial(self.gui_obj_changed, g)
         try:
             self.connect_gui_obj_handler(g, f)
@@ -222,10 +250,10 @@ class Widget(QWidget):
         else:
             raise TypeError(f"Can't connect {type(g)}")
 
-    def connect_gui_obj_handler(self, gui_obj, slot):
+    def connect_gui_obj_handler(self, gui_obj: OptionWidget, slot: Callable[..., None]) -> None:
         raise NotImplementedError()
 
-    def set_value(self, g, val) -> None:
+    def set_value(self, g: OptionWidget, val: object) -> None:
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
@@ -233,10 +261,10 @@ class Widget(QWidget):
         if self.set_value_handler(g, val):
             return
         if hasattr(g, 'set_value_for_config'):
-            g.set_value_for_config = val
+            setattr(g, 'set_value_for_config', val)
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
-            g.setValue(val)
+            g.setValue(cast('int', val))
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             if not val:
                 val = ''
@@ -247,34 +275,35 @@ class Widget(QWidget):
         elif isinstance(g, QFontComboBox):
             g.setCurrentFont(QFont(val or ''))
         elif isinstance(g, FontFamilyChooser):
-            g.font_family = val
+            g.font_family = cast('str | None', val)
         elif isinstance(g, EncodingComboBox):
             if val:
-                g.setEditText(val)
+                g.setEditText(cast('str', val))
             else:
                 g.setCurrentIndex(0)
         elif isinstance(g, QComboBox) and val:
-            idx = g.findText(val, Qt.MatchFlag.MatchFixedString)
+            text = cast('str', val)
+            idx = g.findText(text, Qt.MatchFlag.MatchFixedString)
             if idx < 0:
-                g.addItem(val)
-                idx = g.findText(val, Qt.MatchFlag.MatchFixedString)
+                g.addItem(text)
+                idx = g.findText(text, Qt.MatchFlag.MatchFixedString)
             g.setCurrentIndex(idx)
         elif isinstance(g, QCheckBox):
             g.setCheckState(Qt.CheckState.Checked if bool(val) else Qt.CheckState.Unchecked)
         elif isinstance(g, (XPathEdit, RegexEdit)):
-            g.edit.setText(val or '')
+            g.edit.setText(cast('str | None', val) or '')
         else:
-            raise Exception(f"Can't set value {val!r} in {g.objectName()!s}")
+            raise Exception(f"Can't set value {val!r} in {cast('QWidget', g).objectName()!s}")
         self.post_set_value(g, val)
 
-    def set_help(self, msg) -> None:
+    def set_help(self, msg: str | None) -> None:
         if msg and getattr(msg, 'strip', lambda: True)():
             try:
                 self.set_help_signal.emit(msg)
             except Exception:
                 pass
 
-    def setup_help(self, help_provider) -> None:
+    def setup_help(self, help_provider: GetHelp) -> None:
         for name in self._options:
             g = getattr(self, 'opt_' + name, None)
             if g is None:
@@ -284,30 +313,30 @@ class Widget(QWidget):
                 continue
             if self.setup_help_handler(g, help):
                 continue
-            g._help = help
+            setattr(g, '_help', help)
             self.setup_widget_help(g)
 
-    def setup_widget_help(self, g) -> None:
+    def setup_widget_help(self, g: QWidget) -> None:
         w = textwrap.TextWrapper(80)
-        htext = '<div>{}</div>'.format(prepare_string_for_xml('\n'.join(w.wrap(g._help))))
+        htext = '<div>{}</div>'.format(prepare_string_for_xml('\n'.join(w.wrap(getattr(g, '_help')))))
         g.setToolTip(htext)
         g.setWhatsThis(htext)
-        g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
+        setattr(g.__class__, 'enterEvent', lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip())))
 
-    def set_value_handler(self, g, val) -> bool:
+    def set_value_handler(self, g: OptionWidget, val: object) -> bool:
         "Return True iff you handle setting the value for g"
         return False
 
-    def post_set_value(self, g, val) -> None:
+    def post_set_value(self, g: OptionWidget, val: object) -> None:
         pass
 
-    def get_value_handler(self, g) -> str:
+    def get_value_handler(self, g: OptionWidget) -> object:
         return 'this is a dummy return value, xcswx1avcx4x'
 
-    def post_get_value(self, g) -> None:
+    def post_get_value(self, g: OptionWidget) -> None:
         pass
 
-    def setup_help_handler(self, g, help) -> bool:
+    def setup_help_handler(self, g: OptionWidget, help: str) -> bool:
         return False
 
     def break_cycles(self) -> None:
@@ -316,11 +345,11 @@ class Widget(QWidget):
     def pre_commit_check(self) -> bool:
         return True
 
-    def commit(self, save_defaults=False):
+    def commit(self, save_defaults: bool = False) -> GuiRecommendations:
         return self.commit_options(save_defaults)
 
-    def config_title(self):
+    def config_title(self) -> str:
         return self.TITLE
 
-    def config_icon(self):
+    def config_icon(self) -> QIcon:
         return self._icon

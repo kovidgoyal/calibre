@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAbstractItemView, QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
 from calibre import force_unicode
@@ -11,8 +13,18 @@ from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Container, Iterable, Sequence
 
-def sort_key_for_action(ac):
+    from qt.core import QModelIndex
+
+    from calibre.gui2.actions import InterfaceAction
+    from calibre.gui2.ui import Main
+
+    type ToolbarAction = InterfaceAction | FakeAction
+
+
+def sort_key_for_action(ac: ToolbarAction) -> bytes | tuple[int, int]:
     q = getattr(ac, 'action_spec', None)
     try:
         q = ac.name if q is None else q[0]
@@ -22,7 +34,15 @@ def sort_key_for_action(ac):
 
 
 class FakeAction:
-    def __init__(self, name, gui_name, icon, tooltip=None, dont_add_to=frozenset(), dont_remove_from=frozenset()) -> None:
+    def __init__(
+        self,
+        name: str,
+        gui_name: str,
+        icon: str | None,
+        tooltip: str | None = None,
+        dont_add_to: frozenset[str] = frozenset(),
+        dont_remove_from: frozenset[str] = frozenset(),
+    ) -> None:
         self.name = name
         self.action_spec = (gui_name, icon, tooltip, None)
         self.dont_remove_from = dont_remove_from
@@ -30,9 +50,9 @@ class FakeAction:
 
 
 class BaseModel(QAbstractListModel):
-    _data: list
+    _data: list[ToolbarAction]
 
-    def name_to_action(self, name, gui):
+    def name_to_action(self, name: str | None, gui: Main) -> ToolbarAction | None:
         if name == 'Donate':
             return FakeAction(
                 'Donate',
@@ -68,10 +88,10 @@ class BaseModel(QAbstractListModel):
         except Exception:
             return None
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | None = None) -> int:
         return len(self._data)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> object:
         row = index.row()
         action = self._data[row].action_spec
         if role == Qt.ItemDataRole.DisplayRole:
@@ -81,8 +101,9 @@ class BaseModel(QAbstractListModel):
                 text = _('Choose library')
             return text
         if role == Qt.ItemDataRole.DecorationRole:
-            if hasattr(self._data[row], 'qaction'):
-                icon = self._data[row].qaction.icon()
+            qaction = getattr(self._data[row], 'qaction', None)
+            if qaction is not None:
+                icon = qaction.icon()
                 if not icon.isNull():
                     return icon
             ic = action[1]
@@ -93,7 +114,7 @@ class BaseModel(QAbstractListModel):
             return action[2]
         return None
 
-    def names(self, indexes):
+    def names(self, indexes: Iterable[QModelIndex]) -> list[str | None]:
         rows = [i.row() for i in indexes]
         ans = []
         for i in rows:
@@ -103,12 +124,12 @@ class BaseModel(QAbstractListModel):
             ans.append(n)
         return ans
 
-    def has_action(self, name):
+    def has_action(self, name: str) -> bool:
         return any(a.name == name for a in self._data)
 
 
 class AllModel(BaseModel):
-    def __init__(self, key, gui) -> None:
+    def __init__(self, key: str, gui: Main) -> None:
         BaseModel.__init__(self)
         self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
@@ -116,27 +137,29 @@ class AllModel(BaseModel):
         self.key = key
         self._data = self.get_all_actions(current)
 
-    def get_all_actions(self, current):
+    def get_all_actions(self, current: Sequence[str | None]) -> list[ToolbarAction]:
         all = list(self.gui.iactions.keys()) + ['Donate', 'Location Manager']
         all = [x for x in all if x not in current] + [None]
-        all = [self.name_to_action(x, self.gui) for x in all]
-        all = [x for x in all if self.key not in x.dont_add_to]
+        actions = [self.name_to_action(x, self.gui) for x in all]
+        ans = [x for x in actions if x is not None and self.key not in x.dont_add_to]
 
-        all.sort(key=sort_key_for_action)
-        return all
+        ans.sort(key=sort_key_for_action)
+        return ans
 
-    def add(self, names) -> None:
+    def add(self, names: Iterable[str | None]) -> None:
         actions = []
         for name in names:
             if name is None or name.startswith('---'):
                 continue
-            actions.append(self.name_to_action(name, self.gui))
+            ac = self.name_to_action(name, self.gui)
+            if ac is not None:
+                actions.append(ac)
         self.beginResetModel()
         self._data.extend(actions)
         self._data.sort(key=sort_key_for_action)
         self.endResetModel()
 
-    def remove(self, indices, allowed) -> None:
+    def remove(self, indices: Iterable[QModelIndex], allowed: Container[str | None]) -> None:
         rows = [i.row() for i in indices]
         remove = set()
         for row in rows:
@@ -161,16 +184,16 @@ class AllModel(BaseModel):
 
 
 class CurrentModel(BaseModel):
-    def __init__(self, key, gui) -> None:
+    def __init__(self, key: str, gui: Main) -> None:
         BaseModel.__init__(self)
         self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
-        self._data = [self.name_to_action(x, gui) for x in current]
-        self._data = [x for x in self._data if x is not None]
+        actions = [self.name_to_action(x, gui) for x in current]
+        self._data = [x for x in actions if x is not None]
         self.key = key
         self.gui = gui
 
-    def move_single(self, idx, delta) -> None:
+    def move_single(self, idx: QModelIndex, delta: int) -> None:
         row = idx.row()
         nrow = (row + delta + len(self._data)) % len(self._data)
         if row + delta < 0:
@@ -182,7 +205,7 @@ class CurrentModel(BaseModel):
         else:
             self._data[row], self._data[nrow] = self._data[nrow], self._data[row]
 
-    def move_many(self, indices, delta):
+    def move_many(self, indices: list[QModelIndex], delta: int) -> dict[int, QModelIndex]:
         rows = [i.row() for i in indices]
         items = [self._data[x.row()] for x in indices]
         self.beginResetModel()
@@ -195,11 +218,13 @@ class CurrentModel(BaseModel):
             ans[row] = self.index(self._data.index(item))
         return ans
 
-    def add(self, names):
+    def add(self, names: Iterable[str | None]) -> set[ToolbarAction]:
         actions = []
         reject = set()
         for name in names:
             ac = self.name_to_action(name, self.gui)
+            if ac is None:
+                continue
             if self.key in ac.dont_add_to:
                 reject.add(ac)
             else:
@@ -210,7 +235,7 @@ class CurrentModel(BaseModel):
         self.endResetModel()
         return reject
 
-    def remove(self, indices):
+    def remove(self, indices: Iterable[QModelIndex]) -> set[ToolbarAction]:
         rows = [i.row() for i in indices]
         remove, rejected = set(), set()
         for row in rows:
@@ -247,7 +272,8 @@ class CurrentModel(BaseModel):
     def restore_defaults(self) -> None:
         current = gprefs.defaults[self.gprefs_name]
         self.beginResetModel()
-        self._data = [self.name_to_action(x, self.gui) for x in current]
+        actions = [self.name_to_action(x, self.gui) for x in current]
+        self._data = [x for x in actions if x is not None]
         self.endResetModel()
 
 
@@ -265,7 +291,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ('context-menu-cover-browser', _('The context menu for the Cover browser')),
     ]
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.all_actions.doubleClicked.connect(self.add_single_action)
         self.current_actions.doubleClicked.connect(self.remove_single_action)
         self.models = {}
@@ -288,19 +314,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.all_actions.entered.connect(self.all_entered)
         self.current_actions.entered.connect(self.current_entered)
 
-    def all_entered(self, index) -> None:
+    def all_entered(self, index: QModelIndex) -> None:
         all_model = self.all_actions.model()
         assert all_model is not None
         tt = all_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
-    def current_entered(self, index) -> None:
+    def current_entered(self, index: QModelIndex) -> None:
         cur_model = self.current_actions.model()
         assert cur_model is not None
         tt = cur_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
-    def what_changed(self, idx) -> None:
+    def what_changed(self, idx: int) -> None:
         key = str(self.what.itemData(idx) or '')
         if key == 'blank':
             self.actions_widget.setVisible(False)
@@ -311,15 +337,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.all_actions.setModel(self.models[key][0])
             self.current_actions.setModel(self.models[key][1])
 
-    def add_action(self, *args) -> None:
+    def add_action(self, *args: object) -> None:
         all_sm = self.all_actions.selectionModel()
         assert all_sm is not None
         self._add_action(all_sm.selectedIndexes())
 
-    def add_single_action(self, index) -> None:
+    def add_single_action(self, index: QModelIndex) -> None:
         self._add_action([index])
 
-    def _add_action(self, indices) -> None:
+    def _add_action(self, indices: list[QModelIndex]) -> None:
         all_model = self.all_actions.model()
         assert isinstance(all_model, AllModel)
         names = all_model.names(indices)
@@ -345,15 +371,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
-    def remove_action(self, *args) -> None:
+    def remove_action(self, *args: object) -> None:
         cur_sm = self.current_actions.selectionModel()
         assert cur_sm is not None
         self._remove_action(cur_sm.selectedIndexes())
 
-    def remove_single_action(self, index) -> None:
+    def remove_single_action(self, index: QModelIndex) -> None:
         self._remove_action([index])
 
-    def _remove_action(self, indices) -> None:
+    def _remove_action(self, indices: list[QModelIndex]) -> None:
         cur_model = self.current_actions.model()
         assert isinstance(cur_model, CurrentModel)
         names = cur_model.names(indices)
@@ -393,7 +419,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.current_actions.scrollTo(newci, QAbstractItemView.ScrollHint.EnsureVisible)
             self.changed_signal.emit()
 
-    def commit(self, *args) -> bool:
+    def commit(self, *args: object) -> bool:
         # Ensure preferences are showing in either the toolbar or
         # the menubar.
         pref_in_toolbar = self.models['toolbar'][1].has_action('Preferences')
@@ -422,13 +448,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cm.commit()
         return False
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         for am, cm in self.models.values():
             cm.restore_defaults()
             am.restore_defaults()
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.bars_manager.init_bars()
         gui.bars_manager.update_bars()
 

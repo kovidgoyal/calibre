@@ -3,6 +3,7 @@
 
 import os
 from threading import Lock
+from typing import TYPE_CHECKING
 
 from qt.core import QCoreApplication, QUrl
 
@@ -18,14 +19,25 @@ from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDia
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from qt.core import QWidget
+
+    from calibre.customize import StoreBase
+    from calibre.gui2.ui import Main
+    from calibre.utils.config import JSONConfig
+
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
-    def __init__(self, *args, **kwargs) -> None:
-        StorePlugin.__init__(self, *args, **kwargs)
+    _mr_cache: JSONConfig
+
+    def __init__(self, gui: Main, name: str, config: JSONConfig | None = None, base_plugin: StoreBase | None = None) -> None:
+        StorePlugin.__init__(self, gui, name, config=config, base_plugin=base_plugin)
         self.lock = Lock()
 
     @property
-    def cache(self):
+    def cache(self) -> JSONConfig:
         if not hasattr(self, '_mr_cache'):
             from calibre.utils.config import JSONConfig
 
@@ -34,7 +46,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             self._mr_cache.refresh()
         return self._mr_cache
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
@@ -50,21 +62,21 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             d.setWindowTitle(self.name)
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: str | bytes, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         books = self.get_book_list()
 
         if not books:
             return
 
         sf = SearchFilter(books)
-        matches = sf.parse(query.decode('utf-8', 'replace'))
+        matches = sf.parse(query.decode('utf-8', 'replace') if isinstance(query, bytes) else query)
 
         for book in matches:
             book.price = '$0.00'
             book.drm = SearchResult.DRM_UNLOCKED
             yield book
 
-    def update_cache(self, parent=None, timeout=10, force=False, suppress_progress=False) -> bool:
+    def update_cache(self, parent: QWidget | None = None, timeout: int = 10, force: bool = False, suppress_progress: bool = False) -> bool:
         if self.lock.acquire(False):
             try:
                 update_thread = CacheUpdateThread(self.cache, self.seralize_books, timeout)
@@ -91,13 +103,13 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 self.lock.release()
         return False
 
-    def get_book_list(self):
+    def get_book_list(self) -> list[SearchResult]:
         return self.deseralize_books(self.cache.get('book_list', []))
 
-    def seralize_books(self, books):
+    def seralize_books(self, books: Iterable[SearchResult]) -> list[dict[str, str]]:
         sbooks = []
         for b in books:
-            data = {}
+            data: dict[str, str] = {}
             data['author'] = b.author
             data['title'] = b.title
             data['detail_item'] = b.detail_item
@@ -105,7 +117,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             sbooks.append(data)
         return sbooks
 
-    def deseralize_books(self, sbooks):
+    def deseralize_books(self, sbooks: Iterable[dict[str, str]]) -> list[SearchResult]:
         books = []
         for s in sbooks:
             b = SearchResult()

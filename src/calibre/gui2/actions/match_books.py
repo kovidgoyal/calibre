@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING, cast
+
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.match_books import MatchBooks
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.models import DeviceBooksModel
 
 
 class MatchBookAction(InterfaceAction):
@@ -16,20 +21,21 @@ class MatchBookAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.match_books_in_library)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def match_books_in_library(self, *args) -> None:
+    def match_books_in_library(self, *args: object) -> None:
         view = self.gui.current_view()
+        assert view is not None
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:
             d = error_dialog(self.gui, _('Match books'), _('You must select one book'))
             d.exec()
             return
 
-        id_ = view.model().indices(rows)[0]
+        id_ = cast('DeviceBooksModel', view.model()).indices(rows)[0]
         MatchBooks(self.gui, view, id_, rows[0]).exec()
 
 
@@ -47,21 +53,23 @@ class ShowMatchedBookAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_matched_books_in_library)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
 
-    def show_matched_books_in_library(self, *args) -> None:
+    def show_matched_books_in_library(self, *args: object) -> None:
         view = self.gui.current_view()
+        assert view is not None
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) != 1:
             d = error_dialog(self.gui, _('Match books'), _('You must select one book'))
             d.exec()
             return
 
-        device_book_index = view.model().indices(rows)[0]
-        device_db = view.model().db
+        model = cast('DeviceBooksModel', view.model())
+        device_book_index = model.indices(rows)[0]
+        device_db = model.db
         db = self.gui.current_db.new_api
         book = device_db[device_book_index]
         matching_book_ids = db.books_matching_device_book(book.lpath)

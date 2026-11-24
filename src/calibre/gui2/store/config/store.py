@@ -4,12 +4,19 @@
 Config widget access functions for configuring the store action.
 """
 
+from typing import TYPE_CHECKING, cast
 
-def config_widget():
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
+
+
+def config_widget() -> StoreConfigWidget:
     from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 
     return StoreConfigWidget()
 
 
-def save_settings(config_widget) -> None:
-    config_widget.save_settings()
+def save_settings(config_widget: QWidget) -> None:
+    cast('StoreConfigWidget', config_widget).save_settings()

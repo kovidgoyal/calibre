@@ -6,6 +6,7 @@ import os
 import sys
 import weakref
 from functools import lru_cache
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QApplication,
@@ -47,9 +48,23 @@ from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from lxml.etree import _Element
+    from qt.core import QContextMenuEvent, QKeyEvent, QListWidgetItem, QObject, QTreeWidgetItem
+    from qt.webengine import QWebEngineUrlRequestInfo
+
+    from calibre.ebooks.oeb.polish.container import Container
+    from calibre.gui2.dialogs.message_box import MessageBox
+    from calibre.utils.config import JSONConfig
+
+    # A ToC destination fragment: either an element id or a (loc, totals) pair as reported by toc.js
+    Frag = str | tuple[list[int], list[int]]
+
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
-    def interceptRequest(self, info) -> None:
+    def interceptRequest(self, info: QWebEngineUrlRequestInfo) -> None:
         method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             default_log.warn(f'Blocking URL request with method: {method}')
@@ -62,21 +77,22 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             return
 
 
-def current_container():
+def current_container() -> Container | None:
     return getattr(current_container, 'ans', lambda: None)()
 
 
 @lru_cache(maxsize=2)
-def mathjax_dir():
+def mathjax_dir() -> str:
     return P('mathjax', allow_user_override=False)
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST,)
 
-    def requestStarted(self, a0):
+    def requestStarted(self, a0: QWebEngineUrlRequestJob | None) -> None:
+        assert a0 is not None
         if bytes(a0.requestMethod()) != b'GET':
             return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
         c = current_container()
@@ -146,7 +162,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         else:
             return self.fail_request(a0)
 
-    def fail_request(self, rq, fail_code=None) -> None:
+    def fail_request(self, rq: QWebEngineUrlRequestJob, fail_code: QWebEngineUrlRequestJob.Error | None = None) -> None:
         if fail_code is None:
             fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
@@ -162,10 +178,10 @@ class Page(QWebEnginePage):  # {{{
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
-    def __init__(self, parent, prefs) -> None:
+    def __init__(self, parent: QObject | None, prefs: JSONConfig) -> None:
         global url_handler, interceptor, profile_memory
         self.log = default_log
-        self.current_frag = None
+        self.current_frag: Frag | None = None
         self.com_id = str(uuid4())
         profile = QWebEngineProfile(QApplication.instance())
         setup_profile(profile)
@@ -205,18 +221,18 @@ class Page(QWebEnginePage):  # {{{
         s.setSourceCode(js)
         self.scripts().insert(s)
 
-    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID) -> None:
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
         self.log('JS:', str(message))
 
-    def javaScriptAlert(self, securityOrigin, msg) -> None:
+    def javaScriptAlert(self, securityOrigin: QUrl, msg: str | None) -> None:
         self.log(str(msg))
 
-    def title_changed(self, title) -> None:
+    def title_changed(self, title: str) -> None:
         parts = title.split('-', 1)
         if len(parts) == 2 and parts[0] == self.com_id:
             self.runJavaScript('JSON.stringify(window.calibre_toc_data)', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.onclick)
 
-    def onclick(self, data) -> None:
+    def onclick(self, data: str) -> None:
         try:
             tag, elem_id, loc, totals, frac = json.loads(data)
         except Exception:
@@ -224,7 +240,7 @@ class Page(QWebEnginePage):  # {{{
         elem_id = elem_id or None
         self.elem_clicked.emit(tag, frac, elem_id, loc, totals)
 
-    def show_frag(self, ok) -> None:
+    def show_frag(self, ok: bool) -> None:
         if ok and self.current_frag:
             self.runJavaScript(f'''
                 document.location = '#non-existent-anchor';
@@ -245,23 +261,23 @@ class WebView(QWebEngineView):  # {{{
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
-    def __init__(self, parent, prefs) -> None:
+    def __init__(self, parent: QWidget | None, prefs: JSONConfig) -> None:
         QWebEngineView.__init__(self, parent)
         self._page = Page(self, prefs)
         self._page.elem_clicked.connect(self.elem_clicked)
         self._page.frag_shown.connect(self.frag_shown)
         self.setPage(self._page)
 
-    def load_name(self, name, frag=None) -> None:
+    def load_name(self, name: str, frag: Frag | None = None) -> None:
         self._page.current_frag = frag
         url = QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/')
         url.setPath(f'/book/{name}')
         self.setUrl(url)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(300, 300)
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         pass
 
 
@@ -269,11 +285,11 @@ class WebView(QWebEngineView):  # {{{
 
 
 class ItemEdit(QWidget):
-    def __init__(self, parent, prefs=None) -> None:
+    def __init__(self, parent: QWidget | None, prefs: JSONConfig | None = None) -> None:
         QWidget.__init__(self, parent)
         self.prefs = prefs or gprefs
-        self.pending_search = None
-        self.current_frag = None
+        self.pending_search: Callable[[], None] | None = None
+        self.current_frag: Frag | None = None
         self.current_name: str = ''
         self.setLayout(QVBoxLayout())
 
@@ -356,30 +372,31 @@ class ItemEdit(QWidget):
         if state is not None:
             sp.restoreState(state)
 
-    def load_finished(self, ok) -> None:
+    def load_finished(self, ok: bool) -> None:
         if self.pending_search:
             self.pending_search()
         self.pending_search = None
 
-    def keyPressEvent(self, a0):
-        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.search_text.hasFocus():
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0 is not None and a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.search_text.hasFocus():
             # Prevent pressing enter in the search box from triggering the dialog's accept() method
             a0.accept()
             return
         return super().keyPressEvent(a0)
 
-    def _find(self, forwards=True) -> None:
+    def _find(self, forwards: bool = True) -> None:
         text = str(self.search_text.text()).strip()
         flags = QWebEnginePage.FindFlag(0) if forwards else QWebEnginePage.FindFlag.FindBackward
         self.find_data = text, flags, forwards
         self.view.findText(text, flags, self.find_callback)
 
-    def find_callback(self, found):
+    def find_callback(self, found: bool) -> None:
         d = self.dest_list
         text, flags, forwards = self.find_data
         if not found and text:
             if d.count() == 1:
-                return error_dialog(self, _('No match found'), _('No match found for: %s') % text, show=True)
+                error_dialog(self, _('No match found'), _('No match found for: %s') % text, show=True)
+                return
 
             delta = 1 if forwards else -1
             current_item = d.currentItem()
@@ -395,20 +412,21 @@ class ItemEdit(QWidget):
                 self.pending_search = self.find_next if forwards else self.find_previous
                 d.setCurrentRow(next_index)
 
-    def find_next(self):
+    def find_next(self) -> None:
         return self._find()
 
-    def find_previous(self):
+    def find_previous(self) -> None:
         return self._find(forwards=False)
 
-    def load(self, container) -> None:
+    def load(self, container: Container) -> None:
         self.container = container
         setattr(current_container, 'ans', weakref.ref(container))
         spine_names = [container.abspath_to_name(p) for p in container.spine_items]
         spine_names = [n for n in spine_names if container.has_name(n)]
         self.dest_list.addItems(spine_names)
 
-    def current_changed(self, item):
+    def current_changed(self, item: QListWidgetItem | None) -> MessageBox | int | None:
+        assert item is not None
         name = self.current_name = str(item.data(Qt.ItemDataRole.DisplayRole) or '')
         # Ensure encoding map is populated
         root = self.container.parsed(name)
@@ -418,6 +436,7 @@ class ItemEdit(QWidget):
                 _('Not an HTML file'),
                 _('The file {} is not marked as an HTML file in the OPF and cannot be displayed').format(name),
             )
+        root = cast('_Element', root)
         nasty = root.xpath('//*[local-name()="head"]/*[local-name()="p"]')
         if nasty:
             body = root.xpath('//*[local-name()="body"]')
@@ -435,7 +454,7 @@ class ItemEdit(QWidget):
         self.current_frag = None
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' + name + '<br>' + _('Top of the file'))
 
-    def __call__(self, item, where):
+    def __call__(self, item: QTreeWidgetItem | None, where: str | None) -> None:
         self.current_item, self.current_where = item, where
         self.current_name = ''
         self.current_frag = None
@@ -458,12 +477,12 @@ class ItemEdit(QWidget):
         self.dest_list.blockSignals(True)
         self.dest_list.setCurrentRow(dest_index)
         self.dest_list.blockSignals(False)
-        item = self.dest_list.item(dest_index)
+        dest_item = self.dest_list.item(dest_index)
         if frag:
             self.current_frag = frag
-        self.current_changed(item)
+        self.current_changed(dest_item)
 
-    def get_loctext(self, frac):
+    def get_loctext(self, frac: float) -> str:
         frac = round(frac * 100)
         if frac == 0:
             loctext = _('Top of the file')
@@ -471,17 +490,17 @@ class ItemEdit(QWidget):
             loctext = _('Approximately %d%% from the top') % frac
         return loctext
 
-    def elem_clicked(self, tag, frac, elem_id, loc, totals) -> None:
+    def elem_clicked(self, tag: str, frac: float, elem_id: str | None, loc: list[int], totals: list[int]) -> None:
         self.current_frag = elem_id or (loc, totals)
         base = _('Location: A &lt;%s&gt; tag inside the file') % tag
         loctext = base + f' [{self.get_loctext(frac)}]'
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' + self.current_name + '<br>' + loctext)
 
-    def update_dest_label(self, val) -> None:
+    def update_dest_label(self, val: float) -> None:
         self.dest_label.setText(self.base_msg + '<br>' + _('File:') + ' ' + self.current_name + '<br>' + self.get_loctext(val))
 
     @property
-    def result(self):
+    def result(self) -> tuple[QTreeWidgetItem | None, str | None, str, Frag | None, str]:
         return (
             self.current_item,
             self.current_where,

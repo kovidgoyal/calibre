@@ -2,24 +2,33 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from calibre.gui2 import config, gprefs
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_display_ui import Ui_Form
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
+    from qt.core import QIcon, QObject
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+
 
 class TBDisplayedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
-    def __init__(self, db, parent=None, category_icons=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QObject | None = None, category_icons: Mapping[str, QIcon] | None = None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui(fail_if_absent=True)
 
-    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
+    def initialize(self, use_defaults: bool = False, pref_data_override: Iterable[tuple[str, bool]] | None = None) -> None:
         from calibre.gui2.tag_browser.model import TagsModel
 
         tv = self.gui.tags_view
@@ -47,7 +56,7 @@ class TBDisplayedFields(DisplayedFields):
 
 
 class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         r = self.register
         r('tag_browser_old_look', gprefs)
@@ -64,7 +73,11 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         r('show_notes_in_tag_browser', gprefs)
         r('icons_on_right_in_tag_browser', gprefs)
 
-        self.tb_display_model = TBDisplayedFields(self.gui.current_db, self.tb_display_order, category_icons=self.gui.tags_view.model().category_custom_icons)
+        from calibre.gui2.tag_browser.model import TagsModel
+
+        tv_model = self.gui.tags_view.model()
+        assert isinstance(tv_model, TagsModel)
+        self.tb_display_model = TBDisplayedFields(self.gui.current_db, self.tb_display_order, category_icons=tv_model.category_custom_icons)
         self.tb_display_model.dataChanged.connect(self.changed_signal)
         self.tb_display_order.setModel(self.tb_display_model)
         self.tb_reset_layout_button.clicked.connect(partial(reset_layout, self, model=self.tb_display_model))
@@ -81,13 +94,13 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_display_model.initialize()
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_display_model.restore_defaults()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         self.tb_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.tags_view.set_look_and_feel()

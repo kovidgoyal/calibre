@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.library.annotations import AnnotationsBrowser
 
 
 class BrowseAnnotationsAction(InterfaceAction):
@@ -21,10 +27,10 @@ class BrowseAnnotationsAction(InterfaceAction):
 
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.show_browser)
-        self._browser = None
+        self._browser: AnnotationsBrowser | None = None
 
     @property
-    def browser(self):
+    def browser(self) -> AnnotationsBrowser:
         if self._browser is None:
             from calibre.gui2.library.annotations import AnnotationsBrowser
 
@@ -37,7 +43,7 @@ class BrowseAnnotationsAction(InterfaceAction):
     def show_browser(self) -> None:
         self.browser.show_dialog(self.gui.library_view.get_selected_ids(as_set=True))
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         if self._browser is not None:
             self._browser.reinitialize()
 
@@ -45,7 +51,7 @@ class BrowseAnnotationsAction(InterfaceAction):
         if self._browser is not None:
             self._browser.selection_changed()
 
-    def open_book(self, book_id, fmt):
+    def open_book(self, book_id: int, fmt: str) -> int | None:
         if not self.gui.library_view.select_rows({book_id}):
             db = self.gui.current_db.new_api
             title = db.field_for('title', book_id)
@@ -58,5 +64,5 @@ class BrowseAnnotationsAction(InterfaceAction):
                 show=True,
             )
 
-    def open_annotation(self, book_id, fmt, cfi) -> None:
+    def open_annotation(self, book_id: int, fmt: str, cfi: str) -> None:
         self.gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=cfi)

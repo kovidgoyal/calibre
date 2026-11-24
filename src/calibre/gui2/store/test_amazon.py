@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
 import unittest
+from unittest.mock import patch
 
 from calibre.gui2.store.amazon_live import MONEY_PAT, parse_results
 
@@ -77,6 +78,7 @@ class TestAmazonStore(unittest.TestCase):
 
     def test_amazon_store_query(self) -> None:
         from calibre.gui2.store import amazon_live
+        from calibre.gui2.store.amazon_base import AmazonStore
 
         queries: list[object] = []
 
@@ -84,13 +86,9 @@ class TestAmazonStore(unittest.TestCase):
             queries.append(query)
             return page(result('B0FRV1V54C', 'The End of Everything', by('M. John Harrison')))
 
-        orig = amazon_live.search_results_html
-        amazon_live.search_results_html = fake_search
-        try:
+        with patch.object(amazon_live, 'search_results_html', fake_search):
             # The Get books dialog passes the query as UTF-8 encoded bytes
-            results = list(amazon_live.search_amazon(None, 'end everything m. john harrison café'.encode(), 10, 60))
-        finally:
-            amazon_live.search_results_html = orig
+            results = list(amazon_live.search_amazon(AmazonStore(), 'end everything m. john harrison café'.encode(), 10, 60))
         self.assertEqual(queries, ['end everything m. john harrison café'])
         self.assertEqual([r.detail_item for r in results], ['B0FRV1V54C'])
 

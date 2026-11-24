@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QApplication, QTimer
 
 from calibre.gui2 import config, error_dialog, gprefs
@@ -12,11 +14,14 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
-        db = gui.library_view.model().db
+        db = gui.current_db
         self.db = db
 
         r = self.register
@@ -73,7 +78,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 "in automatic user categories. "
             )
         )
-        self.gst = db.prefs.get('grouped_search_terms', {}).copy()
+        gst = db.prefs.get('grouped_search_terms', {})
+        assert isinstance(gst, dict)
+        self.gst: dict[str, list[str]] = gst.copy()
         self.orig_gst_keys = list(self.gst.keys())
 
         fm = db.new_api.field_metadata
@@ -118,13 +125,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         assert _muc_le is not None
         _muc_le.editingFinished.connect(self.muc_box_changed)
 
-    def set_similar_fields(self, initial=False) -> None:
+    def set_similar_fields(self, initial: bool = False) -> None:
         self.set_similar('similar_authors_search_key', initial=initial)
         self.set_similar('similar_tags_search_key', initial=initial)
         self.set_similar('similar_series_search_key', initial=initial)
         self.set_similar('similar_publisher_search_key', initial=initial)
 
-    def set_similar(self, name, initial=False) -> None:
+    def set_similar(self, name: str, initial: bool = False) -> None:
         field = getattr(self, name)
         if not initial:
             val = field.currentText()
@@ -151,13 +158,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             QTimer.singleShot(0, self.changed_signal.emit)
         field.blockSignals(False)
 
-    def something_changed(self, dex) -> None:
+    def something_changed(self, dex: int) -> None:
         self.changed_signal.emit()
 
     def muc_box_changed(self) -> None:
         self.muc_changed = True
 
-    def gst_save_clicked(self):
+    def gst_save_clicked(self) -> int | None:
         idx = self.gst_names.currentIndex()
         name = icu_lower(str(self.gst_names.currentText()))
         if not name:
@@ -181,7 +188,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     _('That name is already used for a column or grouped search term'),
                     show=True,
                 )
-            if name in [icu_lower(p) for p in self.db.prefs.get('user_categories', {})]:
+            user_categories = self.db.prefs.get('user_categories', {})
+            assert isinstance(user_categories, dict)
+            if name in [icu_lower(p) for p in user_categories]:
                 return error_dialog(self.gui, _('Grouped search terms'), _('That name is already used for User category'), show=True)
 
         val = [v.strip() for v in str(self.gst_value.text()).split(',') if v.strip()]
@@ -195,7 +204,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_similar_fields(initial=False)
         self.changed_signal.emit()
 
-    def gst_delete_clicked(self):
+    def gst_delete_clicked(self) -> int | None:
         if self.gst_names.currentIndex() == 0:
             return error_dialog(self.gui, _('Grouped search terms'), _('The empty grouped search term cannot be deleted'), show=True)
         name = str(self.gst_names.currentText())
@@ -206,7 +215,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gst_changed = True
             self.set_similar_fields(initial=False)
 
-    def fill_gst_box(self, select=None) -> None:
+    def fill_gst_box(self, select: str | None = None) -> None:
         terms = sorted(self.gst.keys(), key=sort_key)
         self.opt_grouped_search_make_user_categories.update_items_cache(terms)
         self.gst_names.blockSignals(True)
@@ -226,7 +235,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_delete_button.setEnabled(len(t) > 0 and t in self.gst)
         self.gst_save_button.setEnabled(True)
 
-    def gst_index_changed(self, idx) -> None:
+    def gst_index_changed(self, idx: int) -> None:
         self.gst_delete_button.setEnabled(idx != 0)
         self.gst_save_button.setEnabled(False)
         self.gst_value.blockSignals(True)
@@ -237,7 +246,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gst_value.setText(','.join(self.gst[name]))
         self.gst_value.blockSignals(False)
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         if self.opt_case_sensitive.isChecked() and self.opt_use_primary_find_in_search.isChecked():
             error_dialog(
                 self,
@@ -277,18 +286,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.db.new_api.set_pref('categories_using_hierarchy', list(cats))
         return restart
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.refresh_search_bar_widgets()
         self.gui.bars_manager.update_bars()
         gui.current_db.new_api.clear_caches()
         set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
         if self.gst_changed or self.muc_changed:
-            gui.tags_view.model().reset_tag_browser()
+            gui.tags_view._model.reset_tag_browser()
         gui.search.search_as_you_type(config['search_as_you_type'])
         gui.search.do_search()
 
-    def clear_histories(self, *args) -> None:
+    def clear_histories(self, *args: object) -> None:
         for key, val in config.defaults.items():
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []

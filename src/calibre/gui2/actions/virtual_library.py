@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QAction, Qt, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
 
 
 class VirtualLibraryAction(InterfaceAction):
@@ -16,8 +21,9 @@ class VirtualLibraryAction(InterfaceAction):
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
     def genesis(self) -> None:
-        self.menu = m = self.qaction.menu()
+        m = self.qaction.menu()
         assert m is not None
+        self.menu = m
         m.aboutToShow.connect(self.about_to_show_menu)
         self.qs_action = QAction(self.gui)
         self.gui.addAction(self.qs_action)
@@ -47,7 +53,7 @@ class VirtualLibraryAction(InterfaceAction):
     def about_to_show_menu(self) -> None:
         self.gui.build_virtual_library_menu(self.menu, add_tabs_action=False)
 
-    def library_changed(self, db) -> None:
+    def library_changed(self, db: LibraryDatabase) -> None:
         self.gui.clear_vl_history()
 
     def switch_to_previous_virtual_library(self) -> None:

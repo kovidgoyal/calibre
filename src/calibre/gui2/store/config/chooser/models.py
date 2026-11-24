@@ -1,6 +1,6 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from typing import overload
+from typing import TYPE_CHECKING, overload
 
 from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QStyledItemDelegate, Qt
 
@@ -12,9 +12,17 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.search_query_parser import SearchQueryParser
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from types import EllipsisType
+
+    from qt.core import QPainter, QStyleOptionViewItem
+
+    from calibre.customize import StoreBase
+
 
 class Delegate(QStyledItemDelegate):
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         icon = index.data(Qt.ItemDataRole.DecorationRole)
         if icon and not icon.isNull():
             QStyledItemDelegate.paint(self, painter, option, QModelIndex())
@@ -27,6 +35,7 @@ class Delegate(QStyledItemDelegate):
             if ph > h:
                 y = (ph - h) // 2
                 r = r.adjusted(0, y, 0, -y)
+            assert painter is not None
             painter.drawPixmap(r, icon.pixmap(w, h))
         else:
             QStyledItemDelegate.paint(self, painter, option, index)
@@ -37,7 +46,7 @@ class Matches(QAbstractItemModel):
     HTML_COLS = (1,)
     CENTERED_COLUMNS = (0, 2, 3, 4)
 
-    def __init__(self, plugins) -> None:
+    def __init__(self, plugins: list[StoreBase]) -> None:
         QAbstractItemModel.__init__(self)
 
         self.NO_DRM_ICON = QIcon.ic('ok.png')
@@ -51,14 +60,14 @@ class Matches(QAbstractItemModel):
         self.sort_col = 1
         self.sort_order = Qt.SortOrder.AscendingOrder
 
-    def get_plugin(self, index):
+    def get_plugin(self, index: QModelIndex) -> StoreBase | None:
         row = index.row()
         if row < len(self.matches):
             return self.matches[row]
         else:
             return None
 
-    def search(self, filter) -> None:
+    def search(self, filter: str) -> None:
         self.filter = filter.strip()
         if not self.filter:
             self.matches = self.all_matches
@@ -84,30 +93,32 @@ class Matches(QAbstractItemModel):
         for i in range(len(self.matches)):
             self.toggle_plugin(self.createIndex(i, 0))
 
-    def toggle_plugin(self, index) -> None:
+    def toggle_plugin(self, index: QModelIndex) -> None:
         new_index = self.createIndex(index.row(), 0)
-        data = Qt.CheckState.Unchecked if is_disabled(self.get_plugin(index)) else Qt.CheckState.Checked
+        plugin = self.get_plugin(index)
+        assert plugin is not None
+        data = Qt.CheckState.Unchecked if is_disabled(plugin) else Qt.CheckState.Checked
         self.setData(new_index, data, Qt.ItemDataRole.CheckStateRole)
 
-    def index(self, row, column, parent=QModelIndex()):
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
         return self.createIndex(row, column)
 
     @overload
     def parent(self, child: QModelIndex) -> QModelIndex: ...
     @overload
     def parent(self) -> QObject | None: ...
-    def parent(self, child: QModelIndex = QModelIndex()):
+    def parent(self, child: QModelIndex = QModelIndex()) -> QModelIndex | QObject | None:
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.matches)
 
-    def columnCount(self, parent=...):
+    def columnCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role=...):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int | EllipsisType = ...) -> str | int | None:
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -118,7 +129,7 @@ class Matches(QAbstractItemModel):
         else:
             return section + 1
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         row, col = index.row(), index.column()
         result = self.matches[row]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
@@ -177,24 +188,26 @@ class Matches(QAbstractItemModel):
                 return '<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>'
         return None
 
-    def setData(self, index, value, role=...) -> bool:
+    def setData(self, index: QModelIndex, value: object, role: int | EllipsisType = ...) -> bool:
         if not index.isValid():
             return False
         col = index.column()
         if col == 0:
+            plugin = self.get_plugin(index)
+            assert plugin is not None
             if value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
-                enable_plugin(self.get_plugin(index))
+                enable_plugin(plugin)
             else:
-                disable_plugin(self.get_plugin(index))
+                disable_plugin(plugin)
         self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), self.columnCount() - 1))
         return True
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if index.column() == 0:
             return QAbstractItemModel.flags(self, index) | Qt.ItemFlag.ItemIsUserCheckable
         return QAbstractItemModel.flags(self, index)
 
-    def data_as_text(self, match, col):
+    def data_as_text(self, match: StoreBase, col: int) -> str:
         text = ''
         if col == 0:
             text = 'b' if is_disabled(match) else 'a'
@@ -208,7 +221,7 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
-    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True) -> None:
+    def sort(self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset: bool = True) -> None:
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -232,16 +245,16 @@ class SearchFilter(SearchQueryParser):
         'name',
     ]
 
-    def __init__(self, all_plugins=None) -> None:
+    def __init__(self, all_plugins: Iterable[StoreBase] | None = None) -> None:
         if all_plugins is None:
             all_plugins = []
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set(all_plugins)
 
-    def universal_set(self):
+    def universal_set(self) -> set[StoreBase]:
         return self.srs
 
-    def get_matches(self, location, query, candidates=None):
+    def get_matches(self, location: str, query: str, candidates: set[StoreBase] | None = None) -> set[StoreBase]:
         location = location.lower().strip()
         if location == 'formats':
             location = 'format'
@@ -261,7 +274,7 @@ class SearchFilter(SearchQueryParser):
 
         if location not in self.USABLE_LOCATIONS:
             return set()
-        matches = set()
+        matches: set[StoreBase] = set()
         all_locs = set(self.USABLE_LOCATIONS) - {'all'}
         locations = all_locs if location == 'all' else [location]
         q = {

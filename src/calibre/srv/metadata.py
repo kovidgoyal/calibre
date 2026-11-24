@@ -908,7 +908,7 @@ def test_tag_browser(library_path: str | None = None) -> None:
     }
     app = Application([])
     m = TagsModel(None, prefs)
-    m.set_database(olddb, opts.hidden_categories)
+    m.set_database(olddb, set(opts.hidden_categories))
     m_data = dump_tags_model(m)
     if m_data == srv_data:
         print('No differences found in the two Tag Browser implementations')

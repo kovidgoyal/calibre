@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode, urlparse
 
 from lxml import html
@@ -14,6 +15,13 @@ try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
     safe_html_fromstring = html.fromstring
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from lxml import etree
+
+    from calibre.gui2.store.amazon_base import AmazonStore
 
 module_version = 3  # needed for live updates
 minimum_calibre_version = (9, 17, 0)
@@ -31,15 +39,15 @@ class AmazonBlocked(Exception):
     pass
 
 
-def has_class(name):
+def has_class(name: str) -> str:
     return f'contains(concat(" ", normalize-space(@class), " "), " {name} ")'
 
 
-def text_of(elem):
+def text_of(elem: etree._Element) -> str:
     return ' '.join(''.join(elem.itertext()).split())
 
 
-def search_in_browser(self, query, timeout):
+def search_in_browser(self: AmazonStore, query: str, timeout: float) -> str:
     """Search using the shared Camoufox browser, which can get past the bot
     checks Amazon puts in front of anything that is not a browser."""
     from calibre.web.automate.metadata import run_in_browser
@@ -51,18 +59,18 @@ def search_in_browser(self, query, timeout):
     return result['html']
 
 
-def is_bot_check(raw):
+def is_bot_check(raw: str) -> bool:
     return not raw.strip() or '.awswaf.com/' in raw or 'validateCaptcha' in raw
 
 
-def search_with_scraper(self, query, timeout):
+def search_with_scraper(self: AmazonStore, query: str, timeout: float) -> str:
     uquery = self.SEARCH_BASE_QUERY.copy()
     uquery[self.FIELD_KEYWORDS] = query
     url = self.SEARCH_BASE_URL + '?' + urlencode(uquery)
     return read_url(self.scraper_storage, url, timeout=timeout)
 
 
-def search_results_html(self, query, timeout):
+def search_results_html(self: AmazonStore, query: str, timeout: float) -> str:
     try:
         return search_in_browser(self, query, timeout)
     except Exception as err:
@@ -79,12 +87,12 @@ def search_results_html(self, query, timeout):
     return raw
 
 
-def format_links(item):
+def format_links(item: etree._Element) -> list[etree._Element]:
     """The links to the formats of a search result, below its title."""
     return item.xpath(f'descendant::div[{has_class("a-row")} and {has_class("a-size-base")} and {has_class("a-color-base")}]/a[contains(@href, "/dp/")]')
 
 
-def kindle_asin(item):
+def kindle_asin(item: etree._Element) -> str | None:
     """The ASIN of the Kindle edition of a search result, or None if it does
     not have one. Kindle is a name, the same in every language."""
     for a in format_links(item):
@@ -97,7 +105,7 @@ def kindle_asin(item):
     return None
 
 
-def authors_of(item):
+def authors_of(item: etree._Element) -> str:
     """The authors, in the row with them in, between the "by" label, which is
     in the language of the page, and the next separator. Authors are links to
     their pages on Amazon, or, for those without one, plain text."""
@@ -121,7 +129,7 @@ def authors_of(item):
     return ''
 
 
-def price_of(item):
+def price_of(item: etree._Element) -> str:
     price = ''
     for span in item.xpath(f'descendant::span[{has_class("a-price")}]/span[{has_class("a-offscreen")}]'):
         if q := text_of(span):
@@ -136,7 +144,7 @@ def price_of(item):
     return price
 
 
-def parse_results(raw, max_results):
+def parse_results(raw: str, max_results: int) -> Iterator[SearchResult]:
     root = safe_html_fromstring(raw)
     seen = set()
     for item in root.xpath('//div[@data-component-type="s-search-result" and @data-asin]'):
@@ -164,7 +172,9 @@ def parse_results(raw, max_results):
         yield s
 
 
-def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
+def search_amazon(
+    self: AmazonStore, query: bytes | str, max_results: int = 10, timeout: float = 60, write_html_to: str | None = None
+) -> Iterator[SearchResult]:
     if isinstance(query, bytes):
         # The Get books dialog passes the query as UTF-8 encoded bytes
         query = query.decode('utf-8')
@@ -175,12 +185,12 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
     yield from parse_results(raw, max_results)
 
 
-def get_details_amazon(self, search_result, timeout):
+def get_details_amazon(self: AmazonStore, search_result: SearchResult, timeout: float) -> bool:
     # The DRM status of a book is only on its details page, and fetching that
     # for every search result is what gets Amazon to detect a bot, so it is
     # left unknown. Still present as older calibre versions call it.
     return False
 
 
-def get_store_link_amazon(self, detail_item):
+def get_store_link_amazon(self: AmazonStore, detail_item: str | None) -> str:
     return (self.DETAILS_URL + detail_item) if detail_item else self.STORE_LINK

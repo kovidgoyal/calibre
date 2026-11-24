@@ -6,6 +6,7 @@ store_version = 10  # Needed for dynamic plugin loading
 import re
 from base64 import b64encode
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from qt.core import QUrl
@@ -23,7 +24,15 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
-def as_base64(data):
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
+def as_base64(data: str | bytes) -> str:
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
     ans = b64encode(data)
@@ -33,7 +42,7 @@ def as_base64(data):
 
 
 class EbookpointStore(BasicStoreConfig, StorePlugin):
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/32/58/'
 
         url = 'http://ebookpoint.pl/'
@@ -52,10 +61,10 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=25, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 25, timeout: int = 60) -> Iterator[SearchResult]:
         url = (
             'http://ebookpoint.pl/search?qa=&szukaj='
-            + quote_plus(query.decode('utf-8').encode('iso-8859-2'))
+            + quote_plus((query.decode('utf-8') if isinstance(query, bytes) else query).encode('iso-8859-2'))
             + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
         )
 

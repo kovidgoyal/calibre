@@ -7,6 +7,7 @@ import sys
 import time
 from collections import OrderedDict
 from threading import Thread
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 from zlib import decompressobj
 
@@ -15,14 +16,17 @@ from calibre.constants import DEBUG, numeric_version
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Mapping
+
 
 class VersionMismatch(ValueError):
-    def __init__(self, ver) -> None:
+    def __init__(self, ver: int) -> None:
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
 
 
-def download_updates(ver_map=None, server='https://code.calibre-ebook.com'):
+def download_updates(ver_map: Mapping[str, int] | None = None, server: str = 'https://code.calibre-ebook.com') -> Iterator[tuple[str, str]]:
     from calibre.utils.https import get_https_resource_securely
 
     if ver_map is None:
@@ -48,14 +52,15 @@ def download_updates(ver_map=None, server='https://code.calibre-ebook.com'):
         raw = d.unused_data
 
 
-class Stores(OrderedDict):
+class Stores(OrderedDict[str, StorePlugin]):
     CHECK_INTERVAL = 24 * 60 * 60
+    update_thread: Thread
 
     def builtins_loaded(self) -> None:
-        self.last_check_time = 0
-        self.version_map = {}
-        self.cached_version_map = {}
-        self.name_rmap = {}
+        self.last_check_time: float = 0
+        self.version_map: dict[str, int] = {}
+        self.cached_version_map: dict[str, int] = {}
+        self.name_rmap: dict[str, str] = {}
         for key, val in self.items():
             prefix, name = val.__module__.rpartition('.')[0::2]
             if prefix == 'calibre.gui2.store.stores' and name.endswith('_plugin'):
@@ -117,10 +122,10 @@ class Stores(OrderedDict):
             self.update_thread = Thread(target=self.do_update)
             self.update_thread.start()
 
-    def join(self, timeout=None) -> None:
+    def join(self, timeout: float | None = None) -> None:
         hasattr(self, 'update_thread') and self.update_thread.join(timeout)
 
-    def download_updates(self):
+    def download_updates(self) -> Iterator[tuple[str, str]]:
         ver_map = {name: max(ver, self.cached_version_map.get(name, -1)) for name, ver in self.version_map.items()}
         try:
             updates = download_updates(ver_map)
@@ -132,7 +137,7 @@ class Stores(OrderedDict):
             yield from updates
 
     def do_update(self) -> None:
-        replacements = {}
+        replacements: dict[str, str] = {}
 
         for name, src in self.download_updates():
             try:
@@ -161,7 +166,7 @@ class Stores(OrderedDict):
                 for name, src in replacements.items():
                     self.cache_file[name] = src
 
-    def replace_plugin(self, ver, name, obj, source) -> bool:
+    def replace_plugin(self, ver: int, name: str, obj: StorePlugin, source: str) -> bool:
         if ver > self.version_map[name]:
             if DEBUG:
                 prints('Loaded', source, 'store plugin for:', self.name_rmap[name], 'at version:', ver)
@@ -170,7 +175,7 @@ class Stores(OrderedDict):
             return True
         return False
 
-    def load_object(self, src, key):
+    def load_object(self, src: str, key: str) -> tuple[StorePlugin, int]:
         namespace = {}
         builtin = self[key]
         exec(src, namespace)

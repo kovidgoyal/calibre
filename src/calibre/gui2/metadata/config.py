@@ -3,6 +3,7 @@
 
 import numbers
 import textwrap
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QLabel, QLineEdit, QListView, QSpinBox, Qt, QVBoxLayout, QWidget
 
@@ -10,9 +11,14 @@ from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QSize
+
+    from calibre.ebooks.metadata.sources.base import Option, Source
+
 
 class FieldsModel(FM):  # {{{
-    def __init__(self, plugin) -> None:
+    def __init__(self, plugin: Source) -> None:
         FM.__init__(self)
         self.plugin = plugin
         self.exclude = frozenset(['title', 'authors']) | self.exclude
@@ -28,7 +34,7 @@ class FieldsModel(FM):  # {{{
         self.fields.sort(key=lambda x: self.descs.get(x, x))
         self.endResetModel()
 
-    def state(self, field, defaults=False):
+    def state(self, field: str, defaults: bool = False) -> Qt.CheckState:
         src = self.prefs.defaults if defaults else self.prefs
         return Qt.CheckState.Unchecked if field in src['ignore_fields'] else Qt.CheckState.Checked
 
@@ -47,12 +53,12 @@ class FieldsModel(FM):  # {{{
 
 
 class FieldsList(QListView):
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return self.minimumSizeHint()
 
 
 class ConfigWidget(QWidget):
-    def __init__(self, plugin) -> None:
+    def __init__(self, plugin: Source) -> None:
         QWidget.__init__(self)
         self.plugin = plugin
 
@@ -82,7 +88,7 @@ class ConfigWidget(QWidget):
         for opt in plugin.options:
             self.create_widgets(opt)
 
-    def create_widgets(self, opt) -> None:
+    def create_widgets(self, opt: Option) -> None:
         val = self.plugin.prefs[opt.name]
         if opt.type == 'number':
             c = QSpinBox if isinstance(opt.default, numbers.Integral) else QDoubleSpinBox
@@ -97,6 +103,7 @@ class ConfigWidget(QWidget):
             widget.setChecked(bool(val))
         elif opt.type == 'choices':
             widget = QComboBox(self)
+            assert isinstance(opt.choices, dict)  # Option() converts choices to a dict
             items = list(opt.choices.items())
             items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:

@@ -5,6 +5,7 @@ import json
 import os
 import textwrap
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -52,6 +53,20 @@ from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import _, lang_map, ngettext
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+    from types import EllipsisType
+
+    from qt.core import QModelIndex, QObject
+
+    from calibre.db.lazy import ProxyMetadata
+    from calibre.db.legacy import ThreadSafePrefs
+    from calibre.library.coloring import Condition
+    from calibre.library.field_metadata import FieldMetadata
+
+    #: A rule is (kind, column, Rule object or template)
+    type RuleTuple = tuple[str, str, Rule | str]
 
 all_columns_string = _('All columns')
 
@@ -150,7 +165,7 @@ class ConditionEditor(QWidget):  # {{{
     for x in ('float', 'rating'):
         ACTION_MAP[x] = ACTION_MAP['int']
 
-    def __init__(self, fm, parent=None) -> None:
+    def __init__(self, fm: FieldMetadata, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         self.fm = fm
 
@@ -196,12 +211,12 @@ class ConditionEditor(QWidget):  # {{{
             b.setMinimumContentsLength(20)
 
     @property
-    def current_col(self):
+    def current_col(self) -> str:
         idx = self.column_box.currentIndex()
         return str(self.column_box.itemData(idx) or '')
 
     @current_col.setter
-    def current_col(self, val) -> None:
+    def current_col(self, val: str) -> None:
         for idx in range(self.column_box.count()):
             c = str(self.column_box.itemData(idx) or '')
             if c == val:
@@ -210,12 +225,12 @@ class ConditionEditor(QWidget):  # {{{
         raise ValueError(f'Column {val!r} not found')
 
     @property
-    def current_action(self):
+    def current_action(self) -> str:
         idx = self.action_box.currentIndex()
         return str(self.action_box.itemData(idx) or '')
 
     @current_action.setter
-    def current_action(self, val) -> None:
+    def current_action(self, val: str) -> None:
         for idx in range(self.action_box.count()):
             c = str(self.action_box.itemData(idx) or '')
             if c == val:
@@ -224,7 +239,7 @@ class ConditionEditor(QWidget):  # {{{
         raise ValueError(f'Action {val!r} not valid for current column')
 
     @property
-    def current_val(self):
+    def current_val(self) -> str:
         ans = str(self.value_box.text()).strip()
         if not self.value_box.isEnabled():
             ans = ''
@@ -234,7 +249,7 @@ class ConditionEditor(QWidget):  # {{{
         return ans
 
     @property
-    def condition(self):
+    def condition(self) -> Condition | None:
 
         c, a, v = (self.current_col, self.current_action, self.current_val)
         if not c or not a:
@@ -242,7 +257,7 @@ class ConditionEditor(QWidget):  # {{{
         return c, a, v
 
     @condition.setter
-    def condition(self, condition) -> None:
+    def condition(self, condition: Condition) -> None:
         c, a, v = condition
         if not v:
             v = ''
@@ -343,8 +358,8 @@ class ConditionEditor(QWidget):  # {{{
 
 
 class RemoveIconFileDialog(QDialog):  # {{{
-    def __init__(self, parent, icon_file_names, icon_folder) -> None:
-        self.files_to_remove = []
+    def __init__(self, parent: QWidget | None, icon_file_names: Iterable[str], icon_folder: str) -> None:
+        self.files_to_remove: list[str] = []
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Remove icons'))
         self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
@@ -365,13 +380,14 @@ class RemoveIconFileDialog(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(700, 600)
 
-    def accept(self):
+    def accept(self) -> None:
         self.files_to_remove = [item.text() for item in self.listbox.selectedItems()]
         if not self.files_to_remove:
-            return error_dialog(self, _('No icons selected'), _('You must select at least one icon to remove'), show=True)
+            error_dialog(self, _('No icons selected'), _('You must select at least one icon to remove'), show=True)
+            return
         if question_dialog(
             self,
             _('Remove icons'),
@@ -426,7 +442,7 @@ kind_emblems = {'emblem', 'bookshelf_emblem'}
 kind_colors = {'color'}
 
 
-def get_template_dialog(parent, rule, field=None, kind=None):
+def get_template_dialog(parent: EditRules, rule: str, field: str | None = None, kind: str | None = None) -> TemplateDialog:
     if parent.pref_name == 'column_color_rules':
         return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, color_field=field)
     if parent.pref_name in {'cover_grid_icon_rules', 'bookshelf_icon_rules'}:
@@ -440,10 +456,10 @@ class RuleEditor(QDialog):  # {{{
     orig_filenamebox_view: QAbstractItemView
 
     @property
-    def doing_multiple(self):
+    def doing_multiple(self) -> bool:
         return hasattr(self, 'multiple_icon_cb') and self.multiple_icon_cb.isChecked()
 
-    def __init__(self, fm, pref_name, parent=None) -> None:
+    def __init__(self, fm: FieldMetadata, pref_name: str, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.fm = fm
 
@@ -632,7 +648,7 @@ class RuleEditor(QDialog):  # {{{
         self.update_icon_filenames_in_box()
 
     @property
-    def icon_folder(self):
+    def icon_folder(self) -> str:
         return os.path.join(config_dir, 'cc_icons')
 
     def populate_icon_filenames(self) -> None:
@@ -682,7 +698,7 @@ class RuleEditor(QDialog):  # {{{
             '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample text'))
         )
 
-    def sanitize_icon_file_name(self, icon_path):
+    def sanitize_icon_file_name(self, icon_path: str) -> str:
         n = lower(sanitize_file_name(os.path.splitext(os.path.basename(icon_path))[0] + '.png'))
         return n.replace("'", '_')
 
@@ -726,7 +742,7 @@ class RuleEditor(QDialog):  # {{{
 
             traceback.print_exc()
 
-    def get_filenames_from_box(self):
+    def get_filenames_from_box(self) -> str:
         if self.doing_multiple:
             model = self.filename_box.model()
             assert isinstance(model, QStandardItemModel)
@@ -778,7 +794,7 @@ class RuleEditor(QDialog):  # {{{
         assert conditions_widget_layout is not None
         conditions_widget_layout.addWidget(c)
 
-    def apply_rule(self, kind, col, rule) -> None:
+    def apply_rule(self, kind: str, col: str, rule: Rule) -> None:
         if kind in kind_colors:
             if rule.color:
                 self.color_box.color = rule.color
@@ -788,6 +804,7 @@ class RuleEditor(QDialog):  # {{{
                     if kind == tup[1]:
                         self.kind_box.setCurrentIndex(i)
                         break
+            assert rule.color is not None
             self.rule_icon_files = [ic.strip() for ic in rule.color.split(':')]
             if len(self.rule_icon_files) > 1:
                 self.multiple_icon_cb.setChecked(True)
@@ -851,7 +868,7 @@ class RuleEditor(QDialog):  # {{{
         return True
 
     @property
-    def rule(self):
+    def rule(self) -> tuple[str, str, Rule]:
         r = Rule(self.fm)
         if self.rule_kind in kind_icons:
             r.color = self.get_filenames_from_box()
@@ -877,7 +894,7 @@ class RuleEditor(QDialog):  # {{{
 class RulesModel(QAbstractListModel):  # {{{
     EXIM_VERSION = 1
 
-    def load_rule(self, col, template):
+    def load_rule(self, col: str, template: str) -> Rule | str | None:
         if col not in self.fm and col != color_row_key:
             return
         try:
@@ -886,31 +903,31 @@ class RulesModel(QAbstractListModel):  # {{{
             rule = template
         return rule
 
-    def __init__(self, prefs, fm, pref_name, parent=None) -> None:
+    def __init__(self, prefs: ThreadSafePrefs, fm: FieldMetadata, pref_name: str, parent: QObject | None = None) -> None:
         QAbstractListModel.__init__(self, parent)
 
         self.fm = fm
         self.pref_name = pref_name
         self.rule_kind = pref_name_map[pref_name]['kind']
         if pref_name == 'column_color_rules':
-            rules = list(prefs[pref_name])
-            self.rules = []
+            rules = list(cast('Iterable[tuple[str, str]]', prefs[pref_name]))
+            self.rules: list[RuleTuple] = []
             for col, template in rules:
                 rule = self.load_rule(col, template)
                 if rule is not None:
                     self.rules.append((self.rule_kind, col, rule))
         else:
-            rules = list(prefs[pref_name])
+            rules3 = list(cast('Iterable[tuple[str, str, str]]', prefs[pref_name]))
             self.rules = []
-            for kind, col, template in rules:
+            for kind, col, template in rules3:
                 rule = self.load_rule(col, template)
                 if rule is not None:
                     self.rules.append((kind, col, rule))
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex | EllipsisType = ...) -> int:
         return len(self.rules)
 
-    def data(self, index, role=...):
+    def data(self, index: QModelIndex, role: int | EllipsisType = ...) -> object:
         row = index.row()
         try:
             kind, col, rule = self.rules[row]
@@ -925,7 +942,7 @@ class RulesModel(QAbstractListModel):  # {{{
         if role == Qt.ItemDataRole.UserRole:
             return kind, col, rule
 
-    def add_rule(self, kind, col, rule, selected_row=None):
+    def add_rule(self, kind: str, col: str, rule: Rule | str, selected_row: QModelIndex | None = None) -> QModelIndex:
         self.beginResetModel()
         if selected_row:
             self.rules.insert(selected_row.row(), (kind, col, rule))
@@ -936,17 +953,17 @@ class RulesModel(QAbstractListModel):  # {{{
             return self.index(selected_row.row())
         return self.index(len(self.rules) - 1)
 
-    def replace_rule(self, index, kind, col, r) -> None:
+    def replace_rule(self, index: QModelIndex, kind: str, col: str, r: Rule | str) -> None:
         self.rules[index.row()] = (kind, col, r)
         self.dataChanged.emit(index, index)
 
-    def remove_rule(self, index) -> None:
+    def remove_rule(self, index: QModelIndex) -> None:
         self.beginResetModel()
         self.rules.remove(self.rules[index.row()])
         self.endResetModel()
 
-    def rules_as_list(self, for_export=False):
-        rules = []
+    def rules_as_list(self, for_export: bool = False) -> list[tuple[str, str] | tuple[str, str, str]]:
+        rules: list[tuple[str, str] | tuple[str, str, str]] = []
         for kind, col, r in self.rules:
             if isinstance(r, Rule):
                 r = r.template
@@ -957,7 +974,7 @@ class RulesModel(QAbstractListModel):  # {{{
                     rules.append((kind, col, r))
         return rules
 
-    def import_rules(self, rules) -> None:
+    def import_rules(self, rules: Iterable[tuple[str, str, str]]) -> None:
         self.beginResetModel()
         for kind, col, template in rules:
             if self.pref_name == 'column_color_rules':
@@ -967,10 +984,10 @@ class RulesModel(QAbstractListModel):  # {{{
                 self.rules.append((kind, col, rule))
         self.endResetModel()
 
-    def commit(self, prefs) -> None:
+    def commit(self, prefs: ThreadSafePrefs) -> None:
         prefs[self.pref_name] = self.rules_as_list()
 
-    def move(self, idx, delta):
+    def move(self, idx: QModelIndex, delta: int) -> QModelIndex | None:
         row = idx.row() + delta
         if row >= 0 and row < len(self.rules):
             self.beginResetModel()
@@ -985,7 +1002,7 @@ class RulesModel(QAbstractListModel):  # {{{
         self.beginResetModel()
         self.endResetModel()
 
-    def rule_to_html(self, kind, col, rule):
+    def rule_to_html(self, kind: str, col: str | None, rule: Rule | str) -> str:
         trans_kind = 'not found'
         if kind in kind_colors:
             trans_kind = _('color')
@@ -1026,7 +1043,7 @@ class RulesModel(QAbstractListModel):  # {{{
             <ul>%(rule)s</ul>
             ''') % dict(kind=trans_kind, col=col, color=rule.color, sample=sample, rule=''.join(conditions))
 
-    def condition_to_html(self, condition):
+    def condition_to_html(self, condition: Condition) -> str:
         col, a, v = condition
         dt = self.fm[col]['datatype']
         c = self.fm[col]['name']
@@ -1064,11 +1081,11 @@ class RulesModel(QAbstractListModel):  # {{{
 
 
 class RulesView(ListViewWithMoveByKeyPress):  # {{{
-    def __init__(self, parent, enable_convert_buttons_function) -> None:
+    def __init__(self, parent: QWidget | None, enable_convert_buttons_function: Callable[[bool], None]) -> None:
         ListViewWithMoveByKeyPress.__init__(self, parent)
         self.enable_convert_buttons_function = enable_convert_buttons_function
 
-    def currentChanged(self, current, previous):
+    def currentChanged(self, current: QModelIndex, previous: QModelIndex) -> None:
         if self.model() and current.isValid():
             model = self.model()
             assert model is not None
@@ -1082,8 +1099,12 @@ class RulesView(ListViewWithMoveByKeyPress):  # {{{
 
 class EditRules(QWidget):  # {{{
     changed = pyqtSignal()
+    model: RulesModel
+    pref_name: str
+    fm: FieldMetadata
+    mi: list[ProxyMetadata] | None
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
 
         self.l = l = QGridLayout(self)
@@ -1201,7 +1222,7 @@ class EditRules(QWidget):  # {{{
                 self.choices.setCurrentIndex(max(0, idx))
         self.model.clear()
 
-    def initialize(self, fm, prefs, mi, pref_name) -> None:
+    def initialize(self, fm: FieldMetadata, prefs: ThreadSafePrefs, mi: list[ProxyMetadata] | None, pref_name: str) -> None:
         self.pref_name = pref_name
         self.model = RulesModel(prefs, fm, self.pref_name)
         self.rules_view.setModel(self.model)
@@ -1254,7 +1275,7 @@ class EditRules(QWidget):  # {{{
         for x in ('add_advanced_button', 'rules_view', 'up_button', 'down_button', 'add_button', 'remove_button'):
             getattr(self, x).setEnabled(enabled)
 
-    def do_enable_convert_buttons(self, to_what) -> None:
+    def do_enable_convert_buttons(self, to_what: bool) -> None:
         self.convert_to_advanced_button.setEnabled(to_what)
         self.duplicate_rule_button.setEnabled(True)
 
@@ -1267,13 +1288,16 @@ class EditRules(QWidget):  # {{{
             return
         idx = self.rules_view.currentIndex()
         if idx.isValid():
-            kind, col, rule = self.model.data(idx, Qt.ItemDataRole.UserRole)
+            kind, col, rule = cast('RuleTuple', self.model.data(idx, Qt.ItemDataRole.UserRole))
             if isinstance(rule, Rule):
-                template = '\n'.join([l for l in rule.template.splitlines() if not l.startswith(Rule.SIGNATURE)])
+                rule_template = rule.template
+                assert rule_template is not None
+                template = '\n'.join([l for l in rule_template.splitlines() if not l.startswith(Rule.SIGNATURE)])
                 orig_row = idx.row()
                 self.model.remove_rule(idx)
                 new_idx = self.model.add_rule(kind, col, template)
                 new_idx = self.model.move(new_idx, -(self.model.rowCount() - orig_row - 1))
+                assert new_idx is not None
                 self.rules_view.setCurrentIndex(new_idx)
                 self.changed.emit()
 
@@ -1286,10 +1310,11 @@ class EditRules(QWidget):  # {{{
             return
         idx = self.rules_view.currentIndex()
         if idx.isValid():
-            kind, col, rule = self.model.data(idx, Qt.ItemDataRole.UserRole)
+            kind, col, rule = cast('RuleTuple', self.model.data(idx, Qt.ItemDataRole.UserRole))
             orig_row = idx.row() + 1
             new_idx = self.model.add_rule(kind, col, rule)
             new_idx = self.model.move(new_idx, -(self.model.rowCount() - orig_row - 1))
+            assert new_idx is not None
             self.rules_view.setCurrentIndex(new_idx)
             self.changed.emit()
 
@@ -1310,21 +1335,25 @@ class EditRules(QWidget):  # {{{
         if td.exec() != QDialog.DialogCode.Accepted:
             return
         if self.pref_name == 'column_color_rules':
-            col, r = td.rule
+            color_rule = td.rule
+            assert len(color_rule) == 2
+            col, r = color_rule
             if r and col:
                 idx = self.model.add_rule('color', col, r, selected_row=selected_row)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
         else:
-            typ, col, r = td.rule
+            icon_rule = td.rule
+            assert len(icon_rule) == 3
+            typ, col, r = icon_rule
             if typ and r and col:
                 idx = self.model.add_rule(typ, col, r, selected_row=selected_row)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
-    def edit_rule(self, index) -> None:
+    def edit_rule(self, index: QModelIndex) -> None:
         try:
-            kind, col, rule = self.model.data(index, Qt.ItemDataRole.UserRole)
+            kind, col, rule = cast('RuleTuple', self.model.data(index, Qt.ItemDataRole.UserRole))
         except Exception:
             return
         if isinstance(rule, Rule):
@@ -1334,7 +1363,7 @@ class EditRules(QWidget):  # {{{
             d = get_template_dialog(self, rule, field=col, kind=kind)
 
         if d.exec() == QDialog.DialogCode.Accepted:
-            _rule = d.rule
+            _rule: tuple[str | None, str] | tuple[str | None, str | None, Rule | str] = d.rule
             if len(_rule) == 2:  # Convert template dialog rules to a triple
                 _rule = ('color', _rule[0], _rule[1])
             kind, col, r = _rule
@@ -1343,13 +1372,13 @@ class EditRules(QWidget):  # {{{
                 self.rules_view.scrollTo(index)
                 self.changed.emit()
 
-    def get_first_selected_row(self):
+    def get_first_selected_row(self) -> QModelIndex | None:
         r = self.get_selected_row('', show_error=False)
         if r:
             return r[-1]
         return None
 
-    def get_selected_row(self, txt, show_error=True):
+    def get_selected_row(self, txt: str, show_error: bool = True) -> list[QModelIndex] | None:
         sm = self.rules_view.selectionModel()
         assert sm is not None
         rows = list(sm.selectedRows())
@@ -1366,7 +1395,7 @@ class EditRules(QWidget):  # {{{
                 self.model.remove_rule(row)
             self.changed.emit()
 
-    def move_rows(self, moving_up=True, use_kbd_modifiers=True) -> None:
+    def move_rows(self, moving_up: bool = True, use_kbd_modifiers: bool = True) -> None:
         if use_kbd_modifiers:
             _rvm = self.rules_view.model()
             assert _rvm is not None
@@ -1399,7 +1428,7 @@ class EditRules(QWidget):  # {{{
         self.model.clear()
         self.changed.emit()
 
-    def commit(self, prefs) -> None:
+    def commit(self, prefs: ThreadSafePrefs) -> None:
         self.model.commit(prefs)
         match self.pref_name:
             case 'cover_grid_icon_rules':
@@ -1430,7 +1459,7 @@ class EditRules(QWidget):  # {{{
             with open(path, 'wb') as f:
                 f.write(data)
 
-    def import_rules(self):
+    def import_rules(self) -> None:
         files = choose_files(
             self,
             'import-coloring-rules',
@@ -1450,13 +1479,15 @@ class EditRules(QWidget):  # {{{
                     raise ValueError('Rules are not of the correct type')
                 rules = list(rules['rules'])
             except Exception as e:
-                return error_dialog(
+                error_dialog(
                     self,
                     _('No valid rules found'),
                     _('No valid rules were found in {}.').format(files[0]),
                     det_msg=as_unicode(e),
                     show=True,
                 )
+                return
+
             self.model.import_rules(rules)
             self.changed.emit()
 

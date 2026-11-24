@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QDialog, QFormLayout, QInputDialog, Qt, QVBoxLayout
 
@@ -13,9 +14,14 @@ from calibre.gui2.widgets import FilenamePattern
 from calibre.utils.config import prefs
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
+    from calibre.gui2.ui import Main
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
 
         r = self.register
@@ -105,20 +111,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
 
     # Blocked auto formats {{{
-    def blocked_auto_formats_changed(self, *args) -> None:
+    def blocked_auto_formats_changed(self, *args: object) -> None:
         fmts = self.current_blocked_auto_formats
         old = gprefs['blocked_auto_formats']
         if set(fmts) != set(old):
             self.changed_signal.emit()
 
-    def init_blocked_auto_formats(self, defaults=False) -> None:
+    def init_blocked_auto_formats(self, defaults: bool = False) -> None:
         if defaults:
             fmts = gprefs.defaults['blocked_auto_formats']
         else:
             fmts = gprefs['blocked_auto_formats']
         self.set_blocked_auto_formats(set(fmts))
 
-    def set_blocked_auto_formats(self, fmts) -> None:
+    def set_blocked_auto_formats(self, fmts: Collection[str]) -> None:
         exts = set(AUTO_ADDED) | set(fmts)
         viewer = self.opt_blocked_auto_formats
         viewer.blockSignals(True)
@@ -148,7 +154,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
 
     @property
-    def current_blocked_auto_formats(self):
+    def current_blocked_auto_formats(self) -> list[str]:
         fmts = []
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
@@ -160,7 +166,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # }}}
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
@@ -168,7 +174,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules = []
         self.add_filter_rules = []
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         path = str(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:
@@ -204,7 +210,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     _('Are you sure?'),
                     _('<b>WARNING:</b> Any files you place in %s will be automatically deleted after being added to calibre. Are you sure?') % path,
                 ):
-                    return
+                    return False
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
         fmts = self.current_blocked_auto_formats
@@ -230,9 +236,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ret = ConfigWidgetBase.commit(self)
         return changed or ret
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         # Ensure worker process reads updated settings
-        gui.spare_pool().shutdown()
+        pool = gui.spare_pool()
+        if pool is not None:
+            pool.shutdown()
         # Update rules used int he auto adder
         gui.auto_adder.read_rules()
 

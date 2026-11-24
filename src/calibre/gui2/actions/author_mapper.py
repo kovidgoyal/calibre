@@ -25,7 +25,7 @@ class AuthorMapAction(InterfaceAction):
         ids = set(map(self.gui.library_view.model().id, rows))
         self.do_map(ids, selected)
 
-    def do_map(self, book_ids, selected) -> None:
+    def do_map(self, book_ids: set[int], selected: bool) -> None:
         from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         from calibre.gui2.author_mapper import RulesDialog
         from calibre.gui2.widgets import BusyCursor

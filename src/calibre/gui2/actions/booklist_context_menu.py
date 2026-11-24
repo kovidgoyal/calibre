@@ -19,5 +19,5 @@ class BooklistContextMenuAction(InterfaceAction):
     def show_context_menu(self) -> None:
         self.gui.library_view.show_column_header_context_menu_from_action()
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         self.qaction.setEnabled(loc == 'library')

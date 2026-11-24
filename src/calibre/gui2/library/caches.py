@@ -11,7 +11,7 @@ from functools import partial
 from queue import Empty, LifoQueue, Queue, ShutDown
 from threading import Event, RLock, Thread, current_thread
 from time import monotonic
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from qt.core import QBuffer, QByteArray, QColor, QImage, QImageWriter, QIODevice, QObject, QPixmap, Qt, pyqtSignal
 
@@ -20,9 +20,20 @@ from calibre.utils import join_with_timeout
 from calibre.utils.img import resize_to_fit
 from calibre_extensions.imageops import load_from_data_without_gil
 
+if TYPE_CHECKING:
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.db.tests.base import BaseTest
+
 
 class ThumbnailCache(TC):
-    def __init__(self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0, location=None) -> None:
+    def __init__(
+        self,
+        max_size: float = 1024,
+        thumbnail_size: tuple[int, int] = (100, 100),
+        name: str = 'gui-thumbnail-cache',
+        version: int = 0,
+        location: str | None = None,
+    ) -> None:
         TC.__init__(
             self,
             name=name,
@@ -33,7 +44,7 @@ class ThumbnailCache(TC):
             location=location,
         )
 
-    def set_database(self, db) -> None:
+    def set_database(self, db: LibraryDatabase) -> None:
         TC.set_group_id(self, db.library_id)
 
 
@@ -48,7 +59,7 @@ class RAMCache(MutableMapping[int, T]):
     book is removed either by the GUI or the content server.
     """
 
-    def __init__(self, limit=100) -> None:
+    def __init__(self, limit: int = 100) -> None:
         self.cached_items = OrderedDict[int, T]()
         self.lock = RLock()
         self.limit = limit
@@ -107,7 +118,7 @@ class RAMCache(MutableMapping[int, T]):
                 self.pixmap_staging = []
             self.cached_items.clear()
 
-    def set_limit(self, limit) -> None:
+    def set_limit(self, limit: int) -> None:
         with self.lock:
             self.limit = max(0, int(limit))
             needs_staging = current_thread() is not self.gui_thread
@@ -256,6 +267,8 @@ class ThumbnailRenderer(QObject):
             # Cover not in cache. Try to read the cover from the library.
             has_cover, cover_as_bytes, timestamp = db.cover_or_cache(book_id, 0)
             if has_cover:
+                # with a timestamp of 0 and as_what='bytes' a found cover is always returned as bytes with its mtime
+                assert isinstance(cover_as_bytes, bytes) and timestamp is not None
                 thumbnail, thumbnail_as_bytes = self.make_thumbnail(cover_as_bytes, width, height)
                 tc.insert(book_id, timestamp, thumbnail_as_bytes, (width, height))
         else:
@@ -270,6 +283,8 @@ class ThumbnailRenderer(QObject):
                             tc.invalidate((book_id,))
                             return self.fetch_cover_from_cache(book_id, width, height)
                 else:
+                    # as_what='bytes' and cover data present implies bytes and its mtime
+                    assert isinstance(cover_as_bytes, bytes) and timestamp is not None
                     thumbnail, thumbnail_as_bytes = self.make_thumbnail(cover_as_bytes, width, height)
                     tc.insert(book_id, timestamp, thumbnail_as_bytes, (width, height))
             else:
@@ -306,7 +321,7 @@ class ThumbnailRenderer(QObject):
         self.ram_cache.invalidate(book_ids)
         self.disk_cache.invalidate(book_ids)
 
-    def set_database(self, db) -> None:
+    def set_database(self, db: LibraryDatabase) -> None:
         self.current_library_id = db.new_api.library_id
         self.ignore_render_requests.set()
         try:
@@ -388,11 +403,11 @@ class CoverThumbnailCache(QObject):
 
     def __init__(
         self,
-        max_size=1024,
-        thumbnail_size=(100, 100),
-        name='gui-thumbnail-cache',
-        version=0,
-        ram_limit=100,
+        max_size: float = 1024,
+        thumbnail_size: tuple[int, int] = (100, 100),
+        name: str = 'gui-thumbnail-cache',
+        version: int = 0,
+        ram_limit: int = 100,
         thumbnailer: Thumbnailer | None = None,
         parent: QObject | None = None,
     ) -> None:
@@ -405,7 +420,7 @@ class CoverThumbnailCache(QObject):
         )
         self.renderer.rendered.connect(self.rendered)
 
-    def set_database(self, db) -> None:
+    def set_database(self, db: LibraryDatabase) -> None:
         self.renderer.set_database(db)
 
     def set_thumbnail_size(self, width: int, height: int) -> None:
@@ -441,23 +456,23 @@ class ThumbnailerForTest(Thumbnailer):
     def __init__(self) -> None:
         self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
 
-    def as_pixmap(self, img):
+    def as_pixmap(self, img: QImage) -> QImage:  # ty: ignore[incompatible-method-override] QImage stands in for QPixmap so tests can run without a GUI
         return QImage(img)
 
 
 class ThumbnailRendererForTest(ThumbnailRenderer):
-    def __init__(self, tdir) -> None:
+    def __init__(self, tdir: str) -> None:
         super().__init__(ThumbnailCache(thumbnail_size=(5, 5), location=tdir), RAMCache(), ThumbnailerForTest(), None)
         self.signal_queue = Queue()
         self.rendered_items = []
 
-    def emit_cover_rendered(self, library_id, book_id, width, height, thumb) -> None:
+    def emit_cover_rendered(self, library_id: str, book_id: int, width: int, height: int, thumb: QImage) -> None:
         self.signal_queue.put(partial(self.on_cover_rendered, library_id, book_id, width, height, thumb))
 
-    def emit_rendered(self, book_id, thumb) -> None:
+    def emit_rendered(self, book_id: int, thumb: QPixmap) -> None:
         self.rendered_items.append((book_id, thumb))
 
-    def pump_signals(self, block=False, timeout=None):
+    def pump_signals(self, block: bool = False, timeout: float | None = None) -> int:
         count = 0
         while True:
             try:
@@ -469,7 +484,7 @@ class ThumbnailRendererForTest(ThumbnailRenderer):
         return count
 
 
-def run_test(self, t: ThumbnailRendererForTest) -> None:
+def run_test(self: BaseTest, t: ThumbnailRendererForTest) -> None:
     from calibre.db.constants import COVER_FILE_NAME
 
     legacy = self.init_legacy(self.cloned_library)
@@ -485,14 +500,14 @@ def run_test(self, t: ThumbnailRendererForTest) -> None:
     self.assertIsNotNone(db.cover_timestamp(3))
     ae = self.assertEqual
 
-    def set_database(legacy) -> None:
+    def set_database(legacy: LibraryDatabase) -> None:
         t.pump_signals()
         before = len(t.rendered_items)
         t.set_database(legacy)
         t.pump_signals()
         ae(before, len(t.rendered_items))
 
-    def wait_for_render(timeout=2) -> None:
+    def wait_for_render(timeout: float = 2) -> None:
         if not t.rendered_items:
             limit = monotonic() + timeout
             while (now := monotonic()) < limit:
@@ -500,7 +515,7 @@ def run_test(self, t: ThumbnailRendererForTest) -> None:
                     return
             raise AssertionError('Timed out waiting for render')
 
-    def ac(book_id, col, n=0) -> None:
+    def ac(book_id: int, col: Qt.GlobalColor, n: int = 0) -> None:
         wait_for_render()
         q, i = t.rendered_items[n]
         del t.rendered_items[n]
@@ -590,7 +605,7 @@ def run_test(self, t: ThumbnailRendererForTest) -> None:
     ae(i.dominant_color.name(), q.dominant_color.name())  # type: ignore
 
 
-def test_cover_cache(self) -> None:
+def test_cover_cache(self: BaseTest) -> None:
     with tempfile.TemporaryDirectory() as tdir:
         t = ThumbnailRendererForTest(tdir)
         try:

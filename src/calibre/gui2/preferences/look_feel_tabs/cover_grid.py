@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QTabWidget, pyqtSignal
 
 from calibre.gui2 import gprefs
@@ -12,20 +14,27 @@ from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
+    from calibre.gui2.preferences import ConfigWidgetBase
+    from calibre.gui2.ui import Main
+
 
 class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         db = self.gui.library_view.model().db
+        assert db is not None
         r = self.register
 
-        r('cover_grid_icon_rules', {}, setting=RulesSetting)
+        self.register_setting(RulesSetting('cover_grid_icon_rules', {}, self))
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
         r('cover_grid_spacing', gprefs)
@@ -70,7 +79,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         self.update_aspect_ratio()
 
     @property
-    def current_cover_size(self):
+    def current_cover_size(self) -> tuple[float, float]:
         cval = self.opt_cover_grid_height.value()
         wval = self.opt_cover_grid_width.value()
         if cval < 0.1:
@@ -85,7 +94,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         ar = width / height
         self.cover_grid_aspect_ratio.setText(_('Current aspect ratio (width/height): %.2g') % ar)
 
-    def resize_cover(self, smaller) -> None:
+    def resize_cover(self, smaller: bool) -> None:
         wval, cval = self.current_cover_size
         ar = wval / cval
         delta = 0.2 * (-1 if smaller else 1)
@@ -98,7 +107,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         self.opt_cover_grid_width.setValue(0)
         self.opt_cover_grid_height.setValue(0)
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.library_view.refresh_grid()
         gui.grid_view.refresh_settings()
         gui.update_auto_scroll_timeout()
@@ -109,4 +118,11 @@ if __name__ == '__main__':
     from calibre.gui2.preferences import test_widget
 
     app = Application([])
-    test_widget('Interface', 'Look & Feel', callback=lambda w: w.sections_view.setCurrentRow(1))
+
+    def callback(w: ConfigWidgetBase) -> None:
+        from calibre.gui2.preferences.look_feel import ConfigWidget
+
+        assert isinstance(w, ConfigWidget)
+        w.sections_view.setCurrentRow(1)
+
+    test_widget('Interface', 'Look & Feel', callback=callback)

@@ -4,6 +4,7 @@
 store_version = 3  # Needed for dynamic plugin loading
 
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote_plus
 
 from calibre import browser
@@ -19,10 +20,18 @@ except ImportError:
     from lxml.html import fromstring as safe_html_fromstring
 
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+
+
 class BiblioStore(BasicStoreConfig, StorePlugin):
     web_url = 'https://biblio.bg'
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
         if external or self.config.get('open_external', False):
             open_url(detail_item or self.web_url)
         else:
@@ -31,7 +40,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         if isinstance(query, bytes):
             query = query.decode('utf-8')
 
@@ -42,7 +51,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
         url = f'{self.web_url}/книги?query={quote_plus(query)}&search_by=0'
         yield from self._do_search(url, max_results, timeout)
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())
@@ -62,7 +71,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
 
         return True
 
-    def _do_search(self, url, max_results, timeout):
+    def _do_search(self, url: str, max_results: int, timeout: int) -> Iterator[SearchResult]:
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
             page = f.read().decode('utf-8')

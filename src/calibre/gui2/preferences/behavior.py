@@ -3,6 +3,7 @@
 
 import re
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QDropEvent, QListWidget, QListWidgetItem, Qt
 
@@ -18,15 +19,18 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
+
 
 class OutputFormatSetting(Setting):
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchFixedString
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
-        db = gui.library_view.model().db
+        db = gui.current_db
 
         r = self.register
         choices = (
@@ -47,7 +51,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = [(x.upper(), x) for x in output_formats]
         r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
-        restrictions = sorted(db.prefs['virtual_libraries'], key=sort_key)
+        vl_map = db.prefs['virtual_libraries']
+        assert isinstance(vl_map, dict)
+        restrictions = sorted(vl_map, key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
         # check that the virtual library still exists
         vls = db.prefs['virtual_lib_on_startup']
@@ -77,13 +83,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.init_input_order()
         self.init_internally_viewed_formats()
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.init_input_order(defaults=True)
         self.init_internally_viewed_formats(defaults=True)
         self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         input_map = prefs['input_format_order']
         input_cols = []
         for i in range(self.opt_input_order.count()):
@@ -98,17 +104,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             config['internally_viewed_formats'] = fmts
         ret = ConfigWidgetBase.commit(self)
         # Signal a possible change of the VL at startup opt
-        get_change_library_action_plugin().rebuild_change_library_menus.emit()
+        cl_action = get_change_library_action_plugin()
+        if cl_action is not None:
+            cl_action.rebuild_change_library_menus.emit()
         return ret
 
     # Internally viewed formats {{{
-    def internally_viewed_formats_changed(self, *args) -> None:
+    def internally_viewed_formats_changed(self, *args: object) -> None:
         fmts = self.current_internally_viewed_formats
         old = config['internally_viewed_formats']
         if fmts != old:
             self.changed_signal.emit()
 
-    def init_internally_viewed_formats(self, defaults=False) -> None:
+    def init_internally_viewed_formats(self, defaults: bool = False) -> None:
         if defaults:
             fmts = config.defaults['internally_viewed_formats']
         else:
@@ -131,7 +139,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer.blockSignals(False)
 
     @property
-    def current_internally_viewed_formats(self):
+    def current_internally_viewed_formats(self) -> list[str]:
         fmts = []
         viewer = self.opt_internally_viewed_formats
         for i in range(viewer.count()):
@@ -144,7 +152,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     # }}}
 
     # Input format order {{{
-    def init_input_order(self, defaults=False) -> None:
+    def init_input_order(self, defaults: bool = False) -> None:
         if defaults:
             input_map = prefs.defaults['input_format_order']
         else:
@@ -158,7 +166,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             item.setData(Qt.ItemDataRole.UserRole, (format))
             item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsDragEnabled)
 
-    def up_input(self, use_kbd_modifiers, *args) -> None:
+    def up_input(self, use_kbd_modifiers: bool, *args: object) -> None:
         count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
         for _x in range(count):
             idx = self.opt_input_order.currentRow()
@@ -167,7 +175,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.opt_input_order.setCurrentRow(idx - 1)
                 self.changed_signal.emit()
 
-    def down_input(self, use_kbd_modifiers, *args) -> None:
+    def down_input(self, use_kbd_modifiers: bool, *args: object) -> None:
         count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
         for _x in range(count):
             idx = self.opt_input_order.currentRow()
@@ -178,7 +186,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # }}}
 
-    def reset_confirmation_dialogs(self, *args) -> None:
+    def reset_confirmation_dialogs(self, *args: object) -> None:
         from calibre.gui2.tweak_book import tprefs
         from calibre.gui2.viewer.config import vprefs
 

@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 from threading import Thread
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -34,9 +35,12 @@ from calibre.libunzip import comic_exts
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QModelIndex, QPainter, QStyleOptionViewItem, QWidget
+
 
 class CoverDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index) -> None:
+    def paint(self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
         assert style is not None
@@ -57,7 +61,7 @@ class PDFCovers(QDialog):
 
     rendering_done = pyqtSignal()
 
-    def __init__(self, pdfpath, parent=None) -> None:
+    def __init__(self, pdfpath: str, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         self.pdfpath = pdfpath
         self.ext = os.path.splitext(pdfpath)[1][1:].lower()
@@ -100,7 +104,7 @@ class PDFCovers(QDialog):
         self._render_thread.start()
 
     @property
-    def cover_path(self):
+    def cover_path(self) -> str | None:
         for item in self.covers.selectedItems():
             return str(item.data(Qt.ItemDataRole.UserRole) or '')
         if self.covers.count() > 0:
@@ -114,7 +118,7 @@ class PDFCovers(QDialog):
         except OSError:
             pass
 
-    def render(self, *args, **kwargs) -> None:
+    def render(self, *args: object, **kwargs: object) -> None:
         self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:

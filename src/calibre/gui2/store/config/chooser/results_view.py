@@ -1,6 +1,7 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QMenu, QSize, Qt, QTreeView
 
@@ -9,9 +10,14 @@ from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.config.chooser.models import Delegate, Matches
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QContextMenuEvent, QWidget
+
+    from calibre.customize import StoreBase
+
 
 class ResultsView(QTreeView):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QTreeView.__init__(self, parent)
 
         self._model = Matches(list(store_plugins()))
@@ -34,7 +40,8 @@ class ResultsView(QTreeView):
         assert _header is not None
         _header.setSortIndicator(self._model.sort_col, self._model.sort_order)
 
-    def contextMenuEvent(self, a0) -> None:
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        assert a0 is not None
         index = self.indexAt(a0.pos())
 
         if not index.isValid():
@@ -43,6 +50,7 @@ class ResultsView(QTreeView):
         _m = self.model()
         assert isinstance(_m, Matches)
         plugin = _m.get_plugin(index)
+        assert plugin is not None
 
         menu = QMenu(self)
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
@@ -51,5 +59,5 @@ class ResultsView(QTreeView):
             ca.setEnabled(False)
         menu.exec(a0.globalPos())
 
-    def configure_plugin(self, plugin) -> None:
+    def configure_plugin(self, plugin: StoreBase) -> None:
         plugin.do_user_config(self)

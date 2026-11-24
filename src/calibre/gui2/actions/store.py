@@ -42,15 +42,16 @@ class StoreAction(InterfaceAction):
         self.store_list_menu.clear()
         icon = QIcon.ic('donate.png')
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
+            assert p.base_plugin is not None
             if p.base_plugin.affiliate:
                 self.store_list_menu.addAction(icon, n, partial(self.open_store, n))
             else:
                 self.store_list_menu.addAction(n, partial(self.open_store, n))
 
-    def do_search(self):
+    def do_search(self) -> None:
         return self.search()
 
-    def search(self, query='') -> None:
+    def search(self, query: str | dict[str, str] = '') -> None:
         self.gui.istores.check_for_updates()
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
@@ -58,20 +59,25 @@ class StoreAction(InterfaceAction):
         sd = SearchDialog(self.gui, self.gui, query)
         sd.exec()
 
-    def _get_selected_row(self):
-        rows = self.gui.current_view().selectionModel().selectedRows()
+    def _get_selected_row(self) -> int | None:
+        view = self.gui.current_view()
+        assert view is not None
+        rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return None
         return rows[0].row()
 
-    def _get_author(self, row):
+    def _get_author(self, row: int) -> str:
         authors = []
 
         if self.gui.current_view() is self.gui.library_view:
             a = self.gui.library_view.model().authors(row)
+            assert a is not None
             authors = a.split(',')
         else:
-            mi = self.gui.current_view().model().get_book_display_info(row)
+            view = self.gui.current_view()
+            assert view is not None
+            mi = view.model().get_book_display_info(row)
             authors = mi.authors
 
         corrected_authors = []
@@ -90,12 +96,14 @@ class StoreAction(InterfaceAction):
             return
         self.search({'author': self._get_author(row)})
 
-    def _get_title(self, row):
+    def _get_title(self, row: int) -> str:
         title = ''
         if self.gui.current_view() is self.gui.library_view:
             title = self.gui.library_view.model().title(row)
         else:
-            mi = self.gui.current_view().model().get_book_display_info(row)
+            view = self.gui.current_view()
+            assert view is not None
+            mi = view.model().get_book_display_info(row)
             title = mi.title
 
         return title.strip()
@@ -122,7 +130,7 @@ class StoreAction(InterfaceAction):
         self.gui.load_store_plugins()
         self.load_menu()
 
-    def open_store(self, store_plugin_name) -> None:
+    def open_store(self, store_plugin_name: str) -> None:
         self.gui.istores.check_for_updates()
         # self.show_disclaimer()
         # It's not too important that the updated plugin have finished loading

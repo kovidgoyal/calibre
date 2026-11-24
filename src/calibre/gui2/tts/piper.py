@@ -41,11 +41,19 @@ from calibre.utils.tts.piper import KokoroVoice, ResultCallback, SynthesisResult
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
+    from typing import TextIO, TypedDict, Unpack
+
+    class PrintKwargs(TypedDict, total=False):
+        sep: str | None
+        end: str | None
+        file: TextIO | None
+        flush: bool
+
 
 HIGH_QUALITY_SAMPLE_RATE = 22050
 
 
-def debug(*a, **kw) -> None:
+def debug(*a: object, **kw: Unpack[PrintKwargs]) -> None:
     if is_debugging():
         if not hasattr(debug, 'first'):
             setattr(debug, 'first', monotonic())
@@ -325,7 +333,7 @@ class UtteranceAudioQueue(QIODevice):
             self.readyRead.emit()
             self.saying.emit(u.start, u.length)
 
-    def close(self):
+    def close(self) -> None:
         self.utterances.clear()
         self.current_audio_data = QByteArray()
         self.utterance_being_played = None
@@ -349,7 +357,7 @@ class UtteranceAudioQueue(QIODevice):
     def isSequential(self) -> bool:
         return True
 
-    def seek(self, pos) -> bool:
+    def seek(self, pos: int) -> bool:
         return False
 
     def readData(self, maxlen: int) -> bytes:
@@ -366,7 +374,7 @@ class UtteranceAudioQueue(QIODevice):
         return cast('bytes', ans)
 
 
-def split_into_utterances(text: str, counter: count, lang: str = 'en'):
+def split_into_utterances(text: str, counter: count[int], lang: str = 'en') -> Iterator[Utterance]:
     for start, sentence in split_into_sentences_for_tts(text, lang):
         u = Utterance(id=next(counter), audio_data=QByteArray(), sentence=sentence, start=start, length=len(sentence))
         debug(f'Utterance created {u.id} {start=}: {sentence!r}')
@@ -516,7 +524,7 @@ class Piper(TTSBackend):
             self._audio_sink.stateChanged.connect(self._utterances_being_spoken.audio_state_changed)
             self._audio_sink.start(self._utterances_being_spoken)
 
-    def on_synthesis_done(self, sr, err, tb) -> None:
+    def on_synthesis_done(self, sr: SynthesisResult | None, err: Exception | None, tb: str | None) -> None:
         self._synthesis_done.emit(sr, err, tb)
 
     def _on_synthesis_done(self, sr: SynthesisResult, err: Exception, tb: str) -> None:
@@ -760,7 +768,7 @@ def develop() -> None:
     p = Piper()
     play_started = False
 
-    def state_changed(s) -> None:
+    def state_changed(s: QTextToSpeech.State) -> None:
         nonlocal play_started
         debug('TTS State:', s)
         if s is QTextToSpeech.State.Error:
@@ -795,7 +803,7 @@ def develop() -> None:
     )
     # text = f'Hello world{PARAGRAPH_SEPARATOR}.{PARAGRAPH_SEPARATOR}Bye world'
 
-    def saying(offset, length) -> None:
+    def saying(offset: int, length: int) -> None:
         debug('Saying:', repr(text[offset : offset + length]))
 
     p.state_changed.connect(state_changed)

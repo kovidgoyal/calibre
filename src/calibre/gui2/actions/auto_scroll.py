@@ -19,7 +19,7 @@ class AutoscrollBooksAction(InterfaceAction):
     def genesis(self) -> None:
         self.qaction.triggered.connect(self.gui.toggle_auto_scroll)
 
-    def location_selected(self, loc) -> None:
+    def location_selected(self, loc: str) -> None:
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)

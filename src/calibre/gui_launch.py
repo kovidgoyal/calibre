@@ -186,7 +186,7 @@ def webengine_dialog(**kw: object) -> None:
 
 
 @media_pack_error_check
-def toc_dialog(**kw: object) -> None:
+def toc_dialog(**kw: str | None) -> None:
     detach_gui()
     setup_qt_logging()
     from calibre.gui2.toc.main import main

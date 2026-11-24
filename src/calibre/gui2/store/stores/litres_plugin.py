@@ -6,6 +6,7 @@ store_version = 2  # Needed for dynamic plugin loading
 import random
 import re
 from contextlib import closing
+from typing import TYPE_CHECKING
 from urllib.parse import quote
 
 from qt.core import QUrl
@@ -19,12 +20,22 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.xml_parse import safe_xml_fromstring
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from lxml import etree
+    from mechanize._response import response_seek_wrapper
+    from qt.core import QWidget
+
+    from calibre.gui2.ui import Main
+    from calibre.utils.browser import Browser
+
 
 class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = 'http://www.litres.ru'
     # http://robot.litres.ru/pages/biblio_book/?art=174405
 
-    def open(self, gui=None, parent=None, detail_item=None, external=False) -> None:
+    def open(self, gui: Main | None = None, parent: QWidget | None = None, detail_item: str | None = None, external: bool = False) -> None:
 
         aff_id = '?' + _get_affiliate_id()
 
@@ -42,7 +53,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec()
 
-    def search(self, query, max_results=10, timeout=60):
+    def search(self, query: bytes | str, max_results: int = 10, timeout: int = 60) -> Iterator[SearchResult]:
         search_url = 'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&search=%s&limit=0,%s'
         search_url = search_url % (quote(query), max_results)
 
@@ -67,10 +78,10 @@ class LitResStore(BasicStoreConfig, StorePlugin):
                     continue
                 yield sRes
 
-    def get_details(self, search_result, timeout=60) -> bool:
+    def get_details(self, search_result: SearchResult, timeout: int = 60) -> bool:
         return False
 
-    def create_search_result(self, data):
+    def create_search_result(self, data: etree._Element) -> SearchResult:
         xp_template = 'normalize-space(@{0})'
 
         sRes = SearchResult()
@@ -91,7 +102,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         return sRes
 
 
-def format_price_in_RUR(price):
+def format_price_in_RUR(price: str) -> str:
     """
     Try to format price according ru locale: '12 212,34 руб.'
     @param price: price in format like 25.99
@@ -107,7 +118,7 @@ def format_price_in_RUR(price):
     return price
 
 
-def ungzipResponse(r, b) -> None:
+def ungzipResponse(r: response_seek_wrapper, b: Browser) -> None:
     headers = r.info()
     if headers.get('Content-Encoding', '') == 'gzip':
         try:
@@ -122,7 +133,7 @@ def ungzipResponse(r, b) -> None:
         b.set_response(r)
 
 
-def _get_affiliate_id():
+def _get_affiliate_id() -> str:
     aff_id = '3623565'
     # Use Kovid's affiliate id 30% of the time.
     if random.randint(1, 10) in (1, 2, 3):
@@ -130,7 +141,7 @@ def _get_affiliate_id():
     return 'lfrom=' + aff_id
 
 
-def _parse_ebook_formats(formatsStr):
+def _parse_ebook_formats(formatsStr: str) -> set[str]:
     """
     Creates a set with displayable names of the formats
 

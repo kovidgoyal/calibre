@@ -1,13 +1,18 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
+from typing import TYPE_CHECKING
+
 from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.utils.localization import _
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
+
 
 class StoreChooserDialog(QDialog):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QDialog.__init__(self, parent)
 
         self.setWindowTitle(_('Choose stores'))

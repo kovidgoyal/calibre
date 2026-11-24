@@ -18,7 +18,7 @@ def mark_words(text: str, lang: str) -> str:
     ans = []
     pos = 0
 
-    def a(x) -> None:
+    def a(x: str) -> None:
         ans.append(prepare_string_for_xml(x))
 
     for offset, sz in split_into_words_and_positions(text, lang):
@@ -30,7 +30,7 @@ def mark_words(text: str, lang: str) -> str:
     return ''.join(ans)
 
 
-def wrap_in_ssml(text):
+def wrap_in_ssml(text: str) -> str:
     return '<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' + text + '</s></speak>'
 
 
@@ -207,7 +207,7 @@ class SpeechdTTSBackend(TTSBackend):
     def _get_all_voices_for_all_output_modules(self) -> dict[str, tuple[Voice, ...]]:
         ans = {}
 
-        def v(x) -> Voice:
+        def v(x: tuple[str, str, str]) -> Voice:
             name, langcode, variant = x
             return Voice(name, canonicalize_lang(langcode) or 'und', human_name=name, notes=variant)
 
@@ -221,7 +221,7 @@ class SpeechdTTSBackend(TTSBackend):
             voices_ssip_client.set_output_module(om)
         return ans
 
-    def _update_status(self, callback_type, index_mark=None):
+    def _update_status(self, callback_type: CallbackType, index_mark: str | None = None) -> None:
         event = None
         if callback_type is CallbackType.INDEX_MARK:
             assert index_mark is not None
@@ -244,7 +244,7 @@ class SpeechdTTSBackend(TTSBackend):
                 self._set_state(QTextToSpeech.State.Ready)
         return event
 
-    def _speak_callback(self, callback_type: CallbackType, index_mark=None) -> None:
+    def _speak_callback(self, callback_type: CallbackType, index_mark: str | None = None) -> None:
         self._event_signal.emit(callback_type, index_mark)
 
     def _speak(self, text: str) -> None:

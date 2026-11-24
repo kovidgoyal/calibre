@@ -5,6 +5,7 @@ import glob
 import os
 import shutil
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -28,15 +29,18 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
-def texture_dir():
+
+def texture_dir() -> str:
     ans = os.path.join(config_dir, 'textures')
     if not os.path.exists(ans):
         os.makedirs(ans)
     return ans
 
 
-def texture_path(fname):
+def texture_path(fname: str | None) -> str | None:
     if not fname:
         return
     if fname.startswith(':'):
@@ -45,7 +49,7 @@ def texture_path(fname):
 
 
 class TextureChooser(QDialog):
-    def __init__(self, parent=None, initial=None) -> None:
+    def __init__(self, parent: QWidget | None = None, initial: str | None = None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose a texture'))
 
@@ -115,7 +119,7 @@ class TextureChooser(QDialog):
 
         self.resize(QSize(950, 650))
 
-    def create_item(self, data):
+    def create_item(self, data: dict[str, str]) -> QListWidgetItem:
         x = data
         i = QListWidgetItem(QIcon(x['path']), x['name'], self.images)
         i.setData(Qt.ItemDataRole.UserRole, x['fname'])
@@ -128,7 +132,7 @@ class TextureChooser(QDialog):
         self.remove_button.setEnabled(removable)
 
     @property
-    def texture(self):
+    def texture(self) -> str | None:
         return self.selected_fname
 
     def add_texture(self) -> None:
@@ -157,24 +161,29 @@ class TextureChooser(QDialog):
         self.images.scrollToItem(i)
 
     @property
-    def selected_item(self):
+    def selected_item(self) -> QListWidgetItem | None:
         for x in self.images.selectedItems():
             return x
 
     @property
-    def selected_fname(self):
+    def selected_fname(self) -> str | None:
+        item = self.selected_item
+        if item is None:
+            return None
         try:
-            return str(self.selected_item.data(Qt.ItemDataRole.UserRole) or '')
+            return str(item.data(Qt.ItemDataRole.UserRole) or '')
         except AttributeError, TypeError:
             pass
 
-    def remove_texture(self):
+    def remove_texture(self) -> int | None:
         if not self.selected_fname:
             return
         if self.selected_fname.startswith(':'):
             return error_dialog(self, _('Cannot remove'), _('Cannot remove builtin textures'), show=True)
-        os.remove(str(self.selected_item.data(Qt.ItemDataRole.UserRole + 1) or ''))
-        self.images.takeItem(self.images.row(self.selected_item))
+        item = self.selected_item
+        assert item is not None
+        os.remove(str(item.data(Qt.ItemDataRole.UserRole + 1) or ''))
+        self.images.takeItem(self.images.row(item))
 
 
 if __name__ == '__main__':

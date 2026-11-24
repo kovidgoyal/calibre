@@ -5,6 +5,7 @@ import copy
 import sys
 from contextlib import suppress
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QAbstractItemView, QIcon, Qt, QTableWidgetItem
 
@@ -13,6 +14,12 @@ from calibre.gui2.preferences import ConfigWidgetBase, get_move_count, test_widg
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
+    from calibre.gui2.library.views import BooksViewState
+    from calibre.gui2.preferences.create_custom_column import CustomColumnEntry
+    from calibre.gui2.ui import Main
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -26,16 +33,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     column_headings = (_('Order'), _('Column header'), _('Lookup name'), _('Type'), _('Description'), _('Status'))
 
     restart_critical = True
+    custcols: dict[str, CustomColumnEntry]
 
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         self.cc_column_key: str | None = None
-        db = self.gui.library_view.model().db
-        self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
+        db = self.gui.current_db
+        self.custcols = cast('dict[str, CustomColumnEntry]', copy.deepcopy(db.field_metadata.custom_field_metadata()))
         for k, cc in self.custcols.items():
             cc['original_key'] = k
         # Using max() in this way requires python 3.4+
-        self.initial_created_count = max((x['colnum'] for x in self.custcols.values()), default=0) + 1
+        self.initial_created_count = max((x['colnum'] or 0 for x in self.custcols.values()), default=0) + 1
         self.created_count = self.initial_created_count
 
         self.column_up.clicked.connect(partial(self.up_column, use_kbd_modifiers=True))
@@ -58,16 +66,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         self.init_columns()
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         ConfigWidgetBase.restore_defaults(self)
         self.init_columns(defaults=True)
         self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         rr = ConfigWidgetBase.commit(self)
         return self.apply_custom_column_changes() or rr
 
-    def init_columns(self, defaults=False) -> None:
+    def init_columns(self, defaults: bool = False) -> None:
         # Set up columns
         self.opt_columns.blockSignals(True)
         self.model = model = self.gui.library_view.model()
@@ -78,7 +86,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         colmap.sort(key=lambda x: positions[x])
         self.opt_columns.clear()
 
-        db = model.db
+        db = self.gui.current_db
         self.field_metadata = db.field_metadata
 
         self.opt_columns.setColumnCount(6)
@@ -119,7 +127,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.set_up_down_enabled(self.opt_columns.currentItem(), None)
         self.opt_columns.blockSignals(False)
 
-    def header_moved(self, log_index, old_v_index, new_v_index) -> None:
+    def header_moved(self, log_index: int, old_v_index: int, new_v_index: int) -> None:
         self.column_positions = []
         header = self.opt_columns.horizontalHeader()
         assert header is not None
@@ -127,23 +135,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.column_positions.append(header.logicalIndex(vi))
         self.save_geometry()
 
-    def set_up_down_enabled(self, current_item, _) -> None:
+    def set_up_down_enabled(self, current_item: QTableWidgetItem | None, _: object) -> None:
         h = self.opt_columns.horizontalHeader()
         assert h is not None
+        if current_item is None:
+            return
         row = current_item.row()
         if h.sortIndicatorSection() == 0 and h.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder:
             self.column_up.setEnabled(row > 0 and row <= self.initial_row_count)
             self.column_down.setEnabled(row < self.initial_row_count)
 
-    def columns_changed(self, *args) -> None:
+    def columns_changed(self, *args: object) -> None:
         self.changed_signal.emit()
 
-    def columns_state(self, defaults=False):
+    def columns_state(self, defaults: bool = False) -> BooksViewState:
         if defaults:
             return self.gui.library_view.get_default_state()
         return self.gui.library_view.get_state()
 
-    def table_sorted(self, column) -> None:
+    def table_sorted(self, column: int) -> None:
         h = self.opt_columns.horizontalHeader()
         assert h is not None
         enabled = column == 0 and h.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder
@@ -152,10 +162,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.scrollTo(self.opt_columns.currentIndex())
         self.set_up_down_enabled(self.opt_columns.currentItem(), _)
 
-    def row_double_clicked(self, r, c) -> None:
+    def row_double_clicked(self, r: int, c: int) -> None:
         self.edit_custcol()
 
-    def save_geometry(self, prefs=None, name=None) -> None:
+    def save_geometry(self, prefs: object = None, name: object = None) -> None:
         # Save both the column widths and the column order
         widths = []
         for i in range(self.opt_columns.columnCount()):
@@ -163,7 +173,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gprefs.set('custcol-prefs-table-geometry', widths)
         gprefs.set('custcol-prefs-column_order', self.column_positions)
 
-    def restore_geometry(self, prefs=None, name=None, get_legacy_saved_geometry=None) -> bool:  # type: ignore[override]
+    def restore_geometry(self, prefs: object = None, name: object = None, get_legacy_saved_geometry: object = None) -> bool:  # type: ignore[override]
         # restore the column widths. Order is done when the table is created.
         geom = gprefs.get('custcol-prefs-table-geometry', None)
         if geom is not None and len(geom) == self.opt_columns.columnCount():
@@ -190,7 +200,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 item.setCheckState(Qt.CheckState.Checked)
         self.changed_signal.emit()
 
-    def setup_row(self, row, key, order, force_checked_to=None) -> None:
+    def setup_row(self, row: int, key: str, order: int, force_checked_to: Qt.CheckState | None = None) -> None:
         flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
         if self.is_custom_key(key):
@@ -242,6 +252,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             coltype = _('Yes/No with text')
         else:
             dt = cc['datatype']
+            assert dt is not None
             if cc['is_multiple']:
                 if key == 'authors' or cc.get('display', {}).get('is_names', False):
                     coltype = _('Ampersand separated text, shown in the Tag browser')
@@ -284,7 +295,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.opt_columns.setSortingEnabled(True)
 
-    def recreate_row(self, row) -> None:
+    def recreate_row(self, row: int) -> None:
         order_item = self.opt_columns.item(row, self.ORDER_COLUMN)
         assert order_item is not None
         checked = order_item.checkState()
@@ -294,7 +305,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         key = key_item.text()
         self.setup_row(row, key, row, force_checked_to=checked)
 
-    def up_column(self, use_kbd_modifiers) -> None:
+    def up_column(self, use_kbd_modifiers: bool) -> None:
         count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
         for _x in range(count):
             row = self.opt_columns.currentRow()
@@ -311,7 +322,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.changed_signal.emit()
                 self.opt_columns.setSortingEnabled(True)
 
-    def down_column(self, use_kbd_modifiers) -> None:
+    def down_column(self, use_kbd_modifiers: bool) -> None:
         count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
         for _x in range(count):
             row = self.opt_columns.currentRow()
@@ -328,14 +339,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.changed_signal.emit()
                 self.opt_columns.setSortingEnabled(True)
 
-    def is_new_custom_column(self, cc):
-        return 'colnum' in cc and cc['colnum'] >= self.initial_created_count
+    def is_new_custom_column(self, cc: CustomColumnEntry | FieldMetadataDict) -> bool:
+        colnum = cc.get('colnum')
+        return colnum is not None and colnum >= self.initial_created_count
 
-    def set_new_custom_column(self, cc) -> None:
+    def set_new_custom_column(self, cc: CustomColumnEntry) -> None:
         self.created_count += 1
         cc['colnum'] = self.created_count
 
-    def del_custcol(self):
+    def del_custcol(self) -> int | None:
         row = self.opt_columns.currentRow()
         if row < 0:
             return error_dialog(self, '', _('You must select a column to delete it'), show=True)
@@ -379,18 +391,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 break
         self.changed_signal.emit()
 
-    def label_to_lookup_name(self, label):
+    def label_to_lookup_name(self, label: str) -> str:
         return '#' + label
 
-    def is_custom_key(self, key):
+    def is_custom_key(self, key: str) -> bool:
         return key.startswith('#')
 
-    def column_order_val(self, row):
+    def column_order_val(self, row: int) -> int:
         item = self.opt_columns.item(row, self.ORDER_COLUMN)
         assert item is not None
         return int(item.text())
 
-    def edit_custcol(self):
+    def edit_custcol(self) -> int | None:
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
@@ -428,9 +440,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
             traceback.print_exc()
 
-    def apply_custom_column_changes(self):
+    def apply_custom_column_changes(self) -> bool:
         model = self.gui.library_view.model()
-        db = model.db
+        db = self.gui.current_db
         self.opt_columns.sortItems(0, Qt.SortOrder.AscendingOrder)
         config_cols = []
         for i in range(self.opt_columns.rowCount()):
@@ -451,13 +463,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if 'ondevice' in hidden_cols:
             hidden_cols.remove('ondevice')
 
-        def col_pos(x):
+        def col_pos(x: str) -> int:
             return config_cols.index(x) if x in config_cols else sys.maxsize
 
         positions = {}
         for i, col in enumerate(sorted(model.column_map, key=col_pos)):
             positions[col] = i
-        state = {'hidden_columns': hidden_cols, 'column_positions': positions}
+        state: BooksViewState = {'hidden_columns': hidden_cols, 'column_positions': positions}
         self.gui.library_view.apply_state(state)
         self.gui.library_view.save_state()
 
@@ -467,6 +479,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 db.delete_custom_column(label=cc['label'])
                 must_restart = True
             elif '*edited' in cc:
+                assert cc['colnum'] is not None
                 db.set_custom_column_metadata(cc['colnum'], name=cc['name'], label=cc['label'], display=cc['display'], notify=False)
                 if '*must_restart' in cc:
                     must_restart = True
@@ -475,7 +488,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     label=cc['label'],
                     name=cc['name'],
                     datatype=cc['datatype'],
-                    is_multiple=cc['is_multiple'],
+                    is_multiple=bool(cc['is_multiple']),
                     display=cc['display'],
                 )
                 must_restart = True

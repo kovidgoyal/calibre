@@ -18,10 +18,10 @@ CONFIG_NAME = 'tts'
 TTS_EMBEDED_CONFIG = 'tts-embedded'
 # lru_cache doesn't work for this because it returns different results for
 # load_config() and load_config(CONFIG_NAME)
-conf_cache = {}
+conf_cache: dict[str, JSONConfig] = {}
 
 
-def load_config(config_name=CONFIG_NAME) -> JSONConfig:
+def load_config(config_name: str = CONFIG_NAME) -> JSONConfig:
     if (ans := conf_cache.get(config_name)) is None:
         ans = conf_cache[config_name] = JSONConfig(config_name)
     return ans

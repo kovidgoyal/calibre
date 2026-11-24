@@ -3,6 +3,7 @@
 
 from collections import defaultdict
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QDialog,
@@ -33,9 +34,17 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import set_data
 
+if TYPE_CHECKING:
+    from collections.abc import Collection, Iterable, Mapping
+
+    from qt.core import QObject, QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+
 
 class IdLinksRuleEdit(Dialog):
-    def __init__(self, key='', name='', template='', parent=None) -> None:
+    def __init__(self, key: str = '', name: str = '', template: str = '', parent: QWidget | None = None) -> None:
         title = _('Edit rule') if key else _('Create a new rule')
         Dialog.__init__(self, title=title, name='id-links-rule-editor', parent=parent)
         self.key.setText(key), self.nw.setText(name), self.template.setText(template or 'https://example.com/{id}')
@@ -43,7 +52,7 @@ class IdLinksRuleEdit(Dialog):
             self.resize(self.sizeHint())
 
     @property
-    def rule(self):
+    def rule(self) -> tuple[str, str, str]:
         return self.key.text().lower(), self.nw.text(), self.template.text()
 
     def setup_ui(self) -> None:
@@ -71,16 +80,17 @@ class IdLinksRuleEdit(Dialog):
         t.setFocus(Qt.FocusReason.OtherFocusReason)
         l.addWidget(self.bb)
 
-    def accept(self):
+    def accept(self) -> None:
         r = self.rule
         for i, which in enumerate([_('Key'), _('Name'), _('Template')]):
             if not r[i]:
-                return error_dialog(self, _('Value needed'), _('The %s field cannot be empty') % which, show=True)
+                error_dialog(self, _('Value needed'), _('The %s field cannot be empty') % which, show=True)
+                return
         Dialog.accept(self)
 
 
 class IdLinksEditor(Dialog):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         Dialog.__init__(self, title=_('Create rules for identifiers'), name='id-links-rules-editor', parent=parent)
 
     def setup_ui(self) -> None:
@@ -114,14 +124,14 @@ class IdLinksEditor(Dialog):
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         l.addWidget(self.bb)
 
-    def sizeHint(self):
+    def sizeHint(self) -> QSize:
         return QSize(700, 550)
 
     def accept(self) -> None:
         rules = defaultdict(list)
         for r in range(self.table.rowCount()):
 
-            def item(c):
+            def item(c: int) -> str:
                 _it = self.table.item(r, c)  # ruff: ignore[function-uses-loop-variable]
                 assert _it is not None
                 return _it.text()
@@ -130,7 +140,8 @@ class IdLinksEditor(Dialog):
         msprefs['id_link_rules'] = dict(rules)
         Dialog.accept(self)
 
-    def edit_rule(self, r=-1) -> None:
+    def edit_rule(self, r: int = -1) -> None:
+
         key = name = template = ''
         if r > -1:
             _i0 = self.table.item(r, 0)
@@ -155,13 +166,13 @@ class IdLinksEditor(Dialog):
 
 
 class BDVerticalCats(DisplayedFields):
-    def __init__(self, db, parent=None, category_icons=None) -> None:
+    def __init__(self, db: LibraryDatabase, parent: QObject | None = None, category_icons: Mapping[str, QIcon] | None = None) -> None:
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
 
         self.gui = get_gui()
 
-    def initialize(self, use_defaults=False, pref_data_override=None) -> None:
+    def initialize(self, use_defaults: bool = False, pref_data_override: Iterable[tuple[str, bool]] | None = None) -> None:
         fm = self.db.field_metadata
         cats = [k for k in fm if fm[k]['name'] and fm[k]['is_multiple'] and not k.startswith('#')]
         cats.append('path')
@@ -175,7 +186,7 @@ class BDVerticalCats(DisplayedFields):
             ans = [[k, ph.get(k, False)] for k in cats]
             self.changed = True
         else:
-            vertical_cats = self.db.prefs.get('book_details_vertical_categories') or ()
+            vertical_cats = cast('Collection[str]', self.db.prefs.get('book_details_vertical_categories') or ())
             for key in cats:
                 ans.append([key, key in vertical_cats])
         self.beginResetModel()
@@ -188,7 +199,7 @@ class BDVerticalCats(DisplayedFields):
 
 
 class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
-    def genesis(self, gui) -> None:
+    def genesis(self, gui: Main) -> None:
         self.gui = gui
         r = self.register
 
@@ -237,7 +248,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         if IdLinksEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
-    def commit(self, *args):
+    def commit(self, *args: object) -> bool:
         with BusyCursor():
             self.display_model.commit()
             self.bd_vertical_cats_model.commit()
@@ -249,7 +260,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
             set_data('templates/book_details.css', bcss)
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self, *args) -> None:
+    def restore_defaults(self, *args: object) -> None:
         LazyConfigWidgetBase.restore_defaults(self)
         self.default_author_link.restore_defaults()
         self.display_model.restore_defaults()
@@ -257,7 +268,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', allow_user_override=False, data=True).decode('utf-8'))
         self.changed_signal.emit()
 
-    def refresh_gui(self, gui) -> None:
+    def refresh_gui(self, gui: Main) -> None:
         gui.book_details.book_info.refresh_css()
         gui.library_view.refresh_book_details(force=True)
         gui.library_view.refresh_composite_edit()

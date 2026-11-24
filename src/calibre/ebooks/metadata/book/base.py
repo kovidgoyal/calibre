@@ -210,6 +210,9 @@ class Metadata:
     # Maps format to file name (without extension), set by the GUI on objects
     # for display in book details
     format_files: dict[str, str]
+    # Set by calibre.gui2.metadata.single_download on downloaded results
+    gui_rank: int
+    has_cached_cover_url: bool
 
     def __init__(
         self,

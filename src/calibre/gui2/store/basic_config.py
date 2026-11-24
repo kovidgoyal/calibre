@@ -1,6 +1,6 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QWidget
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class BasicStoreConfigWidget(QWidget, Ui_Form):
-    def __init__(self, store) -> None:
+    def __init__(self, store: BasicStoreConfig) -> None:
         QWidget.__init__(self)
         self.setupUi(self)
 
@@ -29,13 +29,14 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
 class BasicStoreConfig:
     config: JSONConfig
 
-    def customization_help(self, gui=False) -> str:
+    def customization_help(self, gui: bool = False) -> str:
         return 'Customize the behavior of this store.'
 
-    def config_widget(self):
+    def config_widget(self) -> BasicStoreConfigWidget:
         return BasicStoreConfigWidget(self)
 
-    def save_settings(self, config_widget) -> None:
-        self.config['open_external'] = config_widget.open_external.isChecked()
-        tags = str(config_widget.tags.text())
+    def save_settings(self, config_widget: QWidget) -> None:
+        cw = cast('BasicStoreConfigWidget', config_widget)
+        self.config['open_external'] = cw.open_external.isChecked()
+        tags = str(cw.tags.text())
         self.config['tags'] = tags

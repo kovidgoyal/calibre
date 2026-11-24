@@ -1,12 +1,25 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
+from typing import TYPE_CHECKING
+
 from qt.core import Qt, sip
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo, DialogNumbers
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from typing import TypedDict, Unpack
+
+    from calibre.db.legacy import LibraryDatabase
+
+    class ShowBookInfoKwargs(TypedDict, total=False):
+        library_path: str | None
+        book_id: int | None
+        library_id: str | None
+        locked: bool
 
 
 class ShowBookDetailsAction(InterfaceAction):
@@ -24,8 +37,9 @@ class ShowBookDetailsAction(InterfaceAction):
     action_menu_clone_qaction = _('Show Book details in a separate window')
 
     def genesis(self) -> None:
-        self.dialogs = [None, None, None]
+        self.dialogs: list[BookInfo | None] = [None, None, None]
         m = self.qaction.menu()
+        assert m is not None
         self.show_info_locked = l = self.create_menu_action(
             m,
             'show_locked_details',
@@ -38,7 +52,7 @@ class ShowBookDetailsAction(InterfaceAction):
         l.triggered.connect(self.close_all_windows)
         self.qaction.triggered.connect(self.show_book_info)
 
-    def show_book_info(self, *args, **kwargs) -> None:
+    def show_book_info(self, *args: object, **kwargs: Unpack[ShowBookInfoKwargs]) -> None:
         library_path = kwargs.get('library_path', None)
         book_id = kwargs.get('book_id', None)
         library_id = kwargs.get('library_id', None)
@@ -100,14 +114,16 @@ class ShowBookDetailsAction(InterfaceAction):
         for dialog in [d for d in self.dialogs if d is not None]:
             dialog.done(0)
 
-    def library_about_to_change(self, olddb, db) -> None:
+    def library_about_to_change(self, olddb: LibraryDatabase, db: LibraryDatabase) -> None:
         for dialog in [d for d in self.dialogs[1:] if d is not None]:
             dialog.done(0)
 
-    def closed(self, d) -> None:
+    def closed(self, d: BookInfo) -> None:
         try:
             d.closed.disconnect(self.closed)
-            self.dialogs[d.dialog_number] = None
+            dn = d.dialog_number
+            assert dn is not None
+            self.dialogs[dn] = None
         except ValueError:
             pass
         else:

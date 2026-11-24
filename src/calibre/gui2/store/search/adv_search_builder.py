@@ -1,12 +1,16 @@
 # License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import re
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QComboBox, QDialog, QDialogButtonBox, QLineEdit
 
 from calibre.gui2.store.search.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.utils.localization import localize_user_manual_link
+
+if TYPE_CHECKING:
+    from qt.core import QWidget
 
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
@@ -15,7 +19,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
     negate: QCheckBox
     field: QComboBox
 
-    def __init__(self, parent) -> None:
+    def __init__(self, parent: QWidget | None) -> None:
         QDialog.__init__(self, parent)
         self.setupUi(self)
         try:
@@ -35,7 +39,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(0)
 
-    def tab_changed(self, idx) -> None:
+    def tab_changed(self, idx: int) -> None:
         if idx == 1:
             btn = self.tab_2_button_box.button(QDialogButtonBox.StandardButton.Ok)
             assert btn is not None
@@ -64,20 +68,20 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.any.setText('')
         self.none.setText('')
 
-    def tokens(self, raw):
+    def tokens(self, raw: str) -> list[str]:
         phrases = re.findall(r'\s*".*?"\s*', raw)
         for f in phrases:
             raw = raw.replace(f, ' ')
         phrases = [t.strip('" ') for t in phrases]
         return ['"' + self.mc + t + '"' for t in phrases + [r.strip() for r in raw.split()]]
 
-    def search_string(self):
+    def search_string(self) -> str:
         if self.adv_search_used:
             return self.adv_search_string()
         else:
             return self.box_search_string()
 
-    def adv_search_string(self):
+    def adv_search_string(self) -> str:
         mk = self.matchkind.currentIndex()
         if mk == CONTAINS_MATCH:
             self.mc = ''
@@ -102,7 +106,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             ans += (' or ' if ans else '') + any
         return ans
 
-    def token(self):
+    def token(self) -> str | None:
         txt = str(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
@@ -112,7 +116,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
                 tok = f'"{tok}"'
             return tok
 
-    def box_search_string(self):
+    def box_search_string(self) -> str:
         mk = self.matchkind.currentIndex()
         if mk == CONTAINS_MATCH:
             self.mc = ''

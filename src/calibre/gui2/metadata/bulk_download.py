@@ -5,6 +5,7 @@ import os
 import shutil
 import time
 from threading import Thread
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, Qt
 
@@ -14,6 +15,21 @@ from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryF
 from calibre.startup import connect_lambda
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.localization import _, ngettext
+
+if TYPE_CHECKING:
+    import datetime
+    from collections.abc import Callable, Collection, Iterable, Sequence
+    from queue import Queue
+    from threading import Event
+    from typing import BinaryIO
+
+    from qt.core import QWidget
+
+    from calibre.db.legacy import LibraryDatabase
+    from calibre.gui2.ui import Main
+    from calibre.utils.logging import GUILog
+
+    type DownloadResult = tuple[bool, set[int], str, str, set[int], set[int], dict[int, str], dict[int, datetime.datetime | None], bool]
 
 # Start download {{{
 
@@ -29,11 +45,12 @@ class Job(ThreadedJob):
         self.consolidated_log = log.plain_text
         self.log = None
 
-    def read_consolidated_log(self):
+    def read_consolidated_log(self) -> str:
+        assert self.consolidated_log is not None
         return self.consolidated_log
 
     @property
-    def details(self):
+    def details(self) -> str:
         if self.consolidated_log is None:
             log = self.log
             assert log is not None
@@ -41,11 +58,11 @@ class Job(ThreadedJob):
         return self.read_consolidated_log()
 
     @property
-    def log_file(self):
+    def log_file(self) -> BinaryIO:
         return open(self.download_debug_log, 'rb')
 
 
-def show_config(parent) -> None:
+def show_config(parent: QWidget | None) -> None:
     from calibre.gui2.preferences import show_config_widget
     from calibre.gui2.ui import get_gui
 
@@ -53,7 +70,7 @@ def show_config(parent) -> None:
 
 
 class ConfirmDialog(QDialog):
-    def __init__(self, ids, parent) -> None:
+    def __init__(self, ids: Sequence[int], parent: QWidget | None) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Schedule download?'))
         self.setWindowIcon(QIcon.ic('download-metadata.png'))
@@ -118,7 +135,7 @@ class ConfirmDialog(QDialog):
         self.accept()
 
 
-def split_jobs(ids, batch_size=100):
+def split_jobs(ids: Iterable[int], batch_size: int = 100) -> list[list[int]]:
     ans = []
     ids = list(ids)
     while ids:
@@ -128,7 +145,7 @@ def split_jobs(ids, batch_size=100):
     return ans
 
 
-def start_download(gui, ids, callback, ensure_fields=None) -> None:
+def start_download(gui: Main, ids: Sequence[int], callback: Callable[[ThreadedJob], object], ensure_fields: Collection[str] | None = None) -> None:
     from calibre.gui2.metadata.single_download import watch_for_browser_failures
 
     watch_for_browser_failures()
@@ -159,8 +176,8 @@ def start_download(gui, ids, callback, ensure_fields=None) -> None:
 # }}}
 
 
-def get_job_details(job):
-    (aborted, good_ids, tdir, log_file, failed_ids, failed_covers, title_map, lm_map, all_failed) = job.result
+def get_job_details(job: ThreadedJob) -> tuple[bool, set[int], str, str, set[int], set[int], bool, str, dict[int, datetime.datetime | None]]:
+    (aborted, good_ids, tdir, log_file, failed_ids, failed_covers, title_map, lm_map, all_failed) = cast('DownloadResult', job.result)
     det_msg = []
     for i in failed_ids | failed_covers:
         title = title_map[i]
@@ -177,12 +194,12 @@ class HeartBeat:
     CHECK_INTERVAL = 300  # seconds
     ''' Check that the file count in tdir changes every five minutes '''
 
-    def __init__(self, tdir) -> None:
+    def __init__(self, tdir: str) -> None:
         self.tdir = tdir
         self.last_count = len(os.listdir(self.tdir))
         self.last_time = time.time()
 
-    def __call__(self):
+    def __call__(self) -> bool:
         if time.time() - self.last_time > self.CHECK_INTERVAL:
             c = len(os.listdir(self.tdir))
             if c == self.last_count:
@@ -193,12 +210,12 @@ class HeartBeat:
 
 
 class Notifier(Thread):
-    def __init__(self, notifications, title_map, tdir, total) -> None:
+    def __init__(self, notifications: Queue[tuple[float, str]], title_map: dict[int, str], tdir: str, total: int) -> None:
         Thread.__init__(self)
         self.daemon = True
         self.notifications, self.title_map = notifications, title_map
         self.tdir, self.total = tdir, total
-        self.seen = set()
+        self.seen: set[int] = set()
         self.keep_going = True
 
     def run(self) -> None:
@@ -223,20 +240,31 @@ class Notifier(Thread):
             time.sleep(1)
 
 
-def download(all_ids, tf, db, do_identify, covers, ensure_fields, log=None, abort=None, notifications=None):
+def download(
+    all_ids: Sequence[int],
+    tf: str,
+    db: LibraryDatabase,
+    do_identify: bool,
+    covers: bool,
+    ensure_fields: Collection[str] | None,
+    log: GUILog | None = None,
+    abort: Event | None = None,
+    notifications: Queue[tuple[float, str]] | None = None,
+) -> DownloadResult:
     batch_size = 10
     batches = split_jobs(all_ids, batch_size=batch_size)
     tdir = PersistentTemporaryDirectory('_metadata_bulk')
     heartbeat = HeartBeat(tdir)
 
-    failed_ids = set()
-    failed_covers = set()
-    title_map = {}
-    lm_map = {}
-    ans = set()
+    failed_ids: set[int] = set()
+    failed_covers: set[int] = set()
+    title_map: dict[int, str] = {}
+    lm_map: dict[int, datetime.datetime | None] = {}
+    ans: set[int] = set()
     all_failed = True
     aborted = False
     count = 0
+    assert notifications is not None
     notifier = Notifier(notifications, title_map, tdir, len(all_ids))
     notifier.start()
     assert abort is not None

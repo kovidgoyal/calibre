@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     from calibre.customize import CatalogPlugin
     from calibre.customize.profiles import OutputProfile
     from calibre.db.legacy import LibraryDatabase
+    from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.utils.formatter import Kwargs
 
 NBSP = '\u00a0'
@@ -672,7 +673,7 @@ class CatalogBuilder:
 
         return None
 
-    def _metadata_for_field(self, field: str) -> dict[str, object]:
+    def _metadata_for_field(self, field: str) -> FieldMetadataDict:
         ans = self.db.metadata_for_field(field)
         assert ans is not None, f'Unknown field: {field}'
         return ans

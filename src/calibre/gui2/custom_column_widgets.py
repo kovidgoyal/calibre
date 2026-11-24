@@ -845,6 +845,7 @@ class Series(Base):
             db = self.db
             assert db is not None
             s_index = db.get_next_cc_series_num_for(val, num=self.col_id)
+            assert s_index is not None  # only None for non-series columns
         self.idx_widget.setValue(s_index)
 
     def values_changed(self) -> bool:
