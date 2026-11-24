@@ -121,6 +121,36 @@ class PolishActionsTest(BaseTest):
         self.assertEqual(sorted(n for n in c.mime_map if n.endswith('.png')), ['cover.png', 'imported.png', 'nav.png', 'used.png'])
         self.assertFalse(remove_unused_images(c))
 
+    def test_remove_unused_images_svg(self) -> None:
+        from calibre.ebooks.oeb.polish.images import remove_unused_images
+
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+            '<style>rect { fill: url(styled.png) }</style>'
+            '<image xlink:href="in_svg.png"/><image href="nested.svg"/><rect/></svg>'
+        )
+        nested = '<svg xmlns="http://www.w3.org/2000/svg"><image href="in_nested.png"/></svg>'
+        c = self.create_epub([
+            cmi('a.xhtml', html('<img src="i.svg" alt="i"/>')),
+            cmi('i.svg', svg),
+            cmi('nested.svg', nested),
+            cmi('unused.svg', '<svg xmlns="http://www.w3.org/2000/svg"><image href="only_unused_svg.png"/></svg>'),
+            cmi('in_svg.png'),
+            cmi('styled.png'),
+            cmi('in_nested.png'),
+            cmi('only_unused_svg.png'),
+        ])
+        self.assertTrue(remove_unused_images(c))
+        self.assertEqual(sorted(n for n in c.mime_map if n.endswith(('.png', '.svg'))), ['i.svg', 'in_nested.png', 'in_svg.png', 'nested.svg', 'styled.png'])
+        self.assertFalse(remove_unused_images(c))
+        # Nothing is removed when a referenced SVG cannot be parsed, as it
+        # might reference any image
+        c = self.create_epub([cmi('a.xhtml', html('<img src="i.svg" alt="i"/>')), cmi('i.svg', b'\0'), cmi('unused.png')])
+        report: list[str] = []
+        self.assertFalse(remove_unused_images(c, report.append))
+        self.assertIn('unused.png', c.mime_map)
+        self.assertTrue(any('Failed to parse' in x for x in report), report)
+
     def test_check_and_fix(self) -> None:
         from calibre.ebooks.oeb.polish.check.main import run_checks
 
