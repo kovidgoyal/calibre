@@ -83,7 +83,7 @@ def get_simple_book(fmt: str = 'epub') -> str:
 
     cache = get_cache()
     ans = os.path.join(cache, 'simple.' + fmt)
-    src = os.path.join(os.path.dirname(__file__), 'simple.html')
+    src = P('test-data/simple.html')
     if needs_recompile(ans, src):
         with ExclusiveFile(ans + '.lock', timeout=120):
             # Re-check after acquiring the lock: another worker may have just built it.
@@ -101,26 +101,21 @@ def get_split_book(fmt: str = 'epub') -> str:
 
     cache = get_cache()
     ans = os.path.join(cache, 'split.' + fmt)
-    src = os.path.join(os.path.dirname(__file__), 'split.html')
+    src = P('test-data/split.html')
     if needs_recompile(ans, src):
         with ExclusiveFile(ans + '.lock', timeout=120):
             if needs_recompile(ans, src):
-                x = src.replace('split.html', 'index.html')
-                with open(src, 'rb') as sf:
-                    raw = sf.read().decode('utf-8')
-                try:
-                    with open(x, 'wb') as f:
-                        f.write(raw.encode('utf-8'))
+                with TemporaryDirectory('bpt') as tdir:
+                    x = os.path.join(tdir, 'index.html')
+                    shutil.copyfile(src, x)
                     build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=' + I('lt.png')])
-                finally:
-                    os.remove(x)
     return ans
 
 
 def get_book_for_kepubify(has_cover: bool = True, epub_version: str = '3') -> str:
     cache = get_cache()
     ans = os.path.join(cache, f'kepubify-{has_cover}-{epub_version}.epub')
-    src = os.path.join(os.path.dirname(__file__), 'simple.html')
+    src = P('test-data/simple.html')
     if needs_recompile(ans, src):
         with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
             index_html = setup_simple_book(src)

@@ -66,7 +66,7 @@ class BaseTest(unittest.TestCase):
 
         if LibraryDatabase2.exists_at(library_path):
             raise ValueError(f'A library already exists at {library_path!r}')
-        src = os.path.join(os.path.dirname(__file__), 'metadata.db')
+        src = P('test-data/metadata.db')
         dest = os.path.join(library_path, 'metadata.db')
         shutil.copyfile(src, dest)
         db = LibraryDatabase2(library_path)

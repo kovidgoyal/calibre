@@ -126,7 +126,7 @@ def find_tests() -> unittest.TestSuite:
         def test_lxml_unicode_parsing(self) -> None:
             from calibre.ebooks.chardet import xml_to_unicode
 
-            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'unicode-test.opf'), 'rb') as f:
+            with open(P('test-data/unicode-test.opf'), 'rb') as f:
                 raw = f.read()
             text = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
             self.assertIsNotNone(safe_xml_fromstring(text))

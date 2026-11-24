@@ -115,8 +115,7 @@ class LibraryBaseTest(BaseTest):
         from calibre.db.cache import Cache
         from calibre.db.legacy import create_backend
 
-        d = os.path.dirname
-        src = os.path.join(d(d(d(os.path.abspath(__file__)))), 'db', 'tests', 'metadata.db')
+        src = P('test-data/metadata.db')
         dest = os.path.join(library_path, 'metadata.db')
         shutil.copy2(src, dest)
         db = Cache(create_backend(library_path))

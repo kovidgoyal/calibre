@@ -21,6 +21,7 @@ from polyglot.binary import as_hex_unicode
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Iterator
+    from importlib.resources.abc import Traversable
     from subprocess import Popen
 
     from _typeshed import OptExcInfo
@@ -652,28 +653,36 @@ def run_parallel(suite: unittest.TestSuite, num_workers: int = 0, worker_cmd: li
 
 
 class TestImports(unittest.TestCase):
-    def base_check(self, base: str, exclude_packages: set[str], exclude_modules: set[str]) -> int:
-        import importlib
-
-        import_base = os.path.dirname(base)
+    def base_check(self, package: str, exclude_packages: set[str], exclude_modules: set[str]) -> int:
+        # Use importlib.resources rather than os.walk so that this works in
+        # frozen builds as well, where modules are stored as .pyc files in
+        # an archive rather than as .py files on the filesystem.
+        module_exts = ('py', 'pyc')
         count = 0
-        for root, dirs, files in os.walk(base):
-            for d in tuple(dirs):
-                if not os.path.isfile(os.path.join(root, d, '__init__.py')):
-                    dirs.remove(d)
-            for fname in files:
-                module_name, ext = os.path.splitext(fname)
-                if ext != '.py':
+
+        def is_package(node: Traversable) -> bool:
+            return any(node.joinpath(f'__init__.{e}').is_file() for e in module_exts)
+
+        def walk(node: Traversable, package: str) -> None:
+            nonlocal count
+            modules, subpackages = set(), []
+            for child in sorted(node.iterdir(), key=lambda x: x.name):
+                if child.is_dir():
+                    if is_package(child):
+                        subpackages.append((child, f'{package}.{child.name}'))
                     continue
-                path = os.path.join(root, module_name)
-                relpath = os.path.relpath(path, import_base).replace(os.sep, '/')
-                full_module_name = '.'.join(relpath.split('/'))
-                if full_module_name.endswith('.__init__'):
-                    full_module_name = full_module_name.rpartition('.')[0]
+                module_name, sep, ext = child.name.rpartition('.')
+                if sep and ext in module_exts:
+                    modules.add(package if module_name == '__init__' else f'{package}.{module_name}')
+            for full_module_name in sorted(modules):
                 if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
                     continue
                 importlib.import_module(full_module_name)
                 count += 1
+            for child, name in subpackages:
+                walk(child, name)
+
+        walk(importlib.resources.files(package), package)
         return count
 
     def test_import_of_all_python_modules(self) -> None:
@@ -697,11 +706,8 @@ class TestImports(unittest.TestCase):
             exclude_packages.add('calibre.gui2.tts')
         if not isbsd:
             exclude_modules.add('calibre.devices.usbms.hal')
-        d = os.path.dirname
-        SRC = d(d(d(os.path.abspath(__file__))))
-        self.assertGreater(self.base_check(os.path.join(SRC, 'odf'), exclude_packages, exclude_modules), 10)
-        base = os.path.join(SRC, 'calibre')
-        self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)
+        self.assertGreater(self.base_check('odf', exclude_packages, exclude_modules), 10)
+        self.assertGreater(self.base_check('calibre', exclude_packages, exclude_modules), 1000)
 
         # Virtual imports for legacy compatibility
         import calibre.web.feeds.feedparser as f  # type: ignore
