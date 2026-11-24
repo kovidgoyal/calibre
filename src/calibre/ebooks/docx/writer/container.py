@@ -104,6 +104,9 @@ def create_skeleton(opts: Values | OptionValues, namespaces: dict[str, str] | No
     return doc, styles, body
 
 
+keyword_separators_table = str.maketrans(dict.fromkeys(KEYWORD_SEPARATORS, '_'))
+
+
 def update_doc_props(root: etree._Element, mi: Metadata, namespace: DOCXNamespace) -> None:
     def setm(name: str, text: str | None = None, ns: str = 'dc') -> etree._Element:
         ans = root.makeelement(f'{{{namespace.namespaces[ns]}}}{name}')
@@ -118,8 +121,7 @@ def update_doc_props(root: etree._Element, mi: Metadata, namespace: DOCXNamespac
     setm('creator', authors_to_string(mi.authors))
     if mi.tags:
         # Replace separators inside tags so that each tag is read back whole
-        table = str.maketrans(dict.fromkeys(KEYWORD_SEPARATORS, '_'))
-        setm('keywords', ', '.join(t.translate(table) for t in mi.tags), ns='cp')
+        setm('keywords', ', '.join(t.translate(keyword_separators_table) for t in mi.tags), ns='cp')
     if mi.comments:
         setm('description', mi.comments)
     if mi.languages:

@@ -28,7 +28,7 @@ from lxml import etree
 from lxml.etree import tostring
 from odf.draw import Frame as odFrame
 from odf.draw import Image as odImage
-from odf.namespaces import DCNS, METANS, OFFICENS
+from odf.namespaces import DCNS, MANIFESTNS, METANS, OFFICENS
 from odf.opendocument import load as odLoad
 
 from calibre.ebooks.metadata import MetaInformation, authors_to_string, check_isbn, string_to_authors
@@ -179,9 +179,6 @@ def get_metadata(stream: IO[bytes], extract_cover: bool = True) -> Metadata:
     return mi
 
 
-MANIFEST_NS = 'urn:oasis:names:tc:opendocument:xmlns:manifest:1.0'
-
-
 def empty_meta(version: str | None = None) -> bytes:
     nsmap = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
     root = etree.Element(f'{{{OFFICENS}}}document-meta', nsmap=nsmap)
@@ -192,21 +189,22 @@ def empty_meta(version: str | None = None) -> bytes:
 
 
 def add_meta_to_manifest(raw: bytes) -> tuple[bytes | None, str | None]:
-    '''
+    """
     Return the manifest with an entry for meta.xml, or None if it already has
     one, and the ODF version of the document.
-    '''
+    """
     root = safe_xml_fromstring(raw)
-    version = root.get(f'{{{MANIFEST_NS}}}version')
-    entries = root.findall(f'{{{MANIFEST_NS}}}file-entry')
-    if any(x.get(f'{{{MANIFEST_NS}}}full-path') == 'meta.xml' for x in entries):
+    version = root.get(f'{{{MANIFESTNS}}}version')
+    entries = root.findall(f'{{{MANIFESTNS}}}file-entry')
+    if any(x.get(f'{{{MANIFESTNS}}}full-path') == 'meta.xml' for x in entries):
         return None, version
-    entry = root.makeelement(f'{{{MANIFEST_NS}}}file-entry')
-    entry.set(f'{{{MANIFEST_NS}}}full-path', 'meta.xml')
-    entry.set(f'{{{MANIFEST_NS}}}media-type', 'text/xml')
+    entry = root.makeelement(f'{{{MANIFESTNS}}}file-entry')
+    entry.set(f'{{{MANIFESTNS}}}full-path', 'meta.xml')
+    entry.set(f'{{{MANIFESTNS}}}media-type', 'text/xml')
     root.append(entry)
-    # Keep the DOCTYPE written by ODF 1.0/1.1 producers, lxml would drop it
-    m = re.search(rb'<!DOCTYPE[^>]*>', raw)
+    # Keep the DOCTYPE written by ODF 1.0/1.1 producers, lxml would drop it.
+    # A DOCTYPE with an internal subset is dropped rather than truncated.
+    m = re.search(rb'<!DOCTYPE[^>\[]*>', raw)
     doctype = m.group().decode('utf-8') if m else None
     return tostring(root, encoding='utf-8', xml_declaration=True, doctype=doctype), version
 
@@ -389,6 +387,7 @@ def find_tests() -> unittest.TestSuite:
     import unittest
 
     from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.localization import _
     from calibre.utils.zipfile import ZIP_STORED
 
     manifest = (

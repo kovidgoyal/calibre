@@ -38,6 +38,9 @@ def fromstring(raw: str | bytes, parser: object = None) -> etree._Element:
 # Read metadata {{{
 
 
+keyword_separators_pat = re.compile(f'[{re.escape(KEYWORD_SEPARATORS)}]')
+
+
 def read_doc_props(raw: str | bytes, mi: Metadata, XPath: Callable[[str], etree.XPath]) -> None:
     root = fromstring(raw)
     titles = XPath('//dc:title')(root)
@@ -54,7 +57,7 @@ def read_doc_props(raw: str | bytes, mi: Metadata, XPath: Callable[[str], etree.
         if keywords.text and keywords.text.strip():
             # Keywords can contain spaces, so do not split on whitespace. A
             # single keyword such as "Science fiction" has no separator at all.
-            tags.extend(x.strip() for x in re.split(f'[{KEYWORD_SEPARATORS}]', keywords.text) if x.strip())
+            tags.extend(x.strip() for x in keyword_separators_pat.split(keywords.text) if x.strip())
     if tags:
         mi.tags = tags
     authors = XPath('//dc:creator')(root)
