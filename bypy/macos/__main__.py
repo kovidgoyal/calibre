@@ -640,8 +640,11 @@ class Freeze:
             allowed_exts += ('.db',)
         def ignore(root, files):
             ans = []
+            is_chardet_models = '/chardet/models' in root
             for y in files:
                 ext = os.path.splitext(y)[1]
+                if is_chardet_models and ext == '.bin':
+                    continue
                 if ext not in allowed_exts or (not ext and not os.path.isdir(join(root, y))):
                     ans.append(y)
 

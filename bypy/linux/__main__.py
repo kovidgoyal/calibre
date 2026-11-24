@@ -87,11 +87,13 @@ def ignore_in_lib(base, items, ignored_dirs=None):
     for name in items:
         path = j(base, name)
         is_kakasi = 'pykakasi' in path
+        is_chardet_models = '/chardet/models' in base
         if os.path.isdir(path):
             if name != 'plugins' and (name in ignored_dirs or not is_package_dir(path)) and not (is_kakasi and name == 'data'):
                 ans.append(name)
         else:
-            if name.rpartition('.')[-1] not in ('so', 'py') and not (is_kakasi and name.endswith('.db')):
+            if name.rpartition('.')[-1] not in ('so', 'py') and not (is_kakasi and name.endswith('.db')) and not (
+                    is_chardet_models and name.endswith('.bin')):
                 ans.append(name)
     return ans
 
