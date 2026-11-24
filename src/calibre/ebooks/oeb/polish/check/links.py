@@ -252,6 +252,7 @@ class Bookmarks(BadLink):
 class MimetypeMismatch(BaseError):
     RULE_NAME = _('MIME type does not match file extension')
     level = WARN
+    renames_file = True
 
     def __init__(self, container: Container, name: str, opf_mt: str, ext_mt: str) -> None:
         self.opf_mt, self.ext_mt = opf_mt, ext_mt
