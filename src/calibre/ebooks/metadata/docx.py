@@ -57,17 +57,15 @@ def get_metadata(stream: IO[bytes]) -> Metadata:
 
 
 def register_core_properties(c: DOCX, dp_name: str, replacements: dict[str, BytesIO]) -> None:
-    '''
+    """
     Make sure the core properties part is declared in [Content_Types].xml and
     linked from _rels/.rels, adding the modified files to replacements. Word
     only reads core properties through the package relationship.
-    '''
+    """
     ns = c.namespace.namespaces
     part_name = '/' + dp_name.lstrip('/')
     ct = safe_xml_fromstring(c.read('[Content_Types].xml'))
-    if not any(
-        '/' + (x.get('PartName') or '').lstrip('/').lower() == part_name.lower() for x in ct.iterchildren('{{{}}}Override'.format(ns['ct']))
-    ):
+    if not any('/' + (x.get('PartName') or '').lstrip('/').lower() == part_name.lower() for x in ct.iterchildren('{{{}}}Override'.format(ns['ct']))):
         ct.append(
             ct.makeelement(
                 '{{{}}}Override'.format(ns['ct']),
@@ -91,21 +89,24 @@ def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
     from calibre.utils.zipfile import safe_replace
 
     c = DOCX(stream, extract=False)
-    dp_name, ap_name = c.get_document_properties_names()
-    replacements: dict[str, BytesIO] = {}
-    if dp_name is None:
-        dp_name = 'docProps/core.xml'
-    if c.exists(dp_name):
-        cp = safe_xml_fromstring(c.read(dp_name))
-    else:
-        # The core properties part is optional and some DOCX producers omit it
-        ns = c.namespace.namespaces
-        cp = etree.Element('{{{}}}coreProperties'.format(ns['cp']), nsmap={x: ns[x] for x in 'cp dc dcterms xsi'.split()})
-    register_core_properties(c, dp_name, replacements)
     try:
-        ap_raw = None if ap_name is None else c.read(ap_name)
-    except Exception:
-        ap_raw = None
+        dp_name, ap_name = c.get_document_properties_names()
+        replacements: dict[str, BytesIO] = {}
+        if dp_name is None:
+            dp_name = 'docProps/core.xml'
+        if c.exists(dp_name):
+            cp = safe_xml_fromstring(c.read(dp_name))
+        else:
+            # The core properties part is optional and some DOCX producers omit it
+            ns = c.namespace.namespaces
+            cp = etree.Element('{{{}}}coreProperties'.format(ns['cp']), nsmap={x: ns[x] for x in 'cp dc dcterms xsi'.split()})
+        register_core_properties(c, dp_name, replacements)
+        try:
+            ap_raw = None if ap_name is None else c.read(ap_name)
+        except Exception:
+            ap_raw = None
+    finally:
+        c.close()
     update_doc_props(cp, mi, c.namespace)
     if ap_raw is not None and ap_name is not None:
         ap = safe_xml_fromstring(ap_raw)
@@ -138,15 +139,16 @@ def find_tests() -> unittest.TestSuite:
         '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
         '{}</Relationships>'
     )
-    core_rel = '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
+    core_rel = (
+        '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
+    )
     core_override = '<Override PartName="{}" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
     core = (
         '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"'
-        ' xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Old</dc:title></cp:coreProperties>'
+        ' xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Old</dc:title><dc:subject>Kept</dc:subject></cp:coreProperties>'
     )
     document = (
-        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-        '<w:body><w:p><w:r><w:t>x</w:t></w:r></w:p></w:body></w:document>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>x</w:t></w:r></w:p></w:body></w:document>'
     )
 
     def make_docx(rels: str = '', override: str = '', has_core: bool = False) -> BytesIO:
@@ -201,6 +203,22 @@ def find_tests() -> unittest.TestSuite:
 
         def test_core_properties_override_without_leading_slash(self) -> None:
             self.check(make_docx(override=core_override.format('docProps/core.xml')))
+
+        def test_core_properties_relationship_target_case_differs(self) -> None:
+            # Must update the existing part, not add a second one differing only in case
+            stream = make_docx(core_rel.replace('core.xml', 'Core.xml'), core_override.format('/docProps/core.xml'), has_core=True)
+            set_metadata(stream, Metadata('New title', ['Some Author']))
+            stream.seek(0)
+            with ZipFile(stream) as zf:
+                names = [n for n in zf.namelist() if n.lower() == 'docprops/core.xml']
+                self.assertEqual(names, ['docProps/core.xml'])
+                raw = zf.read('docProps/core.xml').decode()
+                ct = zf.read('[Content_Types].xml').decode()
+            self.assertIn('New title', raw)
+            self.assertIn('Kept', raw)
+            self.assertEqual(ct.lower().count('docprops/core.xml'), 1)
+            stream.seek(0)
+            self.assertEqual(get_metadata(stream).title, 'New title')
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestDOCXMetadata)
 

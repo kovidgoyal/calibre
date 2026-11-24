@@ -226,18 +226,16 @@ class DOCX:
         return by_id, by_type
 
     def get_document_properties_names(self) -> Iterator[str | None]:
-        name = self.relationships.get(self.namespace.names['DOCPROPS'], None)
-        if name is None:
-            names = tuple(n for n in self.names if n.lower() == 'docprops/core.xml')
-            if names:
-                name = names[0]
-        yield name
-        name = self.relationships.get(self.namespace.names['APPPROPS'], None)
-        if name is None:
-            names = tuple(n for n in self.names if n.lower() == 'docprops/app.xml')
-            if names:
-                name = names[0]
-        yield name
+        for rtype, default in (('DOCPROPS', 'docprops/core.xml'), ('APPPROPS', 'docprops/app.xml')):
+            name = self.relationships.get(self.namespace.names[rtype], None)
+            if name is not None and not self.exists(name):
+                # OPC part names are case-insensitive, so the relationship
+                # target may differ in case from the name in the ZIP file
+                q = name.lower()
+                name = next((n for n in self.names if n.lower() == q), name)
+            if name is None:
+                name = next((n for n in self.names if n.lower() == default), None)
+            yield name
 
     @property
     def metadata(self) -> Metadata:
