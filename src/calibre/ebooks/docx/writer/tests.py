@@ -561,6 +561,55 @@ class TestNotes(BaseTest):
             self.assertFalse([p for p in body if '\u2190' in p])
 
 
+class TestDocProps(unittest.TestCase):
+    def setUp(self) -> None:
+        self.namespace = DOCXNamespace()
+
+    def read_tags(self, root: etree._Element) -> list[str]:
+        from calibre.ebooks.docx.container import read_doc_props
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        mi = Metadata('Title')
+        read_doc_props(etree.tostring(root), mi, self.namespace.XPath)
+        return mi.tags
+
+    def core_properties(self, keywords: str | None = None) -> etree._Element:
+        cp = self.namespace.namespaces['cp']
+        root = etree.Element(f'{{{cp}}}coreProperties', nsmap={'cp': cp})
+        if keywords is not None:
+            etree.SubElement(root, f'{{{cp}}}keywords').text = keywords
+        return root
+
+    def test_keywords_round_trip(self) -> None:
+        from calibre.ebooks.docx.writer.container import update_doc_props
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        for tags, expected in (
+            (['Science fiction', 'Space opera', 'One'], ['Science fiction', 'Space opera', 'One']),
+            (['Science fiction'], ['Science fiction']),
+            # Separators inside a tag must not split it
+            (['Romance; Historical', '小说；科幻'], ['Romance_ Historical', '小说_科幻']),
+        ):
+            with self.subTest(tags=tags):
+                mi = Metadata('Title', ['Author'])
+                mi.tags = tags
+                root = self.core_properties()
+                update_doc_props(root, mi, self.namespace)
+                self.assertEqual(self.read_tags(root), expected)
+
+    def test_keywords_separators(self) -> None:
+        for keywords, expected in (
+            ('Science fiction, Space opera', ['Science fiction', 'Space opera']),
+            # Word and Windows Explorer separate tags with semicolons
+            ('Science fiction; Space opera;', ['Science fiction', 'Space opera']),
+            (' One ,, Two words ; Three ', ['One', 'Two words', 'Three']),
+            # Full width separators used in CJK locales
+            ('小说；科幻，奇幻', ['小说', '科幻', '奇幻']),
+        ):
+            with self.subTest(keywords=keywords):
+                self.assertEqual(self.read_tags(self.core_properties(keywords)), expected)
+
+
 def find_tests() -> unittest.TestSuite:
     loader = unittest.defaultTestLoader
-    return unittest.TestSuite(loader.loadTestsFromTestCase(cls) for cls in (TestHyperlinks, TestWhitespace, TestStyles, TestNotes))
+    return unittest.TestSuite(loader.loadTestsFromTestCase(cls) for cls in (TestHyperlinks, TestWhitespace, TestStyles, TestNotes, TestDocProps))

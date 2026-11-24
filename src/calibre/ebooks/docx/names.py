@@ -77,6 +77,10 @@ STRICT_NAMESPACES = {
     .replace('http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
     for k, v in TRANSITIONAL_NAMESPACES.items()
 }
+# Separators between keywords in cp:keywords. calibre writes commas, Word and
+# Windows Explorer write semicolons, full width forms are used in CJK locales.
+KEYWORD_SEPARATORS = ',;\uff0c\uff1b'
+
 SVG_BLIP_URI = '{96DAC541-7B7A-43D3-8B79-37D633B846F1}'
 USE_LOCAL_DPI_URI = '{28A0092B-C50C-407E-A947-70E740481C1C}'
 # }}}

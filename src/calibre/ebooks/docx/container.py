@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+import re
 import shutil
 import sys
 from typing import IO, TYPE_CHECKING, cast
@@ -10,7 +11,7 @@ from lxml import etree
 
 from calibre import guess_type, walk
 from calibre.ebooks.docx import InvalidDOCX
-from calibre.ebooks.docx.names import DOCXNamespace
+from calibre.ebooks.docx.names import KEYWORD_SEPARATORS, DOCXNamespace
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -46,12 +47,14 @@ def read_doc_props(raw: str | bytes, mi: Metadata, XPath: Callable[[str], etree.
             mi.title = title.strip()
     tags = []
     for subject in XPath('//dc:subject')(root):
+        # The subject is a single value, not a list, so it is not split
         if subject.text and subject.text.strip():
             tags.append(subject.text.strip().replace(',', '_'))
     for keywords in XPath('//cp:keywords')(root):
         if keywords.text and keywords.text.strip():
-            for x in keywords.text.split():
-                tags.extend(y.strip() for y in x.split(',') if y.strip())
+            # Keywords can contain spaces, so do not split on whitespace. A
+            # single keyword such as "Science fiction" has no separator at all.
+            tags.extend(x.strip() for x in re.split(f'[{KEYWORD_SEPARATORS}]', keywords.text) if x.strip())
     if tags:
         mi.tags = tags
     authors = XPath('//dc:creator')(root)
