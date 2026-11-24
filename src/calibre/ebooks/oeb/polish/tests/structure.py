@@ -739,6 +739,7 @@ class Structure(BaseTest):
     def test_fix_errors_with_renamed_files(self) -> None:
         "Fixes that rename files must not break other fixes for the same files"
         from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+        from calibre.ebooks.oeb.polish.replace import rename_files
 
         def html(body: str) -> str:
             return f'<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body>{body}</body></html>'
@@ -749,10 +750,22 @@ class Structure(BaseTest):
         errors = run_checks(c)
         self.assertTrue(any(type(e).renames_file for e in errors))
         self.assertTrue(fix_errors(c, errors))
-        self.assertEqual([str(e) for e in run_checks(c)], [])
+        fixed_types = {type(e) for e in errors if e.INDIVIDUAL_FIX}
+        self.assertEqual([str(e) for e in run_checks(c) if type(e) in fixed_types], [])
         self.assertEqual(sorted(n for n in c.mime_map if n.endswith('html')), ['a.xhtml', 'b.xhtml'])
         a = c.parsed('a.xhtml')
         self.assertEqual(a.xpath('//*[local-name()="a"]/@href'), ['#id1x', 'b.xhtml'])
+
+        # A file that needs two renames, once to fix its MIME type and once to
+        # fix its name. The second rename must be skipped, not crash.
+        c = self.create_epub([cmi('c.html', html('<p id="1x">a</p>'))], ver=2)
+        rename_files(c, {'c.html': 'c+.html'})  # not in create_epub() as it uses names as ids
+        errors = run_checks(c)
+        self.assertEqual({type(e).__name__ for e in errors if type(e).renames_file}, {'MimetypeMismatch', 'EscapedName'})
+        self.assertTrue(fix_errors(c, errors))
+        self.assertEqual(sorted(n for n in c.mime_map if n.endswith('html')), ['c+.xhtml'])
+        self.assertTrue(fix_errors(c, run_checks(c)))
+        self.assertEqual(sorted(n for n in c.mime_map if n.endswith('html')), ['c_.xhtml'])
 
     def test_dangling_id_reference(self) -> None:
         from calibre.ebooks.oeb.polish.check.main import fix_errors

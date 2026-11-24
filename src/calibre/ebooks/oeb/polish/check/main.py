@@ -220,7 +220,7 @@ def fix_errors(container: Container, errors: Sequence[BaseError], skipped_rules:
         changed = True
     existing_names = set(container.name_path_map)
     for err in fixable:
-        if err.name in existing_names and not container.exists(err.name):
+        if err.name in existing_names and not container.has_name(err.name):
             continue  # the file was removed or renamed by a previous fix
         if (batch := batches.pop(type(err), None)) is not None:
             if type(err).fix_batch(container, batch):

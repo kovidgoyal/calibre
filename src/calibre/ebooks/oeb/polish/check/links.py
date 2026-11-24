@@ -252,6 +252,8 @@ class Bookmarks(BadLink):
 class MimetypeMismatch(BaseError):
     RULE_NAME = _('MIME type does not match file extension')
     level = WARN
+    # Only files in the spine are renamed, others just have their MIME type
+    # changed in the OPF, but deferring that is harmless
     renames_file = True
 
     def __init__(self, container: Container, name: str, opf_mt: str, ext_mt: str) -> None:
@@ -272,6 +274,10 @@ class MimetypeMismatch(BaseError):
             self.change_ext_to = None
 
     def __call__(self, container: Container) -> bool:
+        # The name of this error is the OPF, so fix_errors() cannot tell if
+        # the file was removed or renamed by a previous fix, check here
+        if not container.has_name(self.file_name):
+            return False
         changed = False
         if self.change_ext_to is not None:
             from calibre.ebooks.oeb.polish.replace import rename_files
