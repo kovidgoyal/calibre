@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-import unittest
 from io import BytesIO
 from typing import IO, TYPE_CHECKING
 
@@ -13,6 +12,8 @@ from calibre.utils.imghdr import identify
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 if TYPE_CHECKING:
+    import unittest
+
     from calibre.ebooks.metadata.book.base import Metadata
 
 
@@ -120,6 +121,7 @@ def set_metadata(stream: IO[bytes], mi: Metadata) -> None:
 
 
 def find_tests() -> unittest.TestSuite:
+    import unittest
     from zipfile import ZipFile
 
     from calibre.ebooks.metadata.book.base import Metadata
