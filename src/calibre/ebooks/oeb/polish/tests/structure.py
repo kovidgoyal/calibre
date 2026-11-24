@@ -767,6 +767,24 @@ class Structure(BaseTest):
         self.assertTrue(fix_errors(c, run_checks(c)))
         self.assertEqual(sorted(n for n in c.mime_map if n.endswith('html')), ['c_.xhtml'])
 
+    def test_fix_errors_with_invalid_manifest_id(self) -> None:
+        "Fixes for spine items must not depend on manifest ids changed by earlier fixes"
+        from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+        from calibre.ebooks.oeb.polish.check.opf import BadSpineMime
+        from calibre.ebooks.oeb.polish.check.parsing import InvalidId
+
+        # create_epub() uses names as manifest ids, and c+.html is not a valid id
+        c = self.create_epub([cmi('c+.html', '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body><p>c</p></body></html>')], ver=2)
+        errors = run_checks(c)
+        self.assertTrue(any(isinstance(e, InvalidId) and e.name == c.opf_name for e in errors))
+        self.assertTrue(any(isinstance(e, BadSpineMime) for e in errors))
+        self.assertTrue(fix_errors(c, errors))
+        self.assertEqual([str(e) for e in run_checks(c) if isinstance(e, (BadSpineMime, InvalidId))], [])
+        items = c.opf_xpath('//opf:manifest/opf:item')
+        self.assertEqual(len(items), 1)
+        self.assertNotEqual(items[0].get('id'), 'c+.html')
+        self.assertEqual(items[0].get('media-type'), 'application/xhtml+xml')
+
     def test_dangling_id_reference(self) -> None:
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference, check_ids

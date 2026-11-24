@@ -284,15 +284,22 @@ class BadSpineMime(BaseError):
             ' If it is not-HTML you should consider replacing it with an HTML item, as it'
             ' is unlikely to work in most readers.'
         ).format(name, mt, XHTML_MIME)
+        self.file_name = name
         if iid is not None:
             self.INDIVIDUAL_FIX = _('Change the media-type to %s') % XHTML_MIME
-            self.iid = iid
 
     def __call__(self, container: Container) -> bool:
-        container.opf_xpath(f'/opf:package/opf:manifest/opf:item[@id={self.iid!r}]')[0].set('media-type', XHTML_MIME)
-        container.dirty(container.opf_name)
-        container.refresh_mime_map()
-        return True
+        # The manifest item is found by its href rather than its id, as an
+        # earlier fix, such as for invalid ids, may have changed the id
+        changed = False
+        for item in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]'):
+            if container.href_to_name(item.get('href'), container.opf_name) == self.file_name:
+                item.set('media-type', XHTML_MIME)
+                changed = True
+        if changed:
+            container.dirty(container.opf_name)
+            container.refresh_mime_map()
+        return changed
 
 
 def check_opf(container: Container) -> list[BaseError]:
