@@ -369,23 +369,30 @@ def remove_links_in_declaration(href_to_name: Callable[[str], str | None], style
 def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
     """predicate must be a function that takes the arguments (name, href,
     fragment=None) and returns True iff the link should be removed"""
-    from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, iterlinks
+    from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG, SVG_MIME, XHTML, XPath, iterlinks
 
-    stylepath = XPath('//h:style')
+    stylepath = XPath('//h:style|//svg:style')
     styleattrpath = XPath('//*[@style]')
+    # Elements that are useless without their link and so are removed entirely
+    link_only_tags = frozenset((XHTML('link'), XHTML('img'), SVG('image')))
     changed: set[str] = set()
     for name, mt in container.mime_map.items():
         removed = False
+        root: etree._Element | None = None
         if mt in OEB_DOCS:
-            root = container.parsed(name)
-            assert isinstance(root, etree._Element)
+            parsed = container.parsed(name)
+            assert isinstance(parsed, etree._Element)
+            root = parsed
+        elif mt == SVG_MIME:
+            root = container.parsed_svg(name)
+        if root is not None:
             for el, attr, href, pos in iterlinks(root, find_links_in_css=False):
                 hname = container.href_to_name(href, name)
                 frag = href.partition('#')[-1]
                 if predicate(hname, href, frag):
                     if attr is None:
                         el.text = None
-                    elif el.tag == XHTML('link') or el.tag == XHTML('img'):
+                    elif el.tag in link_only_tags:
                         extract(el)
                     else:
                         del el.attrib[attr]

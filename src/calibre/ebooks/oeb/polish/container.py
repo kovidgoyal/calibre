@@ -38,6 +38,7 @@ from calibre.ebooks.oeb.base import (
     OEB_STYLES,
     OPF,
     OPF2_NS,
+    SVG_MIME,
     Manifest,
     itercsslinks,
     iterlinks,
@@ -529,7 +530,10 @@ class Container(ContainerBase):  # {{{
         In HTML files, attributes that refer to elements in the same file by
         id, such as aria-labelledby, are also replaced. Each id is passed to
         replace_func as a URL of the form #id with file_type set to 'idref'
-        and is replaced only if replace_func returns a URL of the same form."""
+        and is replaced only if replace_func returns a URL of the same form.
+
+        Links in SVG images, such as the href of <image> elements, are
+        replaced with file_type set to 'svg'."""
         media_type = self.mime_map.get(name, guess_type(name))
         if name == self.opf_name:
             replace_func.file_type = 'opf'
@@ -552,6 +556,10 @@ class Container(ContainerBase):  # {{{
         elif media_type.lower() in OEB_STYLES:
             replace_func.file_type = 'style'
             replaceUrls(self.parsed(name), replace_func)
+        elif media_type.lower() == SVG_MIME:
+            replace_func.file_type = 'svg'
+            if (root := self.parsed_svg(name)) is not None:
+                rewrite_links(root, replace_func)
         elif media_type.lower() == guess_type('toc.ncx'):
             replace_func.file_type = 'ncx'
             root = self.parsed(name)
@@ -584,6 +592,10 @@ class Container(ContainerBase):  # {{{
             assert isinstance(root, etree._Element)
             for el, attr, link, pos in iterlinks(root):
                 yield (link, el.sourceline, pos) if get_line_numbers else link
+        elif media_type.lower() == SVG_MIME:
+            if (root := self.parsed_svg(name)) is not None:
+                for el, attr, link, pos in iterlinks(root):
+                    yield (link, el.sourceline, pos) if get_line_numbers else link
         elif media_type.lower() in OEB_STYLES:
             if get_line_numbers:
                 with self.open(name, 'rb') as f:
@@ -728,6 +740,21 @@ class Container(ContainerBase):  # {{{
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
             return self.decode(ans, normalize_to_nfc=normalize_to_nfc)
         return ans
+
+    def parsed_svg(self, name: str) -> _Element | None:
+        """Return the parsed lxml tree for the SVG image specified by name or
+        None, after logging a warning, if it cannot be parsed. Useful for
+        processing links in SVG images, where a broken image should not
+        prevent processing of the rest of the book."""
+        try:
+            root = self.parsed(name)
+        except etree.XMLSyntaxError as err:
+            self.log.warn(f'Failed to parse the SVG image {name} with error: {err}')
+            return None
+        if not isinstance(root, etree._Element):
+            self.log.warn(f'The SVG image {name} is empty')
+            return None
+        return root
 
     def parsed(self, name: str) -> ParsedObject:
         """Return a parsed representation of the file specified by name. For

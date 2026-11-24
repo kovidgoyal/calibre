@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from lxml import etree
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML_MIME, urlunquote
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG_MIME, XHTML_MIME, urlunquote
 from calibre.ebooks.oeb.polish.check.base import ERROR, INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.parsing import parse_html5
@@ -216,7 +216,7 @@ class DanglingLink(BadLink):
 
     def __init__(self, text: str, target_name: str, name: str, lnum: int | None, col: int | None) -> None:
         BadLink.__init__(self, text, name, lnum, col)
-        self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
+        self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML, CSS and SVG files in the book') % target_name
         self.target_name = target_name
 
     has_batch_fix = True
@@ -400,7 +400,7 @@ def locate_spine_media_overlays(container: Container) -> Iterator[str]:
 
 def check_links(container: Container) -> list[BaseError]:
     links_map: defaultdict[str, set[str]] = defaultdict(set)
-    xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
+    xml_types = {guess_type('a.opf'), guess_type('a.ncx'), SVG_MIME}
     errors: list[BaseError] = []
     a = errors.append
     folder_case_map: FolderCaseMap = {}
@@ -475,6 +475,15 @@ def check_links(container: Container) -> list[BaseError]:
         spine_styles |= {tname for name in spine_styles for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
     seen = set(OEB_DOCS) | set(OEB_STYLES)
     spine_resources = {tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
+    # Resources referenced by SVG images, such as images in <image> elements,
+    # are used if the SVG image is used
+    pending = [name for name in spine_resources if container.mime_map[name] == SVG_MIME]
+    while pending:
+        for tname in links_map[pending.pop()]:
+            if tname not in spine_resources and container.mime_map[tname] not in seen:
+                spine_resources.add(tname)
+                if container.mime_map[tname] == SVG_MIME:
+                    pending.append(tname)
     media_overlays = frozenset(locate_spine_media_overlays(container))
     unreferenced = set()
 
@@ -534,7 +543,7 @@ def check_external_links(
     progress_callback(0, 0)
     external_links: defaultdict[str, list[ExternalLinkLocation]] = defaultdict(list)
     for name, mt in container.mime_map.items():
-        if mt in OEB_DOCS or mt in OEB_STYLES:
+        if mt in OEB_DOCS or mt in OEB_STYLES or mt == SVG_MIME:
             for href, lnum, col in container.iterlinks(name):
                 # Container.iterlinks() only yields values of attributes that are present
                 href = cast('str', href)

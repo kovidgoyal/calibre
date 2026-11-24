@@ -13,7 +13,7 @@ from css_selectors import Select, SelectorError
 from lxml import etree
 
 from calibre import force_unicode, prepare_string_for_xml
-from calibre.ebooks.oeb.base import XPath, xml2text
+from calibre.ebooks.oeb.base import SVG_MIME, XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
@@ -126,7 +126,7 @@ def safe_href_to_name(container: Container, href: str | None, base: str) -> str 
 
 def images_data(container: Container, *args: object) -> tuple[Image, ...]:
     image_usage: defaultdict[str, set[LinkLocation]] = defaultdict(set)
-    link_sources = OEB_STYLES | OEB_DOCS
+    link_sources = OEB_STYLES | OEB_DOCS | {SVG_MIME}
     for name, mt in container.mime_map.items():
         if mt in link_sources:
             for href, line_number, offset in container.iterlinks(name):

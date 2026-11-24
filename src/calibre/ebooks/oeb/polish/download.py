@@ -20,7 +20,7 @@ from lxml import etree
 from calibre import as_unicode, browser
 from calibre import sanitize_file_name as sanitize_file_name_base
 from calibre.constants import iswindows
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG_MIME, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
@@ -51,8 +51,13 @@ def is_external(url: str | None) -> TypeGuard[str]:
 
 
 def iterhtmllinks(container: Container, name: str) -> Iterator[tuple[_Element, str | None, str]]:
-    root = container.parsed(name)
-    assert isinstance(root, etree._Element)  # only called for HTML files, parsed into lxml trees
+    if container.mime_map.get(name) == SVG_MIME:
+        if (root := container.parsed_svg(name)) is None:
+            return
+    else:
+        parsed = container.parsed(name)
+        assert isinstance(parsed, etree._Element)  # only called for HTML files, parsed into lxml trees
+        root = parsed
     for el, attr, link, pos in iterlinks(root):
         eltag = el.tag
         assert isinstance(eltag, str)  # iterlinks() only yields elements from iter('*')
@@ -65,7 +70,7 @@ def get_external_resources(container: Container) -> dict[str, list[str]]:
     ans: defaultdict[str, list[str]] = defaultdict(list)
     for name, media_type in container.mime_map.items():
         if container.has_name(name) and container.exists(name):
-            if media_type in OEB_DOCS:
+            if media_type in OEB_DOCS or media_type == SVG_MIME:
                 for el, attr, link in iterhtmllinks(container, name):
                     ans[link].append(name)
             elif media_type in OEB_STYLES:

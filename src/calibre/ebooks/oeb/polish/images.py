@@ -459,23 +459,10 @@ def remove_unused_images(container: Container, report: Report | None = None) -> 
     itself referenced. The cover image is never removed.
     """
     report = report or (lambda x: x)
-    from lxml import etree
-
-    from calibre.ebooks.oeb.base import SVG_MIME, iterlinks
+    from calibre.ebooks.oeb.base import SVG_MIME
     from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
     from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
     from calibre.ebooks.oeb.polish.report import safe_href_to_name
-
-    def svg_links(name: str) -> list[str] | None:
-        # Container.iterlinks() does not support SVG files, so find the links
-        # in them, such as the xlink:href of <image> and url() in CSS, directly
-        try:
-            root = container.parsed(name)
-        except etree.XMLSyntaxError:
-            return None
-        if not isinstance(root, etree._Element):
-            return None
-        return [link for _el, _attr, link, _pos in iterlinks(root)]
 
     referenced_images: set[str] = set()
     if cover := get_raster_cover_name(container):
@@ -486,15 +473,11 @@ def remove_unused_images(container: Container, report: Report | None = None) -> 
     seen = set(pending)
     while pending:
         source_name = pending.pop()
-        if container.mime_map.get(source_name) == SVG_MIME:
-            links = svg_links(source_name)
-            if links is None:
-                # Cannot tell which images this SVG references, so be safe
-                report(_('Failed to parse the SVG image {}, not removing any images, as it might reference them').format(source_name))
-                return False
-        else:
-            links = [href for href, _line_number, _offset in container.iterlinks(source_name)]
-        for href in links:
+        if container.mime_map.get(source_name) == SVG_MIME and container.parsed_svg(source_name) is None:
+            # Cannot tell which images this SVG references, so be safe
+            report(_('Failed to parse the SVG image {}, not removing any images, as it might reference them').format(source_name))
+            return False
+        for href, _line_number, _offset in container.iterlinks(source_name):
             target = safe_href_to_name(container, href, source_name)
             if not target or not container.exists(target):
                 continue

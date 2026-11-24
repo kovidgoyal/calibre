@@ -785,6 +785,56 @@ class Structure(BaseTest):
         self.assertNotEqual(items[0].get('id'), 'c+.html')
         self.assertEqual(items[0].get('media-type'), 'application/xhtml+xml')
 
+    def test_links_in_svg(self) -> None:
+        "Links in SVG images are found, checked and replaced"
+        from calibre.ebooks.oeb.polish.check.links import DanglingLink, UnreferencedResource, check_links
+        from calibre.ebooks.oeb.polish.replace import rename_files
+        from calibre.ebooks.oeb.polish.report import images_data
+
+        html = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body><img src="i.svg" alt="i"/></body></html>'
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+            '<style>rect { fill: url(styled.png) }</style>'
+            '<image xlink:href="in_svg.png"/><image href="nested.svg"/><image href="missing.png"/><rect/></svg>'
+        )
+        nested = '<svg xmlns="http://www.w3.org/2000/svg"><image href="in_nested.png"/></svg>'
+        c = self.create_epub([
+            cmi('a.xhtml', html),
+            cmi('i.svg', svg),
+            cmi('nested.svg', nested),
+            cmi('in_svg.png'),
+            cmi('styled.png'),
+            cmi('in_nested.png'),
+            cmi('unused.svg', '<svg xmlns="http://www.w3.org/2000/svg"><image href="only_unused.png"/></svg>'),
+            cmi('only_unused.png'),
+        ])
+        self.assertEqual({x[0] for x in c.iterlinks('i.svg')}, {'styled.png', 'in_svg.png', 'nested.svg', 'missing.png'})
+        errors = check_links(c)
+        unreferenced = sorted(e.name for e in errors if isinstance(e, UnreferencedResource))
+        self.assertEqual(unreferenced, ['only_unused.png', 'unused.svg'])
+        self.assertEqual([(e.name, e.target_name) for e in errors if isinstance(e, DanglingLink)], [('i.svg', 'missing.png')])
+        dangling = [e for e in errors if isinstance(e, DanglingLink)]
+        self.assertTrue(DanglingLink.fix_batch(c, dangling))
+        self.assertNotIn('missing.png', {x[0] for x in c.iterlinks('i.svg')})
+        self.assertFalse([e for e in check_links(c) if isinstance(e, DanglingLink)])
+        usage = {img.name: {loc.name for loc in img.usage} for img in images_data(c)}
+        self.assertEqual(usage['in_svg.png'], {'i.svg'})
+        self.assertEqual(usage['in_nested.png'], {'nested.svg'})
+
+        # Renaming files referenced from SVG images updates the links in them
+        rename_files(c, {'in_svg.png': 'images/in_svg.png', 'nested.svg': 'images/nested.svg', 'in_nested.png': 'in_nested2.png'})
+        self.assertEqual({x[0] for x in c.iterlinks('i.svg')}, {'styled.png', 'images/in_svg.png', 'images/nested.svg'})
+        self.assertEqual({x[0] for x in c.iterlinks('images/nested.svg')}, {'../in_nested2.png'})
+        c.commit_item('i.svg', keep_parsed=False)
+        self.assertIn('xlink:href="images/in_svg.png"', c.raw_data('i.svg'))
+        self.assertEqual(sorted(e.name for e in check_links(c) if isinstance(e, UnreferencedResource)), ['only_unused.png', 'unused.svg'])
+
+        # A broken SVG image does not prevent processing other files
+        c = self.create_epub([cmi('a.xhtml', html), cmi('i.svg', b'\0'), cmi('p.png')])
+        self.assertEqual(list(c.iterlinks('i.svg')), [])
+        rename_files(c, {'p.png': 'q.png'})
+        self.assertIn('q.png', c.mime_map)
+
     def test_dangling_id_reference(self) -> None:
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import DanglingIdReference, check_ids
