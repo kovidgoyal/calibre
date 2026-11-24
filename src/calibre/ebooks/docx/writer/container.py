@@ -10,7 +10,7 @@ from lxml.builder import ElementMaker
 
 from calibre import guess_type
 from calibre.constants import __appname__, numeric_version
-from calibre.ebooks.docx.names import DOCXNamespace
+from calibre.ebooks.docx.names import KEYWORD_SEPARATORS, DOCXNamespace
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
 from calibre.utils.date import utcnow
@@ -117,7 +117,9 @@ def update_doc_props(root: etree._Element, mi: Metadata, namespace: DOCXNamespac
     setm('title', mi.title)
     setm('creator', authors_to_string(mi.authors))
     if mi.tags:
-        setm('keywords', ', '.join(mi.tags), ns='cp')
+        # Replace separators inside tags so that each tag is read back whole
+        table = str.maketrans(dict.fromkeys(KEYWORD_SEPARATORS, '_'))
+        setm('keywords', ', '.join(t.translate(table) for t in mi.tags), ns='cp')
     if mi.comments:
         setm('description', mi.comments)
     if mi.languages:
