@@ -4,12 +4,12 @@
 import os
 from itertools import count
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.main import Opts, check_and_fix, option_parser, polish_one
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.tests.structure import cmi, create_epub
-from calibre.utils.ipc.simple_worker import fork_job
 from calibre.utils.resources import get_image_path
 
 if TYPE_CHECKING:
@@ -20,30 +20,10 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.polish.tests.structure import ManifestItem
 
 counter = count()
-is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 
 
 def html(body: str) -> str:
     return f'<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head><body>{body}</body></html>'
-
-
-def cleanup_book(inpath: str, outpath: str) -> tuple[bool, list[str]]:
-    # Runs in a worker process as checking CSS needs a QApplication, which
-    # tests must not create
-    from contextlib import ExitStack
-    from unittest.mock import patch
-
-    c = get_container(inpath, tweak_mode=True)
-    report: list[str] = []
-    with ExitStack() as stack:
-        # Do not use the rules skipped in the editor by the user running the tests
-        stack.enter_context(patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()))
-        if is_sanitized:
-            # Checking CSS uses Qt WebEngine, which hangs when run with ASAN
-            stack.enter_context(patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.__call__', return_value=()))
-        changed = polish_one(c, Opts(cleanup=True), report.append)
-    c.commit(outpath)
-    return changed, report
 
 
 class PolishActionsTest(BaseTest):
@@ -85,8 +65,18 @@ class PolishActionsTest(BaseTest):
             ver=2,
         )
         outpath = os.path.join(self.tdir, 'cleaned.epub')
-        res = fork_job('calibre.ebooks.oeb.polish.tests.polish_actions', 'cleanup_book', args=(path, outpath), no_output=True)['result']
-        changed, report = res
+        c = self.open_container(path)
+        report: list[str] = []
+        # Do not use the rules skipped in the editor by the user running the
+        # tests and do not check CSS, as that uses Qt WebEngine, which is
+        # fragile in CI and needs a QApplication
+        with (
+            patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()),
+            patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.create_job'),
+            patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.__call__', return_value=()),
+        ):
+            changed = polish_one(c, Opts(cleanup=True), report.append)
+        c.commit(outpath)
         self.assertTrue(changed)
         c = self.open_container(outpath)
         # HTML was fixed and the .html files renamed to .xhtml by the check book fixes
