@@ -3,7 +3,7 @@
 
 import os
 import re
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from qt.core import (
     QAction,
@@ -277,6 +277,7 @@ class ImageDropWidgetProtocol(Protocol):  # {{{
     def setPixmap(self, pixmap: QPixmap, /) -> None: ...
     def set_pixmap(self, pixmap: QPixmap) -> None: ...
     def handle_image_drop(self, pmap: QPixmap, data: bytes | None = None) -> None: ...
+    def paste_from_clipboard(self) -> bool: ...
 
     cover_changed: Any
 
@@ -356,7 +357,7 @@ class ImageDropMixin:
         if not _mime.hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
-        paste.triggered.connect(self.paste_from_clipboard)
+        paste.triggered.connect(cast('ImageDropWidgetProtocol', self).paste_from_clipboard)
         return cm
 
     def contextMenuEvent(self, a0, /) -> None:
