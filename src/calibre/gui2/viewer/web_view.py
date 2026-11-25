@@ -581,7 +581,6 @@ class WebView(QWebEngineView):
         screen = self.screen()
         assert screen is not None
         w = screen.availableSize().width()
-        qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w / 3), int(w / 2))
         self._page = WebPage(self)
@@ -643,6 +642,9 @@ class WebView(QWebEngineView):
         self.bridge.change_background_image.connect(self.change_background_image)
         self.pending_bridge_ready_actions = {}
         self.setPage(self._page)
+        # Connect only once the page (and therefore self.bridge) exists, otherwise a
+        # palette change arriving during construction hits AttributeError.
+        qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.setAcceptDrops(False)
         self.setUrl(QUrl(f'{FAKE_PROTOCOL}://{FAKE_HOST}/'))
         self.urlChanged.connect(self.url_changed)
