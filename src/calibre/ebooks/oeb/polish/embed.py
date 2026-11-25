@@ -13,17 +13,17 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Iterable, Sequence
 
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.main import Report
     from calibre.ebooks.oeb.polish.stats import FontFaceRule, StatsCollector, UsedFont
     from calibre.utils.fonts.metadata import FontFace
 
     # An @font-face rule for a font embedded by this module
     type EmbeddedFontRule = dict[str, str | None]
-    type Report = Callable[[str], object]
 
 props: dict[str, str | None] = {'font-family': None, 'font-weight': 'normal', 'font-style': 'normal', 'font-stretch': 'normal'}
 

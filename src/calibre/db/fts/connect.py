@@ -21,17 +21,12 @@ from .schema_upgrade import SchemaUpgrade
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Generator
-    from typing import TextIO, TypedDict, Unpack
+    from typing import TypedDict, Unpack
     from weakref import ref
 
+    from calibre import PrintKwargs
     from calibre.db.backend import Connection
     from calibre.db.cache import Cache
-
-    class PrintKwargs(TypedDict, total=False):
-        sep: str | None
-        end: str | None
-        file: TextIO | None
-        flush: bool
 
     class FTSSearchResult(TypedDict):
         id: int

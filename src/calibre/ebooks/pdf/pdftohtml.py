@@ -20,16 +20,10 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import IO, TypedDict
 
     from lxml.etree import _Element
 
-    class PopenKwargs(TypedDict, total=False):
-        stdin: int | IO[bytes] | None
-        stdout: int | IO[bytes] | None
-        stderr: int | IO[bytes] | None
-        cwd: str | None
-        creationflags: int
+    from calibre.debug import PopenKwargs
 
 
 PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')

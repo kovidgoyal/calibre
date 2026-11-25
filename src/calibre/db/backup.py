@@ -10,16 +10,11 @@ from typing import TYPE_CHECKING, cast
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 
 if TYPE_CHECKING:
-    from typing import TextIO, TypedDict, Unpack
+    from typing import Unpack
 
+    from calibre import PrintKwargs
     from calibre.db.cache import Cache
     from calibre.db.legacy import LibraryDatabase
-
-    class PrintKwargs(TypedDict, total=False):
-        sep: str | None
-        end: str | None
-        file: TextIO | None
-        flush: bool
 
 
 def prints(*a: object, **kw: Unpack[PrintKwargs]) -> None:
