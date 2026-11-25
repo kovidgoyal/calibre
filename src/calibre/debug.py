@@ -8,7 +8,7 @@ Embedded console for debugging.
 import functools
 import os
 import sys
-from typing import IO, TYPE_CHECKING, TypedDict, Unpack, cast
+from typing import IO, TYPE_CHECKING, Unpack, cast
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -21,12 +21,7 @@ if TYPE_CHECKING:
     import subprocess
     from types import ModuleType
 
-    class PopenKwargs(TypedDict, total=False):
-        stdin: int | IO[bytes] | None
-        stdout: int | IO[bytes] | None
-        stderr: int | IO[bytes] | None
-        cwd: str | None
-        creationflags: int
+    from calibre.type_hints import PopenKwargs
 
     class DebugPopenKwargs(PopenKwargs, total=False):
         headless: bool

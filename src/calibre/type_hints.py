@@ -7,7 +7,7 @@ This module must only be imported inside TYPE_CHECKING blocks.
 """
 
 from collections.abc import Callable, Iterator
-from typing import Protocol, TextIO, TypedDict
+from typing import IO, Protocol, TextIO, TypedDict
 
 
 class PrintKwargs(TypedDict, total=False):
@@ -15,6 +15,14 @@ class PrintKwargs(TypedDict, total=False):
     end: str | None
     file: TextIO | None
     flush: bool
+
+
+class PopenKwargs(TypedDict, total=False):
+    stdin: int | IO[bytes] | None
+    stdout: int | IO[bytes] | None
+    stderr: int | IO[bytes] | None
+    cwd: str | None
+    creationflags: int
 
 
 class RegexMatch(Protocol):

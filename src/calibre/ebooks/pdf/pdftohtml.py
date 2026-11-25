@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from lxml.etree import _Element
 
-    from calibre.debug import PopenKwargs
+    from calibre.type_hints import PopenKwargs
 
 
 PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')
