@@ -147,3 +147,25 @@ def bookmark_rename_removes_the_old_title_when_merged_with_another_copy():
         assert_equal([b.title for b in merged.bookmark if b.removed], ['Middle'])
 
     with_bookmarks(run)
+
+
+@test
+def bookmarks_received_from_sync_are_merged():
+    manager = AnnotationsManager(None)
+    manager.set_bookmarks(initial_bookmarks())
+    assert_false(manager.merge_bookmarks([]))
+    assert_false(manager.merge_bookmarks(initial_bookmarks()))
+    NEW_TIMESTAMP = '2021-01-01T00:00:00.000Z'
+    incoming = initial_bookmarks()
+    incoming.push({'title': 'Added', 'pos': '/Added', 'type': 'bookmark', 'timestamp': NEW_TIMESTAMP})
+    incoming[0].removed, incoming[0].timestamp = True, NEW_TIMESTAMP
+    assert_true(manager.merge_bookmarks(incoming))
+    assert_equal(live_titles(manager), ['Added', 'Last', 'Middle'])
+    assert_equal(manager.all_bookmarks().length, 4)
+    # Receiving the same data again changes nothing and does not duplicate
+    assert_false(manager.merge_bookmarks(incoming))
+    assert_equal(manager.all_bookmarks().length, 4)
+    # An empty local list takes the incoming bookmarks
+    manager.set_bookmarks([])
+    assert_true(manager.merge_bookmarks(initial_bookmarks()))
+    assert_equal(live_titles(manager), ['First', 'Last', 'Middle'])

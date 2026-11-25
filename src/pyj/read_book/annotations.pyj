@@ -124,6 +124,15 @@ class AnnotationsManager:  # {{{
     def all_bookmarks(self):
         return self.bookmarks
 
+    def merge_bookmarks(self, bookmarks):
+        bookmarks = bookmarks or []
+        if not bookmarks.length:
+            return False
+        updated, merged = merge_annot_lists(self.bookmarks, bookmarks, 'bookmark')
+        if updated:
+            self.set_bookmarks(merged)
+        return updated
+
     def add_bookmark(self, title, cfi):
         if not title or not cfi:
             return

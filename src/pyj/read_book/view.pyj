@@ -994,9 +994,13 @@ class View:
                 hl = book.highlights
                 v'delete book.highlights'
             else:
+                bm = None
                 if unkey and book.annotations_map[unkey]:
                     hl = book.annotations_map[unkey].highlight
-                    self.annotations_manager.set_bookmarks(book.annotations_map[unkey].bookmark or [])
+                    bm = book.annotations_map[unkey].bookmark
+                # Always reset so bookmarks from a previously displayed book
+                # are not carried over to a book with no saved annotations
+                self.annotations_manager.set_bookmarks(bm or [])
             self.annotations_manager.set_highlights(hl or [])
             if runtime.is_standalone_viewer:
                 add_book_to_recently_viewed(book)
@@ -1236,6 +1240,8 @@ class View:
                 if self.annotations_manager.merge_highlights(annotations_map.highlight):
                     hl = self.annotations_manager.highlights_for_currently_showing()
                     self.iframe_wrapper.send_message('replace_highlights', highlights=hl)
+            if annotations_map.bookmark:
+                self.annotations_manager.merge_bookmarks(annotations_map.bookmark)
         if reading_pos_cfi:
             self.goto_cfi(reading_pos_cfi)
 
