@@ -106,7 +106,7 @@ class PictureFlow(QWidget):
         "Make index the currently centered slide, without animation"
         pass
 
-    def render(self, *args, **kwargs) -> None:
+    def render(self, *args: object, **kwargs: object) -> None:
         "Re-render the widget"
         pass
 
