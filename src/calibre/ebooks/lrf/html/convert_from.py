@@ -554,7 +554,7 @@ class HTMLConverter:
                     if classname in self.pseudo_css:
                         pprop.update(self.pseudo_css[classname])
         if tag.has_attr('id') and tag['id'] in self.css:
-            prop.update(self.css[cast('str', tag['id'])])
+            prop.update(self.css[tag['id']])
         if tag.has_attr('style'):
             prop.update(self.parse_style_properties(cast('str', tag['style'])))
         return prop, pprop
