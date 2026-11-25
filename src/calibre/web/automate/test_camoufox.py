@@ -22,7 +22,7 @@ import unittest
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
-from calibre.constants import cache_dir, iswindows
+from calibre.constants import cache_dir, ismacos, iswindows
 from calibre.web.automate import camoufox, download_deps
 from calibre.web.automate.download_deps import (
     VERSION_LOCK_SUFFIX,
@@ -1300,6 +1300,13 @@ class TestCamoufoxBrowser(unittest.TestCase):
                     os.killpg(browser_pid, 0)
                 except ProcessLookupError:
                     return False
+                except PermissionError:
+                    # macOS fails with EPERM rather than ESRCH when every
+                    # process left in the group is a zombie, the group is
+                    # ours so this cannot mean someone else's live process
+                    if ismacos:
+                        return False
+                    raise
                 return True
 
             deadline = time.monotonic() + 30
@@ -1311,7 +1318,7 @@ class TestCamoufoxBrowser(unittest.TestCase):
                 p.kill()
                 p.wait(10)
             if browser_pid:
-                with contextlib.suppress(ProcessLookupError):
+                with contextlib.suppress(ProcessLookupError, PermissionError):
                     os.killpg(browser_pid, signal.SIGKILL)
             p.stdin.close()
             p.stdout.close()
