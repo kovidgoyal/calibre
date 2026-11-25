@@ -191,6 +191,16 @@ multiple devices and it will remember your last read position. If it does not
 you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
+You can also sync your highlights, bookmarks and last read position between the
+browser viewer and the calibre desktop :ref:`E-book viewer <viewer>`. In the
+desktop viewer, go to :guilabel:`Preferences->Miscellaneous` and enter the
+username of the Content server user you use in the browser in the
+:guilabel:`Sync bookmarks/highlights with Content server user` field. Use the
+special value ``*`` if you access the Content server without logging in, as an
+anonymous user. Note that syncing only works for books opened in the desktop
+viewer from within the calibre program, as the data is synced via the calibre
+library, not for standalone files opened directly in the viewer.
+
 Searching book contents in OPDS applications
 ---------------------------------------------
 
