@@ -41,13 +41,9 @@ from calibre.utils.tts.piper import KokoroVoice, ResultCallback, SynthesisResult
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
-    from typing import TextIO, TypedDict, Unpack
+    from typing import Unpack
 
-    class PrintKwargs(TypedDict, total=False):
-        sep: str | None
-        end: str | None
-        file: TextIO | None
-        flush: bool
+    from calibre.typing import PrintKwargs
 
 
 HIGH_QUALITY_SAMPLE_RATE = 22050

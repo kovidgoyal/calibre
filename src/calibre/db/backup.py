@@ -12,9 +12,9 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 if TYPE_CHECKING:
     from typing import Unpack
 
-    from calibre import PrintKwargs
     from calibre.db.cache import Cache
     from calibre.db.legacy import LibraryDatabase
+    from calibre.typing import PrintKwargs
 
 
 def prints(*a: object, **kw: Unpack[PrintKwargs]) -> None:

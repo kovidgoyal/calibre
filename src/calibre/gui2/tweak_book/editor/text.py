@@ -8,7 +8,7 @@ import textwrap
 import unicodedata
 from base64 import standard_b64encode
 from contextlib import suppress
-from typing import TYPE_CHECKING, Protocol, cast
+from typing import TYPE_CHECKING, cast
 
 import regex
 from qt.core import (
@@ -74,24 +74,8 @@ if TYPE_CHECKING:
     from calibre.gui2.tweak_book.editor.themes import Theme
     from calibre.gui2.tweak_book.grammar import InlineGrammarChecker
     from calibre.spell import DictionaryLocale
+    from calibre.typing import RegexMatch, RegexPattern
     from calibre.utils.config import JSONConfig
-
-    class RegexMatch(Protocol):
-        "The subset of a match object from the regex module that is used by the editor"
-
-        def span(self) -> tuple[int, int]: ...
-        def group(self) -> str: ...
-        def expand(self, template: str, /) -> str: ...
-
-    class RegexPattern(Protocol):
-        "The subset of a compiled pattern from the regex module that is used by the editor"
-
-        @property
-        def flags(self) -> int: ...
-        def search(self, string: str, /) -> RegexMatch | None: ...
-        def fullmatch(self, string: str, /) -> RegexMatch | None: ...
-        def subn(self, repl: str | Callable[[RegexMatch], str], string: str, /) -> tuple[str, int]: ...
-        def findall(self, string: str, /) -> list[object]: ...
 
     # The tags at a source line as returned by NullSmarts.cursor_position_with_sourceline()
     SourceLineAddress = tuple[int, list[str]] | tuple[None, None]

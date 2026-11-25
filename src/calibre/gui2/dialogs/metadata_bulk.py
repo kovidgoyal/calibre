@@ -53,7 +53,6 @@ from polyglot.builtins import error_message
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping, Sequence
     from datetime import datetime
-    from typing import Protocol
 
     from qt.core import QAbstractButton, QCheckBox, QDoubleSpinBox, QSpinBox, QWidget
 
@@ -65,11 +64,7 @@ if TYPE_CHECKING:
     from calibre.gui2.library.models import BooksModel
     from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
     from calibre.gui2.widgets import HistoryLineEdit
-
-    class RegexMatch(Protocol):
-        "The subset of a match object from the regex module used here"
-
-        def expand(self, template: str, /) -> str: ...
+    from calibre.typing import RegexMatch
 
 
 null = object()

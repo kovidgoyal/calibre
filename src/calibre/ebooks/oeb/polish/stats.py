@@ -18,13 +18,14 @@ from calibre.utils.icu import upper as icu_upper
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from typing import Protocol, TypedDict
+    from typing import TypedDict
 
     from css_parser.css import CSSStyleSheet
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.cascade import ResolvePseudoProperty, Values
     from calibre.ebooks.oeb.polish.container import Container
+    from calibre.typing import RegexPattern
 
     #: Font properties of an element or an @font-face rule, keyed by CSS property name
     type FontDict = dict[str, object]
@@ -38,14 +39,6 @@ if TYPE_CHECKING:
     type FontKey = frozenset[tuple[str, object]]
     #: A property resolver, either for an element or a pseudo-element of an element
     type AnyPropertyResolver = Callable[..., Values | None]
-
-    class RegexMatch(Protocol):
-        def group(self) -> str: ...
-
-    class RegexPattern(Protocol):
-        "The subset of a compiled pattern from the regex module that is used here"
-
-        def search(self, string: str, /) -> RegexMatch | None: ...
 
 
 def normalize_font_properties(font: FontDict) -> FontDict:

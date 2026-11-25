@@ -24,9 +24,9 @@ if TYPE_CHECKING:
     from typing import TypedDict, Unpack
     from weakref import ref
 
-    from calibre import PrintKwargs
     from calibre.db.backend import Connection
     from calibre.db.cache import Cache
+    from calibre.typing import PrintKwargs
 
     class FTSSearchResult(TypedDict):
         id: int
