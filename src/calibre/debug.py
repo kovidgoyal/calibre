@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         stdin: int | IO[bytes] | None
         stdout: int | IO[bytes] | None
         stderr: int | IO[bytes] | None
+        cwd: str | None
         creationflags: int
 
     class DebugPopenKwargs(PopenKwargs, total=False):

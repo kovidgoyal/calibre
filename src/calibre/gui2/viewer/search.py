@@ -7,7 +7,7 @@ from functools import cache, lru_cache
 from html import escape
 from queue import Queue
 from threading import Thread
-from typing import TYPE_CHECKING, Protocol, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 import regex
 from qt.core import (
@@ -47,16 +47,7 @@ if TYPE_CHECKING:
     from qt.core import QEvent, QKeyEvent, QPoint
 
     from calibre.gui2.viewer import BookManifest, TOCNode
-
-    class RegexMatch(Protocol):
-        def group(self) -> str: ...
-        def span(self) -> tuple[int, int]: ...
-
-    class RegexPattern(Protocol):
-        "The subset of a compiled pattern from the regex module that is used here"
-
-        def search(self, string: str, /) -> RegexMatch | None: ...
-        def finditer(self, string: str, /) -> Iterator[RegexMatch]: ...
+    from calibre.typing import RegexPattern
 
     class ToCData(TypedDict):
         spine: tuple[str, ...]

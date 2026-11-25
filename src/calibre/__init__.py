@@ -9,7 +9,7 @@ import time
 import warnings
 from functools import lru_cache, partial
 from math import floor
-from typing import IO, TYPE_CHECKING, Any, TextIO, TypedDict, Unpack, cast, overload
+from typing import IO, TYPE_CHECKING, Any, Unpack, cast, overload
 
 from polyglot.builtins import hasenv
 
@@ -48,13 +48,8 @@ if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Mapping
     from datetime import date
 
+    from calibre.typing import PrintKwargs
     from calibre.utils.browser import Browser
-
-    class PrintKwargs(TypedDict, total=False):
-        sep: str | None
-        end: str | None
-        file: TextIO | None
-        flush: bool
 
 
 _mt_inited = False

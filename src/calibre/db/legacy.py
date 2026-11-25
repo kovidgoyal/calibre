@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from _typeshed import SupportsWrite
     from qt.core import QImage, QPixmap
 
+    from calibre.db.adding import CompiledRules, Duplicates
     from calibre.db.backend import CustomColumnData
     from calibre.db.cache import FormatMetadataDict
     from calibre.db.categories import Tag
@@ -39,8 +40,6 @@ if TYPE_CHECKING:
     from calibre.library.field_metadata import FieldMetadata
     from calibre.utils.filenames import WindowsAtomicFolderMove
 
-    type CompiledRules = Iterable[tuple[Callable[[str], bool], bool]]
-    type Duplicates = list[tuple[Metadata, list[str]]]
     type Listener = Callable[[str, Iterable[int]], object]
     type BookOnDeviceFunc = Callable[[int], Sequence[object] | None]
 

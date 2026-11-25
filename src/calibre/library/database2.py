@@ -68,11 +68,9 @@ if TYPE_CHECKING:
     from calibre.db.adding import Duplicates
     from calibre.db.backend import FormatMetadata as FormatMetadataDict
     from calibre.db.categories import UserCategories
+    from calibre.db.legacy import BookOnDeviceFunc, Listener
     from calibre.ebooks.metadata.book.base import FieldMetadataDict
     from calibre.library.caches import CacheRow
-
-    type Listener = Callable[[str, Iterable[int]], object]
-    type BookOnDeviceFunc = Callable[[int], Sequence[object] | None]
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30 * 1024 * 1024

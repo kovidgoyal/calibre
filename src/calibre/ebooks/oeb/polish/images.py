@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
 
     from calibre.ebooks.oeb.polish.container import Container
+    from calibre.ebooks.oeb.polish.main import Report
 
-    type Report = Callable[[str], object]
     # Maps image name to (True, (size_before, size_after)) or (False, traceback)
     type CompressionResults = dict[str, tuple[Literal[True], tuple[int, int]] | tuple[Literal[False], str]]
 

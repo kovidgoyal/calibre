@@ -23,9 +23,7 @@ if TYPE_CHECKING:
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container, EpubContainer
-    from calibre.ebooks.oeb.polish.toc import TOC
-
-    type PreviousNav = tuple[str, _Element]
+    from calibre.ebooks.oeb.polish.toc import TOC, PreviousNav
 
 
 def add_properties(item: _Element, *props: str) -> None:
