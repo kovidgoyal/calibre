@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
     from calibre.ebooks.oeb.polish.cascade import ResolvePseudoProperty, Values
     from calibre.ebooks.oeb.polish.container import Container
-    from calibre.typing import RegexPattern
+    from calibre.type_hints import RegexPattern
 
     #: Font properties of an element or an @font-face rule, keyed by CSS property name
     type FontDict = dict[str, object]

@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from calibre.gui2.library.models import BooksModel
     from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
     from calibre.gui2.widgets import HistoryLineEdit
-    from calibre.typing import RegexMatch
+    from calibre.type_hints import RegexMatch
 
 
 null = object()

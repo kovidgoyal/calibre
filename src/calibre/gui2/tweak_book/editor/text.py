@@ -74,7 +74,7 @@ if TYPE_CHECKING:
     from calibre.gui2.tweak_book.editor.themes import Theme
     from calibre.gui2.tweak_book.grammar import InlineGrammarChecker
     from calibre.spell import DictionaryLocale
-    from calibre.typing import RegexMatch, RegexPattern
+    from calibre.type_hints import RegexMatch, RegexPattern
     from calibre.utils.config import JSONConfig
 
     # The tags at a source line as returned by NullSmarts.cursor_position_with_sourceline()

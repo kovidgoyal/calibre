@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Mapping
     from datetime import date
 
-    from calibre.typing import PrintKwargs
+    from calibre.type_hints import PrintKwargs
     from calibre.utils.browser import Browser
 
 

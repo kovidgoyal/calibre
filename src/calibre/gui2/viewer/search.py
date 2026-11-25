@@ -47,7 +47,7 @@ if TYPE_CHECKING:
     from qt.core import QEvent, QKeyEvent, QPoint
 
     from calibre.gui2.viewer import BookManifest, TOCNode
-    from calibre.typing import RegexPattern
+    from calibre.type_hints import RegexPattern
 
     class ToCData(TypedDict):
         spine: tuple[str, ...]

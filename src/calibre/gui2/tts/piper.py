@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
     from typing import Unpack
 
-    from calibre.typing import PrintKwargs
+    from calibre.type_hints import PrintKwargs
 
 
 HIGH_QUALITY_SAMPLE_RATE = 22050

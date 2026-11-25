@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
     from calibre.db.backend import Connection
     from calibre.db.cache import Cache
-    from calibre.typing import PrintKwargs
+    from calibre.type_hints import PrintKwargs
 
     class FTSSearchResult(TypedDict):
         id: int

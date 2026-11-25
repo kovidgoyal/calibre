@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from calibre.db.cache import Cache
     from calibre.db.legacy import LibraryDatabase
-    from calibre.typing import PrintKwargs
+    from calibre.type_hints import PrintKwargs
 
 
 def prints(*a: object, **kw: Unpack[PrintKwargs]) -> None:
