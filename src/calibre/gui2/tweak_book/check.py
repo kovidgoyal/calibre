@@ -484,10 +484,13 @@ class Check(QSplitter):
                     activate.append(f'<a href="activate:item:{i}" title="{open_tt}">{name} {loc_to_string(lnum, col)}</a>')
                 many = len(activate) > 2
                 activate = '<div>{}</div>'.format('<br>'.join(activate))
-                if many:
-                    activate += '<br>'
                 activate = activate.replace('%', '%%')
-                template = header + ((msg + activate) if many else (activate + msg)) + footer
+                if many:
+                    # Put the fix links before a long list of locations so
+                    # that the user does not have to scroll past it
+                    template = header + msg + footer + '<br>' + activate
+                else:
+                    template = header + activate + msg + footer
             else:
                 activate = f'<div><a href="activate:item" title="{open_tt}">{err.name} {loc}</a></div>'
                 activate = activate.replace('%', '%%')
