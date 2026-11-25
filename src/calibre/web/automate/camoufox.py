@@ -2082,6 +2082,21 @@ MODIFIER_KEY_NAMES = ('Shift', 'Control', 'Alt', 'Meta')
 SELECT_ALL_CHORD = 'meta+a' if ismacos else 'control+a'
 # How many times select all is pressed before replacing text gives up
 SELECT_ALL_ATTEMPTS = 3
+# How many times replacing text types it out when a key came out repeated
+FILL_ATTEMPTS = 3
+
+
+def collapse_repeats(text: str) -> str:
+    """text with every run of the same character reduced to a single one."""
+    return re.sub(r'(.)\1+', r'\1', text, flags=re.DOTALL)
+
+
+def has_repeated_keys(typed: str, value: str) -> bool:
+    """Whether value is typed with some of its keys pressed a different number
+    of times, the way a key the browser auto repeated comes out, see
+    :meth:`Element.fill`."""
+    return value != typed and collapse_repeats(value) == collapse_repeats(typed)
+
 
 DEFAULT_TYPING_WPM = 55.0  # words per minute, a moderately quick typist who is not a professional one
 CHARS_PER_WORD = 5.0  # the conventional definition of a word when measuring typing speed
@@ -2786,13 +2801,36 @@ class Element:
         that a page which watches for key and input events, as anything built
         on a JavaScript framework does, sees what it is expecting. Pass an empty
         string to only clear it. Raises :class:`Error` if what is in a text
-        field cannot be selected, rather than typing in front of it.
+        field cannot be selected, rather than typing in front of it. A key that
+        comes out repeated, or with a repeat missing, is noticed and the text
+        typed again.
         """
         self.page.check_accepts_input()
         if click:
             await self.click(max_time=max_time)
         else:
             await self.focus()
+        keyboard = self.page.keyboard
+        for attempt in range(FILL_ATTEMPTS):
+            await self.clear()
+            await keyboard.type(text, wpm=wpm, delay=delay, human=human, mistakes=mistakes)
+            # A key the browser auto repeats, or one it drops a repeat of,
+            # which has been seen to happen on a heavily loaded Windows
+            # machine, leaves a character in the field more or fewer times than
+            # it was typed, so check and type it all again, as a hand would.
+            # Anything else that is different is taken to be the page's doing,
+            # a field that formats what is typed into it, say, and left alone.
+            if not has_repeated_keys(text, value := await self.value()):
+                break
+            debug(f'Typing {text!r} into {self!r} produced {value!r} on attempt {attempt + 1}')
+        else:
+            raise Error(f'Typing {text!r} into {self!r} {FILL_ATTEMPTS} times produced {value!r} with keys repeated every time')
+
+    async def clear(self) -> None:
+        """Select everything in this element, which must already be focused, and delete it.
+
+        Raises :class:`Error` if what is in a text field cannot be selected.
+        """
         keyboard = self.page.keyboard
         # A modifier the browser lets go of early, which has been seen to
         # happen on a heavily loaded machine, turns the chord into a plain key
@@ -2806,7 +2844,6 @@ class Element:
         else:
             raise Error(f'Pressing {SELECT_ALL_CHORD} {SELECT_ALL_ATTEMPTS} times did not select everything in {self!r}, so its contents cannot be replaced')
         await keyboard.press('Backspace')
-        await keyboard.type(text, wpm=wpm, delay=delay, human=human, mistakes=mistakes)
 
     async def dispose(self) -> None:
         if self.disposed:

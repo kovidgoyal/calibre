@@ -1110,6 +1110,17 @@ class TestCamoufoxKeyboard(unittest.TestCase):
             plan = camoufox.human_typing_plan(text, rng=random.Random(seed))
             self.assertFalse([k for k in plan if k.key == 'Backspace'])
 
+    def test_repeated_keys(self) -> None:
+        # A key the browser auto repeated, or one with a repeat of it dropped
+        self.assertTrue(camoufox.has_repeated_keys('edited', 'edddddited'))
+        self.assertTrue(camoufox.has_repeated_keys('hello', 'helo'))
+        self.assertTrue(camoufox.has_repeated_keys('a\nb', 'a\n\nb'))
+        # but not text that came out right, or that the page changed
+        self.assertFalse(camoufox.has_repeated_keys('edited', 'edited'))
+        self.assertFalse(camoufox.has_repeated_keys('', ''))
+        self.assertFalse(camoufox.has_repeated_keys('edited', 'EDITED'))
+        self.assertFalse(camoufox.has_repeated_keys('5551234', '555-1234'))
+
     def test_hands_and_neighbours(self) -> None:
         self.assertEqual(camoufox.key_hand('f'), 'left')
         self.assertEqual(camoufox.key_hand('j'), 'right')
@@ -1914,6 +1925,35 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # that is not a form field can be typed into too
             await page.fill('#rich', 'edited', click=False)
             self.assertEqual(await page.evaluate('document.getElementById("rich").textContent'), 'edited')
+
+            # A key the browser auto repeats, as it has been seen to on a
+            # heavily loaded machine, is noticed and the text typed again
+            keyboard = page.keyboard
+            down = keyboard.down
+            repeated: list[str] = []
+
+            async def down_repeating(key: str, *, repeat: bool = False) -> None:
+                await down(key, repeat=repeat)
+                if key == 'd' and not repeated:
+                    repeated.append(key)
+                    for _ in range(4):
+                        await down(key, repeat=True)
+
+            with patch.object(keyboard, 'down', down_repeating):
+                await page.fill('#rich', 'edited', click=False)
+            self.assertEqual(repeated, ['d'])
+            self.assertEqual(await page.evaluate('document.getElementById("rich").textContent'), 'edited')
+
+            # and one that repeats every time fails rather than leaving the
+            # wrong text behind
+            async def down_always_repeating(key: str, *, repeat: bool = False) -> None:
+                await down(key, repeat=repeat)
+                if key == 'd':
+                    await down(key, repeat=True)
+
+            with patch.object(keyboard, 'down', down_always_repeating):
+                with self.assertRaisesRegex(camoufox.Error, 'with keys repeated every time'):
+                    await page.fill('#rich', 'edited', click=False)
 
             # Mistakes are corrected as they are made, so the text still ends
             # up right. Noticing a mistake and going back over it are pauses of
