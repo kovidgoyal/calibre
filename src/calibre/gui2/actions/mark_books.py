@@ -88,7 +88,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
     action_spec = (_('Mark books'), 'marked.png', _('Temporarily mark books for easy access'), 'Ctrl+M')
     action_type = 'current'
     action_add_menu = True
-    dont_add_to = frozenset(['context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
+    dont_add_to = frozenset(['context-menu-device', 'context-menu-cover-browser'])
     action_menu_clone_qaction = _('Toggle mark for selected books')
 
     def do_drop(self) -> None:
