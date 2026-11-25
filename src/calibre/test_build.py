@@ -85,7 +85,8 @@ class BuildTest(unittest.TestCase):
         self.assertIn('en', codes, 'langtool was built without static rule tables')
         for code in codes:
             tables = tables_for(code)
-            if tables is not None:
+            # Only frozen builds are guaranteed to use the same version of regex as the tables were built with
+            if tables is not None and isfrozen:
                 self.assertTrue(tables.regex_programs_usable(), f'The langtool rule tables for {code} were built with a different version of regex')
         bad = {k: v for k, v in langtool.static_rules_status().items() if v != 'ok'}
         self.assertFalse(bad, f'Some langtool static rule tables are not usable: {bad}')
