@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, Self, cast, ove
 
 from css_parser.css import CSSRule, CSSStyleSheet, Property
 from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
+from kgcss import parse_font_family, serialize_font_family
 from lxml import etree
-from tinycss.fonts3 import parse_font_family, serialize_font_family
 
 from calibre import as_unicode
 from calibre.ebooks.css_transform_rules import all_properties
@@ -198,12 +198,19 @@ class Values(tuple['Value', ...]):
         return tuple(css_text(x) for x in self)
 
 
+CSS_WIDE_KEYWORDS = frozenset(('inherit', 'initial', 'unset', 'revert', 'revert-layer'))
+
+
 def normalize_style_declaration(decl: CSSStyleDeclaration, sheet_name: str) -> dict[str, Values]:
     ans: dict[str, Values] = {}
     for prop in iterdeclaration(decl):
         if prop.name == 'font-family':
-            # Needed because of https://bitbucket.org/cthedot/cssutils/issues/66/incorrect-handling-of-spaces-in-font
-            prop.propertyValue.cssText = serialize_font_family(parse_font_family(css_text(prop.propertyValue)))
+            val = css_text(prop.propertyValue)
+            # serialize_font_family() quotes the CSS-wide keywords, which
+            # would turn them into family names
+            if val.strip().lower() not in CSS_WIDE_KEYWORDS:
+                # Needed because of https://bitbucket.org/cthedot/cssutils/issues/66/incorrect-handling-of-spaces-in-font
+                prop.propertyValue.cssText = serialize_font_family(parse_font_family(val))
         ans[prop.name] = Values(prop.propertyValue, sheet_name, prop.priority)
     return ans
 

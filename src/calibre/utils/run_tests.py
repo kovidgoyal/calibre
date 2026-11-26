@@ -759,6 +759,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from tinycss.tests.main import find_tests
 
         a(find_tests())
+        from calibre.ebooks.oeb.stylizer import find_tests
+
+        a(find_tests())
         from calibre.ebooks.oeb.normalize_css import test_normalization
 
         a(test_normalization(return_tests=True))
@@ -893,6 +896,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(find_tests())
         from calibre.gui2.tweak_book.test_undo import find_tests
+
+        a(find_tests())
+        from calibre.gui2.tweak_book.editor.syntax.css import find_tests
 
         a(find_tests())
         from calibre.gui2.tag_mapper import find_tests

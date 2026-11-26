@@ -3,7 +3,7 @@
 
 from typing import TYPE_CHECKING, cast
 
-from tinycss.fonts3 import parse_font, parse_font_family, serialize_font, serialize_font_family
+from kgcss import parse_font, parse_font_family, serialize_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.normalize_css import normalize_font

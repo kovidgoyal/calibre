@@ -355,6 +355,20 @@ class TestWhitespace(BaseTest):
 
 
 class TestStyles(BaseTest):
+    def test_css_font_family_to_docx(self) -> None:
+        from calibre.ebooks.docx.writer.styles import css_font_family_to_docx as c
+
+        self.assertEqual(c('"Helvetica Neue", Arial, sans-serif'), 'Helvetica Neue')
+        # Unquoted names with spaces are one family
+        self.assertEqual(c('Times New Roman, serif'), 'Times New Roman')
+        self.assertEqual(c(r'Hawaii\ 5-0'), 'Hawaii 5-0')
+        # Generic families are mapped to fonts Word has
+        self.assertEqual(c('serif'), 'Cambria')
+        self.assertEqual(c('SANS-SERIF, Arial'), 'Candara')
+        self.assertEqual(c('cursive'), 'Segoe Script')
+        self.assertIsNone(c('inherit'))
+        self.assertIsNone(c(''))
+
     def test_html_docx_html_roundtrip(self) -> None:
         from calibre.ebooks.conversion.plumber import Plumber
 

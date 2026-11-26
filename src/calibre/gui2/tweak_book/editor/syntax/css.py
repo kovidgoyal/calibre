@@ -4,8 +4,8 @@
 import re
 from typing import TYPE_CHECKING
 
+from kgcss import parse_rgba
 from qt.core import QColor, QTextBlockUserData, QTextCharFormat
-from tinycss.color4 import parse_color_string
 
 from calibre.gui2.tweak_book import tprefs, verify_link
 from calibre.gui2.tweak_book.editor import COLOR_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
@@ -13,6 +13,8 @@ from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    import unittest
+
     from calibre.gui2.tweak_book.editor.syntax.base import Formats, FormatSpans
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
@@ -197,7 +199,7 @@ def color_formats(text: str, start: int, end: int, token_name: str, fmt: str, fo
     if end < len(text) and nmchar_pat.match(text, end) is not None:
         # A longer identifier, for example: #ffffff00
         return None
-    rgba = parse_color_string(text[start:end])
+    rgba = parse_rgba(text[start:end])
     if not isinstance(rgba, tuple):  # not a color or currentColor
         return None
     cf = formats['color_formats']
@@ -403,6 +405,41 @@ class Highlighter(SyntaxHighlighter):
     state_map = state_map
     create_formats_func = create_formats
     user_data_factory = CSSUserData
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    class TestColorFormats(unittest.TestCase):
+        def spans(self, text: str, token_name: str = 'identifier') -> list[tuple[int, str | None, tuple[float, ...]]] | None:
+            seen: list[tuple[str | None, tuple[float, ...]]] = []
+
+            def cf(base_name: str | None, base: object, rgba: tuple[float, ...]) -> None:
+                seen.append((base_name, tuple(round(x, 3) for x in rgba)))
+
+            formats: Formats = dict.fromkeys(('identifier', 'number', *(x for x in color_function_part_formats if x)))
+            formats['color_formats'] = cf
+            ans = color_formats(text, 0, len(text), token_name, 'identifier', formats)
+            return None if ans is None else [(n, *fmt) for (n, _), fmt in zip(ans, seen, strict=True)]
+
+        def test_color_formats(self) -> None:
+            red = (1.0, 0.0, 0.0, 1.0)
+            self.assertEqual(self.spans('red'), [(3, 'identifier', red)])
+            self.assertEqual(self.spans('#f008', 'number'), [(5, 'identifier', (1.0, 0.0, 0.0, 0.533))])
+            self.assertEqual(self.spans(r'r\65 d'), [(6, 'identifier', red)])
+            # currentColor and things that are not colors get no preview
+            self.assertIsNone(self.spans('currentColor'))
+            self.assertIsNone(self.spans('notacolor'))
+            self.assertIsNone(self.spans('rgb(var(--x))', COLOR_FUNCTION_TOKEN))
+            # A color function is split into its parts, all with the color
+            text = 'rgb(255 /* x */ 0 0)'
+            spans = self.spans(text, COLOR_FUNCTION_TOKEN)
+            assert spans is not None
+            self.assertEqual(sum(n for n, _, _ in spans), len(text))
+            self.assertEqual({rgba for _, _, rgba in spans}, {red})
+            self.assertIn((7, 'comment', red), spans)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestColorFormats)
 
 
 if __name__ == '__main__':
