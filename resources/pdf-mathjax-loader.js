@@ -15,6 +15,27 @@
         if (for_pdf_renderer) document.title = "mathjax-load-complete";
         else document.documentElement.dispatchEvent(new CustomEvent("calibre-mathjax-typeset-done"));
     }
+    function fix_annotation_xml(args) {
+        // MathJax errors out with "Unexpected text node" on <annotation-xml>
+        // elements that contain bare text, which some publishers produce, so
+        // convert them to <annotation> elements, which are allowed to contain
+        // text. Annotations are not rendered anyway. Also do any changes
+        // here in mathjax.pyj
+        var root = args.data;
+        if (!root || !root.getElementsByTagNameNS) return;
+        var nodes = Array.from(root.getElementsByTagNameNS('*', 'annotation-xml'));
+        for (const node of nodes) {
+            var has_text = Array.from(node.childNodes).some(
+                c => c.nodeType === Node.TEXT_NODE && /\S/.test(c.nodeValue));
+            if (!has_text || !node.parentNode) continue;
+            var name = (node.prefix ? node.prefix + ':' : '') + 'annotation';
+            var replacement = node.ownerDocument.createElementNS(node.namespaceURI, name);
+            for (const attr of Array.from(node.attributes)) replacement.setAttributeNS(attr.namespaceURI, attr.name, attr.value);
+            replacement.textContent = node.textContent;
+            node.parentNode.replaceChild(replacement, node);
+        }
+    }
+
     // also do any changes in mathjax.pyj for the in-browser reader
     window.MathJax = {};
     window.MathJax.options = {
@@ -29,6 +50,9 @@
     window.MathJax.startup = {
         ready: () => {
             MathJax.startup.defaultReady();
+            for (const jax of MathJax.startup.document.inputJax) {
+                if (jax.mmlFilters) jax.mmlFilters.add(fix_annotation_xml);
+            }
             MathJax.startup.promise.then(on_mathjax_finish);
         },
     };

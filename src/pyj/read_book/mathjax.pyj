@@ -31,6 +31,31 @@ def load_mathjax(src):
     document.head.appendChild(script)
 
 
+def fix_annotation_xml(args):
+    # MathJax errors out with "Unexpected text node" on <annotation-xml>
+    # elements that contain bare text, which some publishers produce, so
+    # convert them to <annotation> elements, which are allowed to contain
+    # text. Annotations are not rendered anyway. Also do any changes
+    # here in pdf-mathjax-loader.js
+    root = args.data
+    if not root or not root.getElementsByTagNameNS:
+        return
+    for node in Array.from (root.getElementsByTagNameNS('*', 'annotation-xml')):
+        has_text = False
+        for c in node.childNodes:
+            if c.nodeType is Node.TEXT_NODE and /\S/.test(c.nodeValue):
+                has_text = True
+                break
+        if not has_text or not node.parentNode:
+            continue
+        name = (node.prefix + ':' if node.prefix else '') + 'annotation'
+        replacement = node.ownerDocument.createElementNS(node.namespaceURI, name)
+        for attr in Array.from (node.attributes):
+            replacement.setAttributeNS(attr.namespaceURI, attr.name, attr.value)
+        replacement.textContent = node.textContent
+        node.parentNode.replaceChild(replacement, node)
+
+
 standalone_proceed_data = {
     'link_uid': None,
     'proceed': None,
@@ -60,6 +85,9 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     window.MathJax.startup = {
         'ready': def ():
             window.MathJax.startup.defaultReady()
+            for jax in window.MathJax.startup.document.inputJax:
+                if jax.mmlFilters:
+                    jax.mmlFilters.add(fix_annotation_xml)
             # monkeypatch the method responsible for mapping font URLs
             # to use our blob URLs, see https://github.com/mathjax/MathJax/issues/2458
             window.MathJax.startup.output.font.addFontURLs = def (styles, fonts, url):
