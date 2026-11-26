@@ -492,7 +492,7 @@ class EPUBOutput(OutputFormatPlugin):
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
         """
-        from kgcss import StyleRule, Stylesheet
+        from kgcss import RuleType, Stylesheet
         from lxml import etree
 
         from calibre.ebooks.oeb.base import XHTML, XPath, barename, urlunquote
@@ -615,14 +615,14 @@ class EPUBOutput(OutputFormatPlugin):
 
                 for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
                     sel = '.' + lb.get('class')
-                    for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+                    for rule in sheet.rules.of_type(RuleType.STYLE):
                         if sel == rule.selector_text:
                             rule.style.remove('margin-left')
                             # padding-left breaks rendering in webkit and gecko
                             rule.style.remove('padding-left')
                 # Change whitespace:pre to pre-wrap to accommodate readers that
                 # cannot scroll horizontally
-                for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+                for rule in sheet.rules.of_type(RuleType.STYLE):
                     style = rule.style
                     if style.get_value('white-space') == 'pre':
                         style.set('white-space', 'pre-wrap')

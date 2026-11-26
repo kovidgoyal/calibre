@@ -7,7 +7,7 @@ Convert an ODT file into a Open Ebook
 import os
 from typing import IO, TYPE_CHECKING
 
-from kgcss import SelectorError, StyleRule, parse_stylesheet
+from kgcss import RuleType, SelectorError, StyleRule, parse_stylesheet
 from kgcss.selectors import ClassSelector
 from lxml import etree
 from odf.draw import Frame as odFrame
@@ -100,7 +100,7 @@ class Extract(ODF2XHTML):
     def get_css_for_class(self, cls: str) -> StyleRule | None:
         if not cls:
             return None
-        for rule in (x for x in self._parsed_css.rules if isinstance(x, StyleRule)):
+        for rule in self._parsed_css.rules.of_type(RuleType.STYLE):
             for sel in rule.selectors:
                 if single_class(sel) == cls:
                     return rule
@@ -203,7 +203,7 @@ class Extract(ODF2XHTML):
         sheet = parse_stylesheet(css, log=_css_logger)
         sel_map: dict[str, list[str]] = {}
         count = 0
-        for r in (x for x in sheet.rules if isinstance(x, StyleRule)):
+        for r in sheet.rules.of_type(RuleType.STYLE):
             # Check if we have only class selectors for this rule
             classes = [single_class(x) for x in r.selectors]
             if len(classes) > 1 and None not in classes:

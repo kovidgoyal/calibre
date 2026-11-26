@@ -6,7 +6,7 @@ from collections import defaultdict
 from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
-from kgcss import FontFaceRule, SelectorError, StyleRule, Stylesheet, parse_font_family
+from kgcss import FontFaceRule, RuleType, SelectorError, StyleRule, Stylesheet, parse_font_family
 from kgcss.selectors import ClassSelector
 from lxml import etree
 
@@ -168,7 +168,7 @@ def class_font_styles(oeb: OEBBook) -> dict[str, FontStyle]:
         data = item.data
         if not isinstance(data, Stylesheet):
             continue
-        for rule in (x for x in data.rules if isinstance(x, StyleRule)):
+        for rule in data.rules.of_type(RuleType.STYLE):
             props = cast('FontStyle', {k: v for k, v in get_font_properties(rule).items() if v})  # None values removed
             if not props:
                 continue

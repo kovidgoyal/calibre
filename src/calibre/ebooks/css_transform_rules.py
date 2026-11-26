@@ -6,7 +6,7 @@ from collections import OrderedDict
 from functools import partial
 from typing import TYPE_CHECKING
 
-from kgcss import DeclarationBlock, Property, RuleType, StyleRule, Stylesheet, longhands, parse_style, parse_stylesheet
+from kgcss import DeclarationBlock, Property, RuleType, Stylesheet, longhands, parse_style, parse_stylesheet
 
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalize_shorthand
@@ -48,7 +48,7 @@ class StyleDeclaration:
         for p in tuple(all_properties(self.css_declaration)):
             props = self.expanded_properties.get(p)
             if props is None:
-                expanded = normalize_shorthand(p.name, p.value)
+                expanded = normalize_shorthand(p.name, p.value_to_css())
                 if expanded is None:
                     yield p, None
                     continue
@@ -74,7 +74,7 @@ class StyleDeclaration:
         val: str,
         match_pat: regex.Pattern | None = None,  # ty: ignore[invalid-type-form]
     ) -> None:
-        nval = val if match_pat is None else match_pat.sub(val, prop.value)
+        nval = val if match_pat is None else match_pat.sub(val, prop.value_to_css())
         try:
             # Check the value before changing anything
             Property(prop.name, nval)
@@ -211,7 +211,8 @@ class Rule:
     def process_declaration(self, declaration: StyleDeclaration) -> bool:
         oval, declaration.changed = declaration.changed, False
         for prop, parent_prop in tuple(declaration):
-            if prop.name == self.property_name and self.property_matches(prop.value):
+            # Values are matched normalized, as css_parser gave them before kgcss
+            if prop.name == self.property_name and self.property_matches(prop.value_to_css()):
                 if self.action == 'remove':
                     declaration.remove_property(prop, parent_prop)
                 elif self.action == 'change':
@@ -219,7 +220,7 @@ class Rule:
                 elif self.action == 'append':
                     declaration.append_properties(self.appended_properties)
                 else:
-                    val = prop.value
+                    val = prop.value_to_css()
                     nval = self.action_operator(val)
                     if val != nval:
                         declaration.change_property(prop, parent_prop, nval)
@@ -320,7 +321,7 @@ def transform_declaration(compiled_rules: Iterable[Rule], decl: DeclarationBlock
 
 def transform_sheet(compiled_rules: Iterable[Rule], sheet: Stylesheet) -> bool:
     changed = False
-    for rule in (x for x in sheet.iter_rules(RuleType.STYLE) if isinstance(x, StyleRule)):
+    for rule in sheet.iter_rules(RuleType.STYLE):
         if transform_declaration(compiled_rules, rule.style):
             changed = True
     return changed
@@ -439,6 +440,9 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
             m('is', 'blue')
             css, ecss = 'color: currentColor; line-height: 0', 'line-height: 0'
             m('is', 'currentColor')
+            # Values are matched normalized
+            css, ecss = 'color: #FF0000; line-height: 0', 'line-height: 0'
+            m('is', '#f00')
 
             prop = 'margin-top'
             css, ecss = 'color: red; margin-top: 10', 'color: red'

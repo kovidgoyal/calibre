@@ -15,7 +15,7 @@ from collections import OrderedDict
 from contextlib import suppress
 from typing import TYPE_CHECKING, cast
 
-from kgcss import Select, Selector, SelectorError, StyleRule, Stylesheet
+from kgcss import RuleType, Select, Selector, SelectorError, Stylesheet
 from lxml import etree
 from lxml.etree import XPath as _XPath
 
@@ -110,7 +110,7 @@ class Split:
                     continue
                 sheet = x.data
                 assert isinstance(sheet, Stylesheet)  # media_type is in OEB_STYLES
-                for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+                for rule in sheet.rules.of_type(RuleType.STYLE):
                     for name, before in (('page-break-before', True), ('page-break-after', False)):
                         val = rule.style.get_value(name).strip().lower()
                         if val and val not in ignored:

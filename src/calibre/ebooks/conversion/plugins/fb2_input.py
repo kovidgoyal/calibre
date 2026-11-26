@@ -47,13 +47,13 @@ def fb2_css_to_html(css: str, log: Log | None = None) -> str:
     "The CSS of an FB2 file, for the HTML made from it"
     import logging
 
-    from kgcss import RuleType, SelectorError, StyleRule, parse_stylesheet
+    from kgcss import RuleType, SelectorError, parse_stylesheet
 
     from calibre.ebooks.oeb.base import XHTML_NS
 
     # Type selectors match only XHTML elements
     sheet = parse_stylesheet(f'@namespace "{XHTML_NS}";\n' + css, log=logging.getLogger('calibre.css'))
-    for rule in (x for x in sheet.iter_rules(RuleType.STYLE) if isinstance(x, StyleRule)):
+    for rule in sheet.iter_rules(RuleType.STYLE):
         selectors: list[str] = []
         for selector in rule.selectors:
             try:
