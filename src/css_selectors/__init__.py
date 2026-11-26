@@ -17,25 +17,20 @@ Differences from css_selectors:
   did in css_selectors.
 """
 
-from typing import TYPE_CHECKING
-
 from kgcss import INAPPROPRIATE_PSEUDO_CLASSES, ExpressionError, SelectorError, SelectorSyntaxError
 from kgcss import Select as _Select
 from kgcss import parse_selectors as parse
 
-if TYPE_CHECKING:
-    from kgcss.matching import Element
-
 __all__ = ['INAPPROPRIATE_PSEUDO_CLASSES', 'ExpressionError', 'Select', 'SelectorError', 'SelectorSyntaxError', 'parse']
 
 
-class Select(_Select):
+class Select[E](_Select[E]):
     """:class:`kgcss.Select` with the signature of css_selectors' ``Select``,
     matching ids and classes case-insensitively as it did"""
 
     def __init__(
         self,
-        root: Element,
+        root: E,
         default_lang: object = None,
         ignore_inappropriate_pseudo_classes: bool = False,
         dispatch_map: object = None,

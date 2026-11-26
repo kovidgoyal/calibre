@@ -139,15 +139,21 @@ class Split:
             try:
                 matches = select(selector) if isinstance(selector, Selector) else selector(root)
                 for elem in matches:
-                    if elem in descendants and elem.tag.rpartition('}')[2].lower() not in {
-                        'html',
-                        'body',
-                        'head',
-                        'style',
-                        'script',
-                        'meta',
-                        'link',
-                    }:
+                    tag = elem.tag
+                    if (
+                        elem in descendants
+                        and isinstance(tag, str)
+                        and tag.rpartition('}')[2].lower()
+                        not in {
+                            'html',
+                            'body',
+                            'head',
+                            'style',
+                            'script',
+                            'meta',
+                            'link',
+                        }
+                    ):
                         page_breaks[elem] = before
             except SelectorError as err:
                 text = selector.text if isinstance(selector, Selector) else str(selector)
