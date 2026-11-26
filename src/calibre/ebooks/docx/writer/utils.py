@@ -3,7 +3,7 @@
 
 from typing import TYPE_CHECKING
 
-from tinycss.color4 import parse_color_string
+from kgcss import parse_rgba
 
 if TYPE_CHECKING:
     import unittest
@@ -22,7 +22,7 @@ def int_or_zero(raw: str | float) -> int:
 def convert_color(value: str | None) -> str | None:
     if not value:
         return None
-    val = parse_color_string(value)
+    val = parse_rgba(value)
     if val == 'currentColor':
         return 'auto'
     if not isinstance(val, tuple) or val.alpha < 0.01:
@@ -66,6 +66,12 @@ def test_convert_color(return_tests: bool = False) -> unittest.TestSuite | None:
             ae('FF0000', cc('oklch(0.628 0.2577 29.23)'))
             ae('FF0000', cc('color(display-p3 0.9175 0.2003 0.1386)'))
             ae(None, cc('rgb(var(--x))'))
+            # Parsed by kgcss: escapes are decoded and comments are ignored
+            ae('FF0000', cc(r'r\65 d'))
+            ae('FF0000', cc('rgb(255, /* ünïcödé */ 0, 0)'))
+            ae('auto', cc('CURRENTCOLOR'))
+            ae(None, cc('red blue'))
+            ae(None, cc('inherit'))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestColors)
     if return_tests:

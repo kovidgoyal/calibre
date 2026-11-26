@@ -7,8 +7,8 @@ from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
 from css_parser.css import CSSStyleSheet
+from kgcss import parse_font_family
 from lxml import etree
-from tinycss.fonts3 import parse_font_family
 
 from calibre.ebooks.oeb.base import css_text, urlnormalize
 from calibre.utils.fonts.subset import subset

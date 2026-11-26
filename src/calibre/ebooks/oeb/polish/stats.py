@@ -6,9 +6,9 @@ from functools import partial
 from typing import TYPE_CHECKING, cast
 
 import regex
+from kgcss import parse_font_family
 from lxml import etree
 from lxml.etree import tostring
-from tinycss.fonts3 import parse_font_family
 
 from calibre.ebooks.oeb.base import XHTML, css_text
 from calibre.ebooks.oeb.polish.cascade import iterdeclaration, iterrules, resolve_styles

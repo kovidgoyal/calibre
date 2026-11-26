@@ -4,8 +4,8 @@
 from typing import TYPE_CHECKING
 
 from css_parser.css import CSSRule, CSSStyleSheet
+from kgcss import parse_font_family
 from lxml import etree
-from tinycss.fonts3 import parse_font_family
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES

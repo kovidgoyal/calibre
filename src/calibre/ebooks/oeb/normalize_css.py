@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Literal, cast, overload
 from css_parser import CSSParser
 from css_parser import profile as cssprofiles
 from css_parser.css import PropertyValue
-from tinycss.fonts3 import parse_font, serialize_font_family
+from kgcss import parse_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
 
@@ -205,7 +205,8 @@ def normalize_font(cssvalue: PropertyValue, font_family_as_list: bool = False) -
         ans = {k: font_defaults[k] for k in composition}
     else:
         ans = {k: font_defaults[k] for k in composition}
-        ans.update(parse_font(val))
+        # parse_font() only returns the font longhands, with str or list[str] values
+        ans.update(cast('dict[str, str | list[str]]', parse_font(val)))
     if font_family_as_list:
         if isinstance(ans['font-family'], (str, bytes)):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
@@ -403,6 +404,10 @@ def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:
                     'font-variant': 'small-caps',
                 },
                 '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
+                # Keywords are case-insensitive (porting.md §6.7)
+                'BOLD 12px serif': {'font-family': 'serif', 'font-weight': 'bold', 'font-size': '12px'},
+                # default is quoted, as it is not a valid unquoted family name
+                '12px x, "default"': {'font-family': 'x, "default"', 'font-size': '12px'},
             }.items():
                 val = tuple(parseStyle(f'font: {raw}', validate=False))[0].propertyValue
                 style = normalizers['font']('font', val)

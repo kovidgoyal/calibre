@@ -155,6 +155,11 @@ class CascadeTest(BaseTest):
         t('body', 'display', 'block')
         t('b', 'display', 'inline')
         t('body', 'font-family', ('"Kovid Goyal"', 'sans-serif'))
+        t = get_maps('<p>x<b>y</b><i>z</i></p>', 'p { font-family: Times   New Roman, serif } b { font-family: inherit } i { font-family: "inherit" }')
+        t('p', 'font-family', ('"Times New Roman"', 'serif'))
+        # The CSS-wide keywords are not turned into family names
+        t('b', 'font-family', 'inherit')
+        t('i', 'font-family', '"inherit"')
         for e in ('body', 'p', 'b'):
             for prop in 'background-color text-indent'.split():
                 t(e, prop)

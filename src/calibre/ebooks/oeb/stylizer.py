@@ -14,12 +14,12 @@ from typing import TYPE_CHECKING, Literal, cast
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 
-from css_parser import CSSParser, parseString, parseStyle, profiles, replaceUrls
+from css_parser import CSSParser, parseString, parseStyle, replaceUrls
 from css_parser import log as css_parser_log
 from css_parser import profile as cssprofiles
 from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, CSSStyleSheet, cssproperties
 from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
-from tinycss.media3 import CSSMedia3Parser
+from kgcss import is_color, media_matches
 
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
@@ -28,12 +28,13 @@ from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    import unittest
     from collections.abc import Callable, Collection, Mapping
     from optparse import Values
 
     from css_parser.css import CSSRule, CSSStyleDeclaration
+    from kgcss import MediaFeature
     from lxml.etree import _Element
-    from tinycss.media3 import MediaQuery
 
     from calibre.customize.profiles import Plugin as Profile
     from calibre.ebooks.conversion.plumber import OptionValues
@@ -48,7 +49,11 @@ _html_css_stylesheet: CSSStyleSheet | None = None
 
 
 def validate_color(col: object) -> bool:
-    return cssprofiles.validateWithProfile('color', col, profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
+    if not isinstance(col, str):
+        return False
+    # is_color() does not accept the CSS-wide keywords. The CSS 2 profile this
+    # replaced accepted inherit, and callers rely on it.
+    return col.strip().lower() == 'inherit' or is_color(col)
 
 
 def html_css_stylesheet() -> CSSStyleSheet:
@@ -112,44 +117,77 @@ IGNORED_MEDIA_FEATURES = frozenset(
 )
 
 
+def media_feature_ok(feature: MediaFeature) -> bool:
+    # Media queries that test for device specific features always fail, all
+    # other features are assumed to match
+    return feature.name not in IGNORED_MEDIA_FEATURES
+
+
 def media_ok(raw: str | None) -> bool:
     if not raw:
         return True
     if raw == 'amzn-mobi':  # Optimization for the common case
         return False
-
-    def query_ok(mq: MediaQuery) -> bool:
-        matched = True
-        if mq.media_type not in ALLOWED_MEDIA_TYPES:
-            matched = False
-        # Media queries that test for device specific features always fail
-        for media_feature, expr in mq.expressions:
-            if media_feature in IGNORED_MEDIA_FEATURES:
-                matched = False
-        return mq.negated ^ matched
-
-    try:
-        # ruff: ignore[reimplemented-builtin]
-        for mq in CSSMedia3Parser().parse_stylesheet(f'@media {raw} {{}}').rules[0].media:
-            if query_ok(mq):
-                return True
-        return False
-    except Exception:
-        pass
-    return True
+    return media_matches(raw, media_type=ALLOWED_MEDIA_TYPES.__contains__, feature=media_feature_ok)
 
 
-def test_media_ok() -> None:
-    assert media_ok(None)
-    assert media_ok('')
-    assert not media_ok('amzn-mobi')
-    assert media_ok('amzn-kf8')
-    assert media_ok('screen')
-    assert media_ok('only screen')
-    assert not media_ok('not screen')
-    assert not media_ok('(device-width:10px)')
-    assert media_ok('screen, (device-width:10px)')
-    assert not media_ok('screen and (device-width:10px)')
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    class TestStylizerHelpers(unittest.TestCase):
+        def test_media_ok(self) -> None:
+            for raw, expected in {
+                None: True,
+                '': True,
+                'amzn-mobi': False,
+                'amzn-kf8': True,
+                'screen': True,
+                'only screen': True,
+                'not screen': False,
+                'print': False,
+                'not print': True,
+                'print, amzn-kf8': True,
+                '(device-width:10px)': False,
+                'screen, (device-width:10px)': True,
+                'screen and (device-width:10px)': False,
+                'screen and (-webkit-min-device-pixel-ratio: 2)': False,
+                # Features that are not device specific are assumed to match
+                '(orientation: portrait)': True,
+                'screen and (prefers-color-scheme: dark)': True,
+                'not screen and (orientation: portrait)': False,
+                'not all and (monochrome)': True,
+                # Media types are case-insensitive
+                'SCREEN': True,
+                'Print': False,
+                # Media Queries Level 4
+                '(min-width: 1px) or (orientation: portrait)': True,
+                '(width >= 600px)': False,
+                # Malformed queries match nothing
+                '&': False,
+                'screen and': False,
+            }.items():
+                self.assertIs(media_ok(raw), expected, repr(raw))
+
+        def test_validate_color(self) -> None:
+            for col in (
+                'red',
+                'RED',
+                ' red ',
+                '#abc',
+                '#abcd',
+                'rgba(1,2,3,0.5)',
+                'rgb(1 2 3)',
+                'lab(1 2 3)',
+                'transparent',
+                'currentColor',
+                'inherit',
+                'INHERIT',
+            ):
+                self.assertTrue(validate_color(col), col)
+            for col in (None, 12, '', 'initial', 'unset', 'red blue', '#12', 'rgb(var(--x))', 'notacolor'):
+                self.assertFalse(validate_color(col), col)
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestStylizerHelpers)
 
 
 class style_map(dict[str, str]):

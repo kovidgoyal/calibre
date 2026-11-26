@@ -9,7 +9,7 @@ from compression import zlib
 from io import BytesIO
 from typing import IO, TYPE_CHECKING, TypedDict, cast
 
-from tinycss.color4 import parse_color_string
+from kgcss import parse_rgba
 
 from calibre.ebooks import normalize
 from calibre.utils.img import image_from_data, image_to_data, png_data_to_gif_data, resize_image, save_cover_data_to, scale_image
@@ -645,7 +645,7 @@ def is_guide_ref_start(ref: Guide.Reference) -> bool | str:
 
 
 def convert_color_for_font_tag(val: object) -> str:
-    rgba = parse_color_string(str(val or ''))
+    rgba = parse_rgba(str(val or ''))
     if not isinstance(rgba, tuple):  # not a color or currentColor
         return str(val)
     # The channels are already in 0..1, round rather than truncate as colors
@@ -673,6 +673,10 @@ def find_tests() -> unittest.TestSuite:
             ae('#ffffff', cc('lab(100 0 0)'))
             ae('#ff0000', cc('oklch(0.628 0.2577 29.23)'))
             ae('rgb(var(--x))', cc('rgb(var(--x))'))
+            # Parsed by kgcss: escapes are decoded and comments are ignored
+            ae('#ff0000', cc(r'r\65 d'))
+            ae('#ff0000', cc('rgb(255, /* ünïcödé */ 0, 0)'))
+            ae('CURRENTCOLOR', cc('CURRENTCOLOR'))
 
         def test_is_guide_ref_start(self) -> None:
             from calibre.ebooks.oeb.base import OEBBook

@@ -6,15 +6,15 @@ from collections import Counter, defaultdict
 from operator import attrgetter
 from typing import TYPE_CHECKING, Self, cast
 
+from kgcss import parse_font_family
 from lxml import etree
-from tinycss.css21 import CSS21Parser
 
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.localization import lang_as_iso639_1
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable
 
     from lxml.etree import _Element
 
@@ -23,22 +23,9 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.stylizer import Style
     from calibre.utils.logging import Log
 
-css_parser = CSS21Parser()
-
 border_edges = ('left', 'top', 'right', 'bottom')
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 ignore = object()
-
-
-def parse_css_font_family(raw: str) -> Iterator[str]:
-    decl, errs = css_parser.parse_style_attr('font-family:' + raw)
-    if decl:
-        for token in decl[0].value:
-            if token.type in 'STRING IDENT':
-                val = token.value
-                if val == 'inherit':
-                    break
-                yield val
 
 
 def css_font_family_to_docx(raw: str) -> str | None:
@@ -49,7 +36,9 @@ def css_font_family_to_docx(raw: str) -> str | None:
         'fantasy': 'Comic Sans',
         'cursive': 'Segoe Script',
     }
-    for ff in parse_css_font_family(raw):
+    for ff in parse_font_family(raw):
+        if ff == 'inherit':
+            break
         return generic.get(ff.lower(), ff)
     return None
 
