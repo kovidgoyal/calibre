@@ -586,7 +586,9 @@ class Structure(BaseTest):
         self.assertEqual(tuple(s.lang for s in sentences), ('eng', 'fra'))
 
     def test_check_skipped_rules(self) -> None:
-        from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError, stylelint_rules_from_skipped_rules
+        from kgcss import LintRule
+
+        from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError, disabled_rules_from_skipped_rules
         from calibre.ebooks.oeb.polish.check.main import remove_skipped
         from calibre.ebooks.oeb.polish.check.parsing import DuplicateId, InvalidId, XMLParseError, check_ids
 
@@ -603,12 +605,92 @@ class Structure(BaseTest):
         css_err = CSSError('x', 'a.css')
         css_err.css_rule_id = 'block-no-empty'
         self.assertEqual(css_err.rule_id, 'css:block-no-empty')
-        self.assertEqual(stylelint_rules_from_skipped_rules({'css:block-no-empty', 'InvalidId', 'css:a'}), ('a', 'block-no-empty'))
+        self.assertEqual(
+            disabled_rules_from_skipped_rules({'css:block-no-empty', 'InvalidId', 'css:a', 'css:CssSyntaxError', 'css:no-extra-semicolons'}),
+            {LintRule.BLOCK_NO_EMPTY, LintRule.NO_EXTRA_SEMICOLONS},
+        )
 
         # parse errors can never be skipped
         parse_errors = [XMLParseError('x', 'a.html'), CSSParseError('x', 'a.css')]
         self.assertFalse(any(e.can_be_skipped for e in parse_errors))
         self.assertEqual(remove_skipped(parse_errors, frozenset(e.rule_id for e in parse_errors)), parse_errors)
+
+    def test_check_css(self) -> None:
+        from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError
+        from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
+
+        stylesheet = (
+            'a {}\n'
+            'b { colr: red; color: red;; }\n'
+            # custom elements, panose-1 and consecutive duplicates with different values are allowed
+            'my-element { panose-1: 1; color: red; color: blue }\n'
+            # columns are in UTF-16 code units, as the editor uses them
+            '/* \U0001f600 */ q { colr: red }\n'
+        )
+        page = (
+            '<html xmlns="http://www.w3.org/1999/xhtml">\n'
+            '<head><title>t</title>\n'
+            '<style type="text/css">\n'
+            'p { color: red;; }\n'
+            '</style></head>\n'
+            '<body>\n'
+            '<p style="color: red; colr: blue;;">a</p>\n'
+            '</body></html>'
+        )
+        c = self.create_epub([cmi('s.css', stylesheet), cmi('broken.css', 'a { color: red;;'), cmi('a.xhtml', page)], spine=['a.xhtml'])
+
+        def css_errors(skipped_rules: frozenset[str] = frozenset()) -> list[tuple[str, str, int | None, int | None, bool]]:
+            errors = run_checks(c, skipped_rules)
+            for e in errors:
+                if isinstance(e, CSSError):
+                    self.assertIn(e.msg, e.HELP)
+                    self.assertIn('<a href="https://', e.HELP)
+                    self.assertEqual(e.FIXABLE_CSS_ERROR, 'automatically fixed' in e.HELP)
+            return sorted((e.name, e.rule_id, e.line, e.col, e.FIXABLE_CSS_ERROR) for e in errors if isinstance(e, (CSSError, CSSParseError)))
+
+        errors = run_checks(c)
+        parse_errors = [e for e in errors if isinstance(e, CSSParseError)]
+        self.assertEqual([(e.name, e.msg, e.line, e.col) for e in parse_errors], [('broken.css', 'Unclosed block', 1, 0)])
+        unknown = next(e for e in errors if e.rule_id == 'css:property-no-unknown' and e.name == 's.css')
+        self.assertEqual(unknown.msg, 'Unknown property "colr"')
+        self.assertTrue(all(isinstance(e, CSSError) for e in errors if e.rule_id.startswith('css:') and e not in parse_errors))
+        self.assertEqual(
+            css_errors(),
+            [
+                ('a.xhtml', 'css:no-extra-semicolons', 4, 15, True),
+                ('a.xhtml', 'css:no-extra-semicolons', 7, 23, True),
+                ('a.xhtml', 'css:property-no-unknown', 7, 12, False),
+                ('broken.css', 'css:CssSyntaxError', 1, 0, False),
+                ('broken.css', 'css:no-extra-semicolons', 1, 15, True),
+                ('s.css', 'css:block-no-empty', 1, 2, False),
+                ('s.css', 'css:no-extra-semicolons', 2, 26, True),
+                ('s.css', 'css:property-no-unknown', 2, 4, False),
+                ('s.css', 'css:property-no-unknown', 4, 13, False),
+            ],
+        )
+        # Skipped rules are not checked
+        skipped = frozenset({'css:no-extra-semicolons', 'css:property-no-unknown'})
+        self.assertEqual(
+            css_errors(skipped),
+            [('broken.css', 'css:CssSyntaxError', 1, 0, False), ('s.css', 'css:block-no-empty', 1, 2, False)],
+        )
+        # Fixing honours skipped rules
+        self.assertTrue(fix_errors(c, run_checks(c, frozenset({'css:no-extra-semicolons'})), frozenset({'css:no-extra-semicolons'})))
+        self.assertIn('color: red;;', c.raw_data('s.css'))
+        # Fixable errors are fixed in stylesheets, style elements and style attributes
+        self.assertTrue(fix_errors(c, run_checks(c)))
+        self.assertEqual([e for e in css_errors() if e[-1]], [])
+        self.assertEqual(c.raw_data('s.css'), stylesheet.replace(';;', ';'))
+        # The parse error is fixed by serializing the parsed stylesheet
+        self.assertEqual(c.raw_data('broken.css').split(), ['a', '{', 'color:', 'red;', '}'])
+        root = c.parsed('a.xhtml')
+        self.assertEqual(root.xpath('//*[local-name()="style"]')[0].text, '\np { color: red; }\n')
+        self.assertEqual(root.xpath('//*[@style]')[0].get('style'), 'color: red; colr: blue;')
+        # The simplest case
+        c = self.create_epub([cmi('a.css', 'a{color:red;;}')])
+        self.assertTrue(fix_errors(c, run_checks(c)))
+        self.assertEqual(c.raw_data('a.css'), 'a{color:red;}')
+        self.assertEqual(css_errors(), [])
 
     def test_invalid_id_fix(self) -> None:
         from kgcss import rename_ids
