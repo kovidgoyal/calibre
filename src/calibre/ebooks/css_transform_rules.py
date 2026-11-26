@@ -6,11 +6,13 @@ from collections import OrderedDict
 from functools import partial
 from typing import TYPE_CHECKING
 
+from css_parser import CSSParser
 from css_parser.css import CSSRule, Property
+from kgcss import longhands
 
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
-from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
+from calibre.ebooks.oeb.normalize_css import normalize_shorthand
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
@@ -23,6 +25,18 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.polish.container import Container
 
     type SerializedRule = Mapping[str, str]
+
+
+_safe_parser: CSSParser | None = None
+
+
+def safe_parser() -> CSSParser:
+    global _safe_parser
+    if _safe_parser is None:
+        import logging
+
+        _safe_parser = CSSParser(loglevel=logging.CRITICAL, validate=False)
+    return _safe_parser
 
 
 def compile_pat(pat: str) -> regex.Pattern:  # ty: ignore[invalid-type-form]
@@ -49,14 +63,15 @@ class StyleDeclaration:
     def __iter__(self) -> Iterator[tuple[Property, Property | None]]:
         dec = self.css_declaration
         for p in all_properties(dec):
-            n = normalizers.get(p.name)
-            if n is None:
-                yield p, None
-            else:
-                if p not in self.expanded_properties:
-                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).items()]
-                for ep in self.expanded_properties[p]:
-                    yield ep, p
+            props = self.expanded_properties.get(p)
+            if props is None:
+                expanded = normalize_shorthand(p.name, p.value)
+                if expanded is None:
+                    yield p, None
+                    continue
+                props = self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in expanded.items()]
+            for ep in props:
+                yield ep, p
 
     def expand_property(self, parent_prop: Property) -> None:
         props = self.expanded_properties.pop(parent_prop, None)
@@ -279,7 +294,7 @@ def validate_rule(rule: SerializedRule) -> tuple[str, str] | tuple[None, None]:
     mt = rule['match_type']
     if not rule['property']:
         return _('Property required'), _('You must specify a CSS property to match')
-    if rule['property'] in normalizers:
+    if longhands(rule['property']):
         return _('Shorthand property not allowed'), _(
             '{0} is a shorthand property. Use the full form of the property,'
             ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.'
@@ -469,10 +484,13 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
             )
             m('margin: 0', 'margin-bottom: 0;\nmargin-left: 0;\nmargin-right: 0;\nmargin-top: 1pt', 'change', '1pt')
             prop = 'font-family'
+            # The font shorthand also sets font-stretch (porting.md §6.9)
             m(
                 'font: 10em "Kovid Goyal", monospace',
-                'font-size: 10em;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal',
+                'font-size: 10em;\nfont-stretch: normal;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal',
             )
+            # Invalid shorthands are not expanded (porting.md §6.9)
+            m('font: Kovid; color: red', 'font: Kovid;\ncolor: red')
 
         def test_append(self) -> None:
             def m(css: str, ecss: str, action_data: str = '') -> None:

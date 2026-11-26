@@ -16,7 +16,7 @@ from lxml import etree
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, css_text
-from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
+from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalize_shorthand
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import numeric_sort_key
@@ -337,9 +337,8 @@ def filter_declaration(style: CSSStyleDeclaration, properties: set[str] | frozen
             changed = True
     all_props = set(style.keys())
     for prop in style.getProperties():
-        n = normalizers.get(prop.name, None)
-        if n is not None:
-            normalized = n(prop.name, prop.propertyValue)
+        normalized = normalize_shorthand(prop.name, prop.value)
+        if normalized is not None:
             removed = properties.intersection(set(normalized))
             if removed:
                 changed = True
