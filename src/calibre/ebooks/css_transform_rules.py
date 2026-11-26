@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Iterator, Mapping
 
     import regex
-    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
 
     from calibre.ebooks.oeb.polish.container import Container
 
@@ -328,28 +327,15 @@ def transform_sheet(compiled_rules: Iterable[Rule], sheet: Stylesheet) -> bool:
 
 
 def transform_container(container: Container, serialized_rules: Iterable[SerializedRule], names: Collection[str] = ()) -> bool:
-    from calibre.ebooks.oeb.base import css_text
     from calibre.ebooks.oeb.polish.css import transform_css
 
     rules = compile_rules(serialized_rules)
-
-    # Edit book still gives css_parser objects, until it is ported to kgcss:
-    # convert them as text
-    def legacy_transform_sheet(sheet: CSSStyleSheet) -> bool:
-        ksheet = parse_stylesheet(css_text(sheet))
-        changed = transform_sheet(rules, ksheet)
-        if changed:
-            sheet.cssText = ksheet.css_text
-        return changed
-
-    def legacy_transform_style(style: CSSStyleDeclaration) -> bool:
-        block = parse_style(css_text(style))
-        changed = transform_declaration(rules, block)
-        if changed:
-            style.cssText = block.css_text
-        return changed
-
-    return transform_css(container, transform_sheet=legacy_transform_sheet, transform_style=legacy_transform_style, names=names)
+    return transform_css(
+        container,
+        transform_sheet=partial(transform_sheet, rules),
+        transform_style=partial(transform_declaration, rules),
+        names=names,
+    )
 
 
 def rule_to_text(rule: SerializedRule) -> str:

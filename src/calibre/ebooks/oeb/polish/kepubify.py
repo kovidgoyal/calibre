@@ -19,8 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from typing import TYPE_CHECKING, NamedTuple, cast
 
-from css_parser import CSSParser
-from css_parser.css import CSSComment, CSSPageRule, CSSRule
+from kgcss import Comment, PageRule, StyleRule, parse_stylesheet
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
@@ -40,7 +39,7 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 
 if TYPE_CHECKING:
-    from css_parser.css import CSSStyleSheet
+    from kgcss import Rule, Stylesheet
 
     from calibre.ebooks.metadata.book.base import Metadata
 
@@ -71,11 +70,6 @@ BLOCK_TAGS = frozenset((
 KOBO_CSS = 'div#book-inner { margin-top: 0; margin-bottom: 0; }'
 # Needed for Kobo renderer: https://bugs.launchpad.net/calibre/+bug/2138855
 KOBO_SPAN_CSS = '.koboSpan { -webkit-text-combine: inherit; }'
-
-
-@lru_cache(2)
-def css_parser() -> CSSParser:
-    return CSSParser(validate=False)
 
 
 class Options(NamedTuple):
@@ -339,48 +333,46 @@ def process_stylesheet(css: str, opts: Options) -> str:
     has_comment_cookie = CSS_COMMENT_COOKIE in css
     if opts.for_removal and not has_comment_cookie:
         return css  # avoid expensive parse
-    sheet = css_parser().parseString(css)
+    sheet = parse_stylesheet(css)
     changed = False
-    page_rules = []
+    page_rules: list[tuple[int, Rule]] = []
     if has_comment_cookie:
-        for i, rule in enumerate(sheet.cssRules):
-            if rule.type == CSSRule.STYLE_RULE:
+        for i, rule in enumerate(sheet.rules):
+            if isinstance(rule, StyleRule):
                 s = rule.style
                 for q in ('widows', 'orphans'):
-                    if (prop := s.getProperty(f'-{CSS_COMMENT_COOKIE}-{q}')) is not None:
+                    if (prop := s.get_property(f'-{CSS_COMMENT_COOKIE}-{q}')) is not None:
                         prop.name = q
                         changed = True
-            elif rule.type == CSSRule.COMMENT:
-                if rule.cssText.startswith(f'/* {CSS_COMMENT_COOKIE}: '):
+            elif isinstance(rule, Comment):
+                if rule.css_text.startswith(f'/* {CSS_COMMENT_COOKIE}: '):
                     page_rules.append((i, rule))
                     changed = True
     for i, cr in page_rules:
-        pr = CSSPageRule()
-        pr.cssText = cr.cssText[len(f'/* {CSS_COMMENT_COOKIE}: ') : -3]
-        sheet.deleteRule(i)
-        sheet.insertRule(pr, i)
+        sheet.delete_rule(i)
+        sheet.insert_rule(cr.css_text[len(f'/* {CSS_COMMENT_COOKIE}: ') : -3], i)
 
     if opts.for_removal:
-        return sheet.cssText if changed else css
+        return sheet.css_text if changed else css
 
-    for i, rule in enumerate(sheet.cssRules):
-        if rule.type == CSSRule.STYLE_RULE:
+    page_rules = []
+    for i, rule in enumerate(sheet.rules):
+        if isinstance(rule, StyleRule):
             if opts.remove_widows_and_orphans:
                 s = rule.style
                 for q in ('widows', 'orphans'):
-                    if (prop := s.getProperty(q)) is not None:
+                    if (prop := s.get_property(q)) is not None:
                         changed = True
                         prop.name = f'-{CSS_COMMENT_COOKIE}-{q}'
-        elif rule.type == CSSRule.PAGE_RULE:
+        elif isinstance(rule, PageRule):
             if opts.remove_at_page_rules:
                 changed = True
                 page_rules.append((i, rule))
 
     for i, pr in page_rules:
-        comment = CSSComment(f'/* {CSS_COMMENT_COOKIE}: {nest_css_comments(pr.cssText)} */')
-        sheet.deleteRule(i)
-        sheet.insertRule(comment, i)
-    return sheet.cssText if changed else css
+        sheet.delete_rule(i)
+        sheet.insert_rule(f'/* {CSS_COMMENT_COOKIE}: {nest_css_comments(pr.css_text)} */', i)
+    return sheet.css_text if changed else css
 
 
 def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, metadata_lang: str = 'en') -> None:
@@ -647,23 +639,19 @@ def unkepubify_path(path: str, outpath: str = '', max_workers: int = 0, allow_ov
     return outpath
 
 
-def check_if_css_needs_modification(extra_css: str) -> tuple[CSSStyleSheet | None, bool, bool]:
+def check_if_css_needs_modification(extra_css: str) -> tuple[Stylesheet | None, bool, bool]:
     remove_widows_and_orphans = remove_at_page_rules = False
     sheet = None
     if extra_css:
-        try:
-            sheet = css_parser().parseString(extra_css)
-        except Exception:
-            pass
-        else:
-            for rule in sheet.cssRules:
-                if rule.type == CSSRule.PAGE_RULE:
-                    remove_at_page_rules = True
-                elif rule.type == CSSRule.STYLE_RULE:
-                    if rule.style['widows'] or rule.style['orphans']:
-                        remove_widows_and_orphans = True
-                if remove_widows_and_orphans and remove_at_page_rules:
-                    break
+        sheet = parse_stylesheet(extra_css)
+        for rule in sheet.rules:
+            if isinstance(rule, PageRule):
+                remove_at_page_rules = True
+            elif isinstance(rule, StyleRule):
+                if rule.style.get_value('widows') or rule.style.get_value('orphans'):
+                    remove_widows_and_orphans = True
+            if remove_widows_and_orphans and remove_at_page_rules:
+                break
     return sheet, remove_widows_and_orphans, remove_at_page_rules
 
 

@@ -11,21 +11,18 @@ from functools import partial
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse, urlunparse
 
-from css_parser.css import CSSStyleSheet
+from kgcss import RuleType, remove_url_values
 from lxml import etree
 
 from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
-from calibre.ebooks.oeb.base import css_text
-from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-    from css_parser.css import CSSStyleDeclaration
-    from css_parser.css.value import Value
+    from kgcss import DeclarationBlock, Stylesheet
 
     from calibre.ebooks.oeb.polish.container import Container
 
@@ -335,35 +332,20 @@ def rationalize_folders(container: Container, folder_type_map: dict[str, str]) -
     return name_map
 
 
-def remove_links_in_sheet(href_to_name: Callable[[str], str | None], sheet: CSSStyleSheet, predicate: LinkPredicate) -> bool:
-    import_rules_to_remove: list[int] = []
+def remove_links_in_sheet(href_to_name: Callable[[str], str | None], sheet: Stylesheet, predicate: LinkPredicate) -> bool:
     changed = False
-    for i, r in enumerate(sheet):
-        if r.type == r.IMPORT_RULE:
-            name = href_to_name(r.href)
-            if predicate(name, r.href, None):
-                import_rules_to_remove.append(i)
-    for i in sorted(import_rules_to_remove, reverse=True):
-        sheet.deleteRule(i)
-        changed = True
+    for r in tuple(sheet.rules.of_type(RuleType.IMPORT)):
+        if predicate(href_to_name(r.href), r.href, None):
+            sheet.delete_rule(r)
+            changed = True
 
-    for dec in iter_declarations(sheet):
+    for dec in sheet.iter_declaration_blocks():
         changed = remove_links_in_declaration(href_to_name, dec, predicate) or changed
     return changed
 
 
-def remove_links_in_declaration(href_to_name: Callable[[str], str | None], style: CSSStyleDeclaration, predicate: LinkPredicate) -> bool:
-    def check_pval(v: Value) -> bool:
-        if v.type == v.URI:
-            name = href_to_name(v.uri)
-            return predicate(name, v.uri, None)
-        return False
-
-    changed = False
-
-    for p in tuple(style.getProperties(all=True)):
-        changed = remove_property_value(p, check_pval) or changed
-    return changed
+def remove_links_in_declaration(href_to_name: Callable[[str], str | None], style: DeclarationBlock, predicate: LinkPredicate) -> bool:
+    return remove_url_values(style, lambda url: predicate(href_to_name(url), url, None))
 
 
 def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
@@ -399,20 +381,19 @@ def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
                     removed = True
             for tag in stylepath(root):
                 if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':
-                    sheet = container.parse_css(tag.text)
+                    sheet = container.parse_stylesheet(tag.text)
                     if remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate):
-                        tag.text = css_text(sheet)
+                        tag.text = sheet.css_text
                         removed = True
             for tag in styleattrpath(root):
                 style = tag.get('style')
                 if style:
-                    style = container.parse_css(style, is_declaration=True)
-                    if remove_links_in_declaration(partial(container.href_to_name, base=name), style, predicate):
+                    block = container.parse_style(style)
+                    if remove_links_in_declaration(partial(container.href_to_name, base=name), block, predicate):
                         removed = True
-                        tag.set('style', css_text(style))
+                        tag.set('style', block.to_css(single_line=True))
         elif mt in OEB_STYLES:
-            sheet = container.parsed(name)
-            assert isinstance(sheet, CSSStyleSheet)  # CSS files are parsed into css_parser stylesheets
+            sheet = container.parsed_stylesheet(name)
             removed = remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate)
         if removed:
             changed.add(name)

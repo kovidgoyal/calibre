@@ -3,11 +3,9 @@
 
 from typing import TYPE_CHECKING
 
-from css_parser.css import CSSRule, CSSStyleSheet
-from kgcss import parse_font_family
+from kgcss import FontFaceRule, RuleType, StyleRule, Stylesheet, parse_font_family
 from lxml import etree
 
-from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
 from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
@@ -25,10 +23,10 @@ class InvalidFont(BaseError):
     HELP = _('This font could not be processed. It most likely will not work in an e-book reader, either')
 
 
-def fix_sheet(sheet: CSSStyleSheet, css_name: str, font_name: str) -> bool:
+def fix_sheet(sheet: Stylesheet, css_name: str, font_name: str) -> bool:
     changed = False
-    for rule in sheet.cssRules:
-        if rule.type in (CSSRule.FONT_FACE_RULE, CSSRule.STYLE_RULE):
+    for rule in sheet.iter_rules(RuleType.FONT_FACE, RuleType.STYLE):
+        if isinstance(rule, (FontFaceRule, StyleRule)):
             changed = change_font_in_declaration(rule.style, css_name, font_name) or changed
     return changed
 
@@ -70,8 +68,7 @@ class FontAliasing(BaseError):
         changed = False
         for name, mt in container.mime_map.items():
             if mt in OEB_STYLES:
-                sheet = container.parsed(name)
-                assert isinstance(sheet, CSSStyleSheet)
+                sheet = container.parsed_stylesheet(name)
                 if fix_sheet(sheet, self.css_name, self.font_name):
                     container.dirty(name)
                     changed = True
@@ -80,16 +77,16 @@ class FontAliasing(BaseError):
                 assert isinstance(root, etree._Element)
                 for style in root.xpath('//*[local-name()="style"]'):
                     if style.get('type', 'text/css') == 'text/css' and style.text:
-                        sheet = container.parse_css(style.text)
+                        sheet = container.parse_stylesheet(style.text)
                         if fix_sheet(sheet, self.css_name, self.font_name):
-                            style.text = force_unicode(sheet.cssText, 'utf-8')
+                            style.text = sheet.css_text
                             pretty_script_or_style(container, style)
                             container.dirty(name)
                             changed = True
                 for elem in root.xpath('//*[@style and contains(@style, "font-family")]'):
-                    style = container.parse_css(elem.get('style'), is_declaration=True)
+                    style = container.parse_style(elem.get('style'))
                     if change_font_in_declaration(style, self.css_name, self.font_name):
-                        elem.set('style', force_unicode(style.cssText, 'utf-8').replace('\n', ' '))
+                        elem.set('style', style.to_css(single_line=True))
                         container.dirty(name)
                         changed = True
         return changed
@@ -114,33 +111,31 @@ def check_fonts(container: Container) -> list[BaseError]:
             if not embeddable:
                 errors.append(NotEmbeddable(name, fs_type))
 
-    sheets: list[tuple[str, CSSStyleSheet, int | None]] = []
+    sheets: list[tuple[str, Stylesheet, int | None]] = []
     for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
             try:
-                sheet = container.parsed(name)
-                assert isinstance(sheet, CSSStyleSheet)
-                sheets.append((name, sheet, None))
-            except Exception:
-                pass  # Could not parse, ignore
+                sheets.append((name, container.parsed_stylesheet(name), None))
+            except (OSError, TypeError) as err:
+                container.log.warn(f'Could not read the stylesheet {name}, ignoring it: {err}')
         elif mt in OEB_DOCS:
             root = container.parsed(name)
             assert isinstance(root, etree._Element)
             for style in root.xpath('//*[local-name()="style"]'):
                 if style.get('type', 'text/css') == 'text/css' and style.text:
-                    sheets.append((name, container.parse_css(style.text), style.sourceline))
+                    sheets.append((name, container.parse_stylesheet(style.text), style.sourceline))
 
     for name, sheet, line_offset in sheets:
-        for rule in sheet.cssRules.rulesOfType(CSSRule.FONT_FACE_RULE):
-            src = rule.style.getPropertyCSSValue('src')
-            if src is not None and src.length > 0:
-                href = getattr(src.item(0), 'uri', None)
+        for rule in sheet.iter_rules(RuleType.FONT_FACE):
+            src = rule.style.get_parsed_value('src')
+            if src:
+                href = getattr(src[0], 'url', None)
                 if href is not None:
                     fname = container.href_to_name(href, name)
                     font_name = font_map.get(fname, None)
                     if font_name is None:
                         continue
-                    families = parse_font_family(rule.style.getPropertyValue('font-family'))
+                    families = parse_font_family(rule.style.get_value('font-family'))
                     if families:
                         if families[0] != font_name:
                             errors.append(FontAliasing(font_name, families[0], name, line_offset))

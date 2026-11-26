@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-from contextlib import suppress
 from typing import TYPE_CHECKING, NamedTuple, TypedDict, cast
 
-from css_parser.css import CSSRule
-from css_selectors.errors import SelectorError
-from css_selectors.select import Select
+from kgcss import GroupingRule, ImportRule, Select, SelectorError, StyleRule, Stylesheet
 
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 
 if TYPE_CHECKING:
-    from css_parser.css import CSSRuleList, CSSStyleRule
+    from collections.abc import Iterable
+
+    from kgcss import Rule
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container
@@ -36,64 +35,53 @@ class RuleLocation(NamedTuple):
     style_tag_address: tuple[int, list[str]] | None = None
 
 
-def rule_matches_elem(rule: CSSStyleRule, elem: _Element, select: Select, class_name: str) -> bool:
-    for selector in rule.selectorList:
-        if class_name in selector.selectorText:
-            with suppress(SelectorError):
-                if elem in select(selector.selectorText):
-                    return True
+def rule_matches_elem(rule: StyleRule, elem: _Element, select: Select[_Element], class_name: str) -> bool:
+    class_name = class_name.lower()
+    for selector in rule.selectors:
+        try:
+            # Classes match case-insensitively, see the Select in find_first_matching_rule()
+            if class_name in {c.lower() for c in selector.class_names()} and select.matches(elem, selector):
+                return True
+        except SelectorError:
+            pass
     return False
 
 
 def find_first_rule_that_matches_elem(
     container: Container,
     elem: _Element,
-    select: Select,
+    select: Select[_Element],
     class_name: str,
-    rules: CSSRuleList,
+    sheet: Stylesheet,
     current_file_name: str,
     recursion_level: int = 0,
-    rule_address: list[int] | None = None,
+    rules: Iterable[Rule] | None = None,
 ) -> RuleLocation | None:
-    # iterate over rules handling @import and @media rules returning a rule
-    # address for matching rule
+    # iterate over rules handling @import and grouping rules such as @media,
+    # returning the address of the matching rule as browsers count rules
     if recursion_level > 16:
         return None
-    rule_address = rule_address or []
-    num_comment_rules = 0
-    for i, rule in enumerate(rules):
-        if rule.type == CSSRule.STYLE_RULE:
+    for rule in sheet.rules if rules is None else rules:
+        if isinstance(rule, StyleRule):
             if rule_matches_elem(rule, elem, select, class_name):
-                return RuleLocation(rule_address + [i - num_comment_rules], current_file_name)
-        elif rule.type in (CSSRule.COMMENT, CSSRule.CHARSET_RULE):
-            num_comment_rules += 1
-        elif rule.type == CSSRule.MEDIA_RULE:
-            res = find_first_rule_that_matches_elem(
-                container,
-                elem,
-                select,
-                class_name,
-                rule.cssRules,
-                current_file_name,
-                recursion_level + 1,
-                rule_address + [i - num_comment_rules],
-            )
+                return RuleLocation(list(sheet.browser_index_path(rule)), current_file_name)
+        elif isinstance(rule, GroupingRule):
+            res = find_first_rule_that_matches_elem(container, elem, select, class_name, sheet, current_file_name, recursion_level + 1, rule.rules)
             if res is not None:
                 return res
-        elif rule.type == CSSRule.IMPORT_RULE:
+        elif isinstance(rule, ImportRule):
             if not rule.href:
                 continue
             sname = container.href_to_name(rule.href, current_file_name)
             if sname:
                 try:
-                    sheet = container.parsed(sname)
-                except Exception:
+                    isheet = container.parsed_object(sname)
+                except OSError:
                     continue
-                if not hasattr(sheet, 'cssRules'):
-                    continue
-                res = find_first_rule_that_matches_elem(container, elem, select, class_name, cast('CSSRuleList', sheet.cssRules), sname, recursion_level + 1)
-                if res is not None:
-                    return res
+                if isinstance(isheet, Stylesheet):
+                    res = find_first_rule_that_matches_elem(container, elem, select, class_name, isheet, sname, recursion_level + 1)
+                    if res is not None:
+                        return res
     return None
 
 
@@ -108,17 +96,16 @@ def find_first_matching_rule(
     if barenames[: len(tags)] != tags:
         raise NoMatchingTagFound(f'No tag matching the specification was found in {html_file_name}')
     target_elem = tags_on_line[len(tags) - 1]
-    select = Select(root, ignore_inappropriate_pseudo_classes=True)
+    # quirks_mode matches ids and classes case-insensitively, as the selector
+    # engine used before kgcss did
+    select = Select(root, ignore_inappropriate_pseudo_classes=True, quirks_mode=True)
     for tag in root.iter('*'):
         tag_name = tag.tag
         assert isinstance(tag_name, str)  # iter('*') only yields elements, which have str tags
         tn = barename(tag_name)
         if tn == 'style' and tag.text and tag.get('type', 'text/css') == 'text/css':
-            try:
-                sheet = container.parse_css(tag.text)
-            except Exception:
-                continue
-            res = find_first_rule_that_matches_elem(container, target_elem, select, class_name, sheet.cssRules, html_file_name)
+            sheet = container.parse_stylesheet(tag.text)
+            res = find_first_rule_that_matches_elem(container, target_elem, select, class_name, sheet, html_file_name)
             if res is not None:
                 return res._replace(style_tag_address=(int(cast('str', tag.get(lnum_attr))), ['style']))  # parse() sets lnum_attr on all elements
         elif tn == 'link' and tag.get('href') and tag.get('rel', '').lower() == 'stylesheet':
@@ -126,12 +113,12 @@ def find_first_matching_rule(
             if sname is None:
                 continue
             try:
-                sheet = container.parsed(sname)
-            except Exception:
+                sheet = container.parsed_object(sname)
+            except OSError:
                 continue
-            if not hasattr(sheet, 'cssRules'):
+            if not isinstance(sheet, Stylesheet):
                 continue
-            res = find_first_rule_that_matches_elem(container, target_elem, select, class_name, cast('CSSRuleList', sheet.cssRules), sname)
+            res = find_first_rule_that_matches_elem(container, target_elem, select, class_name, sheet, sname)
             if res is not None:
                 return res
     raise NoMatchingRuleFound(f'No CSS rules that apply to the specified tag in {html_file_name} with the class {class_name} found')

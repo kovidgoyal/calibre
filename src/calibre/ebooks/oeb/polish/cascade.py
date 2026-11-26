@@ -1,31 +1,40 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-import re
 from collections import defaultdict
 from functools import partial
 from itertools import count
 from operator import itemgetter
 from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, Self, cast, overload
 
-from css_parser.css import CSSRule, CSSStyleSheet, Property
-from css_selectors.errors import SelectorError
-from css_selectors.select import INAPPROPRIATE_PSEUDO_CLASSES, Select
-from kgcss import CSS_WIDE_KEYWORDS, parse_font_family, serialize_font_family
+from kgcss import (
+    CSS_WIDE_KEYWORDS,
+    ImportRule,
+    MediaRule,
+    Property,
+    RuleType,
+    Select,
+    SelectorError,
+    StyleRule,
+    Stylesheet,
+    parse_font_family,
+    parse_value,
+    serialize_font_family,
+)
+from kgcss.cssom.values import Ident, String
 from lxml import etree
 
 from calibre import as_unicode
-from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
+from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalize_shorthand
-from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
+from calibre.ebooks.oeb.stylizer import INHERITED, inappropriate_pseudo, media_ok
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
-    from css_parser.css import CSSRuleList, CSSStyleDeclaration, Selector
-    from css_parser.css.value import Value
-    from css_parser.stylesheets import MediaList
+    from kgcss import DeclarationBlock, MediaList, Rule, RuleList, Selector
+    from kgcss.cssom.values import Component
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container, ContainerBase
@@ -68,42 +77,41 @@ class ResolvePseudoProperty(Protocol):
     ) -> bool: ...
 
 
-_html_css_stylesheet: CSSStyleSheet | None = None
+_html_css_stylesheet: Stylesheet | None = None
 
 
-def html_css_stylesheet(container: ContainerBase) -> CSSStyleSheet:
+def html_css_stylesheet(container: ContainerBase) -> Stylesheet:
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         data = P('templates/html.css', data=True).decode('utf-8')
-        _html_css_stylesheet = container.parse_css(data, 'user-agent.css')
+        _html_css_stylesheet = container.parse_stylesheet(data, 'user-agent.css')
     return _html_css_stylesheet
 
 
 def media_allowed(media: MediaList | None) -> bool:
-    if not media or not media.mediaText:
+    if not media:
         return True
-    return media_ok(media.mediaText)
+    return media_ok(media.media_text)
 
 
 def iterrules(
     container: Container,
     sheet_name: str,
-    rules: CSSStyleSheet | CSSRuleList | None = None,
+    rules: Stylesheet | RuleList | None = None,
     media_rule_ok: Callable[[MediaList | None], bool] = media_allowed,
     rule_index_counter: Iterator[int] | None = None,
-    rule_type: str | None = None,
+    rule_type: RuleType | None = None,
     importing: set[str] | None = None,
-) -> Iterator[tuple[CSSRule, str, int]]:
+) -> Iterator[tuple[Rule, str, int]]:
     """Iterate over all style rules in the specified sheet. Import and Media rules are
     automatically resolved. Yields (rule, sheet_name, rule_number).
 
-    :param rules: List of CSSRules or a CSSStyleSheet instance or None in which case it is read from container using sheet_name
+    :param rules: A list of rules or a Stylesheet or None in which case it is read from container using sheet_name
     :param sheet_name: The name of the sheet in the container (in case of inline style sheets, the name of the html file)
     :param media_rule_ok: A function to test if a @media rule is allowed
     :param rule_index_counter: A counter object, rule numbers will be calculated by incrementing the counter.
-    :param rule_type: Only yield rules of this type, where type is a string type name, see css_parser.css.CSSRule for the names (
-                    by default all rules are yielded)
-    :return: (CSSRule object, the name of the sheet from which it comes, rule index - a monotonically increasing number)
+    :param rule_type: Only yield rules of this type (by default all rules are yielded)
+    :return: (Rule object, the name of the sheet from which it comes, rule index - a monotonically increasing number)
     """
 
     rule_index_counter = rule_index_counter or count()
@@ -119,26 +127,22 @@ def iterrules(
         importing=importing,
     )
     if rules is None:
-        sheet = container.parsed(sheet_name)
-        assert isinstance(sheet, CSSStyleSheet)
-        rules = sheet
-    if rule_type is not None:
-        rule_type = getattr(CSSRule, rule_type)
+        rules = container.parsed_stylesheet(sheet_name)
 
     for rule in rules:
-        if rule.type == CSSRule.IMPORT_RULE:
+        if isinstance(rule, ImportRule):
             if media_rule_ok(rule.media):
                 name = container.href_to_name(rule.href, sheet_name)
                 if container.has_name(name):
                     if name in importing:
                         container.log.error(f'Recursive import of {name} from {sheet_name}, ignoring')
                     else:
-                        csheet = container.parsed(name)
-                        if isinstance(csheet, CSSStyleSheet):
+                        csheet = container.parsed_object(name)
+                        if isinstance(csheet, Stylesheet):
                             yield from riter(name, rules=csheet)
-        elif rule.type == CSSRule.MEDIA_RULE:
+        elif isinstance(rule, MediaRule):
             if media_rule_ok(rule.media):
-                yield from riter(sheet_name, rules=rule.cssRules)
+                yield from riter(sheet_name, rules=rule.rules)
 
         elif rule_type is None or rule.type == rule_type:
             num = next(rule_index_counter)
@@ -163,60 +167,61 @@ class Specificity(NamedTuple):
 
 def specificity(rule_index: int, selector: Selector, is_style: int = 0) -> Specificity:
     s = selector.specificity
-    return Specificity(is_style, s[1], s[2], s[3], rule_index)
+    return Specificity(is_style, s[0], s[1], s[2], rule_index)
 
 
-def all_properties(decl: CSSStyleDeclaration) -> Iterator[Property]:
-    "Every declaration of a css_parser declaration block, including the ones that later declarations override"
-    for item in decl.seq:
-        p = item.value
+def iterdeclaration(decl: DeclarationBlock) -> Iterator[Property]:
+    "The properties of a declaration block, with shorthands expanded"
+    for p in decl.items:
         if isinstance(p, Property):
-            yield p
+            expanded = normalize_shorthand(p.name, p.value_to_css())
+            if expanded is None:
+                yield p
+            else:
+                for k, v in expanded.items():
+                    yield Property(k, v, p.priority)
 
 
-def iterdeclaration(decl: CSSStyleDeclaration) -> Iterator[Property]:
-    for p in all_properties(decl):
-        expanded = normalize_shorthand(p.name, p.value)
-        if expanded is None:
-            yield p
-        else:
-            for k, v in expanded.items():
-                yield Property(k, v, p.literalpriority)
+def component_text(c: Component) -> str:
+    "The text of an identifier or string, unquoted, the CSS of other components, such as 700 or 1.5em"
+    return c.value if isinstance(c, (Ident, String)) else c.css_text
 
 
-class Values(tuple['Value', ...]):
-    """A tuple of `css_parser.css.Value ` (and its subclasses) objects. Also has a
+class Values(tuple['Component', ...]):
+    """A tuple of the components of a property value. Also has a
     `sheet_name` attribute that is the canonical name relative to which URLs
     for this property should be resolved."""
 
     sheet_name: str | None
     is_important: bool
 
-    def __new__(typ, pv: Iterable[Value], sheet_name: str | None = None, priority: str = '') -> Self:
+    def __new__(typ, pv: Iterable[Component], sheet_name: str | None = None, priority: str = '') -> Self:
         ans = tuple.__new__(typ, pv)
         ans.sheet_name = sheet_name
         ans.is_important = priority == 'important'
         return ans
 
     @property
-    def cssText(self) -> str | tuple[str, ...]:
+    def css_text(self) -> str | tuple[str, ...]:
         "This will return either a string or a tuple of strings"
         if len(self) == 1:
-            return css_text(self[0])
-        return tuple(css_text(x) for x in self)
+            return self[0].css_text
+        return tuple(x.css_text for x in self)
 
 
-def normalize_style_declaration(decl: CSSStyleDeclaration, sheet_name: str) -> dict[str, Values]:
+def normalize_style_declaration(decl: DeclarationBlock, sheet_name: str) -> dict[str, Values]:
     ans: dict[str, Values] = {}
     for prop in iterdeclaration(decl):
+        # The components of the normalized value, as css_parser gave them
+        value = parse_value(prop.value_to_css(), property_name=prop.name)
         if prop.name == 'font-family':
-            val = css_text(prop.propertyValue)
+            val = prop.value
+            # Font family names as quoted strings, one for each family.
             # serialize_font_family() quotes the CSS-wide keywords, which
             # would turn them into family names
             if val.strip().lower() not in CSS_WIDE_KEYWORDS:
-                # Needed because of https://bitbucket.org/cthedot/cssutils/issues/66/incorrect-handling-of-spaces-in-font
-                prop.propertyValue.cssText = serialize_font_family(parse_font_family(val))
-        ans[prop.name] = Values(prop.propertyValue, sheet_name, prop.priority)
+                value = parse_value(serialize_font_family(parse_font_family(val)), property_name='font-family')
+        ans[prop.name] = Values(value, sheet_name, prop.priority)
     return ans
 
 
@@ -247,35 +252,40 @@ def resolve_pseudo_declarations(decls: Iterable[StyleDeclaration]) -> dict[str |
 
 
 def resolve_styles(
-    container: Container, name: str, select: Select | None = None, sheet_callback: Callable[[CSSStyleSheet, str], object] | None = None
-) -> tuple[ResolveProperty, ResolvePseudoProperty, Select]:
+    container: Container,
+    name: str,
+    select: Select[_Element] | None = None,
+    sheet_callback: Callable[[Stylesheet, str], object] | None = None,
+) -> tuple[ResolveProperty, ResolvePseudoProperty, Select[_Element]]:
     root = container.parsed(name)
     assert isinstance(root, etree._Element)
-    select = select or Select(root, ignore_inappropriate_pseudo_classes=True)
+    # quirks_mode matches ids and classes case-insensitively, as the selector
+    # engine used before kgcss did
+    select = select or Select(root, ignore_inappropriate_pseudo_classes=True, quirks_mode=True)
     style_map: defaultdict[_Element, list[StyleDeclaration]] = defaultdict(list)
     pseudo_style_map: defaultdict[_Element, list[StyleDeclaration]] = defaultdict(list)
     rule_index_counter = count()
-    pseudo_pat = re.compile(':{{1,2}}({})'.format('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
 
-    def process_sheet(sheet: CSSStyleSheet, sheet_name: str) -> None:
+    def process_sheet(sheet: Stylesheet, sheet_name: str) -> None:
         if sheet_callback is not None:
             sheet_callback(sheet, sheet_name)
-        for rule, name_sheet, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type='STYLE_RULE'):
-            for selector in rule.selectorList:
-                text = selector.selectorText
+        for rule, name_sheet, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type=RuleType.STYLE):
+            assert isinstance(rule, StyleRule)  # only style rules are iterated over
+            for selector in rule.selectors:
                 try:
-                    matches = tuple(select(text))
+                    matches = tuple(select(selector))
+                    selector_specificity = specificity(rule_index, selector)
                 except SelectorError as err:
-                    container.log.error(f'Ignoring CSS rule with invalid selector: {text!r} ({as_unicode(err)})')
+                    container.log.error(f'Ignoring CSS rule with invalid selector: {selector.text!r} ({as_unicode(err)})')
                     continue
-                m = pseudo_pat.search(text)
+                pseudo = inappropriate_pseudo(selector)
                 style = normalize_style_declaration(rule.style, name_sheet)
-                if m is None:
+                if pseudo is None:
                     for elem in matches:
-                        style_map[elem].append(StyleDeclaration(specificity(rule_index, selector), style, None))
+                        style_map[elem].append(StyleDeclaration(selector_specificity, style, None))
                 else:
                     for elem in matches:
-                        pseudo_style_map[elem].append(StyleDeclaration(specificity(rule_index, selector), style, m.group(1)))
+                        pseudo_style_map[elem].append(StyleDeclaration(selector_specificity, style, pseudo))
 
     process_sheet(html_css_stylesheet(container), 'user-agent.css')
 
@@ -285,7 +295,7 @@ def resolve_styles(
         if tag.lower().endswith('style'):
             if not elem.text:
                 continue
-            sheet = container.parse_css(elem.text)
+            sheet = container.parse_stylesheet(elem.text)
             sheet_name = name
         else:
             if (
@@ -300,15 +310,15 @@ def resolve_styles(
             sheet_name = container.href_to_name(href, name)
             if not container.has_name(sheet_name):
                 continue
-            sheet = container.parsed(sheet_name)
-            if not isinstance(sheet, CSSStyleSheet):
+            sheet = container.parsed_object(sheet_name)
+            if not isinstance(sheet, Stylesheet):
                 continue
         process_sheet(sheet, sheet_name)
 
     for elem in root.xpath('//*[@style]'):
         text = elem.get('style')
         if text:
-            style = container.parse_css(text, is_declaration=True)
+            style = container.parse_style(text)
             style_map[elem].append(StyleDeclaration(Specificity(1, 0, 0, 0, 0), normalize_style_declaration(style, name), None))
 
     for l in (style_map, pseudo_style_map):
@@ -331,7 +341,7 @@ _defvals: dict[str, Values] | None = None
 def defvals() -> dict[str, Values]:
     global _defvals
     if _defvals is None:
-        _defvals = {k: Values(Property(k, str(val)).propertyValue) for k, val in DEFAULTS.items()}
+        _defvals = {k: Values(parse_value(str(val), property_name=k)) for k, val in DEFAULTS.items()}
     return _defvals
 
 

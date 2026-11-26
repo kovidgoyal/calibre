@@ -264,8 +264,7 @@ def pretty_html(container: Container, name: str, raw: str) -> bytes:
 
 def pretty_css(container: Container, name: str, raw: str) -> bytes:
     "Pretty print the CSS represented as a string in raw"
-    sheet = container.parse_css(raw)
-    return serialize(sheet, 'text/css')
+    return container.parse_stylesheet(raw).encode(container.css_serialize_options) + b'\n'
 
 
 def pretty_xml(container: Container, name: str, raw: str) -> bytes:
