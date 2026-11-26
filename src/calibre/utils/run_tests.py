@@ -762,6 +762,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.oeb.stylizer import find_tests
 
         a(find_tests())
+        from calibre.ebooks.oeb.css_test import find_tests
+
+        a(find_tests())
         from calibre.ebooks.oeb.normalize_css import test_normalization
 
         a(test_normalization(return_tests=True))
@@ -845,6 +848,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(find_tests())
         from calibre.ebooks.conversion.plugins.txt_input import find_tests
+
+        a(find_tests())
+        from calibre.ebooks.conversion.plugins.fb2_input import find_tests
 
         a(find_tests())
         from calibre.ebooks.txt.txtml import find_tests

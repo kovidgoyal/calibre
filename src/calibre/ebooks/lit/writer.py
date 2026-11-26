@@ -18,6 +18,7 @@ from struct import pack
 from typing import IO, TYPE_CHECKING, Concatenate
 from urllib.parse import urldefrag
 
+from kgcss import Stylesheet
 from lxml import etree
 
 import calibre
@@ -517,7 +518,7 @@ class LitWriter:
                 secnum = 1
             elif isinstance(data, str):
                 data = data.encode('utf-8')
-            elif hasattr(data, 'cssText'):
+            elif isinstance(data, Stylesheet):
                 data = item.bytes_representation
             assert data is not None  # len(None) in _add_file() would fail anyway
             self._add_file(name, data, secnum)

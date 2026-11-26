@@ -275,7 +275,7 @@ class PDFOutput(OutputFormatPlugin):
 
     def process_fonts(self) -> None:
         """Make sure all fonts are embeddable"""
-        from css_parser.css import CSSStyleSheet
+        from kgcss import FontFaceRule, Stylesheet
 
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
@@ -283,14 +283,14 @@ class PDFOutput(OutputFormatPlugin):
         processed = set()
         for item in list(self.oeb.manifest):
             sheet = item.data
-            if not isinstance(sheet, CSSStyleSheet):
+            if not isinstance(sheet, Stylesheet):
                 continue
-            for i, rule in enumerate(sheet.cssRules):
-                if rule.type == rule.FONT_FACE_RULE:
-                    try:
-                        s = rule.style
-                        src = s.getProperty('src').propertyValue[0].uri
-                    except Exception:
+            for rule in sheet.rules:
+                if isinstance(rule, FontFaceRule):
+                    src_value = rule.style.get_parsed_value('src')
+                    # The URL of the first url() of src
+                    src = getattr(src_value[0], 'url', None) if src_value else None
+                    if not isinstance(src, str):
                         continue
                     path = item.abshref(src)
                     ff = self.oeb.manifest.hrefs.get(urlnormalize(path), None)

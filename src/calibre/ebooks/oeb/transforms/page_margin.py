@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
-import numbers
 from collections import Counter
 from typing import TYPE_CHECKING
 
@@ -12,7 +11,7 @@ from calibre.ebooks.oeb.base import XPath, barename
 if TYPE_CHECKING:
     from optparse import Values
 
-    from css_parser.css import CSSStyleDeclaration
+    from kgcss import DeclarationBlock
     from lxml.etree import _Element
 
     from calibre.ebooks.conversion.plumber import OptionValues
@@ -61,7 +60,7 @@ class RemoveFakeMargins:
         stylesheet = None
         self.levels: dict[str, list[_Element]] = {}
         self.stats: dict[str, Counter[str]] = {}
-        self.selector_map: dict[str, CSSStyleDeclaration] = {}
+        self.selector_map: dict[str, DeclarationBlock] = {}
 
         stylesheet = self.oeb.manifest.main_stylesheet
         if stylesheet is None:
@@ -69,13 +68,13 @@ class RemoveFakeMargins:
 
         self.log('Removing fake margins...')
 
-        from css_parser.css import CSSRule, CSSStyleSheet
+        from kgcss import StyleRule, Stylesheet
 
         sheet = stylesheet.data
-        assert isinstance(sheet, CSSStyleSheet)  # main_stylesheet has a media type in OEB_STYLES
+        assert isinstance(sheet, Stylesheet)  # main_stylesheet has a media type in OEB_STYLES
 
-        for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-            self.selector_map[rule.selectorList.selectorText] = rule.style
+        for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+            self.selector_map[rule.selector_text] = rule.style
 
         self.find_levels()
 
@@ -85,19 +84,14 @@ class RemoveFakeMargins:
             except NegativeTextIndent:
                 self.log.debug(f'Negative text indent detected at level  {level}, ignoring this level')
 
-    def get_margins(self, elem: _Element) -> tuple[str, str, CSSStyleDeclaration | None]:
+    def get_margins(self, elem: _Element) -> tuple[str, str, DeclarationBlock | None]:
         cls = elem.get('class', None)
         if cls:
             style = self.selector_map.get('.' + cls, None)
             if style:
-                try:
-                    ti = style['text-indent']
-                except Exception:
-                    pass
-                else:
-                    if (hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0):
-                        raise NegativeTextIndent()
-                return style.marginLeft, style.marginRight, style
+                if style.get_value('text-indent').startswith('-'):
+                    raise NegativeTextIndent()
+                return style.get_value('margin-left'), style.get_value('margin-right'), style
         return '', '', None
 
     def process_level(self, level: str) -> None:
@@ -130,10 +124,10 @@ class RemoveFakeMargins:
                 # style is None only when the margins are '', which are never removed
                 if remove_left and lm == mcl:
                     assert style is not None
-                    style.removeProperty('margin-left')
+                    style.remove('margin-left')
                 if remove_right and rm == mcr:
                     assert style is not None
-                    style.removeProperty('margin-right')
+                    style.remove('margin-right')
 
     def find_levels(self) -> None:
 

@@ -15,7 +15,6 @@ from kgcss import CSS_WIDE_KEYWORDS, parse_font_family, serialize_font_family
 from lxml import etree
 
 from calibre import as_unicode
-from calibre.ebooks.css_transform_rules import all_properties
 from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalize_shorthand
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
@@ -165,6 +164,14 @@ class Specificity(NamedTuple):
 def specificity(rule_index: int, selector: Selector, is_style: int = 0) -> Specificity:
     s = selector.specificity
     return Specificity(is_style, s[1], s[2], s[3], rule_index)
+
+
+def all_properties(decl: CSSStyleDeclaration) -> Iterator[Property]:
+    "Every declaration of a css_parser declaration block, including the ones that later declarations override"
+    for item in decl.seq:
+        p = item.value
+        if isinstance(p, Property):
+            yield p
 
 
 def iterdeclaration(decl: CSSStyleDeclaration) -> Iterator[Property]:

@@ -10,7 +10,7 @@ from functools import partial
 from typing import TYPE_CHECKING
 from urllib.parse import urldefrag
 
-from css_parser import replaceUrls
+from kgcss import Stylesheet, replace_urls
 from lxml import etree, html
 
 from calibre import prepare_string_for_xml
@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, 
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.localization import _
 from calibre.utils.logging import default_log
-from polyglot.builtins import as_unicode
 
 if TYPE_CHECKING:
     from optparse import Values
@@ -162,9 +161,10 @@ class OEB2HTML:
     def get_css(self, oeb_book: OEBBook) -> str:
         css = ''
         for item in oeb_book.manifest:
-            if hasattr(item.data, 'cssText'):
-                replaceUrls(item.data, partial(self.rewrite_link, page=item))
-                css += as_unicode(item.data.cssText) + '\n\n'
+            sheet = item.data
+            if isinstance(sheet, Stylesheet):
+                replace_urls(sheet, partial(self.rewrite_link, page=item))
+                css += sheet.css_text + '\n\n'
         return css
 
     def prepare_string_for_html(self, raw: str) -> str:

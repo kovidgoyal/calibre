@@ -9,17 +9,7 @@ from typing import TYPE_CHECKING
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator, Sequence
-
-    from css_parser.css import CSSStyleRule, CSSStyleSheet
-
-
-def rules(stylesheets: Iterable[CSSStyleSheet]) -> Iterator[CSSStyleRule]:
-    for s in stylesheets:
-        if hasattr(s, 'cssText'):
-            for r in s:
-                if r.type == r.STYLE_RULE:
-                    yield r
+    from collections.abc import Sequence
 
 
 def simple_container_xml(opf_path: str, extra_entries: str = '') -> str:

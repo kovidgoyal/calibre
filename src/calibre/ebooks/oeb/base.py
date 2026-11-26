@@ -16,6 +16,8 @@ from operator import attrgetter
 from typing import TYPE_CHECKING, Literal, Never, Self, cast, overload
 from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
+from kgcss import RuleType, Stylesheet, parse_stylesheet, replace_urls_in_text
+from kgcss import resolve_imports as resolve_css_imports
 from lxml import etree, html
 
 from calibre import as_unicode, force_unicode, get_types_map
@@ -24,7 +26,6 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 from calibre.ebooks.oeb.parse_utils import XHTML, XHTML_NS, NotHTML, barename, is_element_list, is_str_list, namespace, parse_html
 from calibre.translations.dynamic import translate
-from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import _, __, is_rtl_lang
@@ -37,14 +38,13 @@ if TYPE_CHECKING:
     from optparse import Values
     from typing import Protocol
 
-    from css_parser.css import CSSStyleSheet
-
     from calibre.ebooks.oeb.stylizer import StylizerRules
     from calibre.ebooks.oeb.transforms.flatcss import EmbedFontsCSSRules
     from calibre.utils.logging import Log
 
     class HasCSSText(Protocol):
-        # Any css_parser object (stylesheet, rule, declaration, value, ...)
+        # Any css_parser object (stylesheet, rule, declaration, value, ...),
+        # used by Edit book until it is ported to kgcss
         @property
         def cssText(self) -> str | bytes: ...
 
@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     # The result of evaluating an XPath expression. List entries are tuples only for the namespace:: axis
     type XPathResult = bool | float | str | list[etree._Element | str | tuple[str, str]]
     # The content of a manifest item, see Manifest.Item.data
-    type ItemData = etree._Element | CSSStyleSheet | str | bytes
+    type ItemData = etree._Element | Stylesheet | str | bytes
     type NSRMap = Mapping[str, str | None]
 
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
@@ -384,11 +384,6 @@ def rewrite_links(root: etree._Element, link_repl_func: Callable[[str], str | No
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     """
-    from css_parser import CSSParser, log, replaceUrls
-
-    log.setLevel(logging.WARNING)
-    log.raiseExceptions = False
-
     if resolve_base_href:
         _resolve_base_href(root)
     for el, attrib, link, pos in iterlinks(root, find_links_in_css=False):
@@ -416,7 +411,11 @@ def rewrite_links(root: etree._Element, link_repl_func: Callable[[str], str | No
                 new = cur[:pos] + new_link + cur[pos + len(link) :]
                 el.attrib[attrib] = new
 
-    parser = CSSParser(raiseExceptions=False, log=_css_logger, fetcher=lambda x: (None, ''))
+    def css_repl(url: str) -> str:
+        # Removing a link has no meaning in CSS, keep it
+        ans = link_repl_func(url)
+        return url if ans is None else ans
+
     for el in root.iter(etree.Element):
         try:
             tag = el.tag
@@ -424,21 +423,11 @@ def rewrite_links(root: etree._Element, link_repl_func: Callable[[str], str | No
             continue
 
         if tag in (XHTML('style'), SVG('style')) and el.text and (_css_url_re.search(el.text) is not None or '@import' in el.text):
-            stylesheet = parser.parseString(el.text, validate=False)
-            replaceUrls(stylesheet, link_repl_func)
-            repl = css_text(stylesheet)
-            el.text = '\n' + clean_xml_chars(repl) + '\n'
+            el.text = replace_urls_in_text(el.text, css_repl)
 
         text = el.get('style')
         if text and _css_url_re.search(text) is not None:
-            try:
-                stext = parser.parseStyle(text, validate=False)
-            except Exception:
-                # Parsing errors are raised by css_parser
-                continue
-            replaceUrls(stext, link_repl_func)
-            repl = css_text(stext).replace('\n', ' ').replace('\r', ' ')
-            el.set('style', repl)
+            el.set('style', replace_urls_in_text(text, css_repl, style_attribute=True))
 
 
 # Attributes whose values are space separated lists of ids of elements in the
@@ -606,7 +595,7 @@ def escape_cdata(root: etree._Element) -> None:
             elem.text = etree.CDATA(elem.text.replace(']]>', r'\]\]\>'))
 
 
-def serialize(data: etree._Element | str | bytes | HasCSSText | None, media_type: str, pretty_print: bool = False) -> bytes:
+def serialize(data: etree._Element | Stylesheet | str | bytes | HasCSSText | None, media_type: str, pretty_print: bool = False) -> bytes:
     if isinstance(data, etree._Element):
         is_oeb_doc = media_type in OEB_DOCS
         if is_oeb_doc:
@@ -620,7 +609,9 @@ def serialize(data: etree._Element | str | bytes | HasCSSText | None, media_type
         return ans
     if isinstance(data, str):
         return data.encode('utf-8')
-    if hasattr(data, 'cssText'):
+    if isinstance(data, Stylesheet):
+        return data.encode() + b'\n'
+    if hasattr(data, 'cssText'):  # a css_parser sheet from Edit book, until it is ported to kgcss
         from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
 
         setup_css_parser_serialization()
@@ -1182,7 +1173,7 @@ class Manifest:
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
             self.fallback = fallback
-            self.override_css_fetch: Callable[[str], tuple[str | None, str | bytes | None]] | None = None
+            self.override_css_fetch: Callable[[str], tuple[str | None, str | bytes] | None] | None = None
             self.resolve_css_imports = True
             self.spine_position: int | None = None
             self.linear: bool | str | bytes = True
@@ -1239,39 +1230,28 @@ class Manifest:
 
             return self._parse_xhtml(convert_markdown(self.oeb.decode(data), title=title))
 
-        def _parse_css(self, data: str | bytes) -> CSSStyleSheet:
-            from css_parser import CSSParser, log, resolveImports
-            from css_parser.css import CSSRule
-
-            log.setLevel(logging.WARNING)
-            log.raiseExceptions = False
+        def _parse_css(self, data: str | bytes) -> Stylesheet:
             self.oeb.log.debug('Parsing', self.href, '...')
-            data = self.oeb.decode(data)
-            data = self.oeb.css_preprocessor(data, add_namespace=False)
-            parser = CSSParser(loglevel=logging.WARNING, fetcher=self.override_css_fetch or self._fetch_css, log=_css_logger)
-            data = parser.parseString(data, href=self.href, validate=False)
+            text = self.oeb.css_preprocessor(self.oeb.decode(data), add_namespace=False)
+            sheet = parse_stylesheet(text, href=self.href, log=_css_logger, fetcher=self.override_css_fetch or self._fetch_css)
             if self.resolve_css_imports:
-                data = resolveImports(data)
-            for rule in tuple(data.cssRules.rulesOfType(CSSRule.PAGE_RULE)):
-                data.cssRules.remove(rule)
-            return data
+                sheet = resolve_css_imports(sheet)
+            for rule in tuple(sheet.rules.of_type(RuleType.PAGE)):
+                sheet.delete_rule(rule)
+            return sheet
 
-        def _fetch_css(self, path: str) -> tuple[str | None, str | bytes | None]:
+        def _fetch_css(self, path: str) -> tuple[str | None, str] | None:
             hrefs = self.oeb.manifest.hrefs
             if path not in hrefs:
                 self.oeb.logger.warn(f'CSS import of missing file {path!r}')
-                return None, None
+                return None
             item = hrefs[path]
             if item.media_type not in OEB_STYLES:
                 self.oeb.logger.warn(f'CSS import of non-CSS file {path!r}')
-                return None, None
-            from css_parser.css import CSSStyleSheet
-
+                return None
             sheet = item.data
-            assert isinstance(sheet, CSSStyleSheet)  # item.media_type is in OEB_STYLES
-            data = sheet.cssText
-            enc = None if isinstance(data, str) else 'utf-8'
-            return enc, data
+            assert isinstance(sheet, Stylesheet)  # item.media_type is in OEB_STYLES
+            return None, sheet.css_text
 
         # }}}
 
@@ -1290,8 +1270,8 @@ class Manifest:
               convert and return as an lxml.etree element in the XHTML
               namespace.
             - XML content is parsed and returned as an lxml.etree element.
-            - CSS and CSS-variant content is parsed and returned as a css_parser
-              CSS DOM stylesheet.
+            - CSS and CSS-variant content is parsed and returned as a kgcss
+              Stylesheet.
             - All other content is returned as a :class:`str` or :class:`bytes`
               object with no special parsing.
             """
@@ -1362,8 +1342,8 @@ class Manifest:
                 return xml2text(data, pretty_print=self.oeb.pretty_print)
             if isinstance(data, str):
                 return data
-            if data is not None and not isinstance(data, bytes) and hasattr(data, 'cssText'):
-                return css_text(data)
+            if isinstance(data, Stylesheet):
+                return data.css_text
             return str(data)
 
         @property

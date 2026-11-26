@@ -133,10 +133,9 @@ class HTMLInput(InputFormatPlugin):
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath: str, basedir: str, opts: Values, log: Log, mi: Metadata) -> OEBBook:
-        import logging
         import uuid
 
-        import css_parser
+        from kgcss import Stylesheet, replace_urls
         from lxml import etree
 
         from calibre import guess_type
@@ -148,7 +147,6 @@ class HTMLInput(InputFormatPlugin):
         from calibre.utils.localization import canonicalize_lang
 
         self.opts = opts
-        css_parser.log.setLevel(logging.WARNING)
         self.OEB_STYLES = OEB_STYLES
         # reader is unused when populate is False
         oeb = create_oebbook(log, None, opts, self, encoding=opts.input_encoding, populate=False)  # ty: ignore[invalid-argument-type]
@@ -230,7 +228,9 @@ class HTMLInput(InputFormatPlugin):
 
         while self.stylesheets_to_process:
             sheet = self.stylesheets_to_process.pop()
-            css_parser.replaceUrls(sheet.data, partial(self.resource_adder, base=sheet.html_input_dirpath))
+            data = sheet.data
+            assert isinstance(data, Stylesheet)  # only stylesheets are added to stylesheets_to_process
+            replace_urls(data, partial(self.css_resource_adder, base=sheet.html_input_dirpath))
         for item in oeb.manifest:
             if item.media_type in self.OEB_STYLES:
                 item.resolve_css_imports = True
@@ -305,6 +305,11 @@ class HTMLInput(InputFormatPlugin):
                     self.log.warn(f'Not adding {q} as it is outside the document root: {self.root_dir_of_input}')
                 return None, None
         return link, frag
+
+    def css_resource_adder(self, link_: str, base: str | None = None) -> str:
+        # Links that resource_adder() ignores are left as they are in CSS
+        ans = self.resource_adder(link_, base)
+        return link_ if ans is None else ans
 
     def resource_adder(self, link_: str, base: str | None = None) -> str | None:
         from urllib.parse import quote

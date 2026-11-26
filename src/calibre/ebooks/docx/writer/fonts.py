@@ -5,6 +5,8 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
+from kgcss import Stylesheet
+
 from calibre.ebooks.oeb.base import OEB_STYLES
 from calibre.ebooks.oeb.transforms.subset import find_font_face_rules
 
@@ -49,7 +51,7 @@ class FontsManager:
 
         embedded_fonts = []
         for item in self.oeb.manifest:
-            if item.media_type in OEB_STYLES and hasattr(item.data, 'cssRules'):
+            if item.media_type in OEB_STYLES and isinstance(item.data, Stylesheet):
                 embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
         num = 0

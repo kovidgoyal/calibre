@@ -6,18 +6,18 @@ from collections import defaultdict
 from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
-from css_parser.css import CSSStyleSheet
-from kgcss import parse_font_family
+from kgcss import FontFaceRule, SelectorError, StyleRule, Stylesheet, parse_font_family
+from kgcss.selectors import ClassSelector
 from lxml import etree
 
-from calibre.ebooks.oeb.base import css_text, urlnormalize
+from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.subset import subset
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from optparse import Values
     from typing import TypedDict
 
-    from css_parser.css import CSSFontFaceRule, CSSStyleRule
     from lxml.etree import _Element
 
     from calibre.ebooks.conversion.plumber import OptionValues
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
             'item': Manifest.Item,
             'weight': int,
             'width': int,
-            'rule': CSSFontFaceRule,
+            'rule': FontFaceRule,
             'chars': set[str],
         },
         total=False,
@@ -65,7 +65,7 @@ if TYPE_CHECKING:
 font_properties = ('font-family', 'src', 'font-weight', 'font-stretch', 'font-style', 'text-transform')
 
 
-def get_font_properties(rule: CSSStyleRule | CSSFontFaceRule, default: str | None = None) -> FontProps:
+def get_font_properties(rule: StyleRule | FontFaceRule, default: str | None = None) -> FontProps:
     """
     Given a CSS rule, extract normalized font properties from
     it. Note that shorthand font property should already have been expanded
@@ -74,16 +74,18 @@ def get_font_properties(rule: CSSStyleRule | CSSFontFaceRule, default: str | Non
     props: FontProps = {}
     s = rule.style
     for q in font_properties:
-        g = 'uri' if q == 'src' else 'value'
-        try:
-            val = s.getProperty(q).propertyValue[0]
-            val = getattr(val, g)
+        val: object = None
+        value = s.get_parsed_value(q)
+        if value:
             if q == 'font-family':
-                val = parse_font_family(css_text(s.getProperty(q).propertyValue))
+                val = parse_font_family(value.css_text)
                 if val and val[0] == 'inherit':
                     val = None
-        except IndexError, KeyError, AttributeError, TypeError, ValueError:
-            val = None if q in {'src', 'font-family'} else default
+            else:
+                # The URL of url() for src, the keyword or number for the others
+                val = getattr(value[0], 'url' if q == 'src' else 'value', None)
+        if val is None and q not in {'src', 'font-family'}:
+            val = default
         if q in {'font-weight', 'font-stretch', 'font-style'}:
             val = str(val).lower() if (val or val == 0) else val
             if val == 'inherit':
@@ -114,43 +116,74 @@ def get_font_properties(rule: CSSStyleRule | CSSFontFaceRule, default: str | Non
     return props
 
 
-def find_font_face_rules(sheet: Manifest.Item | CSSStyleSheet, oeb: OEBBook) -> list[FontFaceInfo]:
+def font_face_rule_info(rule: FontFaceRule, oeb: OEBBook, abshref: Callable[[str], str] | None = None) -> FontFaceInfo | None:
+    """
+    The relevant info from an @font-face rule, or None if it does not refer to
+    a font in the book. abshref() makes the URL of the font relative to the
+    root of the book, it is used as it is without it.
+    """
+    # with default='normal' the weight, style and stretch are never None
+    props = cast('FontFaceInfo', get_font_properties(rule, default='normal'))
+    if not props['font-family'] or not props['src']:
+        return None
+    path = props['src'] if abshref is None else abshref(props['src'])
+    ff = oeb.manifest.hrefs.get(urlnormalize(path), None)
+    if not ff:
+        return None
+    props['item'] = ff
+    if props['font-weight'] in {'bolder', 'lighter'}:
+        props['font-weight'] = '400'
+    props['weight'] = int(props['font-weight'])
+    props['rule'] = rule
+    props['chars'] = set()
+    return props
+
+
+def find_font_face_rules(sheet: Manifest.Item | Stylesheet, oeb: OEBBook) -> list[FontFaceInfo]:
     """
     Find all @font-face rules in the given sheet and extract the relevant info from them.
-    sheet can be either a ManifestItem or a CSSStyleSheet.
+    sheet can be either a ManifestItem or a Stylesheet.
     """
-    ans: list[FontFaceInfo] = []
-    if isinstance(sheet, CSSStyleSheet):
-        rules = sheet.cssRules
+    if isinstance(sheet, Stylesheet):
+        rules, abshref = sheet.rules, None
     else:
         data = sheet.data
-        assert isinstance(data, CSSStyleSheet)  # only called for stylesheet items
-        rules = data.cssRules
-
-    for i, rule in enumerate(rules):
-        if rule.type != rule.FONT_FACE_RULE:
-            continue
-        # with default='normal' the weight, style and stretch are never None
-        props = cast('FontFaceInfo', get_font_properties(rule, default='normal'))
-        if not props['font-family'] or not props['src']:
-            continue
-
-        try:
-            path = sheet.abshref(props['src'])
-        except AttributeError:
-            path = props['src']
-        ff = oeb.manifest.hrefs.get(urlnormalize(path), None)
-        if not ff:
-            continue
-        props['item'] = ff
-        if props['font-weight'] in {'bolder', 'lighter'}:
-            props['font-weight'] = '400'
-        props['weight'] = int(props['font-weight'])
-        props['rule'] = rule
-        props['chars'] = set()
-        ans.append(props)
-
+        assert isinstance(data, Stylesheet)  # only called for stylesheet items
+        rules, abshref = data.rules, sheet.abshref
+    ans: list[FontFaceInfo] = []
+    for rule in rules:
+        if isinstance(rule, FontFaceRule) and (info := font_face_rule_info(rule, oeb, abshref)) is not None:
+            ans.append(info)
     return ans
+
+
+def class_font_styles(oeb: OEBBook) -> dict[str, FontStyle]:
+    """
+    Extract all font related style information from all stylesheets into a
+    dict mapping classes to font properties specified by that class. All
+    the heavy lifting has already been done by the CSS flattening code.
+    """
+    rules: defaultdict[str, FontStyle] = defaultdict(dict)  # ty: ignore[no-matching-overload] FontStyle is total=False so {} is valid
+    for item in oeb.manifest:
+        data = item.data
+        if not isinstance(data, Stylesheet):
+            continue
+        for rule in (x for x in data.rules if isinstance(x, StyleRule)):
+            props = cast('FontStyle', {k: v for k, v in get_font_properties(rule).items() if v})  # None values removed
+            if not props:
+                continue
+            for selector in rule.selectors:
+                try:
+                    first = next(selector.walk(), None)
+                except SelectorError:
+                    continue
+                if isinstance(first, ClassSelector):
+                    # The rules made by the CSS flattening code are for one
+                    # class. We don't care about pseudo-selectors as the
+                    # worst that can happen is some extra characters will
+                    # remain in the font
+                    rules[first.name].update(props)
+    return dict(rules)
 
 
 def elem_style(style_rules: dict[str, FontStyle], cls: str, inherited_style: FontStyle) -> FontStyle:
@@ -201,7 +234,10 @@ class SubsetFonts:
             assert isinstance(data, (etree._Element, str, bytes))
             totals[1] += len(data)
             self.oeb.manifest.remove(font['item'])
-            font['rule'].parentStyleSheet.deleteRule(font['rule'])
+            rule = font['rule']
+            sheet = rule.parent_style_sheet  # find_font_face_rules() only finds top level rules
+            if sheet is not None:
+                sheet.delete_rule(rule)
 
         fonts: dict[str, FontFaceInfo] = {}
         for font in self.embedded_fonts:
@@ -251,39 +287,14 @@ class SubsetFonts:
         self.embedded_fonts: list[FontFaceInfo] = []
         for item in self.oeb.manifest:
             try:
-                if not hasattr(item.data, 'cssRules'):
+                if not isinstance(item.data, Stylesheet):
                     continue
             except FileNotFoundError:
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
     def find_style_rules(self) -> None:
-        """
-        Extract all font related style information from all stylesheets into a
-        dict mapping classes to font properties specified by that class. All
-        the heavy lifting has already been done by the CSS flattening code.
-        """
-        rules: defaultdict[str, FontStyle] = defaultdict(dict)  # ty: ignore[no-matching-overload] FontStyle is total=False so {} is valid
-        for item in self.oeb.manifest:
-            data = item.data
-            if not isinstance(data, CSSStyleSheet):
-                continue
-            for i, rule in enumerate(data.cssRules):
-                if rule.type != rule.STYLE_RULE:
-                    continue
-                props = cast('FontStyle', {k: v for k, v in get_font_properties(rule).items() if v})  # None values removed
-                if not props:
-                    continue
-                for sel in rule.selectorList:
-                    sel = sel.selectorText
-                    if sel and sel.startswith('.'):
-                        # We don't care about pseudo-selectors as the worst that
-                        # can happen is some extra characters will remain in
-                        # the font
-                        sel = sel.partition(':')[0]
-                        rules[sel[1:]].update(props)
-
-        self.style_rules = dict(rules)
+        self.style_rules = class_font_styles(self.oeb)
 
     def find_font_usage(self) -> None:
         for item in self.oeb.manifest:

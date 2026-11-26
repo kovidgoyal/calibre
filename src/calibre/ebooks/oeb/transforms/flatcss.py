@@ -10,15 +10,13 @@ import operator
 import re
 from collections import defaultdict
 from typing import TYPE_CHECKING, Self, cast
-from xml.dom import SyntaxErr
 
-import css_parser
-from css_parser.css import Property
+from kgcss import FontFaceRule, Property, Stylesheet, parse_rule, parse_stylesheet, replace_urls, serialize_identifier
 from lxml import etree
 
 from calibre import guess_type
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, SVG_NS, XHTML, XHTML_NS, XPath, barename, css_text, namespace
+from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, SVG_NS, XHTML, XHTML_NS, XPath, _css_logger, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
@@ -27,7 +25,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
     from optparse import Values
 
-    from css_parser.css import CSSRule, CSSStyleSheet
+    from kgcss import Rule as CSSRule
     from lxml.etree import _Element
 
     from calibre.ebooks.conversion.plumber import OptionValues
@@ -122,7 +120,7 @@ def FontMapper(sbase: float | None = None, dbase: float | None = None, dkey: Ite
 
 
 class EmbedFontsCSSRules:
-    def __init__(self, body_font_family: str | None, rules: list[CSSStyleSheet]) -> None:
+    def __init__(self, body_font_family: str | None, rules: list[CSSRule]) -> None:
         self.body_font_family, self.rules = body_font_family, rules
         self.href: str | None = None
 
@@ -131,9 +129,7 @@ class EmbedFontsCSSRules:
             return None
         if not self.href:
             iid, href = oeb.manifest.generate('page_styles', 'page_styles.css')
-            rules = [css_text(x) for x in self.rules]
-            rules = '\n\n'.join(rules)
-            sheet = css_parser.parseString(rules, validate=False)
+            sheet = parse_stylesheet('\n\n'.join(x.css_text for x in self.rules), log=_css_logger)
             self.href = oeb.manifest.add(iid, href, cast('str', guess_type(href)[0]), data=sheet).href
         return self.href
 
@@ -203,7 +199,9 @@ class CSSFlattener:
             # Make all links to resources absolute, as these sheets will be
             # consolidated into a single stylesheet at the root of the document
             if item.media_type in OEB_STYLES:
-                css_parser.replaceUrls(item.data, item.abshref, ignoreImportRules=True)
+                sheet = item.data
+                assert isinstance(sheet, Stylesheet)  # OEB_STYLES items are parsed into stylesheets
+                replace_urls(sheet, item.abshref, ignore_imports=True)
 
         self.body_font_family, self.embed_font_rules = self.get_embed_font_info(self.opts.embed_font_family)
         # Store for use in output plugins/transforms that generate content,
@@ -235,8 +233,8 @@ class CSSFlattener:
                         body_font_size=stylizer.body_font_size,
                     )
 
-    def get_embed_font_info(self, family: str | None, failure_critical: bool = True) -> tuple[str | None, list[CSSStyleSheet]]:
-        efi: list[CSSStyleSheet] = []
+    def get_embed_font_info(self, family: str | None, failure_critical: bool = True) -> tuple[str | None, list[CSSRule]]:
+        efi: list[CSSRule] = []
         body_font_family = None
         if not family:
             return body_font_family, efi
@@ -288,9 +286,7 @@ class CSSFlattener:
             for k in ('font-weight', 'font-style', 'font-stretch'):
                 if font[k] != 'normal':
                     cfont[k] = font[k]
-            rule = '@font-face {{ {} }}'.format('; '.join(f'{k}:{v}' for k, v in cfont.items()))
-            rule = css_parser.parseString(rule)
-            efi.append(rule)
+            efi.append(parse_rule('@font-face {{ {} }}'.format('; '.join(f'{k}:{v}' for k, v in cfont.items()))))
 
         return body_font_family, efi
 
@@ -462,13 +458,13 @@ class CSSFlattener:
         if 'color' in node.attrib:
             try:
                 cssdict['color'] = Property('color', node.attrib['color']).value
-            except ValueError, SyntaxErr:
+            except ValueError:
                 pass
             del node.attrib['color']
         if 'bgcolor' in node.attrib:
             try:
                 cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
-            except ValueError, SyntaxErr:
+            except ValueError:
                 pass
             del node.attrib['bgcolor']
         if tag == 'ol' and 'type' in node.attrib:
@@ -651,7 +647,7 @@ class CSSFlattener:
             if item.media_type in OEB_STYLES:
                 manifest.remove(item)
         id, href = manifest.generate('css', 'stylesheet.css')
-        sheet = css_parser.parseString(css, validate=False)
+        sheet = parse_stylesheet(css, log=_css_logger)
         if self.transform_css_rules:
             from calibre.ebooks.css_transform_rules import transform_sheet
 
@@ -661,25 +657,13 @@ class CSSFlattener:
         return href
 
     def collect_global_css(self) -> dict[Manifest.Item, str | None]:
-        def rules_in(sheets: Iterable[CSSStyleSheet]) -> Iterator[CSSRule]:
-            for s in sheets:
-                yield from s.cssRules
-
-        def unique_font_face_rules(*rules: CSSRule) -> Iterator[CSSRule]:
-            seen: set[tuple[str, str, str, str]] = set()
+        def unique_font_face_rules(*rules: FontFaceRule) -> Iterator[FontFaceRule]:
+            seen: set[tuple[str, ...]] = set()
             for rule in rules:
-                try:
-                    ff = rule.style.getPropertyValue('font-family')
-                    src = rule.style.getPropertyValue('src')
-                    w = rule.style.getPropertyValue('font-weight')
-                    s = rule.style.getPropertyValue('font-style')
-                except Exception:
+                key = tuple(rule.style.get_value(x) for x in ('font-family', 'src', 'font-weight', 'font-style'))
+                if key not in seen:
+                    seen.add(key)
                     yield rule
-                else:
-                    key = ff, src, w, s
-                    if key not in seen:
-                        seen.add(key)
-                        yield rule
 
         global_css: defaultdict[str, list[Manifest.Item]] = defaultdict(list)
         for item in self.items:
@@ -691,7 +675,8 @@ class CSSFlattener:
             items = sorted(stylizer.page_rule.items())
             css = ';\n'.join(f'{key}: {val}' for key, val in items)
             css = (f'@page {{\n{css}\n}}\n') if items else ''
-            rules = [css_text(r) for r in unique_font_face_rules(*stylizer.font_face_rules, *rules_in(self.embed_font_rules))]
+            embed_font_rules = (r for r in self.embed_font_rules if isinstance(r, FontFaceRule))
+            rules = [r.css_text for r in unique_font_face_rules(*stylizer.font_face_rules, *embed_font_rules)]
             raw = '\n\n'.join(rules)
             css += '\n\n' + raw
             global_css[css].append(item)
@@ -702,7 +687,7 @@ class CSSFlattener:
             href = None
             if css.strip():
                 id_, href = manifest.generate('page_css', 'page_styles.css')
-                sheet = css_parser.parseString(css, validate=False)
+                sheet = parse_stylesheet(css, log=_css_logger)
                 if self.transform_css_rules:
                     from calibre.ebooks.css_transform_rules import transform_sheet
 
@@ -732,14 +717,15 @@ class CSSFlattener:
             body = html.find(XHTML('body'))
             assert body is not None  # parse_html() ensures there is a <body>
             self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = sorted(((key, val) for (val, key) in styles.items()), key=lambda x: numeric_sort_key(x[0]))
+        # The class names come from the source and may need escaping, such as 2x
+        items = sorted(((serialize_identifier(key), val) for (val, key) in styles.items()), key=lambda x: numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles, key=lambda x: {'hover': 1, 'active': 2}.get(x, 0))
         for psel in psels:
             styles = pseudo_styles[psel]
             if not styles:
                 continue
-            x = sorted(((k + ':' + psel, v) for v, k in styles.items()))
+            x = sorted(((serialize_identifier(k) + ':' + psel, v) for v, k in styles.items()))
             items.extend(x)
 
         css = ''.join(f'.{key} {{\n{val};\n}}\n\n' for key, val in items)

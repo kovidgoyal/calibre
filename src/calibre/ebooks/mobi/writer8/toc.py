@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_MIME, XHTML_NS, XPath, css_text, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_MIME, XHTML_NS, XPath, urlnormalize
 from calibre.utils.localization import __
 from calibre.utils.xml_parse import safe_xml_fromstring
 
@@ -91,7 +91,7 @@ class TOCAdder:
         s = getattr(oeb, 'store_embed_font_rules', None)
         if getattr(s, 'body_font_family', None):
             assert s is not None
-            css = [css_text(x) for x in s.rules] + [f'body {{ font-family: {s.body_font_family} }}']
+            css = [x.css_text for x in s.rules] + [f'body {{ font-family: {s.body_font_family} }}']
             embed_css = '\n\n'.join(css)
 
         root = safe_xml_fromstring(TEMPLATE.format(xhtmlns=XHTML_NS, title=self.title, embed_css=embed_css, extra_css=(opts.extra_css or '')))

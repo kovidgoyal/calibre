@@ -3,18 +3,10 @@
 
 from typing import TYPE_CHECKING, Any
 
+from kgcss import parse_stylesheet
 from qt.core import QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QMenu, QPushButton, QSize, QTextCursor, QVBoxLayout, QWidget, pyqtSignal
 
-from calibre.ebooks.css_transform_rules import (
-    ACTION_MAP,
-    MATCH_TYPE_MAP,
-    compile_rules,
-    export_rules,
-    import_rules,
-    safe_parser,
-    transform_sheet,
-    validate_rule,
-)
+from calibre.ebooks.css_transform_rules import ACTION_MAP, MATCH_TYPE_MAP, compile_rules, export_rules, import_rules, transform_sheet, validate_rule
 from calibre.gui2 import choose_files, choose_save_file, elided_text, error_dialog
 from calibre.gui2.tag_mapper import RuleEdit as RE
 from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase
@@ -265,12 +257,9 @@ class Tester(Dialog):  # {{{
         return self.css.toPlainText()
 
     def do_test(self) -> None:
-        decl = safe_parser().parseString(self.value)
-        transform_sheet(self.rules, decl)
-        css = decl.cssText
-        if isinstance(css, bytes):
-            css = css.decode('utf-8')
-        self.set_result(css)
+        sheet = parse_stylesheet(self.value)
+        transform_sheet(self.rules, sheet)
+        self.set_result(sheet.css_text)
 
     def set_result(self, css: str) -> None:
         self.result_widget.load_text(self.RESULTS + css, self.SYNTAX)

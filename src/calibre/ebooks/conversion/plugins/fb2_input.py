@@ -14,14 +14,58 @@ from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
+    import unittest
     from optparse import Values
 
+    from kgcss import Selector
     from lxml.etree import _Element
 
     from calibre.utils.logging import Log
 
 FB2NS = 'http://www.gribuser.ru/xml/fictionbook/2.0'
 FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
+
+
+def fb2_selector_to_html(selector: Selector) -> str:
+    # FB2 <style name="x"> elements become <span class="x"> in the HTML
+    from kgcss.selectors import AttributeSelector, TypeSelector
+
+    text = selector.text
+    edits: list[tuple[tuple[int, int], str]] = []
+    for x in selector.walk():
+        if isinstance(x, TypeSelector) and x.name == 'style':
+            edits.append((x.span, 'span'))
+        elif isinstance(x, AttributeSelector) and x.name == 'name' and x.operator == '=':
+            start, end = x.span
+            edits.append((x.span, re.sub(r'^\[\s*name', '[class', text[start:end])))
+    for (start, end), repl in sorted(edits, reverse=True):
+        text = text[:start] + repl + text[end:]
+    return text
+
+
+def fb2_css_to_html(css: str, log: Log | None = None) -> str:
+    "The CSS of an FB2 file, for the HTML made from it"
+    import logging
+
+    from kgcss import RuleType, SelectorError, StyleRule, parse_stylesheet
+
+    from calibre.ebooks.oeb.base import XHTML_NS
+
+    # Type selectors match only XHTML elements
+    sheet = parse_stylesheet(f'@namespace "{XHTML_NS}";\n' + css, log=logging.getLogger('calibre.css'))
+    for rule in (x for x in sheet.iter_rules(RuleType.STYLE) if isinstance(x, StyleRule)):
+        selectors: list[str] = []
+        for selector in rule.selectors:
+            try:
+                selectors.append(fb2_selector_to_html(selector))
+            except SelectorError as err:
+                if log is not None:
+                    log.warn(f'Ignoring invalid CSS selector in FB2 stylesheet: {selector.text!r} ({err})')
+        if selectors:
+            rule.selector_text = ', '.join(selectors)
+        else:
+            rule.selector_text = ':not(*)'  # matches nothing
+    return sheet.css_text
 
 
 class FB2Input(InputFormatPlugin):
@@ -53,7 +97,7 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.metadata.fb2 import ensure_namespace, get_fb2_data
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.metadata.opf2 import OPFCreator
-        from calibre.ebooks.oeb.base import XHTML_NS, XLINK_NS
+        from calibre.ebooks.oeb.base import XLINK_NS
         from calibre.utils.xml_parse import safe_xml_fromstring
 
         self.log = log
@@ -81,22 +125,8 @@ class FB2Input(InputFormatPlugin):
         for s in stylesheets:
             css += etree.tostring(s, encoding='unicode', method='text', with_tail=False) + '\n\n'
         if css:
-            import logging
-
-            import css_parser
-
-            parser = css_parser.CSSParser(fetcher=None, log=logging.getLogger('calibre.css'))
-
-            XHTML_CSS_NAMESPACE = f'@namespace "{XHTML_NS}";\n'
-            text = XHTML_CSS_NAMESPACE + css
             log.debug('Parsing stylesheet...')
-            stylesheet = parser.parseString(text)
-            stylesheet.namespaces['h'] = XHTML_NS
-            css = stylesheet.cssText
-            if isinstance(css, bytes):
-                css = css.decode('utf-8', 'replace')
-            css = css.replace('h|style', 'h|span')
-            css = re.sub(r'name\s*=\s*', 'class=', css)
+            css = fb2_css_to_html(css, log)
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
         with open(P('templates/fb2.xsl'), 'rb') as f:
@@ -197,3 +227,22 @@ class FB2Input(InputFormatPlugin):
                 else:
                     with open(fname, 'wb') as f:
                         f.write(data)
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    class TestFB2CSS(unittest.TestCase):
+        def test_fb2_css_to_html(self) -> None:
+            from calibre.ebooks.oeb.base import XHTML_NS
+
+            css = fb2_css_to_html('style[name="red"] { color: red }\np > style[ name = x ], .style #style p:not(style) { margin: 0 }\na[name~=x] { x: y }')
+            self.assertEqual(
+                css,
+                f'@namespace url({XHTML_NS});\n'
+                'span[class="red"] {\n  color: red;\n}\n'
+                'p > span[class=x], .style #style p:not(span) {\n  margin: 0;\n}\n'
+                'a[name~=x] {\n  x: y;\n}',
+            )
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestFB2CSS)

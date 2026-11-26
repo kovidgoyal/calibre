@@ -2,18 +2,15 @@
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import copy
-import logging
 from collections import defaultdict
 from functools import partial
 from io import BytesIO
 from struct import pack
 from typing import TYPE_CHECKING, NamedTuple, cast
 
-import css_parser
-from css_parser.css import CSSRule, CSSStyleSheet
+from kgcss import ImportRule, Stylesheet, parse_stylesheet, replace_urls, replace_urls_in_text
 from lxml import etree
 
-from calibre import force_unicode
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.utils import create_text_record, is_guide_ref_start, to_base
 from calibre.ebooks.mobi.writer8.index import ChunkIndex, GuideIndex, NCXIndex, NonLinearNCXIndex, SkelIndex
@@ -67,7 +64,7 @@ class KF8Writer:
         self.toc_adder = TOCAdder(oeb, opts)
         self.used_images: set[str] = set()
         self.resources = resources
-        self.flows: list[str | bytes | CSSStyleSheet] = [b'']  # First flow item is reserved for the text
+        self.flows: list[str | bytes | Stylesheet] = [b'']  # First flow item is reserved for the text
         self.records: list[bytes | None] = [None]  # Placeholder for zeroth record
 
         self.log('\tGenerating KF8 markup...')
@@ -93,23 +90,22 @@ class KF8Writer:
         """Duplicate data so that any changes we make to markup/CSS only
         affect KF8 output and not MOBI 6 output"""
         self._data_cache = {}
-        # Suppress css_parser logging output as it is duplicated anyway earlier
-        # in the pipeline
-        css_parser.log.setLevel(logging.CRITICAL)
         for item in self.oeb.manifest:
             if item.media_type in XML_DOCS:
                 self._data_cache[item.href] = copy.deepcopy(item.data)
             elif item.media_type in OEB_STYLES:
-                # I can't figure out how to make an efficient copy of the
-                # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
-                # exception)
                 sheet = item.data
-                assert isinstance(sheet, CSSStyleSheet)  # OEB_STYLES items are parsed into stylesheets
-                self._data_cache[item.href] = css_parser.parseString(sheet.cssText, validate=False)
+                assert isinstance(sheet, Stylesheet)  # OEB_STYLES items are parsed into stylesheets
+                self._data_cache[item.href] = sheet.copy()
 
-    def data(self, item: Manifest.Item) -> _Element | CSSStyleSheet:
+    def data(self, item: Manifest.Item) -> _Element:
         ans = self._data_cache.get(item.href, item.data)
-        assert isinstance(ans, (etree._Element, CSSStyleSheet))  # only called for (X)HTML, SVG and CSS items, all cached above
+        assert isinstance(ans, etree._Element)  # only called for (X)HTML and SVG items, all cached above
+        return ans
+
+    def sheet_data(self, item: Manifest.Item) -> Stylesheet:
+        ans = self._data_cache.get(item.href, item.data)
+        assert isinstance(ans, Stylesheet)  # only called for CSS items, all cached above
         return ans
 
     def cleanup_markup(self) -> None:
@@ -156,18 +152,12 @@ class KF8Writer:
 
                 for tag in XPath('//h:style')(root):
                     if tag.text:
-                        sheet = css_parser.parseString(tag.text, validate=False)
-                        replacer = partial(pointer, item)
-                        css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
-                        repl = sheet.cssText
-                        if isinstance(repl, bytes):
-                            repl = repl.decode('utf-8')
-                        tag.text = '\n' + repl + '\n'
+                        # pointer() leaves links to anything but images and fonts as they are
+                        tag.text = replace_urls_in_text(tag.text, partial(pointer, item))
 
             elif item.media_type in OEB_STYLES:
-                sheet = self.data(item)
-                replacer = partial(pointer, item)
-                css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
+                sheet = self.sheet_data(item)
+                replace_urls(sheet, partial(pointer, item), ignore_imports=True)
 
     def extract_css_into_flows(self) -> None:
         inlines = defaultdict(list)  # Ensure identical <style>s not repeated
@@ -176,16 +166,15 @@ class KF8Writer:
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
-                sheet = self.data(item)
-                assert isinstance(sheet, CSSStyleSheet)  # stylesheets are cached as parsed CSSStyleSheet objects in dup_data()
-                if not passthrough and not self.opts.expand_css and hasattr(item.data, 'cssText'):
+                sheet = self.sheet_data(item)
+                if not passthrough and not self.opts.expand_css:
                     condense_sheet(sheet)
                 sheets[item.href] = len(self.flows)
                 self.flows.append(sheet)
 
-        def fix_import_rules(sheet: CSSStyleSheet) -> bool:
+        def fix_import_rules(sheet: Stylesheet) -> bool:
             changed = False
-            for rule in sheet.cssRules.rulesOfType(CSSRule.IMPORT_RULE):
+            for rule in (x for x in sheet.rules if isinstance(x, ImportRule)):
                 if rule.href:
                     href = item.abshref(rule.href)
                     idx = sheets.get(href, None)
@@ -212,9 +201,9 @@ class KF8Writer:
                 if not raw or not raw.strip():
                     extract(tag)
                     continue
-                sheet = css_parser.parseString(raw, validate=False)
+                sheet = parse_stylesheet(raw)
                 if fix_import_rules(sheet):
-                    raw = force_unicode(sheet.cssText, 'utf-8')
+                    raw = sheet.css_text
 
                 repl = etree.Element(XHTML('link'), type='text/css', rel='stylesheet')
                 repl.tail = '\n'
@@ -230,14 +219,12 @@ class KF8Writer:
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
-                sheet = self.data(item)
-                assert isinstance(sheet, CSSStyleSheet)  # stylesheets are cached as parsed CSSStyleSheet objects in dup_data()
-                if hasattr(sheet, 'cssRules'):
-                    fix_import_rules(sheet)
+                sheet = self.sheet_data(item)
+                fix_import_rules(sheet)
 
         for i, sheet in enumerate(tuple(self.flows)):
-            if hasattr(sheet, 'cssText'):
-                self.flows[i] = force_unicode(cast('str | bytes', sheet.cssText), 'utf-8')
+            if isinstance(sheet, Stylesheet):
+                self.flows[i] = sheet.css_text
 
     def extract_svg_into_flows(self) -> None:
         images = {}
@@ -354,7 +341,7 @@ class KF8Writer:
         self.flows[0] = chunker.text
 
     def create_text_records(self) -> None:
-        encoded_flows: list[bytes] = [x.encode('utf-8') if isinstance(x, str) else x for x in self.flows]
+        encoded_flows: list[bytes] = [x if isinstance(x, bytes) else (x.css_text if isinstance(x, Stylesheet) else x).encode('utf-8') for x in self.flows]
         self.flows.clear()
         self.flows.extend(encoded_flows)
         text = b''.join(encoded_flows)
