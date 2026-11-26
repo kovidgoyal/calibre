@@ -113,8 +113,35 @@ INSERT INTO Bookmark VALUES
         self.assertEqual(sorted(str(n['text']) for n in bm.user_notes.values()), ['int false', 'text false'])
 
 
+class TestKoboCSS(unittest.TestCase):
+    def test_modify_stylesheet(self) -> None:
+        from kgcss import parse_stylesheet
+
+        from calibre.ebooks.oeb.polish.kepubify import check_if_css_needs_modification
+
+        driver = KOBOTOUCH(None)
+        extra_css = '@page { margin: 1em } p { widows: 1; orphans: 1 } .kobo { color: red }'
+        driver.extra_sheet, has_widows_orphans, has_atpage = check_if_css_needs_modification(extra_css)
+        self.assertEqual((has_widows_orphans, has_atpage), (True, True))
+        driver.extra_css_options = {'has_widows_orphans': has_widows_orphans, 'has_atpage': has_atpage}
+        sheets = [parse_stylesheet('@page { margin: 5pt } div { widows: 2; color: blue }') for i in range(2)]
+        for sheet in sheets:
+            self.assertTrue(driver._modify_stylesheet(sheet, '.epub'))
+            # The @page rules of the book are emptied, and so dropped when
+            # written, its widows and orphans are removed, and the extra rules
+            # are added, as copies (porting.md §6.10, §6.11)
+            self.assertEqual(
+                sheet.css_text,
+                'div {\n  color: blue;\n}\n@page {\n  margin: 1em;\n}\np {\n  widows: 1;\n  orphans: 1;\n}\n.kobo {\n  color: red;\n}',
+            )
+        assert driver.extra_sheet is not None
+        self.assertIsNot(sheets[0].rules[-1], sheets[1].rules[-1])
+        self.assertIs(driver.extra_sheet.rules[-1].parent_style_sheet, driver.extra_sheet)
+
+
 def find_tests() -> unittest.TestSuite:
-    return unittest.defaultTestLoader.loadTestsFromTestCase(TestKoboBooleans)
+    loader = unittest.defaultTestLoader
+    return unittest.TestSuite(loader.loadTestsFromTestCase(x) for x in (TestKoboBooleans, TestKoboCSS))
 
 
 if __name__ == '__main__':
