@@ -16,7 +16,7 @@ from operator import attrgetter
 from typing import TYPE_CHECKING, Literal, Never, Self, cast, overload
 from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
-from kgcss import RuleType, Stylesheet, parse_stylesheet, replace_urls_in_text
+from kgcss import RuleType, Selector, SelectorError, Stylesheet, parse_stylesheet, replace_urls_in_text
 from kgcss import compat as css_compat
 from kgcss import resolve_imports as resolve_css_imports
 from lxml import etree, html
@@ -220,6 +220,23 @@ self_closing_bad_tags = {
     'script',
     'style',
 }
+
+
+def single_class_name(selector: Selector, allow_pseudo: bool = False) -> str | None:
+    """The class name of a selector that is a single class selector, such as
+    .x, or with allow_pseudo also .x:hover or .x::before. None for anything
+    else, and for invalid selectors."""
+    from kgcss.selectors import ClassSelector, PseudoClass, PseudoElement
+
+    try:
+        parts = tuple(selector.walk())
+    except SelectorError:
+        return None
+    if not parts or not isinstance(parts[0], ClassSelector):
+        return None
+    if any(not (allow_pseudo and isinstance(p, (PseudoClass, PseudoElement))) for p in parts[1:]):
+        return None
+    return parts[0].name
 
 
 def as_string_type(pat: str | bytes, for_unicode: bool) -> str | bytes:

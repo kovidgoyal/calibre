@@ -262,6 +262,10 @@ class CascadeTest(BaseTest):
 
         s = get_stats('<p style="font-family: X; text-transform:uppercase">abc</p><b style="font-family: X; font-variant: small-caps">d\nef</b>')
         self.assertEqual(s.font_stats, {'XB.otf': set('defDEF'), 'X.otf': set('ABC')})
+        # Rules in @supports and the like are used, values with var() are
+        # not known, so the inherited font is used
+        s = get_stats('<style>@supports (display: grid) { p { font-family: X } } i { font-family: var(--f, X) }</style><p>ab<i>c</i></p>')
+        self.assertEqual(s.font_stats, {'X.otf': set('abc'), 'XB.otf': set()})
         # The content of ::before and ::after is counted
         s = get_stats('<style>p::before { content: "xy" } p::after { content: "z" counter(x) \'w\' }</style><p style="font-family: X">a</p>')
         self.assertEqual(s.font_stats, {'X.otf': set('xyazw'), 'XB.otf': set()})

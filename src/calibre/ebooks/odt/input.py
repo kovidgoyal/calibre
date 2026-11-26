@@ -7,8 +7,7 @@ Convert an ODT file into a Open Ebook
 import os
 from typing import IO, TYPE_CHECKING
 
-from kgcss import RuleType, SelectorError, StyleRule, parse_stylesheet
-from kgcss.selectors import ClassSelector
+from kgcss import RuleType, StyleRule, parse_stylesheet
 from lxml import etree
 from odf.draw import Frame as odFrame
 from odf.draw import Image as odImage
@@ -17,29 +16,17 @@ from odf.odf2xhtml import ODF2XHTML
 from odf.opendocument import load as odLoad
 
 from calibre import CurrentDir, walk
-from calibre.ebooks.oeb.base import _css_logger
+from calibre.ebooks.oeb.base import _css_logger, single_class_name
 from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
-    from kgcss import Selector
     from lxml.etree import _Element
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.logging import Log
     from calibre.utils.zipfile import ZipFile
-
-
-def single_class(selector: Selector) -> str | None:
-    "The class name if selector is just one class selector, such as .x"
-    try:
-        parts = tuple(selector.walk())
-    except SelectorError:
-        return None
-    if len(parts) == 1 and isinstance(parts[0], ClassSelector):
-        return parts[0].name
-    return None
 
 
 class Extract(ODF2XHTML):
@@ -102,7 +89,7 @@ class Extract(ODF2XHTML):
             return None
         for rule in self._parsed_css.rules.of_type(RuleType.STYLE):
             for sel in rule.selectors:
-                if single_class(sel) == cls:
+                if single_class_name(sel) == cls:
                     return rule
         return None
 
@@ -205,7 +192,7 @@ class Extract(ODF2XHTML):
         count = 0
         for r in sheet.rules.of_type(RuleType.STYLE):
             # Check if we have only class selectors for this rule
-            classes = [single_class(x) for x in r.selectors]
+            classes = [single_class_name(x) for x in r.selectors]
             if len(classes) > 1 and None not in classes:
                 # Replace all the class selectors with a single class selector
                 # This will be added to the class attribute of all elements

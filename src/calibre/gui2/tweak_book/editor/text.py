@@ -545,7 +545,8 @@ class TextEdit(PlainTextEdit):
             text = str(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
 
-            text = sort_sheet(current_container(), text).css_text
+            container = current_container()
+            text = container.stylesheet_text(sort_sheet(container, text))
             c.insertText(text)
             c.movePosition(QTextCursor.MoveOperation.Start)
             c.endEditBlock()

@@ -495,6 +495,16 @@ class BuildTest(unittest.TestCase):
         else:
             wpd.uninit()
 
+    def test_kgcss(self) -> None:
+        import kgcss
+        from kgcss import _kgcss  # the C extension
+        from lxml import etree
+
+        self.assertTrue(_kgcss)
+        sheet = kgcss.parse_stylesheet('p.x { color: red }')
+        root = etree.fromstring('<html><body><p class="x"/></body></html>')
+        self.assertEqual(len(tuple(kgcss.Select(root)(sheet.rules[0].selectors))), 1)
+
     @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
     def test_executables(self) -> None:
         from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, PDFTOTEXT

@@ -129,7 +129,7 @@ def change_font(container: Container, old_name: str, new_name: str | None = None
                 if style.text and style.get('type', 'text/css').lower() == 'text/css':
                     sheet = container.parse_stylesheet(style.text)
                     if change_font_in_sheet(container, sheet, old_name, new_name, name):
-                        style.text = sheet.css_text
+                        style.text = container.stylesheet_text(sheet)
                         container.dirty(name)
                         changed = True
             for elem in root.xpath('//*[@style]'):

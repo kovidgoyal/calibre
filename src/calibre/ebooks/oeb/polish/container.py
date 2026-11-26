@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 from kgcss import DeclarationBlock, SerializeOptions, Stylesheet, iter_urls, replace_urls
 from kgcss import compat as css_compat
+from kgcss import serialize as serialize_css
 from lxml import etree
 
 from calibre import CurrentDir, walk
@@ -274,6 +275,10 @@ class ContainerBase:  # {{{
     def parse_stylesheet(self, data: str | bytes | None, fname: str = '<string>') -> Stylesheet:
         "Parse CSS into a kgcss stylesheet. @import rules are not loaded."
         return parse_css(data, fname=fname, decode=self.decode, css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
+
+    def stylesheet_text(self, sheet: Stylesheet) -> str:
+        "The CSS of a stylesheet, written with :attr:`css_serialize_options`"
+        return serialize_css(sheet, self.css_serialize_options)
 
     def parse_style(self, data: str | bytes | None) -> DeclarationBlock:
         "Parse the contents of a style attribute into a kgcss declaration block."

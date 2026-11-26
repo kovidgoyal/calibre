@@ -19,3 +19,6 @@ useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
 
 UV_TOOL_BIN_DIR=/usr/local/bin uv tool install rapydscript-ng
+
+# There is no arch package for kgcss, the CSS library
+pip install --break-system-packages --no-deps kgcss

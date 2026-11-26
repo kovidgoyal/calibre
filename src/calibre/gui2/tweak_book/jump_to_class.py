@@ -43,7 +43,7 @@ def rule_matches_elem(rule: StyleRule, elem: _Element, select: Select[_Element],
             if class_name in {c.lower() for c in selector.class_names()} and select.matches(elem, selector):
                 return True
         except SelectorError:
-            pass
+            continue  # an invalid selector, which browsers ignore, matches nothing
     return False
 
 
@@ -73,7 +73,8 @@ def find_first_rule_that_matches_elem(
             if not rule.href:
                 continue
             sname = container.href_to_name(rule.href, current_file_name)
-            if sname:
+            # Imports of missing sheets are ignored, as browsers do
+            if sname and container.has_name(sname):
                 try:
                     isheet = container.parsed_object(sname)
                 except OSError:
@@ -112,6 +113,8 @@ def find_first_matching_rule(
             sname = container.href_to_name(tag.get('href'), html_file_name)
             if sname is None:
                 continue
+            if not container.has_name(sname):
+                continue  # a link to a missing sheet
             try:
                 sheet = container.parsed_object(sname)
             except OSError:

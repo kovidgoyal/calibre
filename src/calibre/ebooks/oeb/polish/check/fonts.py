@@ -3,7 +3,7 @@
 
 from typing import TYPE_CHECKING
 
-from kgcss import FontFaceRule, RuleType, StyleRule, Stylesheet, parse_font_family
+from kgcss import FontFaceRule, RuleType, StyleRule, Stylesheet, iter_urls, parse_font_family
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
@@ -79,7 +79,7 @@ class FontAliasing(BaseError):
                     if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_stylesheet(style.text)
                         if fix_sheet(sheet, self.css_name, self.font_name):
-                            style.text = sheet.css_text
+                            style.text = container.stylesheet_text(sheet)
                             pretty_script_or_style(container, style)
                             container.dirty(name)
                             changed = True
@@ -127,17 +127,16 @@ def check_fonts(container: Container) -> list[BaseError]:
 
     for name, sheet, line_offset in sheets:
         for rule in sheet.iter_rules(RuleType.FONT_FACE):
-            src = rule.style.get_parsed_value('src')
-            if src:
-                href = getattr(src[0], 'url', None)
-                if href is not None:
-                    fname = container.href_to_name(href, name)
-                    font_name = font_map.get(fname, None)
-                    if font_name is None:
-                        continue
-                    families = parse_font_family(rule.style.get_value('font-family'))
-                    if families:
-                        if families[0] != font_name:
-                            errors.append(FontAliasing(font_name, families[0], name, line_offset))
+            # The font file, local() fonts have no URL
+            href = next(iter_urls(rule), None)
+            if href is not None:
+                fname = container.href_to_name(href, name)
+                font_name = font_map.get(fname, None)
+                if font_name is None:
+                    continue
+                families = parse_font_family(rule.style.get_value('font-family'))
+                if families:
+                    if families[0] != font_name:
+                        errors.append(FontAliasing(font_name, families[0], name, line_offset))
 
     return errors

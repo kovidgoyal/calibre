@@ -8,6 +8,7 @@ from kgcss.compat import (
     CSSComment,
     CSSFontFaceRule,
     CSSImportRule,
+    CSSMarginRule,
     CSSMediaRule,
     CSSNamespaceRule,
     CSSPageRule,
@@ -30,6 +31,7 @@ __all__ = [
     'CSSComment',
     'CSSFontFaceRule',
     'CSSImportRule',
+    'CSSMarginRule',
     'CSSMediaRule',
     'CSSNamespaceRule',
     'CSSPageRule',
@@ -39,6 +41,7 @@ __all__ = [
     'CSSStyleRule',
     'CSSStyleSheet',
     'CSSUnknownRule',
+    'MarginRule',
     'MediaList',
     'Property',
     'PropertyValue',
@@ -46,3 +49,6 @@ __all__ = [
     'SelectorList',
     'Value',
 ]
+
+#: The name css_parser uses for @top-left and the other margin rules of @page
+MarginRule = CSSMarginRule

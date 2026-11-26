@@ -6,11 +6,10 @@ from collections import defaultdict
 from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
-from kgcss import FontFaceRule, RuleType, SelectorError, StyleRule, Stylesheet, parse_font_family
-from kgcss.selectors import ClassSelector
+from kgcss import FontFaceRule, RuleType, StyleRule, Stylesheet, iter_urls, parse_font_family
 from lxml import etree
 
-from calibre.ebooks.oeb.base import urlnormalize
+from calibre.ebooks.oeb.base import single_class_name, urlnormalize
 from calibre.utils.fonts.subset import subset
 
 if TYPE_CHECKING:
@@ -81,9 +80,13 @@ def get_font_properties(rule: StyleRule | FontFaceRule, default: str | None = No
                 val = parse_font_family(value.css_text)
                 if val and val[0] == 'inherit':
                     val = None
+            elif q == 'src':
+                # The font file, local() fonts have no URL
+                val = next(iter_urls(rule.style), None)
             else:
-                # The URL of url() for src, the keyword or number for the others
-                val = getattr(value[0], 'url' if q == 'src' else 'value', None)
+                # The keyword or number
+                first = value[0]
+                val = first.css_text if first.string_value is None else first.string_value
         if val is None and q not in {'src', 'font-family'}:
             val = default
         if q in {'font-weight', 'font-stretch', 'font-style'}:
@@ -173,16 +176,11 @@ def class_font_styles(oeb: OEBBook) -> dict[str, FontStyle]:
             if not props:
                 continue
             for selector in rule.selectors:
-                try:
-                    first = next(selector.walk(), None)
-                except SelectorError:
-                    continue
-                if isinstance(first, ClassSelector):
-                    # The rules made by the CSS flattening code are for one
-                    # class. We don't care about pseudo-selectors as the
-                    # worst that can happen is some extra characters will
-                    # remain in the font
-                    rules[first.name].update(props)
+                # The rules made by the CSS flattening code are for one class.
+                # We don't care about pseudo-selectors as the worst that can
+                # happen is some extra characters will remain in the font
+                if (cls := single_class_name(selector, allow_pseudo=True)) is not None:
+                    rules[cls].update(props)
     return dict(rules)
 
 

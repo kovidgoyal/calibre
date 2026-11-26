@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+import logging
 import operator
 from collections import OrderedDict
 from functools import partial
@@ -21,6 +22,10 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.polish.container import Container
 
     type SerializedRule = Mapping[str, str]
+
+
+#: Problems are logged with the other CSS problems, in the conversion log during conversions
+css_log = logging.getLogger('calibre.css')
 
 
 def compile_pat(pat: str) -> regex.Pattern:  # ty: ignore[invalid-type-form]
@@ -77,9 +82,10 @@ class StyleDeclaration:
         try:
             # Check the value before changing anything
             Property(prop.name, nval)
-        except ValueError:
+        except ValueError as err:
             # A value that would break the CSS around it, such as one with
             # a semi-colon, leave the property as it is
+            css_log.warning(f'Not changing the CSS property {prop.name} to {nval!r}, it is not valid: {err}')
             return
         if parent_prop is not None:
             self.expand_property(parent_prop)
