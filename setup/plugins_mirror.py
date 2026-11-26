@@ -252,6 +252,18 @@ def convert_node(fields, x, names=None, import_data=None):
             return x.right.value
     elif name == 'Attribute':
         return conv(getattr(conv(x.value), x.attr))
+    elif name == 'IfExp':
+        # Conditional expressions like: description = 'x' if _ES else 'y'
+        # The test usually depends on runtime state (such as the UI
+        # language) that cannot be evaluated statically, so use the else
+        # branch, which is conventionally the default, unless the test is
+        # a literal constant.
+        if x.test.__class__.__name__ == 'Constant':
+            return conv(x.body if x.test.value else x.orelse)
+        try:
+            return conv(x.orelse)
+        except TypeError, ValueError:
+            return conv(x.body)
     raise TypeError(f'Unknown datatype {x} for fields: {fields}')
 
 
@@ -905,6 +917,30 @@ class FullAnnotPlugin(FileTypePlugin):
         'minimum_calibre_version': (0, 9, 42),
     }
     assert parse_metadata(raw5, None, None) == vals5
+
+    # Test: conditional expressions with a runtime dependent test
+    raw6 = b'''\
+from calibre.customize import InterfaceActionBase
+from calibre.utils.localization import get_lang
+
+_ES = get_lang().startswith('es')
+
+class CondPlugin(InterfaceActionBase):
+    name = 'CondPlugin'
+    description = 'Descripcion' if _ES else 'Description'
+    author = 'Cond Author'
+    version = (1, 0, 0) if True else (2, 0, 0)
+    minimum_calibre_version = (5, 0, 0)
+    '''
+    vals6 = {
+        'name': 'CondPlugin',
+        'description': 'Description',
+        'supported_platforms': ['windows', 'osx', 'linux'],
+        'author': 'Cond Author',
+        'version': (1, 0, 0),
+        'minimum_calibre_version': (5, 0, 0),
+    }
+    assert parse_metadata(raw6, None, None) == vals6
 
 
 # }}}
