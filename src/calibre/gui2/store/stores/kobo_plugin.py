@@ -58,7 +58,7 @@ def search_kobo(query: bytes | str, max_results: int = 10, timeout: int = 60, wr
             break
         for img in select('img[data-testid=cover]', item):
             cover_url = img.get('src')
-            if cover_url.startswith('//'):
+            if cover_url and cover_url.startswith('//'):
                 cover_url = 'https:' + cover_url
             break
         else:

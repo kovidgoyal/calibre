@@ -51,15 +51,18 @@ def search(query: bytes | str, max_results: int = 10, timeout: int = 60, write_r
         counter -= 1
 
         s = SearchResult()
-        a = next(CSSSelect('a.link', li))
-        s.detail_item = absurl(a.get('href'))
+        href = next(CSSSelect('a.link', li)).get('href')
+        if not href:
+            continue
+        s.detail_item = absurl(href)
         s.title = etree.tostring(next(CSSSelect('span.title', li)), method='text', encoding='unicode').strip()
         try:
             s.author = etree.tostring(next(CSSSelect('span.subtitle', li)), method='text', encoding='unicode').strip()
         except StopIteration:
             s.author = ''
         for img in CSSSelect('img.cover-thumb', li):
-            s.cover_url = absurl(img.get('src'))
+            if src := img.get('src'):
+                s.cover_url = absurl(src)
             break
 
         # Get the formats and direct download links.
