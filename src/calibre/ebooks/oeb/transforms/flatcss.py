@@ -11,7 +11,7 @@ import re
 from collections import defaultdict
 from typing import TYPE_CHECKING, Self, cast
 
-from kgcss import FontFaceRule, Property, Stylesheet, parse_rule, parse_stylesheet, replace_urls, serialize_identifier
+from kgcss import FontFaceRule, Stylesheet, is_color, parse_rule, parse_stylesheet, replace_urls, serialize_identifier
 from lxml import etree
 
 from calibre import guess_type
@@ -117,6 +117,15 @@ def FontMapper(sbase: float | None = None, dbase: float | None = None, dkey: Ite
         return ScaleMapper(sbase, dbase)
     else:
         return NullMapper()
+
+
+def html_attribute_color(raw: str) -> str | None:
+    """The CSS color of the color or bgcolor attribute of an HTML element, None
+    if it is not a color. As in browsers, hex digits without # are accepted."""
+    val = raw.strip()
+    if not is_color(val) and re.fullmatch(r'[0-9a-fA-F]{3}|[0-9a-fA-F]{6}', val) is not None:
+        val = '#' + val
+    return val if is_color(val) else None
 
 
 class EmbedFontsCSSRules:
@@ -456,16 +465,12 @@ class CSSFlattener:
                 cssdict['font-family'] = node.attrib['face']
                 del node.attrib['face']
         if 'color' in node.attrib:
-            try:
-                cssdict['color'] = Property('color', node.attrib['color']).value
-            except ValueError:
-                pass
+            if (color := html_attribute_color(node.attrib['color'])) is not None:
+                cssdict['color'] = color
             del node.attrib['color']
         if 'bgcolor' in node.attrib:
-            try:
-                cssdict['background-color'] = Property('background-color', node.attrib['bgcolor']).value
-            except ValueError:
-                pass
+            if (color := html_attribute_color(node.attrib['bgcolor'])) is not None:
+                cssdict['background-color'] = color
             del node.attrib['bgcolor']
         if tag == 'ol' and 'type' in node.attrib:
             del node.attrib['type']

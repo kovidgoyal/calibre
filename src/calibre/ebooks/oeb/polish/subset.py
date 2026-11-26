@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 
 
 def remove_font_face_rules(container: Container, sheet: Stylesheet, remove_names: AbstractContainer[str | None], base: str) -> bool:
-    from kgcss import RuleType
+    from kgcss import RuleType, iter_urls
 
     from calibre.ebooks.oeb.polish.css import delete_rule
 
     changed = False
     for rule in tuple(sheet.iter_rules(RuleType.FONT_FACE)):
-        src = rule.style.get_parsed_value('src')
-        uri = getattr(src[0], 'url', None) if src else None
+        # The font file, local() fonts have no URL
+        uri = next(iter_urls(rule), None)
         if uri is None:
             continue
         name = container.href_to_name(uri, base)
@@ -106,7 +106,7 @@ def subset_all_fonts(container: Container, font_stats: Mapping[str, set[str]], r
                     if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_stylesheet(style.text, name)
                         if remove_font_face_rules(container, sheet, remove, name):
-                            style.text = sheet.css_text
+                            style.text = container.stylesheet_text(sheet)
                             container.dirty(name)
     if total_old > 0:
         report(_('Reduced total font size to %.1f%% of original') % (total_new / total_old * 100))

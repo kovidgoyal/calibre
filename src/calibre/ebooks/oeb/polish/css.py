@@ -106,7 +106,9 @@ def merge_identical_selectors(sheet: Stylesheet) -> int:
     for rules in rule_lists(sheet):
         selector_map: defaultdict[str, list[StyleRule]] = defaultdict(list)
         for rule in rules.of_type(RuleType.STYLE):
-            selector_map[rule.selector_text].append(rule)
+            # Merging moves declarations only, not nested rules
+            if not rule.rules:
+                selector_map[rule.selector_text].append(rule)
         for rule_group in selector_map.values():
             for rule in rule_group[1:]:
                 merge_declarations(rule_group[0].style, rule.style)
@@ -125,7 +127,9 @@ def merge_identical_properties(sheet: Stylesheet) -> int:
     for rules in rule_lists(sheet):
         properties_map: defaultdict[tuple[tuple[str, str, str], ...], list[StyleRule]] = defaultdict(list)
         for rule in rules.of_type(RuleType.STYLE):
-            properties_map[declaration_key(rule.style)].append(rule)
+            # Merging moves selectors only, not nested rules
+            if not rule.rules:
+                properties_map[declaration_key(rule.style)].append(rule)
         for rule_group in properties_map.values():
             if len(rule_group) < 2:
                 continue
@@ -224,16 +228,17 @@ def remove_unused_css(
         for style in root.xpath('//*[local-name()="style"]'):
             if style.get('type', 'text/css') == 'text/css' and style.text:
                 sheet = container.parse_stylesheet(style.text)
+                changed = False
                 if merge_rules:
                     num = merge_identical_selectors(sheet)
                     if num:
                         num_merged += num
-                        container.dirty(name)
+                        changed = True
                 if merge_rules_with_identical_properties:
                     num = merge_identical_properties(sheet)
                     if num:
                         num_rules_merged += num
-                        container.dirty(name)
+                        changed = True
                 if remove_unused_classes:
                     used_classes |= {icu_lower(x) for x in classes_in_sheet(sheet)}
                 imports = get_imported_sheets(name, container, sheets, sheet=sheet)
@@ -245,7 +250,9 @@ def remove_unused_css(
                 rules = tuple(sheet.iter_rules(RuleType.STYLE))
                 if mark_used_selectors(rules, container.log, select, used).any_unused:
                     remove_unused_selectors_and_rules(rules, removal_stats, used)
-                    style.text = sheet.css_text
+                    changed = True
+                if changed:
+                    style.text = container.stylesheet_text(sheet)
                     pretty_script_or_style(container, style)
                     container.dirty(name)
 
@@ -377,7 +384,7 @@ def transform_inline_styles(container: Container, name: str, transform_sheet: Sh
             assert transform_sheet is not None  # the loop only runs if transform_sheet is not None
             if transform_sheet(sheet):
                 changed = True
-                style.text = sheet.css_text
+                style.text = container.stylesheet_text(sheet)
                 pretty_script_or_style(container, style)
     for elem in root.xpath('//*[@style]') if transform_style is not None else ():
         text = elem.get('style', None)
@@ -445,7 +452,7 @@ def classes_in_sheet(sheet: Stylesheet) -> set[str]:
             try:
                 classes |= selector.class_names()
             except SelectorError:
-                pass
+                continue  # an invalid selector, which browsers ignore, has no classes
     return classes
 
 
@@ -494,9 +501,9 @@ def sort_sheet(container: Container, sheet_or_text: str | Stylesheet) -> Stylesh
         if isinstance(rule, StyleRule):
             primary += 1
             secondary = b''
-            selectors = sorted(rule.selectors, key=selector_sort_key)
-            tertiary = selector_sort_key(selectors[0])
-            rule.selector_text = ', '.join(s.text for s in selectors)
+            # In place, as assigning the text of an invalid selector raises
+            rule.selectors.sort(key=selector_sort_key)
+            tertiary = selector_sort_key(rule.selectors[0])
         else:
             secondary = text_sort_key(rule.type.value)
             if isinstance(rule, FontFaceRule):
@@ -547,7 +554,7 @@ def rename_class_in_doc(container: Container, root: _Element, old_name: str, new
             sheet = container.parse_stylesheet(style.text)
             if rename_class_in_sheet(sheet, old_name, new_name):
                 changed = True
-                style.text = sheet.css_text
+                style.text = container.stylesheet_text(sheet)
     return changed
 
 

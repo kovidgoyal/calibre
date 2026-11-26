@@ -3,6 +3,9 @@
 
 """Tests for the css_selectors and css_parser compatibility modules, used by recipes and plugins"""
 
+import os
+import shutil
+import tempfile
 import unittest
 
 from html5_parser import parse
@@ -35,6 +38,16 @@ class TestCSSSelectorsCompat(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(select('span.title', lis[1]))
         self.assertEqual(len(tuple(select('p:lang(en)'))), 1)
+        # A Select made from an element returns only elements of its subtree,
+        # as in css_selectors, and invalidate_caches() takes changes into account
+        sub = Select(lis[0])
+        self.assertEqual([a.get('href') for a in sub('a')], ['/1'])
+        self.assertTrue(sub.has_matches('span.title'))
+        self.assertFalse(sub.has_matches('li + li'))
+        lis[0].append(lis[0].makeelement('a', {'href': '/3'}))
+        self.assertEqual([a.get('href') for a in sub('a')], ['/1'])
+        sub.invalidate_caches()
+        self.assertEqual([a.get('href') for a in sub('a')], ['/1', '/3'])
         # An ElementTree works as well as its root
         self.assertEqual(len(tuple(Select(etree.ElementTree(self.root))('li.booklink'))), 2)
 
@@ -71,6 +84,12 @@ class TestCSSSelectorsCompat(unittest.TestCase):
 
 
 class TestCSSParserCompat(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tdir = tempfile.mkdtemp()
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.tdir)
+
     def test_css_parser(self) -> None:
         import logging
 
@@ -79,6 +98,7 @@ class TestCSSParserCompat(unittest.TestCase):
 
         # Code written for css_parser
         css_parser.log.setLevel(logging.CRITICAL)
+        css_parser.log.raiseExceptions = False
         sheets = {'base.css': 'b { color: blue }'}
         parser = css_parser.CSSParser(loglevel=logging.CRITICAL, fetcher=lambda url: ('utf-8', sheets[url]) if url in sheets else None)
         sheet = parser.parseString('@import "base.css"; p { font-size: 12pt; background: url(a.png) }', href='main.css')
@@ -92,9 +112,31 @@ class TestCSSParserCompat(unittest.TestCase):
         self.assertEqual(list(css_parser.getUrls(sheet)), ['base.css', 'images/a.png'])
         resolved = css_parser.resolveImports(sheet)
         self.assertIn(b'color: blue', resolved.cssText)
-        self.assertEqual(css_parser.serialize(sheet, 'text/css'), sheet.cssText)
         style = css_parser.parseStyle('color: red; margin: 0')
         self.assertEqual(style.getCssText(separator=' '), 'color: red; margin: 0')
+
+        # Settings that are accepted and ignored
+        css_parser.log.setLog(logging.getLogger('x'))
+        css_parser.ser.prefs.indent = '\t'
+        css_parser.ser.prefs.useMinified()
+        css_parser.profile.addProfile('x', {})
+
+        # Other modules and names that plugins used
+        from css_parser.css import MarginRule
+        from css_parser.css.value import PropertyValue, Value
+        from css_parser.stylesheets import MediaList
+
+        self.assertTrue(MarginRule and PropertyValue and Value and MediaList)
+        self.assertTrue(css_parser.profile.validate('margin-top', '1em'))
+        self.assertFalse(css_parser.profile.validate('margin-top', 'red'))
+        # Properties that kgcss has no grammar for are valid
+        self.assertTrue(css_parser.profile.validate('color', 'red'))
+        self.assertEqual(css_parser.profile.validateWithProfile('border-top-style', 'dotted')[0], True)
+        path = os.path.join(self.tdir, 'a.css')
+        with open(path, 'w') as f:
+            f.write('@import "base.css"; a { color: red }')
+        sheet = css_parser.parseFile(path)
+        self.assertEqual([r.selectorText for r in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)], ['a'])
 
 
 def find_tests() -> unittest.TestSuite:

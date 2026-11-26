@@ -329,6 +329,10 @@ def nest_css_comments(text: str) -> str:
     return text.replace('*/', '*\u200c/')
 
 
+def unnest_css_comments(text: str) -> str:
+    return text.replace('*\u200c/', '*/')
+
+
 def process_stylesheet(css: str, opts: Options) -> str:
     has_comment_cookie = CSS_COMMENT_COOKIE in css
     if opts.for_removal and not has_comment_cookie:
@@ -350,7 +354,7 @@ def process_stylesheet(css: str, opts: Options) -> str:
                     changed = True
     for i, cr in page_rules:
         sheet.delete_rule(i)
-        sheet.insert_rule(cr.css_text[len(f'/* {CSS_COMMENT_COOKIE}: ') : -3], i)
+        sheet.insert_rule(unnest_css_comments(cr.css_text[len(f'/* {CSS_COMMENT_COOKIE}: ') : -3]), i)
 
     if opts.for_removal:
         return sheet.css_text if changed else css

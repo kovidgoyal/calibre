@@ -40,7 +40,7 @@ from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
     import unittest
-    from collections.abc import Callable, Collection, Mapping
+    from collections.abc import Callable, Collection, Iterable, Iterator, Mapping
     from optparse import Values
 
     from kgcss import DeclarationBlock, MediaFeature, Rule, Selector
@@ -239,6 +239,17 @@ def cleanup_epub_prefixed_properties(style: dict[str, str]) -> None:
                 style[key] = val
 
 
+def applicable_rules(rules: Iterable[Rule]) -> Iterator[Rule]:
+    """The rules, with the rules of the @media rules, at any depth, whose media
+    apply. Other grouping rules, such as @supports, are ignored."""
+    for rule in rules:
+        if isinstance(rule, MediaRule):
+            if media_ok(rule.media.media_text):
+                yield from applicable_rules(rule.rules)
+        else:
+            yield rule
+
+
 class StylizerRules:
     def __init__(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[Stylesheet]) -> None:
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
@@ -249,15 +260,9 @@ class StylizerRules:
         self.font_face_rules: list[FontFaceRule] = []
         for sheet_index, stylesheet in enumerate(stylesheets):
             href = stylesheet.href
-            for rule in stylesheet.rules:
-                if isinstance(rule, MediaRule):
-                    if media_ok(rule.media.media_text):
-                        for subrule in rule.rules:
-                            self.rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index == 0))
-                            index += 1
-                else:
-                    self.rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index == 0))
-                    index = index + 1
+            for rule in applicable_rules(stylesheet.rules):
+                self.rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index == 0))
+                index = index + 1
         self.rules.sort(key=itemgetter(0))  # sort by specificity
 
     def flatten_rule(self, rule: Rule, href: str | None, index: int, is_user_agent_sheet: bool = False) -> list[FlatRule]:
@@ -452,7 +457,9 @@ class Stylizer:
             fl = inappropriate_pseudo(selector)
             if fl is not None:
                 if fl == 'first-letter' and getattr(self.oeb, 'plumber_output_format', '').lower() in {'mobi', 'docx'}:
-                    # Fake first-letter
+                    # Fake first-letter. This changes the tree while select
+                    # uses a snapshot of it: the spans are styled here, later
+                    # rules do not match them, as before kgcss.
                     for elem in matches:
                         for x in elem.iter('*'):
                             if x.text:

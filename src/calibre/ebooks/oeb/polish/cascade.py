@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, Self, cast, ove
 
 from kgcss import (
     CSS_WIDE_KEYWORDS,
+    GroupingRule,
     ImportRule,
     MediaRule,
     Property,
@@ -102,7 +103,8 @@ def iterrules(
     importing: set[str] | None = None,
 ) -> Iterator[tuple[Rule, str, int]]:
     """Iterate over all style rules in the specified sheet. Import and Media rules are
-    automatically resolved. Yields (rule, sheet_name, rule_number).
+    automatically resolved, other grouping rules such as @supports are
+    always followed. Yields (rule, sheet_name, rule_number).
 
     :param rules: A list of rules or a Stylesheet or None in which case it is read from container using sheet_name
     :param sheet_name: The name of the sheet in the container (in case of inline style sheets, the name of the html file)
@@ -141,6 +143,11 @@ def iterrules(
         elif isinstance(rule, MediaRule):
             if media_rule_ok(rule.media):
                 yield from riter(sheet_name, rules=rule.rules)
+        elif isinstance(rule, GroupingRule):
+            # @supports, @layer, @container and the like: their rules are
+            # used, so that what they use, such as fonts, is not considered
+            # to be unused
+            yield from riter(sheet_name, rules=rule.rules)
 
         elif rule_type is None or rule.type == rule_type:
             num = next(rule_index_counter)
@@ -210,6 +217,10 @@ class Values(tuple['Component', ...]):
 def normalize_style_declaration(decl: DeclarationBlock, sheet_name: str) -> dict[str, Values]:
     ans: dict[str, Values] = {}
     for prop in iterdeclaration(decl):
+        if 'var(' in prop.value.lower():
+            # The value is not known before it is computed, css_parser dropped
+            # such declarations
+            continue
         # The components of the normalized value, as css_parser gave them
         value = parse_value(prop.value_to_css(), property_name=prop.name)
         if prop.name == 'font-family':

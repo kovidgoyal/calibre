@@ -24,7 +24,7 @@ def files_walker(root_path, ext):
 
 
 def checkable_python_files(SRC):
-    for dname in ('odf', 'calibre'):
+    for dname in ('odf', 'calibre', 'css_parser', 'css_selectors'):
         for f in files_walker(os.path.join(SRC, dname), '.py'):
             if not f.endswith('_ui.py'):
                 yield f

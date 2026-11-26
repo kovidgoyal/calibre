@@ -495,7 +495,7 @@ class EPUBOutput(OutputFormatPlugin):
         from kgcss import RuleType, Stylesheet
         from lxml import etree
 
-        from calibre.ebooks.oeb.base import XHTML, XPath, barename, urlunquote
+        from calibre.ebooks.oeb.base import XHTML, XPath, barename, single_class_name, urlunquote
 
         stylesheet = self.oeb.manifest.main_stylesheet
         # ADE cries big wet tears when it encounters an invalid fragment
@@ -614,9 +614,9 @@ class EPUBOutput(OutputFormatPlugin):
                 assert isinstance(sheet, Stylesheet)  # main_stylesheet has a media type in OEB_STYLES
 
                 for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
-                    sel = '.' + lb.get('class')
+                    cls = lb.get('class')
                     for rule in sheet.rules.of_type(RuleType.STYLE):
-                        if sel == rule.selector_text:
+                        if len(rule.selectors) == 1 and single_class_name(rule.selectors[0]) == cls:
                             rule.style.remove('margin-left')
                             # padding-left breaks rendering in webkit and gecko
                             rule.style.remove('padding-left')

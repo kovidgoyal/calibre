@@ -84,7 +84,11 @@ class StylizerTest(unittest.TestCase):
         return Stylizer(root, item.href, oeb, cast('OptionValues', opts), profile)
 
     def elem(self, s: Stylizer, eid: str) -> etree._Element:
-        return s.oeb.manifest.hrefs['index.html'].data.xpath(f'//*[@id="{eid}"]')[0]  # ty: ignore[unresolved-attribute]
+        root = s.oeb.manifest.hrefs['index.html'].data
+        assert isinstance(root, etree._Element)
+        ans = root.xpath(f'//*[@id="{eid}"]')[0]
+        assert isinstance(ans, etree._Element)
+        return ans
 
     def test_cascade(self) -> None:
         s = self.stylizer(
@@ -126,6 +130,13 @@ class StylizerTest(unittest.TestCase):
         self.assertNotIn('font-style', g)
         # :hover is recorded as a pseudo-class
         self.assertEqual(s.style(self.elem(s, 'a')).pseudo_classes(frozenset()), {'hover': {'color': 'pink'}})
+
+    def test_nested_media(self) -> None:
+        # @media rules at any depth, as made by inlining an @import with media
+        s = self.stylizer('<p id="a">a</p>', '@media screen { @media all { p { color: red } } @media print { p { font-weight: bold } } }')
+        style = s.style(self.elem(s, 'a'))._style
+        self.assertEqual(style.get('color'), 'red')
+        self.assertNotIn('font-weight', style)
 
     def test_style_tag_and_attribute(self) -> None:
         s = self.stylizer(
@@ -194,6 +205,54 @@ class FontsTest(unittest.TestCase):
         )
 
 
+class HelpersTest(unittest.TestCase):
+    def test_html_attribute_color(self) -> None:
+        from calibre.ebooks.oeb.transforms.flatcss import html_attribute_color
+
+        for raw, expected in {
+            'red': 'red',
+            ' #FF0000 ': '#FF0000',
+            'ff0000': '#ff0000',
+            'abc': '#abc',
+            '': None,
+            '#12': None,
+            'rgb(1,2)': None,
+            'xyz': None,
+        }.items():
+            self.assertEqual(html_attribute_color(raw), expected, raw)
+
+    def test_single_class_name(self) -> None:
+        from kgcss import parse_selectors
+
+        from calibre.ebooks.oeb.base import single_class_name
+
+        for text, expected, with_pseudo in (
+            ('.x', 'x', 'x'),
+            ('.\\32 y', '2y', '2y'),
+            ('.x:hover', None, 'x'),
+            ('.x::before', None, 'x'),
+            ('.x.y', None, None),
+            ('.x span', None, None),
+            ('p.x', None, None),
+            ('.x:not(.y)', None, None),
+        ):
+            selector = parse_selectors(text)[0]
+            self.assertEqual(single_class_name(selector), expected, text)
+            self.assertEqual(single_class_name(selector, allow_pseudo=True), with_pseudo, text)
+
+    def test_css_transform_rule_with_invalid_value(self) -> None:
+        from kgcss import parse_style
+
+        from calibre.ebooks.css_transform_rules import StyleDeclaration, compile_rules, transform_declaration
+
+        block = parse_style('color: red')
+        rules = compile_rules([{'property': 'color', 'match_type': '*', 'query': '', 'action': 'change', 'action_data': 'blue; x: y'}])
+        with self.assertLogs('calibre.css', 'WARNING') as logs:
+            self.assertFalse(transform_declaration(rules, block))
+        self.assertIn('Not changing the CSS property color', logs.output[0])
+        self.assertEqual(str(StyleDeclaration(block)), 'color: red;')
+
+
 class ConversionTest(unittest.TestCase):
     def test_flatten_and_split(self) -> None:
         from calibre.ebooks.conversion.plumber import Plumber
@@ -205,7 +264,7 @@ class ConversionTest(unittest.TestCase):
                 f.write(
                     HTML.format(
                         head=r'<style>.\32 y { font-style: italic } h1 { page-break-before: always } h2 { page-break-after: always }</style>',
-                        body='<h1>One</h1><p class="2y">a</p><h2>Two</h2><p>b</p><h1>Three</h1><p>c</p>',
+                        body='<h1>One</h1><p class="2y">a</p><h2>Two</h2><p>b<font color="" face="x">f</font></p><h1>Three</h1><p>c</p>',
                     )
                 )
             dest = os.path.join(tdir, 'out.epub')
@@ -221,16 +280,18 @@ class ConversionTest(unittest.TestCase):
                 return [x.strip() for x in root.xpath('//*[local-name()="body"]//text()') if x.strip()]
 
             # Split before the second h1 and after the h2
-            self.assertEqual([text(name) for name in html_names], [['One', 'a', 'Two'], ['b'], ['Three', 'c']])
+            self.assertEqual([text(name) for name in html_names], [['One', 'a', 'Two'], ['b', 'f'], ['Three', 'c']])
             css = c.raw_data('stylesheet.css', decode=True)
             assert isinstance(css, str)
             # Class names from the source are escaped
             self.assertIn('.\\32 y {', css)
+            # Invalid colors of <font> are dropped
+            self.assertNotIn('color:;', css.replace(' ', ''))
 
 
 def find_tests() -> unittest.TestSuite:
     loader = unittest.defaultTestLoader
-    return unittest.TestSuite(loader.loadTestsFromTestCase(x) for x in (ManifestCSS, StylizerTest, FontsTest, ConversionTest))
+    return unittest.TestSuite(loader.loadTestsFromTestCase(x) for x in (ManifestCSS, StylizerTest, FontsTest, HelpersTest, ConversionTest))
 
 
 if TYPE_CHECKING:

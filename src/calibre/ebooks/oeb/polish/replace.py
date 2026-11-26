@@ -383,7 +383,7 @@ def remove_links_to(container: Container, predicate: LinkPredicate) -> set[str]:
                 if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':
                     sheet = container.parse_stylesheet(tag.text)
                     if remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate):
-                        tag.text = sheet.css_text
+                        tag.text = container.stylesheet_text(sheet)
                         removed = True
             for tag in styleattrpath(root):
                 style = tag.get('style')

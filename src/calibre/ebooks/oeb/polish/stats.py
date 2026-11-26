@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, cast
 
 import regex
 from kgcss import FontFaceRule as CSSFontFaceRule
-from kgcss import RuleType, Stylesheet, parse_font_family
+from kgcss import RuleType, Stylesheet, iter_urls, parse_font_family
 from lxml import etree
 from lxml.etree import tostring
 
@@ -252,10 +252,7 @@ class StatsCollector:
                     elif prop.name.startswith('font-') and value:
                         cssdict[prop.name] = component_text(value[0])
                     elif prop.name == 'src':
-                        for val in value:
-                            url = getattr(val, 'url', None)
-                            if url is None:
-                                continue
+                        for url in iter_urls(rule.style):
                             fname = container.href_to_name(url, sheet_name)
                             if container.has_name(fname):
                                 cssdict['src'] = fname

@@ -427,6 +427,14 @@ def text_as_xpath_literal(text: str) -> str:
     return f'"{text}"'
 
 
+def class_selector(query: str) -> str:
+    """The selector for the elements with the class in query, or with all the
+    classes, in a query such as one.two. The names are escaped, so any class
+    name, such as 1x, works."""
+    names = [x for x in query.strip().split('.') if x]
+    return ''.join('.' + serialize_identifier(x) for x in names) if names else '*'
+
+
 class Rule:
     def __init__(self, serialized_rule: SerializedRule) -> None:
         self.sel_type = 'xpath'
@@ -442,10 +450,10 @@ class Rule:
             self.xpath_selector = XPath('//*')
             self.selector = self.xpath
         elif mt == 'has_class':
-            self.css_selector = '.' + serialize_identifier(q)
+            self.css_selector = class_selector(q)
             self.selector = self.css
         elif mt == 'not_has_class':
-            self.css_selector = f':not(.{serialize_identifier(q)})'
+            self.css_selector = f':not({class_selector(q)})'
             self.selector = self.css
         elif mt == 'contains_text':
             self.xpath_selector = XPath(f'//*[contains(text(), {text_as_xpath_literal(q)})]')
@@ -582,7 +590,7 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
 <body id='body'>
 <p class="one red" id='p1'>simple
 <p class="two green" id='p2'>a'b"c
-<p class="1x a.b" id='p3'>x
+<p class="1x a b" id='p3'>x
 ''',
             )
             all_ids = root.xpath('//*/@id')
@@ -610,9 +618,12 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
             t('xpath', '//h:body', ['body'])
             t('contains_text', 'imple', ['p1'])
             t('contains_text', 'a\'b"c', ['p2'])
-            # Class names are escaped, so any class name works
+            # Class names are escaped, so any class name works, the query is
+            # stripped, and a.b means both classes, as before kgcss
             t('has_class', '1x', ['p3'])
             t('has_class', 'a.b', ['p3'])
+            t('has_class', ' 1x ', ['p3'])
+            t('has_class', 'a.1x.c', [])
             self.assertNotIn('p3', q('not_has_class', '1x'))
             # Classes and ids match case-insensitively, as with css_selectors
             t('has_class', 'ONE', ['p1'])

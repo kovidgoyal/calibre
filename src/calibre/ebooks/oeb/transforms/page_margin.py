@@ -70,11 +70,15 @@ class RemoveFakeMargins:
 
         from kgcss import RuleType, Stylesheet
 
+        from calibre.ebooks.oeb.base import single_class_name
+
         sheet = stylesheet.data
         assert isinstance(sheet, Stylesheet)  # main_stylesheet has a media type in OEB_STYLES
 
+        # The rules of single classes, made by the CSS flattening code
         for rule in sheet.rules.of_type(RuleType.STYLE):
-            self.selector_map[rule.selector_text] = rule.style
+            if len(rule.selectors) == 1 and (cls := single_class_name(rule.selectors[0])) is not None:
+                self.selector_map[cls] = rule.style
 
         self.find_levels()
 
@@ -87,7 +91,7 @@ class RemoveFakeMargins:
     def get_margins(self, elem: _Element) -> tuple[str, str, DeclarationBlock | None]:
         cls = elem.get('class', None)
         if cls:
-            style = self.selector_map.get('.' + cls, None)
+            style = self.selector_map.get(cls, None)
             if style:
                 if style.get_value('text-indent').startswith('-'):
                     raise NegativeTextIndent()

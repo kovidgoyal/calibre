@@ -6,6 +6,7 @@
 import os
 from itertools import count
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 from kgcss import RuleType, SerializeOptions, StyleRule, Stylesheet
 from kgcss import compat as css_compat
@@ -168,7 +169,8 @@ class PolishCSS(BaseTest):
             find('q', 2)
 
     def test_edit_book_helpers(self) -> None:
-        from calibre.gui2.tweak_book import css_serialize_options, current_container, set_current_container, tprefs
+        from calibre.ebooks.oeb.polish.css import rename_class, sort_sheet
+        from calibre.gui2.tweak_book import css_serialize_options, current_container, set_current_container
         from calibre.gui2.tweak_book.diff.view import beautify_text
         from calibre.gui2.tweak_book.editor.smarts.css import find_rule
 
@@ -179,16 +181,58 @@ class PolishCSS(BaseTest):
         self.assertEqual(find_rule(raw, (1,)), (6, 1))
         self.assertEqual(find_rule(raw, (2,)), (None, None))
 
-        indent = ' ' * tprefs['editor_tab_stop_width']
-        self.assertEqual(css_serialize_options().indent, indent)
-        self.assertEqual(beautify_text('a{b:c}', 'css'), f'a {{\n{indent}b: c;\n}}\n')
-        c = self.container({'s.css': 'a{b:c}'})
-        previous = current_container()
-        try:
-            set_current_container(c)
-            self.assertEqual(c.css_serialize_options.indent, indent)
-        finally:
-            set_current_container(previous)
+        # A tab width that is not the default of kgcss
+        from calibre.gui2 import tweak_book
+
+        with patch.object(tweak_book, 'tprefs', {'editor_tab_stop_width': 3}):
+            indent = '   '
+            self.assertEqual(css_serialize_options().indent, indent)
+            self.assertEqual(beautify_text('a{b:c}', 'css'), f'a {{\n{indent}b: c;\n}}\n')
+            c = self.container({'s.css': 'a{b:c}', 'a.html': html('<p class="x">x</p>', '<style>.x { color: red }</style>')})
+            previous = current_container()
+            try:
+                set_current_container(c)
+                self.assertEqual(c.css_serialize_options.indent, indent)
+                # <style> tags are written with the indent, as are sorted sheets
+                rename_class(c, 'x', 'y')
+                root = c.parsed('a.html')
+                assert isinstance(root, etree._Element)
+                self.assertEqual(root.xpath('//*[local-name()="style"]')[0].text, f'.y {{\n{indent}color: red;\n}}')
+                self.assertEqual(c.stylesheet_text(sort_sheet(c, 'b{x:y} a{x:y}')), f'a {{\n{indent}x: y;\n}}\nb {{\n{indent}x: y;\n}}')
+            finally:
+                set_current_container(previous)
+
+    def test_review_fixes(self) -> None:
+        from calibre.ebooks.oeb.polish.css import merge_identical_properties, merge_identical_selectors, remove_unused_css, sort_sheet
+        from calibre.ebooks.oeb.polish.kepubify import Options, process_stylesheet
+        from calibre.ebooks.oeb.polish.pretty import pretty_css
+        from calibre.gui2.tweak_book.jump_to_class import RuleLocation, find_first_matching_rule
+
+        c = self.container({'a.html': html('<p class="x">x</p>', '<style>p { x: 1 } p { y: 2 }</style>'), 's.css': ''})
+        # Selectors that do not parse are kept, with the lowest specificity
+        self.assertEqual(self.style_rules(sort_sheet(c, 'b, *html p, a { c: d }')), ['*html p, a, b'])
+        # Rules with nested rules are not merged, which would lose them
+        sheet = c.parse_stylesheet('.a { .b { color: red } } .c { .d { color: blue } } .e { .f { x: y } } .e { .g { x: y } }')
+        self.assertEqual(merge_identical_properties(sheet) + merge_identical_selectors(sheet), 0)
+        # Merged rules of <style> tags are written back
+        self.assertTrue(remove_unused_css(c, merge_rules=True))
+        root = c.parsed('a.html')
+        assert isinstance(root, etree._Element)
+        self.assertEqual(root.xpath('//*[local-name()="style"]')[0].text.split(), 'p { x: 1; y: 2; }'.split())
+        # Beautifying a sheet with an @charset gives UTF-8, as the editor expects
+        self.assertEqual(
+            pretty_css(c, 's.css', '@charset "iso-8859-1"; p::before { content: "é" }').decode('utf-8'),
+            '@charset "iso-8859-1";\np::before {\n  content: "é";\n}\n',
+        )
+        # @page rules with comments survive kepubify and its removal
+        css = '@page :first { margin: 0; /* x */ }\np { widows: 2 }'
+        k = process_stylesheet(css, Options(remove_widows_and_orphans=True, remove_at_page_rules=True))
+        self.assertTrue(k.startswith('/* calibre-removed-css-for-kobo: @page :first {'), k)
+        self.assertIn('@page :first {\n  margin: 0;\n  /* x */\n}', process_stylesheet(k, Options(for_removal=True)))
+        # Jump to class skips links to sheets that are not in the book
+        raw = html('\n<p class="x">x</p>', '<link rel="stylesheet" href="missing.css"/>')
+        c = self.container({'a.html': raw, 's.css': '.x { x: y }'})
+        self.assertEqual(find_first_matching_rule(c, 'a.html', raw, {'class': 'x', 'sourceline_address': (2, ['p'])}), RuleLocation([0], 's.css'))
 
     def test_css_parser_style_plugins(self) -> None:
         # The code of the editor demo plugin as it was written for css_parser,
