@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, cast
 from kgcss import parse_font, parse_font_family, serialize_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
-from calibre.ebooks.oeb.normalize_css import normalize_font
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
 
 if TYPE_CHECKING:
@@ -26,9 +25,7 @@ def font_family_data_from_declaration(style: CSSStyleDeclaration, families: dict
     font_families: list[str] = []
     f = style.getProperty('font')
     if f is not None:
-        f = normalize_font(f.propertyValue, font_family_as_list=True).get('font-family', None)
-        if f is not None:
-            font_families = [unquote(x) for x in f]
+        font_families = parse_font(css_text(f.propertyValue)).get('font-family', [])
     f = style.getProperty('font-family')
     if f is not None:
         font_families = parse_font_family(css_text(f.propertyValue))

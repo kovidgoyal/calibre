@@ -17,7 +17,7 @@ from lxml import etree
 from calibre import as_unicode
 from calibre.ebooks.css_transform_rules import all_properties
 from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
-from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
+from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalize_shorthand
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
 
@@ -169,11 +169,11 @@ def specificity(rule_index: int, selector: Selector, is_style: int = 0) -> Speci
 
 def iterdeclaration(decl: CSSStyleDeclaration) -> Iterator[Property]:
     for p in all_properties(decl):
-        n = normalizers.get(p.name)
-        if n is None:
+        expanded = normalize_shorthand(p.name, p.value)
+        if expanded is None:
             yield p
         else:
-            for k, v in n(p.name, p.propertyValue).items():
+            for k, v in expanded.items():
                 yield Property(k, v, p.literalpriority)
 
 

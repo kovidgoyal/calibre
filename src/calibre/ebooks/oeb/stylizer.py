@@ -25,7 +25,7 @@ from kgcss import is_color, media_matches
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, is_element_list, urlnormalize, xpath
-from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
+from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalize_shorthand
 from calibre.utils.resources import get_path as P
 
 if TYPE_CHECKING:
@@ -268,10 +268,10 @@ class StylizerRules:
         style = style_map()
         for prop in cssstyle:
             name = prop.name
-            normalizer = normalizers.get(name, None)
+            expanded = normalize_shorthand(name, prop.value)
             is_important = prop.priority == 'important'
-            if normalizer is not None:
-                for key, val in normalizer(name, prop.propertyValue).items():
+            if expanded is not None:
+                for key, val in expanded.items():
                     style[key] = val
                     if is_important:
                         style.important_properties.add(key)
