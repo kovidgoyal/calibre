@@ -5,8 +5,6 @@ www.esquire.com
 '''
 from collections import defaultdict
 
-from css_selectors import Select
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -42,17 +40,16 @@ class Esquire(BasicNewsRecipe):
     def parse_index(self):
         url = 'https://www.esquire.com'
         root = self.index_to_soup(url, as_tree=True)
-        select = Select(root)
         feeds = defaultdict(list)
 
-        for a in select('.cover-story-marquee a[href]'):
+        for a in root.xpath('//*[contains(concat(" ", normalize-space(@class), " "), " cover-story-marquee ")]//a[@href]'):
             title = self.tag_to_string(a).strip() or 'Cover Story'
             url = absolutize(a.get('href'))
             self.log('Cover story:', title, url)
             feeds['Cover Story'] = [{'title': title, 'url': url}]
             break
 
-        for a in select('a[data-vars-cta]'):
+        for a in root.xpath('//a[@data-vars-cta]'):
             title = self.tag_to_string(a).strip()
             if not title:
                 continue

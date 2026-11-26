@@ -4,8 +4,6 @@ __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 spectator.org
 '''
 
-from css_selectors import Select
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -23,10 +21,9 @@ class TheAmericanSpectator(BasicNewsRecipe):
 
     def parse_index(self):
         root = self.index_to_soup('http://spectator.org/issues/current', as_tree=True)
-        select = Select(root)
-        main = tuple(select('div#block-system-main'))[0]
+        main = root.xpath('//div[@id="block-system-main"]')[0]
         feeds = []
-        for div in select('div.item-list', main):
+        for div in main.xpath('descendant::div[contains(concat(" ", normalize-space(@class), " "), " item-list ")]'):
             for h3 in div.xpath('./h3'):
                 section_title = self.tag_to_string(h3)
                 self.log('\n' + section_title)
@@ -35,14 +32,14 @@ class TheAmericanSpectator(BasicNewsRecipe):
                 continue
             articles = []
             for li in div.xpath('descendant::li'):
-                for x in select('div.views-field-title', li):
+                for x in li.xpath('descendant::div[contains(concat(" ", normalize-space(@class), " "), " views-field-title ")]'):
                     title = self.tag_to_string(x)
                     break
                 else:
                     raise ValueError('No article title found')
                 url = 'http://spectator.org' + li.xpath('./a/@href')[0]
                 desc = ''
-                for x in select('div.views-field-field-short-summary', li):
+                for x in li.xpath('descendant::div[contains(concat(" ", normalize-space(@class), " "), " views-field-field-short-summary ")]'):
                     desc = self.tag_to_string(x)
                     break
                 articles.append({'title': title, 'url': url, 'description': desc})
