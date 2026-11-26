@@ -5,17 +5,32 @@ spectator.org
 '''
 
 import re
+from urllib.parse import urlencode
 
+from calibre.web.feeds import feed_from_xml
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 MAGAZINE_URL = 'https://spectator.org/magazine/'
+FEED_URL = 'https://spectator.org/feed/'
+# The podcast categories, whose posts are just an embedded audio player: The
+# Spectator P.M. Podcast and The Spectacle
+EXCLUDED_CATEGORIES = (26059, 24451)
+# The site feed has only ten posts a page, which is about two days worth. Paging
+# stops at the first page with nothing newer than oldest_article, this is just
+# an upper bound.
+FEED_PAGES = 8
 
 
 class TheAmericanSpectator(BasicNewsRecipe):
     title = 'The American Spectator'
     __author__ = 'Kovid Goyal'
-    description = 'The current issue of The American Spectator magazine'
+    description = (
+        'American politics, culture and current affairs from a conservative perspective. Contains the articles'
+        ' published on spectator.org in the past week, followed by the current issue of The American Spectator magazine.'
+    )
     publisher = 'The American Spectator'
+    oldest_article = 7
+    max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
     language = 'en_US'
@@ -36,6 +51,43 @@ class TheAmericanSpectator(BasicNewsRecipe):
     ]
 
     def parse_index(self):
+        magazine = self.parse_magazine()
+        in_magazine = {a['url'] for a in magazine[1]}
+        latest = [a for a in self.parse_latest() if a['url'] not in in_magazine]
+        ans = [('Latest Articles', latest), magazine]
+        return [x for x in ans if x[1]]
+
+    def parse_latest(self):
+        self.log('Latest articles:')
+        query = {'cat': ','.join(f'-{c}' for c in EXCLUDED_CATEGORIES)}
+        articles, seen = [], set()
+        for page in range(1, FEED_PAGES + 1):
+            if page > 1:
+                query['paged'] = page
+            url = f'{FEED_URL}?{urlencode(query)}'
+            feed = feed_from_xml(
+                self.index_to_soup(url, raw=True), oldest_article=self.oldest_article, max_articles_per_feed=self.max_articles_per_feed, log=self.log
+            )
+            if not len(feed):
+                # Either the end of the feed or every post on this page is too old
+                break
+            for article in feed:
+                if len(articles) >= self.max_articles_per_feed:
+                    return articles
+                if article.url and article.url not in seen:
+                    seen.add(article.url)
+                    articles.append({
+                        'title': article.title,
+                        'url': article.url,
+                        'description': article.text_summary,
+                        'author': article.author,
+                        'timestamp': article.utctime.timestamp(),
+                        'date': article.formatted_date,
+                    })
+                    self.log('\t', article.title, 'at', article.url)
+        return articles
+
+    def parse_magazine(self):
         root = self.index_to_soup(MAGAZINE_URL, as_tree=True)
         for h2 in root.xpath('//h2[starts-with(normalize-space(), "Current Issue")]'):
             issue = self.tag_to_string(h2).partition(':')[2].strip()
@@ -43,9 +95,7 @@ class TheAmericanSpectator(BasicNewsRecipe):
             break
         else:
             raise ValueError(f'Could not find the current issue on {MAGAZINE_URL}')
-        if issue:
-            self.timefmt = f' [{issue}]'
-        self.log('Current issue:', issue)
+        self.log('Magazine issue:', issue)
         articles = []
         for a in section.xpath('descendant::ul/li/a[@href]'):
             title = self.tag_to_string(a).strip()
@@ -55,4 +105,4 @@ class TheAmericanSpectator(BasicNewsRecipe):
                 self.log('\t', title, 'at', url)
         if not articles:
             raise ValueError(f'Could not find any articles in the current issue on {MAGAZINE_URL}')
-        return [(issue or 'Current Issue', articles)]
+        return (f'Magazine: {issue}' if issue else 'Magazine', articles)
