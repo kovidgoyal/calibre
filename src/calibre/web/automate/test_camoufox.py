@@ -1840,6 +1840,12 @@ class TestCamoufoxBrowser(unittest.TestCase):
             # rare, a movement that ignores the budget does so on every try.
             attempts: list[tuple[float, float]] = []
             for attempt in range(4):
+                if attempt:
+                    # A click that follows the previous attempt's within the
+                    # double click time is the second click of a double click
+                    # on Windows, adding a dblclick event, so wait that out.
+                    # The Windows default is 500ms.
+                    await asyncio.sleep(1.5)
                 probe = time.monotonic()
                 for i in range(6):
                     await page.mouse.move(20 + 10 * i, 20, human=False)
