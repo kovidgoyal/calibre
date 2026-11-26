@@ -155,14 +155,21 @@ class CascadeTest(BaseTest):
         t('body', 'display', 'block')
         t('b', 'display', 'inline')
         t('body', 'font-family', ('"Kovid Goyal"', 'sans-serif'))
+        for e in ('body', 'p', 'b'):
+            for prop in 'background-color text-indent'.split():
+                t(e, prop)
+
         t = get_maps('<p>x<b>y</b><i>z</i></p>', 'p { font-family: Times   New Roman, serif } b { font-family: inherit } i { font-family: "inherit" }')
         t('p', 'font-family', ('"Times New Roman"', 'serif'))
         # The CSS-wide keywords are not turned into family names
         t('b', 'font-family', 'inherit')
         t('i', 'font-family', '"inherit"')
-        for e in ('body', 'p', 'b'):
-            for prop in 'background-color text-indent'.split():
-                t(e, prop)
+        # An invalid font shorthand is ignored, it does not reset the font
+        t = get_maps('<p>x</p>', 'p { font-family: X; font-weight: bold; font: some_font }')
+        t('p', 'font-family', 'X')
+        t('p', 'font-weight', 'bold')
+        t = get_maps('<p>x</p>', 'p { font-family: X; font: 12px Y }')
+        t('p', 'font-family', 'Y')
 
         t = get_maps('<p>xxx</p><style>p {color: blue}</style>', 'p {color: red}')
         t('p', 'color', 'blue')
