@@ -117,7 +117,7 @@ class BuildTest(unittest.TestCase):
         enc = detect(raw).lower()
         self.assertEqual(enc, 'utf-8')
         # The following is used by html5lib
-        from chardet.universaldetector import UniversalDetector
+        from chardet import UniversalDetector
 
         detector = UniversalDetector()
         self.assertTrue(hasattr(detector, 'done'))
