@@ -28,7 +28,7 @@ class ManifestTrimmer:
         return cls()
 
     def __call__(self, oeb: OEBBook, context: Values | OptionValues) -> None:
-        import css_parser
+        from kgcss import Stylesheet, iter_urls
 
         oeb.logger.info('Trimming unused files from manifest...')
         self.opts = context
@@ -65,7 +65,9 @@ class ManifestTrimmer:
                             if found not in used:
                                 new.add(found)
                 elif item.media_type == CSS_MIME:
-                    for href in css_parser.getUrls(item.data):
+                    sheet = item.data
+                    assert isinstance(sheet, Stylesheet)  # CSS items are parsed into stylesheets
+                    for href in iter_urls(sheet):
                         href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]

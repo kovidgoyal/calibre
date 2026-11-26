@@ -4,12 +4,11 @@
 Convert an ODT file into a Open Ebook
 """
 
-import logging
 import os
 from typing import IO, TYPE_CHECKING
 
-from css_parser import CSSParser
-from css_parser.css import CSSRule
+from kgcss import SelectorError, StyleRule, parse_stylesheet
+from kgcss.selectors import ClassSelector
 from lxml import etree
 from odf.draw import Frame as odFrame
 from odf.draw import Image as odImage
@@ -24,12 +23,23 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import as_bytes
 
 if TYPE_CHECKING:
-    from css_parser.css import CSSStyleRule
+    from kgcss import Selector
     from lxml.etree import _Element
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.logging import Log
     from calibre.utils.zipfile import ZipFile
+
+
+def single_class(selector: Selector) -> str | None:
+    "The class name if selector is just one class selector, such as .x"
+    try:
+        parts = tuple(selector.walk())
+    except SelectorError:
+        return None
+    if len(parts) == 1 and isinstance(parts[0], ClassSelector):
+        return parts[0].name
+    return None
 
 
 class Extract(ODF2XHTML):
@@ -82,20 +92,19 @@ class Extract(ODF2XHTML):
             etree.SubElement(head, ns + 'link', {'type': 'text/css', 'rel': 'stylesheet', 'href': 'odfpy.css'})
 
         css = '\n\n'.join(ans)
-        parser = CSSParser(loglevel=logging.WARNING, log=_css_logger)
-        self._parsed_css = parser.parseString(css, validate=False)
+        self._parsed_css = parse_stylesheet(css, log=_css_logger)
 
         with open('odfpy.css', 'wb') as f:
             f.write(css.encode('utf-8'))
 
-    def get_css_for_class(self, cls: str) -> CSSStyleRule | None:
+    def get_css_for_class(self, cls: str) -> StyleRule | None:
         if not cls:
             return None
-        for rule in self._parsed_css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-            for sel in rule.selectorList:
-                q = sel.selectorText
-                if q == '.' + cls:
+        for rule in (x for x in self._parsed_css.rules if isinstance(x, StyleRule)):
+            for sel in rule.selectors:
+                if single_class(sel) == cls:
                     return rule
+        return None
 
     def epubify_markup(self, root: _Element, log: Log) -> None:
         from calibre.ebooks.oeb.base import XHTML, XPath
@@ -144,7 +153,7 @@ class Extract(ODF2XHTML):
             first_rules = list(filter(None, [self.get_css_for_class(x) for x in cls.split()]))
             has_align = False
             for r in first_rules:
-                if r.style.getProperty('text-align') is not None:
+                if r.style.get_property('text-align') is not None:
                     has_align = True
             ml = mr = None
             if not has_align:
@@ -152,10 +161,8 @@ class Extract(ODF2XHTML):
                 cls = div2.get('class', '')
                 rules = list(filter(None, [self.get_css_for_class(x) for x in cls.split()]))
                 for r in rules:
-                    ml = r.style.getPropertyCSSValue('margin-left') or ml
-                    mr = r.style.getPropertyCSSValue('margin-right') or mr
-                    ml = getattr(ml, 'value', None)
-                    mr = getattr(mr, 'value', None)
+                    ml = r.style.get_value('margin-left') or ml
+                    mr = r.style.get_value('margin-right') or mr
                 if ml == mr == 'auto':
                     aval = 'center'
                 elif ml == 'auto' and mr != 'auto':
@@ -183,8 +190,6 @@ class Extract(ODF2XHTML):
             css = style.text
             if css:
                 css, sel_map = self.do_filter_css(css)
-                if not isinstance(css, str):
-                    css = css.decode('utf-8', 'ignore')
                 style.text = css
                 for x in root.xpath('//*[@class]'):
                     extra = []
@@ -194,30 +199,24 @@ class Extract(ODF2XHTML):
                     if extra:
                         x.set('class', orig + ' ' + ' '.join(extra))
 
-    def do_filter_css(self, css: str) -> tuple[str | bytes, dict[str, list[str]]]:
-        from css_parser import parseString
-        from css_parser.css import CSSRule
-
-        sheet = parseString(css, validate=False)
-        rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
+    def do_filter_css(self, css: str) -> tuple[str, dict[str, list[str]]]:
+        sheet = parse_stylesheet(css, log=_css_logger)
         sel_map: dict[str, list[str]] = {}
         count = 0
-        for r in rules:
+        for r in (x for x in sheet.rules if isinstance(x, StyleRule)):
             # Check if we have only class selectors for this rule
-            nc = [x for x in r.selectorList if not x.selectorText.startswith('.')]
-            if len(r.selectorList) > 1 and not nc:
+            classes = [single_class(x) for x in r.selectors]
+            if len(classes) > 1 and None not in classes:
                 # Replace all the class selectors with a single class selector
                 # This will be added to the class attribute of all elements
                 # that have one of these selectors.
                 replace_name = f'c_odt{count}'
                 count += 1
-                for sel in r.selectorList:
-                    s = sel.selectorText[1:]
-                    if s not in sel_map:
-                        sel_map[s] = []
-                    sel_map[s].append(replace_name)
-                r.selectorText = '.' + replace_name
-        return sheet.cssText, sel_map
+                for cls in classes:
+                    assert cls is not None  # checked above
+                    sel_map.setdefault(cls, []).append(replace_name)
+                r.selector_text = '.' + replace_name
+        return sheet.css_text, sel_map
 
     def search_page_img(self, mi: Metadata, log: Log) -> None:
         for frm in self.document.topnode.getElementsByType(odFrame):

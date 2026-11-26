@@ -12,15 +12,25 @@ import unicodedata
 from operator import itemgetter
 from typing import TYPE_CHECKING, Literal, cast
 from weakref import WeakKeyDictionary
-from xml.dom import SyntaxErr as CSSSyntaxError
 
-from css_parser import CSSParser, parseString, parseStyle, replaceUrls
-from css_parser import log as css_parser_log
-from css_parser import profile as cssprofiles
-from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, CSSStyleSheet, cssproperties
-from css_selectors.errors import SelectorError
-from css_selectors.select import INAPPROPRIATE_PSEUDO_CLASSES, Select
-from kgcss import is_color, media_matches
+from kgcss import (
+    INAPPROPRIATE_PSEUDO_CLASSES,
+    FontFaceRule,
+    ImportRule,
+    MediaRule,
+    PageRule,
+    Select,
+    SelectorError,
+    StyleRule,
+    Stylesheet,
+    is_color,
+    media_matches,
+    parse_style,
+    parse_stylesheet,
+    parse_value,
+    replace_urls,
+)
+from kgcss.selectors import PseudoClass, PseudoElement
 
 from calibre import as_unicode, force_unicode
 from calibre.ebooks import unit_convert
@@ -33,20 +43,18 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Mapping
     from optparse import Values
 
-    from css_parser.css import CSSRule, CSSStyleDeclaration
-    from kgcss import MediaFeature
+    from kgcss import DeclarationBlock, MediaFeature, Rule, Selector
     from lxml.etree import _Element
 
     from calibre.customize.profiles import Plugin as Profile
     from calibre.ebooks.conversion.plumber import OptionValues
     from calibre.ebooks.oeb.base import OEBBook
 
-    # (specificity, selector sequence, style, selector text, href of the stylesheet)
-    type FlatRule = tuple[tuple[int, ...], list[object], style_map, str, str | None]
+    # (specificity, selector, style, selector text, href of the stylesheet)
+    type FlatRule = tuple[tuple[int, ...], Selector, style_map, str, str | None]
 
-css_parser_log.setLevel(logging.WARNING)
-
-_html_css_stylesheet: CSSStyleSheet | None = None
+css_log = logging.getLogger('calibre.css')
+_html_css_stylesheet: Stylesheet | None = None
 
 
 def validate_color(col: object) -> bool:
@@ -57,12 +65,12 @@ def validate_color(col: object) -> bool:
     return col.strip().lower() == 'inherit' or is_color(col)
 
 
-def html_css_stylesheet() -> CSSStyleSheet:
+def html_css_stylesheet() -> Stylesheet:
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         with open(P('templates/html.css'), 'rb') as f:
             html_css = f.read().decode('utf-8')
-        _html_css_stylesheet = parseString(html_css, validate=False)
+        _html_css_stylesheet = parse_stylesheet(html_css, log=css_log)
     return _html_css_stylesheet
 
 
@@ -191,6 +199,15 @@ def find_tests() -> unittest.TestSuite:
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestStylizerHelpers)
 
 
+def inappropriate_pseudo(selector: Selector) -> str | None:
+    """The name of the first pseudo-class or pseudo-element of selector that
+    cannot be matched against a document, such as hover or first-letter"""
+    for x in selector.walk():
+        if isinstance(x, (PseudoClass, PseudoElement)) and x.name in INAPPROPRIATE_PSEUDO_CLASSES:
+            return x.name
+    return None
+
+
 class style_map(dict[str, str]):
     def __init__(self) -> None:
         super().__init__()
@@ -223,19 +240,19 @@ def cleanup_epub_prefixed_properties(style: dict[str, str]) -> None:
 
 
 class StylizerRules:
-    def __init__(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[CSSStyleSheet]) -> None:
+    def __init__(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[Stylesheet]) -> None:
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
 
         index = 0
         self.rules: list[FlatRule] = []
         self.page_rule: dict[str, str] = {}
-        self.font_face_rules: list[CSSFontFaceRule] = []
+        self.font_face_rules: list[FontFaceRule] = []
         for sheet_index, stylesheet in enumerate(stylesheets):
             href = stylesheet.href
-            for rule in stylesheet.cssRules:
-                if rule.type == rule.MEDIA_RULE:
-                    if media_ok(rule.media.mediaText):
-                        for subrule in rule.cssRules:
+            for rule in stylesheet.rules:
+                if isinstance(rule, MediaRule):
+                    if media_ok(rule.media.media_text):
+                        for subrule in rule.rules:
                             self.rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index == 0))
                             index += 1
                 else:
@@ -243,28 +260,30 @@ class StylizerRules:
                     index = index + 1
         self.rules.sort(key=itemgetter(0))  # sort by specificity
 
-    def flatten_rule(self, rule: CSSRule, href: str | None, index: int, is_user_agent_sheet: bool = False) -> list[FlatRule]:
+    def flatten_rule(self, rule: Rule, href: str | None, index: int, is_user_agent_sheet: bool = False) -> list[FlatRule]:
         results: list[FlatRule] = []
         sheet_index = 0 if is_user_agent_sheet else 1
-        if isinstance(rule, CSSStyleRule):
+        if isinstance(rule, StyleRule):
             style = self.flatten_style(rule.style)
-            for selector in rule.selectorList:
-                specificity = (sheet_index,) + selector.specificity + (index,)
-                text = selector.selectorText
-                selector = list(selector.seq)
-                results.append((specificity, selector, style, text, href))
-        elif isinstance(rule, CSSPageRule):
+            for selector in rule.selectors:
+                try:
+                    specificity = selector.specificity
+                except SelectorError:
+                    # Matching an invalid selector reports the error
+                    specificity = (0, 0, 0)
+                results.append(((sheet_index, *specificity, index), selector, style, selector.text, href))
+        elif isinstance(rule, PageRule):
             style = self.flatten_style(rule.style)
             self.page_rule.update(style)
-        elif isinstance(rule, CSSFontFaceRule):
-            if rule.style.length > 1:
+        elif isinstance(rule, FontFaceRule):
+            if len(rule.style) > 1:
                 # Ignore the meaningless font face rules generated by the
                 # benighted MS Word that contain only a font-family declaration
                 # and nothing else
                 self.font_face_rules.append(rule)
         return results
 
-    def flatten_style(self, cssstyle: CSSStyleDeclaration) -> style_map:
+    def flatten_style(self, cssstyle: DeclarationBlock) -> style_map:
         style = style_map()
         for prop in cssstyle:
             name = prop.name
@@ -299,7 +318,7 @@ class StylizerRules:
             text = self.opts.change_justification
         return text
 
-    def same_rules(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[CSSStyleSheet]) -> bool:
+    def same_rules(self, opts: Values | OptionValues, profile: Profile, stylesheets: list[Stylesheet]) -> bool:
         if self.opts != opts:
             # it's unlikely to happen, but better safe than sorry
             return False
@@ -346,15 +365,10 @@ class Stylizer:
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [html_css_stylesheet()]
         if base_css:
-            stylesheets.append(parseString(base_css, validate=False))
+            stylesheets.append(parse_stylesheet(base_css, log=css_log))
         style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
         assert is_element_list(style_tags)
 
-        # Add css_parser parsing profiles from output_profile
-        for profile in self.opts.output_profile.extra_css_modules:
-            cssprofiles.addProfile(profile['name'], profile['props'], profile['macros'])
-
-        parser = CSSParser(fetcher=self._fetch_css_file, log=logging.getLogger('calibre.css'))
         for elem in style_tags:
             if elem.tag in (XHTML('style'), SVG('style')) and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media')):
                 text = elem.text or ''
@@ -367,29 +381,26 @@ class Stylizer:
                         text += '\n\n' + force_unicode(t, 'utf-8')
                 if text:
                     text = oeb.css_preprocessor(text)
-                    # We handle @import rules separately
-                    parser.setFetcher(lambda x: ('utf-8', b''))
-                    stylesheet = parser.parseString(text, href=cssname, validate=False)
-                    parser.setFetcher(self._fetch_css_file)
-                    for rule in stylesheet.cssRules:
-                        if rule.type == rule.IMPORT_RULE:
-                            ihref = item.abshref(rule.href)
-                            if not media_ok(rule.media.mediaText):
-                                continue
-                            hrefs = self.oeb.manifest.hrefs
-                            if ihref not in hrefs:
-                                self.logger.warn('Ignoring missing stylesheet in @import rule:', rule.href)
-                                continue
-                            sitem = hrefs[ihref]
-                            if sitem.media_type not in OEB_STYLES:
-                                self.logger.warn(f'CSS @import of non-CSS file {rule.href!r}')
-                                continue
-                            sdata = sitem.data
-                            assert isinstance(sdata, CSSStyleSheet)  # sitem.media_type is in OEB_STYLES
-                            stylesheets.append(sdata)
+                    # Without a fetcher @import rules are not loaded, they are handled here
+                    stylesheet = parse_stylesheet(text, href=cssname, log=css_log)
+                    for rule in (x for x in stylesheet.rules if isinstance(x, ImportRule)):
+                        ihref = item.abshref(rule.href)
+                        if not media_ok(rule.media.media_text):
+                            continue
+                        hrefs = self.oeb.manifest.hrefs
+                        if ihref not in hrefs:
+                            self.logger.warn('Ignoring missing stylesheet in @import rule:', rule.href)
+                            continue
+                        sitem = hrefs[ihref]
+                        if sitem.media_type not in OEB_STYLES:
+                            self.logger.warn(f'CSS @import of non-CSS file {rule.href!r}')
+                            continue
+                        sdata = sitem.data
+                        assert isinstance(sdata, Stylesheet)  # sitem.media_type is in OEB_STYLES
+                        stylesheets.append(sdata)
                     # Make links to resources absolute, since these rules will
                     # be folded into a stylesheet at the root
-                    replaceUrls(stylesheet, item.abshref, ignoreImportRules=True)
+                    replace_urls(stylesheet, item.abshref, ignore_imports=True)
                     stylesheets.append(stylesheet)
             elif (
                 elem.tag == XHTML('link')
@@ -405,21 +416,13 @@ class Stylizer:
                     self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} not in manifest')
                     continue
                 sdata = sitem.data
-                if not isinstance(sdata, CSSStyleSheet):
+                if not isinstance(sdata, Stylesheet):
                     self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} is not CSS')
                     continue
                 stylesheets.append(sdata)
-        csses = {'extra_css': extra_css, 'user_css': user_css}
-        for w, x in csses.items():
+        for x in (extra_css, user_css):
             if x:
-                try:
-                    text = x
-                    stylesheet = parser.parseString(text, href=cssname, validate=False)
-                    stylesheets.append(stylesheet)
-                except Exception:
-                    self.logger.exception(f'Failed to parse {w}, ignoring.')
-                    self.logger.debug('Bad css: ')
-                    self.logger.debug(x)
+                stylesheets.append(parse_stylesheet(x, href=cssname, log=css_log))
 
         # using oeb to store the rules, page rule and font face rules
         # and generating them again if opts, profile or stylesheets are different
@@ -433,19 +436,19 @@ class Stylizer:
         self.flatten_style = stylizer_rules.flatten_style
 
         self._styles: dict[_Element, Style] = {}
-        pseudo_pat = re.compile(':{{1,2}}({})'.format('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
-        select = Select(tree, ignore_inappropriate_pseudo_classes=True)
+        # quirks_mode matches ids and classes case-insensitively, as the
+        # selector engine used before kgcss did
+        select = Select(tree, ignore_inappropriate_pseudo_classes=True, quirks_mode=True)
 
-        for _, _, cssdict, text, _ in self.rules:
-            fl = pseudo_pat.search(text)
+        for _, selector, cssdict, selector_text, _ in self.rules:
             try:
-                matches = tuple(select(text))
+                matches = tuple(select(selector))
             except SelectorError as err:
-                self.logger.error(f'Ignoring CSS rule with invalid selector: {text!r} ({as_unicode(err)})')
+                self.logger.error(f'Ignoring CSS rule with invalid selector: {selector_text!r} ({as_unicode(err)})')
                 continue
 
+            fl = inappropriate_pseudo(selector)
             if fl is not None:
-                fl = fl.group(1)
                 if fl == 'first-letter' and getattr(self.oeb, 'plumber_output_format', '').lower() in {'mobi', 'docx'}:
                     # Fake first-letter
                     for elem in matches:
@@ -502,22 +505,6 @@ class Stylizer:
                 if upd:
                     style._update_cssdict(upd)
 
-    def _fetch_css_file(self, path: str) -> tuple[str | None, bytes | None]:
-        hrefs = self.oeb.manifest.hrefs
-        if path not in hrefs:
-            self.logger.warn(f'CSS import of missing file {path!r}')
-            return None, None
-        item = hrefs[path]
-        if item.media_type not in OEB_STYLES:
-            self.logger.warn(f'CSS import of non-CSS file {path!r}')
-            return None, None
-        sheet = item.data
-        assert isinstance(sheet, CSSStyleSheet)  # item.media_type is in OEB_STYLES
-        data = sheet.cssText
-        if not isinstance(data, bytes):
-            data = data.encode('utf-8')
-        return 'utf-8', data
-
     def style(self, element: _Element) -> Style:
         try:
             return self._styles[element]
@@ -540,6 +527,11 @@ class Stylizer:
 
 no_important_properties = frozenset()
 svg_text_tags = tuple(map(SVG, ('text', 'textPath', 'tref', 'tspan')))
+
+
+def dom_name(name: str) -> str:
+    "The name of a CSS property in the DOM, such as fontSize for font-size"
+    return re.sub(r'-([a-z])', lambda m: m.group(1).upper(), name)
 
 
 def is_only_number(x: str) -> bool:
@@ -608,17 +600,12 @@ class Style:
         attrib = self._element.attrib
         if 'style' not in attrib:
             return
-        css = attrib['style'].split(';')
-        css = filter(None, (x.strip() for x in css))
-        css = [y.strip() for y in css]
-        css = [y for y in css if self.MS_PAT.match(y) is None]
-        css = '; '.join(css)
-        try:
-            style = parseStyle(css, validate=False)
-        except CSSSyntaxError:
-            return
+        style = parse_style(attrib['style'])
+        for name in style.keys():
+            if self.MS_PAT.match(name) is not None:
+                style.remove(name)
         if url_replacer is not None:
-            replaceUrls(style, url_replacer, ignoreImportRules=True)
+            replace_urls(style, url_replacer)
         self._update_style(self._stylizer.flatten_style(style))
 
     def _has_parent(self) -> bool:
@@ -634,7 +621,7 @@ class Style:
         return self._stylizer.style(elem)
 
     def __getitem__(self, name: str) -> str | float | None:  # a property value or a length converted to pts
-        domname = cssproperties._toDOMname(name)
+        domname = dom_name(name)
         if hasattr(self, domname):
             return getattr(self, domname)
         return self._unit_convert(self._get(name))
@@ -689,23 +676,10 @@ class Style:
             else:
                 val = self._style.get('background', None)
                 if val is not None:
-                    try:
-                        style = parseStyle('background: ' + val, validate=False)
-                        css_val = style.getProperty('background').propertyValue
-                        try:
-                            val_list = list(css_val)
-                        except Exception:
-                            # css_val is CSSPrimitiveValue
-                            val_list = [css_val]
-                        for c in val_list:
-                            c = c.cssText
-                            if isinstance(c, bytes):
-                                c = c.decode('utf-8', 'replace')
-                            if validate_color(c):
-                                col = c
-                                break
-                    except Exception:
-                        pass
+                    for c in parse_value(val, property_name='background'):
+                        if validate_color(c.css_text):
+                            col = c.css_text
+                            break
             if col is None:
                 self._bgcolor = False
             else:

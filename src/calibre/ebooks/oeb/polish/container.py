@@ -1656,14 +1656,20 @@ def do_explode(path: str, dest: str) -> tuple[str, list[str]]:
 
 
 def opf_to_azw3(opf: str, outpath: str, container: Container) -> None:
+    from kgcss import Stylesheet, parse_stylesheet
+
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
     from calibre.ebooks.mobi.tweak import set_cover
+    from calibre.ebooks.oeb.base import _css_logger
 
     class Item(Manifest.Item):
-        def _parse_css(self, data: str | bytes) -> CSSStyleSheet:
-            # The default CSS parser used by oeb.base inserts the h namespace
-            # and resolves all @import rules. We don't want that.
-            return container.parse_css(data)
+        def _parse_css(self, data: str | bytes) -> Stylesheet:
+            # The default CSS parser used by oeb.base resolves all @import
+            # rules and removes @page rules. We don't want that.
+            text = data if isinstance(data, str) else container.decode(data)
+            if not container.tweak_mode:
+                text = container.css_preprocessor(text)
+            return parse_stylesheet(text, log=_css_logger)
 
     def specialize(oeb: OEBBook) -> None:
         oeb.manifest.Item = Item  # ty: ignore[invalid-assignment] Manifest.Item is designed to be overridden per instance

@@ -26,7 +26,7 @@ class OEBOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book: OEBBook, output: str, input_plugin: InputFormatPlugin, opts: Values, log: Log) -> None:
         output_path = output
-        from css_parser.css import CSSStyleSheet
+        from kgcss import Stylesheet
         from lxml import etree
 
         from polyglot.urllib import unquote
@@ -65,7 +65,7 @@ class OEBOutput(OutputFormatPlugin):
                 if (
                     not self.opts.expand_css
                     and item.media_type in OEB_STYLES
-                    and isinstance(data := item.data, CSSStyleSheet)
+                    and isinstance(data := item.data, Stylesheet)
                     and 'nook' not in self.opts.output_profile.short_name
                 ):
                     condense_sheet(data)

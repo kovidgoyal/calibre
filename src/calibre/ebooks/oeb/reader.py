@@ -228,7 +228,7 @@ class OEBReader:
         return bad
 
     def _manifest_add_missing(self, invalid: Collection[Manifest.Item]) -> None:
-        import css_parser
+        from kgcss import Stylesheet, iter_urls
 
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
@@ -267,11 +267,8 @@ class OEBReader:
                         if not scheme and href not in known:
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
-                    try:
-                        urls = list(css_parser.getUrls(data))
-                    except Exception:
-                        urls = []
-                    for url in urls:
+                    assert isinstance(data, Stylesheet)  # OEB_STYLES items are parsed into stylesheets
+                    for url in iter_urls(data):
                         href, _ = urldefrag(url)
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme

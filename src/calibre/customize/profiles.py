@@ -254,9 +254,6 @@ class OutputProfile(Plugin):
     #: If True output should be optimized for a touchscreen interface
     touchscreen = False
     touchscreen_news_css = ''
-    #: A list of extra (beyond CSS 2.1) modules supported by the device
-    #: Format is a css_parser profile dictionary (see iPad for example)
-    extra_css_modules = []
     #: If True, the date is appended to the title of downloaded news
     periodical_date_in_title = True
 
@@ -281,20 +278,6 @@ class iPadOutput(OutputProfile):
     screen_size = (768, 1024)
     comic_screen_size = (768, 1024)
     dpi = 132.0
-    extra_css_modules = [
-        {
-            'name': 'webkit',
-            'props': {
-                '-webkit-border-bottom-left-radius': '{length}',
-                '-webkit-border-bottom-right-radius': '{length}',
-                '-webkit-border-top-left-radius': '{length}',
-                '-webkit-border-top-right-radius': '{length}',
-                '-webkit-border-radius': r'{border-width}(\s+{border-width}){0,3}|inherit',
-            },
-            'macros': {'border-width': '{length}|medium|thick|thin'},
-        }
-    ]
-
     ratings_char = '★'  # filled star
     empty_ratings_char = '☆'  # hollow star
 

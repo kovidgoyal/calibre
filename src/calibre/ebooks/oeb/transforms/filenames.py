@@ -26,7 +26,7 @@ class RenameFiles:  # {{{
         self.renamed_items_map = renamed_items_map
 
     def __call__(self, oeb: OEBBook, opts: Values) -> None:
-        import css_parser
+        from kgcss import Stylesheet, replace_urls
 
         self.log = oeb.logger
         self.opts = opts
@@ -37,8 +37,8 @@ class RenameFiles:  # {{{
             data = item.data
             if isinstance(data, etree._Element):
                 rewrite_links(data, self.url_replacer)
-            elif hasattr(item.data, 'cssText'):
-                css_parser.replaceUrls(item.data, self.url_replacer)
+            elif isinstance(data, Stylesheet):
+                replace_urls(data, self.url_replacer)
 
         if self.oeb.guide:
             for ref in self.oeb.guide.values():

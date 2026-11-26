@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-import logging
-from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
-import css_parser
-from css_parser.css import CSSStyleSheet
+from kgcss import FontFaceRule, Stylesheet, parse_rule, parse_stylesheet
 from lxml import etree
 
 from calibre import guess_type
 from calibre.ebooks.oeb.base import CSS_MIME, XHTML, XPath
 from calibre.ebooks.oeb.polish.embed import font_key
-from calibre.ebooks.oeb.transforms.subset import elem_style, find_font_face_rules, get_font_properties
+from calibre.ebooks.oeb.transforms.subset import class_font_styles, elem_style, find_font_face_rules, font_face_rule_info
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import NoFonts, font_scanner
 
@@ -110,9 +107,8 @@ class EmbedFonts:
     def __call__(self, oeb: OEBBook, log: Log, opts: Values | OptionValues) -> None:
         self.oeb, self.log, self.opts = oeb, log, opts
         self.sheet_cache: dict[str, object] = {}
-        self.find_style_rules()
+        self.style_rules = class_font_styles(oeb)
         self.find_embedded_fonts()
-        self.parser = css_parser.CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
         self.warned: set[str] = set()
         self.warned2: set[str] = set()
         self.newly_embedded_fonts: set[StyleKey] = set()
@@ -135,43 +131,15 @@ class EmbedFonts:
         """
         self.embedded_fonts: list[FontFaceInfo] = []
         for item in self.oeb.manifest:
-            if not isinstance(item.data, CSSStyleSheet):
+            if not isinstance(item.data, Stylesheet):
                 continue
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
-
-    def find_style_rules(self) -> None:
-        """
-        Extract all font related style information from all stylesheets into a
-        dict mapping classes to font properties specified by that class. All
-        the heavy lifting has already been done by the CSS flattening code.
-        """
-        rules: defaultdict[str, FontStyle] = defaultdict(dict)  # ty: ignore[no-matching-overload] FontStyle is total=False so {} is valid
-        for item in self.oeb.manifest:
-            data = item.data
-            if not isinstance(data, CSSStyleSheet):
-                continue
-            for i, rule in enumerate(data.cssRules):
-                if rule.type != rule.STYLE_RULE:
-                    continue
-                props = cast('FontStyle', {k: v for k, v in get_font_properties(rule).items() if v})  # None values removed
-                if not props:
-                    continue
-                for sel in rule.selectorList:
-                    sel = sel.selectorText
-                    if sel and sel.startswith('.'):
-                        # We don't care about pseudo-selectors as the worst that
-                        # can happen is some extra characters will remain in
-                        # the font
-                        sel = sel.partition(':')[0]
-                        rules[sel[1:]].update(props)
-
-        self.style_rules = dict(rules)
 
     def get_page_sheet(self) -> Manifest.Item:
         if self.page_sheet is None:
             manifest = self.oeb.manifest
             id_, href = manifest.generate('page_css', 'page_styles.css')
-            self.page_sheet = manifest.add(id_, href, CSS_MIME, data=self.parser.parseString('', validate=False))
+            self.page_sheet = manifest.add(id_, href, CSS_MIME, data=parse_stylesheet(''))
             root = self.current_item.data
             assert isinstance(root, etree._Element)  # process_item() is only called for spine items with parsed HTML
             head = root.xpath('//*[local-name()="head"][1]')
@@ -219,15 +187,17 @@ class EmbedFonts:
                 # TODO: Create a page rule from the book rule (cannot use it
                 # directly as paths might be different)
                 item = in_book['item']
-                sheet = self.parser.parseString(in_book['rule'].cssText, validate=False)
-                rule = sheet.cssRules[0]
+                rule = in_book['rule'].copy()
                 page_sheet = self.get_page_sheet()
                 href = page_sheet.abshref(item.href)
-                rule.style.setProperty('src', f'url({href})')
-                ff_rules.append(find_font_face_rules(sheet, self.oeb)[0])
+                rule.style.set('src', f'url({href})')
                 page_css = page_sheet.data
-                assert isinstance(page_css, CSSStyleSheet)  # page_css items are always stylesheets
-                page_css.insertRule(rule, len(page_css.cssRules))
+                assert isinstance(page_css, Stylesheet)  # page_css items are always stylesheets
+                rule = page_css.add(rule)
+                assert isinstance(rule, FontFaceRule)  # a copy of an @font-face rule
+                info = font_face_rule_info(rule, self.oeb)
+                if info is not None:
+                    ff_rules.append(info)
 
     def embed_font(self, style: FontStyle) -> FontFaceInfo | None:
         from calibre.ebooks.oeb.polish.embed import find_matching_font, weight_as_number
@@ -259,11 +229,14 @@ class EmbedFonts:
             css = '''@font-face {{ font-family: "{}"; font-weight: {}; font-style: {}; font-stretch: {}; src: url({}) }}'''.format(
                 f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href
             )
-            sheet = self.parser.parseString(css, validate=False)
             page_css = page_sheet.data
-            assert isinstance(page_css, CSSStyleSheet)  # page_css items are always stylesheets
-            page_css.insertRule(sheet.cssRules[0], len(page_css.cssRules))
-            return find_font_face_rules(sheet, self.oeb)[0]
+            assert isinstance(page_css, Stylesheet)  # page_css items are always stylesheets
+            rule = page_css.add(parse_rule(css))
+            assert isinstance(rule, FontFaceRule)  # parsed from an @font-face rule
+            info = font_face_rule_info(rule, self.oeb)
+            if info is None:
+                raise ValueError(f'The font {href} was not added to the book')
+            return info
 
         for f in fonts:
             if f['weight'] == weight and f['font-style'] == style.get('font-style', 'normal') and f['font-stretch'] == style.get('font-stretch', 'normal'):

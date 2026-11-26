@@ -666,6 +666,24 @@ class Structure(BaseTest):
         self.assertEqual(root.xpath('//*/@aria-describedby'), [nid])
         self.assertEqual(root.xpath('//*/@for'), [nid])
 
+    def test_css_transform_rules_on_container(self) -> None:
+        from calibre.ebooks.css_transform_rules import transform_container
+
+        html = (
+            '<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="s.css"/><style>p { color: red }</style></head>'
+            '<body><p style="color: red; margin: 0">a</p></body></html>'
+        )
+        c = self.create_epub([cmi('a.html', html), cmi('s.css', '#\\31 x { color: red } @media screen { p { color: red } }')])
+        rules = [{'property': 'color', 'match_type': 'is', 'query': 'red', 'action': 'change', 'action_data': 'blue'}]
+        self.assertTrue(transform_container(c, rules))
+        sheet = c.parsed('s.css')
+        self.assertEqual(sheet.cssRules[1].cssRules[0].style.getPropertyValue('color'), 'blue')
+        self.assertEqual(sheet.cssRules[0].style.getPropertyValue('color'), 'blue')
+        root = c.parsed('a.html')
+        self.assertIn('blue', root.xpath('//*[local-name()="style"]')[0].text)
+        self.assertEqual(root.xpath('//*[local-name()="p"]/@style'), ['color: blue; margin: 0;'])
+        self.assertFalse(transform_container(c, rules))
+
     def test_report_css_data(self) -> None:
         from calibre.ebooks.oeb.polish.report import ClassEntry, css_data
         from calibre.spell import parse_lang_code

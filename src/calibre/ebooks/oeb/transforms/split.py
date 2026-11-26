@@ -15,14 +15,11 @@ from collections import OrderedDict
 from contextlib import suppress
 from typing import TYPE_CHECKING, cast
 
-from css_parser.css import CSSStyleSheet
-from css_selectors.errors import SelectorError
-from css_selectors.select import Select
+from kgcss import Select, Selector, SelectorError, StyleRule, Stylesheet
 from lxml import etree
 from lxml.etree import XPath as _XPath
 
-from calibre import as_unicode, force_unicode
-from calibre.ebooks.epub import rules
+from calibre import as_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, rewrite_links, urldefrag, urlnormalize
 from calibre.ebooks.oeb.base import XPNSMAP as NAMESPACES
 from calibre.ebooks.oeb.polish.split import do_split, split_at_body_children
@@ -63,7 +60,7 @@ class Split:
         self.split_on_page_breaks = split_on_page_breaks
         self.page_breaks_xpath = page_breaks_xpath
         self.max_flow_size = max_flow_size
-        self.page_break_selectors: list[PageBreak] | set[tuple[str, bool]] | None = None
+        self.page_break_selectors: list[PageBreak] | list[tuple[Selector, bool]] | None = None
         self.remove_css_pagebreaks = remove_css_pagebreaks
         if self.page_breaks_xpath is not None:
             self.page_break_selectors = [(XPath(self.page_breaks_xpath), False)]
@@ -106,30 +103,22 @@ class Split:
     def find_page_breaks(self, item: Manifest.Item) -> tuple[list[PageBreak], list[str]]:
         if self.page_break_selectors is None:
             ignored = {'avoid', 'auto', 'inherit', 'never'}
-            self.page_break_selectors = set()
-            stylesheets: list[CSSStyleSheet] = []
+            # Selectors by their text, to match each only once
+            selectors: dict[tuple[str, bool], tuple[Selector, bool]] = {}
             for x in self.oeb.manifest:
-                if x.media_type in OEB_STYLES:
-                    sheet = x.data
-                    assert isinstance(sheet, CSSStyleSheet)  # media_type is in OEB_STYLES
-                    stylesheets.append(sheet)
-            for rule in rules(stylesheets):
-                before = force_unicode(getattr(rule.style.getPropertyCSSValue('page-break-before'), 'cssText', '').strip().lower())
-                after = force_unicode(getattr(rule.style.getPropertyCSSValue('page-break-after'), 'cssText', '').strip().lower())
-                try:
-                    if before and before not in ignored:
-                        self.page_break_selectors.add((rule.selectorText, True))
-                        if self.remove_css_pagebreaks:
-                            rule.style.removeProperty('page-break-before')
-                except Exception:
-                    pass
-                try:
-                    if after and after not in ignored:
-                        self.page_break_selectors.add((rule.selectorText, False))
-                        if self.remove_css_pagebreaks:
-                            rule.style.removeProperty('page-break-after')
-                except Exception:
-                    pass
+                if x.media_type not in OEB_STYLES:
+                    continue
+                sheet = x.data
+                assert isinstance(sheet, Stylesheet)  # media_type is in OEB_STYLES
+                for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+                    for name, before in (('page-break-before', True), ('page-break-after', False)):
+                        val = rule.style.get_value(name).strip().lower()
+                        if val and val not in ignored:
+                            for selector in rule.selectors:
+                                selectors.setdefault((selector.text, before), (selector, before))
+                            if self.remove_css_pagebreaks:
+                                rule.style.remove(name)
+            self.page_break_selectors = list(selectors.values())
         if not self.page_break_selectors:
             return [], []
         # Maps page break elements to whether the break is before or after them.
@@ -138,7 +127,9 @@ class Split:
         page_breaks: dict[_Element, bool] = {}
         root = item.data
         assert isinstance(root, etree._Element)  # only called for items whose data is an element
-        select = Select(root)
+        # quirks_mode matches ids and classes case-insensitively, as the
+        # selector engine used before kgcss did
+        select = Select(root, quirks_mode=True)
         body = root.xpath('//h:body', namespaces=NAMESPACES)
         if not body:
             return [], []
@@ -146,7 +137,7 @@ class Split:
 
         for selector, before in self.page_break_selectors:
             try:
-                matches = select(selector) if isinstance(selector, str) else selector(root)
+                matches = select(selector) if isinstance(selector, Selector) else selector(root)
                 for elem in matches:
                     if elem in descendants and elem.tag.rpartition('}')[2].lower() not in {
                         'html',
@@ -159,7 +150,8 @@ class Split:
                     }:
                         page_breaks[elem] = before
             except SelectorError as err:
-                self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {selector!r} ({as_unicode(err)})')
+                text = selector.text if isinstance(selector, Selector) else str(selector)
+                self.log.warn(f'Ignoring page breaks specified with invalid CSS selector: {text!r} ({as_unicode(err)})')
 
         # Remove these attributes in case they are present in the source, as was
         # done when they were used to track page breaks

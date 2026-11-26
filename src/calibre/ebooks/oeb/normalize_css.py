@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-from functools import wraps
 from typing import TYPE_CHECKING
 
-from kgcss import expand_shorthand, longhands
-
-from calibre.ebooks.oeb.base import css_text
+from kgcss import RuleType, StyleRule, condense_shorthands, expand_shorthand, longhands
 
 if TYPE_CHECKING:
     import unittest
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Iterable, Sequence
 
-    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet, Property
-
-    type Condenser = Callable[[CSSStyleDeclaration, Sequence[Property]], None]
+    from kgcss import Stylesheet
 
 DEFAULTS = {
     'azimuth': 'center',
@@ -147,95 +142,17 @@ def normalize_filter_css(props: Iterable[str]) -> set[str]:
     return ans
 
 
-def condense_edge(vals: Sequence[Property]) -> str | None:
-    edges: dict[str, str] = {x.name.rpartition('-')[-1]: x.value for x in vals}
-    if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
-        return None
-    ce: dict[str, str] = {}
-    for x, y in [('left', 'right'), ('top', 'bottom')]:
-        if edges[x] == edges[y]:
-            ce[x] = edges[x]
-        else:
-            ce[x], ce[y] = edges[x], edges[y]
-    if len(ce) == 4:
-        return ' '.join(ce[x] for x in ('top', 'right', 'bottom', 'left'))
-    if len(ce) == 3:
-        if 'right' in ce:
-            return ' '.join(ce[x] for x in ('top', 'right', 'top', 'left'))
-        return ' '.join(ce[x] for x in ('top', 'left', 'bottom'))
-    if len(ce) == 2:
-        if ce['top'] == ce['left']:
-            return ce['top']
-        return ' '.join(ce[x] for x in ('top', 'left'))
-    return None
-
-
-def simple_condenser(prefix: str, func: Callable[[Sequence[Property]], str | None]) -> Condenser:
-    @wraps(func)
-    def condense_simple(style: CSSStyleDeclaration, props: Sequence[Property]) -> None:
-        cp = func(props)
-        if cp is not None:
-            for prop in props:
-                style.removeProperty(prop.name)
-            style.setProperty(prefix, cp)
-
-    return condense_simple
-
-
-def condense_border(style: CSSStyleDeclaration, props: Sequence[Property]) -> None:
-    prop_map = {p.name: p for p in props}
-    edge_vals: list[Property] = []
-    for edge in EDGES:
-        name = f'border-{edge}'
-        vals: list[Property] = []
-        for prop in BORDER_PROPS:
-            x = prop_map.get(f'{name}-{prop}', None)
-            if x is not None:
-                vals.append(x)
-        if len(vals) == 3:
-            for prop in vals:
-                style.removeProperty(prop.name)
-            style.setProperty(name, ' '.join(x.value for x in vals))
-            prop_map[name] = style.getProperty(name)
-        x = prop_map.get(name, None)
-        if x is not None:
-            edge_vals.append(x)
-    if len(edge_vals) == 4 and len({x.value for x in edge_vals}) == 1:
-        for prop in edge_vals:
-            style.removeProperty(prop.name)
-        style.setProperty('border', edge_vals[0].value)
-
-
-condensers: dict[str, Condenser] = {
-    'margin': simple_condenser('margin', condense_edge),
-    'padding': simple_condenser('padding', condense_edge),
-    'border': condense_border,
-}
-
-
-def condense_rule(style: CSSStyleDeclaration) -> None:
-    expanded: dict[str, list[Property]] = {'margin-': [], 'padding-': [], 'border-': []}
-    for prop in style.getProperties():
-        for x, t in expanded.items():
-            if prop.name and prop.name.startswith(x):
-                t.append(prop)
-                break
-    for prefix, vals in expanded.items():
-        if len(vals) > 1 and {x.priority for x in vals} == {''}:
-            condensers[prefix[:-1]](style, vals)
-
-
-def condense_sheet(sheet: CSSStyleSheet) -> None:
-    for rule in sheet.cssRules:
-        if rule.type == rule.STYLE_RULE:
-            condense_rule(rule.style)
+def condense_sheet(sheet: Stylesheet) -> None:
+    """Replace the longhands of margin, padding and border with shorthands
+    where that does not change their meaning, in the style rules of sheet"""
+    for rule in (x for x in sheet.iter_rules(RuleType.STYLE) if isinstance(x, StyleRule)):
+        condense_shorthands(rule.style)
 
 
 def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
     import unittest
-    from itertools import product
 
-    from css_parser import parseStyle
+    from kgcss import parse_stylesheet
 
     class TestNormalization(unittest.TestCase):
         longMessage = True
@@ -402,6 +319,11 @@ def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:
             )
             ae({'color', 'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left'}, normalize_filter_css(('color', 'margin')))
 
+        def condensed(self, css: str) -> str:
+            sheet = parse_stylesheet(css)
+            condense_sheet(sheet)
+            return sheet.css_text
+
         def test_edge_condensation(self) -> None:
             for s, v in {
                 (1, 1, 3): None,
@@ -415,37 +337,47 @@ def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:
             }.items():
                 for prefix in ('margin', 'padding'):
                     css = {f'{prefix}-{x}': str(y) + 'pt' if isinstance(y, int) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
-                    css = '; '.join((f'{k}:{v}' for k, v in css.items()))
-                    style = parseStyle(css)
-                    condense_rule(style)
-                    val = getattr(style.getProperty(prefix), 'value', None)
-                    self.assertEqual(v, val)
-                    if val is not None:
-                        for edge in EDGES:
-                            self.assertFalse(getattr(style.getProperty(f'{prefix}-{edge}'), 'value', None))
+                    decls = '; '.join(f'{k}:{v}' for k, v in css.items())
+                    sheet = parse_stylesheet(f'p {{ {decls} }}')
+                    condense_sheet(sheet)
+                    rule = sheet.rules[0]
+                    assert isinstance(rule, StyleRule)
+                    style = rule.style
+                    self.assertEqual(v or '', style.get_value(prefix))
+                    if v is not None:
+                        self.assertEqual([prefix], style.keys())
 
         def test_border_condensation(self) -> None:
             vals = 'red solid 5px'
             css = '; '.join(f'border-{edge}-{p}: {v}' for edge in EDGES for p, v in zip(BORDER_PROPS, vals.split()))
-            style = parseStyle(css)
-            condense_rule(style)
-            for e, p in product(EDGES, BORDER_PROPS):
-                self.assertFalse(style.getProperty(f'border-{e}-{p}'))
-                self.assertFalse(style.getProperty(f'border-{e}'))
-                self.assertFalse(style.getProperty(f'border-{p}'))
-            self.assertEqual(style.getProperty('border').value, vals)
-            css = '; '.join(f'border-{edge}-{p}: {v}' for edge in ('top',) for p, v in zip(BORDER_PROPS, vals.split()))
-            style = parseStyle(css)
-            condense_rule(style)
-            self.assertEqual(css_text(style).rstrip(';'), f'border-top: {vals}')
+            self.assertEqual(self.condensed(f'p {{ {css} }}'), f'p {{\n  border: {vals};\n}}')
+            css = '; '.join(f'border-top-{p}: {v}' for p, v in zip(BORDER_PROPS, vals.split()))
+            self.assertEqual(self.condensed(f'p {{ {css} }}'), f'p {{\n  border-top: {vals};\n}}')
             css += ';' + '; '.join(
                 f'border-{edge}-{p}: {v}' for edge in ('right', 'left', 'bottom') for p, v in zip(BORDER_PROPS, vals.replace('red', 'green').split())
             )
-            style = parseStyle(css)
-            condense_rule(style)
-            self.assertEqual(len(style.getProperties()), 4)
-            self.assertEqual(style.getProperty('border-top').value, vals)
-            self.assertEqual(style.getProperty('border-left').value, vals.replace('red', 'green'))
+            sheet = parse_stylesheet(f'p {{ {css} }}')
+            condense_sheet(sheet)
+            rule = sheet.rules[0]
+            assert isinstance(rule, StyleRule)
+            style = rule.style
+            self.assertEqual(len(style), 4)
+            self.assertEqual(style['border-top'], vals)
+            self.assertEqual(style['border-left'], vals.replace('red', 'green'))
+
+        def test_sheet_condensation(self) -> None:
+            edges = 'margin-top: 1px; margin-right: 1px; margin-bottom: 1px; margin-left: 1px'
+            # Style rules at any depth are condensed
+            self.assertEqual(
+                self.condensed(f'@media screen {{ @supports (display: grid) {{ p {{ {edges} }} }} }}'),
+                '@media screen {\n  @supports (display: grid) {\n    p {\n      margin: 1px;\n    }\n  }\n}',
+            )
+            # Not when that could change the meaning: !important, or an
+            # overlapping shorthand
+            css = f'p {{\n  {edges.replace("; ", " !important;\n  ")} !important;\n}}'
+            self.assertEqual(self.condensed(css), css)
+            css = f'p {{\n  margin: 0;\n  {edges.replace("; ", ";\n  ")};\n}}'
+            self.assertEqual(self.condensed(css), css)
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestNormalization)
     if return_tests:
