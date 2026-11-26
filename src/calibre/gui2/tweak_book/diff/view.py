@@ -92,24 +92,13 @@ def beautify_text(raw: str, syntax: str) -> str:
             return raw
         pretty_xml_tree(root)
     elif syntax == 'css':
-        import logging
+        from kgcss import parse_stylesheet, serialize
 
-        from css_parser import CSSParser, log
+        from calibre.ebooks.oeb.base import _css_logger
+        from calibre.gui2.tweak_book import css_serialize_options
 
-        from calibre.ebooks.oeb.base import _css_logger, serialize
-        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
-
-        setup_css_parser_serialization(tprefs['editor_tab_stop_width'])
-        log.setLevel(logging.WARNING)
-        log.raiseExceptions = False
-        parser = CSSParser(
-            loglevel=logging.WARNING,
-            # We don't care about @import rules
-            fetcher=lambda x: (None, None),
-            log=_css_logger,
-        )
-        data = parser.parseString(raw, href='<string>', validate=False)
-        return serialize(data, 'text/css').decode('utf-8')
+        # Without a fetcher @import rules are not loaded
+        return serialize(parse_stylesheet(raw, href='<string>', log=_css_logger), css_serialize_options()) + '\n'
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)

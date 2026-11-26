@@ -8,11 +8,10 @@ from itertools import chain
 from operator import itemgetter
 from typing import TYPE_CHECKING, cast
 
-from css_parser import parseStyle
+from kgcss import parse_style
 from qt.core import Qt, QTextCursor, QTextEdit
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
-from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.polish.utils import BLOCK_TAG_NAMES
 from calibre.gui2 import error_dialog
@@ -35,7 +34,7 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
 
-    from css_parser.css import CSSStyleDeclaration
+    from kgcss import DeclarationBlock
     from qt.core import QKeyEvent, QTextBlock
 
     from calibre.gui2.tweak_book.editor.smarts import CompletionData
@@ -331,12 +330,13 @@ def set_style_property(tag: Tag, property_name: str, value: str, editor: TextEdi
     block, offset = find_attribute_in_tag(tag.start_block, tag.start_offset + 1, 'style')
     c = editor.textCursor()
 
-    def css(d: CSSStyleDeclaration) -> str:
-        return css_text(d).replace('\n', ' ')
+    def css(d: DeclarationBlock) -> str:
+        # Safe inside a double quoted attribute
+        return d.to_css(single_line=True)
 
     if block is None or offset is None:
-        d = parseStyle('')
-        d.setProperty(property_name, value)
+        d = parse_style('')
+        d.set(property_name, value)
         c.setPosition(tag.end_block.position() + tag.end_offset)
         c.insertText(f' style="{css(d)}"')
     else:
@@ -350,8 +350,8 @@ def set_style_property(tag: Tag, property_name: str, value: str, editor: TextEdi
                 show=True,
             )
         c.setPosition(end_block.position() + end_offset, QTextCursor.MoveMode.KeepAnchor)
-        d = parseStyle(editor.selected_text_from_cursor(c)[1:-1])
-        d.setProperty(property_name, value)
+        d = parse_style(editor.selected_text_from_cursor(c)[1:-1])
+        d.set(property_name, value)
         c.insertText(f'"{css(d)}"')
 
 

@@ -142,12 +142,10 @@ def itertests(suite: unittest.TestSuite) -> Iterator[unittest.TestCase]:
 
 def init_env() -> None:
     from calibre.ebooks.metadata.book.base import reset_field_metadata
-    from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
     from calibre.utils.config_base import reset_tweaks_to_default
 
     reset_tweaks_to_default()
     reset_field_metadata()
-    setup_css_parser_serialization()
 
 
 def filter_tests(suite: unittest.TestSuite, test_ok: Callable[[unittest.TestCase], bool]) -> unittest.TestSuite:

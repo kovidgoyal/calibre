@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Literal, Never, Self, cast, overload
 from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from kgcss import RuleType, Stylesheet, parse_stylesheet, replace_urls_in_text
+from kgcss import compat as css_compat
 from kgcss import resolve_imports as resolve_css_imports
 from lxml import etree, html
 
@@ -41,12 +42,6 @@ if TYPE_CHECKING:
     from calibre.ebooks.oeb.stylizer import StylizerRules
     from calibre.ebooks.oeb.transforms.flatcss import EmbedFontsCSSRules
     from calibre.utils.logging import Log
-
-    class HasCSSText(Protocol):
-        # Any css_parser object (stylesheet, rule, declaration, value, ...),
-        # used by Edit book until it is ported to kgcss
-        @property
-        def cssText(self) -> str | bytes: ...
 
     class OEBContainer(Protocol):
         # NullContainer, DirContainer, calibre.ebooks.lit.reader.LitContainer, ...
@@ -225,13 +220,6 @@ self_closing_bad_tags = {
     'script',
     'style',
 }
-
-
-def css_text(x: HasCSSText) -> str:
-    ans = x.cssText
-    if isinstance(ans, bytes):
-        ans = ans.decode('utf-8', 'replace')
-    return ans
 
 
 def as_string_type(pat: str | bytes, for_unicode: bool) -> str | bytes:
@@ -591,7 +579,12 @@ def escape_cdata(root: etree._Element) -> None:
             elem.text = etree.CDATA(elem.text.replace(']]>', r'\]\]\>'))
 
 
-def serialize(data: etree._Element | Stylesheet | str | bytes | HasCSSText | None, media_type: str, pretty_print: bool = False) -> bytes:
+def serialize(data: etree._Element | Stylesheet | css_compat.CSSStyleSheet | str | bytes | None, media_type: str, pretty_print: bool = False) -> bytes:
+    if isinstance(data, css_compat.CSSStyleSheet):
+        # The css_parser-style view of a stylesheet, from a plugin
+        sheet = css_compat.unwrap(data)
+        assert isinstance(sheet, Stylesheet)  # the view of a sheet
+        data = sheet
     if isinstance(data, etree._Element):
         is_oeb_doc = media_type in OEB_DOCS
         if is_oeb_doc:
@@ -607,14 +600,6 @@ def serialize(data: etree._Element | Stylesheet | str | bytes | HasCSSText | Non
         return data.encode('utf-8')
     if isinstance(data, Stylesheet):
         return data.encode() + b'\n'
-    if hasattr(data, 'cssText'):  # a css_parser sheet from Edit book, until it is ported to kgcss
-        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
-
-        setup_css_parser_serialization()
-        css = cast('HasCSSText', data).cssText
-        if isinstance(css, str):
-            css = css.encode('utf-8')
-        return css + b'\n'
     return b'' if data is None else bytes(data)
 
 

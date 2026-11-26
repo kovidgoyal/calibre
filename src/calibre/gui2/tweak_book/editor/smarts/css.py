@@ -28,23 +28,16 @@ if TYPE_CHECKING:
 
 
 def find_rule(raw: str, rule_address: Sequence[int]) -> tuple[int, int] | tuple[None, None]:
-    import tinycss
+    "The line and column, 1-based, of the rule at rule_address, a path of indices into the rules as browsers count them"
+    from kgcss import parse_stylesheet
 
-    parser = tinycss.make_full_parser()
-    sheet = parser.parse_stylesheet(raw)
-    rules = sheet.rules
-    ans = None, None
-    while rule_address:
-        try:
-            r = rules[rule_address[0]]
-        except IndexError:
-            return None, None
-        else:
-            ans = r.line, r.column
-        rule_address = rule_address[1:]
-        if rule_address:
-            rules = getattr(r, 'rules', ())
-    return ans
+    try:
+        rule = parse_stylesheet(raw).rule_at_browser_index_path(tuple(rule_address))
+    except IndexError:
+        return None, None
+    if rule.line is None or rule.column is None:  # parsed rules always have a position
+        return None, None
+    return rule.line, rule.column
 
 
 class Smarts(NullSmarts):
