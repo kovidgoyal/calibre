@@ -260,7 +260,7 @@ class ContainerBase:  # {{{
         container knows to update the cache. See also :meth:`replace`."""
         ans = self.parsed_object(name)
         if isinstance(ans, Stylesheet):
-            return css_compat.CSSStyleSheet(ans)
+            return css_compat.wrap(ans)
         return ans
 
     def parsed_stylesheet(self, name: str) -> Stylesheet:
@@ -296,8 +296,8 @@ class ContainerBase:  # {{{
         calibre's own code uses :meth:`parse_stylesheet` and :meth:`parse_style`.
         """
         if is_declaration:
-            return css_compat.CSSStyleDeclaration(self.parse_style(data))
-        return css_compat.CSSStyleSheet(self.parse_stylesheet(data, fname))
+            return css_compat.wrap(self.parse_style(data))
+        return css_compat.wrap(self.parse_stylesheet(data, fname))
 
 
 # }}}
@@ -820,9 +820,7 @@ class Container(ContainerBase):  # {{{
         or a css_parser-style view of one, for a CSS file.
         """
         if isinstance(obj, css_compat.CSSStyleSheet):
-            sheet = css_compat.unwrap(obj)
-            assert isinstance(sheet, Stylesheet)  # the view of a sheet
-            obj = sheet
+            obj = css_compat.unwrap(obj)
         self.parsed_cache[name] = obj
         self.dirty(name)
 

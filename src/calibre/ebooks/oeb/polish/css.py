@@ -6,8 +6,7 @@ from collections.abc import Callable
 from functools import partial
 from typing import TYPE_CHECKING
 
-from kgcss import DeclarationBlock, FontFaceRule, GroupingRule, RuleType, Select, SelectorError, StyleRule, Stylesheet
-from kgcss.cssom.rules import RuleContainer
+from kgcss import DeclarationBlock, FontFaceRule, GroupingRule, RuleContainer, RuleType, Select, SelectorError, StyleRule, Stylesheet
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML
