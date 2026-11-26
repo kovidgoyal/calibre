@@ -35,6 +35,8 @@ class TestCSSSelectorsCompat(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(select('span.title', lis[1]))
         self.assertEqual(len(tuple(select('p:lang(en)'))), 1)
+        # An ElementTree works as well as its root
+        self.assertEqual(len(tuple(Select(etree.ElementTree(self.root))('li.booklink'))), 2)
 
     def test_signature(self) -> None:
         from css_selectors import ExpressionError, Select

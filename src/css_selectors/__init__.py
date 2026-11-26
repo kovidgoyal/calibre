@@ -17,7 +17,9 @@ Differences from css_selectors:
   did in css_selectors.
 """
 
-from kgcss import INAPPROPRIATE_PSEUDO_CLASSES, ExpressionError, SelectorError, SelectorSyntaxError
+from typing import overload
+
+from kgcss import INAPPROPRIATE_PSEUDO_CLASSES, ElementTreeLike, ExpressionError, SelectorError, SelectorSyntaxError
 from kgcss import Select as _Select
 from kgcss import parse_selectors as parse
 
@@ -28,9 +30,27 @@ class Select[E](_Select[E]):
     """:class:`kgcss.Select` with the signature of css_selectors' ``Select``,
     matching ids and classes case-insensitively as it did"""
 
+    @overload
+    def __init__(
+        self,
+        root: ElementTreeLike[E],
+        default_lang: object = None,
+        ignore_inappropriate_pseudo_classes: bool = False,
+        dispatch_map: object = None,
+        trace: object = False,
+    ) -> None: ...
+    @overload
     def __init__(
         self,
         root: E,
+        default_lang: object = None,
+        ignore_inappropriate_pseudo_classes: bool = False,
+        dispatch_map: object = None,
+        trace: object = False,
+    ) -> None: ...
+    def __init__(
+        self,
+        root: E | ElementTreeLike[E],
         default_lang: object = None,
         ignore_inappropriate_pseudo_classes: bool = False,
         dispatch_map: object = None,

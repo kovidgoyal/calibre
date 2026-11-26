@@ -138,6 +138,10 @@ class StylizerTest(unittest.TestCase):
         self.assertIn('url(img/a.png)', a._style['background'])
         b = s.style(self.elem(s, 'b'))
         self.assertEqual((b._style['margin-top'], b._style['margin-right']), ('1px', '2px'))
+        # Values are normalized
+        s = self.stylizer('<p id="a">a</p>', "p { color: #FF0000; margin: .50em 0px; font-family: 'A',  serif }")
+        a = s.style(self.elem(s, 'a'))._style
+        self.assertEqual((a['color'], a['margin-top'], a['margin-left'], a['font-family']), ('#F00', '0.5em', '0', '"A", serif'))
         self.assertEqual(b.pseudo_classes(frozenset()), {'first-letter': {'color': 'red'}})
 
 

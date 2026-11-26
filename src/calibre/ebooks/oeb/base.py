@@ -411,11 +411,6 @@ def rewrite_links(root: etree._Element, link_repl_func: Callable[[str], str | No
                 new = cur[:pos] + new_link + cur[pos + len(link) :]
                 el.attrib[attrib] = new
 
-    def css_repl(url: str) -> str:
-        # Removing a link has no meaning in CSS, keep it
-        ans = link_repl_func(url)
-        return url if ans is None else ans
-
     for el in root.iter(etree.Element):
         try:
             tag = el.tag
@@ -423,11 +418,12 @@ def rewrite_links(root: etree._Element, link_repl_func: Callable[[str], str | No
             continue
 
         if tag in (XHTML('style'), SVG('style')) and el.text and (_css_url_re.search(el.text) is not None or '@import' in el.text):
-            el.text = replace_urls_in_text(el.text, css_repl)
+            # A link replaced by None, which has no meaning in CSS, is left as it is
+            el.text = replace_urls_in_text(el.text, link_repl_func)
 
         text = el.get('style')
         if text and _css_url_re.search(text) is not None:
-            el.set('style', replace_urls_in_text(text, css_repl, style_attribute=True))
+            el.set('style', replace_urls_in_text(text, link_repl_func, style_attribute=True))
 
 
 # Attributes whose values are space separated lists of ids of elements in the

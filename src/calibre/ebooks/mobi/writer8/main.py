@@ -8,7 +8,7 @@ from io import BytesIO
 from struct import pack
 from typing import TYPE_CHECKING, NamedTuple, cast
 
-from kgcss import ImportRule, Stylesheet, parse_stylesheet, replace_urls, replace_urls_in_text
+from kgcss import RuleType, Stylesheet, parse_stylesheet, replace_urls, replace_urls_in_text
 from lxml import etree
 
 from calibre.ebooks.compression.palmdoc import compress_doc
@@ -174,7 +174,7 @@ class KF8Writer:
 
         def fix_import_rules(sheet: Stylesheet) -> bool:
             changed = False
-            for rule in (x for x in sheet.rules if isinstance(x, ImportRule)):
+            for rule in sheet.rules.of_type(RuleType.IMPORT):
                 if rule.href:
                     href = item.abshref(rule.href)
                     idx = sheets.get(href, None)

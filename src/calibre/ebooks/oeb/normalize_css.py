@@ -145,7 +145,7 @@ def normalize_filter_css(props: Iterable[str]) -> set[str]:
 def condense_sheet(sheet: Stylesheet) -> None:
     """Replace the longhands of margin, padding and border with shorthands
     where that does not change their meaning, in the style rules of sheet"""
-    for rule in (x for x in sheet.iter_rules(RuleType.STYLE) if isinstance(x, StyleRule)):
+    for rule in sheet.iter_rules(RuleType.STYLE):
         condense_shorthands(rule.style)
 
 

@@ -16,9 +16,9 @@ from weakref import WeakKeyDictionary
 from kgcss import (
     INAPPROPRIATE_PSEUDO_CLASSES,
     FontFaceRule,
-    ImportRule,
     MediaRule,
     PageRule,
+    RuleType,
     Select,
     SelectorError,
     StyleRule,
@@ -287,7 +287,9 @@ class StylizerRules:
         style = style_map()
         for prop in cssstyle:
             name = prop.name
-            expanded = normalize_shorthand(name, prop.value)
+            # The normalized value, as css_parser gave it before kgcss
+            value = prop.value_to_css()
+            expanded = normalize_shorthand(name, value)
             is_important = prop.priority == 'important'
             if expanded is not None:
                 for key, val in expanded.items():
@@ -295,11 +297,11 @@ class StylizerRules:
                     if is_important:
                         style.important_properties.add(key)
             elif name == 'text-align':
-                style['text-align'] = self._apply_text_align(prop.value)
+                style['text-align'] = self._apply_text_align(value)
                 if is_important:
                     style.important_properties.add(name)
             else:
-                style[name] = prop.value
+                style[name] = value
                 if is_important:
                     style.important_properties.add(name)
         if 'font-size' in style:
@@ -383,7 +385,7 @@ class Stylizer:
                     text = oeb.css_preprocessor(text)
                     # Without a fetcher @import rules are not loaded, they are handled here
                     stylesheet = parse_stylesheet(text, href=cssname, log=css_log)
-                    for rule in (x for x in stylesheet.rules if isinstance(x, ImportRule)):
+                    for rule in stylesheet.rules.of_type(RuleType.IMPORT):
                         ihref = item.abshref(rule.href)
                         if not media_ok(rule.media.media_text):
                             continue

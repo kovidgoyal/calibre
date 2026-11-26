@@ -68,12 +68,12 @@ class RemoveFakeMargins:
 
         self.log('Removing fake margins...')
 
-        from kgcss import StyleRule, Stylesheet
+        from kgcss import RuleType, Stylesheet
 
         sheet = stylesheet.data
         assert isinstance(sheet, Stylesheet)  # main_stylesheet has a media type in OEB_STYLES
 
-        for rule in (x for x in sheet.rules if isinstance(x, StyleRule)):
+        for rule in sheet.rules.of_type(RuleType.STYLE):
             self.selector_map[rule.selector_text] = rule.style
 
         self.find_levels()
