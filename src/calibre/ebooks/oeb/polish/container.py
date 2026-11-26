@@ -3,7 +3,6 @@
 
 import errno
 import hashlib
-import logging
 import os
 import re
 import shutil
@@ -17,7 +16,8 @@ from math import floor
 from typing import IO, TYPE_CHECKING, NotRequired, Protocol, TypedDict, TypeGuard, cast, overload
 from urllib.parse import urlparse
 
-from css_parser import getUrls, replaceUrls
+from kgcss import DeclarationBlock, SerializeOptions, Stylesheet, iter_urls, replace_urls
+from kgcss import compat as css_compat
 from lxml import etree
 
 from calibre import CurrentDir, walk
@@ -66,7 +66,6 @@ if TYPE_CHECKING:
     from collections.abc import Container as AbstractContainer
     from typing import Literal
 
-    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
     from lxml.etree import _Element
 
     from calibre.ebooks.metadata.book.base import Metadata
@@ -75,8 +74,11 @@ if TYPE_CHECKING:
     from calibre.utils.logging import Log
 
 #: The type of objects returned by :meth:`Container.parsed`: an lxml element
-#: for HTML/XML, a css_parser stylesheet for CSS and raw bytes for everything else
-type ParsedObject = _Element | CSSStyleSheet | bytes
+#: for HTML/XML, a kgcss stylesheet for CSS and raw bytes for everything else
+type ParsedObject = _Element | Stylesheet | bytes
+#: What :meth:`Container.parsed` returns: as ParsedObject, with a css_parser-style
+#: view of the kgcss stylesheet for CSS, for plugins written for css_parser
+type PublicParsedObject = _Element | css_compat.CSSStyleSheet | bytes
 
 
 class LinkReplacerType(Protocol):
@@ -199,6 +201,8 @@ class ContainerBase:  # {{{
 
     def __init__(self, log: Log | None = default_log) -> None:
         self.log: Log = log or default_log
+        #: How stylesheets are written, for example with the indent the user prefers
+        self.css_serialize_options = SerializeOptions()
         self.parsed_cache: dict[str, ParsedObject] = {}
         self.mime_map: dict[str, str] = {}
         self.encoding_map: dict[str, str | None] = {}
@@ -242,21 +246,58 @@ class ContainerBase:  # {{{
             except NotHTML:
                 return self.parse_xml(data)
 
+    def parsed_object(self, name: str) -> ParsedObject:
+        "Return the parsed representation of the file specified by name, see :meth:`Container.parsed_object`"
+        raise NotImplementedError('Must be implemented by sub-classes')
+
+    def parsed(self, name: str) -> PublicParsedObject:
+        """Return a parsed representation of the file specified by name. For
+        HTML and XML files an lxml tree is returned. For CSS files a
+        css_parser-style stylesheet is returned, a view of the kgcss stylesheet
+        that :meth:`parsed_stylesheet` returns (see :mod:`kgcss.compat`).
+        Note that parsed objects are cached for performance. If you make any
+        changes to the parsed object, you must call :meth:`dirty` so that the
+        container knows to update the cache. See also :meth:`replace`."""
+        ans = self.parsed_object(name)
+        if isinstance(ans, Stylesheet):
+            return css_compat.CSSStyleSheet(ans)
+        return ans
+
+    def parsed_stylesheet(self, name: str) -> Stylesheet:
+        """Return the kgcss stylesheet for the CSS file specified by name. See
+        :meth:`parsed`."""
+        ans = self.parsed_object(name)
+        if not isinstance(ans, Stylesheet):
+            raise TypeError(f'{name} is not a stylesheet')
+        return ans
+
+    def parse_stylesheet(self, data: str | bytes | None, fname: str = '<string>') -> Stylesheet:
+        "Parse CSS into a kgcss stylesheet. @import rules are not loaded."
+        return parse_css(data, fname=fname, decode=self.decode, css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
+
+    def parse_style(self, data: str | bytes | None) -> DeclarationBlock:
+        "Parse the contents of a style attribute into a kgcss declaration block."
+        return parse_css(data, is_declaration=True, decode=self.decode, css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
+
     @overload
-    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: Literal[False] = False) -> CSSStyleSheet: ...
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: Literal[False] = False) -> css_compat.CSSStyleSheet: ...
     @overload
-    def parse_css(self, data: str | bytes | None, fname: str = '<string>', *, is_declaration: Literal[True]) -> CSSStyleDeclaration: ...
+    def parse_css(self, data: str | bytes | None, fname: str = '<string>', *, is_declaration: Literal[True]) -> css_compat.CSSStyleDeclaration: ...
     @overload
-    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False) -> CSSStyleSheet | CSSStyleDeclaration: ...
-    def parse_css(self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False) -> CSSStyleSheet | CSSStyleDeclaration:
-        return parse_css(
-            data,
-            fname=fname,
-            is_declaration=is_declaration,
-            decode=self.decode,
-            log_level=logging.WARNING,
-            css_preprocessor=(None if self.tweak_mode else self.css_preprocessor),
-        )
+    def parse_css(
+        self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False
+    ) -> css_compat.CSSStyleSheet | css_compat.CSSStyleDeclaration: ...
+    def parse_css(
+        self, data: str | bytes | None, fname: str = '<string>', is_declaration: bool = False
+    ) -> css_compat.CSSStyleSheet | css_compat.CSSStyleDeclaration:
+        """
+        Parse CSS, returning css_parser-style objects, which are views of kgcss
+        objects (see :mod:`kgcss.compat`), for plugins written for css_parser.
+        calibre's own code uses :meth:`parse_stylesheet` and :meth:`parse_style`.
+        """
+        if is_declaration:
+            return css_compat.CSSStyleDeclaration(self.parse_style(data))
+        return css_compat.CSSStyleSheet(self.parse_stylesheet(data, fname))
 
 
 # }}}
@@ -557,7 +598,7 @@ class Container(ContainerBase):  # {{{
             rewrite_idrefs(root, replace_idref)
         elif media_type.lower() in OEB_STYLES:
             replace_func.file_type = 'style'
-            replaceUrls(self.parsed(name), replace_func)
+            replace_urls(self.parsed_stylesheet(name), replace_func)
         elif media_type.lower() == SVG_MIME:
             replace_func.file_type = 'svg'
             if (root := self.parsed_svg(name)) is not None:
@@ -609,8 +650,7 @@ class Container(ContainerBase):  # {{{
                             lnum, col = position(offset)
                             yield link, lnum, col
             else:
-                for link in getUrls(self.parsed(name)):
-                    yield link
+                yield from iter_urls(self.parsed_stylesheet(name))
         elif media_type.lower() == guess_type('toc.ncx'):
             root = self.parsed(name)
             assert isinstance(root, etree._Element)
@@ -722,7 +762,7 @@ class Container(ContainerBase):  # {{{
         elif mime[-4:] in {'+xml', '/xml'}:
             return self.parse_xml(data)
         elif mime in OEB_STYLES:
-            return self.parse_css(data, self.relpath(path))
+            return self.parse_stylesheet(data, self.relpath(path))
         return data
 
     @overload
@@ -758,9 +798,9 @@ class Container(ContainerBase):  # {{{
             return None
         return root
 
-    def parsed(self, name: str) -> ParsedObject:
+    def parsed_object(self, name: str) -> ParsedObject:
         """Return a parsed representation of the file specified by name. For
-        HTML and XML files an lxml tree is returned. For CSS files a css_parser
+        HTML and XML files an lxml tree is returned. For CSS files a kgcss
         stylesheet is returned. Note that parsed objects are cached for
         performance. If you make any changes to the parsed object, you must
         call :meth:`dirty` so that the container knows to update the cache. See also :meth:`replace`."""
@@ -773,12 +813,16 @@ class Container(ContainerBase):  # {{{
             self.encoding_map[name] = self.used_encoding
         return ans
 
-    def replace(self, name: str, obj: ParsedObject) -> None:
+    def replace(self, name: str, obj: ParsedObject | css_compat.CSSStyleSheet) -> None:
         """
         Replace the parsed object corresponding to name with obj, which must be
-        a similar object, i.e. an lxml tree for HTML/XML or a css_parser
-        stylesheet for a CSS file.
+        a similar object, i.e. an lxml tree for HTML/XML or a kgcss stylesheet,
+        or a css_parser-style view of one, for a CSS file.
         """
+        if isinstance(obj, css_compat.CSSStyleSheet):
+            sheet = css_compat.unwrap(obj)
+            assert isinstance(sheet, Stylesheet)  # the view of a sheet
+            obj = sheet
         self.parsed_cache[name] = obj
         self.dirty(name)
 
@@ -1162,9 +1206,11 @@ class Container(ContainerBase):  # {{{
 
     def serialize_item(self, name: str) -> bytes:
         """Convert a parsed object (identified by canonical name) into a bytestring. See :meth:`parsed`."""
-        data = root = self.parsed(name)
+        data = root = self.parsed_object(name)
         if name == self.opf_name:
             self.format_opf()
+        if isinstance(data, Stylesheet):
+            return data.encode(self.css_serialize_options) + b'\n'
         data = serialize(data, self.mime_map[name], pretty_print=name in self.pretty_print)
         if name == self.opf_name and isinstance(root, etree._Element) and root.nsmap.get(None) == OPF2_NS:
             # Needed as I can't get lxml to output opf:role and
@@ -1656,7 +1702,7 @@ def do_explode(path: str, dest: str) -> tuple[str, list[str]]:
 
 
 def opf_to_azw3(opf: str, outpath: str, container: Container) -> None:
-    from kgcss import Stylesheet, parse_stylesheet
+    from kgcss import parse_stylesheet
 
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
     from calibre.ebooks.mobi.tweak import set_cover

@@ -14,7 +14,7 @@ from calibre.utils.icu import upper as icu_upper
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from css_parser.css import CSSStyleDeclaration, CSSStyleSheet
+    from kgcss import DeclarationBlock, Stylesheet
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container
@@ -318,9 +318,8 @@ def parse_css(
     fname: str = '<string>',
     is_declaration: Literal[False] = False,
     decode: Callable[[bytes], str] | None = None,
-    log_level: int | None = None,
     css_preprocessor: Callable[[str], str] | None = None,
-) -> CSSStyleSheet: ...
+) -> Stylesheet: ...
 @overload
 def parse_css(
     data: str | bytes | None,
@@ -328,50 +327,37 @@ def parse_css(
     *,
     is_declaration: Literal[True],
     decode: Callable[[bytes], str] | None = None,
-    log_level: int | None = None,
     css_preprocessor: Callable[[str], str] | None = None,
-) -> CSSStyleDeclaration: ...
+) -> DeclarationBlock: ...
 @overload
 def parse_css(
     data: str | bytes | None,
     fname: str = '<string>',
     is_declaration: bool = False,
     decode: Callable[[bytes], str] | None = None,
-    log_level: int | None = None,
     css_preprocessor: Callable[[str], str] | None = None,
-) -> CSSStyleSheet | CSSStyleDeclaration: ...
+) -> Stylesheet | DeclarationBlock: ...
 def parse_css(
     data: str | bytes | None,
     fname: str = '<string>',
     is_declaration: bool = False,
     decode: Callable[[bytes], str] | None = None,
-    log_level: int | None = None,
     css_preprocessor: Callable[[str], str] | None = None,
-) -> CSSStyleSheet | CSSStyleDeclaration:
-    if log_level is None:
-        import logging
-
-        log_level = logging.WARNING
-    from css_parser import CSSParser, log
+) -> Stylesheet | DeclarationBlock:
+    from kgcss import parse_style, parse_stylesheet
 
     from calibre.ebooks.oeb.base import _css_logger
 
-    log.setLevel(log_level)
-    log.raiseExceptions = False
     data = data or ''
     if isinstance(data, bytes):
         data = data.decode('utf-8') if decode is None else decode(data)
     if css_preprocessor is not None:
         data = css_preprocessor(data)
-    parser = CSSParser(
-        loglevel=log_level,
-        # We don't care about @import rules
-        fetcher=lambda x: (None, None),
-        log=_css_logger,
-    )
     if is_declaration:
-        return parser.parseStyle(data, validate=False)
-    return parser.parseString(data, href=fname, validate=False)
+        return parse_style(data, log=_css_logger)
+    # Without a fetcher @import rules are never loaded, polish code follows
+    # them itself (porting.md §5.1)
+    return parse_stylesheet(data, href=fname, log=_css_logger)
 
 
 def handle_entities(text: str, func: CaseFunc) -> str:

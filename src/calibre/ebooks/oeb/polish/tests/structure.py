@@ -611,9 +611,10 @@ class Structure(BaseTest):
         self.assertEqual(remove_skipped(parse_errors, frozenset(e.rule_id for e in parse_errors)), parse_errors)
 
     def test_invalid_id_fix(self) -> None:
+        from kgcss import rename_ids
+
         from calibre.ebooks.oeb.polish.check.main import fix_errors
         from calibre.ebooks.oeb.polish.check.parsing import InvalidId, check_ids, make_valid_id
-        from calibre.ebooks.oeb.polish.css import rename_ids_in_selector
 
         self.assertEqual(make_valid_id('_x', set()), 'id_x')
         self.assertEqual(make_valid_id('1 a', {'id1_a'}), 'id1_a-2')
@@ -627,7 +628,7 @@ class Structure(BaseTest):
             '[id="_x"], [ id = _x ], [id~="_x"], [data-a="_x"]': '[id="id_x"], [ id = "id_x" ], [id~="_x"], [data-a="_x"]',
             '#_x.c /* c */ i': '#id_x.c /* c */ i',
         }.items():
-            self.assertEqual(rename_ids_in_selector(selector, id_map), expected)
+            self.assertEqual(rename_ids(selector, id_map), expected)
 
         def html(body: str, head: str = '') -> str:
             return f'''<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="style.css"/>{head}</head><body>{body}</body></html>'''
@@ -681,7 +682,7 @@ class Structure(BaseTest):
         self.assertEqual(sheet.cssRules[0].style.getPropertyValue('color'), 'blue')
         root = c.parsed('a.html')
         self.assertIn('blue', root.xpath('//*[local-name()="style"]')[0].text)
-        self.assertEqual(root.xpath('//*[local-name()="p"]/@style'), ['color: blue; margin: 0;'])
+        self.assertEqual(root.xpath('//*[local-name()="p"]/@style'), ['color: blue; margin: 0'])
         self.assertFalse(transform_container(c, rules))
 
     def test_report_css_data(self) -> None:

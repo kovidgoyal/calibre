@@ -9,10 +9,10 @@ from collections import defaultdict
 from itertools import chain
 from typing import TYPE_CHECKING, NamedTuple
 
-from kgcss import Select, SelectorError
+from kgcss import Select, SelectorError, parse_selectors
 from lxml import etree
 
-from calibre import force_unicode, prepare_string_for_xml
+from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import SVG_MIME, XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
@@ -23,6 +23,7 @@ from calibre.utils.imghdr import identify
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
 
+    from kgcss import Rule
     from lxml.etree import XPath as XPathType
     from lxml.etree import _Element
 
@@ -343,27 +344,25 @@ class ClassElement(NamedTuple):
 
 
 def css_data(container: Container, book_locale: DictionaryLocale, result_data: dict[str, object], *args: object) -> list[CSSEntry]:
-    import tinycss
-    from tinycss.css21 import ImportRule, RuleSet
+    from kgcss import GroupingRule, ImportRule, StyleRule, parse_stylesheet
 
     #: Either a style rule or the name of an imported stylesheet
     type SheetItem = CSSRule | str
 
-    def css_rules(file_name: str, rules: Iterable[object], sourceline: int = 0) -> list[SheetItem]:
+    def css_rules(file_name: str, rules: Iterable[Rule], sourceline: int = 0) -> list[SheetItem]:
         ans: list[SheetItem] = []
         for rule in rules:
-            if isinstance(rule, RuleSet):
-                selector = rule.selector.as_css()
-                ans.append(CSSRule(selector, RuleLocation(file_name, sourceline + rule.line, rule.column)))
+            if isinstance(rule, StyleRule):
+                # Parsed rules always have a position
+                ans.append(CSSRule(rule.selector_text, RuleLocation(file_name, sourceline + (rule.line or 1), rule.column or 1)))
             elif isinstance(rule, ImportRule):
-                import_name = safe_href_to_name(container, rule.uri, file_name)
+                import_name = safe_href_to_name(container, rule.href, file_name)
                 if import_name and container.exists(import_name):
                     ans.append(import_name)
-            elif sub_rules := getattr(rule, 'rules', ()):
-                ans.extend(css_rules(file_name, sub_rules, sourceline))
+            elif isinstance(rule, GroupingRule):
+                ans.extend(css_rules(file_name, rule.rules, sourceline))
         return ans
 
-    parser = tinycss.make_full_parser()
     importable_sheets: dict[str, list[SheetItem]] = {}
     html_sheets: dict[str, list[list[SheetItem]]] = {}
     spine_names = {name for name, is_linear in container.spine_names}
@@ -371,7 +370,8 @@ def css_data(container: Container, book_locale: DictionaryLocale, result_data: d
 
     for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
-            importable_sheets[name] = css_rules(name, parser.parse_stylesheet(container.raw_data(name)).rules)
+            # Parse the file as it is, rather than use the parsed sheet, which can have changed, for the line numbers
+            importable_sheets[name] = css_rules(name, parse_stylesheet(container.raw_data(name)).rules)
         elif mt in OEB_DOCS and name in spine_names:
             html_sheets[name] = []
             root = container.parsed(name)
@@ -381,7 +381,7 @@ def css_data(container: Container, book_locale: DictionaryLocale, result_data: d
                     html_sheets[name].append(
                         css_rules(
                             name,
-                            parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules,
+                            parse_stylesheet(style.text).rules,
                             style.sourceline - 1,
                         )
                     )
@@ -422,10 +422,12 @@ def css_data(container: Container, book_locale: DictionaryLocale, result_data: d
 
     type ClassUsageMap = defaultdict[str, defaultdict[_Element, list[CSSRule]]]
 
-    def matches_for_selector(selector: str, select: Select, class_map: ClassUsageMap, rule: CSSRule) -> Iterable[MatchLocation]:
-        lsel = selector.lower()
+    def matches_for_selector(selector: str, select: Select[_Element], class_map: ClassUsageMap, rule: CSSRule) -> Iterable[MatchLocation]:
         try:
-            matches = tuple(select(selector))
+            selectors = parse_selectors(selector)
+            matches = tuple(select(selectors))
+            # Classes match case-insensitively, see the Select below
+            classes = {c.lower() for s in selectors for c in s.class_names()}
         except SelectorError:
             return ()
         seen: set[_Element] = set()
@@ -441,7 +443,7 @@ def css_data(container: Container, book_locale: DictionaryLocale, result_data: d
         for e in matches:
             for elem in get_elem_and_ancestors(e):
                 for cls in elem.get('class', '').split():
-                    if '.' + cls.lower() in lsel:
+                    if cls.lower() in classes:
                         class_map[cls][elem].append(rule)
 
         return (MatchLocation(tag_text(elem), elem.sourceline) for elem in matches)

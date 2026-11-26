@@ -7,7 +7,7 @@ import re
 from typing import TYPE_CHECKING, cast
 from urllib.parse import urlparse
 
-from css_parser.css import CSSStyleSheet
+from kgcss import RuleType
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename, rewrite_idrefs
@@ -563,8 +563,7 @@ def merge_html(container: Container, names: Iterable[str], master: str, insert_p
 
 def merge_css(container: Container, names: Iterable[str], master: str) -> None:
     p = container.parsed
-    msheet = p(master)
-    assert isinstance(msheet, CSSStyleSheet)
+    msheet = container.parsed_stylesheet(master)
     master_base = os.path.dirname(master)
     merged: set[str | None] = set()
 
@@ -575,13 +574,13 @@ def merge_css(container: Container, names: Iterable[str], master: str) -> None:
         if os.path.dirname(name) != master_base:
             container.replace_links(name, LinkRebaser(container, name, master))
 
-        sheet = p(name)
-        assert isinstance(sheet, CSSStyleSheet)
+        sheet = container.parsed_stylesheet(name)
 
         # Remove charset rules
-        cr = [r for r in sheet.cssRules if r.type == r.CHARSET_RULE]
-        [sheet.deleteRule(sheet.cssRules.index(r)) for r in cr]
-        for rule in sheet.cssRules:
+        for r in sheet.rules.of_type(RuleType.CHARSET):
+            sheet.delete_rule(r)
+        for rule in sheet.rules:
+            # A copy of the rule is added (porting.md §6.11)
             msheet.add(rule)
 
         container.remove_item(name)

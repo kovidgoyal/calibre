@@ -7,7 +7,7 @@ from io import BytesIO
 from typing import TYPE_CHECKING, cast
 
 from calibre import as_unicode, prints
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath, css_text
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.fonts.subset import subset
 from calibre.utils.fonts.utils import get_font_names
@@ -17,24 +17,26 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Mapping
     from collections.abc import Container as AbstractContainer
 
-    from css_parser.css import CSSStyleSheet
+    from kgcss import Stylesheet
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container
 
 
-def remove_font_face_rules(container: Container, sheet: CSSStyleSheet, remove_names: AbstractContainer[str | None], base: str) -> bool:
+def remove_font_face_rules(container: Container, sheet: Stylesheet, remove_names: AbstractContainer[str | None], base: str) -> bool:
+    from kgcss import RuleType
+
+    from calibre.ebooks.oeb.polish.css import delete_rule
+
     changed = False
-    for rule in tuple(sheet.cssRules):
-        if rule.type != rule.FONT_FACE_RULE:
-            continue
-        try:
-            uri = rule.style.getProperty('src').propertyValue[0].uri
-        except IndexError, KeyError, AttributeError, TypeError, ValueError:
+    for rule in tuple(sheet.iter_rules(RuleType.FONT_FACE)):
+        src = rule.style.get_parsed_value('src')
+        uri = getattr(src[0], 'url', None) if src else None
+        if uri is None:
             continue
         name = container.href_to_name(uri, base)
         if name in remove_names:
-            sheet.deleteRule(rule)
+            delete_rule(rule)
             changed = True
     return changed
 
@@ -96,15 +98,15 @@ def subset_all_fonts(container: Container, font_stats: Mapping[str, set[str]], r
     if remove:
         for name, mt in container.mime_map.items():
             if mt in OEB_STYLES:
-                sheet = cast('CSSStyleSheet', container.parsed(name))  # CSS files are parsed into css_parser stylesheets
+                sheet = container.parsed_stylesheet(name)
                 if remove_font_face_rules(container, sheet, remove, name):
                     container.dirty(name)
             elif mt in OEB_DOCS:
                 for style in XPath('//h:style')(cast('_Element', container.parsed(name))):  # HTML files are parsed into lxml trees
                     if style.get('type', 'text/css') == 'text/css' and style.text:
-                        sheet = container.parse_css(style.text, name)
+                        sheet = container.parse_stylesheet(style.text, name)
                         if remove_font_face_rules(container, sheet, remove, name):
-                            style.text = css_text(sheet)
+                            style.text = sheet.css_text
                             container.dirty(name)
     if total_old > 0:
         report(_('Reduced total font size to %.1f%% of original') % (total_new / total_old * 100))

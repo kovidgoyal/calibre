@@ -39,7 +39,7 @@ from qt.core import (
 )
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, css_text
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import CONTAINER_DND_MIMETYPE, TOP, current_container, tprefs
@@ -545,7 +545,7 @@ class TextEdit(PlainTextEdit):
             text = str(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
 
-            text = css_text(sort_sheet(current_container(), text))
+            text = sort_sheet(current_container(), text).css_text
             c.insertText(text)
             c.movePosition(QTextCursor.MoveOperation.Start)
             c.endEditBlock()

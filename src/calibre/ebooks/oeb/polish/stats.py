@@ -6,12 +6,14 @@ from functools import partial
 from typing import TYPE_CHECKING, cast
 
 import regex
-from kgcss import parse_font_family
+from kgcss import FontFaceRule as CSSFontFaceRule
+from kgcss import RuleType, Stylesheet, parse_font_family
+from kgcss.cssom.values import String
 from lxml import etree
 from lxml.etree import tostring
 
-from calibre.ebooks.oeb.base import XHTML, css_text
-from calibre.ebooks.oeb.polish.cascade import iterdeclaration, iterrules, resolve_styles
+from calibre.ebooks.oeb.base import XHTML
+from calibre.ebooks.oeb.polish.cascade import component_text, iterdeclaration, iterrules, resolve_styles
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.icu import upper as icu_upper
@@ -20,7 +22,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from typing import TypedDict
 
-    from css_parser.css import CSSStyleSheet
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.cascade import ResolvePseudoProperty, Values
@@ -139,10 +140,9 @@ def get_matching_rules(rules: Sequence[FontFaceRule], font: FontDict) -> list[Fo
 
 def get_css_text(elem: _Element, resolve_pseudo_property: ResolvePseudoProperty, which: str = 'before') -> str:
     # content has a default value, so is never None
-    text = cast('Values', resolve_pseudo_property(elem, which, 'content'))[0].value
-    if text and len(text) > 2 and text[0] == '"' and text[-1] == '"':
-        return text[1:-1]
-    return ''
+    content = cast('Values', resolve_pseudo_property(elem, which, 'content'))
+    # The text of the strings, which have it unquoted as their value
+    return ''.join(x.value for x in content if isinstance(x, String))
 
 
 caps_variants = {'smallcaps', 'small-caps', 'all-small-caps', 'petite-caps', 'all-petite-caps', 'unicase'}
@@ -174,11 +174,11 @@ def get_element_text(
     ans = ''.join(parts)
     # text-transform and font-variant have default values, so are never None
     if for_pseudo is not None:
-        tt = cast('Values', resolve_pseudo_property(elem, for_pseudo, 'text-transform'))[0].value
-        fv = cast('Values', resolve_pseudo_property(elem, for_pseudo, 'font-variant'))[0].value
+        tt = component_text(cast('Values', resolve_pseudo_property(elem, for_pseudo, 'text-transform'))[0])
+        fv = component_text(cast('Values', resolve_pseudo_property(elem, for_pseudo, 'font-variant'))[0])
     else:
-        tt = cast('Values', resolve_property(elem, 'text-transform'))[0].value
-        fv = cast('Values', resolve_property(elem, 'font-variant'))[0].value
+        tt = component_text(cast('Values', resolve_property(elem, 'text-transform'))[0])
+        fv = component_text(cast('Values', resolve_property(elem, 'font-variant'))[0])
     if fv in caps_variants:
         ans += icu_upper(ans)
     if tt != 'none':
@@ -201,11 +201,11 @@ def get_font_dict(elem: _Element, resolve_property: AnyPropertyResolver, pseudo:
         ff = cast('Values', resolve_property(elem, 'font-family'))
     else:
         ff = cast('Values', resolve_property(elem, pseudo, 'font-family'))
-    ans['font-family'] = tuple(x.value for x in ff)
+    ans['font-family'] = tuple(component_text(x) for x in ff)
     for p in 'weight', 'style', 'stretch':
         p = 'font-' + p
         rp = cast('Values', resolve_property(elem, p) if pseudo is None else resolve_property(elem, pseudo, p))
-        ans[p] = str(rp[0].value)
+        ans[p] = component_text(rp[0])
     normalize_font_properties(ans)
     return ans
 
@@ -235,7 +235,7 @@ class StatsCollector:
         self.collect_font_stats(container, do_embed)
 
     def collect_font_face_rules(
-        self, container: Container, processed: dict[str, list[FontFaceRule]], spine_name: str, sheet: CSSStyleSheet, sheet_name: str
+        self, container: Container, processed: dict[str, list[FontFaceRule]], spine_name: str, sheet: Stylesheet, sheet_name: str
     ) -> None:
         if sheet_name in processed:
             sheet_rules = processed[sheet_name]
@@ -243,22 +243,26 @@ class StatsCollector:
             sheet_rules: list[FontFaceRule] = []
             if sheet_name != spine_name:
                 processed[sheet_name] = sheet_rules
-            for rule, base_name, rule_index in iterrules(container, sheet_name, rules=sheet, rule_type='FONT_FACE_RULE'):
+            for rule, base_name, rule_index in iterrules(container, sheet_name, rules=sheet, rule_type=RuleType.FONT_FACE):
+                assert isinstance(rule, CSSFontFaceRule)  # only @font-face rules are iterated over
                 cssdict: FontDict = {}
                 for prop in iterdeclaration(rule.style):
+                    value = prop.parsed_value
                     if prop.name == 'font-family':
-                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(css_text(prop.propertyValue))]
-                    elif prop.name.startswith('font-'):
-                        cssdict[prop.name] = prop.propertyValue[0].value
+                        cssdict['font-family'] = [icu_lower(x) for x in parse_font_family(prop.value)]
+                    elif prop.name.startswith('font-') and value:
+                        cssdict[prop.name] = component_text(value[0])
                     elif prop.name == 'src':
-                        for val in prop.propertyValue:
-                            x = val.value
-                            fname = container.href_to_name(x, sheet_name)
+                        for val in value:
+                            url = getattr(val, 'url', None)
+                            if url is None:
+                                continue
+                            fname = container.href_to_name(url, sheet_name)
                             if container.has_name(fname):
                                 cssdict['src'] = fname
                                 break
                         else:
-                            container.log.warn(f'The @font-face rule refers to a font file that does not exist in the book: {css_text(prop.propertyValue)}')
+                            container.log.warn(f'The @font-face rule refers to a font file that does not exist in the book: {prop.value}')
                 if 'src' not in cssdict:
                     continue
                 ff = cast('list[str] | None', cssdict.get('font-family'))

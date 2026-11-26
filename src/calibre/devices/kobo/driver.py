@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     import apsw
     import bs4
-    from css_parser.css import CSSPageRule, CSSStyleRule, CSSStyleSheet
+    from kgcss import PageRule, StyleRule, Stylesheet
     from qt.core import QWidget
 
     from calibre.db.legacy import LibraryDatabase
@@ -2706,7 +2706,7 @@ class KOBOTOUCH(KOBO):
                 debug_print(f'KoboTouch:imagefilename_from_imageID - no cover image found - ImageID={ImageID}')
         return None
 
-    def get_extra_css(self) -> tuple[str, CSSStyleSheet | None]:
+    def get_extra_css(self) -> tuple[str, Stylesheet | None]:
         css = ''
         sheet = None
         self.extra_css_options: dict[str, bool] = {}
@@ -2729,13 +2729,15 @@ class KOBOTOUCH(KOBO):
                 sheet, self.extra_css_options['has_widows_orphans'], self.extra_css_options['has_atpage'] = check_if_css_needs_modification(css)
         return css, sheet
 
-    def get_extra_css_rules(self, sheet: CSSStyleSheet, css_rule: int) -> list[CSSStyleRule | CSSPageRule]:
-        return list(sheet.cssRules.rulesOfType(css_rule))
+    def get_extra_css_page_rules(self, sheet: Stylesheet) -> list[PageRule]:
+        from kgcss import RuleType
 
-    def get_extra_css_rules_widow_orphan(self, sheet: CSSStyleSheet) -> list[CSSStyleRule | CSSPageRule]:
-        from css_parser.css import CSSRule
+        return sheet.rules.of_type(RuleType.PAGE)
 
-        return [r for r in self.get_extra_css_rules(sheet, CSSRule.STYLE_RULE) if (r.style['widows'] or r.style['orphans'])]
+    def get_extra_css_rules_widow_orphan(self, sheet: Stylesheet) -> list[StyleRule]:
+        from kgcss import RuleType
+
+        return [r for r in sheet.rules.of_type(RuleType.STYLE) if (r.style.get_value('widows') or r.style.get_value('orphans'))]
 
     def upload_books(
         self,
@@ -2866,7 +2868,7 @@ class KOBOTOUCH(KOBO):
         debug_print(f'KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}')
 
         # Currently only modifying CSS, so if no stylesheet, don't do anything
-        if not self.extra_sheet:
+        if self.extra_sheet is None:
             debug_print('KoboTouch:_modify_epub: no CSS file')
             return True
 
@@ -2874,22 +2876,19 @@ class KOBOTOUCH(KOBO):
         if not container:
             return False
 
-        from css_parser.css import CSSStyleSheet
-
         from calibre.ebooks.oeb.base import OEB_STYLES
 
         is_dirty = False
         for cssname, mt in container.mime_map.items():
             if mt in OEB_STYLES:
-                newsheet = container.parsed(cssname)
-                assert isinstance(newsheet, CSSStyleSheet)
-                oldrules = len(newsheet.cssRules)
+                newsheet = container.parsed_stylesheet(cssname)
+                oldrules = len(newsheet.rules)
 
                 # future css mods may be epub/kepub specific, so pass file extension arg
                 fileext = os.path.splitext(book_file)[-1].lower()
                 debug_print(f'KoboTouch:_modify_epub: Modifying {cssname}')
                 if self._modify_stylesheet(newsheet, fileext):
-                    debug_print(f'KoboTouch:_modify_epub:CSS rules {oldrules} -> {len(newsheet.cssRules)} ({cssname})')
+                    debug_print(f'KoboTouch:_modify_epub:CSS rules {oldrules} -> {len(newsheet.rules)} ({cssname})')
                     container.dirty(cssname)
                     is_dirty = True
 
@@ -2899,15 +2898,13 @@ class KOBOTOUCH(KOBO):
 
         return True
 
-    def _modify_stylesheet(self, sheet: CSSStyleSheet, fileext: str, is_dirty: bool = False) -> bool:
-        from css_parser.css import CSSRule
-
+    def _modify_stylesheet(self, sheet: Stylesheet, fileext: str, is_dirty: bool = False) -> bool:
         # if fileext in (EPUB_EXT, KEPUB_EXT):
 
         # if kobo extra css contains a @page rule
         # remove any existing @page rules in epub css
         if self.extra_css_options.get('has_atpage', False):
-            page_rules = self.get_extra_css_rules(sheet, CSSRule.PAGE_RULE)
+            page_rules = self.get_extra_css_page_rules(sheet)
             if len(page_rules) > 0:
                 debug_print('KoboTouch:_modify_stylesheet: Removing existing @page rules')
                 for rule in page_rules:
@@ -2921,15 +2918,16 @@ class KOBOTOUCH(KOBO):
             if len(widow_orphan_rules) > 0:
                 debug_print('KoboTouch:_modify_stylesheet: Removing existing widows/orphans attribs')
                 for rule in widow_orphan_rules:
-                    rule.style.removeProperty('widows')
-                    rule.style.removeProperty('orphans')
+                    rule.style.remove('widows')
+                    rule.style.remove('orphans')
                 is_dirty = True
 
         # append all rules from kobo extra css
         debug_print('KoboTouch:_modify_stylesheet: Append all kobo extra css rules')
         assert self.extra_sheet is not None
-        for extra_rule in self.extra_sheet.cssRules:
-            sheet.insertRule(extra_rule)
+        for extra_rule in self.extra_sheet.rules:
+            # A copy of the rule is inserted (porting.md §6.11)
+            sheet.add(extra_rule)
             is_dirty = True
 
         return is_dirty
