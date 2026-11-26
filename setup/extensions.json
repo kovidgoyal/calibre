@@ -56,11 +56,6 @@
         "sources": "calibre/gui2/tweak_book/editor/syntax/html.c"
     },
     {
-        "name": "tokenizer",
-        "headers": "tinycss/color.h",
-        "sources": "tinycss/tokenizer.c tinycss/color.c"
-    },
-    {
         "name": "_patiencediff_c",
         "sources": "calibre/gui2/tweak_book/diff/_patiencediff_c.c"
     },

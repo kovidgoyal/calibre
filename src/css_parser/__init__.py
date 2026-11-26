@@ -15,9 +15,8 @@ ignored: kgcss writes CSS in a fixed, normalized form, see its documentation.
 import logging
 from collections.abc import Callable
 
-from kgcss.compat import getUrls, parseRule, parseString, parseStyle, replaceUrls, resolveImports, serialize
-
 from css_parser import css
+from kgcss.compat import getUrls, parseRule, parseString, parseStyle, replaceUrls, resolveImports, serialize
 
 __all__ = ['CSSParser', 'css', 'getUrls', 'log', 'parseRule', 'parseString', 'parseStyle', 'replaceUrls', 'resolveImports', 'serialize']
 

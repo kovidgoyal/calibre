@@ -754,9 +754,6 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(suite())
     if ok('css'):
-        from tinycss.tests.main import find_tests
-
-        a(find_tests())
         from calibre.ebooks.oeb.stylizer import find_tests
 
         a(find_tests())
@@ -772,9 +769,6 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from calibre.ebooks.html_transform_rules import test
 
         a(test(return_tests=True))
-        from css_selectors.tests import find_tests
-
-        a(find_tests())
         from calibre.ebooks.css_selectors_test import find_tests
 
         a(find_tests())
