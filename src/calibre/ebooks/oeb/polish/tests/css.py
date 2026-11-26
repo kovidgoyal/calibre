@@ -154,14 +154,15 @@ class PolishCSS(BaseTest):
         raw = html('\n<p class="x">x</p>\n<p class="z">z</p>', '<style>.z { color: red }</style>')
         c = self.container({
             'a.html': raw,
-            's.css': '@charset "utf-8";\n/* c */\n@import "i.css";\na { x: y }\n@media screen { .y { x: y } .X { x: y } }',
+            's.css': '@charset "utf-8";\n/* c */\n@import "i.css";\na { x: y }\n*html p { x: y }\n@-foo-bar { x }\n@media screen { .y { x: y } .X { x: y } }',
             'i.css': '/* c */ .z { x: y }',
         })
 
         def find(cls: str, line: int) -> RuleLocation:
             return find_first_matching_rule(c, 'a.html', raw, {'class': cls, 'sourceline_address': (line, ['p'])})
 
-        # Addresses count rules as browsers do: without comments and @charset
+        # Addresses count rules as browsers do: without comments, @charset,
+        # unknown at-rules and style rules whose selectors do not parse
         self.assertEqual(find('x', 2), RuleLocation([2, 1], 's.css'))
         # Through @import, the linked sheet comes before the <style> tag
         self.assertEqual(find('z', 3), RuleLocation([0], 'i.css'))
@@ -180,6 +181,10 @@ class PolishCSS(BaseTest):
         self.assertEqual(find_rule(raw, (0, 0)), (4, 3))
         self.assertEqual(find_rule(raw, (1,)), (6, 1))
         self.assertEqual(find_rule(raw, (2,)), (None, None))
+        # Rules that browsers drop are not counted: unknown at-rules and style
+        # rules whose selectors do not parse
+        raw = '*html p { x: y }\n@-foo-bar { x }\n@keyframes k { to { x: y } }\n.target { x: y }'
+        self.assertEqual(find_rule(raw, (1,)), (4, 1))
 
         # A tab width that is not the default of kgcss
         from calibre.gui2 import tweak_book
