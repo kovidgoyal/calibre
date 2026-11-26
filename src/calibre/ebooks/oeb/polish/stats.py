@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, cast
 import regex
 from kgcss import FontFaceRule as CSSFontFaceRule
 from kgcss import RuleType, Stylesheet, parse_font_family
-from kgcss.cssom.values import String
 from lxml import etree
 from lxml.etree import tostring
 
@@ -142,7 +141,7 @@ def get_css_text(elem: _Element, resolve_pseudo_property: ResolvePseudoProperty,
     # content has a default value, so is never None
     content = cast('Values', resolve_pseudo_property(elem, which, 'content'))
     # The text of the strings, which have it unquoted as their value
-    return ''.join(x.value for x in content if isinstance(x, String))
+    return ''.join(x.string_value or '' for x in content if x.type == 'string')
 
 
 caps_variants = {'smallcaps', 'small-caps', 'all-small-caps', 'petite-caps', 'all-petite-caps', 'unicase'}

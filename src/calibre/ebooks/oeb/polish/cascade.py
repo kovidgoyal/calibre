@@ -21,7 +21,6 @@ from kgcss import (
     parse_value,
     serialize_font_family,
 )
-from kgcss.cssom.values import Ident, String
 from lxml import etree
 
 from calibre import as_unicode
@@ -33,8 +32,7 @@ from calibre.utils.resources import get_path as P
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
-    from kgcss import DeclarationBlock, MediaList, Rule, RuleList, Selector
-    from kgcss.cssom.values import Component
+    from kgcss import Component, DeclarationBlock, MediaList, Rule, RuleList, Selector
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.container import Container, ContainerBase
@@ -184,7 +182,7 @@ def iterdeclaration(decl: DeclarationBlock) -> Iterator[Property]:
 
 def component_text(c: Component) -> str:
     "The text of an identifier or string, unquoted, the CSS of other components, such as 700 or 1.5em"
-    return c.value if isinstance(c, (Ident, String)) else c.css_text
+    return c.css_text if c.string_value is None else c.string_value
 
 
 class Values(tuple['Component', ...]):

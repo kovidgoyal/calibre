@@ -582,9 +582,7 @@ def escape_cdata(root: etree._Element) -> None:
 def serialize(data: etree._Element | Stylesheet | css_compat.CSSStyleSheet | str | bytes | None, media_type: str, pretty_print: bool = False) -> bytes:
     if isinstance(data, css_compat.CSSStyleSheet):
         # The css_parser-style view of a stylesheet, from a plugin
-        sheet = css_compat.unwrap(data)
-        assert isinstance(sheet, Stylesheet)  # the view of a sheet
-        data = sheet
+        data = css_compat.unwrap(data)
     if isinstance(data, etree._Element):
         is_oeb_doc = media_type in OEB_DOCS
         if is_oeb_doc:
