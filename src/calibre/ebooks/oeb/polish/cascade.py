@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, Self, cast, ove
 
 from css_parser.css import CSSRule, CSSStyleSheet, Property
 from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
-from kgcss import parse_font_family, serialize_font_family
+from kgcss import CSS_WIDE_KEYWORDS, parse_font_family, serialize_font_family
 from lxml import etree
 
 from calibre import as_unicode
@@ -196,9 +196,6 @@ class Values(tuple['Value', ...]):
         if len(self) == 1:
             return css_text(self[0])
         return tuple(css_text(x) for x in self)
-
-
-CSS_WIDE_KEYWORDS = frozenset(('inherit', 'initial', 'unset', 'revert', 'revert-layer'))
 
 
 def normalize_style_declaration(decl: CSSStyleDeclaration, sheet_name: str) -> dict[str, Values]:

@@ -204,9 +204,14 @@ def normalize_font(cssvalue: PropertyValue, font_family_as_list: bool = False) -
     elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
         ans = {k: font_defaults[k] for k in composition}
     else:
+        font = parse_font(val)
+        if not font:
+            # An invalid value, which browsers ignore: set nothing rather
+            # than resetting the font to its defaults
+            return {}
         ans = {k: font_defaults[k] for k in composition}
         # parse_font() only returns the font longhands, with str or list[str] values
-        ans.update(cast('dict[str, str | list[str]]', parse_font(val)))
+        ans.update(cast('dict[str, str | list[str]]', font))
     if font_family_as_list:
         if isinstance(ans['font-family'], (str, bytes)):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
@@ -377,10 +382,15 @@ def test_normalization(return_tests: bool = False) -> unittest.TestSuite | None:
                 return ans
 
             for raw, expected in {
-                'some_font': {'font-family': 'some_font'},
+                # parse_font() follows the grammar of CSS Fonts 4 (kgcss 1.1.0): a
+                # value without a size is invalid and sets nothing
+                'some_font': {},
+                'bad font': {},
+                '12px inherit': {},
+                # Everything after the size is the family list
+                '12px bold serif': {'font-family': '"bold serif"', 'font-size': '12px'},
                 'inherit': {k: 'inherit' for k in font_composition},
                 '1.2pt/1.4 A_Font': {'font-family': 'A_Font', 'font-size': '1.2pt', 'line-height': '1.4'},
-                'bad font': {'font-family': '"bad font"'},
                 '10% serif': {'font-family': 'serif', 'font-size': '10%'},
                 '12px "My Font", serif': {'font-family': '"My Font", serif', 'font-size': '12px'},
                 'normal 0.6em/135% arial,sans-serif': {
