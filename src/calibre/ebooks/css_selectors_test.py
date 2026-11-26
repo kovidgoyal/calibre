@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-"""Tests for the css_selectors compatibility module, used by recipes and plugins"""
+"""Tests for the css_selectors and css_parser compatibility modules, used by recipes and plugins"""
 
 import unittest
 
@@ -70,5 +70,33 @@ class TestCSSSelectorsCompat(unittest.TestCase):
             parse('p..x')
 
 
+class TestCSSParserCompat(unittest.TestCase):
+    def test_css_parser(self) -> None:
+        import logging
+
+        import css_parser
+        from css_parser.css import CSSRule, CSSStyleSheet
+
+        # Code written for css_parser
+        css_parser.log.setLevel(logging.CRITICAL)
+        sheets = {'base.css': 'b { color: blue }'}
+        parser = css_parser.CSSParser(loglevel=logging.CRITICAL, fetcher=lambda url: ('utf-8', sheets[url]) if url in sheets else None)
+        sheet = parser.parseString('@import "base.css"; p { font-size: 12pt; background: url(a.png) }', href='main.css')
+        self.assertIsInstance(sheet, CSSStyleSheet)
+        rules = list(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
+        self.assertEqual([r.selectorText for r in rules], ['p'])
+        rules[0].style.setProperty('font-size', '24pt')
+        self.assertEqual(rules[0].style.getPropertyValue('font-size'), '24pt')
+        self.assertEqual(list(css_parser.getUrls(sheet)), ['base.css', 'a.png'])
+        css_parser.replaceUrls(sheet, lambda url: 'images/' + url, ignoreImportRules=True)
+        self.assertEqual(list(css_parser.getUrls(sheet)), ['base.css', 'images/a.png'])
+        resolved = css_parser.resolveImports(sheet)
+        self.assertIn(b'color: blue', resolved.cssText)
+        self.assertEqual(css_parser.serialize(sheet, 'text/css'), sheet.cssText)
+        style = css_parser.parseStyle('color: red; margin: 0')
+        self.assertEqual(style.getCssText(separator=' '), 'color: red; margin: 0')
+
+
 def find_tests() -> unittest.TestSuite:
-    return unittest.defaultTestLoader.loadTestsFromTestCase(TestCSSSelectorsCompat)
+    loader = unittest.defaultTestLoader
+    return unittest.TestSuite(loader.loadTestsFromTestCase(x) for x in (TestCSSSelectorsCompat, TestCSSParserCompat))
