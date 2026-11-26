@@ -243,13 +243,13 @@ class ContainerTests(BaseTest):
 
     def test_check_manifest_case_mismatch(self) -> None:
         "Test that fixing a case mismatch in the manifest does not remove the file"
-        from calibre.ebooks.oeb.polish.check.links import CaseMismatch, check_links
+        from calibre.ebooks.oeb.polish.check.links import CaseMismatch
         from calibre.ebooks.oeb.polish.check.main import fix_errors
-        from calibre.ebooks.oeb.polish.check.opf import check_opf
+        from calibre.ebooks.oeb.polish.check.main import run_checks as run_all_checks
 
-        # Don't use run_checks() as it needs a QApplication
         def run_checks(c: Container) -> list[BaseError]:
-            return check_links(c) + check_opf(c)
+            # The stylesheet of the simple book has a font-family without a generic family
+            return run_all_checks(c, frozenset({'css:font-family-no-missing-generic-family-keyword'}))
 
         c = get_container(get_simple_book())
         # Audio referenced only from the media overlay of a spine item

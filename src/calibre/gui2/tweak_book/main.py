@@ -10,7 +10,6 @@ from typing import cast
 from qt.core import QIcon, sip
 
 from calibre.constants import EDITOR_APP_UID, islinux, ismacos
-from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
 from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
@@ -103,10 +102,7 @@ def _run(args: list[str], notify: str | None = None) -> None:
 
 
 def main(args: list[str] = sys.argv) -> None:
-    try:
-        _run(args)
-    finally:
-        shutdown_css_check_pool()
+    _run(args)
 
 
 if __name__ == '__main__':

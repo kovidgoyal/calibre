@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, cast
 
 from lxml import etree
 
@@ -30,8 +30,6 @@ from polyglot.builtins import as_unicode
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from lxml.etree import Element
-
     from calibre.ebooks.oeb.polish.check.css import Job
     from calibre.ebooks.oeb.polish.container import Container
 
@@ -43,16 +41,14 @@ class CSSChecker:
         self.jobs: list[Job] = []
         self.skipped_rules = skipped_rules
 
-    def create_job(self, name: str, raw: str | bytes, line_offset: int = 0, is_declaration: bool = False) -> None:
-        from calibre.ebooks.oeb.polish.check.css import create_job
+    def create_job(self, name: str, raw: str | bytes, line_offset: int = 0) -> None:
+        from calibre.ebooks.oeb.polish.check.css import Job
 
-        self.jobs.append(create_job(name, as_unicode(raw), line_offset, is_declaration))
+        self.jobs.append(Job(name, as_unicode(raw), line_offset))
 
     def __call__(self) -> Sequence[BaseError]:
         from calibre.ebooks.oeb.polish.check.css import check_css
 
-        if not self.jobs:
-            return ()
         return check_css(self.jobs, self.skipped_rules)
 
 
@@ -91,7 +87,6 @@ def run_checks(container: Container, skipped_rules: frozenset[str] = frozenset()
         if err.level > WARN:
             return errors
 
-    # css uses its own worker pool
     css_checker = CSSChecker(skipped_rules)
     for name, mt, raw in stylesheets:
         if not raw:
@@ -115,7 +110,7 @@ def run_checks(container: Container, skipped_rules: frozenset[str] = frozenset()
         for elem in root.xpath('//*[@style]'):
             raw = elem.get('style')
             if raw:
-                css_checker.create_job(name, raw, line_offset=elem.sourceline - 1, is_declaration=True)
+                css_checker.create_job(name, raw, line_offset=elem.sourceline - 1)
 
     errors.extend(css_checker())
     errors += check_mimetypes(container)
@@ -131,51 +126,34 @@ def run_checks(container: Container, skipped_rules: frozenset[str] = frozenset()
     return remove_skipped(errors, skipped_rules)
 
 
-class CSSFix(NamedTuple):
-    original_css: str
-    elem: Element | None
-    attribute: str
-
-
 def fix_css(container: Container, skipped_rules: frozenset[str] = frozenset()) -> bool:
-    from calibre.ebooks.oeb.polish.check.css import create_job, pool, stylelint_rules_from_skipped_rules
+    from calibre.ebooks.oeb.polish.check.css import fix_css_text
 
-    jobs = []
-
+    changed = False
     for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
             css = cast('str', container.raw_data(name, decode=True))  # CSS files are decoded to str
-            jobs.append(create_job(name, css, fix_data=CSSFix(css, None, '')))
+            if (fixed := fix_css_text(css, skipped_rules)) is not None:
+                with container.open(name, 'wb') as f:
+                    f.write(fixed.encode('utf-8'))
+                changed = True
         elif mt in OEB_DOCS:
             root = container.parsed(name)
             assert isinstance(root, etree._Element)
+            dirtied = False
             for style in root.xpath('//*[local-name()="style"]'):
                 if style.get('type', 'text/css') == 'text/css' and style.text:
-                    jobs.append(create_job(name, style.text, fix_data=CSSFix(style.text, style, '')))
+                    if (fixed := fix_css_text(style.text, skipped_rules)) is not None:
+                        style.text = fixed
+                        dirtied = True
             for elem in root.xpath('//*[@style]'):
                 raw = elem.get('style')
-                if raw:
-                    jobs.append(create_job(name, raw, is_declaration=True, fix_data=CSSFix(raw, elem, 'style')))
-    results = pool.check_css([j.css for j in jobs], fix=True, disabled_rules=stylelint_rules_from_skipped_rules(skipped_rules))
-    changed = False
-    for job, result in zip(jobs, results):
-        if result['type'] == 'error':
-            continue
-        fx = job.fix_data
-        assert fx is not None  # all jobs above are created with fix_data
-        fixed_css = result['results']['output']
-        if fixed_css == fx.original_css:
-            continue
-        changed = True
-        if fx.elem is None:
-            with container.open(job.name, 'wb') as f:
-                f.write(fixed_css.encode('utf-8'))
-        else:
-            if fx.attribute:
-                fx.elem.set(fx.attribute, ' '.join(fixed_css.splitlines()[1:-1]))
-            else:
-                fx.elem.text = fixed_css
-            container.dirty(job.name)
+                if raw and (fixed := fix_css_text(raw, skipped_rules)) is not None:
+                    elem.set('style', fixed)
+                    dirtied = True
+            if dirtied:
+                container.dirty(name)
+                changed = True
     return changed
 
 

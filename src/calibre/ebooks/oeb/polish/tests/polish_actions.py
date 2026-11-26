@@ -67,14 +67,8 @@ class PolishActionsTest(BaseTest):
         outpath = os.path.join(self.tdir, 'cleaned.epub')
         c = self.open_container(path)
         report: list[str] = []
-        # Do not use the rules skipped in the editor by the user running the
-        # tests and do not check CSS, as that uses Qt WebEngine, which is
-        # fragile in CI and needs a QApplication
-        with (
-            patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()),
-            patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.create_job'),
-            patch('calibre.ebooks.oeb.polish.check.main.CSSChecker.__call__', return_value=()),
-        ):
+        # Do not use the rules skipped in the editor by the user running the tests
+        with patch('calibre.ebooks.oeb.polish.main.check_book_skipped_rules', return_value=frozenset()):
             changed = polish_one(c, Opts(cleanup=True), report.append)
         c.commit(outpath)
         self.assertTrue(changed)

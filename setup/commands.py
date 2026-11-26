@@ -51,7 +51,6 @@ __all__ = [
     'stage3',
     'stage4',
     'stage5',
-    'stylelint',
     'tag_release',
     'test',
     'test_rs',
@@ -84,10 +83,6 @@ translations = Translations()
 get_translations = GetTranslations()
 iso639 = ISO639()
 iso3166 = ISO3166()
-
-from setup.csslint import CSSLint
-
-stylelint = CSSLint()
 
 from setup.build import Build
 
