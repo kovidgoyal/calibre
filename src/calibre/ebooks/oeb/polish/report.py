@@ -9,7 +9,7 @@ from collections import defaultdict
 from itertools import chain
 from typing import TYPE_CHECKING, NamedTuple
 
-from css_selectors import Select, SelectorError
+from kgcss import Select, SelectorError
 from lxml import etree
 
 from calibre import force_unicode, prepare_string_for_xml
@@ -455,7 +455,8 @@ def css_data(container: Container, book_locale: DictionaryLocale, result_data: d
         for elem in root.xpath('//*[@class]'):
             for cls in elem.get('class', '').split():
                 cmap[cls][elem] = []
-        select = Select(root, ignore_inappropriate_pseudo_classes=True)
+        # quirks_mode keeps the case-insensitive matching of ids and classes of css_selectors
+        select = Select(root, ignore_inappropriate_pseudo_classes=True, quirks_mode=True)
         for sheet in chain(sheets_for_html(name, root), inline_sheets):
             for rule in rules_in_sheet(sheet):
                 rule_map[rule][name].extend(matches_for_selector(rule.selector, select, cmap, rule))

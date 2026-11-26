@@ -9,8 +9,9 @@ from operator import itemgetter
 from typing import TYPE_CHECKING
 
 from css_parser.css import CSSRule, CSSStyleDeclaration, CSSStyleSheet
-from css_selectors import Select, SelectorError, SelectorSyntaxError, parse
-from css_selectors.parser import tokenize
+from css_selectors.errors import SelectorError, SelectorSyntaxError
+from css_selectors.parser import parse, tokenize
+from css_selectors.select import Select
 from lxml import etree
 
 from calibre import force_unicode

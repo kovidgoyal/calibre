@@ -5,7 +5,8 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, NamedTuple, TypedDict, cast
 
 from css_parser.css import CSSRule
-from css_selectors import Select, SelectorError
+from css_selectors.errors import SelectorError
+from css_selectors.select import Select
 
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.oeb.polish.container import get_container

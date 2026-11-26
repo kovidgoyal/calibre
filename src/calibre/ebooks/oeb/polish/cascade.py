@@ -9,7 +9,8 @@ from operator import itemgetter
 from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, Self, cast, overload
 
 from css_parser.css import CSSRule, CSSStyleSheet, Property
-from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
+from css_selectors.errors import SelectorError
+from css_selectors.select import INAPPROPRIATE_PSEUDO_CLASSES, Select
 from kgcss import CSS_WIDE_KEYWORDS, parse_font_family, serialize_font_family
 from lxml import etree
 

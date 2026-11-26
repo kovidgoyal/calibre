@@ -5,8 +5,8 @@ import re
 from functools import partial
 from typing import TYPE_CHECKING, TypedDict, cast
 
-from css_selectors.select import Select, get_parsed_selector
 from html5_parser import parse
+from kgcss import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError, parse_selectors, serialize_identifier
 from lxml import etree
 
 from calibre.ebooks.metadata.tag_mapper import uniq
@@ -139,9 +139,12 @@ def validate_action(action: SerializedAction) -> str | None:
 
 def validate_css_selector(val: str) -> str | None:
     try:
-        get_parsed_selector(val)
-    except Exception:
+        selectors = parse_selectors(val)
+    except SelectorError:
         return _('{} is not a valid CSS selector').format(val)
+    if any(s.has_pseudo(INAPPROPRIATE_PSEUDO_CLASSES) for s in selectors):
+        return _('{} depends on user interaction or generated content, so it cannot match anything in a document').format(val)
+    return None
 
 
 def validate_xpath_selector(val: str) -> str | None:
@@ -439,10 +442,10 @@ class Rule:
             self.xpath_selector = XPath('//*')
             self.selector = self.xpath
         elif mt == 'has_class':
-            self.css_selector = '.' + q
+            self.css_selector = '.' + serialize_identifier(q)
             self.selector = self.css
         elif mt == 'not_has_class':
-            self.css_selector = f':not(.{q})'
+            self.css_selector = f':not(.{serialize_identifier(q)})'
             self.selector = self.css
         elif mt == 'contains_text':
             self.xpath_selector = XPath(f'//*[contains(text(), {text_as_xpath_literal(q)})]')
@@ -455,7 +458,8 @@ class Rule:
         return cast('list[etree._Element]', self.xpath_selector(root))  # the selectors only select elements
 
     def css(self, root: etree._Element) -> tuple[etree._Element, ...]:
-        return tuple(Select(root)(self.css_selector))
+        # css_selectors, which this used before kgcss, matched classes and ids case-insensitively
+        return tuple(Select(root, quirks_mode=True)(self.css_selector))
 
     def __call__(self, root: etree._Element) -> bool:
         changed = False
@@ -578,6 +582,7 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
 <body id='body'>
 <p class="one red" id='p1'>simple
 <p class="two green" id='p2'>a'b"c
+<p class="1x a.b" id='p3'>x
 ''',
             )
             all_ids = root.xpath('//*/@id')
@@ -596,7 +601,7 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
 
             t('*', expected=all_ids)
             t('is', 'body', ['body'])
-            t('is', 'p', ['p1', 'p2'])
+            t('is', 'p', ['p1', 'p2', 'p3'])
             t('has_class', 'one', ['p1'])
             ei = list(all_ids)
             ei.remove('p1')
@@ -605,6 +610,14 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
             t('xpath', '//h:body', ['body'])
             t('contains_text', 'imple', ['p1'])
             t('contains_text', 'a\'b"c', ['p2'])
+            # Class names are escaped, so any class name works
+            t('has_class', '1x', ['p3'])
+            t('has_class', 'a.b', ['p3'])
+            self.assertNotIn('p3', q('not_has_class', '1x'))
+            # Classes and ids match case-insensitively, as with css_selectors
+            t('has_class', 'ONE', ['p1'])
+            t('css', '#P1.Red', ['p1'])
+            t('css', 'p:first-of-type, p:nth-child(1 of .green)', ['p1', 'p2'])
 
         def test_validate_rule(self) -> None:
             def av(match_type: str = '*', query: str = '', atype: str = 'remove', adata: str = '') -> None:
@@ -618,6 +631,10 @@ def test(return_tests: bool = False) -> unittest.TestSuite | None:  # {{{
             av()
             av('css', 'p')
             ai('css', 'p..c')
+            av('css', 'p:is(.a, #b) > a[href^="x"]')
+            ai('css', 'a[x!=y]')
+            ai('css', 'a:hover')
+            ai('css', 'p::first-line')
             av('xpath', '//h:p')
             ai('xpath', '//h:p[')
             ai('is', '')
