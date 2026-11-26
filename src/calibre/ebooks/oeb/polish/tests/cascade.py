@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Mapping
 
     from css_parser.css import CSSRule, CSSStyleSheet
-    from css_selectors import Select
+    from css_selectors.select import Select
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.cascade import Values

@@ -18,7 +18,8 @@ from css_parser import CSSParser, parseString, parseStyle, replaceUrls
 from css_parser import log as css_parser_log
 from css_parser import profile as cssprofiles
 from css_parser.css import CSSFontFaceRule, CSSPageRule, CSSStyleRule, CSSStyleSheet, cssproperties
-from css_selectors import INAPPROPRIATE_PSEUDO_CLASSES, Select, SelectorError
+from css_selectors.errors import SelectorError
+from css_selectors.select import INAPPROPRIATE_PSEUDO_CLASSES, Select
 from kgcss import is_color, media_matches
 
 from calibre import as_unicode, force_unicode

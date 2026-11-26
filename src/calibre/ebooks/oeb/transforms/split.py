@@ -16,7 +16,8 @@ from contextlib import suppress
 from typing import TYPE_CHECKING, cast
 
 from css_parser.css import CSSStyleSheet
-from css_selectors import Select, SelectorError
+from css_selectors.errors import SelectorError
+from css_selectors.select import Select
 from lxml import etree
 from lxml.etree import XPath as _XPath
 

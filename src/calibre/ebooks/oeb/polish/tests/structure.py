@@ -666,6 +666,41 @@ class Structure(BaseTest):
         self.assertEqual(root.xpath('//*/@aria-describedby'), [nid])
         self.assertEqual(root.xpath('//*/@for'), [nid])
 
+    def test_report_css_data(self) -> None:
+        from calibre.ebooks.oeb.polish.report import ClassEntry, css_data
+        from calibre.spell import parse_lang_code
+
+        html = (
+            '<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="s.css"/><style>.Inline { color: red }</style></head>'
+            '<body><p id="1x" class="A b">a</p><p class="b">b</p><a href="#">l</a></body></html>'
+        )
+        css = (
+            '#\\31 x { color: red }\n.a { color: blue }\np.B, a:hover { margin: 0 }\na[x!=y] { color: green }\n'
+            '@media screen { body > p { font-weight: bold } }\n.missing { color: red }'
+        )
+        c = self.create_epub([cmi('a.html', html), cmi('s.css', css)])
+        result_data: dict[str, object] = {}
+        counts = {e.rule.selector: e.count for e in css_data(c, parse_lang_code('en'), result_data)}
+        self.assertEqual(
+            counts,
+            {
+                # Escapes in selectors work
+                '#\\31 x': 1,
+                # Ids and classes match case-insensitively, as with css_selectors
+                '.a': 1,
+                # Pseudo-classes that need user interaction are ignored
+                'p.B, a:hover': 3,
+                # Invalid selectors match nothing
+                'a[x!=y]': 0,
+                'body > p': 2,
+                '.missing': 0,
+                '.Inline': 0,
+            },
+        )
+        classes = result_data['classes']
+        assert isinstance(classes, list)
+        self.assertEqual({e.cls: e.num_of_matches for e in classes if isinstance(e, ClassEntry)}, {'A': 1, 'b': 2})
+
     def test_batch_fixes(self) -> None:
         "Test that fixing errors in batches gives the same result as fixing them one by one"
         from calibre.ebooks.oeb.polish.check.links import CaseMismatch, DanglingLink, check_link_destinations, check_links

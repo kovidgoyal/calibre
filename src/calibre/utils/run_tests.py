@@ -774,6 +774,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
         from css_selectors.tests import find_tests
 
         a(find_tests())
+        from calibre.ebooks.css_selectors_test import find_tests
+
+        a(find_tests())
     if ok('docx'):
         from calibre.ebooks.docx.fields import test_parse_fields
 
@@ -899,6 +902,9 @@ def find_tests(which_tests: Collection[str] | None = None, exclude_tests: Collec
 
         a(find_tests())
         from calibre.gui2.tweak_book.editor.syntax.css import find_tests
+
+        a(find_tests())
+        from calibre.gui2.tweak_book.live_css import find_tests
 
         a(find_tests())
         from calibre.gui2.tag_mapper import find_tests

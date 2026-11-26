@@ -4,7 +4,7 @@
 import sys
 from typing import TYPE_CHECKING, Any
 
-from css_selectors import SelectorError, parse
+from kgcss import SelectorError, parse_selectors
 from qt.core import (
     QColor,
     QIcon,
@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    import unittest
     from collections.abc import Iterable, Sequence
 
     from qt.core import QContextMenuEvent, QEnterEvent, QEvent, QMouseEvent, QPaintEvent, QShowEvent
@@ -433,6 +434,17 @@ class Box(QWidget):
         m.exec(ev.globalPos())
 
 
+def rule_specificity(selector: str | None) -> tuple[int, int, int, int]:
+    """The specificity of a rule with this selector, with the style attribute,
+    whose selector is None, more specific than every rule"""
+    if selector is None:
+        return 1, 0, 0, 0
+    try:
+        return 0, *parse_selectors(selector)[0].specificity
+    except SelectorError:
+        return 0, 0, 0, 0
+
+
 class Property:
     __slots__ = ('color', 'important', 'is_overriden', 'name', 'specificity', 'value')
 
@@ -554,15 +566,7 @@ class LiveCSS(QWidget):
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
-        specificity: list[object]
-        if selector is not None:
-            try:
-                specificity = [0] + list(parse(selector)[0].specificity())
-            except AttributeError, TypeError, SelectorError:
-                specificity = [0, 0, 0, 0]
-        else:  # style attribute
-            specificity = [1, 0, 0, 0]
-        specificity.extend((sheet_index, tuple(rule_address)))
+        specificity: list[object] = [*rule_specificity(selector), sheet_index, tuple(rule_address)]
         properties = []
         for prop in rule['properties']:
             important = 1 if prop[-1] == 'important' else 0
@@ -622,3 +626,28 @@ class LiveCSS(QWidget):
             editor.goto_css_rule(data['rule_address'])
         elif data['type'] == 'elem':
             editor.goto_css_rule(data['rule_address'], sourceline_address=data['sourceline_address'])
+
+
+def find_tests() -> unittest.TestSuite:
+    import unittest
+
+    class TestLiveCSS(unittest.TestCase):
+        def test_rule_specificity(self) -> None:
+            for selector, expected in {
+                None: (1, 0, 0, 0),
+                'p': (0, 0, 0, 1),
+                '#a .b c': (0, 1, 1, 1),
+                r'#\31 x > p': (0, 1, 0, 1),
+                'p::before': (0, 0, 0, 2),
+                ':is(#a, b) :not(.x) :where(#y)': (0, 1, 1, 0),
+                '[epub|type="footnote"]': (0, 0, 1, 0),
+                'a:hover': (0, 0, 1, 1),
+                # Selectors that do not parse are the least specific
+                '': (0, 0, 0, 0),
+                'a[x!=y]': (0, 0, 0, 0),
+            }.items():
+                self.assertEqual(rule_specificity(selector), expected, selector)
+            # The style attribute beats every selector
+            self.assertGreater(rule_specificity(None), rule_specificity('#a#b#c .d'))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLiveCSS)
