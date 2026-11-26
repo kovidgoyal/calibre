@@ -30,6 +30,18 @@ def save_dir_container(container: Container, path: str) -> None:
     container.commit(path)
 
 
+def clear_readonly_attribute(path: str) -> None:
+    # On Windows, replacing a file that has the read-only attribute set fails
+    # with access denied, so clear the attribute first. The user is warned
+    # about this before saving.
+    try:
+        st = os.stat(path)
+    except FileNotFoundError:
+        return
+    if not st.st_mode & stat.S_IWRITE:
+        os.chmod(path, st.st_mode | stat.S_IWRITE)
+
+
 def save_container(container: Container, path: str) -> None:
     if container.is_dir:
         return save_dir_container(container, path)
@@ -75,6 +87,8 @@ def save_container(container: Container, path: str) -> None:
     temp = temp.name
     try:
         container.commit(temp)
+        if iswindows:
+            clear_readonly_attribute(path)
         atomic_rename(temp, path)
     finally:
         if os.path.exists(temp):
