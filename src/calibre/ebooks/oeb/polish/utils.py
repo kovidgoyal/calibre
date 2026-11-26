@@ -115,16 +115,6 @@ def adjust_mime_for_epub(filename: str = '', mime: str = '', opf_version: Sequen
     return mime
 
 
-def setup_css_parser_serialization(tab_width: int = 2) -> None:
-    import css_parser
-
-    prefs = css_parser.ser.prefs
-    prefs.indent = tab_width * ' '
-    prefs.indentClosingBrace = False
-    prefs.omitLastSemicolon = False
-    prefs.formatUnknownAtRules = False  # True breaks @supports rules
-
-
 #: Map of folder path to a map of lowercased file name to file name for the files in that folder
 type FolderCaseMap = dict[str, dict[str, str] | None]
 

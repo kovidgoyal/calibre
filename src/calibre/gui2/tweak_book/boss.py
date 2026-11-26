@@ -44,7 +44,6 @@ from calibre.ebooks.oeb.polish.replace import get_recommended_folders, rationali
 from calibre.ebooks.oeb.polish.split import AbortError, merge, multisplit, split
 from calibre.ebooks.oeb.polish.toc import create_inline_toc, mark_as_nav, remove_names_from_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets
-from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization as scs
 from calibre.gui2 import (
     add_to_recent_docs,
     choose_dir,
@@ -59,7 +58,17 @@ from calibre.gui2 import (
     warning_dialog,
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.tweak_book import actions, current_container, dictionaries, editor_name, editors, set_book_locale, set_current_container, tprefs
+from calibre.gui2.tweak_book import (
+    actions,
+    apply_css_serialize_options,
+    current_container,
+    dictionaries,
+    editor_name,
+    editors,
+    set_book_locale,
+    set_current_container,
+    tprefs,
+)
 from calibre.gui2.tweak_book.completion.worker import completion_worker
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import NewBook, get_resource_data
@@ -131,10 +140,6 @@ def get_container(path: str, log: Log | None = None, tdir: str | None = None, eb
     return container
 
 
-def setup_css_parser_serialization() -> None:
-    scs(tprefs['editor_tab_stop_width'])
-
-
 def in_thread_job[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
     def ans(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -181,7 +186,6 @@ class Boss(QObject):
         self.save_manager.check_for_completion.connect(self.check_terminal_save)
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
-        setup_css_parser_serialization()
         global _boss
         _boss = self
         self.gui = parent
@@ -283,7 +287,7 @@ class Boss(QObject):
                         bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
         if ret == QDialog.DialogCode.Accepted:
-            setup_css_parser_serialization()
+            apply_css_serialize_options()
             self.gui.apply_settings()
             self.refresh_file_list()
             self.gui.preview.start_refresh_timer()

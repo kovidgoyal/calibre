@@ -6,11 +6,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from css_parser.css import CSSRule
+from kgcss import RuleType
 from qt.core import QAction, QInputDialog
 
-from calibre import force_unicode
-from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, serialize
+from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
 from calibre.gui2 import error_dialog
 
 # The base class that all tools must inherit from
@@ -82,37 +81,40 @@ class DemoTool(Tool):
         # stylesheets, <style> tags and style="" attributes
         for name, media_type in container.mime_map.items():
             if media_type in OEB_STYLES:
-                # A stylesheet. Parsed stylesheets are css_parser CSSStylesheet
-                # objects.
-                self.magnify_stylesheet(container.parsed(name), factor)
+                # A stylesheet. parsed_stylesheet() gives it as a kgcss
+                # Stylesheet object, see https://kgcss.readthedocs.io
+                self.magnify_stylesheet(container.parsed_stylesheet(name), factor)
                 container.dirty(name)  # Tell the container that we have changed the stylesheet
             elif media_type in OEB_DOCS:
                 # A HTML file. Parsed HTML files are lxml elements
 
-                for style_tag in container.parsed(name).xpath('//*[local-name="style"]'):
+                for style_tag in container.parsed(name).xpath('//*[local-name()="style"]'):
                     if style_tag.text and style_tag.get('type', None) in {None, 'text/css'}:
                         # We have an inline CSS <style> tag, parse it into a
                         # stylesheet object
-                        sheet = container.parse_css(style_tag.text)
+                        sheet = container.parse_stylesheet(style_tag.text)
                         self.magnify_stylesheet(sheet, factor)
-                        style_tag.text = serialize(sheet, 'text/css', pretty_print=True)
-                        container.dirty(name)  # Tell the container that we have changed the stylesheet
+                        style_tag.text = sheet.css_text
+                        container.dirty(name)  # Tell the container that we have changed the HTML
                 for elem in container.parsed(name).xpath('//*[@style]'):
                     # Process inline style attributes
-                    block = container.parse_css(elem.get('style'), is_declaration=True)
+                    block = container.parse_style(elem.get('style'))
                     self.magnify_declaration(block, factor)
-                    elem.set('style', force_unicode(block.getCssText(separator=' '), 'utf-8'))
+                    # The single line form is safe inside an attribute
+                    elem.set('style', block.to_css(single_line=True))
+                    container.dirty(name)
 
     def magnify_stylesheet(self, sheet, factor):
         # Magnify all fonts in the specified stylesheet by the specified
-        # factor.
-        for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        # factor. iter_rules() gives the rules at any depth, including those
+        # inside @media rules.
+        for rule in sheet.iter_rules(RuleType.STYLE):
             self.magnify_declaration(rule.style, factor)
 
     def magnify_declaration(self, style, factor):
         # Magnify all fonts in the specified style declaration by the specified
         # factor
-        val = style.getPropertyValue('font-size')
+        val = style.get_value('font-size')
         if not val:
             return
         # see if the font-size contains a number
@@ -120,7 +122,7 @@ class DemoTool(Tool):
         if num is not None:
             num = num.group()
             val = val.replace(num, f'{float(num) * factor:f}')
-            style.setProperty('font-size', val)
+            style.set('font-size', val)
         # We should also be dealing with the font shorthand property and
         # font sizes specified as non numbers, but those are left as exercises
         # for the reader

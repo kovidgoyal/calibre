@@ -32,6 +32,36 @@ The Container object
 .. autoclass:: Container
    :members:
 
+Parsed files and stylesheets
+--------------------------------------------------------
+
+:meth:`~ContainerBase.parsed` gives the parsed form of a file: an lxml tree
+for HTML and XML files and a stylesheet object for CSS files. Stylesheets are
+parsed with `kgcss <https://kgcss.readthedocs.io>`_.
+
+For compatibility with plugins written for older versions of calibre, which
+used the css_parser library, :meth:`~ContainerBase.parsed` and
+:meth:`~ContainerBase.parse_css` give css_parser-style objects, with
+``cssRules``, ``getPropertyValue()``, ``setProperty()`` and so on. These are
+live views of kgcss objects: changing them changes the stylesheet of the book.
+See :mod:`kgcss.compat` for what they support.
+
+New code should use the kgcss objects directly, from
+:meth:`~ContainerBase.parsed_stylesheet`, :meth:`~ContainerBase.parse_stylesheet`
+and :meth:`~ContainerBase.parse_style`. To get the kgcss object of a view, use
+``kgcss.compat.unwrap(view)``. In both cases, call :meth:`~Container.dirty`
+after changing a stylesheet of the book.
+
+.. automethod:: ContainerBase.parsed
+
+.. automethod:: ContainerBase.parsed_stylesheet
+
+.. automethod:: ContainerBase.parse_stylesheet
+
+.. automethod:: ContainerBase.parse_style
+
+.. automethod:: ContainerBase.parse_css
+
 Managing component files in a container
 --------------------------------------------------------
 

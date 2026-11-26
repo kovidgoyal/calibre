@@ -9,6 +9,8 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.localization import _
 
 if TYPE_CHECKING:
+    from kgcss import SerializeOptions
+
     from calibre.ebooks.oeb.polish.container import Container
     from calibre.gui2.tweak_book.editor.image import Editor as ImageEditor
     from calibre.gui2.tweak_book.editor.widget import Editor as TextEditor
@@ -164,9 +166,23 @@ def current_container() -> Container:
     return cast('Container', _current_container)
 
 
+def css_serialize_options() -> SerializeOptions:
+    "How stylesheets are written, with the indent of the editor"
+    from kgcss import SerializeOptions
+
+    return SerializeOptions(indent=' ' * tprefs['editor_tab_stop_width'])
+
+
+def apply_css_serialize_options() -> None:
+    "Use the editor preferences to write the stylesheets of the current book"
+    if _current_container is not None:
+        _current_container.css_serialize_options = css_serialize_options()
+
+
 def set_current_container(container: Container | None) -> None:
     global _current_container
     _current_container = container
+    apply_css_serialize_options()
 
 
 class NonReplaceDict(dict):

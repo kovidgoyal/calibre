@@ -166,3 +166,69 @@ class PolishCSS(BaseTest):
         self.assertEqual(find('z', 3), RuleLocation([0], 'i.css'))
         with self.assertRaises(NoMatchingRuleFound):
             find('q', 2)
+
+    def test_edit_book_helpers(self) -> None:
+        from calibre.gui2.tweak_book import css_serialize_options, current_container, set_current_container, tprefs
+        from calibre.gui2.tweak_book.diff.view import beautify_text
+        from calibre.gui2.tweak_book.editor.smarts.css import find_rule
+
+        # Rule addresses as browsers count rules: no comments or @charset,
+        # grouping rules such as @supports included
+        raw = '@charset "utf-8";\n/* c */\n@supports (x: y) {\n  a { b: c }\n}\np { x: y }'
+        self.assertEqual(find_rule(raw, (0, 0)), (4, 3))
+        self.assertEqual(find_rule(raw, (1,)), (6, 1))
+        self.assertEqual(find_rule(raw, (2,)), (None, None))
+
+        indent = ' ' * tprefs['editor_tab_stop_width']
+        self.assertEqual(css_serialize_options().indent, indent)
+        self.assertEqual(beautify_text('a{b:c}', 'css'), f'a {{\n{indent}b: c;\n}}\n')
+        c = self.container({'s.css': 'a{b:c}'})
+        previous = current_container()
+        try:
+            set_current_container(c)
+            self.assertEqual(c.css_serialize_options.indent, indent)
+        finally:
+            set_current_container(previous)
+
+    def test_css_parser_style_plugins(self) -> None:
+        # The code of the editor demo plugin as it was written for css_parser,
+        # which must keep working on the css_parser-style views
+        from kgcss.compat import CSSRule
+
+        from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, serialize
+
+        c = self.container({
+            'a.html': html('<p style="font-size: 10pt; color: red">x</p>', '<style>p { font-size: 2em }</style>'),
+            's.css': 'h1 { font-size: 12pt } @media screen { h2 { font-size: 1em } }',
+        })
+
+        def magnify_declaration(style: css_compat.CSSStyleDeclaration) -> None:
+            val = style.getPropertyValue('font-size')
+            if val:
+                style.setProperty('font-size', val.replace(val.rstrip('emptx'), str(2 * float(val.rstrip('emptx')))))
+
+        for name, media_type in c.mime_map.items():
+            if media_type in OEB_STYLES:
+                sheet = c.parsed(name)
+                assert isinstance(sheet, css_compat.CSSStyleSheet)
+                for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+                    magnify_declaration(rule.style)
+                c.dirty(name)
+            elif media_type in OEB_DOCS:
+                root = c.parsed(name)
+                assert isinstance(root, etree._Element)
+                for style_tag in root.xpath('//*[local-name()="style"]'):
+                    sheet = c.parse_css(style_tag.text)
+                    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+                        magnify_declaration(rule.style)
+                    style_tag.text = serialize(sheet, 'text/css', pretty_print=True).decode('utf-8')
+                for elem in root.xpath('//*[@style]'):
+                    block = c.parse_css(elem.get('style'), is_declaration=True)
+                    magnify_declaration(block)
+                    elem.set('style', block.getCssText(separator=' '))
+                c.dirty(name)
+        self.assertEqual(c.parsed_stylesheet('s.css').css_text, 'h1 {\n  font-size: 24pt;\n}\n@media screen {\n  h2 {\n    font-size: 1em;\n  }\n}')
+        root = c.parsed('a.html')
+        assert isinstance(root, etree._Element)
+        self.assertEqual(root.xpath('//*[local-name()="style"]')[0].text, 'p {\n  font-size: 4em;\n}\n')
+        self.assertEqual(root.xpath('//*[local-name()="p"]/@style'), ['font-size: 20pt; color: red'])
