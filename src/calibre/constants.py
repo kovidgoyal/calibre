@@ -296,7 +296,6 @@ class ExtensionsImporter:
             '_patiencediff_c',
             'bzzdec',
             'matcher',
-            'tokenizer',
             'certgen',
             'sqlite_extension',
             'uchardet',

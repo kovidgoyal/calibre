@@ -255,10 +255,6 @@ Copyright: Ned Batchelder
 License: Other
   This Python code is in the public domain.
 
-Files: src/tinycss/*
-Copyright: Simon Sapin
-License: BSD
-
 Files: src/calibre/ebooks/readability/*
 Copyright: Unknown
 License: Apache 2.0

@@ -495,11 +495,6 @@ class BuildTest(unittest.TestCase):
         else:
             wpd.uninit()
 
-    def test_tinycss_tokenizer(self) -> None:
-        from tinycss.tokenizer import c_tokenize_flat
-
-        self.assertIsNotNone(c_tokenize_flat, 'tinycss C tokenizer not loaded')
-
     @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
     def test_executables(self) -> None:
         from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, PDFTOTEXT
@@ -611,9 +606,6 @@ def find_tests(only_build: bool = False) -> unittest.TestSuite:
     if only_build:
         return ans
     from calibre.utils.icu_test import find_tests
-
-    ans.addTests(find_tests())
-    from tinycss.tests.main import find_tests
 
     ans.addTests(find_tests())
     from calibre.spell.dictionary import find_tests

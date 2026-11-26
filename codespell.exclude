@@ -119,7 +119,6 @@ src/calibre/ebooks/mobi/reader/index.py
         print('WARNING: Invalid INDX record')
 
 src/calibre/ebooks/oeb/polish/utils.py
-    prefs = css_parser.ser.prefs
 
 src/calibre/ebooks/rtf2xml/process_tokens.py
         'ul'                 : ('ci', 'underlined<continous', self.two_part_func),
