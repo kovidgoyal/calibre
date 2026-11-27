@@ -142,7 +142,7 @@ class POT(Command):  # {{{
         return '\n'.join(ans)
 
     def get_kgcss_strings(self, existing_pot: str) -> str:
-        "The templates of the messages of the CSS linter in kgcss, shown by Check book"
+        "The message templates and rule descriptions of the CSS linter in kgcss, shown by Check book"
         from kgcss import LINT_RULES, SYNTAX_PROBLEM_TEMPLATES, SyntaxProblemKind
 
         sources: dict[str, list[str]] = {}
@@ -151,12 +151,18 @@ class POT(Command):  # {{{
                 sources.setdefault(template, []).append(info.rule.value)
         for kind in SyntaxProblemKind:
             sources.setdefault(SYNTAX_PROBLEM_TEMPLATES[kind], []).append('CssSyntaxError')
+        descriptions: dict[str, list[str]] = {}
+        for info in LINT_RULES.values():
+            descriptions.setdefault(info.description, []).append(info.rule.value)
+
+        def escape(text: str) -> str:
+            if '\n' in text:
+                raise SystemExit(f'Multi-line kgcss strings are not supported: {text!r}')
+            return text.replace('\\', r'\\').replace('"', r'\"')
+
         ans = []
         for template, rules in sources.items():
-            if '\n' in template:
-                raise SystemExit(f'Multi-line kgcss message templates are not supported: {template!r}')
-            escaped = template.replace('\\', r'\\').replace('"', r'\"')
-            msgid = f'msgid "{escaped}"'
+            msgid = f'msgid "{escape(template)}"'
             if f'\n{msgid}\n' in existing_pot:
                 continue  # xgettext found it in the calibre sources already
             ans.append(
@@ -167,6 +173,15 @@ class POT(Command):  # {{{
             if '{' in template:
                 ans.append('#, python-brace-format\n')
             ans.append(f'{msgid}\nmsgstr ""\n\n')
+        for description, rules in descriptions.items():
+            msgid = f'msgid "{escape(description)}"'
+            if f'\n{msgid}\n' in existing_pot or description in sources:
+                continue
+            ans.append(
+                f'#. NOTE: The description of the CSS rules: {", ".join(rules)} used by Check book.\n'
+                '#: src/calibre/ebooks/oeb/polish/check/css.py\n'
+                f'{msgid}\nmsgstr ""\n\n'
+            )
         return ''.join(ans)
 
     def get_content_server_strings(self):

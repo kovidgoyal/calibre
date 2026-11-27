@@ -30,6 +30,8 @@ LINT_OPTIONS: Mapping[LintRule, Mapping[str, object]] = MappingProxyType({
 class CSSBaseError(BaseError):
     FIXABLE_CSS_ERROR = False
     css_rule_id: str | None = None
+    # The kgcss rule that found the problem, None for syntax errors
+    lint_rule: LintRule | None = None
 
     @property
     def rule_id(self) -> str:
@@ -39,6 +41,8 @@ class CSSBaseError(BaseError):
 
     @property
     def rule_name(self) -> str:
+        if self.lint_rule is not None:
+            return f'CSS: {_(LINT_RULES[self.lint_rule].description)} ({self.lint_rule.value})'
         if self.css_rule_id:
             return f'CSS: {self.css_rule_id}'
         return super().rule_name
@@ -109,6 +113,7 @@ def problem_to_error(p: LintProblem, job: Job) -> CSSError:
     msg = translated_message(p)
     ans = CSSError(msg, job.name, p.line + job.line_offset, utf16_column(job.css, p.pos, p.column))
     ans.css_rule_id = p.rule.value
+    ans.lint_rule = p.rule
     ans.HELP = msg + '. ' + _('See <a href="{}">detailed description</a>.').format(LINT_RULES[p.rule].url) + ' '
     if p.fix is not None:
         ans.FIXABLE_CSS_ERROR = True

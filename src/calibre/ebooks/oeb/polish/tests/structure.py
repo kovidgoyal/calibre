@@ -628,6 +628,7 @@ class Structure(BaseTest):
             'Duplicate property "{0}"': 'Propriété dupliquée {1}',
             # Placeholders can be reordered
             'Overridden property "{1}" by shorthand "{0}"': 'Raccourci « {0} » remplace « {1} »',
+            'Disallow unknown properties': 'Interdire les propriétés inconnues',
         }
 
         def translate(msg: str) -> str:
@@ -643,6 +644,11 @@ class Structure(BaseTest):
         self.assertIn('Raccourci « margin » remplace « margin-top »', msgs)
         for e in errors:
             self.assertTrue(e.HELP.startswith(e.msg + '. '), e.HELP)
+        with patch.object(check_css_module, '_', translate):
+            rule_names = {e.rule_name for e in errors}
+        self.assertIn('CSS: Interdire les propriétés inconnues (property-no-unknown)', rule_names)
+        self.assertIn('CSS: Disallow empty blocks (block-no-empty)', rule_names)
+        self.assertIn('CSS: CssSyntaxError', rule_names)
 
     def test_check_css(self) -> None:
         from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError
