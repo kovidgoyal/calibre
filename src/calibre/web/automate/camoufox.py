@@ -2866,6 +2866,9 @@ class Page:
         self.main_frame = ''
         self.url = 'about:blank'
         self.closed = False
+        # Set when the browser reports that the tab is gone, which happens
+        # some time after it acknowledges the request to close it
+        self.gone = asyncio.Event()
         self.events = EventWaiter()
         self.ready = asyncio.Event()
         # frame id -> id of the execution context for the main JavaScript world
@@ -2952,6 +2955,7 @@ class Page:
 
     def detached(self) -> None:
         self.closed = True
+        self.gone.set()
         self.events.abort(BrowserClosedError('The page was closed'))
         self.ready.set()
 
@@ -3582,6 +3586,15 @@ class Page:
             await self.send('Page.close', {'runBeforeUnload': False}, timeout=CLOSE_TIMEOUT)
         except Error, ProtocolError:
             pass
+        else:
+            # The browser acknowledges the request before it closes the tab,
+            # so wait for it to be gone. A tab opened while another is still
+            # being closed can then never be caught up in the closing, which
+            # has been seen to leave Browser.newPage hanging on Windows.
+            try:
+                await wait_for(asyncio.ensure_future(self.gone.wait()), CLOSE_TIMEOUT, 'the tab to close')
+            except TimeoutExceeded as err:
+                debug(f'Closing a camoufox tab: {err}')
         self.detached()
 
 
