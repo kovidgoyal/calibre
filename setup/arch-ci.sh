@@ -5,7 +5,7 @@
 
 set -xe
 
-pacman -S --noconfirm --needed base-devel sudo git sip pyqt-builder cmake chmlib icu jxrlib hunspell libmtp libusb libwmf optipng python-apsw python-beautifulsoup4 python-cssselect python-css-parser python-dateutil python-jeepney python-dnspython python-feedparser python-html2text python-html5-parser python-lxml python-lxml-html-clean python-markdown python-mechanize python-msgpack python-netifaces python-unrardll python-pillow python-psutil python-pygments python-pyqt6 python-regex python-zeroconf python-pyqt6-webengine qt6-svg qt6-imageformats qt6-speech udisks2 hyphen python-pychm python-pycryptodome speech-dispatcher python-sphinx python-urllib3 python-py7zr python-pip python-setuptools python-fonttools python-xxhash python-tzdata python-tzlocal uchardet libstemmer poppler podofo tk libwebp-utils python-jaconv python-pykakasi protobuf onnxruntime uv libavif libjxl
+pacman -S --noconfirm --needed base-devel sudo git sip pyqt-builder cmake chmlib icu jxrlib hunspell libmtp libusb libwmf optipng python-apsw python-beautifulsoup4 python-cssselect python-css-parser python-dateutil python-jeepney python-dnspython python-feedparser python-html2text python-html5-parser python-lxml python-lxml-html-clean python-markdown python-mechanize python-msgpack python-netifaces python-unrardll python-pillow python-psutil python-pygments python-pyqt6 python-regex python-zeroconf python-pyqt6-webengine qt6-svg qt6-imageformats qt6-speech udisks2 hyphen python-pychm python-pycryptodome speech-dispatcher python-sphinx python-urllib3 python-py7zr python-pip python-setuptools python-fonttools python-xxhash python-tzdata python-tzlocal uchardet libstemmer poppler podofo tk libwebp-utils python-jaconv python-pykakasi python-langtool protobuf onnxruntime uv libavif libjxl
 
 git clone --depth=1 https://github.com/espeak-ng/espeak-ng.git
 chown -R nobody:nobody espeak-ng
@@ -19,9 +19,3 @@ useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
 
 UV_TOOL_BIN_DIR=/usr/local/bin uv tool install rapydscript-ng
-
-# There is no arch package for langtool, its dependencies (lxml, regex) are
-# installed via pacman above. Build without isolation so that the static rule
-# tables are compiled against the system regex module, as they are only usable
-# with the exact version of regex they were built with.
-pip install --break-system-packages --no-deps --no-build-isolation kovidgoyal-langtool
