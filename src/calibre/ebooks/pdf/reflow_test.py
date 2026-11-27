@@ -597,6 +597,16 @@ class TestPageBoundaries(unittest.TestCase):
         page += [(337, 335, 1100, f'{self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
         self.assertIn('e-mail here', self.convert([page]))
 
+    def test_split_names_with_another_form_in_the_document_are_joined(self) -> None:
+        # A word in neither the document nor the dictionary, such as a name, is
+        # joined if another form of it is in the document, at a hyphenation point
+        page = self.body_lines(150, 3, label='surrounding text with the quenzelmores and their friends ')
+        page += self.hyphenated_paragraph(300, 'quen', 'zelmore')
+        page += self.hyphenated_paragraph(450, 'quenz', 'elmore')  # not a hyphenation point
+        html = self.convert([page])
+        self.assertIn(' and quenzelmore ', html)
+        self.assertIn(' and quenz-elmore ', html)
+
     def test_repeated_table_headings_are_not_running_heads(self) -> None:
         # The headings of the columns of a table that continues over several
         # pages, just above its rows, are not a running head
