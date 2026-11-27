@@ -688,9 +688,11 @@ class Text(Element):
         line_end_hyphen = (not same_line or wraps) and SPLIT_WORD_START.search(self.text_as_string) is not None
         if line_end_hyphen and REPEATED_HYPHEN.match(other.text_as_string) is not None:
             # A hyphenated word wrapped at its hyphen, with the hyphen repeated on the next line, keeps one hyphen
-            other.text_as_string = other.text_as_string[1:]
-            other.raw = REPEATED_HYPHEN.sub(r'\1', other.raw, count=1)
-            line_end_hyphen = False
+            raw, n = REPEATED_HYPHEN.subn(r'\1', other.raw, count=1)
+            if n:
+                other.raw = raw
+                other.text_as_string = REPEATED_HYPHEN.sub(r'\1', other.text_as_string, count=1)
+                line_end_hyphen = False
         split_word = line_end_hyphen and other.text_as_string[:1].islower()
         if split_word:
             self.text_as_string += HYPHEN_JOIN

@@ -241,8 +241,11 @@ class Dehyphenator:
         except IndexError:  # the regex for this format has no repeated group
             repeated = None
         if repeated:
+            # A blank line, an empty paragraph or a capital letter shows a new paragraph, such as dialogue, not a wrapped word
+            if '\n\n' in re.sub(r'[ \t]', '', wraptags) or (match.groupdict().get('up2threeblanks') or '') or not secondhalf[:1].islower():
+                return match.group(0)
             # Some languages, such as Polish, repeat the hyphen of a hyphenated word wrapped at it on the next line
-            return anchors + hyphenated
+            return anchors + firsthalf + match.group(2) + secondhalf
         if self.suffixes.match(secondhalf) is None:
             lookupword = self.removesuffixes.sub('', dehyphenated)
         else:
@@ -295,7 +298,7 @@ class Dehyphenator:
                 (
                     r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # ruff: ignore[printf-string-formatting]
                     r'\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)'
-                    r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<repeated>[-‐])?(?P<secondpart>[\w\d]+)'
+                    r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
                 )
                 % length
             )
@@ -303,21 +306,21 @@ class Dehyphenator:
             intextmatch = re.compile(
                 (
                     r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # ruff: ignore[printf-string-formatting]
-                    r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<repeated>[-‐])?(?P<secondpart>[\w\d]+)'
+                    r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
                 )
                 % length
             )
         elif format == 'txt':
-            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<repeated>[-‐])?(?P<secondpart>[\w\d]+)' % length)  # ruff: ignore[printf-string-formatting]
+            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)' % length)  # ruff: ignore[printf-string-formatting]
         elif format == 'individual_words':
             intextmatch = re.compile(r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
         elif format == 'html_cleanup':
             intextmatch = re.compile(
                 r'(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>'
-                r'\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)'
+                r'\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
             )
         elif format == 'txt_cleanup':
-            intextmatch = re.compile(r'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<secondpart>[\w\d]+)')
+            intextmatch = re.compile(r'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)')
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
