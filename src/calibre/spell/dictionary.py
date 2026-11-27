@@ -184,6 +184,13 @@ def rename_dictionary(dictionary: Dictionary, name: str) -> None:
 
 
 def get_dictionary(locale: DictionaryLocale, exact_match: bool = False) -> Dictionary | None:
+    if locale.countrycode is None and not exact_match:
+        # A plain language uses the preferred country variant, not a dictionary that has no country
+        best_locale = best_locale_for_language(locale.langcode)
+        if best_locale is not None and best_locale.countrycode is not None:
+            ans = get_dictionary(best_locale, exact_match=True)
+            if ans is not None:
+                return ans
     preferred = preferred_dictionary(locale)
     # First find all dictionaries that match locale exactly
     exact_matches: dict[str | None, Dictionary] = {}

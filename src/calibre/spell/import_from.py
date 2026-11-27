@@ -136,11 +136,12 @@ def _import_from_virtual_directory(read_file_func: Callable[[str], bytes], name:
         locales = tuple(x for x in locales if parse_lang_code(x).countrycode) or locales
         if not locales:
             continue
+        # Read the files first, so that a failed download leaves no broken dictionary behind
+        dd, ad = convert_to_utf8(read_file_func(dic), read_file_func(aff))
         d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
         metadata = [name] + list(locales)
         with open(os.path.join(d, 'locales'), 'wb') as f:
             f.write(('\n'.join(metadata)).encode('utf-8'))
-        dd, ad = convert_to_utf8(read_file_func(dic), read_file_func(aff))
         with open(os.path.join(d, f'{locales[0]}.dic'), 'wb') as f:
             f.write(dd)
         with open(os.path.join(d, f'{locales[0]}.aff'), 'wb') as f:
