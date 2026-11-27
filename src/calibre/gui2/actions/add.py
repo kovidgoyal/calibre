@@ -59,6 +59,7 @@ def get_filters() -> list[tuple[str, list[str]]]:
         (_('Comics'), ['cbz', 'cbr', 'cbc', 'cb7']),
         (_('Archives'), archives),
         (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
+        (_('FB2 books'), ['fb2', 'fb2.zip']),
     ]
 
 
