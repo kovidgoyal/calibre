@@ -620,6 +620,35 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and Valančius- Žemaičių ', html)
         self.assertNotIn('\u00ad', html)
 
+    def test_dash_with_space_at_the_end_of_a_line_keeps_the_space(self) -> None:
+        # A hyphen followed by a space at the end of a line, that is not where a word is split, is a dash between words
+        page = self.body_lines(150, 3, label='surrounding text ')
+        page += [(337, 300, 1100, f'{self.BODY} and klaikus- ', 0), (337, 335, 1100, f'šmėklų {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' and klaikus- šmėklų ', html)
+        self.assertNotIn('\x03', html)
+
+    def test_split_words_with_space_after_the_hyphen_in_markup(self) -> None:
+        # The space after the hyphen can be outside the markup around it
+        page = self.body_lines(150, 3, label='surrounding text with kriaučius in it ')
+        page += [(337, 300, 1100, f'{self.BODY} and <i>kriau-</i> ', 0), (337, 335, 1100, f'<i>čius</i> {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        page += [
+            (337, 450, 1100, f'{self.BODY} and <i>per\u00ad</i>', 0),
+            (337, 485, 1100, f'<i>sekiojimai</i> {self.BODY} again.', 0),
+            (337, 520, 500, 'The end.', 0),
+        ]
+        html = self.convert([page])
+        self.assertIn(' and <i>kriaučius</i> ', html)
+        self.assertIn(' and <i>persekiojimai</i> ', html)
+
+    def test_soft_hyphens_inside_words_are_not_word_breaks(self) -> None:
+        # A word with a soft hyphen in the middle of a line is the same word
+        # as one split there over two lines
+        page = self.body_lines(150, 3, label='surrounding text with para\u00adskiepio in it ')
+        page += [(337, 300, 1100, f'{self.BODY} and para- ', 0), (337, 335, 1100, f'skiepio {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' and paraskiepio ', html)
+
     def test_hyphen_in_overlapping_parts_of_a_line_is_kept(self) -> None:
         # Parts of a line that overlap a little are not a word split over two
         # lines, even if the word without the hyphen is in the document

@@ -54,22 +54,34 @@ REPEATED_HEAD_MAX_DISTANCE = 2
 # character is never in the text, as clean_ascii_chars() removes them all from
 # the output of pdftohtml, and, unlike some others, is not whitespace.
 HYPHEN_JOIN = '\x01'
+# Marks the join of a line that ends with a hyphen followed by spaces, as in
+# the text of OCR programs. The spaces are removed for the decision, and put
+# back if the hyphen is kept, as it is then a dash between words.
+HYPHEN_SPACE_JOIN = '\x03'
+HYPHEN_JOINS = '[' + HYPHEN_JOIN + HYPHEN_SPACE_JOIN + ']'
 # A line that ends with a hyphen after a letter, and one that starts with a
 # lowercase letter, can be the two parts of a word. Matches the whole word
 # before the hyphen.
 SPLIT_WORD_START = re.compile(r'\w*[^\W\d_][-\u2010\u00ad]$')
 # The start of a line that repeats the hyphen of a word wrapped at its hyphen, as in Polish
 REPEATED_HYPHEN = re.compile(r'^((?:<[^>]*>)*)[-\u2010](?=[^\W\d_])')
-# A hyphen at the end of a line followed by spaces, as OCR programs output
-HYPHEN_THEN_SPACE_AT_END = re.compile(r'(?<=[^\W\d_][-\u2010\u00ad])\s+((?:<[^>]*>)*)$')
+# A hyphen after a letter at the end of a line, followed by spaces, as OCR
+# programs output, see HYPHEN_SPACE_JOIN
+HYPHEN_THEN_SPACE_AT_END = re.compile(r'[^\W\d_][-\u2010\u00ad]\s+$')
+# The spaces after the last hyphen of the raw HTML of such a line, mixed with
+# any markup, as in <i>kriau-</i> followed by a space
+SPACE_AFTER_HYPHEN_IN_MARKUP = re.compile(r'(?<=[-\u2010\u00ad])(?:<[^>]*>|\s)*\s(?:<[^>]*>|\s)*$')
+MARKUP_TAG = re.compile(r'<[^>]*>')
+# A soft hyphen is only a place where a word may be broken, so one at the end
+# of a line is always removed
 SOFT_HYPHEN = '\u00ad'
 # The two parts of a word split at a hyphen, and any markup in between
-SPLIT_WORD = re.compile(r'(\w+)([-\u2010\u00ad])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
+SPLIT_WORD = re.compile(r'(\w+)([-\u2010\u00ad])((?:<[^>]*>)*)' + HYPHEN_JOINS + r'((?:<[^>]*>)*)(\w+)')
 WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
 # Every mark, with the parts of the word split there if they are words
-SPLIT_WORD_AT_JOIN = re.compile(r'(\w+)?([-\u2010\u00ad])?((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)?')
-# The hyphen before a mark, and any markup in between
-HYPHEN_AT_JOIN = re.compile(r'([-\u2010\u00ad]?)((?:<[^>]*>)*)' + HYPHEN_JOIN)
+SPLIT_WORD_AT_JOIN = re.compile(r'(\w+)?([-\u2010\u00ad])?((?:<[^>]*>)*)' + HYPHEN_JOINS + r'((?:<[^>]*>)*)(\w+)?')
+# The hyphen before a mark, any markup in between, and the mark
+HYPHEN_AT_JOIN = re.compile(r'([-\u2010\u00ad]?)((?:<[^>]*>)*)(' + HYPHEN_JOINS + ')')
 # A spelling dictionary is used for words that are not found elsewhere in the
 # document, if it recognises at least this fraction of the most common words of
 # the document, as that means the document is in its language
@@ -283,12 +295,15 @@ def adjacent_quotes(first_string: str, second_string: str) -> bool:
 
 
 def resolve_hyphen_joins(text: str, keep: Sequence[bool]) -> str:
-    # Remove each HYPHEN_JOIN mark in text, and the hyphen before it unless
-    # the next of keep is True. Hyphens are kept for marks beyond keep.
+    # Remove each HYPHEN_JOIN or HYPHEN_SPACE_JOIN mark in text, and the
+    # hyphen before it unless the next of keep is True. Hyphens are kept for
+    # marks beyond keep. A kept hyphen gets back the space that followed it.
     decisions = iter(keep)
 
     def sub(m: re.Match[str]) -> str:
-        return (m.group(1) if next(decisions, True) else '') + m.group(2)
+        if not next(decisions, True):
+            return m.group(2)
+        return m.group(1) + m.group(2) + (' ' if m.group(3) == HYPHEN_SPACE_JOIN else '')
 
     return HYPHEN_AT_JOIN.sub(sub, text)
 
@@ -656,10 +671,12 @@ class Text(Element):
         self.font_size_em = max(self.font_size_em, other.font_size_em)
         self.monospace = self.monospace and other.monospace
         self.font = other.font
-        if (not same_line or wraps) and other.text_as_string[:1].islower():
-            # The text of OCR programs can have spaces after the hyphen at the end of a line
-            self.text_as_string = HYPHEN_THEN_SPACE_AT_END.sub(r'\1', self.text_as_string)
-            self.raw = HYPHEN_THEN_SPACE_AT_END.sub(r'\1', self.raw)
+        # The text of OCR programs can have spaces after the hyphen at the end
+        # of a line, see HYPHEN_SPACE_JOIN
+        spaced_hyphen = (not same_line or wraps) and other.text_as_string[:1].islower() and HYPHEN_THEN_SPACE_AT_END.search(self.text_as_string) is not None
+        if spaced_hyphen:
+            self.text_as_string = self.text_as_string.rstrip()
+            self.raw = SPACE_AFTER_HYPHEN_IN_MARKUP.sub(lambda m: ''.join(MARKUP_TAG.findall(m.group())), self.raw)
         if has_gap > 0:
             if has_gap < 3:  # Small number of spaces = 1 space
                 if not (
@@ -728,8 +745,11 @@ class Text(Element):
                 other.text_as_string = repeated.group(1) + other.text_as_string[repeated.end() :]
                 line_end = None
         split_word = line_end is not None and other.text_as_string[:1].islower()
+        hyphen_join = HYPHEN_SPACE_JOIN if spaced_hyphen else HYPHEN_JOIN
         if split_word:
-            self.text_as_string += HYPHEN_JOIN
+            self.text_as_string += hyphen_join
+        elif spaced_hyphen:
+            self.text_as_string += ' '
         elif initial:
             self.text_as_string += INITIAL_JOIN
         self.text_as_string += other.text_as_string
@@ -773,7 +793,9 @@ class Text(Element):
         if has_float:
             self.raw += has_float
         if split_word:
-            self.raw += HYPHEN_JOIN
+            self.raw += hyphen_join
+        elif spaced_hyphen:
+            self.raw += ' '
         elif initial:
             self.raw += INITIAL_JOIN
         self.raw += other.raw
@@ -2868,7 +2890,7 @@ class PDFDocument:
         the document and the hyphenation rules of the language allow a line to
         break it there. Otherwise the hyphen is kept.
         """
-        texts = [t for page in self.pages for t in page.texts if HYPHEN_JOIN in t.raw or HYPHEN_JOIN in t.text_as_string]
+        texts = [t for page in self.pages for t in page.texts if any(j in t.raw or j in t.text_as_string for j in (HYPHEN_JOIN, HYPHEN_SPACE_JOIN))]
         if not texts:
             return
         # The words of the document, other than the parts of words split
@@ -2876,7 +2898,8 @@ class PDFDocument:
         counts: dict[str, int] = {}
         for page in self.pages:
             for t in page.texts:
-                for word in WORD.findall(SPLIT_WORD.sub(' ', t.text_as_string)):
+                # Soft hyphens inside words are not where words end
+                for word in WORD.findall(SPLIT_WORD.sub(' ', t.text_as_string).replace(SOFT_HYPHEN, '')):
                     word = word.lower()
                     counts[word] = counts.get(word, 0) + 1
         decisions: dict[tuple[str, str], bool] = {}
@@ -2926,7 +2949,7 @@ class PDFDocument:
             # the raw HTML can split the parts of the word anywhere. The hyphen
             # before each mark in the text and the HTML is kept or removed.
             keep = [
-                # A soft hyphen is only ever a place where a word may be broken, so it is always removed
+                # See SOFT_HYPHEN
                 m.group(2) != SOFT_HYPHEN and (m.group(1) is None or m.group(5) is None or not remove_hyphen(m.group(1), m.group(5)))
                 for m in SPLIT_WORD_AT_JOIN.finditer(t.text_as_string)
             ]
