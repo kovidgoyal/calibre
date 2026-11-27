@@ -521,6 +521,47 @@ def find_tests() -> unittest.TestSuite:
             self.assertIn('magic. Wand', self.suggestions('magic.wand'))
             self.assertIn('List', self.suggestions('Lis𝑘t'))
 
+        def test_import_locales(self) -> None:
+            import tempfile
+
+            from calibre.spell.import_from import _import_from_virtual_directory
+
+            def do_import(dictionaries: dict[str, str]) -> list[list[str]]:
+                nodes = ''.join(
+                    f'''<node oor:name="{name}" oor:op="fuse">
+                    <prop oor:name="Locations" oor:type="oor:string-list"><value>%origin%/{name}.aff %origin%/{name}.dic</value></prop>
+                    <prop oor:name="Format" oor:type="xs:string"><value>DICT_SPELL</value></prop>
+                    <prop oor:name="Locales" oor:type="oor:string-list"><value>{locales}</value></prop></node>'''
+                    for name, locales in dictionaries.items()
+                )
+                files = {
+                    'META-INF/manifest.xml': b'''<manifest:manifest xmlns:manifest="http://openoffice.org/2001/manifest">
+                    <manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data" manifest:full-path="dictionaries.xcu"/>
+                    </manifest:manifest>''',
+                    'dictionaries.xcu': f'''<oor:component-data xmlns:oor="http://openoffice.org/2001/registry"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Linguistic" oor:package="org.openoffice.Office">
+                    <node oor:name="ServiceManager"><node oor:name="Dictionaries">{nodes}</node></node></oor:component-data>'''.encode(),
+                }
+                for name in dictionaries:
+                    files[f'{name}.aff'] = b'SET UTF-8\n'
+                    files[f'{name}.dic'] = b'1\nword\n'
+                with tempfile.TemporaryDirectory() as tdir:
+                    num = _import_from_virtual_directory(files.__getitem__, 'test', dest_dir=tdir)
+                    ans = []
+                    for x in sorted(os.listdir(tdir)):
+                        with open(os.path.join(tdir, x, 'locales'), 'rb') as f:
+                            ans.append(f.read().decode('utf-8').splitlines()[1:])
+                    self.assertEqual(num, len(ans))
+                    return ans
+
+            # Locales without a country are dropped when the dictionary has locales with a country
+            self.assertEqual(do_import({'de': 'de de_DE de_AT'}), [['de_DE', 'de_AT']])
+            # Languages not tied to a country, such as Esperanto, are kept
+            self.assertEqual(do_import({'eo': 'eo'}), [['eo']])
+            self.assertEqual(do_import({'lt': 'lt'}), [['lt_LT']])
+            # Skipped dictionaries must not leave an empty folder behind
+            self.assertEqual(do_import({'none': ''}), [])
+
     return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)
 
 

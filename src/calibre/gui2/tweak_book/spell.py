@@ -775,10 +775,10 @@ class ManageDictionaries(Dialog):  # {{{
         for x in (item_parent.child(i) for i in range(item_parent.childCount())):
             assert x is not None
             x.setData(0, Qt.ItemDataRole.FontRole, bf if x is item else None)
-        cc = str(item_parent.data(0, Qt.ItemDataRole.UserRole))
+        cc = item_parent.data(0, Qt.ItemDataRole.UserRole)
         lc = str(item_grandparent.data(0, Qt.ItemDataRole.UserRole))
         d = item.data(0, Qt.ItemDataRole.UserRole)
-        locale = f'{lc}-{cc}'
+        locale = f'{lc}-{cc}' if cc else lc
         pl = dprefs['preferred_dictionaries']
         pl[locale] = d.id
         dprefs['preferred_dictionaries'] = pl
