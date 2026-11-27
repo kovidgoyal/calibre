@@ -201,6 +201,14 @@ def get_dictionary(locale: DictionaryLocale, exact_match: bool = False) -> Dicti
     # otherwise, if a builtin dictionary exists, use that
     if preferred in exact_matches:
         return exact_matches[preferred]
+    if locale.countrycode is None and not exact_match:
+        # Without an explicit preference, a plain language uses the preferred
+        # country variant rather than a dictionary that has no country
+        best_locale = best_locale_for_language(locale.langcode)
+        if best_locale is not None and best_locale.countrycode is not None:
+            ans = get_dictionary(best_locale, exact_match=True)
+            if ans is not None:
+                return ans
     # Return one of the exactly matching dictionaries, preferring user
     # installed to builtin ones
     for k in sorted(exact_matches, key=lambda x: (1, None) if x is None else (0, x)):
@@ -597,6 +605,25 @@ def find_tests() -> unittest.TestSuite:
             self.assertEqual(do_import({'lt': 'lt'}), [['lt_LT']])
             # Skipped dictionaries must not leave an empty folder behind
             self.assertEqual(do_import({'none': ''}), [])
+
+        def test_plain_language_preference(self) -> None:
+            from unittest.mock import patch
+
+            def dic(locale: str, did: str) -> Dictionary:
+                loc = parse_lang_code(locale)
+                return Dictionary(loc, frozenset((loc,)), f'{did}.dic', f'{did}.aff', False, did, did)
+
+            plain, variant = dic('eo', 'plain'), dic('eo-FR', 'variant')
+            prefs: dict[str, dict[str, str]] = {'preferred_dictionaries': {}, 'preferred_locales': {'epo': 'eo-FR'}}
+            with patch(f'{__name__}._custom', frozenset((plain, variant))), patch(f'{__name__}.dprefs', prefs):
+                # Without an explicit preference the preferred country variant is used
+                self.assertEqual(get_dictionary(parse_lang_code('eo')), variant)
+                # An explicit preference for the plain language wins
+                prefs['preferred_dictionaries']['eo'] = 'plain'
+                self.assertEqual(get_dictionary(parse_lang_code('eo')), plain)
+                # exact_match never falls back to a country variant
+                prefs['preferred_dictionaries'].clear()
+                self.assertEqual(get_dictionary(parse_lang_code('eo'), exact_match=True), plain)
 
     return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)
 
