@@ -100,6 +100,7 @@ BOOK_EXTENSIONS = [
     'kepub',
     'kfx',
     'kpf',
+    'fb2.zip',
 ]
 
 

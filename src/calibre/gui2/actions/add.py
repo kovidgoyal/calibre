@@ -51,6 +51,7 @@ def get_filters() -> list[tuple[str, list[str]]]:
     return [
         (_('Books'), [x for x in BOOK_EXTENSIONS if x not in archives]),
         (_('EPUB books'), ['epub', 'kepub']),
+        (_('FB2 books'), ['fb2', 'fb2.zip']),
         (_('Kindle books'), ['mobi', 'prc', 'azw', 'azw3', 'kfx', 'tpz', 'azw1', 'azw4']),
         (_('PDF books'), ['pdf', 'azw4']),
         (_('HTML books'), ['htm', 'html', 'xhtm', 'xhtml']),
