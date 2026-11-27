@@ -147,6 +147,18 @@ def get_outline(path: str | None = None) -> list[dict[str, object]]:
     return get_outline_and_page_count(path)[0]
 
 
+def get_page_content_stats(path: str) -> list[tuple[int, int, float] | None]:
+    """
+    For each page of the PDF, the number of characters of visible text, of
+    invisible text, and the fraction of the page covered by images, or None if
+    the page cannot be read
+    """
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    p.open(path)
+    return cast('list[tuple[int, int, float] | None]', p.page_content_stats())
+
+
 def get_image_count(path: str) -> int:
     podofo = get_podofo()
     p = podofo.PDFDoc()

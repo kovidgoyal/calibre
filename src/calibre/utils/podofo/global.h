@@ -170,6 +170,7 @@ PyObject *py_replace_font_data(PDFDoc *self, PyObject *args);
 PyObject *py_dedup_type3_fonts(PDFDoc *self, PyObject *args);
 PyObject *py_impose(PDFDoc *self, PyObject *args);
 PyObject *py_dedup_images(PDFDoc *self, PyObject *args);
+PyObject *py_page_content_stats(PDFDoc *self, PyObject *args);
 PyObject *py_create_outline(PDFDoc *self, PyObject *args);
 PyObject *py_get_outline(PDFDoc *self, PyObject *args);
 }
