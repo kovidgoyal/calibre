@@ -141,6 +141,34 @@ class POT(Command):  # {{{
 
         return '\n'.join(ans)
 
+    def get_kgcss_strings(self, existing_pot: str) -> str:
+        "The templates of the messages of the CSS linter in kgcss, shown by Check book"
+        from kgcss import LINT_RULES, SYNTAX_PROBLEM_TEMPLATES, SyntaxProblemKind
+
+        sources: dict[str, list[str]] = {}
+        for info in LINT_RULES.values():
+            for template in info.messages:
+                sources.setdefault(template, []).append(info.rule.value)
+        for kind in SyntaxProblemKind:
+            sources.setdefault(SYNTAX_PROBLEM_TEMPLATES[kind], []).append('CssSyntaxError')
+        ans = []
+        for template, rules in sources.items():
+            if '\n' in template:
+                raise SystemExit(f'Multi-line kgcss message templates are not supported: {template!r}')
+            escaped = template.replace('\\', r'\\').replace('"', r'\"')
+            msgid = f'msgid "{escaped}"'
+            if f'\n{msgid}\n' in existing_pot:
+                continue  # xgettext found it in the calibre sources already
+            ans.append(
+                f'#. NOTE: A problem found in CSS by Check book, by the rules: {", ".join(rules)}.'
+                ' The placeholders in braces are CSS names or values, keep them untranslated.\n'
+                '#: src/calibre/ebooks/oeb/polish/check/css.py\n'
+            )
+            if '{' in template:
+                ans.append('#, python-brace-format\n')
+            ans.append(f'{msgid}\nmsgstr ""\n\n')
+        return ''.join(ans)
+
     def get_content_server_strings(self):
         self.info('Generating translation template for content_server')
         from calibre import walk
@@ -285,6 +313,7 @@ class POT(Command):  # {{{
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
             src += '\n\n' + self.get_ffml_docs()
+            src += '\n\n' + self.get_kgcss_strings(src)
             bdir = os.path.join(self.TRANSLATIONS, __appname__)
             if not os.path.exists(bdir):
                 os.makedirs(bdir)

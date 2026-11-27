@@ -87,17 +87,29 @@ def utf16_column(css: str, pos: int, column: int) -> int:
     return len(before) + sum(1 for ch in before if ord(ch) > 0xFFFF)
 
 
+def translated_message(problem: LintProblem | SyntaxProblem) -> str:
+    "The message of the problem in the user interface language"
+    try:
+        return _(problem.template).format(*problem.args)
+    except (IndexError, KeyError, ValueError) as err:
+        # A translation with broken placeholders
+        prints(f'Translation of the CSS message {problem.template!r} is invalid: {err}', file=sys.stderr)
+        return problem.message
+
+
 def syntax_problem_to_error(sp: SyntaxProblem, job: Job) -> CSSParseError:
-    ans = CSSParseError(sp.message, job.name, sp.line + job.line_offset, utf16_column(job.css, sp.pos, sp.column))
+    msg = translated_message(sp)
+    ans = CSSParseError(msg, job.name, sp.line + job.line_offset, utf16_column(job.css, sp.pos, sp.column))
     ans.css_rule_id = CSS_SYNTAX_ERROR_RULE_ID
-    ans.HELP = sp.message + '. '
+    ans.HELP = msg + '. '
     return ans
 
 
 def problem_to_error(p: LintProblem, job: Job) -> CSSError:
-    ans = CSSError(p.message, job.name, p.line + job.line_offset, utf16_column(job.css, p.pos, p.column))
+    msg = translated_message(p)
+    ans = CSSError(msg, job.name, p.line + job.line_offset, utf16_column(job.css, p.pos, p.column))
     ans.css_rule_id = p.rule.value
-    ans.HELP = p.message + '. ' + _('See <a href="{}">detailed description</a>.').format(LINT_RULES[p.rule].url) + ' '
+    ans.HELP = msg + '. ' + _('See <a href="{}">detailed description</a>.').format(LINT_RULES[p.rule].url) + ' '
     if p.fix is not None:
         ans.FIXABLE_CSS_ERROR = True
         ans.HELP += _('This error will be automatically fixed if you click "Try to correct all fixable errors" below.')

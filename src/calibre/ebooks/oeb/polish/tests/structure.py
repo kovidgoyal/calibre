@@ -615,6 +615,35 @@ class Structure(BaseTest):
         self.assertFalse(any(e.can_be_skipped for e in parse_errors))
         self.assertEqual(remove_skipped(parse_errors, frozenset(e.rule_id for e in parse_errors)), parse_errors)
 
+    def test_check_css_translation(self) -> None:
+        from unittest.mock import patch
+
+        from calibre.ebooks.oeb.polish.check import css as check_css_module
+        from calibre.ebooks.oeb.polish.check.css import Job, check_css
+
+        translations = {
+            'Unknown property "{0}"': 'Propriété inconnue « {0} »',
+            'Unclosed block': 'Bloc non fermé',
+            # A broken translation, falls back to the untranslated message
+            'Duplicate property "{0}"': 'Propriété dupliquée {1}',
+            # Placeholders can be reordered
+            'Overridden property "{1}" by shorthand "{0}"': 'Raccourci « {0} » remplace « {1} »',
+        }
+
+        def translate(msg: str) -> str:
+            return translations.get(msg, msg)
+
+        css = 'a { colr: red; color: red; color: red; margin-top: 1px; margin: 0; } b {'
+        with patch.object(check_css_module, '_', translate), patch.object(check_css_module, 'prints'):
+            errors = check_css([Job('a.css', css)])
+        msgs = {e.msg for e in errors}
+        self.assertIn('Propriété inconnue « colr »', msgs)
+        self.assertIn('Bloc non fermé', msgs)
+        self.assertIn('Duplicate property "color"', msgs)
+        self.assertIn('Raccourci « margin » remplace « margin-top »', msgs)
+        for e in errors:
+            self.assertTrue(e.HELP.startswith(e.msg + '. '), e.HELP)
+
     def test_check_css(self) -> None:
         from calibre.ebooks.oeb.polish.check.css import CSSError, CSSParseError
         from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
