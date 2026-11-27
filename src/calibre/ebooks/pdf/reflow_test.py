@@ -587,6 +587,15 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and biało-czerwony ', html)
         self.assertIn(' and <i>well-known</i> ', html)
         self.assertNotIn('--', html)
+        # A name with both parts capitalized is joined, but a line that starts
+        # with a dash before a capital letter is dialogue, so keeps its dash
+        page = self.body_lines(150, 3, label='surrounding text ')
+        page += [(337, 300, 1100, f'{self.BODY} in Bielsko-', 0), (337, 335, 1100, f'-Biała {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        page += [(337, 450, 1100, f'{self.BODY} and self-', 0), (337, 485, 1100, f'-Yes {self.BODY} again.', 0), (337, 520, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' in Bielsko-Biała ', html)
+        self.assertIn('-Yes ', html)
+        self.assertNotIn('self-Yes', html)
 
     def test_split_words_with_unicode_hyphen_and_markup(self) -> None:
         page = self.body_lines(150, 3, label='surrounding text with someunusualword and emailed words ')
@@ -1459,10 +1468,38 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
         txt = 'The flag of Poland is biało-\n-czerwona and so is the shield.'
         self.assertEqual(Dehyphenator(0, default_log)(txt, 'txt', 5), 'The flag of Poland is biało-czerwona and so is the shield.')
         # A new paragraph that starts with a dash, a capital letter or a minus sign does not change
-        for txt in ('The flag of Poland is biało-\n\n-czerwona and so is the shield.', 'He said that it was self-\n-Yes, it was.', 'The temperature was minus-\n-5 degrees.'):
+        for txt in (
+            'The flag of Poland is biało-\n\n-czerwona and so is the shield.',
+            'He said that it was self-\n-Yes, it was.',
+            'The temperature was minus-\n-5 degrees.',
+        ):
             self.assertEqual(Dehyphenator(0, default_log)(txt, 'txt', 5), txt)
         html = '<p>The flag of Poland is biało‐</p>\n<p>‐czerwona and so is the shield.</p>'
         self.assertIn('biało‐czerwona', Dehyphenator(0, default_log)(html, 'html', 5))
+
+        def dehyphenate(text: str, fmt: str) -> str:
+            return Dehyphenator(0, default_log)(text, fmt, 5)
+
+        # Both parts of a name are capitalized
+        self.assertEqual(dehyphenate('He lived in Bielsko-\n-Biała for years.', 'txt'), 'He lived in Bielsko-Biała for years.')
+        self.assertEqual(dehyphenate('<p>He lived in Bielsko-</p>\n<p>-Biała for years.</p>', 'html'), '<p>He lived in Bielsko-Biała for years.</p>')
+        # Empty paragraphs, as left by a page break, are crossed as for other split words
+        html = '<p>The flag of Poland is biało-</p>\n<p></p>\n<p>-czerwona and so is the shield.</p>'
+        self.assertEqual(dehyphenate(html, 'html'), '<p>The flag of Poland is biało-czerwona and so is the shield.</p>')
+        # The other formats
+        html = 'The flag of Poland is biało-<p>-czerwona and so is the shield.'
+        self.assertEqual(dehyphenate(html, 'pdf'), 'The flag of Poland is biało-czerwona and so is the shield.')
+        html = '<p>The flag of Poland is <i>biało-</i><i>-czerwona</i> and so is the shield.</p>'
+        self.assertEqual(dehyphenate(html, 'html_cleanup'), '<p>The flag of Poland is <i>biało-czerwona</i> and so is the shield.</p>')
+        self.assertEqual(dehyphenate('The flag is biało- -czerwona.', 'txt_cleanup'), 'The flag is biało-czerwona.')
+        # The items of a list that starts with hyphens are not joined to the line before
+        for text, fmt in (
+            ('Things to buy at the shop-\n-apples\n-pears', 'txt'),
+            ('<p>Things to buy at the shop-</p>\n<p>-apples</p>\n<p>-pears</p>', 'html'),
+        ):
+            self.assertEqual(dehyphenate(text, fmt), text)
+        # But a hyphenated word with three parts is
+        self.assertEqual(dehyphenate('The colours are biało-\n-czerwono-\n-zielone here.', 'txt'), 'The colours are biało-czerwono-\n-zielone here.')
 
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'

@@ -12,6 +12,7 @@ from typing import IO, TYPE_CHECKING, NamedTuple, cast
 
 from lxml import etree
 
+from calibre.ebooks.conversion.preprocess import repeated_hyphen_joins
 from calibre.ebooks.pdf.bidi import fix_markup_line, has_rtl, is_predominantly_rtl, markup_to_text
 
 if TYPE_CHECKING:
@@ -54,8 +55,9 @@ REPEATED_HEAD_MAX_DISTANCE = 2
 # the output of pdftohtml, and, unlike some others, is not whitespace.
 HYPHEN_JOIN = '\x01'
 # A line that ends with a hyphen after a letter, and one that starts with a
-# lowercase letter, can be the two parts of a word
-SPLIT_WORD_START = re.compile(r'[^\W\d_][-\u2010]$')
+# lowercase letter, can be the two parts of a word. Matches the whole word
+# before the hyphen.
+SPLIT_WORD_START = re.compile(r'\w*[^\W\d_][-\u2010]$')
 # The start of a line that repeats the hyphen of a word wrapped at its hyphen, as in Polish
 REPEATED_HYPHEN = re.compile(r'^((?:<[^>]*>)*)[-\u2010](?=[^\W\d_])')
 # The two parts of a word split at a hyphen, and any markup in between
@@ -704,15 +706,21 @@ class Text(Element):
         # wrapped at its hyphen, is decided once all the text is known. Lines
         # next to a large initial letter are joined as parts of its line, but
         # each starts back at the left.
-        line_end_hyphen = (not same_line or wraps) and SPLIT_WORD_START.search(self.text_as_string) is not None
-        if line_end_hyphen and REPEATED_HYPHEN.match(other.text_as_string) is not None:
-            # A hyphenated word wrapped at its hyphen, with the hyphen repeated on the next line, keeps one hyphen
+        line_end = SPLIT_WORD_START.search(self.text_as_string) if not same_line or wraps else None
+        if (
+            line_end is not None
+            and (repeated := REPEATED_HYPHEN.match(other.text_as_string)) is not None
+            and repeated_hyphen_joins(line_end.group(), other.text_as_string[repeated.end() :])
+        ):
+            # A hyphenated word wrapped at its hyphen, with the hyphen repeated
+            # on the next line, keeps one hyphen. Otherwise, such as before
+            # dialogue, the dash stays.
             raw, n = REPEATED_HYPHEN.subn(r'\1', other.raw, count=1)
             if n:
                 other.raw = raw
-                other.text_as_string = REPEATED_HYPHEN.sub(r'\1', other.text_as_string, count=1)
-                line_end_hyphen = False
-        split_word = line_end_hyphen and other.text_as_string[:1].islower()
+                other.text_as_string = repeated.group(1) + other.text_as_string[repeated.end() :]
+                line_end = None
+        split_word = line_end is not None and other.text_as_string[:1].islower()
         if split_word:
             self.text_as_string += HYPHEN_JOIN
         elif initial:

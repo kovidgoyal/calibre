@@ -249,6 +249,30 @@ class SpellingDictionary:
         return sorted(counts, key=lambda w: (-counts[w], w))[: self.SAMPLE_WORDS]
 
 
+# Text that continues the line after a word, up to the start of the next line
+# when that line starts with a hyphen before a letter, as in a list, in plain
+# text and in markup
+TXT_NEXT_LINE_STARTS_WITH_HYPHEN = re.compile(r'([^\n]*)\n[ \t]*[-‐](?=[^\W\d_])')
+HTML_NEXT_LINE_STARTS_WITH_HYPHEN = re.compile(
+    r'((?:[^<]|<(?!/?(?:p|div)\b))*)(?:</(?:p|div)>\s*)?<(?:p|div)\b[^>]*>\s*(?:<[^>]*>\s*)*[-‐](?=[^\W\d_])', re.IGNORECASE
+)
+LINE_END_HYPHEN = re.compile(r'[^\W\d_][-‐]$')
+
+
+def repeated_hyphen_joins(firstpart: str, secondpart: str) -> bool:
+    """
+    Whether a line that ends with firstpart and a hyphen, and the next line
+    that starts with a hyphen and secondpart, are the two parts of a
+    hyphenated word wrapped at its hyphen, with the hyphen repeated on the
+    next line, as in Polish. The second part of such a word starts with a
+    lowercase letter, unless both parts are capitalized, as in a name such as
+    Bielsko-Biała. Otherwise the next line is probably dialogue that starts
+    with a dash.
+    """
+    first, second = firstpart[:1], secondpart[:1]
+    return second.islower() or (first.isupper() and second.isupper())
+
+
 class Dehyphenator:
     """
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
@@ -279,24 +303,17 @@ class Dehyphenator:
     def dehyphenate(self, match: re.Match[str]) -> str:
         firsthalf = match.group('firstpart')
         secondhalf = match.group('secondpart')
-        try:
-            wraptags = match.group('wraptags') or ''
-        except IndexError:  # the regex for this format has no wraptags group
-            wraptags = ''
+        # The regexes for some formats have no wraptags or repeated group
+        wraptags = match.groupdict().get('wraptags') or ''
         # The ids of tags removed when joining the halves may be link targets
         anchors = anchors_for_ids(wraptags)
         hyphenated = str(firsthalf) + '-' + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
-        try:
-            repeated = match.group('repeated')
-        except IndexError:  # the regex for this format has no repeated group
-            repeated = None
-        if repeated:
-            # A blank line, an empty paragraph or a capital letter shows a new paragraph, such as dialogue, not a wrapped word
-            if '\n\n' in re.sub(r'[ \t]', '', wraptags) or (match.groupdict().get('up2threeblanks') or '') or not secondhalf[:1].islower():
-                return match.group(0)
+        if match.groupdict().get('repeated'):
             # Some languages, such as Polish, repeat the hyphen of a hyphenated word wrapped at it on the next line
-            return anchors + firsthalf + match.group(2) + secondhalf
+            if self.is_repeated_hyphen(match, wraptags):
+                return anchors + firsthalf + match.group('hyphen') + secondhalf
+            return match.group(0)
         if self.suffixes.match(secondhalf) is None:
             lookupword = self.removesuffixes.sub('', dehyphenated)
         else:
@@ -344,6 +361,23 @@ class Dehyphenator:
                 log('          returned hyphenated word: ' + hyphenated)
                 return anchors + hyphenated
 
+    def is_repeated_hyphen(self, match: re.Match[str], wraptags: str) -> bool:
+        # Whether the next line starts with the hyphen of a hyphenated word
+        # wrapped at its hyphen, rather than a dash that starts dialogue or an
+        # item of a list
+        if not repeated_hyphen_joins(match.group('firstpart'), match.group('secondpart')):
+            return False
+        is_txt = self.format in {'txt', 'txt_cleanup'}
+        # In plain text a blank line separates paragraphs. In markup, empty
+        # paragraphs are often left over from page breaks, so do not count.
+        if is_txt and '\n\n' in re.sub(r'[ \t]', '', wraptags):
+            return False
+        # A list, unless the next line also ends with a hyphenated word wrapped at its hyphen
+        if (m := (TXT_NEXT_LINE_STARTS_WITH_HYPHEN if is_txt else HTML_NEXT_LINE_STARTS_WITH_HYPHEN).match(match.string, match.end())) is not None:
+            rest_of_line = match.group('secondpart') + (m.group(1) if is_txt else re.sub(r'<[^>]*>', '', m.group(1)))
+            return LINE_END_HYPHEN.search(rest_of_line.rstrip()) is not None
+        return True
+
     def in_spelling_dictionary(self, word: str) -> bool:
         # Words that occur only once are not found in the document, so use a dictionary as the PDF engine does
         if not self.spelling_dictionary_checked:
@@ -367,7 +401,7 @@ class Dehyphenator:
         if format == 'html':
             intextmatch = re.compile(
                 (
-                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # ruff: ignore[printf-string-formatting]
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # ruff: ignore[printf-string-formatting]
                     r'\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)'
                     r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
                 )
@@ -376,22 +410,28 @@ class Dehyphenator:
         elif format == 'pdf':
             intextmatch = re.compile(
                 (
-                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # ruff: ignore[printf-string-formatting]
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)\s*(?P<wraptags><p>|'  # ruff: ignore[printf-string-formatting]
                     r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
                 )
                 % length
             )
         elif format == 'txt':
-            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)' % length)  # ruff: ignore[printf-string-formatting]
+            intextmatch = re.compile(
+                (
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)'  # ruff: ignore[printf-string-formatting]
+                    r'(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
+                )
+                % length
+            )
         elif format == 'individual_words':
-            intextmatch = re.compile(r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
+            intextmatch = re.compile(r'(?!<)(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
         elif format == 'html_cleanup':
             intextmatch = re.compile(
-                r'(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>'
+                r'(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>'
                 r'\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)'
             )
         elif format == 'txt_cleanup':
-            intextmatch = re.compile(r'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)')
+            intextmatch = re.compile(r'(?P<firstpart>[^\W\-]+)(?P<hyphen>-|‐)(?P<wraptags>\s+)(?P<repeated>[-‐](?=[^\W\d_]))?(?P<secondpart>[\w\d]+)')
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
