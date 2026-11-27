@@ -1365,10 +1365,14 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
         html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word and the hyphenated text.</p>'
         ans = Dehyphenator(0, default_log)(html, 'html', 5)
         self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word and the hyphenated text.</p>')
-        # The hyphen is kept for words not found elsewhere in the text
+        # A word not found elsewhere in the text is joined if it is in the spelling dictionary
         html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word.</p>'
         ans = Dehyphenator(0, default_log)(html, 'html', 5)
-        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphen-ated word.</p>')
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word.</p>')
+        # The hyphen is kept for words neither in the text nor in the dictionary
+        html = '<p>The previous page ends in the middle of a zorpb-</p>\n<p id="page_2">latt word.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>zorpb-latt word.</p>')
 
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'
