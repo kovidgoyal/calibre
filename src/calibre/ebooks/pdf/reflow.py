@@ -4,6 +4,7 @@
 import os
 import re
 import sys
+from bisect import bisect_left
 from html import escape
 from operator import attrgetter
 from typing import IO, TYPE_CHECKING, NamedTuple, cast
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
     from lxml.etree import _Element
 
     from calibre.ebooks.oeb.polish.toc import TOC
+    from calibre.spell import DictionaryLocale
     from calibre.utils.logging import Log
 
     type PageElement = Text | Image
@@ -2291,6 +2293,10 @@ class PDFDocument:
         # see spelling_dictionary()
         self.dictionary_searched = False
         self.recognized_by_dictionary: Callable[[str], bool] | None = None
+        # The locale of that dictionary, to find the hyphenation rules of the language
+        self.dictionary_locale: str | None = None
+        self.hyphenation_searched = False
+        self.hyphenation_dictionary: object | None = None
 
         # Check for a testable value
         if self.opts.pdf_header_regex is None:
@@ -2813,8 +2819,11 @@ class PDFDocument:
         dictionary, as it is in any language and has names and made up words,
         whichever of the word with and without the hyphen is found elsewhere
         in it is used. Words found in neither form are looked up in a spelling
-        dictionary for the language of the document. The hyphen is kept if
-        that does not decide either.
+        dictionary for the language of the document. A word that is not in the
+        dictionary either, such as a name, is joined if another form of it,
+        such as the same name with a different ending, is found elsewhere in
+        the document and the hyphenation rules of the language allow a line to
+        break it there. Otherwise the hyphen is kept.
         """
         texts = [t for page in self.pages for t in page.texts if HYPHEN_JOIN in t.raw or HYPHEN_JOIN in t.text_as_string]
         if not texts:
@@ -2828,6 +2837,25 @@ class PDFDocument:
                     word = word.lower()
                     counts[word] = counts.get(word, 0) + 1
         decisions: dict[tuple[str, str], bool] = {}
+        sorted_words: list[str] = []
+
+        def other_form_in_document(first: str, second: str) -> bool:
+            # A stem that keeps at least one letter after the split, as endings change between forms of a word
+            word = (first + second).lower()
+            if len(word) != len(first) + len(second) or not second[:1].islower():
+                return False
+            stem = word[: max(len(first) + 1, len(word) - 3)]
+            if len(stem) >= len(word) or len(stem) < 5:
+                return False
+            if not sorted_words:
+                sorted_words.extend(sorted(counts))
+            # Another form differs only in a short ending, so an unrelated longer word with the same start does not count
+            for w in sorted_words[bisect_left(sorted_words, stem) :]:
+                if not w.startswith(stem):
+                    break
+                if len(w) - len(stem) <= 4:
+                    return True
+            return False
 
         def remove_hyphen(first: str, second: str) -> bool:
             key = first, second
@@ -2840,6 +2868,8 @@ class PDFDocument:
                 else:
                     recognized = self.spelling_dictionary(counts)
                     ans = recognized is not None and recognized(first + second)
+                    if not ans and recognized is not None and not (recognized(first) and recognized(second)):
+                        ans = other_form_in_document(first, second) and self.is_hyphenation_point(first, second)
                 decisions[key] = ans
             return ans
 
@@ -2918,6 +2948,47 @@ class PDFDocument:
 
         sample = [w for w in sorted(counts, key=counts.__getitem__, reverse=True) if w.isalpha()][:DICTIONARY_SAMPLE_WORDS]
         return dictionary_recognizing_words(sample, DICTIONARY_MIN_RECOGNIZED, self.log)
+
+    def locale_of(self, loc: DictionaryLocale) -> str | None:
+        try:
+            from calibre.utils.localization import lang_as_iso639_1
+
+            lang = lang_as_iso639_1(loc.langcode) or loc.langcode
+        except Exception:
+            return None
+        return f'{lang}_{loc.countrycode}' if loc.countrycode else lang
+
+    def is_hyphenation_point(self, first: str, second: str) -> bool:
+        # Most hyphenation rules allow no break before the second letter or after the third last letter
+        if self.dictionary_locale is None or len(first) < 2 or len(second) < 3:
+            return False
+        if not self.hyphenation_searched:
+            self.hyphenation_searched = True
+            try:
+                from calibre.utils.hyphenation.hyphenate import dictionary_for_locale
+
+                self.hyphenation_dictionary = dictionary_for_locale(self.dictionary_locale)
+            except Exception as e:
+                self.log.warning(f'Could not load the hyphenation rules for {self.dictionary_locale}: {e}')
+            if self.hyphenation_dictionary is None:
+                self.log.debug(f'No hyphenation rules for {self.dictionary_locale}, split words not in the dictionary keep their hyphen')
+        if self.hyphenation_dictionary is None:
+            return False
+        from calibre_extensions import hyphen
+
+        word = (first + second).lower()
+        if len(word) != len(first) + len(second):
+            return False
+        try:
+            parts = hyphen.simple_hyphenate(self.hyphenation_dictionary, word).split('=')
+        except ValueError:
+            return False
+        pos = 0
+        for part in parts[:-1]:
+            pos += len(part)
+            if pos == len(first):
+                return True
+        return False
 
     def remove_repeated_heads(self, header: bool, footer: bool) -> None:
         """
