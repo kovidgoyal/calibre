@@ -608,6 +608,18 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and emailed ', html)
         self.assertIn(' and <i>some</i>unusualword ', html)
 
+    def test_split_words_in_the_text_of_ocr_programs(self) -> None:
+        # OCR programs, such as ABBYY FineReader, end lines with a soft hyphen, or with spaces after the hyphen
+        page = self.body_lines(150, 3, label='surrounding text with kriaučius in it ')
+        page += [(337, 300, 1100, f'{self.BODY} and per\u00ad', 0), (337, 335, 1100, f'sekiojimai {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        page += [(337, 450, 1100, f'{self.BODY} and kriau- ', 0), (337, 485, 1100, f'čius {self.BODY} again.', 0), (337, 520, 500, 'The end.', 0)]
+        page += [(337, 600, 1100, f'{self.BODY} and Valančius- ', 0), (337, 635, 1100, f'Žemaičių {self.BODY} again.', 0), (337, 670, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' and persekiojimai ', html)
+        self.assertIn(' and kriaučius ', html)
+        self.assertIn(' and Valančius- Žemaičių ', html)
+        self.assertNotIn('\u00ad', html)
+
     def test_hyphen_in_overlapping_parts_of_a_line_is_kept(self) -> None:
         # Parts of a line that overlap a little are not a word split over two
         # lines, even if the word without the hyphen is in the document

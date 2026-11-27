@@ -57,16 +57,19 @@ HYPHEN_JOIN = '\x01'
 # A line that ends with a hyphen after a letter, and one that starts with a
 # lowercase letter, can be the two parts of a word. Matches the whole word
 # before the hyphen.
-SPLIT_WORD_START = re.compile(r'\w*[^\W\d_][-\u2010]$')
+SPLIT_WORD_START = re.compile(r'\w*[^\W\d_][-\u2010\u00ad]$')
 # The start of a line that repeats the hyphen of a word wrapped at its hyphen, as in Polish
 REPEATED_HYPHEN = re.compile(r'^((?:<[^>]*>)*)[-\u2010](?=[^\W\d_])')
+# A hyphen at the end of a line followed by spaces, as OCR programs output
+HYPHEN_THEN_SPACE_AT_END = re.compile(r'(?<=[^\W\d_][-\u2010\u00ad])\s+((?:<[^>]*>)*)$')
+SOFT_HYPHEN = '\u00ad'
 # The two parts of a word split at a hyphen, and any markup in between
-SPLIT_WORD = re.compile(r'(\w+)([-\u2010])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
+SPLIT_WORD = re.compile(r'(\w+)([-\u2010\u00ad])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
 WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
 # Every mark, with the parts of the word split there if they are words
-SPLIT_WORD_AT_JOIN = re.compile(r'(\w+)?([-\u2010])?((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)?')
+SPLIT_WORD_AT_JOIN = re.compile(r'(\w+)?([-\u2010\u00ad])?((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)?')
 # The hyphen before a mark, and any markup in between
-HYPHEN_AT_JOIN = re.compile(r'([-\u2010]?)((?:<[^>]*>)*)' + HYPHEN_JOIN)
+HYPHEN_AT_JOIN = re.compile(r'([-\u2010\u00ad]?)((?:<[^>]*>)*)' + HYPHEN_JOIN)
 # A spelling dictionary is used for words that are not found elsewhere in the
 # document, if it recognises at least this fraction of the most common words of
 # the document, as that means the document is in its language
@@ -653,11 +656,15 @@ class Text(Element):
         self.font_size_em = max(self.font_size_em, other.font_size_em)
         self.monospace = self.monospace and other.monospace
         self.font = other.font
+        if (not same_line or wraps) and other.text_as_string[:1].islower():
+            # The text of OCR programs can have spaces after the hyphen at the end of a line
+            self.text_as_string = HYPHEN_THEN_SPACE_AT_END.sub(r'\1', self.text_as_string)
+            self.raw = HYPHEN_THEN_SPACE_AT_END.sub(r'\1', self.raw)
         if has_gap > 0:
             if has_gap < 3:  # Small number of spaces = 1 space
                 if not (
                     self.text_as_string.endswith(' ')
-                    or self.text_as_string.endswith(('-', '\u2010'))
+                    or self.text_as_string.endswith(('-', '\u2010', SOFT_HYPHEN))
                     or other.text_as_string.startswith(' ')
                     or other.text_as_string.startswith('-')
                 ):
@@ -2919,7 +2926,9 @@ class PDFDocument:
             # the raw HTML can split the parts of the word anywhere. The hyphen
             # before each mark in the text and the HTML is kept or removed.
             keep = [
-                m.group(1) is None or m.group(5) is None or not remove_hyphen(m.group(1), m.group(5)) for m in SPLIT_WORD_AT_JOIN.finditer(t.text_as_string)
+                # A soft hyphen is only ever a place where a word may be broken, so it is always removed
+                m.group(2) != SOFT_HYPHEN and (m.group(1) is None or m.group(5) is None or not remove_hyphen(m.group(1), m.group(5)))
+                for m in SPLIT_WORD_AT_JOIN.finditer(t.text_as_string)
             ]
             t.text_as_string = resolve_hyphen_joins(t.text_as_string, keep)
             if len(HYPHEN_AT_JOIN.findall(t.raw)) == len(keep):

@@ -13,7 +13,7 @@ from calibre.constants import bundled_binaries_dir, isbsd, iswindows
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.pdf.bidi import fix_pdftohtml_html
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.localization import _
@@ -39,6 +39,29 @@ def popen(cmd: Sequence[str], **kw: Unpack[PopenKwargs]) -> subprocess.Popen[byt
 if bbd := bundled_binaries_dir():
     PDFTOHTML = os.path.join(bbd, PDFTOHTML)
 PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if iswindows else ''))
+
+
+def has_visible_text(pdf_path: str) -> bool:
+    # Searchable PDFs made by OCR programs, such as ABBYY FineReader or
+    # OCRmyPDF, have only invisible text over the scanned pages, which
+    # pdftohtml leaves out unless it is given -hidden. The check is fast as it
+    # extracts no images.
+    with TemporaryDirectory('_pdftohtml_probe') as tdir:
+        out = os.path.join(tdir, 'probe.xml')
+        cmd = [PDFTOHTML, '-enc', 'UTF-8', '-xml', '-i', '-q', '-nodrm', pdf_path, out]
+        if isbsd:
+            cmd.remove('-nodrm')
+        try:
+            p = popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.PIPE)
+        except OSError:
+            return True
+        eintr_retry_call(p.wait)
+        try:
+            with open(out, 'rb') as f:
+                raw = f.read()
+        except OSError:
+            return True
+    return re.search(rb'<text[^>]*>(?:<[^>]*>)*\s*[^<\s]', raw) is not None
 
 
 def pdftohtml(output_dir: str, pdf_path: str, no_images: bool, as_xml: bool = False) -> None:
@@ -68,6 +91,8 @@ def pdftohtml(output_dir: str, pdf_path: str, no_images: bool, as_xml: bool = Fa
             cmd.append('-i')
         if as_xml:
             cmd.append('-xml')
+        if not has_visible_text(a(pdfsrc)):
+            cmd.append('-hidden')
 
         logf = PersistentTemporaryFile('pdftohtml_log')
         try:
