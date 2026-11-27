@@ -233,7 +233,8 @@ class SpellingDictionary:
             self.searched = True
             from calibre.spell.dictionary import dictionary_recognizing_words
 
-            self.recognized = dictionary_recognizing_words(sample, self.MIN_RECOGNIZED, self.log)
+            if (d := dictionary_recognizing_words(sample, self.MIN_RECOGNIZED, self.log)) is not None:
+                self.recognized = d.obj.recognized
         return self.recognized
 
     def sample(self, text: str, is_markup: bool) -> list[str]:

@@ -599,14 +599,16 @@ class TestPageBoundaries(unittest.TestCase):
 
     def test_split_names_with_another_form_in_the_document_are_joined(self) -> None:
         # A name with another form in the document is joined only at a hyphenation point
-        page = self.body_lines(150, 3, label='surrounding text with the quenzelmores and the zorpblattwoodstockade ')
+        page = self.body_lines(150, 3, label='surrounding text with the quenzelmores and the zorpblattwoodstockade and the treehouse ')
         page += self.hyphenated_paragraph(300, 'quen', 'zelmore')
         page += self.hyphenated_paragraph(450, 'quenz', 'elmore')  # not a hyphenation point
         page += self.hyphenated_paragraph(600, 'zorpb', 'lattwoodstock')  # only a longer word shares the start
+        page += self.hyphenated_paragraph(750, 'tree', 'houses')  # both parts are dictionary words, a compound
         html = self.convert([page])
         self.assertIn(' and quenzelmore ', html)
         self.assertIn(' and quenz-elmore ', html)
         self.assertIn(' and zorpb-lattwoodstock ', html)
+        self.assertIn(' and tree-houses ', html)
 
     def test_repeated_table_headings_are_not_running_heads(self) -> None:
         # The headings of the columns of a table that continues over several
@@ -1431,8 +1433,11 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
                 patch.object(sd, 'builtin_dictionaries', return_value=order),
                 patch.object(sd, 'load_dictionary', side_effect=loaded),
             ):
-                recognized = sd.dictionary_recognizing_words(sorted(words), 0.8, default_log)
-            self.assertEqual(recognized, objs['/eng-GB.dic'].recognized)
+                d = sd.dictionary_recognizing_words(sorted(words), 0.8, default_log)
+            self.assertIsNotNone(d)
+            assert d is not None
+            self.assertEqual(d.primary_locale, sd.DictionaryLocale('eng', 'GB'))
+            self.assertIs(d.obj, objs['/eng-GB.dic'])
 
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'

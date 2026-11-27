@@ -23,7 +23,7 @@ from calibre.utils.shared_file import share_open
 
 if TYPE_CHECKING:
     import unittest
-    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
+    from collections.abc import Collection, Iterable, Iterator, Sequence
     from typing import NotRequired, TypedDict, Unpack
 
     from calibre.utils.logging import Log
@@ -241,9 +241,9 @@ def load_dictionary(dictionary: Dictionary) -> LoadedDictionary:
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
 
-def dictionary_recognizing_words(words: Sequence[str], min_recognized: float, log: Log) -> Callable[[str], bool] | None:
+def dictionary_recognizing_words(words: Sequence[str], min_recognized: float, log: Log) -> LoadedDictionary | None:
     """
-    Return the recognized() function of the spelling dictionary that
+    Return the spelling dictionary that
     recognizes the most of the specified words, if it recognizes at least the
     min_recognized fraction of them, for documents whose language is not
     known. User installed dictionaries are preferred to builtin ones, and ties
@@ -260,18 +260,19 @@ def dictionary_recognizing_words(words: Sequence[str], min_recognized: float, lo
     except Exception as e:
         log.warning(f'Could not find spelling dictionaries: {e}')
         return None
-    best: Callable[[str], bool] | None = None
+    best: LoadedDictionary | None = None
     best_count = min_recognized * len(words)
     for d in candidates:
         try:
-            recognized = load_dictionary(d).obj.recognized
+            loaded = load_dictionary(d)
+            recognized = loaded.obj.recognized
             count = sum(1 for w in words if recognized(w))
         except Exception as e:
             log.warning(f'Could not use the spelling dictionary {d.dicpath}: {e}')
             continue
         # Only a strictly better dictionary replaces an earlier one, for a stable choice
         if (best is None and count >= best_count) or count > best_count:
-            best, best_count = recognized, count
+            best, best_count = loaded, count
     return best
 
 

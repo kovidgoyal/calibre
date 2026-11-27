@@ -46,6 +46,9 @@ class TestHyphenation(unittest.TestCase):
         t('es', 'es')
         t('nl', 'nl_NL')
         t('sk', 'sk_SK')
+        t('eng_GB', 'en_GB')
+        t('lit_LT', 'lt')
+        t('lit', 'lt')
         t('XXX')
 
         cache = [False]

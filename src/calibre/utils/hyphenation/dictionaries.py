@@ -41,6 +41,9 @@ def dictionary_name_for_locale(loc: str) -> str | None:
     lang = lang_as_iso639_1(parts[0])
     if not lang:
         return
+    # A three letter language code, as used by spelling dictionaries, with a country
+    if len(parts) > 1 and (q := f'{lang}_{parts[1]}') in lmap:
+        return lmap[q]
     if lang in lmap:
         return lmap[lang]
     if lang == 'en':
