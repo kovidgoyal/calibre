@@ -169,7 +169,9 @@ class AddDictionary(QDialog):  # {{{
             return sort_key(calibre_langcode_to_name(dictionary['primary_locale'].langcode))
 
         for data in sorted(catalog_online_dictionaries(), key=k):
-            if languages.get(data['primary_locale'].langcode, {}).get(data['primary_locale'].countrycode, None):
+            installed = languages.get(data['primary_locale'].langcode, {})
+            # A catalog entry without a country is installed if any dictionary for its language is
+            if installed.get(data['primary_locale'].countrycode, None) or (data['primary_locale'].countrycode is None and installed):
                 continue
             local = calibre_langcode_to_name(data['primary_locale'].langcode)
             country = country_map()['names'].get(data['primary_locale'].countrycode, None)
@@ -667,12 +669,12 @@ class ManageDictionaries(Dialog):  # {{{
             i = QTreeWidgetItem(self.dictionaries, LANG)
             i.setText(0, calibre_langcode_to_name(lc))
             i.setData(0, Qt.ItemDataRole.UserRole, lc)
-            best_country = getattr(best_locale_for_language(lc), 'countrycode', None)
+            best_locale = best_locale_for_language(lc)
             for countrycode in sorted(languages[lc], key=lambda x: country_map()['names'].get(x, x) or ''):
                 j = QTreeWidgetItem(i, COUNTRY)
                 j.setText(0, country_map()['names'].get(countrycode, countrycode) or _('All countries'))
                 j.setData(0, Qt.ItemDataRole.UserRole, countrycode)
-                if countrycode == best_country:
+                if best_locale is not None and countrycode == best_locale.countrycode:
                     j.setData(0, Qt.ItemDataRole.FontRole, bf)
                 pd = get_dictionary(DictionaryLocale(lc, countrycode))
                 for dictionary in sorted(languages[lc][countrycode], key=lambda d: d.name or ''):
