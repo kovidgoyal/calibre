@@ -26,6 +26,11 @@ DATA = b'voice model data' * 64 * 5
 # they can use a long one and get a deterministic number of requests even on
 # loaded machines.
 DISCONNECT_AFTER_FIRST_CHUNK = frozenset(('/range-disconnect', '/range-wrong-offset', '/range-wrong-length', '/range-changed-validator'))
+# Paths whose later responses are rejected by the client. The connection is
+# left open for the client to abort, closing it immediately races with Qt,
+# which transparently resends the request if it notices the closed
+# connection before reading the response, adding a request to the count.
+REJECTED_AFTER_FIRST_CHUNK = DISCONNECT_AFTER_FIRST_CHUNK - {'/range-disconnect'}
 
 
 class DownloadServer(ThreadingHTTPServer):
@@ -125,6 +130,8 @@ class DownloadHandler(BaseHTTPRequestHandler):
                 else:
                     self.wfile.write(DATA[start : end + 1])
                     self.wfile.flush()
+                    if self.path in REJECTED_AFTER_FIRST_CHUNK:
+                        stopped.wait(10)
             except BrokenPipeError, ConnectionResetError:
                 return
             return
