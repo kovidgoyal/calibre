@@ -2295,6 +2295,7 @@ class PDFDocument:
         self.recognized_by_dictionary: Callable[[str], bool] | None = None
         # The locale of that dictionary, to find the hyphenation rules of the language
         self.dictionary_locale: str | None = None
+        self.hyphenation_searched = False
         self.hyphenation_dictionary: object | None = None
 
         # Check for a testable value
@@ -2841,13 +2842,20 @@ class PDFDocument:
         def other_form_in_document(first: str, second: str) -> bool:
             # A stem that keeps at least one letter after the split, as endings change between forms of a word
             word = (first + second).lower()
+            if len(word) != len(first) + len(second) or not second[:1].islower():
+                return False
             stem = word[: max(len(first) + 1, len(word) - 3)]
-            if len(stem) >= len(word):
+            if len(stem) >= len(word) or len(stem) < 5:
                 return False
             if not sorted_words:
                 sorted_words.extend(sorted(counts))
-            i = bisect_left(sorted_words, stem)
-            return i < len(sorted_words) and sorted_words[i].startswith(stem)
+            # Another form differs only in a short ending, so an unrelated longer word with the same start does not count
+            for w in sorted_words[bisect_left(sorted_words, stem) :]:
+                if not w.startswith(stem):
+                    break
+                if len(w) - len(stem) <= 4:
+                    return True
+            return False
 
         def remove_hyphen(first: str, second: str) -> bool:
             key = first, second
@@ -2970,17 +2978,20 @@ class PDFDocument:
         return f'{lang}_{loc.countrycode}' if loc.countrycode else lang
 
     def is_hyphenation_point(self, first: str, second: str) -> bool:
-        if self.dictionary_locale is None:
+        # Most hyphenation rules allow no break before the second letter or after the third last letter
+        if self.dictionary_locale is None or len(first) < 2 or len(second) < 3:
             return False
-        if self.hyphenation_dictionary is None:
+        if not self.hyphenation_searched:
+            self.hyphenation_searched = True
             try:
                 from calibre.utils.hyphenation.hyphenate import dictionary_for_locale
 
-                self.hyphenation_dictionary = dictionary_for_locale(self.dictionary_locale) or False
+                self.hyphenation_dictionary = dictionary_for_locale(self.dictionary_locale)
             except Exception as e:
                 self.log.warning(f'Could not load the hyphenation rules for {self.dictionary_locale}: {e}')
-                self.hyphenation_dictionary = False
-        if not self.hyphenation_dictionary:
+            if self.hyphenation_dictionary is None:
+                self.log.debug(f'No hyphenation rules for {self.dictionary_locale}, split words not in the dictionary keep their hyphen')
+        if self.hyphenation_dictionary is None:
             return False
         from calibre_extensions import hyphen
 
