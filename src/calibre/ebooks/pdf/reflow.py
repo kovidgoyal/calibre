@@ -2914,28 +2914,10 @@ class PDFDocument:
         return self.recognized_by_dictionary
 
     def find_spelling_dictionary(self, counts: dict[str, int]) -> Callable[[str], bool] | None:
-        sample = [w for w in sorted(counts, key=counts.__getitem__, reverse=True) if w.isalpha()][:DICTIONARY_SAMPLE_WORDS]
-        if not sample:
-            return None
-        try:
-            from calibre.spell.dictionary import builtin_dictionaries, custom_dictionaries, load_dictionary
+        from calibre.spell.dictionary import dictionary_recognizing_words
 
-            candidates = list(custom_dictionaries()) + list(builtin_dictionaries())
-        except Exception as e:
-            self.log.warning(f'Could not find spelling dictionaries to remove hyphens with: {e}')
-            return None
-        best: Callable[[str], bool] | None = None
-        best_count = DICTIONARY_MIN_RECOGNIZED * len(sample)
-        for d in candidates:
-            try:
-                recognized = load_dictionary(d).obj.recognized
-                count = sum(1 for w in sample if recognized(w))
-            except Exception as e:
-                self.log.warning(f'Could not use the spelling dictionary {d.dicpath}: {e}')
-                continue
-            if count >= best_count:
-                best, best_count = recognized, count
-        return best
+        sample = [w for w in sorted(counts, key=counts.__getitem__, reverse=True) if w.isalpha()][:DICTIONARY_SAMPLE_WORDS]
+        return dictionary_recognizing_words(sample, DICTIONARY_MIN_RECOGNIZED, self.log)
 
     def remove_repeated_heads(self, header: bool, footer: bool) -> None:
         """

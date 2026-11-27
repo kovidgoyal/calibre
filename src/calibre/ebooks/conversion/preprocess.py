@@ -199,6 +199,55 @@ class DocAnalysis:
             return True
 
 
+class SpellingDictionary:
+    """
+    The spelling dictionary for the language of a document, used by the
+    Dehyphenator for words that appear nowhere else in the document. As the
+    language is usually not known, it is the dictionary that recognizes most
+    of the frequent words of the document. It is chosen only once, from the
+    first text that has enough distinct words, so share one instance between
+    all the dehyphenation passes and files of a conversion, as choosing loads
+    every dictionary, and the same dictionary is then used everywhere.
+    """
+
+    # The number of the most frequent words of the text that are looked up
+    SAMPLE_WORDS = 500
+    # Texts with fewer distinct words, such as a title page, are too small to
+    # tell the language from
+    MIN_SAMPLE_WORDS = 50
+    # The fraction of the sample a dictionary must recognize
+    MIN_RECOGNIZED = 0.8
+
+    def __init__(self, log: Log | None = None) -> None:
+        from calibre.utils.logging import default_log
+
+        self.log = default_log if log is None else log
+        self.searched = False
+        self.recognized: Callable[[str], bool] | None = None
+
+    def __call__(self, text: str, is_markup: bool) -> Callable[[str], bool] | None:
+        if not self.searched:
+            sample = self.sample(text, is_markup)
+            if len(sample) < self.MIN_SAMPLE_WORDS:
+                return None
+            self.searched = True
+            from calibre.spell.dictionary import dictionary_recognizing_words
+
+            self.recognized = dictionary_recognizing_words(sample, self.MIN_RECOGNIZED, self.log)
+        return self.recognized
+
+    def sample(self, text: str, is_markup: bool) -> list[str]:
+        if is_markup:
+            text = re.sub(r'(?is)<(head|style|script)\b.*?</\1\s*>', ' ', text)
+            text = re.sub(r'&#?\w+;', ' ', re.sub(r'<[^>]*>', ' ', text))
+        counts: dict[str, int] = {}
+        for w in re.findall(r'\w+', text):
+            if w.isalpha():
+                w = w.lower()
+                counts[w] = counts.get(w, 0) + 1
+        return sorted(counts, key=lambda w: (-counts[w], w))[: self.SAMPLE_WORDS]
+
+
 class Dehyphenator:
     """
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
@@ -207,11 +256,10 @@ class Dehyphenator:
     looked up in the spelling dictionary that recognizes most of the words of the document, if any.
     """
 
-    def __init__(self, verbose: int = 0, log: Log | None = None) -> None:
+    def __init__(self, verbose: int = 0, log: Log | None = None, spelling_dictionary: SpellingDictionary | None = None) -> None:
         self.log = log
         self.verbose = verbose
-        self.spelling_dictionary_searched = False
-        self.recognized_by_dictionary: Callable[[str], bool] | None = None
+        self.spelling_dictionary = SpellingDictionary(log) if spelling_dictionary is None else spelling_dictionary
         # Add common suffixes to the regex below to increase the likelihood of a match -
         # don't add suffixes which are also complete words, such as 'able' or 'sex'
         # only remove if it's not already the point of hyphenation
@@ -287,30 +335,24 @@ class Dehyphenator:
 
     def in_spelling_dictionary(self, word: str) -> bool:
         # Words that occur only once are not found in the document, so use a dictionary as the PDF engine does
-        if not self.spelling_dictionary_searched:
-            self.spelling_dictionary_searched = True
-            self.recognized_by_dictionary = self.find_spelling_dictionary()
-        try:
-            return self.recognized_by_dictionary is not None and bool(self.recognized_by_dictionary(word))
-        except Exception:
+        if not self.spelling_dictionary_checked:
+            # Once per text, as a text too small to choose the dictionary from
+            # would otherwise be sampled again for every word
+            self.spelling_dictionary_checked = True
+            self.recognized_by_dictionary = self.spelling_dictionary(self.html, self.format != 'txt')
+        if self.recognized_by_dictionary is None:
             return False
-
-    def find_spelling_dictionary(self) -> Callable[[str], bool] | None:
-        text = re.sub(r'(?is)<(head|style|script)\b.*?</\1\s*>', ' ', self.html)
-        text = re.sub(r'&#?\w+;', ' ', re.sub(r'<[^>]*>', ' ', text))
-        counts: dict[str, int] = {}
-        for w in re.findall(r'\w+', text):
-            if w.isalpha():
-                counts[w.lower()] = counts.get(w.lower(), 0) + 1
-        sample = sorted(counts, key=lambda w: (-counts[w], w))
-        if not sample:
-            return None
-        # One conversion runs several dehyphenation passes over the same text, so the search is done only once
-        return spelling_dictionary_for_words(tuple(sorted(sample[:200])))
+        try:
+            return self.recognized_by_dictionary(word)
+        except Exception as e:
+            self.spelling_dictionary.log.warning(f'Could not look up {word!r} in the spelling dictionary: {e}')
+            return False
 
     def __call__(self, html: str, format: str, length: int = 1) -> str:
         self.html = html
         self.format = format
+        self.spelling_dictionary_checked = False
+        self.recognized_by_dictionary: Callable[[str], bool] | None = None
         if format == 'html':
             intextmatch = re.compile(
                 (
@@ -342,27 +384,6 @@ class Dehyphenator:
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
-
-
-@lru_cache(maxsize=8)
-def spelling_dictionary_for_words(sample: tuple[str, ...]) -> Callable[[str], bool] | None:
-    try:
-        from calibre.spell.dictionary import builtin_dictionaries, custom_dictionaries, load_dictionary
-
-        candidates = list(custom_dictionaries()) + list(builtin_dictionaries())
-    except Exception:
-        return None
-    best: Callable[[str], bool] | None = None
-    best_count = 0.8 * len(sample)
-    for d in candidates:
-        try:
-            recognized = load_dictionary(d).obj.recognized
-            count = sum(1 for w in sample if recognized(w))
-        except Exception:
-            continue
-        if count >= best_count:
-            best, best_count = recognized, count
-    return best
 
 
 class CSSPreProcessor:
@@ -533,6 +554,9 @@ class HTMLPreProcessor:
         self.extra_opts = extra_opts
         self.regex_wizard_callback = regex_wizard_callback
         self.current_href: str | None = None
+        # Shared by all the files of the book and all dehyphenation passes, so
+        # that the dictionary is chosen only once
+        self.spelling_dictionary = SpellingDictionary(log)
 
     def is_baen(self, src: str) -> bool:
         return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"', re.IGNORECASE).search(src) is not None
@@ -669,7 +693,7 @@ class HTMLPreProcessor:
         if is_pdftohtml and length > -1:
             # Dehyphenate
             assert self.extra_opts is not None
-            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
+            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log, self.spelling_dictionary)
             html = dehyphenator(html, 'html', length)
 
         if is_pdftohtml:
@@ -702,7 +726,7 @@ class HTMLPreProcessor:
         if getattr(self.extra_opts, 'enable_heuristics', False):
             from calibre.ebooks.conversion.utils import HeuristicProcessor
 
-            preprocessor = HeuristicProcessor(self.extra_opts, self.log)
+            preprocessor = HeuristicProcessor(self.extra_opts, self.log, self.spelling_dictionary)
             html = preprocessor(html)
 
         if is_pdftohtml:

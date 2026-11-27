@@ -1359,20 +1359,69 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
         self.assertEqual(ans, '<p>The previous page ends in the middle of a sentence <a id=\'a"b\'></a><i id="x">that</i> continues here.</p>')
 
     def test_dehyphenating_a_word_across_pages(self) -> None:
-        from calibre.ebooks.conversion.preprocess import Dehyphenator
+        from unittest.mock import patch
+
+        import calibre.spell.dictionary as sd
+        from calibre.ebooks.conversion.preprocess import Dehyphenator, SpellingDictionary
         from calibre.utils.logging import default_log
 
+        # Enough distinct words to tell the language of the text from
+        story = (
+            '<p>It was a cold morning in the small village near the river, and the old farmer walked slowly along the narrow road '
+            'towards the market. He carried a heavy basket full of fresh apples, bread, cheese and eggs, which he hoped to sell '
+            'before noon, because his daughter was waiting at home with their young children for the money.</p>\n'
+        )
         html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word and the hyphenated text.</p>'
         ans = Dehyphenator(0, default_log)(html, 'html', 5)
         self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word and the hyphenated text.</p>')
         # A word not found elsewhere in the text is joined if it is in the spelling dictionary
+        html = story + '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, story + '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word.</p>')
+        # The hyphen is kept for words neither in the text nor in the dictionary
+        html = story + '<p>The previous page ends in the middle of a zorpb-</p>\n<p id="page_2">latt word.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, story + '<p>The previous page ends in the middle of a <a id="page_2"></a>zorpb-latt word.</p>')
+        # A text too small to tell the language from does not use a dictionary
         html = '<p>The previous page ends in the middle of a hyphen-</p>\n<p id="page_2">ated word.</p>'
         ans = Dehyphenator(0, default_log)(html, 'html', 5)
-        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphenated word.</p>')
-        # The hyphen is kept for words neither in the text nor in the dictionary
-        html = '<p>The previous page ends in the middle of a zorpb-</p>\n<p id="page_2">latt word.</p>'
-        ans = Dehyphenator(0, default_log)(html, 'html', 5)
-        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>zorpb-latt word.</p>')
+        self.assertEqual(ans, '<p>The previous page ends in the middle of a <a id="page_2"></a>hyphen-ated word.</p>')
+
+        # The dictionary is chosen only once for all the passes and files of a conversion
+        with patch.object(sd, 'load_dictionary', wraps=sd.load_dictionary) as load:
+            spelling_dictionary = SpellingDictionary(default_log)
+            for i, word in enumerate(('hyphen-</p>\n<p>ated', 'extra-</p>\n<p>ordinary', 'remark-</p>\n<p>able')):
+                html = story.replace('cold', ('warm', 'wet', 'dry')[i]) + f'<p>A {word} word.</p>'
+                ans = Dehyphenator(0, default_log, spelling_dictionary)(html, 'html', 5)
+                self.assertIn(word.replace('-</p>\n<p>', ''), ans)
+            loads = load.call_count
+            self.assertGreater(loads, 0)
+            Dehyphenator(0, default_log, spelling_dictionary)(story + '<p>A hyphen-</p>\n<p>ated word.</p>', 'html', 5)
+            self.assertEqual(load.call_count, loads)
+
+        # Ties between dictionaries are broken the same way whatever their order
+        class Obj:
+            def __init__(self, words: set[str]) -> None:
+                self.recognized = words.__contains__
+
+        words = {'one', 'two', 'three'}
+        dics = {
+            (lc, cc): sd.Dictionary(sd.DictionaryLocale(lc, cc), frozenset(), f'/{lc}-{cc}.dic', '', True, None, None)
+            for lc, cc in (('eng', 'US'), ('eng', 'GB'), ('fra', 'FR'))
+        }
+        objs = {d.dicpath: Obj(set() if d.primary_locale.langcode == 'fra' else set(words)) for d in dics.values()}
+
+        def loaded(d: sd.Dictionary) -> sd.LoadedDictionary:
+            return sd.LoadedDictionary(d.primary_locale, d.locales, objs[d.dicpath], True, None, None)  # ty: ignore[invalid-argument-type] fake dictionary
+
+        for order in (list(dics.values()), list(reversed(dics.values()))):
+            with (
+                patch.object(sd, 'custom_dictionaries', return_value=frozenset()),
+                patch.object(sd, 'builtin_dictionaries', return_value=order),
+                patch.object(sd, 'load_dictionary', side_effect=loaded),
+            ):
+                recognized = sd.dictionary_recognizing_words(sorted(words), 0.8, default_log)
+            self.assertEqual(recognized, objs['/eng-GB.dic'].recognized)
 
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'

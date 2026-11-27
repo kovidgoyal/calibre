@@ -23,9 +23,10 @@ from calibre.utils.shared_file import share_open
 
 if TYPE_CHECKING:
     import unittest
-    from collections.abc import Collection, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
     from typing import NotRequired, TypedDict, Unpack
 
+    from calibre.utils.logging import Log
     from calibre_extensions import hunspell
 
     class UserDictionaryData(TypedDict):
@@ -238,6 +239,40 @@ def load_dictionary(dictionary: Dictionary) -> LoadedDictionary:
 
     obj = hunspell.Dictionary(fix_path(dictionary.dicpath), fix_path(dictionary.affpath))
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
+
+
+def dictionary_recognizing_words(words: Sequence[str], min_recognized: float, log: Log) -> Callable[[str], bool] | None:
+    """
+    Return the recognized() function of the spelling dictionary that
+    recognizes the most of the specified words, if it recognizes at least the
+    min_recognized fraction of them, for documents whose language is not
+    known. User installed dictionaries are preferred to builtin ones, and ties
+    are broken by locale and path, so that the choice is the same every time.
+    """
+    if not words:
+        return None
+    try:
+        candidates = [
+            d
+            for collection in (custom_dictionaries(), builtin_dictionaries())
+            for d in sorted(collection, key=lambda d: (d.primary_locale.langcode, d.primary_locale.countrycode or '', d.dicpath))
+        ]
+    except Exception as e:
+        log.warning(f'Could not find spelling dictionaries: {e}')
+        return None
+    best: Callable[[str], bool] | None = None
+    best_count = min_recognized * len(words)
+    for d in candidates:
+        try:
+            recognized = load_dictionary(d).obj.recognized
+            count = sum(1 for w in words if recognized(w))
+        except Exception as e:
+            log.warning(f'Could not use the spelling dictionary {d.dicpath}: {e}')
+            continue
+        # Only a strictly better dictionary replaces an earlier one, for a stable choice
+        if (best is None and count >= best_count) or count > best_count:
+            best, best_count = recognized, count
+    return best
 
 
 class Dictionaries:

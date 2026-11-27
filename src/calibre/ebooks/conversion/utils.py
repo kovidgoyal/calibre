@@ -5,7 +5,7 @@ import re
 from math import ceil
 from typing import TYPE_CHECKING
 
-from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis, anchors_for_ids, id_attr_pat
+from calibre.ebooks.conversion.preprocess import Dehyphenator, DocAnalysis, SpellingDictionary, anchors_for_ids, id_attr_pat
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
 
@@ -17,8 +17,9 @@ if TYPE_CHECKING:
 
 
 class HeuristicProcessor:
-    def __init__(self, extra_opts: Values | OptionValues | None = None, log: Log | None = None) -> None:
+    def __init__(self, extra_opts: Values | OptionValues | None = None, log: Log | None = None, spelling_dictionary: SpellingDictionary | None = None) -> None:
         self.log = default_log if log is None else log
+        self.spelling_dictionary = SpellingDictionary(self.log) if spelling_dictionary is None else spelling_dictionary
         self.html_preprocess_sections = 0
         self.found_indents = 0
         self.extra_opts = extra_opts
@@ -1013,7 +1014,7 @@ class HeuristicProcessor:
                 # Dehyphenate with line length limiters
                 _extra_opts = self.extra_opts
                 assert _extra_opts is not None
-                dehyphenator = Dehyphenator(_extra_opts.verbose, self.log)
+                dehyphenator = Dehyphenator(_extra_opts.verbose, self.log, self.spelling_dictionary)
                 html = dehyphenator(html, 'html', length)
                 html = self.punctuation_unwrap(length, html, 'html')
 
@@ -1022,7 +1023,7 @@ class HeuristicProcessor:
             self.log.debug('Fixing hyphenated content')
             _extra_opts2 = self.extra_opts
             assert _extra_opts2 is not None
-            dehyphenator = Dehyphenator(_extra_opts2.verbose, self.log)
+            dehyphenator = Dehyphenator(_extra_opts2.verbose, self.log, self.spelling_dictionary)
             html = dehyphenator(html, 'html_cleanup', length)
             html = dehyphenator(html, 'individual_words', length)
 
