@@ -670,7 +670,7 @@ class ManageDictionaries(Dialog):  # {{{
             best_country = getattr(best_locale_for_language(lc), 'countrycode', None)
             for countrycode in sorted(languages[lc], key=lambda x: country_map()['names'].get(x, x) or ''):
                 j = QTreeWidgetItem(i, COUNTRY)
-                j.setText(0, country_map()['names'].get(countrycode, countrycode))
+                j.setText(0, country_map()['names'].get(countrycode, countrycode) or _('All countries'))
                 j.setData(0, Qt.ItemDataRole.UserRole, countrycode)
                 if countrycode == best_country:
                     j.setData(0, Qt.ItemDataRole.FontRole, bf)
@@ -751,7 +751,8 @@ class ManageDictionaries(Dialog):  # {{{
             x.setData(0, Qt.ItemDataRole.FontRole, bf if x is item else None)
         lc = str(item_parent.data(0, Qt.ItemDataRole.UserRole))
         pl = dprefs['preferred_locales']
-        pl[lc] = f'{lc}-{item.data(0, Qt.ItemDataRole.UserRole)}'
+        cc = item.data(0, Qt.ItemDataRole.UserRole)
+        pl[lc] = f'{lc}-{cc}' if cc else lc
         dprefs['preferred_locales'] = pl
 
     def init_dictionary(self, item: QTreeWidgetItem) -> None:

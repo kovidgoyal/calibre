@@ -131,12 +131,10 @@ def custom_dictionaries(reread: bool = False) -> frozenset[Dictionary]:
                 continue
             base = os.path.dirname(lc)
             ploc = parse_lang_code(locale)
-            if ploc.countrycode is None:
-                continue
             dics.append(
                 Dictionary(
                     ploc,
-                    frozenset(filter(lambda x: x.countrycode is not None, map(parse_lang_code, locales))),
+                    frozenset(x for x in map(parse_lang_code, locales) if x.countrycode is not None or x == ploc),
                     os.path.join(base, f'{locale}.dic'),
                     os.path.join(base, f'{locale}.aff'),
                     False,
