@@ -56,6 +56,8 @@ HYPHEN_JOIN = '\x01'
 # A line that ends with a hyphen after a letter, and one that starts with a
 # lowercase letter, can be the two parts of a word
 SPLIT_WORD_START = re.compile(r'[^\W\d_][-\u2010]$')
+# The start of a line that repeats the hyphen of a word wrapped at its hyphen, as in Polish
+REPEATED_HYPHEN = re.compile(r'^((?:<[^>]*>)*)[-\u2010](?=[^\W\d_])')
 # The two parts of a word split at a hyphen, and any markup in between
 SPLIT_WORD = re.compile(r'(\w+)([-\u2010])((?:<[^>]*>)*)' + HYPHEN_JOIN + r'((?:<[^>]*>)*)(\w+)')
 WORD = re.compile(r'\w+(?:[-\u2010]\w+)*')
@@ -702,7 +704,15 @@ class Text(Element):
         # wrapped at its hyphen, is decided once all the text is known. Lines
         # next to a large initial letter are joined as parts of its line, but
         # each starts back at the left.
-        split_word = (not same_line or wraps) and SPLIT_WORD_START.search(self.text_as_string) is not None and other.text_as_string[:1].islower()
+        line_end_hyphen = (not same_line or wraps) and SPLIT_WORD_START.search(self.text_as_string) is not None
+        if line_end_hyphen and REPEATED_HYPHEN.match(other.text_as_string) is not None:
+            # A hyphenated word wrapped at its hyphen, with the hyphen repeated on the next line, keeps one hyphen
+            raw, n = REPEATED_HYPHEN.subn(r'\1', other.raw, count=1)
+            if n:
+                other.raw = raw
+                other.text_as_string = REPEATED_HYPHEN.sub(r'\1', other.text_as_string, count=1)
+                line_end_hyphen = False
+        split_word = line_end_hyphen and other.text_as_string[:1].islower()
         if split_word:
             self.text_as_string += HYPHEN_JOIN
         elif initial:

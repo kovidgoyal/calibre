@@ -578,6 +578,16 @@ class TestPageBoundaries(unittest.TestCase):
         self.assertIn(' and self-Contained ', html)
         self.assertNotIn('\x01', html)
 
+    def test_repeated_hyphen_of_a_wrapped_hyphenated_word(self) -> None:
+        # Polish and some other languages repeat the hyphen of a wrapped hyphenated word on the next line
+        page = self.body_lines(150, 3, label='surrounding text ')
+        page += [(337, 300, 1100, f'{self.BODY} and biało-', 0), (337, 335, 1100, f'-czerwony {self.BODY} again.', 0), (337, 370, 500, 'The end.', 0)]
+        page += [(337, 450, 1100, f'{self.BODY} and <i>well-</i>', 0), (337, 485, 1100, f'<i>-known</i> {self.BODY} again.', 0), (337, 520, 500, 'The end.', 0)]
+        html = self.convert([page])
+        self.assertIn(' and biało-czerwony ', html)
+        self.assertIn(' and <i>well-known</i> ', html)
+        self.assertNotIn('--', html)
+
     def test_split_words_with_unicode_hyphen_and_markup(self) -> None:
         page = self.body_lines(150, 3, label='surrounding text with someunusualword and emailed words ')
         page += self.hyphenated_paragraph(300, 'someunu', 'sualword').copy()
@@ -1438,6 +1448,21 @@ class TestPageAnchorsSurviveHeuristics(unittest.TestCase):
             assert d is not None
             self.assertEqual(d.primary_locale, sd.DictionaryLocale('eng', 'GB'))
             self.assertIs(d.obj, objs['/eng-GB.dic'])
+
+    def test_dehyphenating_a_repeated_hyphen(self) -> None:
+        from calibre.ebooks.conversion.preprocess import Dehyphenator
+        from calibre.utils.logging import default_log
+
+        html = '<p>The flag of Poland is biało-</p>\n<p id="page_2">-czerwona and so is the shield.</p>'
+        ans = Dehyphenator(0, default_log)(html, 'html', 5)
+        self.assertEqual(ans, '<p>The flag of Poland is <a id="page_2"></a>biało-czerwona and so is the shield.</p>')
+        txt = 'The flag of Poland is biało-\n-czerwona and so is the shield.'
+        self.assertEqual(Dehyphenator(0, default_log)(txt, 'txt', 5), 'The flag of Poland is biało-czerwona and so is the shield.')
+        # A new paragraph that starts with a dash, a capital letter or a minus sign does not change
+        for txt in ('The flag of Poland is biało-\n\n-czerwona and so is the shield.', 'He said that it was self-\n-Yes, it was.', 'The temperature was minus-\n-5 degrees.'):
+            self.assertEqual(Dehyphenator(0, default_log)(txt, 'txt', 5), txt)
+        html = '<p>The flag of Poland is biało‐</p>\n<p>‐czerwona and so is the shield.</p>'
+        self.assertIn('biało‐czerwona', Dehyphenator(0, default_log)(html, 'html', 5))
 
     def test_restyled_heading(self) -> None:
         html = '<p>Text.</p>\n<p> </p>\n<h2 id="page_3" style="text-align:right">A heading</h2>\n<p> </p>\n<p>More text.</p>'
