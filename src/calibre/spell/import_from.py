@@ -131,10 +131,12 @@ def _import_from_virtual_directory(read_file_func: Callable[[str], bytes], name:
     )
     for (dic, aff), locales in parse_xcu(read_file_func(xcu), origin='').items():
         dic, aff = dic.lstrip('/'), aff.lstrip('/')
-        d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
-        locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])
+        locales = uniq(list(map(fill_country_code, locales)))
+        # Some languages, such as Esperanto, are not tied to a country
+        locales = tuple(x for x in locales if parse_lang_code(x).countrycode) or locales
         if not locales:
             continue
+        d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
         metadata = [name] + list(locales)
         with open(os.path.join(d, 'locales'), 'wb') as f:
             f.write(('\n'.join(metadata)).encode('utf-8'))
