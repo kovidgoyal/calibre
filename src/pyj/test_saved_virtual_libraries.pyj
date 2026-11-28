@@ -8,6 +8,7 @@ from book_list.saved_virtual_libraries import (
     saved_virtual_library_item, saved_virtual_library_query,
     save_saved_virtual_library
 )
+from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, test
 
@@ -86,3 +87,31 @@ def saved_virtual_library_query_contract():
     assert_equal(with_vl.search, 'tags:true')
     assert_equal(with_vl.vl, 'Fiction VL')
     assert_equal(without_vl.vl, None)
+
+
+@test
+def icon_presets_use_one_tab_stop_and_arrow_keys_update_the_saved_icon():
+    picker = create_saved_virtual_library_icon_picker()
+    document.body.appendChild(picker.root)
+    grid = picker.root.querySelector('[role=radiogroup]')
+    radios = grid.querySelectorAll('[role=radio]')
+    selected = grid.querySelector('[aria-checked=true]')
+    assert_equal(selected.tabIndex, 0)
+    assert_equal(grid.querySelectorAll('[tabindex="0"]').length, 1)
+    selected.focus()
+    selected.dispatchEvent(new window.KeyboardEvent('keydown', {'key': 'End', 'bubbles': True, 'cancelable': True}))
+    last = radios[radios.length - 1]
+    assert_equal(document.activeElement, last)
+    assert_equal(picker.get_value(), last.dataset.vlIcon)
+    assert_equal(last.getAttribute('aria-checked'), 'true')
+    assert_equal(selected is last or selected.tabIndex is -1, True)
+    field = picker.root.querySelector('input')
+    field.value = 'XYZ'
+    field.dispatchEvent(new Event('input'))
+    assert_equal(picker.get_value(), 'XYZ')
+    assert_equal(grid.querySelector('[aria-checked=true]'), None)
+    assert_equal(grid.querySelectorAll('[tabindex="0"]').length, 1)
+    last.focus()
+    last.dispatchEvent(new window.KeyboardEvent('keydown', {'key': 'ArrowRight', 'bubbles': True, 'cancelable': True}))
+    assert_equal(document.activeElement, radios[0])
+    assert_equal(picker.get_value(), radios[0].dataset.vlIcon)

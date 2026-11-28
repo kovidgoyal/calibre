@@ -458,7 +458,7 @@ def current_choice(container):
 
 def set_current_choice(li, focus):
     # Only the current choice is in the tab order, as for native radio buttons
-    for x in choice_list_items(li.closest('ul')):
+    for x in choice_list_items(li.parentElement):
         is_current = x is li
         x.setAttribute('aria-checked', 'true' if is_current else 'false')
         x.setAttribute('tabindex', '0' if is_current else '-1')
@@ -468,7 +468,7 @@ def set_current_choice(li, focus):
 
 def choose(li, focus):
     set_current_choice(li, focus)
-    ul = li.closest('ul')
+    ul = li.parentElement
     if ul.on_choice_changed:
         ul.on_choice_changed(li)
 
@@ -488,7 +488,7 @@ def choice_keydown(ev):
             ev.preventDefault(), ev.stopPropagation()
             form.requestSubmit()
         return
-    items = choice_list_items(li.closest('ul'))
+    items = choice_list_items(li.parentElement)
     idx = Array.prototype.indexOf.call(items, li)
     if ev.key is 'ArrowRight' or ev.key is 'ArrowDown':
         target = items[(idx + 1) % items.length]
