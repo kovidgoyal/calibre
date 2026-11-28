@@ -206,7 +206,7 @@ class EbookViewer(MainWindow):
         self.toc_container = w = QWidget(self)
         toc_layout = QVBoxLayout(w)
         self.toc = TOCView(w)
-        self.toc.clicked[QModelIndex].connect(self.toc_clicked)
+        self.toc.chapter_activated.connect(self.toc_clicked)
         self.toc.searched.connect(self.toc_searched)
         self.toc_search = TOCSearch(self.toc, parent=w)
         toc_layout.addWidget(self.toc), toc_layout.addWidget(self.toc_search), toc_layout.setContentsMargins(0, 0, 0, 0)

@@ -560,12 +560,19 @@ class Highlights(QTreeWidget):
 
     def refresh(self, highlights: Iterable[dict]) -> None:
         h = self.current_highlight
+        neighbors = []
+        if h is not None:
+            ids = [item.data(0, highlight_role)['uuid'] for item in self.iteritems() if not item.isHidden()]
+            if h['uuid'] in ids:
+                i = ids.index(h['uuid'])
+                neighbors = ids[i + 1 :] + ids[:i][::-1]
         self.load(highlights, preserve_state=True)
         if h is not None:
-            idx = self.uuid_map.get(h['uuid'])
-            if idx is not None:
-                sec_idx, item_idx = idx
-                self.set_current_row(sec_idx, item_idx)
+            for uuid in chain((h['uuid'],), neighbors):
+                if self.find_annot_id(uuid):
+                    if uuid != h['uuid'] and (item := self.currentItem()) is not None:
+                        self.scrollToItem(item)
+                    break
 
     def iteritems(self) -> Iterator[QTreeWidgetItem]:
         root = self.invisibleRootItem()
@@ -767,6 +774,7 @@ class HighlightsPanel(QWidget):
         la = QLabel(_('Double click to jump to an entry'))
         self.filter_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('filter.png')), b.setToolTip(_('Show only highlights of specific types'))
+        b.setAccessibleName(b.toolTip())
         b.clicked.connect(self.change_active_filter)
         h.addWidget(la), h.addStretch(10), h.addWidget(b)
         l.addLayout(h)
@@ -788,7 +796,7 @@ class HighlightsPanel(QWidget):
         def button(icon: str, text: str, tt: str, target: Callable[[], object]) -> QPushButton:
             b = QPushButton(QIcon.ic(icon), text, self)
             b.setToolTip(tt)
-            b.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            b.setFocusPolicy(Qt.FocusPolicy.TabFocus)
             b.clicked.connect(target)
             return b
 
