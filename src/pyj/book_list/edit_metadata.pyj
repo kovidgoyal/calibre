@@ -454,7 +454,7 @@ def number_edit(container_id, book_id, field, fm, div, mi):
 # Line edit with completions {{{
 
 
-def remove_item(container_id, name):
+def remove_item(container_id, name, idx, ev):
     c = document.getElementById(container_id)
     if not c:
         return
@@ -463,8 +463,14 @@ def remove_item(container_id, name):
     val = value_to_json(val)
     val = [x for x in val if x is not name]
     le.value = val.join(update_completions.list_to_ui)
-    le.focus()
     line_edit_updated(container_id, le.dataset.field)
+    # click events generated from the keyboard have detail == 0, keep
+    # keyboard users on the list of removal buttons, which has been rebuilt
+    buttons = c.querySelectorAll('[data-ctype="edit"] .removals > button')
+    if ev and ev.detail is 0 and buttons.length:
+        buttons[min(idx, buttons.length - 1)].focus()
+    else:
+        le.focus()
 
 
 def add_completion(container_id, name):
@@ -529,13 +535,13 @@ def update_removals(container_id):
     if jstype(val) is 'string' or not val.length:
         return
     div.appendChild(E.div(_('Tap to remove:')))
-    removals = E.div(class_='completions')
+    removals = E.div(class_='completions removals')
     div.appendChild(removals)
     for i, name in enumerate(val):
         removals.appendChild(E.button(
             E.span(style='color: ' + get_color('window-error-foreground'), aria_hidden='true', svgicon('eraser'), '\xa0'),
             name, type='button', class_='calibre-plain-button', aria_label=_('Remove {}').format(name),
-            onclick=remove_item.bind(None, container_id, name)
+            onclick=remove_item.bind(None, container_id, name, i)
         ))
         if i >= 50:
             break

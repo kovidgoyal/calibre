@@ -62,13 +62,13 @@ class Delegate(QStyledItemDelegate):
 
 class TOCView(QTreeView):
     searched = pyqtSignal(object)
-    chapter_activated = pyqtSignal(QModelIndex)
+    chapter_activated = pyqtSignal(QModelIndex, bool)  # index, from_keyboard
 
     def __init__(self, *args: QWidget | None) -> None:
         QTreeView.__init__(self, *args)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self.setAccessibleName(_('Table of Contents'))
-        self.clicked.connect(self.chapter_activated)
+        self.clicked.connect(self.on_clicked)
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
@@ -84,6 +84,9 @@ class TOCView(QTreeView):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
 
+    def on_clicked(self, index: QModelIndex) -> None:
+        self.chapter_activated.emit(index, False)
+
     def keyPressEvent(self, event: QKeyEvent | None) -> None:
         assert event is not None
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and not event.modifiers() & (
@@ -92,7 +95,7 @@ class TOCView(QTreeView):
             index = self.currentIndex()
             if index.isValid():
                 event.accept()
-                self.chapter_activated.emit(index)
+                self.chapter_activated.emit(index, True)
                 return
         super().keyPressEvent(event)
 

@@ -385,6 +385,7 @@ class Highlights(QTreeWidget):
     jump_to_highlight = pyqtSignal(object)
     current_highlight_changed = pyqtSignal(object)
     delete_requested = pyqtSignal()
+    delete_key_pressed = pyqtSignal()
     edit_requested = pyqtSignal()
     edit_notes_requested = pyqtSignal()
     export_selected_requested = pyqtSignal()
@@ -562,7 +563,13 @@ class Highlights(QTreeWidget):
         h = self.current_highlight
         neighbors = []
         if h is not None:
-            ids = [item.data(0, highlight_role)['uuid'] for item in self.iteritems() if not item.isHidden()]
+            # Only consider neighbors in expanded sections as selecting an
+            # item in a collapsed section would expand it
+            ids = [
+                item.data(0, highlight_role)['uuid']
+                for item in self.iteritems()
+                if not item.isHidden() and ((parent := item.parent()) is None or parent.isExpanded() or item is self.currentItem())
+            ]
             if h['uuid'] in ids:
                 i = ids.index(h['uuid'])
                 neighbors = ids[i + 1 :] + ids[:i][::-1]
@@ -690,7 +697,7 @@ class Highlights(QTreeWidget):
     def keyPressEvent(self, event: QKeyEvent | None) -> None:
         assert event is not None
         if event.matches(QKeySequence.StandardKey.Delete):
-            self.delete_requested.emit()
+            self.delete_key_pressed.emit()
             event.accept()
             return
         if event.key() == Qt.Key.Key_F2:
@@ -783,6 +790,7 @@ class HighlightsPanel(QWidget):
         l.addWidget(h)
         h.jump_to_highlight.connect(self.jump_to_highlight)
         h.delete_requested.connect(self.remove_highlight)
+        h.delete_key_pressed.connect(self.remove_highlight_from_keyboard)
         h.edit_requested.connect(self.edit_highlight)
         h.edit_notes_requested.connect(self.edit_notes)
         h.current_highlight_changed.connect(self.current_highlight_changed)
@@ -863,6 +871,14 @@ class HighlightsPanel(QWidget):
         self.notes_display.edit_notes()
 
     def remove_highlight(self) -> None:
+        # The button does not take focus on mouse clicks, so it has focus only
+        # when activated from the keyboard
+        self.do_remove_highlight(self.remove_button if self.remove_button.hasFocus() else None)
+
+    def remove_highlight_from_keyboard(self) -> None:
+        self.do_remove_highlight(self.highlights)
+
+    def do_remove_highlight(self, keep_focus_on: QWidget | None) -> None:
         highlights = tuple(self.highlights.selected_highlights)
         if not highlights:
             return self.no_selected_highlight()
@@ -878,6 +894,9 @@ class HighlightsPanel(QWidget):
         ):
             for h in highlights:
                 self.request_highlight_action.emit(h['uuid'], 'delete')
+            if keep_focus_on is not None:
+                # Deleting moves focus to the book, keep keyboard users in the panel
+                keep_focus_on.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def export(self) -> int | None:
         hl = list(self.highlights.all_highlights)

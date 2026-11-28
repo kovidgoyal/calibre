@@ -479,14 +479,16 @@ class EbookViewer(MainWindow):
             return True
         return False
 
-    def toc_clicked(self, index: QModelIndex) -> None:
+    def toc_clicked(self, index: QModelIndex, from_keyboard: bool = False) -> None:
         if self.check_for_read_aloud(_('Table of Contents locations')):
             return
         item = self.toc_model.itemFromIndex(index)
         assert item is not None
         assert isinstance(item, TOCItem)
         self.web_view.goto_toc_node(item.node_id)
-        self.force_focus_on_web_view()
+        if not from_keyboard:
+            # Keyboard users stay in the Table of Contents so they can continue navigating it
+            self.force_focus_on_web_view()
 
     def force_focus_on_web_view(self) -> None:
         self.activateWindow()
