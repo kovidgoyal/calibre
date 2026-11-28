@@ -1,0 +1,215 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from read_book.globals import ui_operations
+from read_book.prefs.keyboard import create_keyboard_panel
+from read_book.prefs.user_stylesheet import create_user_stylesheet_panel, commit_user_stylesheet
+from read_book.profiles import create_profiles_panel
+from read_book.word_actions import create_word_actions_panel
+from session import session_defaults
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_true, test
+
+
+def with_settings(proceed):
+    def run(sd):
+        sd.data = window.structuredClone(session_defaults())
+        parent = E.div()
+        document.body.appendChild(parent)
+        try:
+            proceed(parent, sd)
+        finally:
+            parent.remove()
+
+    with_empty_session(run)
+
+
+def button_named(parent, name):
+    for button in parent.querySelectorAll('button, [role=button]'):
+        if button.textContent.trim() is name:
+            return button
+
+
+def click_focused(button):
+    button.focus()
+    button.click()
+
+
+def press(input, key):
+    input.dispatchEvent(new window.KeyboardEvent('keydown', {'key': key, 'bubbles': True, 'cancelable': True}))
+
+
+@test
+def shortcut_editor_keeps_focus_when_opening_recording_removing_and_closing():
+    def run(parent, sd):
+        changes = []
+        create_keyboard_panel(parent, def (): pass;, def (): pass;, def (): changes.push(True);)
+        action = parent.querySelector('.item-primary-action')
+        original = action.closest('li').dataset.userData
+        click_focused(action)
+        editor = parent.firstChild.lastChild
+        assert_true(editor.contains(document.activeElement))
+        add = button_named(editor, _('Add a new shortcut'))
+        click_focused(add)
+        input = editor.querySelector('input')
+        assert_true(document.activeElement is input)
+        assert_equal(input.getAttribute('aria-label'), _('Press the key combination to use as a shortcut'))
+        count = editor.querySelectorAll('[data-shortcut]').length
+        press(input, 'Control')
+        assert_equal(editor.querySelectorAll('[data-shortcut]').length, count)
+        assert_true(document.activeElement is input)
+        press(input, 'F9')
+        assert_true(document.activeElement is add)
+        assert_equal(editor.querySelectorAll('[data-shortcut]').length, count + 1)
+        # Removing a middle row moves forward, removing the last moves back,
+        # and removing the only remaining row falls back to Add.
+        while editor.querySelectorAll('[data-shortcut]').length:
+            rows = editor.querySelectorAll('[data-shortcut]')
+            index = 1 if rows.length > 1 else 0
+            row = rows[index]
+            neighbor = row.nextElementSibling or row.previousElementSibling
+            expected = neighbor.querySelector('.calibre-push-button') if neighbor else add
+            click_focused(row.querySelector('.calibre-push-button'))
+            assert_true(document.activeElement is expected)
+        click_focused(button_named(editor, _('Cancel')))
+        assert_true(document.activeElement is action)
+        assert_equal(action.closest('li').dataset.userData, original)
+        assert_equal(changes.length, 0)
+        # Save a new combination, then verify that it survives reopening.
+        click_focused(action)
+        click_focused(button_named(editor, _('Add a new shortcut')))
+        press(editor.querySelector('input'), 'F9')
+        click_focused(button_named(editor, _('OK')))
+        assert_true(document.activeElement is action)
+        assert_equal(changes.length, 1)
+        data = JSON.parse(action.closest('li').dataset.userData)
+        assert_equal(sd.get('keyboard_shortcuts')[data.name], data.shortcuts)
+        click_focused(action)
+        assert_equal(editor.querySelectorAll('[data-shortcut]').length, count + 1)
+        # A mouse/programmatic removal must not take focus from another control.
+        outside = parent.appendChild(E.button('Outside'))
+        outside.focus()
+        editor.querySelector('[data-shortcut] .calibre-push-button').click()
+        assert_true(document.activeElement is outside)
+        button_named(editor, _('Cancel')).click()
+        assert_true(document.activeElement is outside)
+
+    with_settings(run)
+
+
+@test
+def profile_name_is_labelled_and_save_status_is_delayed_repeatable_and_cancellable():
+    def run(parent, sd):
+        previous_save, previous_get, previous_timer = ui_operations.save_profile, ui_operations.get_all_profiles, window.setTimeout
+        saved, timers = [], []
+        window.setTimeout = def (callback): timers.push(callback)
+        ui_operations.get_all_profiles = def (proceed): proceed({})
+        ui_operations.save_profile = def (name, settings, proceed):
+            saved.push([name, settings])
+            proceed()
+
+        def flush():
+            while timers.length:
+                timers.shift()()
+
+        try:
+            sd.set('base_font_size', 23)
+            create_profiles_panel(parent, def (): pass;, def (): pass;)
+            input = parent.querySelector('input[name=profile_name]')
+            assert_equal(input.labels.length, 1)
+            assert_equal(input.labels[0].textContent.trim(), _('Save current settings as profile:'))
+            status = parent.querySelector('.profile-save-status')
+            assert_equal(status.getAttribute('role'), 'status')
+            assert_equal(status.getAttribute('aria-atomic'), 'true')
+            input.value = 'Reading'
+            input.focus()
+            press(input, 'Enter')
+            assert_true(document.activeElement is input)
+            assert_equal(status.textContent, '')
+            flush()
+            assert_equal(status.textContent, _('Saved: ') + 'Reading')
+            assert_equal(saved[0][0], 'Reading')
+            assert_equal(saved[0][1].base_font_size, 23)
+            assert_equal(parent.querySelector('.saved_msg').textContent, status.textContent)
+            # Saving the same name clears the old announcement before updating.
+            click_focused(button_named(parent, _('Save')))
+            assert_equal(status.textContent, '')
+            flush()
+            assert_equal(status.textContent, _('Saved: ') + 'Reading')
+            # A closed panel must not announce a pending save.
+            click_focused(button_named(parent, _('Save')))
+            parent.style.display = 'none'
+            flush()
+            assert_equal(status.textContent, '')
+        finally:
+            ui_operations.save_profile, ui_operations.get_all_profiles, window.setTimeout = previous_save, previous_get, previous_timer
+
+    with_settings(run)
+
+
+@test
+def custom_lookup_fields_have_labels_help_and_restore_the_list_focus():
+    def run(parent, sd):
+        create_word_actions_panel(parent, 'word', def (): pass;)
+        add = button_named(parent, _('Add a custom lookup'))
+        click_focused(add)
+        name, url = parent.querySelector('[name=name]'), parent.querySelector('[name=url]')
+        assert_true(document.activeElement is name)
+        assert_equal(name.labels[0].textContent.trim(), _('Name:'))
+        assert_equal(url.labels[0].textContent.trim(), _('URL:'))
+        help = document.getElementById(url.getAttribute('aria-describedby'))
+        assert_true(parent.contains(help))
+        assert_true(help.textContent.indexOf('{word}') >= 0)
+        first_id = name.id
+        click_focused(button_named(parent, _('Cancel')))
+        assert_true(document.activeElement is add)
+        click_focused(add)
+        assert_true(parent.querySelector('[name=name]').id is not first_id)
+        parent.querySelector('[name=name]').value = 'Example'
+        parent.querySelector('[name=url]').value = 'https://example.com/?q={word}'
+        click_focused(button_named(parent, _('Add')))
+        assert_equal(sd.get('word_actions'), [{'title': 'Example', 'url': 'https://example.com/?q={word}'}])
+        assert_equal(document.activeElement.textContent, _('Add a custom lookup'))
+        remove = button_named(parent, _('Remove a custom lookup'))
+        click_focused(remove)
+        assert_equal(document.activeElement.textContent, _('Cancel (no removals)'))
+        click_focused(document.activeElement)
+        assert_true(document.activeElement is remove)
+        click_focused(remove)
+        click_focused(button_named(parent.lastChild, 'Example'))
+        assert_equal(sd.get('word_actions'), [])
+        assert_equal(document.activeElement.textContent, _('Add a custom lookup'))
+
+    with_settings(run)
+
+
+@test
+def stylesheet_editor_has_a_name_help_and_preserves_edits():
+    def run(parent, sd):
+        sd.set('user_stylesheet', 'p { color: red }')
+        create_user_stylesheet_panel(parent, def (): pass;, def (): pass;)
+        input = parent.querySelector('[name=user-stylesheet]')
+        assert_equal(input.getAttribute('aria-label'), _('User style sheet'))
+        help = document.getElementById(input.getAttribute('aria-describedby'))
+        assert_true(parent.contains(help))
+        assert_true(help.textContent.indexOf('body.calibre-viewer-paginated') >= 0)
+        assert_equal(help.querySelector('a').href, 'https://www.mobileread.com/forums/showthread.php?t=51500')
+        assert_equal(input.value, 'p { color: red }')
+        input.value = 'p { color: blue }'
+        changes = []
+        commit_user_stylesheet(def (): changes.push(True);, parent)
+        assert_equal(sd.get('user_stylesheet'), 'p { color: blue }')
+        assert_equal(changes.length, 1)
+        # A second panel must refer to its own help paragraph.
+        other = parent.appendChild(E.div())
+        create_user_stylesheet_panel(other, def (): pass;, def (): pass;)
+        other_input = other.querySelector('[name=user-stylesheet]')
+        other_help = document.getElementById(other_input.getAttribute('aria-describedby'))
+        assert_true(other.contains(other_help))
+        assert_true(other_help is not help)
+
+    with_settings(run)

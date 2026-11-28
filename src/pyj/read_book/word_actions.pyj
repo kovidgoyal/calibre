@@ -6,8 +6,8 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.item_list import create_item, create_item_list
-from dom import clear, ensure_id
+from book_list.item_list import create_item, create_item_list, focused_item_action, restore_item_action_focus
+from dom import clear, ensure_id, unique_id
 from modals import error_dialog
 from read_book.globals import ui_operations
 from widgets import create_button
@@ -23,8 +23,12 @@ def toggle_custom_container(container_id, visible):
     if container:
         c = container.lastChild
         list_container = c.previousSibling
+        if visible:
+            c.lookup_focus = focused_item_action(list_container)
         list_container.style.display = 'none' if visible else 'block'
         c.style.display = 'block' if visible else 'none'
+        if not visible and c.lookup_focus:
+            restore_item_action_focus(list_container, c.lookup_focus)
         return c
 
 
@@ -43,8 +47,8 @@ def add(container_id):
     actions = sd.get('word_actions', [])
     actions.push({'title': name, 'url': url})
     sd.set('word_actions', actions)
-    toggle_custom_container(container_id, False)
     populate_list(container)
+    toggle_custom_container(container_id, False)
 
 
 def add_custom(container_id):
@@ -52,16 +56,19 @@ def add_custom(container_id):
     if not container:
         return
     clear(container)
+    name_id, url_id, help_id = unique_id('lookup-name'), unique_id('lookup-url'), unique_id('lookup-help')
     container.appendChild(E.div(style='margin: 1rem',
+        id=help_id,
         _('Enter the name and URL for a custom lookup source. The URL must contain '
           ' {0} in it, which will be replaced by the word being looked up. For example: '
           ' {1}').format('{word}', 'https://google.com/search?q={word}')
     ))
     do_add = add.bind(None, container_id)
     container.appendChild(E.form(E.button(style='display:none', onclick=do_add), E.table(style='margin: 1rem',
-        E.tr(E.td(_('Name:') + '\xa0'), E.td(E.input(type='text', name='name'))),
+        E.tr(E.td(E.label(_('Name:') + '\xa0', for_=name_id)), E.td(E.input(type='text', name='name', id=name_id))),
         E.tr(E.td('\xa0'), E.td('\xa0')),
-        E.tr(E.td(_('URL:') + '\xa0'), E.td(E.input(type='url', name='url'))),
+        E.tr(E.td(E.label(_('URL:') + '\xa0', for_=url_id)),
+            E.td(E.input(type='url', name='url', id=url_id, aria_describedby=help_id))),
     )))
     container.append(E.div(style='margin: 1rem; display: flex',
         create_button(_('Add'), 'plus', add.bind(None, container_id), highlight=True),
@@ -79,8 +86,8 @@ def remove(container_id, num):
     actions = sd.get('word_actions', [])
     actions.splice(num, 1)
     sd.set('word_actions', actions)
-    toggle_custom_container(container_id, False)
     populate_list(container)
+    toggle_custom_container(container_id, False)
 
 
 def remove_custom(container_id):
@@ -96,6 +103,7 @@ def remove_custom(container_id):
         items.push(create_item(item.title, remove.bind(None, container_id, i)))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
+    container.querySelector('.item-primary-action').focus()
 
 
 def lookup_items(word, close_panel_func, container_id):

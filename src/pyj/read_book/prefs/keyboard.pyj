@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.item_list import create_item, create_item_list
+from book_list.item_list import create_item, create_item_list, focus_item_action_near
 from complete import create_search_bar
 from dom import clear, unique_id
 from read_book.shortcuts import (
@@ -50,7 +50,12 @@ def sc_as_item(sc_name, sc, shortcuts):
 
 def remove_key(evt):
     key_container = evt.currentTarget.parentNode.parentNode
+    focused = key_container.contains(document.activeElement)
+    neighbor = key_container.nextElementSibling or key_container.previousElementSibling
+    fallback = key_container.parentNode.nextSibling.querySelector('.calibre-push-button')
     key_container.parentNode.removeChild(key_container)
+    if focused:
+        (neighbor.querySelector('.calibre-push-button') if neighbor else fallback).focus()
 
 
 def key_widget(key):
@@ -67,10 +72,11 @@ def close_customize_shortcut(apply_changes):
     container.firstChild.nextSibling.style.display = 'block'
     container.lastChild.style.display = 'none'
     if close_customize_shortcut.shortcut_being_customized:
-        for item in container.firstChild.querySelectorAll('[data-user-data]'):
+        for item in container.firstChild.nextSibling.querySelectorAll('[data-user-data]'):
             q = JSON.parse(item.dataset.userData)
             if q.name is close_customize_shortcut.shortcut_being_customized:
-                item.scrollIntoView()
+                row_index = Array.prototype.indexOf.call(item.parentNode.children, item)
+                focus_item_action_near(item.parentNode, row_index, fallback=container.querySelector('input'), primary=True)
                 break
     if apply_changes:
         shortcuts = []
@@ -100,6 +106,7 @@ def add_key_widget():
         )),
         E.div(style='display:none',
             E.input(readonly='readonly',
+                aria_label=_('Press the key combination to use as a shortcut'),
                 value=_('Press the key combination to use as a shortcut'),
                 style='width: 90vw',
                 onkeydown=def (evt):
@@ -111,6 +118,7 @@ def add_key_widget():
                         div = document.getElementById(uid)
                         div.firstChild.style.display = 'block'
                         div.lastChild.style.display = 'none'
+                        div.firstChild.querySelector('.calibre-push-button').focus()
         ))
     )
 
@@ -144,6 +152,7 @@ def customize_shortcut(sc_name):
         E.span('\xa0'),
         create_button(_('Cancel'), action=close_customize_shortcut.bind(None, False)),
     ))
+    container.querySelector('.calibre-push-button').focus()
 
 
 def run_search():

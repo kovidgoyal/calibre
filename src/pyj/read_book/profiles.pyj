@@ -8,7 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list, create_side_action, focus_item_action_near
 from book_list.top_bar import create_top_bar
-from dom import clear, unique_id
+from dom import clear, create_live_region, set_live_region_text, unique_id
 from modals import question_dialog
 from read_book.globals import ui_operations
 from session import apply_reader_profile, settings_for_reader_profile
@@ -22,6 +22,7 @@ def save_profile(container_id, hide_panel):
     name = container.querySelector('[name=profile_name]').value
     sd = get_session_data()
     settings = settings_for_reader_profile(sd)
+    set_live_region_text(container.querySelector('.profile-save-status'), '', False)
     ui_operations.save_profile(name, settings, def ():
         container = document.getElementById(container_id)
         if container:
@@ -29,6 +30,9 @@ def save_profile(container_id, hide_panel):
             if r:
                 clear(r)
                 r.appendChild(E.div(E.i(_('Saved: ') + name), style='margin-top: 1rem; margin-bottom: 1rem'))
+                set_live_region_text(container.querySelector('.profile-save-status'), _('Saved: ') + name, True, def ():
+                    return bool(container.getClientRects().length)
+                )
                 load_profiles(container_id)
     )
 
@@ -100,10 +104,11 @@ def create_profiles_panel(container, hide_panel, on_change):
     c.addEventListener('close_panel', def (): hide_panel();, False)
     c.addEventListener('settings_changed', def (): on_change();, False)
     container_id = c.id
+    name_id = unique_id('profile-name')
     a = E.div(
         style='display:flex; flex-wrap: wrap; align-items: center; gap: 0.65rem',
-        E.label(_('Save current settings as profile:') + ' '), E.input(
-            name='profile_name', type='text', placeholder=_('Name of profile'), onkeydown=def (e):
+        E.label(_('Save current settings as profile:') + ' ', for_=name_id), E.input(
+            id=name_id, name='profile_name', type='text', placeholder=_('Name of profile'), onkeydown=def (e):
                 if e.key is 'Enter':
                     save_profile(container_id, hide_panel)
         ),
@@ -112,6 +117,9 @@ def create_profiles_panel(container, hide_panel, on_change):
     container.appendChild(c)
     c.appendChild(a)
     c.appendChild(E.div(class_='saved_msg'))
+    status = create_live_region()
+    status.classList.add('profile-save-status')
+    c.appendChild(status)
     c.appendChild(E.hr(style='margin-top: 1ex; margin-bottom: 1ex'))
     c.appendChild(E.div(class_='profiles_list_container'))
     load_profiles(container_id)

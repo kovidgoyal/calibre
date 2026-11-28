@@ -98,6 +98,7 @@ def restore_defaults():
 
 def create_user_stylesheet_panel(container, apply_func, cancel_func):
     sd = get_session_data()
+    help_id = unique_id('user-stylesheet-help')
     create_user_stylesheet_panel.container_id = ensure_id(container)
     container.appendChild(
         E.div(
@@ -112,6 +113,7 @@ def create_user_stylesheet_panel(container, apply_func, cancel_func):
             E.div(
                 style='flex-grow: 10; display: flex; flex-flow: column',
                 E.div(
+                    id=help_id,
                     _('A CSS style sheet that can be used to control the look and feel of the text. For examples, click'), ' ',
                     E.a(class_='blue-link', title=_('Examples of user style sheets'),
                         target=('_self' if runtime.is_standalone_viewer else '_blank'),
@@ -121,7 +123,8 @@ def create_user_stylesheet_panel(container, apply_func, cancel_func):
                         ' to target the Paged and Flow modes. Similarly, use body.calibre-viewer-light-colors and'
                         ' body.calibre-viewer-dark-colors to target light and dark color schemes.')
                 ),
-                E.textarea(name='user-stylesheet', style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10'),
+                E.textarea(name='user-stylesheet', aria_label=_('User style sheet'), aria_describedby=help_id,
+                    style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10'),
             )
         )
     )
