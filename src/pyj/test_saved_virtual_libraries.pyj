@@ -131,7 +131,7 @@ def choice_list_arrow_keys_work_when_choices_are_wrapped():
         li = E.span(role='radio', tabindex='-1', data_value=name)
         li.addEventListener('keydown', choice_keydown)
         group.appendChild(E.div(li))
-    group.on_choice_changed = def (li): changed.push(li.dataset.value);
+    group.on_choice_changed = def (li): changed.push(li.dataset.value)
     document.body.appendChild(group)
     try:
         radios = group.querySelectorAll('[role=radio]')
