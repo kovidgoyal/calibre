@@ -16,13 +16,15 @@ from widgets import create_button
 
 CLASS_NAME = 'comments-editor'
 TOOLBAR_CLASS = 'comments-editor-toolbar'
+TOGGLE_ACTIONS = ('bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript')
 
 add_extra_css(def ():
     sel = '.' + TOOLBAR_CLASS + ' '
     style = ''
     style += build_rule(sel, display='flex', flex_wrap='wrap', padding_top='0.25ex', padding_bottom='0.25ex')
-    sel += ' > div'
+    sel += ' > button.calibre-plain-button'
     style += build_rule(sel, padding='0.5ex', margin_right='0.5ex', cursor='pointer')
+    style += build_rule(sel + ':focus-visible', outline='2px solid ' + get_color('link-foreground'), outline_offset='-2px')
     style += build_rule(sel + ':hover', color='var(--calibre-color-primary)')
     style += build_rule(sel + '.activated', color=get_color('window-background'), background=get_color('window-foreground'))
     return style
@@ -480,12 +482,12 @@ class CommentsEditorBoss:
         self.comm.send_message('html', html=c.innerHTML, extra_data={'images': images, 'text': c.innerText})
 
     def exec_command(self, data):
+        self.focus()
         document.execCommand(data.name, False, data.value)
         self.update_state()
 
     def update_state(self):
-        state = {name: document.queryCommandState(name) for name in 'bold italic underline superscript subscript'.split(' ')}
-        state.strikethrough = document.queryCommandState('strikeThrough')
+        state = {name: document.queryCommandState(name) for name in TOGGLE_ACTIONS}
         self.comm.send_message('update_state', state=state)
 
 
@@ -575,17 +577,17 @@ class Editor:
 
     def exec_command(self, name, value=None):
         if self.ready:
+            self.iframe.contentWindow.focus()
             self.iframe_wrapper.send_message('exec_command', name=name, value=value)
 
     def update_state(self, data):
         c = self.iframe.closest('.' + CLASS_NAME)
         for name in Object.keys(data.state):
-            div = c.querySelector(f'.{TOOLBAR_CLASS} > [name="{name}"]')
-            if div:
-                if data.state[name]:
-                    div.classList.add('activated')
-                else:
-                    div.classList.remove('activated')
+            button = c.querySelector(f'.{TOOLBAR_CLASS} > [name="{name}"]')
+            if button:
+                pressed = bool(data.state[name])
+                button.classList.toggle('activated', pressed)
+                button.setAttribute('aria-pressed', 'true' if pressed else 'false')
 
 
 def create_editor(insert_image_files):
@@ -608,11 +610,15 @@ def action_activated(editor_id, ac_name, evt):
         return
     button = evt.currentTarget
     action.execute(editor, button.classList.contains('activated'))
-    editor.focus()
 
 
 def add_action(toolbar, ac_name, action, editor_id):
-    b = E.div(svgicon(action.icon), title=action.title, onclick=action_activated.bind(None, editor_id, ac_name), name=ac_name)
+    icon = svgicon(action.icon)
+    icon.setAttribute('aria-hidden', 'true')
+    b = E.button(icon, type='button', class_='calibre-plain-button', title=action.title, aria_label=action.title,
+        onclick=action_activated.bind(None, editor_id, ac_name), name=ac_name)
+    if ac_name in TOGGLE_ACTIONS:
+        b.setAttribute('aria-pressed', 'false')
     toolbar.appendChild(b)
 
 

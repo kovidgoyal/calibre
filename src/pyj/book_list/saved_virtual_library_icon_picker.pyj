@@ -10,6 +10,7 @@ from book_list.saved_virtual_libraries import (
 )
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, unique_id
+from widgets import choice_keydown
 
 
 # (emoji stored in session, short description for picker tooltip / a11y)
@@ -139,30 +140,34 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
     inp_id = unique_id('cs-vl-icon-custom')
 
     def sync_grid_only():
-        found = False
-        for btn in grid.querySelectorAll('button.cs-vl-icon-btn'):
+        buttons = grid.querySelectorAll('button.cs-vl-icon-btn')
+        previous = grid.querySelector('button[tabindex="0"]')
+        current = None
+        for btn in buttons:
             nm = btn.dataset.vlIcon
             on = nm is state.icon
             if on:
-                found = True
+                current = btn
                 btn.classList.add('cs-vl-icon-btn-selected')
             else:
                 btn.classList.remove('cs-vl-icon-btn-selected')
             btn.setAttribute('aria-checked', 'true' if on else 'false')
-        return found
+        tab_stop = current or previous or buttons[0]
+        for btn in buttons:
+            btn.tabIndex = 0 if btn is tab_stop else -1
+        return bool(current)
 
     def sync_from_input():
         raw = (custom_inp.value or '') + ''
         state.icon = normalize_saved_virtual_library_icon(raw)
         sync_grid_only()
 
-    def make_handler(stored_emoji):
-        def on_click(evt):
-            evt.preventDefault()
-            state.icon = stored_emoji
-            custom_inp.value = stored_emoji
-            sync_grid_only()
-        return on_click
+    def choose_icon(btn):
+        state.icon = btn.dataset.vlIcon
+        custom_inp.value = state.icon
+        sync_grid_only()
+
+    grid.on_choice_changed = choose_icon
 
     for emoji_char, label in SAVED_VIRTUAL_LIBRARY_ICON_CHOICES:
         btn = E.button(
@@ -174,7 +179,8 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
         btn.dataset.vlIcon = emoji_char
         btn.setAttribute('aria-label', label)
         btn.appendChild(E.span(emoji_char, class_='cs-vl-emoji'))
-        btn.addEventListener('click', make_handler(emoji_char))
+        btn.addEventListener('keydown', choice_keydown)
+        btn.addEventListener('click', def (ev): choose_icon(ev.currentTarget);)
         grid.appendChild(btn)
 
     custom_inp = E.input(
@@ -198,8 +204,9 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
     )
     help_span = E.span(
         _('You can pick a preset above or type your own (emoji, letter, etc.).'),
-        class_='cs-vl-icon-custom-hint',
+        class_='cs-vl-icon-custom-hint', id=unique_id('cs-vl-icon-help'),
     )
+    custom_inp.setAttribute('aria-describedby', help_span.id)
     custom_wrap.appendChild(help_span)
 
     if not sync_grid_only():

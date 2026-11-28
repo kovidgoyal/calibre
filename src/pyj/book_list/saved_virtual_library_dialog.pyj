@@ -9,7 +9,7 @@ from book_list.library_data import all_virtual_libraries
 from book_list.saved_virtual_libraries import DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, normalize_saved_virtual_library_icon, saved_virtual_library_item
 from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from book_list.theme import get_color
-from dom import add_extra_css, clear
+from dom import add_extra_css, clear, unique_id
 from modals import create_custom_dialog
 from widgets import create_button
 
@@ -227,10 +227,10 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
         list_div = E.div(class_='vl-import-list')
         for vl_name in vl_names:
             search = vls[vl_name]
-            cb = E.input(type='checkbox')
+            cb = E.input(type='checkbox', id=unique_id('vl-import'))
             cb.checked = True
             icon_btn = E.button(type='button', class_='vl-import-icon-btn',
-                title=_('Click to change icon'))
+                title=_('Click to change icon'), aria_label=_('Change icon for {}').format(vl_name))
             icon_btn.textContent = DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
             row_state = {'name': vl_name, 'search': search, 'checkbox': cb,
                          'icon': DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, 'icon_btn': icon_btn}
@@ -243,7 +243,7 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
             rows.push(row_state)
             list_div.appendChild(E.div(class_='vl-import-row',
                 cb,
-                E.span(vl_name, class_='vl-import-name', title=vl_name),
+                E.label(vl_name, for_=cb.id, class_='vl-import-name', title=vl_name),
                 E.div(class_='vl-import-icon-wrap',
                     E.span(_('Icon:'), class_='vl-import-icon-label'),
                     icon_btn,
@@ -272,14 +272,14 @@ def show_saved_virtual_library_dialog(
         title, save_label, on_save, library_id, virtual_library='', initial_name='', initial_search='',
         initial_icon=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, initial_use_icon=True, on_delete=None, save_icon='check'):
     create_custom_dialog(title, def (parent, close_modal):
-        name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Virtual library name'))
-        search_input = E.input(type='text', value=((initial_search or '') + ''), placeholder=_('Search expression'))
+        name_input = E.input(type='text', id=unique_id('vl-name'), value=((initial_name or '') + ''), placeholder=_('Virtual library name'))
+        search_input = E.input(type='text', id=unique_id('vl-search'), value=((initial_search or '') + ''), placeholder=_('Search expression'))
         icon_picker = create_saved_virtual_library_icon_picker((initial_icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + '')
-        use_icon_cb = E.input(type='checkbox')
+        use_icon_cb = E.input(type='checkbox', id=unique_id('vl-use-icon'))
         use_icon_cb.checked = initial_use_icon is not False
         icon_section = E.div(class_='vl-icon-section',
             E.div(class_='vl-row',
-                E.label(_('Icon'), class_='vl-label'),
+                E.span(_('Icon'), class_='vl-label'),
                 icon_picker.root
             ),
         )
@@ -304,16 +304,16 @@ def show_saved_virtual_library_dialog(
             show_import_virtual_libraries_dialog(library_id, on_save)
         dialog = E.div(class_='cs-virtual-library-dialog',
             E.div(class_='vl-row',
-                E.label(_('Virtual library name'), class_='vl-label'),
+                E.label(_('Virtual library name'), for_=name_input.id, class_='vl-label'),
                 name_input
             ),
             E.div(class_='vl-row',
-                E.label(_('Search expression'), class_='vl-label'),
+                E.label(_('Search expression'), for_=search_input.id, class_='vl-label'),
                 search_input
             ),
             E.div(class_='vl-checkbox-row',
                 use_icon_cb,
-                E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
+                E.label(_('Show icon in sidebar'), for_=use_icon_cb.id, style='margin-left:0.45rem'),
             ),
             use_icon_help,
             icon_section,
