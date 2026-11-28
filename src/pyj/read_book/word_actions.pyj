@@ -64,6 +64,7 @@ def add_custom(container_id):
           ' {1}').format('{word}', 'https://google.com/search?q={word}')
     ))
     do_add = add.bind(None, container_id)
+
     def on_submit(evt):
         evt.preventDefault()
         do_add()

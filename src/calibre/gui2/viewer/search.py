@@ -785,7 +785,10 @@ class SearchInput(QWidget):  # {{{
                 ans += f' [{x}]'
             return ans
 
-        for b, text in ((self.next_button, as_text(_('Find next match'), 'next_match')), (self.prev_button, as_text(_('Find previous match'), 'previous_match'))):
+        for b, text in (
+            (self.next_button, as_text(_('Find next match'), 'next_match')),
+            (self.prev_button, as_text(_('Find previous match'), 'previous_match')),
+        ):
             b.setToolTip(text)
             b.setAccessibleName(text)
 

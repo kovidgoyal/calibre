@@ -130,7 +130,7 @@ def add_key_widget():
                     if document.activeElement is not evt.currentTarget:
                         stop_recording(uid)
                 ,
-                onkeydown=def (evt):
+                onkeydown = def (evt):
                     evt.stopPropagation()
                     if evt.key is 'Tab' and not evt.ctrlKey and not evt.altKey and not evt.metaKey:
                         # Let Tab and Shift+Tab move focus out of the recorder
