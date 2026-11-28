@@ -766,6 +766,27 @@ Some limitations of PDF input are:
 To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
 output ranging anywhere from decent to unusable, depending on the input PDF.
 
+Converting PDF pages into images
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some PDFs, such as scanned books, have no text to extract, and for some others,
+such as books in right to left languages, or with complex layouts, extracting
+the text gives poor results. For these, you can set :guilabel:`PDF engine` to
+``images`` in the conversion settings under :guilabel:`PDF Input`. Then
+calibre does not extract any text, instead it turns every page of the PDF into
+an image, and makes a book in which every page shows the image of a page of the
+PDF, exactly as it looks in the PDF. The image of each page is scaled to fit the
+screen, so that no part of it is cut off. The text in the resulting book cannot
+be searched, selected or resized, but you can read it on devices and in apps
+that support EPUB, but not PDF, or that sync your reading position only for EPUB
+books.
+
+If the book is in a right to left language, such as Arabic, Hebrew or Persian,
+set its language in the metadata, so that its pages are turned from right to
+left. From the command line, you can do it with::
+
+    ebook-convert book.pdf book.epub --pdf-engine images --language ar
+
 Comic book collections
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -98,18 +98,25 @@ def read_info(outputdir: str, get_cover: bool) -> dict[str, str | bytes] | None:
     return ans
 
 
-def page_images(pdfpath: str, outputdir: str = '.', first: int = 1, last: int = 1, image_format: str = 'jpeg', prefix: str = 'page-images') -> None:
+def page_images(
+    pdfpath: str, outputdir: str = '.', first: int = 1, last: int | None = 1, image_format: str = 'jpeg', prefix: str = 'page-images', scale_to: int = 0
+) -> None:
+    """
+    Render pages first to last of the PDF as images. If last is None, render
+    all pages from first to the end. If scale_to is not zero, scale the images
+    so that their longer side is scale_to pixels.
+    """
     pdftoppm = get_tools()[1]
     outputdir = os.path.abspath(outputdir)
+    page_range = ['-f', str(first)] + ([] if last is None else ['-l', str(last)])
+    scale = ['-scale-to', str(scale_to)] if scale_to else []
     try:
         check_call(
             pdftoppm,
             '-cropbox',
             '-' + image_format,
-            '-f',
-            str(first),
-            '-l',
-            str(last),
+            *page_range,
+            *scale,
             pdfpath,
             os.path.join(outputdir, prefix),
         )

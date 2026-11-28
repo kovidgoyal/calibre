@@ -41,7 +41,11 @@ class PluginWidget(Widget, Ui_Form):
         return False
 
     def update_engine_opts(self) -> None:
-        enabled = self.opt_pdf_engine.currentText() == 'calibre'
+        engine = self.opt_pdf_engine.currentText()
+        # The images engine extracts no text or images, so these options do not apply to it
+        self.opt_no_images.setEnabled(engine != 'images')
+        self.opt_unwrap_factor.setEnabled(engine != 'images')
+        enabled = engine == 'calibre'
         self.opt_pdf_footer_skip.setEnabled(enabled)
         self.opt_pdf_header_skip.setEnabled(enabled)
         self.opt_pdf_header_regex.setEnabled(enabled)
