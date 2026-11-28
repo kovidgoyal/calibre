@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.item_list import create_item, create_item_list, focus_item_action_near
+from book_list.item_list import create_item, create_item_list, focus_item_action_near, is_visible
 from complete import create_search_bar
 from dom import clear, unique_id
 from read_book.shortcuts import (
@@ -52,10 +52,18 @@ def remove_key(evt):
     key_container = evt.currentTarget.parentNode.parentNode
     focused = key_container.contains(document.activeElement)
     neighbor = key_container.nextElementSibling or key_container.previousElementSibling
-    fallback = key_container.parentNode.nextSibling.querySelector('.calibre-push-button')
+    editor = key_container.parentNode.parentNode
     key_container.parentNode.removeChild(key_container)
     if focused:
-        (neighbor.querySelector('.calibre-push-button') if neighbor else fallback).focus()
+        if neighbor:
+            neighbor.querySelector('.calibre-push-button').focus()
+        else:
+            # The Add button is hidden while a key is being recorded, so
+            # use the first visible control after the now empty table
+            for x in editor.querySelectorAll('.calibre-push-button, input'):
+                if is_visible(x):
+                    x.focus()
+                    break
 
 
 def key_widget(key):
@@ -76,7 +84,8 @@ def close_customize_shortcut(apply_changes):
             q = JSON.parse(item.dataset.userData)
             if q.name is close_customize_shortcut.shortcut_being_customized:
                 row_index = Array.prototype.indexOf.call(item.parentNode.children, item)
-                focus_item_action_near(item.parentNode, row_index, fallback=container.querySelector('input'), primary=True)
+                if not focus_item_action_near(item.parentNode, row_index, fallback=container.querySelector('input'), primary=True):
+                    item.scrollIntoView()
                 break
     if apply_changes:
         shortcuts = []
@@ -94,6 +103,13 @@ def close_customize_shortcut(apply_changes):
         commit_keyboard(create_keyboard_panel.onchange, None)
 
 
+def stop_recording(uid):
+    div = document.getElementById(uid)
+    if div:
+        div.firstChild.style.display = 'block'
+        div.lastChild.style.display = 'none'
+
+
 def add_key_widget():
     uid = unique_id('add-new-shortcut')
     return E.div(style='margin-top: 1ex; margin-bottom: 1ex',
@@ -109,16 +125,22 @@ def add_key_widget():
                 aria_label=_('Press the key combination to use as a shortcut'),
                 value=_('Press the key combination to use as a shortcut'),
                 style='width: 90vw',
+                onblur=def (evt):
+                    # Stay in recording mode when the whole window loses focus
+                    if document.activeElement is not evt.currentTarget:
+                        stop_recording(uid)
+                ,
                 onkeydown=def (evt):
-                    evt.preventDefault()
                     evt.stopPropagation()
+                    if evt.key is 'Tab' and not evt.ctrlKey and not evt.altKey and not evt.metaKey:
+                        # Let Tab and Shift+Tab move focus out of the recorder
+                        return
+                    evt.preventDefault()
                     if evt.key not in ['Control', 'Meta', 'Alt', 'Shift']:
                         key_con = get_container().querySelector('.key-container')
                         key_con.appendChild(key_widget(evt))
-                        div = document.getElementById(uid)
-                        div.firstChild.style.display = 'block'
-                        div.lastChild.style.display = 'none'
-                        div.firstChild.querySelector('.calibre-push-button').focus()
+                        stop_recording(uid)
+                        document.getElementById(uid).firstChild.querySelector('.calibre-push-button').focus()
         ))
     )
 
@@ -146,13 +168,16 @@ def customize_shortcut(sc_name):
     key_con = container.appendChild(E.table(class_='key-container'))
     for key in shortcuts:
         key_con.appendChild(key_widget(key))
-    container.appendChild(E.div(style='margin-top:1ex;', add_key_widget()))
+    add_widget = add_key_widget()
+    container.appendChild(E.div(style='margin-top:1ex;', add_widget))
     container.appendChild(E.div(style='margin-top:1ex; display:flex; justify-content: flex-end',
         create_button(_('OK'), action=close_customize_shortcut.bind(None, True)),
         E.span('\xa0'),
         create_button(_('Cancel'), action=close_customize_shortcut.bind(None, False)),
     ))
-    container.querySelector('.calibre-push-button').focus()
+    # Focus Add rather than the first Remove button, so that a repeated Enter
+    # does not delete a binding
+    add_widget.querySelector('.calibre-push-button').focus()
 
 
 def run_search():

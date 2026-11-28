@@ -102,6 +102,41 @@ def shortcut_editor_keeps_focus_when_opening_recording_removing_and_closing():
 
 
 @test
+def shortcut_editor_focuses_add_and_lets_tab_leave_the_recorder():
+    def run(parent, sd):
+        create_keyboard_panel(parent, def (): pass;, def (): pass;, def (): pass;)
+        action = parent.querySelector('.item-primary-action')
+        click_focused(action)
+        editor = parent.firstChild.lastChild
+        add = button_named(editor, _('Add a new shortcut'))
+        # Opening the editor must not focus a Remove button
+        assert_true(document.activeElement is add)
+        count = editor.querySelectorAll('[data-shortcut]').length
+        click_focused(add)
+        input = editor.querySelector('input')
+        assert_true(document.activeElement is input)
+        ev = new window.KeyboardEvent('keydown', {'key': 'Tab', 'bubbles': True, 'cancelable': True})
+        input.dispatchEvent(ev)
+        assert_true(not ev.defaultPrevented)
+        assert_equal(editor.querySelectorAll('[data-shortcut]').length, count)
+        # Leaving the recorder shows the Add button again. The test page
+        # may not have window focus, so blur is not fired automatically.
+        button_named(editor, _('OK')).focus()
+        input.dispatchEvent(new window.FocusEvent('blur'))
+        assert_true(add.getClientRects().length > 0)
+        assert_true(input.getClientRects().length is 0)
+        # Removing the last row while the recorder was open must keep focus visible
+        click_focused(add)
+        while editor.querySelectorAll('[data-shortcut]').length:
+            click_focused(editor.querySelector('[data-shortcut] .calibre-push-button'))
+        assert_true(editor.contains(document.activeElement))
+        assert_true(document.activeElement.getClientRects().length > 0)
+        click_focused(button_named(editor, _('Cancel')))
+
+    with_settings(run)
+
+
+@test
 def profile_name_is_labelled_and_save_status_is_delayed_repeatable_and_cancellable():
     def run(parent, sd):
         previous_save, previous_get, previous_timer = ui_operations.save_profile, ui_operations.get_all_profiles, window.setTimeout
@@ -183,6 +218,22 @@ def custom_lookup_fields_have_labels_help_and_restore_the_list_focus():
         click_focused(button_named(parent.lastChild, 'Example'))
         assert_equal(sd.get('word_actions'), [])
         assert_equal(document.activeElement.textContent, _('Add a custom lookup'))
+
+    with_settings(run)
+
+
+@test
+def custom_lookup_form_submission_adds_once_without_navigating():
+    def run(parent, sd):
+        create_word_actions_panel(parent, 'word', def (): pass;)
+        click_focused(button_named(parent, _('Add a custom lookup')))
+        parent.querySelector('[name=name]').value = 'Example'
+        parent.querySelector('[name=url]').value = 'https://example.com/?q={word}'
+        form = parent.querySelector('form')
+        ev = new window.Event('submit', {'bubbles': True, 'cancelable': True})
+        form.dispatchEvent(ev)
+        assert_true(ev.defaultPrevented)
+        assert_equal(sd.get('word_actions'), [{'title': 'Example', 'url': 'https://example.com/?q={word}'}])
 
     with_settings(run)
 

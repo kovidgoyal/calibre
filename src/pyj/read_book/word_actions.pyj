@@ -64,14 +64,18 @@ def add_custom(container_id):
           ' {1}').format('{word}', 'https://google.com/search?q={word}')
     ))
     do_add = add.bind(None, container_id)
-    container.appendChild(E.form(E.button(style='display:none', onclick=do_add), E.table(style='margin: 1rem',
+    def on_submit(evt):
+        evt.preventDefault()
+        do_add()
+
+    container.appendChild(E.form(action='javascript: void(0)', onsubmit=on_submit, E.table(style='margin: 1rem',
         E.tr(E.td(E.label(_('Name:') + '\xa0', for_=name_id)), E.td(E.input(type='text', name='name', id=name_id))),
         E.tr(E.td('\xa0'), E.td('\xa0')),
         E.tr(E.td(E.label(_('URL:') + '\xa0', for_=url_id)),
             E.td(E.input(type='url', name='url', id=url_id, aria_describedby=help_id))),
-    )))
+    ), E.input(type='submit', style='display:none')))
     container.append(E.div(style='margin: 1rem; display: flex',
-        create_button(_('Add'), 'plus', add.bind(None, container_id), highlight=True),
+        create_button(_('Add'), 'plus', do_add, highlight=True),
         '\xa0',
         create_button(_('Cancel'), action=toggle_custom_container.bind(None, container_id, False)),
     ))
