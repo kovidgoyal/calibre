@@ -452,13 +452,18 @@ def choice_list_items(ul):
     return ul.querySelectorAll('[role=radio]')
 
 
+def choice_group(li):
+    # The radio group is not always a ul, and its choices may be wrapped
+    return li.closest('[role=radiogroup], ul')
+
+
 def current_choice(container):
     return container.querySelector('[role=radio][aria-checked=true]')
 
 
 def set_current_choice(li, focus):
     # Only the current choice is in the tab order, as for native radio buttons
-    for x in choice_list_items(li.parentElement):
+    for x in choice_list_items(choice_group(li)):
         is_current = x is li
         x.setAttribute('aria-checked', 'true' if is_current else 'false')
         x.setAttribute('tabindex', '0' if is_current else '-1')
@@ -468,7 +473,7 @@ def set_current_choice(li, focus):
 
 def choose(li, focus):
     set_current_choice(li, focus)
-    ul = li.parentElement
+    ul = choice_group(li)
     if ul.on_choice_changed:
         ul.on_choice_changed(li)
 
@@ -488,7 +493,7 @@ def choice_keydown(ev):
             ev.preventDefault(), ev.stopPropagation()
             form.requestSubmit()
         return
-    items = choice_list_items(li.parentElement)
+    items = choice_list_items(choice_group(li))
     idx = Array.prototype.indexOf.call(items, li)
     if ev.key is 'ArrowRight' or ev.key is 'ArrowDown':
         target = items[(idx + 1) % items.length]

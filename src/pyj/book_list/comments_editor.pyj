@@ -484,11 +484,14 @@ class CommentsEditorBoss:
     def exec_command(self, data):
         self.focus()
         document.execCommand(data.name, False, data.value)
-        self.update_state()
+        self.send_state(True)
 
     def update_state(self):
+        self.send_state(False)
+
+    def send_state(self, after_command):
         state = {name: document.queryCommandState(name) for name in TOGGLE_ACTIONS}
-        self.comm.send_message('update_state', state=state)
+        self.comm.send_message('update_state', state=state, after_command=after_command)
 
 
 registry = {}
@@ -526,6 +529,9 @@ class Editor:
         self.get_html_callbacks = []
         self.iframe_obj = iframe
         self.insert_image_files = v'!!insert_image_files'
+        # The toolbar button to return focus to after a command, when the
+        # command was started from the keyboard
+        self.button_to_refocus = None
 
     def init(self):
         self.iframe_wrapper.init()
@@ -581,6 +587,10 @@ class Editor:
             self.iframe_wrapper.send_message('exec_command', name=name, value=value)
 
     def update_state(self, data):
+        if data.after_command and self.button_to_refocus:
+            b, self.button_to_refocus = self.button_to_refocus, None
+            if b.isConnected:
+                b.focus()
         c = self.iframe.closest('.' + CLASS_NAME)
         for name in Object.keys(data.state):
             button = c.querySelector(f'.{TOOLBAR_CLASS} > [name="{name}"]')
@@ -609,6 +619,10 @@ def action_activated(editor_id, ac_name, evt):
     if not action:
         return
     button = evt.currentTarget
+    # A click with detail 0 comes from the keyboard, keep the focus on the
+    # toolbar so that the user can activate several buttons in a row.
+    # Mouse clicks do not focus the button, so the focus stays in the editor.
+    editor.button_to_refocus = button if evt.detail is 0 else None
     action.execute(editor, button.classList.contains('activated'))
 
 
@@ -616,7 +630,8 @@ def add_action(toolbar, ac_name, action, editor_id):
     icon = svgicon(action.icon)
     icon.setAttribute('aria-hidden', 'true')
     b = E.button(icon, type='button', class_='calibre-plain-button', title=action.title, aria_label=action.title,
-        onclick=action_activated.bind(None, editor_id, ac_name), name=ac_name)
+        onclick=action_activated.bind(None, editor_id, ac_name), name=ac_name,
+        onmousedown=def (evt): evt.preventDefault();)
     if ac_name in TOGGLE_ACTIONS:
         b.setAttribute('aria-pressed', 'false')
     toolbar.appendChild(b)
