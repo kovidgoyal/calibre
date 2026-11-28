@@ -74,7 +74,7 @@ add_extra_css(def ():
     style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'table.metadata tr:active td', transform='translateY(0.5px)')
     style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex', gap='0.4rem')
-    style += build_rule(sel + '.completions > div',
+    style += build_rule(sel + '.completions > button.calibre-plain-button',
         margin='0',
         padding='0.45ex 0.75rem',
         border='var(--calibre-border-style-subtle)',
@@ -82,10 +82,12 @@ add_extra_css(def ():
         cursor='pointer',
         user_select='none'
     )
-    style += build_rule(sel + '.completions > div:hover',
+    style += build_rule(sel + '.completions > button.calibre-plain-button:hover',
         background_color='var(--calibre-color-primary-light)',
         border='var(--calibre-border-style)'
     )
+    style += build_rule(sel + '.completions > button:focus-visible',
+        outline='2px solid ' + get_color('link-foreground'), outline_offset='-2px')
     style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
     style += build_rule(
         sel + '.rating-edit-container > li',
@@ -491,7 +493,11 @@ def show_completions(container_id, div, field, prefix, names):
         div.appendChild(E.div(_('Tap to add:')))
     div.appendChild(completions)
     for i, name in enumerate(names):
-        completions.appendChild(E.div(E.span(style='color: green', svgicon('plus'), '\xa0'), name, onclick=add_completion.bind(None, container_id, name)))
+        completions.appendChild(E.button(
+            E.span(style='color: green', aria_hidden='true', svgicon('plus'), '\xa0'),
+            name, type='button', class_='calibre-plain-button', aria_label=_('Add {}').format(name),
+            onclick=add_completion.bind(None, container_id, name)
+        ))
         if i >= 50:
             break
 
@@ -526,9 +532,10 @@ def update_removals(container_id):
     removals = E.div(class_='completions')
     div.appendChild(removals)
     for i, name in enumerate(val):
-        removals.appendChild(E.div(
-            E.span(style='color: ' + get_color('window-error-foreground'), svgicon('eraser'), '\xa0'),
-            name, onclick=remove_item.bind(None, container_id, name)
+        removals.appendChild(E.button(
+            E.span(style='color: ' + get_color('window-error-foreground'), aria_hidden='true', svgicon('eraser'), '\xa0'),
+            name, type='button', class_='calibre-plain-button', aria_label=_('Remove {}').format(name),
+            onclick=remove_item.bind(None, container_id, name)
         ))
         if i >= 50:
             break

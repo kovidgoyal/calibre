@@ -34,7 +34,7 @@ from calibre.utils.localization import _
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from qt.core import QAbstractItemModel, QHelpEvent, QMouseEvent, QPoint, QStyleOptionViewItem
+    from qt.core import QAbstractItemModel, QHelpEvent, QKeyEvent, QMouseEvent, QPoint, QStyleOptionViewItem
 
     from calibre.gui2.viewer import TOCNode
 
@@ -62,10 +62,13 @@ class Delegate(QStyledItemDelegate):
 
 class TOCView(QTreeView):
     searched = pyqtSignal(object)
+    chapter_activated = pyqtSignal(QModelIndex)
 
     def __init__(self, *args: QWidget | None) -> None:
         QTreeView.__init__(self, *args)
-        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        self.setAccessibleName(_('Table of Contents'))
+        self.clicked.connect(self.chapter_activated)
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
@@ -80,6 +83,18 @@ class TOCView(QTreeView):
         qapplication_or_fail().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
+
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
+        assert event is not None
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and not event.modifiers() & (
+            Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
+        ):
+            index = self.currentIndex()
+            if index.isValid():
+                event.accept()
+                self.chapter_activated.emit(index)
+                return
+        super().keyPressEvent(event)
 
     def viewportEvent(self, event: QEvent | None) -> bool:
         if hasattr(self, 'gesture_manager'):

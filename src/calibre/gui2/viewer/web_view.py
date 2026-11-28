@@ -928,7 +928,8 @@ class WebView(QWebEngineView):
 
     def highlight_action(self, uuid: str, which: str) -> None:
         self.execute_when_ready('highlight_action', uuid, which)
-        self.setFocus(Qt.FocusReason.OtherFocusReason)
+        if which != 'delete':
+            self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def generic_action(self, which: str, data: object) -> None:
         self.execute_when_ready('generic_action', which, data)
